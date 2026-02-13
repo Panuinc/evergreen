@@ -11,3 +11,8 @@ svg.lucide {
   height: 16px;
   stroke-width: 1.0px;
 }
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
