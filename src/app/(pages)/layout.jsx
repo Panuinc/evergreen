@@ -46,8 +46,11 @@ import {
   FlaskConical,
   TrendingDown,
   ScanLine,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
+import { useTheme } from "@/components/ThemeProvider";
 
 const menuData = [
   {
@@ -255,6 +258,7 @@ function AlertTriangle({ className }) {
 export default function PagesLayout({ children }) {
   const [activeMenu, setActiveMenu] = useState(menuData[0]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="flex flex-col items-center justify-start w-full h-full overflow-hidden">
@@ -266,6 +270,15 @@ export default function PagesLayout({ children }) {
           {" "}
         </div>
         <div className="flex flex-row items-center justify-end w-full h-full p-2 gap-2">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center justify-center aspect-square h-full p-2 gap-2 border-2 border-default rounded-full hover:bg-default transition-colors cursor-pointer"
+            title={
+              theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"
+            }
+          >
+            {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
           <div className="flex items-center justify-center aspect-square h-full p-2 gap-2 border-2 border-default rounded-full">
             1
           </div>
@@ -281,7 +294,9 @@ export default function PagesLayout({ children }) {
         </div>
       </div>
       <div className="flex flex-row items-center justify-center w-full min-h-0 flex-1 border-t-1 border-default">
-        <div className={`flex flex-row items-center justify-center min-h-0 h-full border-r-1 border-default transition-all duration-300 ${isCollapsed ? 'w-[15%]' : 'w-3/12'}`}>
+        <div
+          className={`flex flex-row items-center justify-center min-h-0 h-full border-r-1 border-default transition-all duration-300 ${isCollapsed ? "w-[15%]" : "w-3/12"}`}
+        >
           <div
             className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-r-1 border-default transition-all duration-300 ${isCollapsed ? "w-fit" : "w-6/12"}`}
           >
@@ -354,7 +369,9 @@ export default function PagesLayout({ children }) {
             </div>
           </div>
         </div>
-        <div className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 border-l-1 border-default overflow-hidden transition-all duration-300 ${isCollapsed ? 'w-[85%]' : 'w-9/12'}`}>
+        <div
+          className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 border-l-1 border-default overflow-hidden transition-all duration-300 ${isCollapsed ? "w-[85%]" : "w-9/12"}`}
+        >
           <div className="flex flex-row items-center justify-start w-full h-fit p-2 gap-2 border-b-2 border-default">
             <Breadcrumbs className="h-[18px]">
               <BreadcrumbItem>Home</BreadcrumbItem>
