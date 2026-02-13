@@ -48,8 +48,20 @@ import {
   ScanLine,
   Sun,
   Moon,
+  Bell,
+  MessageSquare,
+  ChevronDown,
 } from "lucide-react";
-import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
+import {
+  Breadcrumbs,
+  BreadcrumbItem,
+  Badge,
+  Avatar,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/react";
 import { useTheme } from "@/components/ThemeProvider";
 
 const menuData = [
@@ -269,28 +281,61 @@ export default function PagesLayout({ children }) {
         <div className="flex flex-row items-center justify-center w-full h-full p-2 gap-2">
           {" "}
         </div>
-        <div className="flex flex-row items-center justify-end w-full h-full p-2 gap-2">
+        <div className="flex flex-row items-center justify-end w-full h-full p-2 gap-3">
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="flex items-center justify-center aspect-square h-full p-2 gap-2 border-2 border-default rounded-full hover:bg-default transition-colors cursor-pointer"
+            className="flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer"
             title={
               theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"
             }
           >
-            {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+            {theme === "light" ? <Moon /> : <Sun />}
           </button>
-          <div className="flex items-center justify-center aspect-square h-full p-2 gap-2 border-2 border-default rounded-full">
-            1
-          </div>
-          <div className="flex items-center justify-center aspect-square h-full p-2 gap-2 border-2 border-default rounded-full">
-            2
-          </div>
-          <div className="flex items-center justify-center aspect-square h-full p-2 gap-2 border-2 border-default rounded-full">
-            3
-          </div>
-          <div className="flex items-center justify-center w-40 h-full p-2 gap-2 border-2 border-default rounded-full">
-            Name + Avatar
-          </div>
+
+          {/* Notifications */}
+          <button className="relative flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
+            <Bell />
+            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-danger text-background rounded-full px-1">
+              3
+            </span>
+          </button>
+
+          {/* Messages */}
+          <button className="relative flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
+            <MessageSquare />
+            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-primary text-background rounded-full px-1">
+              5
+            </span>
+          </button>
+
+          {/* Settings */}
+          <button className="flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
+            <Settings />
+          </button>
+
+          {/* User Profile */}
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <button className="flex items-center gap-2 h-9 pl-1 pr-3 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
+                <Avatar
+                  size="md"
+                  src="https://i.pravatar.cc/150?u=user"
+                  className="w-7 h-7"
+                />
+                <span className="text-xs font-medium">John Doe</span>
+                <ChevronDown />
+              </button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="User Actions">
+              <DropdownItem key="profile">My Profile</DropdownItem>
+              <DropdownItem key="settings">Settings</DropdownItem>
+              <DropdownItem key="help">Help & Support</DropdownItem>
+              <DropdownItem key="logout" className="text-danger" color="danger">
+                Logout
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </div>
       </div>
       <div className="flex flex-row items-center justify-center w-full min-h-0 flex-1 border-t-1 border-default">
