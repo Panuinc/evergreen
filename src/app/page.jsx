@@ -7,14 +7,14 @@ import React from "react";
 export default function page() {
   return (
     <div className="flex flex-row items-center justify-center w-full h-full">
-      <div className="flex flex-col items-center justify-center w-full xl:w-4/12 h-full p-2 gap-2 border-r-[0.5px] border-default">
+      <div className="flex flex-col items-center justify-center w-full xl:w-4/12 h-full p-2 gap-2 border-r-1 border-default">
         <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 text-[16px] font-semibold">
           <Image
             src="/logo/logo-01.png"
             width={50}
             height={50}
             alt="true"
-            className="border-1 border-default/25 rounded-full"
+            className="border-1 border-default rounded-full"
           />
           Welcome back
         </div>
@@ -64,7 +64,7 @@ export default function page() {
           Privacy Policy.
         </div>
       </div>
-      <div className="xl:flex hidden flex-col items-center justify-center w-full xl:w-8/12 h-full p-2 gap-2 border-l-[0.5px] border-default">
+      <div className="xl:flex hidden flex-col items-center justify-center w-full xl:w-8/12 h-full p-2 gap-2 border-l-1 border-default">
         <div className="flex items-center justify-start w-6/12 h-fit p-2 gap-2">
           <svg
             width="25"
