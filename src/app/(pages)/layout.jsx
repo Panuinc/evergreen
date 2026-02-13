@@ -234,12 +234,10 @@ const menuData = [
   },
 ];
 
-function AlertTriangle({ className, size = 18 }) {
+function AlertTriangle({ className }) {
   return (
     <svg
       className={className}
-      width={size}
-      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -256,6 +254,7 @@ function AlertTriangle({ className, size = 18 }) {
 
 export default function PagesLayout({ children }) {
   const [activeMenu, setActiveMenu] = useState(menuData[0]);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <div className="flex flex-col items-center justify-start w-full h-full overflow-hidden">
@@ -282,10 +281,15 @@ export default function PagesLayout({ children }) {
         </div>
       </div>
       <div className="flex flex-row items-center justify-center w-full min-h-0 flex-1 border-t-1 border-default">
-        <div className="flex flex-row items-center justify-center w-3/12 min-h-0 h-full border-r-1 border-default">
-          <div className="flex flex-col items-center justify-center w-6/12 min-h-0 h-full gap-2 border-r-1 border-default">
-            <div className="flex items-center justify-start w-full h-fit p-2 gap-2 border-b-2 border-default">
-              <LayoutDashboard /> Dashboard
+        <div className={`flex flex-row items-center justify-center min-h-0 h-full border-r-1 border-default transition-all duration-300 ${isCollapsed ? 'w-2/12' : 'w-3/12'}`}>
+          <div
+            className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-r-1 border-default transition-all duration-300 ${isCollapsed ? "w-fit" : "w-6/12"}`}
+          >
+            <div
+              className={`flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-b-2 border-default ${isCollapsed ? "justify-center" : ""}`}
+            >
+              <LayoutDashboard />
+              {!isCollapsed && "Dashboard"}
             </div>
             <div className="flex flex-col items-center justify-start w-full h-full p-2 gap-2 overflow-auto">
               {menuData.map((menu) => {
@@ -295,31 +299,38 @@ export default function PagesLayout({ children }) {
                   <div
                     key={menu.id}
                     onClick={() => setActiveMenu(menu)}
-                    className={`flex flex-row items-center justify-start w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
-                      isActive
-                        ? "bg-default"
-                        : "hover:bg-default"
-                    }`}
+                    className={`flex flex-row items-center w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
+                      isCollapsed ? "justify-center" : "justify-start"
+                    } ${isActive ? "bg-default" : "hover:bg-default"}`}
                   >
                     <div className="flex items-center justify-center w-fit h-full gap-2">
                       <Icon className={isActive ? "" : ""} />
                     </div>
-                    <div className="flex items-center justify-start w-full h-full gap-2">
-                      {menu.name}
-                    </div>
+                    {!isCollapsed && (
+                      <div className="flex items-center justify-start w-full h-full gap-2">
+                        {menu.name}
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
-            <div className="flex items-center justify-start w-full h-fit p-2 gap-2 border-t-2 border-default">
-              <FoldHorizontal /> Collapse Menu
+            <div
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer"
+            >
+              <FoldHorizontal className={isCollapsed ? "rotate-180" : ""} />
+              {!isCollapsed && "Collapse Menu"}
             </div>
-            <div className="flex items-center justify-start w-full h-fit p-2 gap-2 border-t-2 border-default">
-              <Key /> Logout
+            <div className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default">
+              <Key />
+              {!isCollapsed && "Logout"}
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center w-6/12 min-h-0 h-full gap-2 border-l-1 border-default">
+          <div
+            className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-l-1 border-default transition-all duration-300 ${isCollapsed ? "flex-1" : "w-6/12"}`}
+          >
             <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b-2 border-default">
               {activeMenu.name}
             </div>
@@ -343,9 +354,9 @@ export default function PagesLayout({ children }) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-center justify-start w-9/12 min-h-0 h-full gap-2 border-l-1 border-default overflow-hidden">
+        <div className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 border-l-1 border-default overflow-hidden transition-all duration-300 ${isCollapsed ? 'w-10/12' : 'w-9/12'}`}>
           <div className="flex flex-row items-center justify-start w-full h-fit p-2 gap-2 border-b-2 border-default">
-            <Breadcrumbs className="h-[21px]">
+            <Breadcrumbs className="h-[18px]">
               <BreadcrumbItem>Home</BreadcrumbItem>
               <BreadcrumbItem>Music</BreadcrumbItem>
               <BreadcrumbItem>Artist</BreadcrumbItem>
