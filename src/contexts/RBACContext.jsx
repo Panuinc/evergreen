@@ -26,7 +26,7 @@ export function RBACProvider({ children }) {
         const permStrings = data
           .map((d) => d.permission)
           .filter((p) => p !== "__superadmin__");
-        const superAdmin = data.some((d) => d.is_superadmin);
+        const superAdmin = data.some((d) => d.isSuperadmin);
         setPermissions(permStrings);
         setIsSuperAdmin(superAdmin);
       } catch (error) {
@@ -73,7 +73,7 @@ export function RBACProvider({ children }) {
       const permStrings = data
         .map((d) => d.permission)
         .filter((p) => p !== "__superadmin__");
-      const superAdmin = data.some((d) => d.is_superadmin);
+      const superAdmin = data.some((d) => d.isSuperadmin);
       setPermissions(permStrings);
       setIsSuperAdmin(superAdmin);
     } catch (error) {

@@ -40,9 +40,9 @@ export default function RolesPage() {
   const [loading, setLoading] = useState(true);
   const [editingRole, setEditingRole] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    is_superadmin: false,
+    roleName: "",
+    roleDescription: "",
+    roleIsSuperadmin: false,
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -73,26 +73,26 @@ export default function RolesPage() {
     if (role) {
       setEditingRole(role);
       setFormData({
-        name: role.name,
-        description: role.description || "",
-        is_superadmin: role.is_superadmin || false,
+        roleName: role.roleName,
+        roleDescription: role.roleDescription || "",
+        roleIsSuperadmin: role.roleIsSuperadmin || false,
       });
     } else {
       setEditingRole(null);
-      setFormData({ name: "", description: "", is_superadmin: false });
+      setFormData({ roleName: "", roleDescription: "", roleIsSuperadmin: false });
     }
     onOpen();
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) {
+    if (!formData.roleName.trim()) {
       toast.error("Role name is required");
       return;
     }
 
     try {
       if (editingRole) {
-        await updateRole(editingRole.id, formData);
+        await updateRole(editingRole.roleId, formData);
         toast.success("Role updated");
       } else {
         await createRole(formData);
@@ -106,13 +106,13 @@ export default function RolesPage() {
   };
 
   const handleDelete = async (role) => {
-    if (role.is_superadmin) {
+    if (role.roleIsSuperadmin) {
       toast.error("Cannot delete superadmin role");
       return;
     }
 
     try {
-      await deleteRole(role.id);
+      await deleteRole(role.roleId);
       toast.success("Role deleted");
       loadRoles();
     } catch (error) {
@@ -128,10 +128,10 @@ export default function RolesPage() {
     try {
       const [perms, rolePerm] = await Promise.all([
         getPermissions(),
-        getRolePermissions(role.id),
+        getRolePermissions(role.roleId),
       ]);
       setAllPermissions(perms);
-      setRolePermIds(rolePerm.map((rp) => rp.permission_id));
+      setRolePermIds(rolePerm.map((rp) => rp.rolePermissionPermissionId));
     } catch (error) {
       toast.error("Failed to load permissions");
     } finally {
@@ -144,11 +144,11 @@ export default function RolesPage() {
 
     try {
       if (rolePermIds.includes(permissionId)) {
-        await removePermissionFromRole(selectedRole.id, permissionId);
+        await removePermissionFromRole(selectedRole.roleId, permissionId);
         setRolePermIds((prev) => prev.filter((id) => id !== permissionId));
         toast.success("Permission removed");
       } else {
-        await assignPermissionToRole(selectedRole.id, permissionId);
+        await assignPermissionToRole(selectedRole.roleId, permissionId);
         setRolePermIds((prev) => [...prev, permissionId]);
         toast.success("Permission assigned");
       }
@@ -159,7 +159,7 @@ export default function RolesPage() {
 
   // Group permissions by resource for display
   const groupedPermissions = allPermissions.reduce((acc, perm) => {
-    const resourceName = perm.resources?.name || "Unknown";
+    const resourceName = perm.resources?.resourceName || "Unknown";
     if (!acc[resourceName]) acc[resourceName] = [];
     acc[resourceName].push(perm);
     return acc;
@@ -195,13 +195,13 @@ export default function RolesPage() {
           emptyContent="No roles found"
         >
           {roles.map((role) => (
-            <TableRow key={role.id}>
-              <TableCell className="font-medium">{role.name}</TableCell>
+            <TableRow key={role.roleId}>
+              <TableCell className="font-medium">{role.roleName}</TableCell>
               <TableCell className="text-default-500">
-                {role.description || "-"}
+                {role.roleDescription || "-"}
               </TableCell>
               <TableCell>
-                {role.is_superadmin ? (
+                {role.roleIsSuperadmin ? (
                   <Chip color="danger" variant="flat" size="sm">
                     Superadmin
                   </Chip>
@@ -211,8 +211,8 @@ export default function RolesPage() {
                   </Chip>
                 )}
               </TableCell>
-              <TableCell>{role.user_roles?.[0]?.count ?? 0}</TableCell>
-              <TableCell>{role.role_permissions?.[0]?.count ?? 0}</TableCell>
+              <TableCell>{role.userRoles?.[0]?.count ?? 0}</TableCell>
+              <TableCell>{role.rolePermissions?.[0]?.count ?? 0}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
                   <Button
@@ -238,7 +238,7 @@ export default function RolesPage() {
                     size="sm"
                     color="danger"
                     onPress={() => handleDelete(role)}
-                    isDisabled={role.is_superadmin}
+                    isDisabled={role.roleIsSuperadmin}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -259,25 +259,25 @@ export default function RolesPage() {
             <Input
               label="Name"
               placeholder="e.g. hr_manager"
-              value={formData.name}
+              value={formData.roleName}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, roleName: e.target.value })
               }
               variant="bordered"
             />
             <Textarea
               label="Description"
               placeholder="Describe this role..."
-              value={formData.description}
+              value={formData.roleDescription}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({ ...formData, roleDescription: e.target.value })
               }
               variant="bordered"
             />
             <Switch
-              isSelected={formData.is_superadmin}
+              isSelected={formData.roleIsSuperadmin}
               onValueChange={(val) =>
-                setFormData({ ...formData, is_superadmin: val })
+                setFormData({ ...formData, roleIsSuperadmin: val })
               }
             >
               Superadmin (bypass all permission checks)
@@ -303,7 +303,7 @@ export default function RolesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            Permissions for &ldquo;{selectedRole?.name}&rdquo;
+            Permissions for &ldquo;{selectedRole?.roleName}&rdquo;
           </ModalHeader>
           <ModalBody>
             {permLoading ? (
@@ -319,12 +319,12 @@ export default function RolesPage() {
                       <div className="flex flex-wrap gap-2">
                         {perms.map((perm) => (
                           <Checkbox
-                            key={perm.id}
-                            isSelected={rolePermIds.includes(perm.id)}
-                            onValueChange={() => togglePermission(perm.id)}
+                            key={perm.permissionId}
+                            isSelected={rolePermIds.includes(perm.permissionId)}
+                            onValueChange={() => togglePermission(perm.permissionId)}
                             size="sm"
                           >
-                            {perm.actions?.name}
+                            {perm.actions?.actionName}
                           </Checkbox>
                         ))}
                       </div>

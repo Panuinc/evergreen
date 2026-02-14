@@ -1,5 +1,5 @@
 -- =====================================================
--- EverGreen Internal - RBAC Schema
+-- EverGreen Internal - RBAC Schema (prefixed camelCase)
 -- รันคำสั่งนี้ใน Supabase SQL Editor
 -- =====================================================
 
@@ -7,91 +7,95 @@
 -- Table: resources
 -- =====================================================
 create table if not exists resources (
-    id uuid default gen_random_uuid() primary key,
-    name text not null unique,
-    module_id text,
-    description text,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+    "resourceId" uuid default gen_random_uuid() primary key,
+    "resourceName" text not null unique,
+    "resourceModuleId" text,
+    "resourceDescription" text,
+    "resourceCreatedAt" timestamp with time zone default timezone('utc'::text, now()) not null,
+    "resourceUpdatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- =====================================================
 -- Table: actions
 -- =====================================================
 create table if not exists actions (
-    id uuid default gen_random_uuid() primary key,
-    name text not null unique,
-    description text,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+    "actionId" uuid default gen_random_uuid() primary key,
+    "actionName" text not null unique,
+    "actionDescription" text,
+    "actionCreatedAt" timestamp with time zone default timezone('utc'::text, now()) not null,
+    "actionUpdatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- =====================================================
 -- Table: roles
 -- =====================================================
 create table if not exists roles (
-    id uuid default gen_random_uuid() primary key,
-    name text not null unique,
-    description text,
-    is_superadmin boolean default false,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+    "roleId" uuid default gen_random_uuid() primary key,
+    "roleName" text not null unique,
+    "roleDescription" text,
+    "roleIsSuperadmin" boolean default false,
+    "roleCreatedAt" timestamp with time zone default timezone('utc'::text, now()) not null,
+    "roleUpdatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- =====================================================
 -- Table: permissions (resource + action pair)
 -- =====================================================
 create table if not exists permissions (
-    id uuid default gen_random_uuid() primary key,
-    resource_id uuid not null references resources(id) on delete cascade,
-    action_id uuid not null references actions(id) on delete cascade,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    unique(resource_id, action_id)
+    "permissionId" uuid default gen_random_uuid() primary key,
+    "permissionResourceId" uuid not null references resources("resourceId") on delete cascade,
+    "permissionActionId" uuid not null references actions("actionId") on delete cascade,
+    "permissionCreatedAt" timestamp with time zone default timezone('utc'::text, now()) not null,
+    unique("permissionResourceId", "permissionActionId")
 );
 
 -- =====================================================
--- Table: role_permissions
+-- Table: rolePermissions
 -- =====================================================
-create table if not exists role_permissions (
-    id uuid default gen_random_uuid() primary key,
-    role_id uuid not null references roles(id) on delete cascade,
-    permission_id uuid not null references permissions(id) on delete cascade,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    unique(role_id, permission_id)
+create table if not exists "rolePermissions" (
+    "rolePermissionId" uuid default gen_random_uuid() primary key,
+    "rolePermissionRoleId" uuid not null references roles("roleId") on delete cascade,
+    "rolePermissionPermissionId" uuid not null references permissions("permissionId") on delete cascade,
+    "rolePermissionCreatedAt" timestamp with time zone default timezone('utc'::text, now()) not null,
+    unique("rolePermissionRoleId", "rolePermissionPermissionId")
 );
 
 -- =====================================================
--- Table: user_roles
+-- Table: userRoles
 -- =====================================================
-create table if not exists user_roles (
-    id uuid default gen_random_uuid() primary key,
-    user_id uuid not null references auth.users(id) on delete cascade,
-    role_id uuid not null references roles(id) on delete cascade,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    unique(user_id, role_id)
+create table if not exists "userRoles" (
+    "userRoleId" uuid default gen_random_uuid() primary key,
+    "userRoleUserId" uuid not null references auth.users(id) on delete cascade,
+    "userRoleRoleId" uuid not null references roles("roleId") on delete cascade,
+    "userRoleCreatedAt" timestamp with time zone default timezone('utc'::text, now()) not null,
+    unique("userRoleUserId", "userRoleRoleId")
 );
 
 -- =====================================================
--- Table: access_logs
+-- Table: accessLogs
 -- =====================================================
-create table if not exists access_logs (
-    id uuid default gen_random_uuid() primary key,
-    user_id uuid references auth.users(id),
-    resource text not null,
-    action text not null,
-    granted boolean not null,
-    metadata jsonb,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null
+create table if not exists "accessLogs" (
+    "accessLogId" uuid default gen_random_uuid() primary key,
+    "accessLogUserId" uuid references auth.users(id),
+    "accessLogResource" text not null,
+    "accessLogAction" text not null,
+    "accessLogGranted" boolean not null,
+    "accessLogMetadata" jsonb,
+    "accessLogCreatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- =====================================================
--- View: user_profiles (เพื่อ query auth.users จาก client)
+-- View: userProfiles (เพื่อ query auth.users จาก client)
 -- =====================================================
-create or replace view public.user_profiles as
-select id, email, raw_user_meta_data, created_at
+create or replace view public."userProfiles" as
+select
+    id as "userProfileId",
+    email as "userProfileEmail",
+    raw_user_meta_data as "userProfileRawUserMetaData",
+    created_at as "userProfileCreatedAt"
 from auth.users;
 
-grant select on public.user_profiles to authenticated;
+grant select on public."userProfiles" to authenticated;
 
 -- =====================================================
 -- Enable Row Level Security
@@ -100,112 +104,127 @@ alter table resources enable row level security;
 alter table actions enable row level security;
 alter table roles enable row level security;
 alter table permissions enable row level security;
-alter table role_permissions enable row level security;
-alter table user_roles enable row level security;
-alter table access_logs enable row level security;
+alter table "rolePermissions" enable row level security;
+alter table "userRoles" enable row level security;
+alter table "accessLogs" enable row level security;
 
 -- =====================================================
 -- RLS Policies
 -- =====================================================
 
--- Resources: read by all authenticated
 create policy "Authenticated can read resources" on resources
     for select using (auth.role() = 'authenticated');
 create policy "Authenticated can manage resources" on resources
     for all using (auth.role() = 'authenticated');
 
--- Actions: read by all authenticated
 create policy "Authenticated can read actions" on actions
     for select using (auth.role() = 'authenticated');
 create policy "Authenticated can manage actions" on actions
     for all using (auth.role() = 'authenticated');
 
--- Roles: read by all authenticated
 create policy "Authenticated can read roles" on roles
     for select using (auth.role() = 'authenticated');
 create policy "Authenticated can manage roles" on roles
     for all using (auth.role() = 'authenticated');
 
--- Permissions: read by all authenticated
 create policy "Authenticated can read permissions" on permissions
     for select using (auth.role() = 'authenticated');
 create policy "Authenticated can manage permissions" on permissions
     for all using (auth.role() = 'authenticated');
 
--- Role Permissions: read by all authenticated
-create policy "Authenticated can read role_permissions" on role_permissions
+create policy "Authenticated can read rolePermissions" on "rolePermissions"
     for select using (auth.role() = 'authenticated');
-create policy "Authenticated can manage role_permissions" on role_permissions
+create policy "Authenticated can manage rolePermissions" on "rolePermissions"
     for all using (auth.role() = 'authenticated');
 
--- User Roles: read by all authenticated
-create policy "Authenticated can read user_roles" on user_roles
+create policy "Authenticated can read userRoles" on "userRoles"
     for select using (auth.role() = 'authenticated');
-create policy "Authenticated can manage user_roles" on user_roles
+create policy "Authenticated can manage userRoles" on "userRoles"
     for all using (auth.role() = 'authenticated');
 
--- Access Logs: insert by authenticated, read by authenticated
-create policy "Authenticated can read access_logs" on access_logs
+create policy "Authenticated can read accessLogs" on "accessLogs"
     for select using (auth.role() = 'authenticated');
-create policy "Authenticated can insert access_logs" on access_logs
+create policy "Authenticated can insert accessLogs" on "accessLogs"
     for insert with check (auth.role() = 'authenticated');
 
 -- =====================================================
--- Triggers for updated_at (reuse existing function)
+-- Triggers for updatedAt
 -- =====================================================
+create or replace function update_resource_updated_at()
+returns trigger as $$
+begin
+    new."resourceUpdatedAt" = timezone('utc'::text, now());
+    return new;
+end;
+$$ language plpgsql;
+
+create or replace function update_action_updated_at()
+returns trigger as $$
+begin
+    new."actionUpdatedAt" = timezone('utc'::text, now());
+    return new;
+end;
+$$ language plpgsql;
+
+create or replace function update_role_updated_at()
+returns trigger as $$
+begin
+    new."roleUpdatedAt" = timezone('utc'::text, now());
+    return new;
+end;
+$$ language plpgsql;
+
 drop trigger if exists update_resources_updated_at on resources;
 create trigger update_resources_updated_at
     before update on resources
-    for each row execute function update_updated_at_column();
+    for each row execute function update_resource_updated_at();
 
 drop trigger if exists update_actions_updated_at on actions;
 create trigger update_actions_updated_at
     before update on actions
-    for each row execute function update_updated_at_column();
+    for each row execute function update_action_updated_at();
 
 drop trigger if exists update_roles_updated_at on roles;
 create trigger update_roles_updated_at
     before update on roles
-    for each row execute function update_updated_at_column();
+    for each row execute function update_role_updated_at();
 
 -- =====================================================
 -- Function: get_user_permissions
--- Returns permissions as "resource:action" strings
 -- =====================================================
 create or replace function public.get_user_permissions(p_user_id uuid)
-returns table(permission text, is_superadmin boolean) as $$
+returns table(permission text, "isSuperadmin" boolean) as $$
 begin
-    -- Return superadmin flag even if no specific permissions
     if exists (
-        select 1 from user_roles ur
-        join roles r on r.id = ur.role_id
-        where ur.user_id = p_user_id and r.is_superadmin = true
+        select 1 from "userRoles" ur
+        join roles r on r."roleId" = ur."userRoleRoleId"
+        where ur."userRoleUserId" = p_user_id and r."roleIsSuperadmin" = true
     ) then
         return query
         select
-            coalesce(res.name || ':' || act.name, '__superadmin__') as permission,
-            true as is_superadmin
-        from user_roles ur
-        join roles r on r.id = ur.role_id
-        left join role_permissions rp on rp.role_id = ur.role_id
-        left join permissions p on p.id = rp.permission_id
-        left join resources res on res.id = p.resource_id
-        left join actions act on act.id = p.action_id
-        where ur.user_id = p_user_id;
+            coalesce(res."resourceName" || ':' || act."actionName", '__superadmin__') as permission,
+            true as "isSuperadmin"
+        from "userRoles" ur
+        join roles r on r."roleId" = ur."userRoleRoleId"
+        left join "rolePermissions" rp on rp."rolePermissionRoleId" = ur."userRoleRoleId"
+        left join permissions p on p."permissionId" = rp."rolePermissionPermissionId"
+        left join resources res on res."resourceId" = p."permissionResourceId"
+        left join actions act on act."actionId" = p."permissionActionId"
+        where ur."userRoleUserId" = p_user_id;
         return;
     end if;
 
     return query
     select distinct
-        res.name || ':' || act.name as permission,
-        false as is_superadmin
-    from user_roles ur
-    join roles r on r.id = ur.role_id
-    join role_permissions rp on rp.role_id = ur.role_id
-    join permissions p on p.id = rp.permission_id
-    join resources res on res.id = p.resource_id
-    join actions act on act.id = p.action_id
-    where ur.user_id = p_user_id;
+        res."resourceName" || ':' || act."actionName" as permission,
+        false as "isSuperadmin"
+    from "userRoles" ur
+    join roles r on r."roleId" = ur."userRoleRoleId"
+    join "rolePermissions" rp on rp."rolePermissionRoleId" = ur."userRoleRoleId"
+    join permissions p on p."permissionId" = rp."rolePermissionPermissionId"
+    join resources res on res."resourceId" = p."permissionResourceId"
+    join actions act on act."actionId" = p."permissionActionId"
+    where ur."userRoleUserId" = p_user_id;
 end;
 $$ language plpgsql security definer;
 
@@ -213,16 +232,14 @@ $$ language plpgsql security definer;
 -- Seed Data
 -- =====================================================
 
--- Default actions
-insert into actions (name, description) values
+insert into actions ("actionName", "actionDescription") values
     ('create', 'Create new records'),
     ('read', 'View/read records'),
     ('update', 'Edit/update records'),
     ('delete', 'Delete records')
-on conflict (name) do nothing;
+on conflict ("actionName") do nothing;
 
--- Resources for each module
-insert into resources (name, module_id, description) values
+insert into resources ("resourceName", "resourceModuleId", "resourceDescription") values
     ('overview', 'overview', 'Overview & Dashboard'),
     ('hr', 'hr', 'Human Resources'),
     ('it', 'it', 'Information Technology'),
@@ -239,24 +256,21 @@ insert into resources (name, module_id, description) values
     ('warehouse', 'warehouse', 'Warehouse'),
     ('legal', 'legal', 'Legal & Compliance'),
     ('rbac', 'rbac', 'Access Control')
-on conflict (name) do nothing;
+on conflict ("resourceName") do nothing;
 
--- Superadmin role
-insert into roles (name, description, is_superadmin) values
+insert into roles ("roleName", "roleDescription", "roleIsSuperadmin") values
     ('superadmin', 'Super Administrator - Full access to all modules', true)
-on conflict (name) do nothing;
+on conflict ("roleName") do nothing;
 
--- Generate all permissions (every resource x every action)
-insert into permissions (resource_id, action_id)
-select r.id, a.id
+insert into permissions ("permissionResourceId", "permissionActionId")
+select r."resourceId", a."actionId"
 from resources r
 cross join actions a
-on conflict (resource_id, action_id) do nothing;
+on conflict ("permissionResourceId", "permissionActionId") do nothing;
 
--- Assign all permissions to superadmin role
-insert into role_permissions (role_id, permission_id)
+insert into "rolePermissions" ("rolePermissionRoleId", "rolePermissionPermissionId")
 select
-    (select id from roles where name = 'superadmin'),
-    p.id
+    (select "roleId" from roles where "roleName" = 'superadmin'),
+    p."permissionId"
 from permissions p
-on conflict (role_id, permission_id) do nothing;
+on conflict ("rolePermissionRoleId", "rolePermissionPermissionId") do nothing;

@@ -31,9 +31,9 @@ export default function ResourcesPage() {
   const [loading, setLoading] = useState(true);
   const [editingResource, setEditingResource] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    module_id: "",
-    description: "",
+    resourceName: "",
+    resourceModuleId: "",
+    resourceDescription: "",
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -57,26 +57,26 @@ export default function ResourcesPage() {
     if (resource) {
       setEditingResource(resource);
       setFormData({
-        name: resource.name,
-        module_id: resource.module_id || "",
-        description: resource.description || "",
+        resourceName: resource.resourceName,
+        resourceModuleId: resource.resourceModuleId || "",
+        resourceDescription: resource.resourceDescription || "",
       });
     } else {
       setEditingResource(null);
-      setFormData({ name: "", module_id: "", description: "" });
+      setFormData({ resourceName: "", resourceModuleId: "", resourceDescription: "" });
     }
     onOpen();
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) {
+    if (!formData.resourceName.trim()) {
       toast.error("Resource name is required");
       return;
     }
 
     try {
       if (editingResource) {
-        await updateResource(editingResource.id, formData);
+        await updateResource(editingResource.resourceId, formData);
         toast.success("Resource updated");
       } else {
         await createResource(formData);
@@ -91,7 +91,7 @@ export default function ResourcesPage() {
 
   const handleDelete = async (resource) => {
     try {
-      await deleteResource(resource.id);
+      await deleteResource(resource.resourceId);
       toast.success("Resource deleted");
       loadResources();
     } catch (error) {
@@ -127,13 +127,13 @@ export default function ResourcesPage() {
           emptyContent="No resources found"
         >
           {resources.map((resource) => (
-            <TableRow key={resource.id}>
-              <TableCell className="font-medium">{resource.name}</TableCell>
+            <TableRow key={resource.resourceId}>
+              <TableCell className="font-medium">{resource.resourceName}</TableCell>
               <TableCell className="text-default-500">
-                {resource.module_id || "-"}
+                {resource.resourceModuleId || "-"}
               </TableCell>
               <TableCell className="text-default-500">
-                {resource.description || "-"}
+                {resource.resourceDescription || "-"}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
@@ -170,20 +170,20 @@ export default function ResourcesPage() {
             <Input
               label="Name"
               placeholder="e.g. employees"
-              value={formData.name}
+              value={formData.resourceName}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, resourceName: e.target.value })
               }
               variant="bordered"
             />
             <Select
               label="Module"
               placeholder="Select a module"
-              selectedKeys={formData.module_id ? [formData.module_id] : []}
+              selectedKeys={formData.resourceModuleId ? [formData.resourceModuleId] : []}
               onSelectionChange={(keys) =>
                 setFormData({
                   ...formData,
-                  module_id: Array.from(keys)[0] || "",
+                  resourceModuleId: Array.from(keys)[0] || "",
                 })
               }
               variant="bordered"
@@ -195,9 +195,9 @@ export default function ResourcesPage() {
             <Textarea
               label="Description"
               placeholder="Describe this resource..."
-              value={formData.description}
+              value={formData.resourceDescription}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({ ...formData, resourceDescription: e.target.value })
               }
               variant="bordered"
             />

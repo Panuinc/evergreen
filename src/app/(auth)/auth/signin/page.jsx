@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button, Input } from "@heroui/react";
 import Loading from "@/components/ui/Loading";
 import Image from "next/image";
-import Link from "next/link";
+
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
 
@@ -31,17 +31,7 @@ export default function SignInPage() {
 
       if (error) {
         if (error.message === "Invalid login credentials") {
-          toast.error(
-            <div className="flex flex-col gap-2">
-              <span>Invalid email or password</span>
-              <span className="text-default-500">
-                Don&apos;t have an account?{" "}
-                <Link href="/auth/signup" className="text-default underline">
-                  Sign Up
-                </Link>
-              </span>
-            </div>,
-          );
+          toast.error("Invalid email or password");
         } else {
           toast.error(error.message || "Authentication failed");
         }
@@ -121,11 +111,8 @@ export default function SignInPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center w-10/12 h-fit p-2 gap-2">
-        Don&apos;t have an account?{" "}
-        <Link href="/auth/signup" className="text-default underline">
-          Sign Up
-        </Link>
+      <div className="flex items-center justify-center w-10/12 h-fit p-2 gap-2 text-default-400">
+        Contact your administrator for account access
       </div>
     </>
   );

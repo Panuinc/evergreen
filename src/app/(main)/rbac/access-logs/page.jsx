@@ -55,22 +55,22 @@ export default function AccessLogsPage() {
           emptyContent="No access logs found"
         >
           {logs.map((log) => (
-            <TableRow key={log.id}>
+            <TableRow key={log.accessLogId}>
               <TableCell className="text-default-500">
-                {new Date(log.created_at).toLocaleString()}
+                {new Date(log.accessLogCreatedAt).toLocaleString()}
               </TableCell>
               <TableCell className="font-mono text-xs">
-                {log.user_id?.slice(0, 8) || "-"}
+                {log.accessLogUserId?.slice(0, 8) || "-"}
               </TableCell>
-              <TableCell className="font-medium">{log.resource}</TableCell>
-              <TableCell>{log.action}</TableCell>
+              <TableCell className="font-medium">{log.accessLogResource}</TableCell>
+              <TableCell>{log.accessLogAction}</TableCell>
               <TableCell>
                 <Chip
                   size="sm"
                   variant="flat"
-                  color={log.granted ? "success" : "danger"}
+                  color={log.accessLogGranted ? "success" : "danger"}
                 >
-                  {log.granted ? "Granted" : "Denied"}
+                  {log.accessLogGranted ? "Granted" : "Denied"}
                 </Chip>
               </TableCell>
             </TableRow>

@@ -32,7 +32,7 @@ export default function ActionsPage() {
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingAction, setEditingAction] = useState(null);
-  const [formData, setFormData] = useState({ name: "", description: "" });
+  const [formData, setFormData] = useState({ actionName: "", actionDescription: "" });
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
@@ -55,25 +55,25 @@ export default function ActionsPage() {
     if (action) {
       setEditingAction(action);
       setFormData({
-        name: action.name,
-        description: action.description || "",
+        actionName: action.actionName,
+        actionDescription: action.actionDescription || "",
       });
     } else {
       setEditingAction(null);
-      setFormData({ name: "", description: "" });
+      setFormData({ actionName: "", actionDescription: "" });
     }
     onOpen();
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) {
+    if (!formData.actionName.trim()) {
       toast.error("Action name is required");
       return;
     }
 
     try {
       if (editingAction) {
-        await updateAction(editingAction.id, formData);
+        await updateAction(editingAction.actionId, formData);
         toast.success("Action updated");
       } else {
         await createAction(formData);
@@ -88,7 +88,7 @@ export default function ActionsPage() {
 
   const handleDelete = async (action) => {
     try {
-      await deleteAction(action.id);
+      await deleteAction(action.actionId);
       toast.success("Action deleted");
       loadActions();
     } catch (error) {
@@ -124,13 +124,13 @@ export default function ActionsPage() {
           emptyContent="No actions found"
         >
           {actions.map((action) => (
-            <TableRow key={action.id}>
-              <TableCell className="font-medium">{action.name}</TableCell>
+            <TableRow key={action.actionId}>
+              <TableCell className="font-medium">{action.actionName}</TableCell>
               <TableCell className="text-default-500">
-                {action.description || "-"}
+                {action.actionDescription || "-"}
               </TableCell>
               <TableCell className="text-default-500">
-                {new Date(action.created_at).toLocaleDateString()}
+                {new Date(action.actionCreatedAt).toLocaleDateString()}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
@@ -167,18 +167,18 @@ export default function ActionsPage() {
             <Input
               label="Name"
               placeholder="e.g. create, read, update, delete"
-              value={formData.name}
+              value={formData.actionName}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, actionName: e.target.value })
               }
               variant="bordered"
             />
             <Textarea
               label="Description"
               placeholder="Describe this action..."
-              value={formData.description}
+              value={formData.actionDescription}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({ ...formData, actionDescription: e.target.value })
               }
               variant="bordered"
             />

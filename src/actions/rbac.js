@@ -5,8 +5,8 @@ import { supabase } from "@/lib/supabase/client";
 export async function getRoles() {
   const { data, error } = await supabase
     .from("roles")
-    .select("*, user_roles(count), role_permissions(count)")
-    .order("created_at", { ascending: false });
+    .select("*, userRoles:userRoles(count), rolePermissions:rolePermissions(count)")
+    .order("roleCreatedAt", { ascending: false });
 
   if (error) throw error;
   return data;
@@ -15,8 +15,8 @@ export async function getRoles() {
 export async function getRoleById(id) {
   const { data, error } = await supabase
     .from("roles")
-    .select("*, role_permissions(*, permissions(*, resources(*), actions(*)))")
-    .eq("id", id)
+    .select("*, rolePermissions:rolePermissions(*, permissions(*, resources(*), actions(*)))")
+    .eq("roleId", id)
     .single();
 
   if (error) throw error;
@@ -38,7 +38,7 @@ export async function updateRole(id, roleData) {
   const { data, error } = await supabase
     .from("roles")
     .update(roleData)
-    .eq("id", id)
+    .eq("roleId", id)
     .select()
     .single();
 
@@ -47,7 +47,7 @@ export async function updateRole(id, roleData) {
 }
 
 export async function deleteRole(id) {
-  const { error } = await supabase.from("roles").delete().eq("id", id);
+  const { error } = await supabase.from("roles").delete().eq("roleId", id);
 
   if (error) throw error;
   return true;
@@ -59,7 +59,7 @@ export async function getResources() {
   const { data, error } = await supabase
     .from("resources")
     .select("*")
-    .order("name");
+    .order("resourceName");
 
   if (error) throw error;
   return data;
@@ -80,7 +80,7 @@ export async function updateResource(id, resourceData) {
   const { data, error } = await supabase
     .from("resources")
     .update(resourceData)
-    .eq("id", id)
+    .eq("resourceId", id)
     .select()
     .single();
 
@@ -89,7 +89,7 @@ export async function updateResource(id, resourceData) {
 }
 
 export async function deleteResource(id) {
-  const { error } = await supabase.from("resources").delete().eq("id", id);
+  const { error } = await supabase.from("resources").delete().eq("resourceId", id);
 
   if (error) throw error;
   return true;
@@ -101,7 +101,7 @@ export async function getActions() {
   const { data, error } = await supabase
     .from("actions")
     .select("*")
-    .order("name");
+    .order("actionName");
 
   if (error) throw error;
   return data;
@@ -122,7 +122,7 @@ export async function updateAction(id, actionData) {
   const { data, error } = await supabase
     .from("actions")
     .update(actionData)
-    .eq("id", id)
+    .eq("actionId", id)
     .select()
     .single();
 
@@ -131,7 +131,7 @@ export async function updateAction(id, actionData) {
 }
 
 export async function deleteAction(id) {
-  const { error } = await supabase.from("actions").delete().eq("id", id);
+  const { error } = await supabase.from("actions").delete().eq("actionId", id);
 
   if (error) throw error;
   return true;
@@ -143,7 +143,7 @@ export async function getPermissions() {
   const { data, error } = await supabase
     .from("permissions")
     .select("*, resources(*), actions(*)")
-    .order("created_at", { ascending: false });
+    .order("permissionCreatedAt", { ascending: false });
 
   if (error) throw error;
   return data;
@@ -161,7 +161,7 @@ export async function createPermission(permissionData) {
 }
 
 export async function deletePermission(id) {
-  const { error } = await supabase.from("permissions").delete().eq("id", id);
+  const { error } = await supabase.from("permissions").delete().eq("permissionId", id);
 
   if (error) throw error;
   return true;
@@ -171,9 +171,9 @@ export async function deletePermission(id) {
 
 export async function getRolePermissions(roleId) {
   const { data, error } = await supabase
-    .from("role_permissions")
+    .from("rolePermissions")
     .select("*, permissions(*, resources(*), actions(*))")
-    .eq("role_id", roleId);
+    .eq("rolePermissionRoleId", roleId);
 
   if (error) throw error;
   return data;
@@ -181,8 +181,8 @@ export async function getRolePermissions(roleId) {
 
 export async function assignPermissionToRole(roleId, permissionId) {
   const { data, error } = await supabase
-    .from("role_permissions")
-    .insert([{ role_id: roleId, permission_id: permissionId }])
+    .from("rolePermissions")
+    .insert([{ rolePermissionRoleId: roleId, rolePermissionPermissionId: permissionId }])
     .select()
     .single();
 
@@ -192,10 +192,10 @@ export async function assignPermissionToRole(roleId, permissionId) {
 
 export async function removePermissionFromRole(roleId, permissionId) {
   const { error } = await supabase
-    .from("role_permissions")
+    .from("rolePermissions")
     .delete()
-    .eq("role_id", roleId)
-    .eq("permission_id", permissionId);
+    .eq("rolePermissionRoleId", roleId)
+    .eq("rolePermissionPermissionId", permissionId);
 
   if (error) throw error;
   return true;
@@ -205,32 +205,32 @@ export async function removePermissionFromRole(roleId, permissionId) {
 
 export async function getUsersWithRoles() {
   const { data: users, error: usersError } = await supabase
-    .from("user_profiles")
+    .from("userProfiles")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("userProfileCreatedAt", { ascending: false });
 
   if (usersError) throw usersError;
 
-  const { data: userRoles, error: rolesError } = await supabase
-    .from("user_roles")
+  const { data: allUserRoles, error: rolesError } = await supabase
+    .from("userRoles")
     .select("*, roles(*)");
 
   if (rolesError) throw rolesError;
 
   return users.map((user) => ({
     ...user,
-    roles: userRoles
-      .filter((ur) => ur.user_id === user.id)
+    roles: allUserRoles
+      .filter((ur) => ur.userRoleUserId === user.userProfileId)
       .map((ur) => ur.roles),
-    user_roles: userRoles.filter((ur) => ur.user_id === user.id),
+    userRoles: allUserRoles.filter((ur) => ur.userRoleUserId === user.userProfileId),
   }));
 }
 
 export async function getUserRoles(userId) {
   const { data, error } = await supabase
-    .from("user_roles")
+    .from("userRoles")
     .select("*, roles(*)")
-    .eq("user_id", userId);
+    .eq("userRoleUserId", userId);
 
   if (error) throw error;
   return data;
@@ -238,8 +238,8 @@ export async function getUserRoles(userId) {
 
 export async function assignRoleToUser(userId, roleId) {
   const { data, error } = await supabase
-    .from("user_roles")
-    .insert([{ user_id: userId, role_id: roleId }])
+    .from("userRoles")
+    .insert([{ userRoleUserId: userId, userRoleRoleId: roleId }])
     .select()
     .single();
 
@@ -249,10 +249,10 @@ export async function assignRoleToUser(userId, roleId) {
 
 export async function removeRoleFromUser(userId, roleId) {
   const { error } = await supabase
-    .from("user_roles")
+    .from("userRoles")
     .delete()
-    .eq("user_id", userId)
-    .eq("role_id", roleId);
+    .eq("userRoleUserId", userId)
+    .eq("userRoleRoleId", roleId);
 
   if (error) throw error;
   return true;
@@ -273,9 +273,9 @@ export async function getUserPermissions(userId) {
 
 export async function getAccessLogs() {
   const { data, error } = await supabase
-    .from("access_logs")
+    .from("accessLogs")
     .select("*")
-    .order("created_at", { ascending: false })
+    .order("accessLogCreatedAt", { ascending: false })
     .limit(200);
 
   if (error) throw error;
@@ -284,8 +284,14 @@ export async function getAccessLogs() {
 
 export async function logAccess(userId, resource, action, granted, metadata = null) {
   const { error } = await supabase
-    .from("access_logs")
-    .insert([{ user_id: userId, resource, action, granted, metadata }]);
+    .from("accessLogs")
+    .insert([{
+      accessLogUserId: userId,
+      accessLogResource: resource,
+      accessLogAction: action,
+      accessLogGranted: granted,
+      accessLogMetadata: metadata,
+    }]);
 
   if (error) console.error("Failed to log access:", error);
 }

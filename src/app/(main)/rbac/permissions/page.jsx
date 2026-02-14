@@ -40,11 +40,11 @@ export default function PermissionsPage() {
     }
   };
 
-  // Build a lookup map: "resourceId:actionId" → permission
+  // Build a lookup map: "permissionResourceId:permissionActionId" → permission
   const permMap = useMemo(() => {
     const map = {};
     permissions.forEach((p) => {
-      map[`${p.resource_id}:${p.action_id}`] = p;
+      map[`${p.permissionResourceId}:${p.permissionActionId}`] = p;
     });
     return map;
   }, [permissions]);
@@ -56,13 +56,13 @@ export default function PermissionsPage() {
     try {
       const existing = permMap[key];
       if (existing) {
-        await deletePermission(existing.id);
-        setPermissions((prev) => prev.filter((p) => p.id !== existing.id));
+        await deletePermission(existing.permissionId);
+        setPermissions((prev) => prev.filter((p) => p.permissionId !== existing.permissionId));
         toast.success("Permission removed");
       } else {
         const newPerm = await createPermission({
-          resource_id: resourceId,
-          action_id: actionId,
+          permissionResourceId: resourceId,
+          permissionActionId: actionId,
         });
         setPermissions((prev) => [...prev, newPerm]);
         toast.success("Permission created");
@@ -100,33 +100,33 @@ export default function PermissionsPage() {
               </th>
               {actions.map((action) => (
                 <th
-                  key={action.id}
+                  key={action.actionId}
                   className="p-2 border-b border-default font-semibold text-center capitalize"
                 >
-                  {action.name}
+                  {action.actionName}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {resources.map((resource) => (
-              <tr key={resource.id} className="hover:bg-default/50">
+              <tr key={resource.resourceId} className="hover:bg-default/50">
                 <td className="p-2 border-b border-default font-medium capitalize sticky left-0 bg-background">
-                  {resource.name}
-                  {resource.description && (
+                  {resource.resourceName}
+                  {resource.resourceDescription && (
                     <span className="text-default-400 text-xs ml-2">
-                      ({resource.description})
+                      ({resource.resourceDescription})
                     </span>
                   )}
                 </td>
                 {actions.map((action) => {
-                  const key = `${resource.id}:${action.id}`;
+                  const key = `${resource.resourceId}:${action.actionId}`;
                   const exists = !!permMap[key];
                   const isToggling = toggling === key;
 
                   return (
                     <td
-                      key={action.id}
+                      key={action.actionId}
                       className="p-2 border-b border-default text-center"
                     >
                       {isToggling ? (
@@ -135,7 +135,7 @@ export default function PermissionsPage() {
                         <Checkbox
                           isSelected={exists}
                           onValueChange={() =>
-                            togglePermission(resource.id, action.id)
+                            togglePermission(resource.resourceId, action.actionId)
                           }
                           size="sm"
                         />

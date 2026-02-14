@@ -2,30 +2,27 @@ import { supabase } from "@/lib/supabase/client";
 
 // ==================== HR Employee CRUD ====================
 
-// ดึงข้อมูลพนักงานทั้งหมด
 export async function getEmployees() {
   const { data, error } = await supabase
     .from("employees")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("employeeCreatedAt", { ascending: false });
 
   if (error) throw error;
   return data;
 }
 
-// ดึงข้อมูลพนักงานตาม ID
 export async function getEmployeeById(id) {
   const { data, error } = await supabase
     .from("employees")
     .select("*")
-    .eq("id", id)
+    .eq("employeeId", id)
     .single();
 
   if (error) throw error;
   return data;
 }
 
-// สร้างพนักงานใหม่
 export async function createEmployee(employeeData) {
   const { data, error } = await supabase
     .from("employees")
@@ -37,12 +34,11 @@ export async function createEmployee(employeeData) {
   return data;
 }
 
-// อัพเดทข้อมูลพนักงาน
 export async function updateEmployee(id, employeeData) {
   const { data, error } = await supabase
     .from("employees")
     .update(employeeData)
-    .eq("id", id)
+    .eq("employeeId", id)
     .select()
     .single();
 
@@ -50,27 +46,46 @@ export async function updateEmployee(id, employeeData) {
   return data;
 }
 
-// ลบพนักงาน
 export async function deleteEmployee(id) {
   const { error } = await supabase
     .from("employees")
     .delete()
-    .eq("id", id);
+    .eq("employeeId", id);
 
   if (error) throw error;
   return true;
 }
 
-// ค้นหาพนักงาน
 export async function searchEmployees(searchTerm) {
   const { data, error } = await supabase
     .from("employees")
     .select("*")
-    .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
-    .order("created_at", { ascending: false });
+    .or(`employeeFirstName.ilike.%${searchTerm}%,employeeLastName.ilike.%${searchTerm}%,employeeEmail.ilike.%${searchTerm}%`)
+    .order("employeeCreatedAt", { ascending: false });
 
   if (error) throw error;
   return data;
+}
+
+// ==================== User Linking ====================
+
+export async function getUnlinkedUsers() {
+  const { data: allUsers, error: usersError } = await supabase
+    .from("userProfiles")
+    .select("userProfileId, userProfileEmail")
+    .order("userProfileEmail");
+
+  if (usersError) throw usersError;
+
+  const { data: linkedEmployees, error: empError } = await supabase
+    .from("employees")
+    .select("employeeUserId")
+    .not("employeeUserId", "is", null);
+
+  if (empError) throw empError;
+
+  const linkedIds = new Set(linkedEmployees.map((e) => e.employeeUserId));
+  return allUsers.filter((u) => !linkedIds.has(u.userProfileId));
 }
 
 // ==================== Departments ====================
@@ -79,7 +94,7 @@ export async function getDepartments() {
   const { data, error } = await supabase
     .from("departments")
     .select("*")
-    .order("name");
+    .order("departmentName");
 
   if (error) throw error;
   return data;
@@ -91,7 +106,7 @@ export async function getPositions() {
   const { data, error } = await supabase
     .from("positions")
     .select("*")
-    .order("title");
+    .order("positionTitle");
 
   if (error) throw error;
   return data;
