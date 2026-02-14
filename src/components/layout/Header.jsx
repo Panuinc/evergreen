@@ -67,7 +67,7 @@ export default function Header() {
                 src="https://i.pravatar.cc/150?u=user"
                 className="w-7 h-7"
               />
-              <span className="text-xs font-medium">
+              <span className="font-medium">
                 {user?.email?.split("@")[0] || "User"}
               </span>
               <ChevronDown />

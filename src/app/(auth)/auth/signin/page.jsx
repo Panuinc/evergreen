@@ -34,7 +34,7 @@ export default function SignInPage() {
           toast.error(
             <div className="flex flex-col gap-2">
               <span>Invalid email or password</span>
-              <span className="text-xs text-default-500">
+              <span className="text-default-500">
                 Don&apos;t have an account?{" "}
                 <Link href="/auth/signup" className="text-default underline">
                   Sign Up

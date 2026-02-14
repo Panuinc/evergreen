@@ -34,7 +34,7 @@ export default function SubMenuPanel({ activeMenu, isCollapsed }) {
               <div className="flex items-center justify-center w-fit h-full gap-2">
                 <Icon />
               </div>
-              <div className="flex items-center justify-start w-full h-full gap-2 text-xs">
+              <div className="flex items-center justify-start w-full h-full gap-2">
                 {subMenu.name}
               </div>
             </Link>

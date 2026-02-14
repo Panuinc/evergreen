@@ -34,7 +34,7 @@ export default function Sidebar({
                 <Icon />
               </div>
               {!isCollapsed && (
-                <div className="flex items-center justify-start w-full h-full gap-2 text-xs">
+                <div className="flex items-center justify-start w-full h-full gap-2">
                   {menu.name}
                 </div>
               )}
