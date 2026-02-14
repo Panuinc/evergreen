@@ -263,9 +263,9 @@ export const menuData = [
       { name: "Resources", icon: Server, href: "/rbac/resources" },
       { name: "Actions", icon: Zap, href: "/rbac/actions" },
       { name: "Permissions", icon: Lock, href: "/rbac/permissions" },
-      { name: "Approval Hierarchy", icon: GitBranch, href: "/rbac/approval-hierarchy" },
-      { name: "Approval Workflows", icon: Workflow, href: "/rbac/approval-workflows" },
-      { name: "Access Logs", icon: FileText, href: "/rbac/access-logs" },
+      { name: "Approval Hierarchy", icon: GitBranch, href: "/rbac/approvalHierarchy" },
+      { name: "Approval Workflows", icon: Workflow, href: "/rbac/approvalWorkflows" },
+      { name: "Access Logs", icon: FileText, href: "/rbac/accessLogs" },
     ],
   },
 ];
