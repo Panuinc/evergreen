@@ -1,6 +1,8 @@
+"use client";
+
 import Link from "next/link";
 
-export default function NotFound() {
+export default function CatchAllPage() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-full p-8">
       <div className="flex flex-col items-center justify-center max-w-md text-center gap-6">
@@ -34,8 +36,7 @@ export default function NotFound() {
 
         {/* Message */}
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been
-          moved, deleted, or you entered the wrong URL.
+          Sorry, we couldn&apos;t find the page you&apos;re looking for.
         </p>
 
         {/* Actions */}
@@ -44,20 +45,6 @@ export default function NotFound() {
             href="/overview/dashboard"
             className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
             Back to Home
           </Link>
         </div>
