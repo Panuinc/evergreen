@@ -30,7 +30,7 @@ import {
   assignRoleToUser,
   removeRoleFromUser,
 } from "@/actions/rbac";
-import { supabase } from "@/lib/supabase/client";
+import { getUnlinkedEmployees } from "@/actions/hr";
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -45,9 +45,10 @@ export default function UsersPage() {
 
   // Create account
   const [createOpen, setCreateOpen] = useState(false);
+  const defaultPassword = "P@ssw0rd";
   const [createForm, setCreateForm] = useState({
     email: "",
-    password: "",
+    password: defaultPassword,
     employeeId: "",
   });
   const [creating, setCreating] = useState(false);
@@ -107,17 +108,12 @@ export default function UsersPage() {
 
   // Create account
   const openCreateAccount = async () => {
-    setCreateForm({ email: "", password: "", employeeId: "" });
+    setCreateForm({ email: "", password: defaultPassword, employeeId: "" });
     setCreateOpen(true);
 
     try {
-      const { data, error } = await supabase
-        .from("employees")
-        .select("employeeId, employeeFirstName, employeeLastName, employeeEmail")
-        .is("employeeUserId", null)
-        .order("employeeFirstName");
-
-      if (!error) setUnlinkedEmployees(data || []);
+      const data = await getUnlinkedEmployees();
+      setUnlinkedEmployees(data || []);
     } catch {
       setUnlinkedEmployees([]);
     }
@@ -307,16 +303,24 @@ export default function UsersPage() {
               selectedKeys={
                 createForm.employeeId ? [createForm.employeeId] : []
               }
-              onSelectionChange={(keys) =>
+              onSelectionChange={(keys) => {
+                const selectedId = Array.from(keys)[0] || "";
+                const emp = unlinkedEmployees.find(
+                  (e) => e.employeeId === selectedId
+                );
                 setCreateForm({
                   ...createForm,
-                  employeeId: Array.from(keys)[0] || "",
-                })
-              }
+                  employeeId: selectedId,
+                  email: emp?.employeeEmail || createForm.email,
+                });
+              }}
               variant="bordered"
             >
               {unlinkedEmployees.map((emp) => (
-                <SelectItem key={emp.employeeId}>
+                <SelectItem
+                  key={emp.employeeId}
+                  textValue={`${emp.employeeFirstName} ${emp.employeeLastName}${emp.employeeEmail ? ` (${emp.employeeEmail})` : ""}`}
+                >
                   {emp.employeeFirstName} {emp.employeeLastName}
                   {emp.employeeEmail ? ` (${emp.employeeEmail})` : ""}
                 </SelectItem>
