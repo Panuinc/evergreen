@@ -187,7 +187,7 @@ export default function EmployeesPage() {
           color="primary"
           variant="flat"
           size="sm"
-          startContent={<Plus className="w-4 h-4" />}
+          startContent={<Plus />}
           onPress={() => handleOpen()}
         >
           Add Employee
@@ -198,11 +198,11 @@ export default function EmployeesPage() {
         placeholder="Search by name, email, phone, department, position..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        startContent={<Search className="w-4 h-4 text-default-400" />}
+        startContent={<Search />}
         endContent={
           search && (
             <button onClick={() => setSearch("")}>
-              <X className="w-4 h-4 text-default-400" />
+              <X />
             </button>
           )
         }
@@ -278,7 +278,7 @@ export default function EmployeesPage() {
                     size="sm"
                     onPress={() => handleOpen(emp)}
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit />
                   </Button>
                   <Button
                     isIconOnly
@@ -287,7 +287,7 @@ export default function EmployeesPage() {
                     color="danger"
                     onPress={() => confirmDelete(emp)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 />
                   </Button>
                 </div>
               </TableCell>

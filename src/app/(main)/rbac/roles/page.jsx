@@ -173,7 +173,7 @@ export default function RolesPage() {
           color="primary"
           variant="flat"
           size="sm"
-          startContent={<Plus className="w-4 h-4" />}
+          startContent={<Plus />}
           onPress={() => handleOpen()}
         >
           Add Role
@@ -222,7 +222,7 @@ export default function RolesPage() {
                     onPress={() => openPermissions(role)}
                     title="Manage Permissions"
                   >
-                    <Shield className="w-4 h-4" />
+                    <Shield />
                   </Button>
                   <Button
                     isIconOnly
@@ -230,7 +230,7 @@ export default function RolesPage() {
                     size="sm"
                     onPress={() => handleOpen(role)}
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit />
                   </Button>
                   <Button
                     isIconOnly
@@ -240,7 +240,7 @@ export default function RolesPage() {
                     onPress={() => handleDelete(role)}
                     isDisabled={role.roleIsSuperadmin}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 />
                   </Button>
                 </div>
               </TableCell>

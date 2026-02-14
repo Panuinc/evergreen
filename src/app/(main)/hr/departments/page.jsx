@@ -123,7 +123,7 @@ export default function DepartmentsPage() {
           color="primary"
           variant="flat"
           size="sm"
-          startContent={<Plus className="w-4 h-4" />}
+          startContent={<Plus />}
           onPress={() => handleOpen()}
         >
           Add Department
@@ -161,7 +161,7 @@ export default function DepartmentsPage() {
                     size="sm"
                     onPress={() => handleOpen(dept)}
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit />
                   </Button>
                   <Button
                     isIconOnly
@@ -170,7 +170,7 @@ export default function DepartmentsPage() {
                     color="danger"
                     onPress={() => confirmDelete(dept)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 />
                   </Button>
                 </div>
               </TableCell>

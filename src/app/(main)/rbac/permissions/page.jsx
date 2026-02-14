@@ -86,7 +86,7 @@ export default function PermissionsPage() {
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between w-full">
         <h1 className="text-lg font-semibold">Permissions Matrix</h1>
-        <p className="text-default-400 text-xs">
+        <p className="text-default-400">
           Toggle to create/remove resource-action permissions
         </p>
       </div>
@@ -114,7 +114,7 @@ export default function PermissionsPage() {
                 <td className="p-2 border-b border-default font-medium capitalize sticky left-0 bg-background">
                   {resource.resourceName}
                   {resource.resourceDescription && (
-                    <span className="text-default-400 text-xs ml-2">
+                    <span className="text-default-400 ml-2">
                       ({resource.resourceDescription})
                     </span>
                   )}

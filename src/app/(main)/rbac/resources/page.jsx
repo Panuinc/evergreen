@@ -107,7 +107,7 @@ export default function ResourcesPage() {
           color="primary"
           variant="flat"
           size="sm"
-          startContent={<Plus className="w-4 h-4" />}
+          startContent={<Plus />}
           onPress={() => handleOpen()}
         >
           Add Resource
@@ -143,7 +143,7 @@ export default function ResourcesPage() {
                     size="sm"
                     onPress={() => handleOpen(resource)}
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit />
                   </Button>
                   <Button
                     isIconOnly
@@ -152,7 +152,7 @@ export default function ResourcesPage() {
                     color="danger"
                     onPress={() => handleDelete(resource)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 />
                   </Button>
                 </div>
               </TableCell>

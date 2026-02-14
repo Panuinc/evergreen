@@ -176,7 +176,7 @@ export default function UsersPage() {
           color="primary"
           variant="flat"
           size="sm"
-          startContent={<Plus className="w-4 h-4" />}
+          startContent={<Plus />}
           onPress={openCreateAccount}
         >
           Create Account
@@ -227,7 +227,7 @@ export default function UsersPage() {
                   onPress={() => openRoleAssignment(user)}
                   title="Manage Roles"
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings />
                 </Button>
               </TableCell>
             </TableRow>
@@ -260,7 +260,7 @@ export default function UsersPage() {
                     )}
                   </div>
                   {role.roleDescription && (
-                    <p className="text-default-400 text-xs">
+                    <p className="text-default-400">
                       {role.roleDescription}
                     </p>
                   )}

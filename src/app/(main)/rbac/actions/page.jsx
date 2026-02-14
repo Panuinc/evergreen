@@ -104,7 +104,7 @@ export default function ActionsPage() {
           color="primary"
           variant="flat"
           size="sm"
-          startContent={<Plus className="w-4 h-4" />}
+          startContent={<Plus />}
           onPress={() => handleOpen()}
         >
           Add Action
@@ -140,7 +140,7 @@ export default function ActionsPage() {
                     size="sm"
                     onPress={() => handleOpen(action)}
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit />
                   </Button>
                   <Button
                     isIconOnly
@@ -149,7 +149,7 @@ export default function ActionsPage() {
                     color="danger"
                     onPress={() => handleDelete(action)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 />
                   </Button>
                 </div>
               </TableCell>

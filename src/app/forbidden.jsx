@@ -8,7 +8,7 @@ export default function Forbidden() {
     <div className="flex flex-col items-center justify-center w-full h-full p-2">
       <div className="flex flex-col items-center justify-center max-w-md text-center gap-2">
         <div className="flex items-center justify-center w-24 h-24 rounded-xl bg-danger-100">
-          <ShieldAlert className="w-12 h-12 text-danger" />
+          <ShieldAlert />
         </div>
 
         <div className="flex flex-col gap-2">
@@ -24,7 +24,7 @@ export default function Forbidden() {
             is restricted and requires additional privileges.
           </p>
           <div className="flex items-center justify-center gap-2 text-danger">
-            <Lock className="w-3 h-3" />
+            <Lock />
             <span>Restricted Access</span>
           </div>
         </div>
@@ -34,14 +34,14 @@ export default function Forbidden() {
             onClick={() => window.history.back()}
             className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-default-200 hover:bg-default-100 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft />
             Go Back
           </button>
           <Link
             href="/overview/dashboard"
             className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary-600 transition-colors"
           >
-            <Home className="w-4 h-4" />
+            <Home />
             Back to Home
           </Link>
         </div>
