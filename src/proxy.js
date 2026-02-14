@@ -48,7 +48,7 @@ export async function proxy(request) {
     }
 
   } catch (error) {
-    console.error("Middleware error:", error);
+    console.error("Proxy error:", error);
   }
 
   return response;
