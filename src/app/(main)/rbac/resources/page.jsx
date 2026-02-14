@@ -1,13 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Button,
   Modal,
   ModalContent,
@@ -19,12 +13,31 @@ import {
   Select,
   SelectItem,
   useDisclosure,
-  Spinner,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { getResources, createResource, updateResource, deleteResource } from "@/actions/rbac";
+import {
+  getResources,
+  createResource,
+  updateResource,
+  deleteResource,
+} from "@/actions/rbac";
 import { menuData } from "@/config/menu";
+import DataTable from "@/components/ui/DataTable";
+
+const columns = [
+  { name: "Name", uid: "resourceName", sortable: true },
+  { name: "Module", uid: "resourceModuleId", sortable: true },
+  { name: "Description", uid: "resourceDescription" },
+  { name: "Actions", uid: "actions" },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "resourceName",
+  "resourceModuleId",
+  "resourceDescription",
+  "actions",
+];
 
 export default function ResourcesPage() {
   const [resources, setResources] = useState([]);
@@ -63,7 +76,11 @@ export default function ResourcesPage() {
       });
     } else {
       setEditingResource(null);
-      setFormData({ resourceName: "", resourceModuleId: "", resourceDescription: "" });
+      setFormData({
+        resourceName: "",
+        resourceModuleId: "",
+        resourceDescription: "",
+      });
     }
     onOpen();
   };
@@ -99,67 +116,78 @@ export default function ResourcesPage() {
     }
   };
 
+  const renderCell = useCallback((resource, columnKey) => {
+    switch (columnKey) {
+      case "resourceName":
+        return (
+          <span className="font-medium">{resource.resourceName}</span>
+        );
+      case "resourceModuleId":
+        return (
+          <span className="text-default-500">
+            {resource.resourceModuleId || "-"}
+          </span>
+        );
+      case "resourceDescription":
+        return (
+          <span className="text-default-500">
+            {resource.resourceDescription || "-"}
+          </span>
+        );
+      case "actions":
+        return (
+          <div className="flex items-center gap-1">
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              onPress={() => handleOpen(resource)}
+            >
+              <Edit />
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              color="danger"
+              onPress={() => handleDelete(resource)}
+            >
+              <Trash2 />
+            </Button>
+          </div>
+        );
+      default:
+        return resource[columnKey] || "-";
+    }
+  }, []);
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">Resources</h1>
-        <Button
-          color="primary"
-          variant="flat"
-          size="sm"
-          startContent={<Plus />}
-          onPress={() => handleOpen()}
-        >
-          Add Resource
-        </Button>
-      </div>
-
-      <Table aria-label="Resources table">
-        <TableHeader>
-          <TableColumn>Name</TableColumn>
-          <TableColumn>Module</TableColumn>
-          <TableColumn>Description</TableColumn>
-          <TableColumn>Actions</TableColumn>
-        </TableHeader>
-        <TableBody
-          isLoading={loading}
-          loadingContent={<Spinner size="sm" />}
-          emptyContent="No resources found"
-        >
-          {resources.map((resource) => (
-            <TableRow key={resource.resourceId}>
-              <TableCell className="font-medium">{resource.resourceName}</TableCell>
-              <TableCell className="text-default-500">
-                {resource.resourceModuleId || "-"}
-              </TableCell>
-              <TableCell className="text-default-500">
-                {resource.resourceDescription || "-"}
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    onPress={() => handleOpen(resource)}
-                  >
-                    <Edit />
-                  </Button>
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    color="danger"
-                    onPress={() => handleDelete(resource)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <DataTable
+        columns={columns}
+        data={resources}
+        renderCell={renderCell}
+        rowKey="resourceId"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="Search by name, module, description..."
+        searchKeys={[
+          "resourceName",
+          "resourceModuleId",
+          "resourceDescription",
+        ]}
+        emptyContent="No resources found"
+        topEndContent={
+          <Button
+            color="primary"
+            size="sm"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
+            Add Resource
+          </Button>
+        }
+      />
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
@@ -179,7 +207,11 @@ export default function ResourcesPage() {
             <Select
               label="Module"
               placeholder="Select a module"
-              selectedKeys={formData.resourceModuleId ? [formData.resourceModuleId] : []}
+              selectedKeys={
+                formData.resourceModuleId
+                  ? [formData.resourceModuleId]
+                  : []
+              }
               onSelectionChange={(keys) =>
                 setFormData({
                   ...formData,
@@ -197,7 +229,10 @@ export default function ResourcesPage() {
               placeholder="Describe this resource..."
               value={formData.resourceDescription}
               onChange={(e) =>
-                setFormData({ ...formData, resourceDescription: e.target.value })
+                setFormData({
+                  ...formData,
+                  resourceDescription: e.target.value,
+                })
               }
               variant="bordered"
             />

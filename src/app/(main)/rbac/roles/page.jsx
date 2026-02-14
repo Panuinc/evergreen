@@ -1,13 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Button,
   Modal,
   ModalContent,
@@ -34,6 +28,25 @@ import {
   assignPermissionToRole,
   removePermissionFromRole,
 } from "@/actions/rbac";
+import DataTable from "@/components/ui/DataTable";
+
+const columns = [
+  { name: "Name", uid: "roleName", sortable: true },
+  { name: "Description", uid: "roleDescription" },
+  { name: "Type", uid: "roleType", sortable: true },
+  { name: "Users", uid: "userCount", sortable: true },
+  { name: "Permissions", uid: "permCount", sortable: true },
+  { name: "Actions", uid: "actions" },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "roleName",
+  "roleDescription",
+  "roleType",
+  "userCount",
+  "permCount",
+  "actions",
+];
 
 export default function RolesPage() {
   const [roles, setRoles] = useState([]);
@@ -79,7 +92,11 @@ export default function RolesPage() {
       });
     } else {
       setEditingRole(null);
-      setFormData({ roleName: "", roleDescription: "", roleIsSuperadmin: false });
+      setFormData({
+        roleName: "",
+        roleDescription: "",
+        roleIsSuperadmin: false,
+      });
     }
     onOpen();
   };
@@ -165,89 +182,90 @@ export default function RolesPage() {
     return acc;
   }, {});
 
+  const renderCell = useCallback((role, columnKey) => {
+    switch (columnKey) {
+      case "roleName":
+        return <span className="font-medium">{role.roleName}</span>;
+      case "roleDescription":
+        return (
+          <span className="text-default-500">
+            {role.roleDescription || "-"}
+          </span>
+        );
+      case "roleType":
+        return role.roleIsSuperadmin ? (
+          <Chip color="danger" variant="flat" size="sm">
+            Superadmin
+          </Chip>
+        ) : (
+          <Chip color="default" variant="flat" size="sm">
+            Standard
+          </Chip>
+        );
+      case "userCount":
+        return role.userRoles?.[0]?.count ?? 0;
+      case "permCount":
+        return role.rolePermissions?.[0]?.count ?? 0;
+      case "actions":
+        return (
+          <div className="flex items-center gap-1">
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              onPress={() => openPermissions(role)}
+              title="Manage Permissions"
+            >
+              <Shield />
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              onPress={() => handleOpen(role)}
+            >
+              <Edit />
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              color="danger"
+              onPress={() => handleDelete(role)}
+              isDisabled={role.roleIsSuperadmin}
+            >
+              <Trash2 />
+            </Button>
+          </div>
+        );
+      default:
+        return role[columnKey] || "-";
+    }
+  }, []);
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">Roles</h1>
-        <Button
-          color="primary"
-          variant="flat"
-          size="sm"
-          startContent={<Plus />}
-          onPress={() => handleOpen()}
-        >
-          Add Role
-        </Button>
-      </div>
-
-      <Table aria-label="Roles table">
-        <TableHeader>
-          <TableColumn>Name</TableColumn>
-          <TableColumn>Description</TableColumn>
-          <TableColumn>Type</TableColumn>
-          <TableColumn>Users</TableColumn>
-          <TableColumn>Permissions</TableColumn>
-          <TableColumn>Actions</TableColumn>
-        </TableHeader>
-        <TableBody
-          isLoading={loading}
-          loadingContent={<Spinner size="sm" />}
-          emptyContent="No roles found"
-        >
-          {roles.map((role) => (
-            <TableRow key={role.roleId}>
-              <TableCell className="font-medium">{role.roleName}</TableCell>
-              <TableCell className="text-default-500">
-                {role.roleDescription || "-"}
-              </TableCell>
-              <TableCell>
-                {role.roleIsSuperadmin ? (
-                  <Chip color="danger" variant="flat" size="sm">
-                    Superadmin
-                  </Chip>
-                ) : (
-                  <Chip color="default" variant="flat" size="sm">
-                    Standard
-                  </Chip>
-                )}
-              </TableCell>
-              <TableCell>{role.userRoles?.[0]?.count ?? 0}</TableCell>
-              <TableCell>{role.rolePermissions?.[0]?.count ?? 0}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    onPress={() => openPermissions(role)}
-                    title="Manage Permissions"
-                  >
-                    <Shield />
-                  </Button>
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    onPress={() => handleOpen(role)}
-                  >
-                    <Edit />
-                  </Button>
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    color="danger"
-                    onPress={() => handleDelete(role)}
-                    isDisabled={role.roleIsSuperadmin}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <DataTable
+        columns={columns}
+        data={roles}
+        renderCell={renderCell}
+        rowKey="roleId"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="Search by name, description..."
+        searchKeys={["roleName", "roleDescription"]}
+        emptyContent="No roles found"
+        topEndContent={
+          <Button
+            color="primary"
+            size="sm"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
+            Add Role
+          </Button>
+        }
+      />
 
       {/* Create/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -320,8 +338,12 @@ export default function RolesPage() {
                         {perms.map((perm) => (
                           <Checkbox
                             key={perm.permissionId}
-                            isSelected={rolePermIds.includes(perm.permissionId)}
-                            onValueChange={() => togglePermission(perm.permissionId)}
+                            isSelected={rolePermIds.includes(
+                              perm.permissionId
+                            )}
+                            onValueChange={() =>
+                              togglePermission(perm.permissionId)
+                            }
                             size="sm"
                           >
                             {perm.actions?.actionName}
@@ -329,7 +351,7 @@ export default function RolesPage() {
                         ))}
                       </div>
                     </div>
-                  ),
+                  )
                 )}
               </div>
             )}

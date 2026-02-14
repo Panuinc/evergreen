@@ -1,13 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Button,
   Modal,
   ModalContent,
@@ -19,10 +13,8 @@ import {
   SelectItem,
   Chip,
   useDisclosure,
-  Spinner,
-  Pagination,
 } from "@heroui/react";
-import { Plus, Edit, Trash2, Search, X } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   getEmployees,
@@ -32,8 +24,33 @@ import {
   getDepartments,
   getPositions,
 } from "@/actions/hr";
+import DataTable from "@/components/ui/DataTable";
 
-const ROWS_PER_PAGE = 10;
+const columns = [
+  { name: "Name", uid: "name", sortable: true },
+  { name: "Email", uid: "employeeEmail", sortable: true },
+  { name: "Phone", uid: "employeePhone" },
+  { name: "Department", uid: "employeeDepartment", sortable: true },
+  { name: "Position", uid: "employeePosition", sortable: true },
+  { name: "Salary", uid: "employeeSalary", sortable: true },
+  { name: "Status", uid: "employeeStatus", sortable: true },
+  { name: "Actions", uid: "actions" },
+];
+
+const statusOptions = [
+  { name: "Active", uid: "active" },
+  { name: "Inactive", uid: "inactive" },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "employeeEmail",
+  "employeeDepartment",
+  "employeePosition",
+  "employeeSalary",
+  "employeeStatus",
+  "actions",
+];
 
 const emptyForm = {
   employeeFirstName: "",
@@ -54,8 +71,6 @@ export default function EmployeesPage() {
   const [saving, setSaving] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
   const [deletingEmployee, setDeletingEmployee] = useState(null);
@@ -82,30 +97,6 @@ export default function EmployeesPage() {
     }
   };
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return employees;
-    const term = search.toLowerCase();
-    return employees.filter(
-      (e) =>
-        e.employeeFirstName?.toLowerCase().includes(term) ||
-        e.employeeLastName?.toLowerCase().includes(term) ||
-        e.employeeEmail?.toLowerCase().includes(term) ||
-        e.employeePhone?.toLowerCase().includes(term) ||
-        e.employeeDepartment?.toLowerCase().includes(term) ||
-        e.employeePosition?.toLowerCase().includes(term),
-    );
-  }, [employees, search]);
-
-  const totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE);
-  const paginatedItems = useMemo(() => {
-    const start = (page - 1) * ROWS_PER_PAGE;
-    return filtered.slice(start, start + ROWS_PER_PAGE);
-  }, [filtered, page]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
-
   const handleOpen = (employee = null) => {
     if (employee) {
       setEditingEmployee(employee);
@@ -127,7 +118,10 @@ export default function EmployeesPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.employeeFirstName.trim() || !formData.employeeLastName.trim()) {
+    if (
+      !formData.employeeFirstName.trim() ||
+      !formData.employeeLastName.trim()
+    ) {
       toast.error("First name and last name are required");
       return;
     }
@@ -179,125 +173,109 @@ export default function EmployeesPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const renderCell = useCallback((emp, columnKey) => {
+    switch (columnKey) {
+      case "name":
+        return (
+          <span className="font-medium">
+            {emp.employeeFirstName} {emp.employeeLastName}
+          </span>
+        );
+      case "employeeEmail":
+        return (
+          <span className="text-default-500">{emp.employeeEmail || "-"}</span>
+        );
+      case "employeePhone":
+        return (
+          <span className="text-default-500">{emp.employeePhone || "-"}</span>
+        );
+      case "employeeDepartment":
+        return emp.employeeDepartment || "-";
+      case "employeePosition":
+        return emp.employeePosition || "-";
+      case "employeeSalary":
+        return emp.employeeSalary
+          ? Number(emp.employeeSalary).toLocaleString("th-TH", {
+              minimumFractionDigits: 2,
+            })
+          : "-";
+      case "employeeStatus":
+        return (
+          <Chip
+            color={emp.employeeStatus === "active" ? "success" : "default"}
+            variant="flat"
+            size="sm"
+          >
+            {emp.employeeStatus}
+          </Chip>
+        );
+      case "actions":
+        return (
+          <div className="flex items-center gap-1">
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              onPress={() => handleOpen(emp)}
+            >
+              <Edit />
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              color="danger"
+              onPress={() => confirmDelete(emp)}
+            >
+              <Trash2 />
+            </Button>
+          </div>
+        );
+      default:
+        return emp[columnKey] || "-";
+    }
+  }, []);
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">Employees</h1>
-        <Button
-          color="primary"
-          variant="flat"
-          size="sm"
-          startContent={<Plus />}
-          onPress={() => handleOpen()}
-        >
-          Add Employee
-        </Button>
-      </div>
-
-      <Input
-        placeholder="Search by name, email, phone, department, position..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        startContent={<Search />}
-        endContent={
-          search && (
-            <button onClick={() => setSearch("")}>
-              <X />
-            </button>
-          )
+      <DataTable
+        columns={columns}
+        data={employees}
+        renderCell={renderCell}
+        rowKey="employeeId"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="Search by name, email, department, position..."
+        searchKeys={[
+          "employeeFirstName",
+          "employeeLastName",
+          "employeeEmail",
+          "employeePhone",
+          "employeeDepartment",
+          "employeePosition",
+        ]}
+        statusField="employeeStatus"
+        statusOptions={statusOptions}
+        emptyContent="No employees found"
+        topEndContent={
+          <Button
+            color="primary"
+            size="sm"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
+            Add Employee
+          </Button>
         }
-        variant="bordered"
-        size="sm"
-        className="max-w-md"
       />
 
-      <Table
-        aria-label="Employees table"
-        bottomContent={
-          totalPages > 1 ? (
-            <div className="flex justify-center w-full">
-              <Pagination
-                total={totalPages}
-                page={page}
-                onChange={setPage}
-                size="sm"
-              />
-            </div>
-          ) : null
-        }
-      >
-        <TableHeader>
-          <TableColumn>Name</TableColumn>
-          <TableColumn>Email</TableColumn>
-          <TableColumn>Phone</TableColumn>
-          <TableColumn>Department</TableColumn>
-          <TableColumn>Position</TableColumn>
-          <TableColumn>Salary</TableColumn>
-          <TableColumn>Status</TableColumn>
-          <TableColumn>Actions</TableColumn>
-        </TableHeader>
-        <TableBody
-          isLoading={loading}
-          loadingContent={<Spinner size="sm" />}
-          emptyContent="No employees found"
-        >
-          {paginatedItems.map((emp) => (
-            <TableRow key={emp.employeeId}>
-              <TableCell className="font-medium">
-                {emp.employeeFirstName} {emp.employeeLastName}
-              </TableCell>
-              <TableCell className="text-default-500">
-                {emp.employeeEmail || "-"}
-              </TableCell>
-              <TableCell className="text-default-500">
-                {emp.employeePhone || "-"}
-              </TableCell>
-              <TableCell>{emp.employeeDepartment || "-"}</TableCell>
-              <TableCell>{emp.employeePosition || "-"}</TableCell>
-              <TableCell>
-                {emp.employeeSalary
-                  ? Number(emp.employeeSalary).toLocaleString("th-TH", {
-                      minimumFractionDigits: 2,
-                    })
-                  : "-"}
-              </TableCell>
-              <TableCell>
-                <Chip
-                  color={emp.employeeStatus === "active" ? "success" : "default"}
-                  variant="flat"
-                  size="sm"
-                >
-                  {emp.employeeStatus}
-                </Chip>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    onPress={() => handleOpen(emp)}
-                  >
-                    <Edit />
-                  </Button>
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    color="danger"
-                    onPress={() => confirmDelete(emp)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
       {/* Create/Edit Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl" scrollBehavior="inside">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="2xl"
+        scrollBehavior="inside"
+      >
         <ModalContent>
           <ModalHeader>
             {editingEmployee ? "Edit Employee" : "Add Employee"}
@@ -308,7 +286,9 @@ export default function EmployeesPage() {
                 label="First Name"
                 placeholder="Enter first name"
                 value={formData.employeeFirstName}
-                onChange={(e) => updateField("employeeFirstName", e.target.value)}
+                onChange={(e) =>
+                  updateField("employeeFirstName", e.target.value)
+                }
                 variant="bordered"
                 isRequired
               />
@@ -316,7 +296,9 @@ export default function EmployeesPage() {
                 label="Last Name"
                 placeholder="Enter last name"
                 value={formData.employeeLastName}
-                onChange={(e) => updateField("employeeLastName", e.target.value)}
+                onChange={(e) =>
+                  updateField("employeeLastName", e.target.value)
+                }
                 variant="bordered"
                 isRequired
               />
@@ -338,7 +320,11 @@ export default function EmployeesPage() {
               <Select
                 label="Department"
                 placeholder="Select department"
-                selectedKeys={formData.employeeDepartment ? [formData.employeeDepartment] : []}
+                selectedKeys={
+                  formData.employeeDepartment
+                    ? [formData.employeeDepartment]
+                    : []
+                }
                 onSelectionChange={(keys) => {
                   const val = Array.from(keys)[0] || "";
                   updateField("employeeDepartment", val);
@@ -354,7 +340,9 @@ export default function EmployeesPage() {
               <Select
                 label="Position"
                 placeholder="Select position"
-                selectedKeys={formData.employeePosition ? [formData.employeePosition] : []}
+                selectedKeys={
+                  formData.employeePosition ? [formData.employeePosition] : []
+                }
                 onSelectionChange={(keys) => {
                   const val = Array.from(keys)[0] || "";
                   updateField("employeePosition", val);
@@ -401,7 +389,11 @@ export default function EmployeesPage() {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="sm">
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onClose={deleteModal.onClose}
+        size="sm"
+      >
         <ModalContent>
           <ModalHeader>Delete Employee</ModalHeader>
           <ModalBody>

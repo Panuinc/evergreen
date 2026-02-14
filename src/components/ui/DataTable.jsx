@@ -1,0 +1,307 @@
+"use client";
+
+import { useState, useMemo, useCallback } from "react";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Input,
+  Button,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  Pagination,
+  Spinner,
+} from "@heroui/react";
+import { Search, ChevronDown } from "lucide-react";
+
+function capitalize(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
+}
+
+export default function DataTable({
+  columns = [],
+  data = [],
+  renderCell,
+  rowKey = "id",
+  isLoading = false,
+  initialVisibleColumns,
+  searchPlaceholder = "Search...",
+  searchKeys = [],
+  statusField,
+  statusOptions = [],
+  topEndContent,
+  defaultRowsPerPage = 10,
+  defaultSortDescriptor,
+  emptyContent = "No data found",
+}) {
+  const [filterValue, setFilterValue] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState(
+    new Set(initialVisibleColumns || columns.map((c) => c.uid))
+  );
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
+  const [sortDescriptor, setSortDescriptor] = useState(
+    defaultSortDescriptor || {}
+  );
+  const [page, setPage] = useState(1);
+
+  const hasSearchFilter = Boolean(filterValue);
+
+  const headerColumns = useMemo(() => {
+    if (visibleColumns === "all") return columns;
+    return columns.filter((column) =>
+      Array.from(visibleColumns).includes(column.uid)
+    );
+  }, [columns, visibleColumns]);
+
+  const filteredItems = useMemo(() => {
+    let filtered = [...data];
+
+    if (hasSearchFilter && searchKeys.length > 0) {
+      const term = filterValue.toLowerCase();
+      filtered = filtered.filter((item) =>
+        searchKeys.some((key) =>
+          String(item[key] || "")
+            .toLowerCase()
+            .includes(term)
+        )
+      );
+    }
+
+    if (
+      statusField &&
+      statusFilter !== "all" &&
+      Array.from(statusFilter).length !== statusOptions.length
+    ) {
+      filtered = filtered.filter((item) =>
+        Array.from(statusFilter).includes(item[statusField])
+      );
+    }
+
+    return filtered;
+  }, [data, filterValue, statusFilter, searchKeys, statusField, statusOptions, hasSearchFilter]);
+
+  const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    return filteredItems.slice(start, start + rowsPerPage);
+  }, [page, filteredItems, rowsPerPage]);
+
+  const sortedItems = useMemo(() => {
+    if (!sortDescriptor.column) return items;
+    return [...items].sort((a, b) => {
+      const first = a[sortDescriptor.column];
+      const second = b[sortDescriptor.column];
+      const cmp = first < second ? -1 : first > second ? 1 : 0;
+      return sortDescriptor.direction === "descending" ? -cmp : cmp;
+    });
+  }, [sortDescriptor, items]);
+
+  const onSearchChange = useCallback((value) => {
+    if (value) {
+      setFilterValue(value);
+      setPage(1);
+    } else {
+      setFilterValue("");
+    }
+  }, []);
+
+  const onRowsPerPageChange = useCallback((e) => {
+    setRowsPerPage(Number(e.target.value));
+    setPage(1);
+  }, []);
+
+  const topContent = useMemo(() => {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between gap-3 items-end">
+          {searchKeys.length > 0 ? (
+            <Input
+              isClearable
+              className="w-full sm:max-w-[44%]"
+              placeholder={searchPlaceholder}
+              startContent={<Search />}
+              value={filterValue}
+              onClear={() => setFilterValue("")}
+              onValueChange={onSearchChange}
+              size="sm"
+              variant="bordered"
+            />
+          ) : (
+            <div />
+          )}
+          <div className="flex gap-3">
+            {statusField && statusOptions.length > 0 && (
+              <Dropdown>
+                <DropdownTrigger className="hidden sm:flex">
+                  <Button
+                    endContent={<ChevronDown />}
+                    variant="flat"
+                    size="sm"
+                  >
+                    Status
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label="Status Filter"
+                  closeOnSelect={false}
+                  selectedKeys={statusFilter}
+                  selectionMode="multiple"
+                  onSelectionChange={setStatusFilter}
+                >
+                  {statusOptions.map((status) => (
+                    <DropdownItem key={status.uid} className="capitalize">
+                      {capitalize(status.name)}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            )}
+            <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button
+                  endContent={<ChevronDown />}
+                  variant="flat"
+                  size="sm"
+                >
+                  Columns
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={visibleColumns}
+                selectionMode="multiple"
+                onSelectionChange={setVisibleColumns}
+              >
+                {columns
+                  .filter((c) => c.uid !== "actions")
+                  .map((column) => (
+                    <DropdownItem key={column.uid} className="capitalize">
+                      {capitalize(column.name)}
+                    </DropdownItem>
+                  ))}
+              </DropdownMenu>
+            </Dropdown>
+            {topEndContent}
+          </div>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-default-400 text-small">
+            Total {filteredItems.length} records
+          </span>
+          <label className="flex items-center text-default-400 text-small gap-1">
+            Rows per page:
+            <select
+              className="bg-transparent outline-none text-default-400 text-small cursor-pointer"
+              value={rowsPerPage}
+              onChange={onRowsPerPageChange}
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    );
+  }, [
+    filterValue,
+    statusFilter,
+    visibleColumns,
+    rowsPerPage,
+    filteredItems.length,
+    onSearchChange,
+    onRowsPerPageChange,
+    columns,
+    searchKeys,
+    searchPlaceholder,
+    statusField,
+    statusOptions,
+    topEndContent,
+  ]);
+
+  const bottomContent = useMemo(() => {
+    return (
+      <div className="flex justify-between items-center">
+        <span className="w-[30%] text-small text-default-400" />
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color="primary"
+          page={page}
+          total={pages}
+          onChange={setPage}
+          size="sm"
+        />
+        <div className="hidden sm:flex w-[30%] justify-end gap-2">
+          <Button
+            isDisabled={pages === 1}
+            size="sm"
+            variant="flat"
+            onPress={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </Button>
+          <Button
+            isDisabled={pages === 1}
+            size="sm"
+            variant="flat"
+            onPress={() => setPage((p) => Math.min(pages, p + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    );
+  }, [page, pages]);
+
+  return (
+    <Table
+      isHeaderSticky
+      aria-label="Data table"
+      bottomContent={bottomContent}
+      bottomContentPlacement="outside"
+      sortDescriptor={sortDescriptor}
+      topContent={topContent}
+      topContentPlacement="outside"
+      onSortChange={setSortDescriptor}
+    >
+      <TableHeader columns={headerColumns}>
+        {(column) => (
+          <TableColumn
+            key={column.uid}
+            align={column.uid === "actions" ? "center" : "start"}
+            allowsSorting={column.sortable}
+          >
+            {column.name}
+          </TableColumn>
+        )}
+      </TableHeader>
+      <TableBody
+        emptyContent={emptyContent}
+        items={sortedItems}
+        isLoading={isLoading}
+        loadingContent={<Spinner size="sm" />}
+      >
+        {(item) => (
+          <TableRow key={item[rowKey]}>
+            {(columnKey) => (
+              <TableCell>{renderCell(item, columnKey)}</TableCell>
+            )}
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
+}

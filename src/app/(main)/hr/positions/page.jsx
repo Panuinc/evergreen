@@ -1,13 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Button,
   Modal,
   ModalContent,
@@ -17,7 +11,6 @@ import {
   Input,
   Textarea,
   useDisclosure,
-  Spinner,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -27,6 +20,21 @@ import {
   updatePosition,
   deletePosition,
 } from "@/actions/hr";
+import DataTable from "@/components/ui/DataTable";
+
+const columns = [
+  { name: "Title", uid: "positionTitle", sortable: true },
+  { name: "Description", uid: "positionDescription" },
+  { name: "Created At", uid: "positionCreatedAt", sortable: true },
+  { name: "Actions", uid: "actions" },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "positionTitle",
+  "positionDescription",
+  "positionCreatedAt",
+  "actions",
+];
 
 const emptyForm = {
   positionTitle: "",
@@ -115,69 +123,72 @@ export default function PositionsPage() {
     }
   };
 
+  const renderCell = useCallback((pos, columnKey) => {
+    switch (columnKey) {
+      case "positionTitle":
+        return <span className="font-medium">{pos.positionTitle}</span>;
+      case "positionDescription":
+        return (
+          <span className="text-default-500">
+            {pos.positionDescription || "-"}
+          </span>
+        );
+      case "positionCreatedAt":
+        return (
+          <span className="text-default-500">
+            {new Date(pos.positionCreatedAt).toLocaleDateString("th-TH")}
+          </span>
+        );
+      case "actions":
+        return (
+          <div className="flex items-center gap-1">
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              onPress={() => handleOpen(pos)}
+            >
+              <Edit />
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              color="danger"
+              onPress={() => confirmDelete(pos)}
+            >
+              <Trash2 />
+            </Button>
+          </div>
+        );
+      default:
+        return pos[columnKey] || "-";
+    }
+  }, []);
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">Positions</h1>
-        <Button
-          color="primary"
-          variant="flat"
-          size="sm"
-          startContent={<Plus />}
-          onPress={() => handleOpen()}
-        >
-          Add Position
-        </Button>
-      </div>
-
-      <Table aria-label="Positions table">
-        <TableHeader>
-          <TableColumn>Title</TableColumn>
-          <TableColumn>Description</TableColumn>
-          <TableColumn>Created At</TableColumn>
-          <TableColumn>Actions</TableColumn>
-        </TableHeader>
-        <TableBody
-          isLoading={loading}
-          loadingContent={<Spinner size="sm" />}
-          emptyContent="No positions found"
-        >
-          {positions.map((pos) => (
-            <TableRow key={pos.positionId}>
-              <TableCell className="font-medium">
-                {pos.positionTitle}
-              </TableCell>
-              <TableCell className="text-default-500">
-                {pos.positionDescription || "-"}
-              </TableCell>
-              <TableCell className="text-default-500">
-                {new Date(pos.positionCreatedAt).toLocaleDateString("th-TH")}
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    onPress={() => handleOpen(pos)}
-                  >
-                    <Edit />
-                  </Button>
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    color="danger"
-                    onPress={() => confirmDelete(pos)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <DataTable
+        columns={columns}
+        data={positions}
+        renderCell={renderCell}
+        rowKey="positionId"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="Search by title, description..."
+        searchKeys={["positionTitle", "positionDescription"]}
+        emptyContent="No positions found"
+        topEndContent={
+          <Button
+            color="primary"
+            size="sm"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
+            Add Position
+          </Button>
+        }
+      />
 
       {/* Create/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -221,7 +232,11 @@ export default function PositionsPage() {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="sm">
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onClose={deleteModal.onClose}
+        size="sm"
+      >
         <ModalContent>
           <ModalHeader>Delete Position</ModalHeader>
           <ModalBody>

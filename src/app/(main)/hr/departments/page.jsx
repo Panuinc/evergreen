@@ -1,13 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Button,
   Modal,
   ModalContent,
@@ -17,7 +11,6 @@ import {
   Input,
   Textarea,
   useDisclosure,
-  Spinner,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -27,6 +20,21 @@ import {
   updateDepartment,
   deleteDepartment,
 } from "@/actions/hr";
+import DataTable from "@/components/ui/DataTable";
+
+const columns = [
+  { name: "Name", uid: "departmentName", sortable: true },
+  { name: "Description", uid: "departmentDescription" },
+  { name: "Created At", uid: "departmentCreatedAt", sortable: true },
+  { name: "Actions", uid: "actions" },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "departmentName",
+  "departmentDescription",
+  "departmentCreatedAt",
+  "actions",
+];
 
 const emptyForm = {
   departmentName: "",
@@ -115,69 +123,72 @@ export default function DepartmentsPage() {
     }
   };
 
+  const renderCell = useCallback((dept, columnKey) => {
+    switch (columnKey) {
+      case "departmentName":
+        return <span className="font-medium">{dept.departmentName}</span>;
+      case "departmentDescription":
+        return (
+          <span className="text-default-500">
+            {dept.departmentDescription || "-"}
+          </span>
+        );
+      case "departmentCreatedAt":
+        return (
+          <span className="text-default-500">
+            {new Date(dept.departmentCreatedAt).toLocaleDateString("th-TH")}
+          </span>
+        );
+      case "actions":
+        return (
+          <div className="flex items-center gap-1">
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              onPress={() => handleOpen(dept)}
+            >
+              <Edit />
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              color="danger"
+              onPress={() => confirmDelete(dept)}
+            >
+              <Trash2 />
+            </Button>
+          </div>
+        );
+      default:
+        return dept[columnKey] || "-";
+    }
+  }, []);
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">Departments</h1>
-        <Button
-          color="primary"
-          variant="flat"
-          size="sm"
-          startContent={<Plus />}
-          onPress={() => handleOpen()}
-        >
-          Add Department
-        </Button>
-      </div>
-
-      <Table aria-label="Departments table">
-        <TableHeader>
-          <TableColumn>Name</TableColumn>
-          <TableColumn>Description</TableColumn>
-          <TableColumn>Created At</TableColumn>
-          <TableColumn>Actions</TableColumn>
-        </TableHeader>
-        <TableBody
-          isLoading={loading}
-          loadingContent={<Spinner size="sm" />}
-          emptyContent="No departments found"
-        >
-          {departments.map((dept) => (
-            <TableRow key={dept.departmentId}>
-              <TableCell className="font-medium">
-                {dept.departmentName}
-              </TableCell>
-              <TableCell className="text-default-500">
-                {dept.departmentDescription || "-"}
-              </TableCell>
-              <TableCell className="text-default-500">
-                {new Date(dept.departmentCreatedAt).toLocaleDateString("th-TH")}
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    onPress={() => handleOpen(dept)}
-                  >
-                    <Edit />
-                  </Button>
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="sm"
-                    color="danger"
-                    onPress={() => confirmDelete(dept)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <DataTable
+        columns={columns}
+        data={departments}
+        renderCell={renderCell}
+        rowKey="departmentId"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="Search by name, description..."
+        searchKeys={["departmentName", "departmentDescription"]}
+        emptyContent="No departments found"
+        topEndContent={
+          <Button
+            color="primary"
+            size="sm"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
+            Add Department
+          </Button>
+        }
+      />
 
       {/* Create/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -221,7 +232,11 @@ export default function DepartmentsPage() {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="sm">
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onClose={deleteModal.onClose}
+        size="sm"
+      >
         <ModalContent>
           <ModalHeader>Delete Department</ModalHeader>
           <ModalBody>
