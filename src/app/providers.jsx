@@ -2,11 +2,15 @@
 
 import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "sonner";
 
 export function Providers({ children }) {
   return (
     <ThemeProvider>
-      <HeroUIProvider>{children}</HeroUIProvider>
+      <HeroUIProvider>
+        {children}
+        <Toaster position="top-right" richColors />
+      </HeroUIProvider>
     </ThemeProvider>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import {
   Key,
   LayoutDashboard,
@@ -52,15 +53,18 @@ import {
   MessageSquare,
   ChevronDown,
   Lock,
-  UserCheck,
   Zap,
   GitBranch,
   Workflow,
+  LogOut,
+  Home,
+  Activity,
+  Clock,
+  Star,
 } from "lucide-react";
 import {
   Breadcrumbs,
   BreadcrumbItem,
-  Badge,
   Avatar,
   Dropdown,
   DropdownTrigger,
@@ -68,19 +72,37 @@ import {
   DropdownItem,
 } from "@heroui/react";
 import { useTheme } from "@/components/ThemeProvider";
+import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
+import { Building2, AlertTriangle } from "lucide-react";
 
 const menuData = [
+  {
+    id: "overview",
+    name: "Overview",
+    icon: LayoutDashboard,
+    href: "/overview/dashboard",
+    subMenus: [
+      { name: "Overview", icon: Home, href: "/overview/dashboard" },
+      { name: "Analytics", icon: BarChart3, href: "/overview/analytics" },
+      { name: "Activities", icon: Activity, href: "/overview/activities" },
+      { name: "Recent Updates", icon: Clock, href: "/overview/updates" },
+      { name: "Favorites", icon: Star, href: "/overview/favorites" },
+      { name: "Reports", icon: FileText, href: "/overview/reports" },
+    ],
+  },
   {
     id: "hr",
     name: "Human Resources",
     icon: User,
+    href: "/hr/employees",
     subMenus: [
-      { name: "Employee List", icon: Users },
+      { name: "Employee List", icon: Users, href: "/hr/employees" },
+      { name: "Departments", icon: Building2, href: "/hr/departments" },
       { name: "Recruitment", icon: Briefcase },
       { name: "Attendance", icon: Calendar },
       { name: "Payroll", icon: Wallet },
       { name: "Performance", icon: Target },
-      { name: "Training", icon: Lightbulb },
     ],
   },
   {
@@ -269,31 +291,38 @@ const menuData = [
   },
 ];
 
-function AlertTriangle({ className }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-      <path d="M12 9v4" />
-      <path d="M12 17h.01" />
-    </svg>
-  );
-}
-
 export default function PagesLayout({ children }) {
+  const pathname = usePathname();
   const [activeMenu, setActiveMenu] = useState(menuData[0]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Auto-select menu based on current pathname
+  useEffect(() => {
+    const currentPath = pathname;
+    const matchedMenu = menuData.find((menu) => {
+      if (menu.href && currentPath.startsWith(menu.href)) return true;
+      if (menu.subMenus) {
+        return menu.subMenus.some(
+          (sub) => sub.href && currentPath.startsWith(sub.href),
+        );
+      }
+      return false;
+    });
+    if (matchedMenu) {
+      setActiveMenu(matchedMenu);
+    }
+  }, [pathname]);
 
   return (
     <div className="flex flex-col items-center justify-start w-full h-full overflow-hidden">
+      {/* Header */}
       <div className="flex flex-row items-center justify-center w-full h-fit gap-2 border-b-1 border-default">
         <div className="flex flex-row items-center justify-start w-full h-full p-2 gap-2">
           Evergreen By CHH Industry
@@ -310,12 +339,12 @@ export default function PagesLayout({ children }) {
               theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"
             }
           >
-            {theme === "light" ? <Moon /> : <Sun />}
+            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
 
           {/* Notifications */}
           <button className="relative flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-            <Bell />
+            <Bell size={18} />
             <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-danger text-background rounded-full px-1">
               3
             </span>
@@ -323,7 +352,7 @@ export default function PagesLayout({ children }) {
 
           {/* Messages */}
           <button className="relative flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-            <MessageSquare />
+            <MessageSquare size={18} />
             <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-primary text-background rounded-full px-1">
               5
             </span>
@@ -331,46 +360,57 @@ export default function PagesLayout({ children }) {
 
           {/* Settings */}
           <button className="flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-            <Settings />
+            <Settings size={18} />
           </button>
 
           {/* User Profile */}
-          <Dropdown placement="bottom-end">
-            <DropdownTrigger>
-              <button className="flex items-center gap-2 h-9 pl-1 pr-3 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-                <Avatar
-                  size="md"
-                  src="https://i.pravatar.cc/150?u=user"
-                  className="w-7 h-7"
-                />
-                <span className="text-xs font-medium">John Doe</span>
-                <ChevronDown />
-              </button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="User Actions">
-              <DropdownItem key="profile">My Profile</DropdownItem>
-              <DropdownItem key="settings">Settings</DropdownItem>
-              <DropdownItem key="help">Help & Support</DropdownItem>
-              <DropdownItem key="logout" className="text-danger" color="danger">
-                Logout
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
+          {mounted && (
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <button className="flex items-center gap-2 h-9 pl-1 pr-3 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
+                  <Avatar
+                    size="sm"
+                    src="https://i.pravatar.cc/150?u=user"
+                    className="w-7 h-7"
+                  />
+                  <span className="text-xs font-medium">
+                    {user?.email?.split("@")[0] || "User"}
+                  </span>
+                  <ChevronDown size={16} />
+                </button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="User Actions">
+                <DropdownItem key="profile">My Profile</DropdownItem>
+                <DropdownItem key="settings">Settings</DropdownItem>
+                <DropdownItem key="help">Help & Support</DropdownItem>
+                <DropdownItem
+                  key="logout"
+                  className="text-danger"
+                  color="danger"
+                  onPress={signOut}
+                >
+                  Logout
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          )}
         </div>
       </div>
+
+      {/* Main Content */}
       <div className="flex flex-row items-center justify-center w-full min-h-0 flex-1 border-t-1 border-default">
+        {/* Sidebar */}
         <div
-          className={`flex flex-row items-center justify-center min-h-0 h-full border-r-1 border-default transition-all duration-300 ${isCollapsed ? "w-[15%]" : "w-3/12"}`}
+          className={`flex flex-row items-center justify-center min-h-0 h-full border-r-1 border-default transition-all duration-300 ${
+            isCollapsed ? "w-[15%]" : "w-3/12"
+          }`}
         >
+          {/* Main Menu */}
           <div
-            className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-r-1 border-default transition-all duration-300 ${isCollapsed ? "w-fit" : "w-6/12"}`}
+            className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-r-1 border-default transition-all duration-300 ${
+              isCollapsed ? "w-fit" : "w-6/12"
+            }`}
           >
-            <div
-              className={`flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-b-2 border-default ${isCollapsed ? "justify-center" : ""}`}
-            >
-              <LayoutDashboard />
-              {!isCollapsed && "Dashboard"}
-            </div>
             <div className="flex flex-col items-center justify-start w-full h-full p-2 gap-2 overflow-auto">
               {menuData.map((menu) => {
                 const Icon = menu.icon;
@@ -384,10 +424,10 @@ export default function PagesLayout({ children }) {
                     } ${isActive ? "bg-default" : "hover:bg-default"}`}
                   >
                     <div className="flex items-center justify-center w-fit h-full gap-2">
-                      <Icon className={isActive ? "" : ""} />
+                      <Icon size={18} />
                     </div>
                     {!isCollapsed && (
-                      <div className="flex items-center justify-start w-full h-full gap-2">
+                      <div className="flex items-center justify-start w-full h-full gap-2 text-xs">
                         {menu.name}
                       </div>
                     )}
@@ -397,53 +437,68 @@ export default function PagesLayout({ children }) {
             </div>
             <div
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer"
+              className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer hover:bg-default/50"
             >
-              <FoldHorizontal className={isCollapsed ? "rotate-180" : ""} />
+              <FoldHorizontal
+                size={18}
+                className={isCollapsed ? "rotate-180" : ""}
+              />
               {!isCollapsed && "Collapse Menu"}
             </div>
-            <div className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default">
-              <Key />
+            <div
+              onClick={signOut}
+              className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer hover:bg-danger/20 text-danger"
+            >
+              <LogOut size={18} />
               {!isCollapsed && "Logout"}
             </div>
           </div>
 
+          {/* Sub Menu */}
           <div
-            className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-l-1 border-default transition-all duration-300 ${isCollapsed ? "flex-1" : "w-6/12"}`}
+            className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-l-1 border-default transition-all duration-300 ${
+              isCollapsed ? "flex-1" : "w-6/12"
+            }`}
           >
-            <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b-2 border-default">
+            <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b-2 border-default font-semibold">
               {activeMenu.name}
             </div>
             <div className="flex flex-col items-center justify-start w-full h-full p-2 gap-2 overflow-auto">
-              {activeMenu.subMenus.map((subMenu, index) => {
+              {activeMenu.subMenus?.map((subMenu, index) => {
                 const Icon = subMenu.icon;
+                const href = subMenu.href || "#";
+                const isSubActive = subMenu.href && pathname.startsWith(subMenu.href);
                 return (
-                  <div
+                  <Link
                     key={index}
-                    className="flex flex-row items-center justify-start w-full h-fit p-2 gap-2 rounded-xl cursor-pointer hover:bg-default"
+                    href={href}
+                    className={`flex flex-row items-center justify-start w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
+                      isSubActive ? "bg-default font-medium" : "hover:bg-default"
+                    }`}
                   >
                     <div className="flex items-center justify-center w-fit h-full gap-2">
-                      <Icon />
+                      <Icon size={16} />
                     </div>
-                    <div className="flex items-center justify-start w-full h-full gap-2">
+                    <div className="flex items-center justify-start w-full h-full gap-2 text-xs">
                       {subMenu.name}
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
           </div>
         </div>
+
+        {/* Content Area */}
         <div
-          className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 border-l-1 border-default overflow-hidden transition-all duration-300 ${isCollapsed ? "w-[85%]" : "w-9/12"}`}
+          className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 border-l-1 border-default overflow-hidden transition-all duration-300 ${
+            isCollapsed ? "w-[85%]" : "w-9/12"
+          }`}
         >
           <div className="flex flex-row items-center justify-start w-full h-fit p-2 gap-2 border-b-2 border-default">
             <Breadcrumbs className="h-[18px]">
-              <BreadcrumbItem>Home</BreadcrumbItem>
-              <BreadcrumbItem>Music</BreadcrumbItem>
-              <BreadcrumbItem>Artist</BreadcrumbItem>
-              <BreadcrumbItem>Album</BreadcrumbItem>
-              <BreadcrumbItem>Song</BreadcrumbItem>
+              <BreadcrumbItem href="/dashboard">Home</BreadcrumbItem>
+              <BreadcrumbItem>{activeMenu.name}</BreadcrumbItem>
             </Breadcrumbs>
           </div>
           <div className="flex flex-col items-center justify-start w-full h-full p-2 gap-2 overflow-auto">
