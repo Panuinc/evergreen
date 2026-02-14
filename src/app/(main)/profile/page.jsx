@@ -80,7 +80,7 @@ export default function ProfilePage() {
     <div className="flex flex-col w-full h-full gap-6">
       <h1 className="text-lg font-semibold">My Profile</h1>
 
-      <div className="flex flex-col gap-6 max-w-2xl">
+      <div className="grid grid-cols-2 gap-6 w-full">
         {/* User Info */}
         <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
           <div className="flex items-center gap-2">
@@ -124,13 +124,13 @@ export default function ProfilePage() {
         </div>
 
         {/* Employee Info */}
-        {employee && (
-          <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
-            <div className="flex items-center gap-2">
-              <Briefcase />
-              <h2 className="font-semibold">Employee Information</h2>
-            </div>
+        <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
+          <div className="flex items-center gap-2">
+            <Briefcase />
+            <h2 className="font-semibold">Employee Information</h2>
+          </div>
 
+          {employee ? (
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-default-500">First Name</span>
@@ -192,17 +192,21 @@ export default function ProfilePage() {
                 </Chip>
               </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <span className="text-default-400">
+              No employee record linked to this account
+            </span>
+          )}
+        </div>
 
         {/* Change Password */}
-        <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
+        <div className="flex flex-col gap-4 p-4 border border-default rounded-xl col-span-2">
           <div className="flex items-center gap-2">
             <Lock />
             <h2 className="font-semibold">Change Password</h2>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Input
               label="Current Password"
               type="password"
@@ -242,15 +246,15 @@ export default function ProfilePage() {
               }
               variant="bordered"
             />
-            <div className="flex justify-end">
-              <Button
-                color="primary"
-                onPress={handleChangePassword}
-                isLoading={changing}
-              >
-                Change Password
-              </Button>
-            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              color="primary"
+              onPress={handleChangePassword}
+              isLoading={changing}
+            >
+              Change Password
+            </Button>
           </div>
         </div>
       </div>
