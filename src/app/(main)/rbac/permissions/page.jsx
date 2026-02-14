@@ -114,7 +114,7 @@ export default function PermissionsPage() {
                 <td className="p-2 border-b border-default font-medium capitalize sticky left-0 bg-background">
                   {resource.resourceName}
                   {resource.resourceDescription && (
-                    <span className="text-default-400 ml-2">
+                    <span className="text-default-400">
                       ({resource.resourceDescription})
                     </span>
                   )}
