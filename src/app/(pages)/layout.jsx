@@ -1,66 +1,16 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import {
-  Key,
-  LayoutDashboard,
   FoldHorizontal,
-  User,
-  Computer,
-  DollarSign,
-  ShoppingCart,
-  Megaphone,
   Settings,
-  Package,
-  Factory,
-  BadgeCheck,
-  Lightbulb,
-  HeadphonesIcon,
-  Truck,
-  TrendingUp,
-  FileText,
-  Users,
-  Briefcase,
-  Calendar,
-  Wallet,
-  Receipt,
-  BarChart3,
-  Target,
-  Mail,
-  Globe,
-  Boxes,
-  ClipboardList,
-  Wrench,
-  Phone,
-  MessageCircle,
-  MapPin,
-  Scale,
-  FileCheck,
-  Plus,
-  List,
-  Search,
-  PieChart,
-  CreditCard,
-  Server,
-  Shield,
-  FlaskConical,
-  TrendingDown,
-  ScanLine,
   Sun,
   Moon,
   Bell,
   MessageSquare,
   ChevronDown,
-  Lock,
-  Zap,
-  GitBranch,
-  Workflow,
   LogOut,
-  Home,
-  Activity,
-  Clock,
-  Star,
 } from "lucide-react";
 import {
   Breadcrumbs,
@@ -74,236 +24,7 @@ import {
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
-import { Building2, AlertTriangle } from "lucide-react";
-
-const menuData = [
-  {
-    id: "overview",
-    name: "Overview",
-    icon: LayoutDashboard,
-    href: "/overview/dashboard",
-    subMenus: [
-      { name: "Overview", icon: Home, href: "/overview/dashboard" },
-      { name: "Analytics", icon: BarChart3, href: "/overview/analytics" },
-      { name: "Activities", icon: Activity, href: "/overview/activities" },
-      { name: "Recent Updates", icon: Clock, href: "/overview/updates" },
-      { name: "Favorites", icon: Star, href: "/overview/favorites" },
-      { name: "Reports", icon: FileText, href: "/overview/reports" },
-    ],
-  },
-  {
-    id: "hr",
-    name: "Human Resources",
-    icon: User,
-    href: "/hr/employees",
-    subMenus: [
-      { name: "Employee List", icon: Users, href: "/hr/employees" },
-      { name: "Departments", icon: Building2, href: "/hr/departments" },
-      { name: "Recruitment", icon: Briefcase },
-      { name: "Attendance", icon: Calendar },
-      { name: "Payroll", icon: Wallet },
-      { name: "Performance", icon: Target },
-    ],
-  },
-  {
-    id: "it",
-    name: "Information Technology",
-    icon: Computer,
-    subMenus: [
-      { name: "Assets", icon: Server },
-      { name: "Help Desk", icon: HeadphonesIcon },
-      { name: "System Access", icon: Shield },
-      { name: "Network", icon: Globe },
-      { name: "Software", icon: FileText },
-      { name: "Security", icon: Shield },
-    ],
-  },
-  {
-    id: "finance",
-    name: "Finance & Accounting",
-    icon: DollarSign,
-    subMenus: [
-      { name: "General Ledger", icon: FileText },
-      { name: "Accounts Payable", icon: Receipt },
-      { name: "Accounts Receivable", icon: CreditCard },
-      { name: "Budget", icon: PieChart },
-      { name: "Financial Reports", icon: BarChart3 },
-      { name: "Tax", icon: FileCheck },
-    ],
-  },
-  {
-    id: "sales",
-    name: "Sales",
-    icon: TrendingUp,
-    subMenus: [
-      { name: "Leads", icon: Target },
-      { name: "Opportunities", icon: Briefcase },
-      { name: "Quotations", icon: FileText },
-      { name: "Orders", icon: ShoppingCart },
-      { name: "Customers", icon: Users },
-      { name: "Reports", icon: BarChart3 },
-    ],
-  },
-  {
-    id: "marketing",
-    name: "Marketing",
-    icon: Megaphone,
-    subMenus: [
-      { name: "Campaigns", icon: Target },
-      { name: "Social Media", icon: Globe },
-      { name: "Email Marketing", icon: Mail },
-      { name: "Events", icon: Calendar },
-      { name: "Analytics", icon: BarChart3 },
-      { name: "Content", icon: FileText },
-    ],
-  },
-  {
-    id: "operations",
-    name: "Operations",
-    icon: Settings,
-    subMenus: [
-      { name: "Process Management", icon: ClipboardList },
-      { name: "Resource Planning", icon: Calendar },
-      { name: "KPI Dashboard", icon: BarChart3 },
-      { name: "Workflow", icon: List },
-      { name: "Reports", icon: FileText },
-      { name: "Audit", icon: FileCheck },
-    ],
-  },
-  {
-    id: "procurement",
-    name: "Procurement",
-    icon: ShoppingCart,
-    subMenus: [
-      { name: "Purchase Requests", icon: FileText },
-      { name: "Purchase Orders", icon: ClipboardList },
-      { name: "Vendors", icon: Users },
-      { name: "Contracts", icon: FileCheck },
-      { name: "Negotiations", icon: Target },
-      { name: "Spend Analysis", icon: PieChart },
-    ],
-  },
-  {
-    id: "production",
-    name: "Production",
-    icon: Factory,
-    subMenus: [
-      { name: "Production Plan", icon: Calendar },
-      { name: "Work Orders", icon: ClipboardList },
-      { name: "BOM", icon: List },
-      { name: "Machine Status", icon: Settings },
-      { name: "Efficiency", icon: TrendingUp },
-      { name: "Maintenance", icon: Wrench },
-    ],
-  },
-  {
-    id: "qa",
-    name: "Quality Assurance",
-    icon: BadgeCheck,
-    subMenus: [
-      { name: "Inspections", icon: ScanLine },
-      { name: "Test Reports", icon: FileText },
-      { name: "NCR", icon: AlertTriangle },
-      { name: "CAPA", icon: Target },
-      { name: "Standards", icon: FileCheck },
-      { name: "Audits", icon: Shield },
-    ],
-  },
-  {
-    id: "rnd",
-    name: "R&D",
-    icon: Lightbulb,
-    subMenus: [
-      { name: "Projects", icon: Briefcase },
-      { name: "Experiments", icon: FlaskConical },
-      { name: "Prototypes", icon: Settings },
-      { name: "Patents", icon: FileCheck },
-      { name: "Research", icon: Search },
-      { name: "Innovation", icon: Lightbulb },
-    ],
-  },
-  {
-    id: "cs",
-    name: "Customer Service",
-    icon: HeadphonesIcon,
-    subMenus: [
-      { name: "Tickets", icon: ClipboardList },
-      { name: "Call Center", icon: Phone },
-      { name: "Live Chat", icon: MessageCircle },
-      { name: "Feedback", icon: FileText },
-      { name: "FAQ", icon: List },
-      { name: "SLA", icon: Target },
-    ],
-  },
-  {
-    id: "logistics",
-    name: "Logistics",
-    icon: Truck,
-    subMenus: [
-      { name: "Shipments", icon: Truck },
-      { name: "Tracking", icon: MapPin },
-      { name: "Carriers", icon: Users },
-      { name: "Routes", icon: MapPin },
-      { name: "Delivery", icon: Package },
-      { name: "Freight", icon: Boxes },
-    ],
-  },
-  {
-    id: "warehouse",
-    name: "Warehouse",
-    icon: Package,
-    subMenus: [
-      { name: "Inventory", icon: Boxes },
-      { name: "Receiving", icon: Plus },
-      { name: "Picking", icon: List },
-      { name: "Stock Check", icon: Search },
-      { name: "Locations", icon: MapPin },
-      { name: "Transfers", icon: Truck },
-    ],
-  },
-  {
-    id: "legal",
-    name: "Legal & Compliance",
-    icon: FileText,
-    subMenus: [
-      { name: "Contracts", icon: FileCheck },
-      { name: "Regulations", icon: Scale },
-      { name: "Policies", icon: FileText },
-      { name: "Litigation", icon: Shield },
-      { name: "Compliance", icon: BadgeCheck },
-      { name: "Risk", icon: TrendingDown },
-    ],
-  },
-  {
-    id: "rbac",
-    name: "Access Control",
-    icon: Shield,
-    subMenus: [
-      { name: "Roles", icon: Key },
-      { name: "Users", icon: Users },
-      { name: "Resources", icon: Server },
-      { name: "Actions", icon: Zap },
-      { name: "Permissions", icon: Lock },
-      { name: "Approval Hierarchy", icon: GitBranch },
-      { name: "Approval Workflows", icon: Workflow },
-      { name: "Access Logs", icon: FileText },
-    ],
-  },
-];
-
-function findActiveMenuByPathname(pathname) {
-  return (
-    menuData.find((menu) => {
-      if (menu.href && pathname.startsWith(menu.href)) return true;
-      if (menu.subMenus) {
-        return menu.subMenus.some(
-          (sub) => sub.href && pathname.startsWith(sub.href),
-        );
-      }
-      return false;
-    }) || menuData[0]
-  );
-}
+import { menuData, findActiveMenuByPathname } from "@/config/menu";
 
 export default function PagesLayout({ children }) {
   const pathname = usePathname();
@@ -362,33 +83,33 @@ export default function PagesLayout({ children }) {
           </button>
 
           <Dropdown placement="bottom-end">
-              <DropdownTrigger>
-                <button className="flex items-center gap-2 h-9 pl-1 pr-3 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-                  <Avatar
-                    size="sm"
-                    src="https://i.pravatar.cc/150?u=user"
-                    className="w-7 h-7"
-                  />
-                  <span className="text-xs font-medium">
-                    {user?.email?.split("@")[0] || "User"}
-                  </span>
-                  <ChevronDown />
-                </button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="User Actions">
-                <DropdownItem key="profile">My Profile</DropdownItem>
-                <DropdownItem key="settings">Settings</DropdownItem>
-                <DropdownItem key="help">Help & Support</DropdownItem>
-                <DropdownItem
-                  key="logout"
-                  className="text-danger"
-                  color="danger"
-                  onPress={signOut}
-                >
-                  Logout
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+            <DropdownTrigger>
+              <button className="flex items-center gap-2 h-9 pl-1 pr-3 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
+                <Avatar
+                  size="sm"
+                  src="https://i.pravatar.cc/150?u=user"
+                  className="w-7 h-7"
+                />
+                <span className="text-xs font-medium">
+                  {user?.email?.split("@")[0] || "User"}
+                </span>
+                <ChevronDown />
+              </button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="User Actions">
+              <DropdownItem key="profile">My Profile</DropdownItem>
+              <DropdownItem key="settings">Settings</DropdownItem>
+              <DropdownItem key="help">Help & Support</DropdownItem>
+              <DropdownItem
+                key="logout"
+                className="text-danger"
+                color="danger"
+                onPress={signOut}
+              >
+                Logout
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </div>
       </div>
 
@@ -431,9 +152,7 @@ export default function PagesLayout({ children }) {
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer hover:bg-default/50"
             >
-              <FoldHorizontal
-                className={isCollapsed ? "rotate-180" : ""}
-              />
+              <FoldHorizontal className={isCollapsed ? "rotate-180" : ""} />
               {!isCollapsed && "Collapse Menu"}
             </div>
             <div
@@ -489,7 +208,7 @@ export default function PagesLayout({ children }) {
         >
           <div className="flex flex-row items-center justify-start w-full h-fit p-2 gap-2 border-b-2 border-default">
             <Breadcrumbs className="h-[18px]">
-              <BreadcrumbItem href="/dashboard">Home</BreadcrumbItem>
+              <BreadcrumbItem href="/overview/dashboard">Home</BreadcrumbItem>
               <BreadcrumbItem>{activeMenu.name}</BreadcrumbItem>
             </Breadcrumbs>
           </div>

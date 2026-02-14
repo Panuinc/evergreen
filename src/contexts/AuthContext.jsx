@@ -11,34 +11,26 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       setLoading(false);
     };
 
     getSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signIn = async (email, password) => {
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
-      if (args[0]?.name === 'AuthApiError' || 
-          args[0]?.message?.includes('Invalid login credentials') ||
-          args[0]?.toString?.()?.includes('AuthApiError')) {
-        return;
-      }
-      originalConsoleError.apply(console, args);
-    };
-    
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -46,27 +38,16 @@ export function AuthProvider({ children }) {
       });
 
       if (error) throw error;
-      
+
       window.location.href = "/overview/dashboard";
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
-    } finally {
-      console.error = originalConsoleError;
     }
   };
 
   const signUp = async (email, password) => {
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
-      if (args[0]?.name === 'AuthApiError' || 
-          args[0]?.toString?.()?.includes('AuthApiError')) {
-        return;
-      }
-      originalConsoleError.apply(console, args);
-    };
-    
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -74,12 +55,13 @@ export function AuthProvider({ children }) {
       });
 
       if (error) throw error;
-      
-      return { success: true, message: "Please check your email to verify your account" };
+
+      return {
+        success: true,
+        message: "Please check your email to verify your account",
+      };
     } catch (error) {
       return { success: false, error: error.message };
-    } finally {
-      console.error = originalConsoleError;
     }
   };
 

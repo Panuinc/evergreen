@@ -4,7 +4,7 @@ const nextConfig = {
   reactCompiler: true,
   transpilePackages: ["@heroui/react"],
   experimental: {
-    optimizePackageImports: ["@heroui/react"],
+    optimizePackageImports: ["@heroui/react", "lucide-react"],
   },
 };
 
