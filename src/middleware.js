@@ -1,8 +1,62 @@
-// ปิด middleware ชั่วคราวเพื่อทดสอบ
-export function middleware(req) {
-  return;
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
+
+export async function middleware(request) {
+  const { pathname } = request.nextUrl;
+
+  // ข้าม static files
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    /\.(svg|png|jpg|jpeg|gif|webp|css|js)$/.test(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
+  let response = NextResponse.next({
+    request: { headers: request.headers },
+  });
+
+  try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              request.cookies.set(name, value);
+              response.cookies.set(name, value, options);
+            });
+          },
+        },
+      }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const isAuthenticated = !!user;
+    const isAuthPage = pathname.startsWith("/auth");
+
+    // Login แล้ว + เข้าหน้า / หรือ /auth/* → redirect ไป overview
+    if (isAuthenticated && (pathname === "/" || isAuthPage)) {
+      return NextResponse.redirect(new URL("/overview/dashboard", request.url));
+    }
+
+    // ยังไม่ login + เข้าหน้าอื่น → redirect ไป login
+    if (!isAuthenticated && !isAuthPage) {
+      return NextResponse.redirect(new URL("/auth/signin", request.url));
+    }
+
+  } catch (error) {
+    console.error("Middleware error:", error);
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: [],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

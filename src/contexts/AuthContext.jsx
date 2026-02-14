@@ -2,14 +2,12 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 
 const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const getSession = async () => {
@@ -21,15 +19,9 @@ export function AuthProvider({ children }) {
     getSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("Auth state changed:", event);
+      (_event, session) => {
         setUser(session?.user ?? null);
         setLoading(false);
-        
-        // Auto redirect on sign in
-        if (event === "SIGNED_IN") {
-          window.location.href = "/overview/dashboard";
-        }
       }
     );
 

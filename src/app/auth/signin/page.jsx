@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button, Input } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,6 +12,7 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { user, loading } = useAuth();
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -20,36 +22,14 @@ export default function SignInPage() {
 
     setIsLoading(true);
 
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
-      if (
-        args[0]?.name === "AuthApiError" ||
-        args[0]?.message?.includes("Invalid login credentials") ||
-        args[0]?.toString?.()?.includes("AuthApiError")
-      ) {
-        return;
-      }
-      originalConsoleError.apply(console, args);
-    };
-
     try {
-      console.log("Signing in with:", email);
-
-      const { data, error } = await new Promise((resolve) => {
-        supabase.auth
-          .signInWithPassword({
-            email,
-            password,
-          })
-          .then((result) => resolve(result))
-          .catch((err) => resolve({ data: null, error: err }));
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
       if (error) {
-        console.log("Sign in error:", error.message);
-        const errorMessage =
-          error.message || error.error_description || "Authentication failed";
-        if (errorMessage === "Invalid login credentials") {
+        if (error.message === "Invalid login credentials") {
           toast.error(
             <div className="flex flex-col gap-1">
               <span>Invalid email or password</span>
@@ -62,23 +42,30 @@ export default function SignInPage() {
             </div>,
           );
         } else {
-          toast.error(errorMessage);
+          toast.error(error.message || "Authentication failed");
         }
         setIsLoading(false);
         return;
       }
 
-      console.log("Sign in success:", data);
-
-      window.location.replace("/overview/dashboard");
+      window.location.href = "/overview/dashboard";
     } catch (err) {
-      console.log("Unexpected error:", err);
       toast.error("An unexpected error occurred");
       setIsLoading(false);
-    } finally {
-      console.error = originalConsoleError;
     }
   };
+
+  // แสดง loading ระหว่างตรวจสอบ auth
+  if (loading || user) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+          <p className="text-sm text-gray-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-row items-center justify-center w-full h-full">
