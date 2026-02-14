@@ -1,0 +1,5 @@
+Project name : EvergreenV.2
+Database password : JQFJHsHDX9VPPSFi
+
+NEXT_PUBLIC_SUPABASE_URL=https://nersjlyaqgjrjznbwuhq.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=sb_publishable_XKQRj-5GRrOSScRocisEpA_qJO5qWfm

@@ -51,6 +51,11 @@ import {
   Bell,
   MessageSquare,
   ChevronDown,
+  Lock,
+  UserCheck,
+  Zap,
+  GitBranch,
+  Workflow,
 } from "lucide-react";
 import {
   Breadcrumbs,
@@ -245,6 +250,21 @@ const menuData = [
       { name: "Litigation", icon: Shield },
       { name: "Compliance", icon: BadgeCheck },
       { name: "Risk", icon: TrendingDown },
+    ],
+  },
+  {
+    id: "rbac",
+    name: "Access Control",
+    icon: Shield,
+    subMenus: [
+      { name: "Roles", icon: Key },
+      { name: "Users", icon: Users },
+      { name: "Resources", icon: Server },
+      { name: "Actions", icon: Zap },
+      { name: "Permissions", icon: Lock },
+      { name: "Approval Hierarchy", icon: GitBranch },
+      { name: "Approval Workflows", icon: Workflow },
+      { name: "Access Logs", icon: FileText },
     ],
   },
 ];
