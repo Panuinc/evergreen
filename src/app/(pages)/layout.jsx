@@ -303,7 +303,6 @@ export default function PagesLayout({ children }) {
     setMounted(true);
   }, []);
 
-  // Auto-select menu based on current pathname
   useEffect(() => {
     const currentPath = pathname;
     const matchedMenu = menuData.find((menu) => {
@@ -322,7 +321,6 @@ export default function PagesLayout({ children }) {
 
   return (
     <div className="flex flex-col items-center justify-start w-full h-full overflow-hidden">
-      {/* Header */}
       <div className="flex flex-row items-center justify-center w-full h-fit gap-2 border-b-1 border-default">
         <div className="flex flex-row items-center justify-start w-full h-full p-2 gap-2">
           Evergreen By CHH Industry
@@ -331,7 +329,6 @@ export default function PagesLayout({ children }) {
           {" "}
         </div>
         <div className="flex flex-row items-center justify-end w-full h-full p-2 gap-3">
-          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer"
@@ -342,7 +339,6 @@ export default function PagesLayout({ children }) {
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
 
-          {/* Notifications */}
           <button className="relative flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
             <Bell size={18} />
             <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-danger text-background rounded-full px-1">
@@ -350,7 +346,6 @@ export default function PagesLayout({ children }) {
             </span>
           </button>
 
-          {/* Messages */}
           <button className="relative flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
             <MessageSquare size={18} />
             <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-primary text-background rounded-full px-1">
@@ -358,12 +353,10 @@ export default function PagesLayout({ children }) {
             </span>
           </button>
 
-          {/* Settings */}
           <button className="flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
             <Settings size={18} />
           </button>
 
-          {/* User Profile */}
           {mounted && (
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
@@ -397,15 +390,12 @@ export default function PagesLayout({ children }) {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex flex-row items-center justify-center w-full min-h-0 flex-1 border-t-1 border-default">
-        {/* Sidebar */}
         <div
           className={`flex flex-row items-center justify-center min-h-0 h-full border-r-1 border-default transition-all duration-300 ${
             isCollapsed ? "w-[15%]" : "w-3/12"
           }`}
         >
-          {/* Main Menu */}
           <div
             className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-r-1 border-default transition-all duration-300 ${
               isCollapsed ? "w-fit" : "w-6/12"
@@ -454,7 +444,6 @@ export default function PagesLayout({ children }) {
             </div>
           </div>
 
-          {/* Sub Menu */}
           <div
             className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-l-1 border-default transition-all duration-300 ${
               isCollapsed ? "flex-1" : "w-6/12"
@@ -467,13 +456,16 @@ export default function PagesLayout({ children }) {
               {activeMenu.subMenus?.map((subMenu, index) => {
                 const Icon = subMenu.icon;
                 const href = subMenu.href || "#";
-                const isSubActive = subMenu.href && pathname.startsWith(subMenu.href);
+                const isSubActive =
+                  subMenu.href && pathname.startsWith(subMenu.href);
                 return (
                   <Link
                     key={index}
                     href={href}
                     className={`flex flex-row items-center justify-start w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
-                      isSubActive ? "bg-default font-medium" : "hover:bg-default"
+                      isSubActive
+                        ? "bg-default font-medium"
+                        : "hover:bg-default"
                     }`}
                   >
                     <div className="flex items-center justify-center w-fit h-full gap-2">
@@ -489,7 +481,6 @@ export default function PagesLayout({ children }) {
           </div>
         </div>
 
-        {/* Content Area */}
         <div
           className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 border-l-1 border-default overflow-hidden transition-all duration-300 ${
             isCollapsed ? "w-[85%]" : "w-9/12"

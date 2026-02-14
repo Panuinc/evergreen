@@ -4,7 +4,6 @@ export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-full p-8">
       <div className="flex flex-col items-center justify-center max-w-md text-center gap-6">
-        {/* Icon */}
         <div className="flex items-center justify-center w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +23,6 @@ export default function NotFound() {
           </svg>
         </div>
 
-        {/* Error Code */}
         <div className="flex flex-col gap-2">
           <h1 className="text-6xl font-bold text-gray-900 dark:text-white">404</h1>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -32,13 +30,11 @@ export default function NotFound() {
           </h2>
         </div>
 
-        {/* Message */}
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been
           moved, deleted, or you entered the wrong URL.
         </p>
 
-        {/* Actions */}
         <div className="flex flex-row items-center justify-center gap-3 mt-4">
           <Link
             href="/overview/dashboard"

@@ -29,7 +29,6 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signIn = async (email, password) => {
-    // Suppress console error จาก Supabase ชั่วคราว
     const originalConsoleError = console.error;
     console.error = (...args) => {
       if (args[0]?.name === 'AuthApiError' || 
@@ -48,7 +47,6 @@ export function AuthProvider({ children }) {
 
       if (error) throw error;
       
-      // Redirect ผ่าน window.location แทน router.push
       window.location.href = "/overview/dashboard";
       
       return { success: true };
@@ -60,7 +58,6 @@ export function AuthProvider({ children }) {
   };
 
   const signUp = async (email, password) => {
-    // Suppress console error จาก Supabase ชั่วคราว
     const originalConsoleError = console.error;
     console.error = (...args) => {
       if (args[0]?.name === 'AuthApiError' || 

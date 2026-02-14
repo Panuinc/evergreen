@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // ข้าม static files
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
@@ -40,12 +39,10 @@ export async function middleware(request) {
     const isAuthenticated = !!user;
     const isAuthPage = pathname.startsWith("/auth");
 
-    // Login แล้ว + เข้าหน้า / หรือ /auth/* → redirect ไป overview
     if (isAuthenticated && (pathname === "/" || isAuthPage)) {
       return NextResponse.redirect(new URL("/overview/dashboard", request.url));
     }
 
-    // ยังไม่ login + เข้าหน้าอื่น → redirect ไป login
     if (!isAuthenticated && !isAuthPage) {
       return NextResponse.redirect(new URL("/auth/signin", request.url));
     }

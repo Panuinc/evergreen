@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@heroui/react";
+import Loading from "@/components/Loading";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -16,7 +17,6 @@ export default function SignUpPage() {
   const { signUp, user, loading } = useAuth();
   const router = useRouter();
 
-  // ถ้า login แล้ว redirect ไป overview
   useEffect(() => {
     if (!loading && user) {
       router.replace("/overview/dashboard");
@@ -49,16 +49,8 @@ export default function SignUpPage() {
     setIsLoading(false);
   };
 
-  // แสดง loading ระหว่างตรวจสอบ auth
   if (loading || user) {
-    return (
-      <div className="flex items-center justify-center w-full h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Loading...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
