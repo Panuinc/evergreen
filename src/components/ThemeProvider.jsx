@@ -7,18 +7,31 @@ const ThemeContext = createContext({
   toggleTheme: () => {},
 });
 
+function getInitialTheme() {
+  if (typeof window === "undefined") return "light";
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme) return savedTheme;
+  if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
+  return "light";
+}
+
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState("light");
   const [mounted, setMounted] = useState(false);
 
+  // Initialize theme after mount to access localStorage/window
   useEffect(() => {
-    setMounted(true);
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
+    const initialTheme = getInitialTheme();
+    // Sync React state with external storage (localStorage)
+    // This is necessary to avoid hydration mismatch in SSR
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTheme(initialTheme);
+    if (initialTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
     }
+    setMounted(true);
   }, []);
 
   useEffect(() => {

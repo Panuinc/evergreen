@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import {
   Key,
@@ -291,33 +291,37 @@ const menuData = [
   },
 ];
 
-export default function PagesLayout({ children }) {
-  const pathname = usePathname();
-  const [activeMenu, setActiveMenu] = useState(menuData[0]);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const { theme, toggleTheme } = useTheme();
-  const { user, signOut } = useAuth();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const currentPath = pathname;
-    const matchedMenu = menuData.find((menu) => {
-      if (menu.href && currentPath.startsWith(menu.href)) return true;
+function findActiveMenuByPathname(pathname) {
+  return (
+    menuData.find((menu) => {
+      if (menu.href && pathname.startsWith(menu.href)) return true;
       if (menu.subMenus) {
         return menu.subMenus.some(
-          (sub) => sub.href && currentPath.startsWith(sub.href),
+          (sub) => sub.href && pathname.startsWith(sub.href),
         );
       }
       return false;
-    });
-    if (matchedMenu) {
-      setActiveMenu(matchedMenu);
+    }) || menuData[0]
+  );
+}
+
+export default function PagesLayout({ children }) {
+  const pathname = usePathname();
+  const [activeMenuId, setActiveMenuId] = useState(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
+
+  // Compute activeMenu from pathname using useMemo to avoid setState in effect
+  const activeMenu = useMemo(() => {
+    // If user manually selected a menu, use that
+    if (activeMenuId) {
+      const manualMenu = menuData.find((m) => m.id === activeMenuId);
+      if (manualMenu) return manualMenu;
     }
-  }, [pathname]);
+    // Otherwise derive from pathname
+    return findActiveMenuByPathname(pathname);
+  }, [pathname, activeMenuId]);
 
   return (
     <div className="flex flex-col items-center justify-start w-full h-full overflow-hidden">
@@ -336,29 +340,28 @@ export default function PagesLayout({ children }) {
               theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"
             }
           >
-            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+            {theme === "light" ? <Moon /> : <Sun />}
           </button>
 
           <button className="relative flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-            <Bell size={18} />
+            <Bell />
             <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-danger text-background rounded-full px-1">
               3
             </span>
           </button>
 
           <button className="relative flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-            <MessageSquare size={18} />
+            <MessageSquare />
             <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-primary text-background rounded-full px-1">
               5
             </span>
           </button>
 
           <button className="flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-            <Settings size={18} />
+            <Settings />
           </button>
 
-          {mounted && (
-            <Dropdown placement="bottom-end">
+          <Dropdown placement="bottom-end">
               <DropdownTrigger>
                 <button className="flex items-center gap-2 h-9 pl-1 pr-3 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
                   <Avatar
@@ -369,7 +372,7 @@ export default function PagesLayout({ children }) {
                   <span className="text-xs font-medium">
                     {user?.email?.split("@")[0] || "User"}
                   </span>
-                  <ChevronDown size={16} />
+                  <ChevronDown />
                 </button>
               </DropdownTrigger>
               <DropdownMenu aria-label="User Actions">
@@ -386,7 +389,6 @@ export default function PagesLayout({ children }) {
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
-          )}
         </div>
       </div>
 
@@ -408,13 +410,13 @@ export default function PagesLayout({ children }) {
                 return (
                   <div
                     key={menu.id}
-                    onClick={() => setActiveMenu(menu)}
+                    onClick={() => setActiveMenuId(menu.id)}
                     className={`flex flex-row items-center w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
                       isCollapsed ? "justify-center" : "justify-start"
                     } ${isActive ? "bg-default" : "hover:bg-default"}`}
                   >
                     <div className="flex items-center justify-center w-fit h-full gap-2">
-                      <Icon size={18} />
+                      <Icon />
                     </div>
                     {!isCollapsed && (
                       <div className="flex items-center justify-start w-full h-full gap-2 text-xs">
@@ -430,7 +432,6 @@ export default function PagesLayout({ children }) {
               className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer hover:bg-default/50"
             >
               <FoldHorizontal
-                size={18}
                 className={isCollapsed ? "rotate-180" : ""}
               />
               {!isCollapsed && "Collapse Menu"}
@@ -439,7 +440,7 @@ export default function PagesLayout({ children }) {
               onClick={signOut}
               className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer hover:bg-danger/20 text-danger"
             >
-              <LogOut size={18} />
+              <LogOut />
               {!isCollapsed && "Logout"}
             </div>
           </div>
@@ -469,7 +470,7 @@ export default function PagesLayout({ children }) {
                     }`}
                   >
                     <div className="flex items-center justify-center w-fit h-full gap-2">
-                      <Icon size={16} />
+                      <Icon />
                     </div>
                     <div className="flex items-center justify-start w-full h-full gap-2 text-xs">
                       {subMenu.name}
