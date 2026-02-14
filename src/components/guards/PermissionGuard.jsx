@@ -10,7 +10,7 @@ import Forbidden from "@/app/forbidden";
 export default function PermissionGuard({ permission, moduleId, children }) {
   const { user, loading: authLoading } = useAuth();
   const { hasPermission, hasModuleAccess, rbacLoading } = useRBAC();
-  const loggedRef = useRef(null);
+  const loggedRef = useRef(false);
 
   const isLoading = authLoading || rbacLoading;
 
@@ -23,13 +23,14 @@ export default function PermissionGuard({ permission, moduleId, children }) {
   const resource = permission || moduleId || "unknown";
 
   useEffect(() => {
-    if (isLoading || !user) return;
+    if (isLoading || !user || loggedRef.current) return;
 
-    const logKey = `${user.id}:${resource}:${hasAccess}`;
-    if (loggedRef.current === logKey) return;
-    loggedRef.current = logKey;
+    const timer = setTimeout(() => {
+      loggedRef.current = true;
+      logAccess(user.id, resource, "access", hasAccess);
+    }, 300);
 
-    logAccess(user.id, resource, "access", hasAccess);
+    return () => clearTimeout(timer);
   }, [isLoading, user, resource, hasAccess]);
 
   if (isLoading) {

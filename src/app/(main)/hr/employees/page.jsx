@@ -1,9 +1,429 @@
-import React from 'react'
+"use client";
 
-export default function EmployeePage() {
+import { useState, useEffect, useMemo } from "react";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
+  Select,
+  SelectItem,
+  Chip,
+  useDisclosure,
+  Spinner,
+  Pagination,
+} from "@heroui/react";
+import { Plus, Edit, Trash2, Search, X } from "lucide-react";
+import { toast } from "sonner";
+import {
+  getEmployees,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
+  getDepartments,
+  getPositions,
+} from "@/actions/hr";
+
+const ROWS_PER_PAGE = 10;
+
+const emptyForm = {
+  employeeFirstName: "",
+  employeeLastName: "",
+  employeeEmail: "",
+  employeePhone: "",
+  employeeDepartment: "",
+  employeePosition: "",
+  employeeSalary: "",
+  employeeStatus: "active",
+};
+
+export default function EmployeesPage() {
+  const [employees, setEmployees] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [formData, setFormData] = useState(emptyForm);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const deleteModal = useDisclosure();
+  const [deletingEmployee, setDeletingEmployee] = useState(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [empData, deptData, posData] = await Promise.all([
+        getEmployees(),
+        getDepartments(),
+        getPositions(),
+      ]);
+      setEmployees(empData);
+      setDepartments(deptData);
+      setPositions(posData);
+    } catch (error) {
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return employees;
+    const term = search.toLowerCase();
+    return employees.filter(
+      (e) =>
+        e.employeeFirstName?.toLowerCase().includes(term) ||
+        e.employeeLastName?.toLowerCase().includes(term) ||
+        e.employeeEmail?.toLowerCase().includes(term) ||
+        e.employeePhone?.toLowerCase().includes(term) ||
+        e.employeeDepartment?.toLowerCase().includes(term) ||
+        e.employeePosition?.toLowerCase().includes(term),
+    );
+  }, [employees, search]);
+
+  const totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE);
+  const paginatedItems = useMemo(() => {
+    const start = (page - 1) * ROWS_PER_PAGE;
+    return filtered.slice(start, start + ROWS_PER_PAGE);
+  }, [filtered, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const handleOpen = (employee = null) => {
+    if (employee) {
+      setEditingEmployee(employee);
+      setFormData({
+        employeeFirstName: employee.employeeFirstName || "",
+        employeeLastName: employee.employeeLastName || "",
+        employeeEmail: employee.employeeEmail || "",
+        employeePhone: employee.employeePhone || "",
+        employeeDepartment: employee.employeeDepartment || "",
+        employeePosition: employee.employeePosition || "",
+        employeeSalary: employee.employeeSalary?.toString() || "",
+        employeeStatus: employee.employeeStatus || "active",
+      });
+    } else {
+      setEditingEmployee(null);
+      setFormData(emptyForm);
+    }
+    onOpen();
+  };
+
+  const handleSave = async () => {
+    if (!formData.employeeFirstName.trim() || !formData.employeeLastName.trim()) {
+      toast.error("First name and last name are required");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      employeeSalary: formData.employeeSalary
+        ? parseFloat(formData.employeeSalary)
+        : null,
+    };
+
+    try {
+      setSaving(true);
+      if (editingEmployee) {
+        await updateEmployee(editingEmployee.employeeId, payload);
+        toast.success("Employee updated");
+      } else {
+        await createEmployee(payload);
+        toast.success("Employee created");
+      }
+      onClose();
+      loadData();
+    } catch (error) {
+      toast.error(error.message || "Failed to save employee");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const confirmDelete = (employee) => {
+    setDeletingEmployee(employee);
+    deleteModal.onOpen();
+  };
+
+  const handleDelete = async () => {
+    if (!deletingEmployee) return;
+    try {
+      await deleteEmployee(deletingEmployee.employeeId);
+      toast.success("Employee deleted");
+      deleteModal.onClose();
+      setDeletingEmployee(null);
+      loadData();
+    } catch (error) {
+      toast.error(error.message || "Failed to delete employee");
+    }
+  };
+
+  const updateField = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   return (
-    <div>
-      EmployeePage
+    <div className="flex flex-col w-full h-full gap-4">
+      <div className="flex items-center justify-between w-full">
+        <h1 className="text-lg font-semibold">Employees</h1>
+        <Button
+          color="primary"
+          variant="flat"
+          size="sm"
+          startContent={<Plus className="w-4 h-4" />}
+          onPress={() => handleOpen()}
+        >
+          Add Employee
+        </Button>
+      </div>
+
+      <Input
+        placeholder="Search by name, email, phone, department, position..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        startContent={<Search className="w-4 h-4 text-default-400" />}
+        endContent={
+          search && (
+            <button onClick={() => setSearch("")}>
+              <X className="w-4 h-4 text-default-400" />
+            </button>
+          )
+        }
+        variant="bordered"
+        size="sm"
+        className="max-w-md"
+      />
+
+      <Table
+        aria-label="Employees table"
+        bottomContent={
+          totalPages > 1 ? (
+            <div className="flex justify-center w-full">
+              <Pagination
+                total={totalPages}
+                page={page}
+                onChange={setPage}
+                size="sm"
+              />
+            </div>
+          ) : null
+        }
+      >
+        <TableHeader>
+          <TableColumn>Name</TableColumn>
+          <TableColumn>Email</TableColumn>
+          <TableColumn>Phone</TableColumn>
+          <TableColumn>Department</TableColumn>
+          <TableColumn>Position</TableColumn>
+          <TableColumn>Salary</TableColumn>
+          <TableColumn>Status</TableColumn>
+          <TableColumn>Actions</TableColumn>
+        </TableHeader>
+        <TableBody
+          isLoading={loading}
+          loadingContent={<Spinner size="sm" />}
+          emptyContent="No employees found"
+        >
+          {paginatedItems.map((emp) => (
+            <TableRow key={emp.employeeId}>
+              <TableCell className="font-medium">
+                {emp.employeeFirstName} {emp.employeeLastName}
+              </TableCell>
+              <TableCell className="text-default-500">
+                {emp.employeeEmail || "-"}
+              </TableCell>
+              <TableCell className="text-default-500">
+                {emp.employeePhone || "-"}
+              </TableCell>
+              <TableCell>{emp.employeeDepartment || "-"}</TableCell>
+              <TableCell>{emp.employeePosition || "-"}</TableCell>
+              <TableCell>
+                {emp.employeeSalary
+                  ? Number(emp.employeeSalary).toLocaleString("th-TH", {
+                      minimumFractionDigits: 2,
+                    })
+                  : "-"}
+              </TableCell>
+              <TableCell>
+                <Chip
+                  color={emp.employeeStatus === "active" ? "success" : "default"}
+                  variant="flat"
+                  size="sm"
+                >
+                  {emp.employeeStatus}
+                </Chip>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1">
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    size="sm"
+                    onPress={() => handleOpen(emp)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    size="sm"
+                    color="danger"
+                    onPress={() => confirmDelete(emp)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      {/* Create/Edit Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size="2xl" scrollBehavior="inside">
+        <ModalContent>
+          <ModalHeader>
+            {editingEmployee ? "Edit Employee" : "Add Employee"}
+          </ModalHeader>
+          <ModalBody>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="First Name"
+                placeholder="Enter first name"
+                value={formData.employeeFirstName}
+                onChange={(e) => updateField("employeeFirstName", e.target.value)}
+                variant="bordered"
+                isRequired
+              />
+              <Input
+                label="Last Name"
+                placeholder="Enter last name"
+                value={formData.employeeLastName}
+                onChange={(e) => updateField("employeeLastName", e.target.value)}
+                variant="bordered"
+                isRequired
+              />
+              <Input
+                label="Email"
+                placeholder="Enter email"
+                type="email"
+                value={formData.employeeEmail}
+                onChange={(e) => updateField("employeeEmail", e.target.value)}
+                variant="bordered"
+              />
+              <Input
+                label="Phone"
+                placeholder="Enter phone number"
+                value={formData.employeePhone}
+                onChange={(e) => updateField("employeePhone", e.target.value)}
+                variant="bordered"
+              />
+              <Select
+                label="Department"
+                placeholder="Select department"
+                selectedKeys={formData.employeeDepartment ? [formData.employeeDepartment] : []}
+                onSelectionChange={(keys) => {
+                  const val = Array.from(keys)[0] || "";
+                  updateField("employeeDepartment", val);
+                }}
+                variant="bordered"
+              >
+                {departments.map((dept) => (
+                  <SelectItem key={dept.departmentName}>
+                    {dept.departmentName}
+                  </SelectItem>
+                ))}
+              </Select>
+              <Select
+                label="Position"
+                placeholder="Select position"
+                selectedKeys={formData.employeePosition ? [formData.employeePosition] : []}
+                onSelectionChange={(keys) => {
+                  const val = Array.from(keys)[0] || "";
+                  updateField("employeePosition", val);
+                }}
+                variant="bordered"
+              >
+                {positions.map((pos) => (
+                  <SelectItem key={pos.positionTitle}>
+                    {pos.positionTitle}
+                  </SelectItem>
+                ))}
+              </Select>
+              <Input
+                label="Salary"
+                placeholder="Enter salary"
+                type="number"
+                value={formData.employeeSalary}
+                onChange={(e) => updateField("employeeSalary", e.target.value)}
+                variant="bordered"
+              />
+              <Select
+                label="Status"
+                selectedKeys={[formData.employeeStatus]}
+                onSelectionChange={(keys) => {
+                  const val = Array.from(keys)[0] || "active";
+                  updateField("employeeStatus", val);
+                }}
+                variant="bordered"
+              >
+                <SelectItem key="active">Active</SelectItem>
+                <SelectItem key="inactive">Inactive</SelectItem>
+              </Select>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="flat" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button color="primary" onPress={handleSave} isLoading={saving}>
+              {editingEmployee ? "Update" : "Create"}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="sm">
+        <ModalContent>
+          <ModalHeader>Delete Employee</ModalHeader>
+          <ModalBody>
+            <p>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold">
+                {deletingEmployee?.employeeFirstName}{" "}
+                {deletingEmployee?.employeeLastName}
+              </span>
+              ? This action cannot be undone.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="flat" onPress={deleteModal.onClose}>
+              Cancel
+            </Button>
+            <Button color="danger" onPress={handleDelete}>
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
-  )
+  );
 }

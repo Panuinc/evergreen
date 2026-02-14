@@ -100,6 +100,39 @@ export async function getDepartments() {
   return data;
 }
 
+export async function createDepartment(departmentData) {
+  const { data, error } = await supabase
+    .from("departments")
+    .insert([departmentData])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateDepartment(id, departmentData) {
+  const { data, error } = await supabase
+    .from("departments")
+    .update(departmentData)
+    .eq("departmentId", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteDepartment(id) {
+  const { error } = await supabase
+    .from("departments")
+    .delete()
+    .eq("departmentId", id);
+
+  if (error) throw error;
+  return true;
+}
+
 // ==================== Positions ====================
 
 export async function getPositions() {
@@ -110,4 +143,37 @@ export async function getPositions() {
 
   if (error) throw error;
   return data;
+}
+
+export async function createPosition(positionData) {
+  const { data, error } = await supabase
+    .from("positions")
+    .insert([positionData])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updatePosition(id, positionData) {
+  const { data, error } = await supabase
+    .from("positions")
+    .update(positionData)
+    .eq("positionId", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deletePosition(id) {
+  const { error } = await supabase
+    .from("positions")
+    .delete()
+    .eq("positionId", id);
+
+  if (error) throw error;
+  return true;
 }

@@ -8,21 +8,23 @@ const RBACContext = createContext({});
 
 export function RBACProvider({ children }) {
   const { user } = useAuth();
+  const userId = user?.id;
   const [permissions, setPermissions] = useState([]);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [rbacLoading, setRbacLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setPermissions([]);
       setIsSuperAdmin(false);
-      setRbacLoading(false);
       return;
     }
 
+    setRbacLoading(true);
+
     const loadPermissions = async () => {
       try {
-        const data = await getUserPermissions(user.id);
+        const data = await getUserPermissions(userId);
         const permStrings = data
           .map((d) => d.permission)
           .filter((p) => p !== "__superadmin__");
@@ -39,7 +41,7 @@ export function RBACProvider({ children }) {
     };
 
     loadPermissions();
-  }, [user]);
+  }, [userId]);
 
   const hasPermission = useCallback(
     (permission) => {
