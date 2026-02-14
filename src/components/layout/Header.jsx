@@ -15,10 +15,12 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Header() {
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
 
@@ -74,7 +76,7 @@ export default function Header() {
             </button>
           </DropdownTrigger>
           <DropdownMenu aria-label="User Actions">
-            <DropdownItem key="profile">My Profile</DropdownItem>
+            <DropdownItem key="profile" onPress={() => router.push("/profile")}>My Profile</DropdownItem>
             <DropdownItem key="settings">Settings</DropdownItem>
             <DropdownItem key="help">Help & Support</DropdownItem>
             <DropdownItem

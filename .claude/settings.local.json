@@ -8,7 +8,8 @@
       "Bash(xargs kill:*)",
       "Bash(node -e:*)",
       "Bash(npx next build:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(find:*)"
     ]
   }
 }
