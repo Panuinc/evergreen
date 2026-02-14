@@ -7,7 +7,8 @@
       "Bash(lsof:*)",
       "Bash(xargs kill:*)",
       "Bash(node -e:*)",
-      "Bash(npx next build:*)"
+      "Bash(npx next build:*)",
+      "Bash(ls:*)"
     ]
   }
 }

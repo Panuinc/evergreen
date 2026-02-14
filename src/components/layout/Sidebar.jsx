@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
 import { FoldHorizontal, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRBAC } from "@/contexts/RBACContext";
 import { menuData } from "@/config/menu";
 
 export default function Sidebar({
@@ -11,6 +13,15 @@ export default function Sidebar({
   onToggleCollapse,
 }) {
   const { signOut } = useAuth();
+  const { hasModuleAccess, rbacLoading } = useRBAC();
+
+  const visibleMenus = useMemo(() => {
+    if (rbacLoading) return menuData;
+    return menuData.filter((menu) => {
+      if (menu.id === "overview") return true;
+      return hasModuleAccess(menu.id);
+    });
+  }, [hasModuleAccess, rbacLoading]);
 
   return (
     <div
@@ -19,7 +30,7 @@ export default function Sidebar({
       }`}
     >
       <div className="flex flex-col items-center justify-start w-full h-full p-2 gap-2 overflow-auto">
-        {menuData.map((menu) => {
+        {visibleMenus.map((menu) => {
           const Icon = menu.icon;
           const isActive = activeMenu.id === menu.id;
           return (

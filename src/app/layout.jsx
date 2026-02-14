@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { Providers } from "./providers";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { RBACProvider } from "@/contexts/RBACContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,11 @@ export default function RootLayout({ children }) {
       >
         <Providers>
           <AuthProvider>
-            <div className="flex items-center justify-center w-full h-screen text-[12px] transition-colors duration-300">
-              {children}
-            </div>
+            <RBACProvider>
+              <div className="flex items-center justify-center w-full h-screen text-[12px] transition-colors duration-300">
+                {children}
+              </div>
+            </RBACProvider>
           </AuthProvider>
         </Providers>
       </body>
