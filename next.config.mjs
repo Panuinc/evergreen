@@ -2,6 +2,7 @@
 const nextConfig = {
   /* config options here */
   reactCompiler: true,
+  transpilePackages: ["@heroui/react"],
 };
 
 export default nextConfig;

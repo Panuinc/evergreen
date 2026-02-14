@@ -5,7 +5,9 @@
       "Bash(npx next dev:*)",
       "Bash(npm run build:*)",
       "Bash(lsof:*)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "Bash(node -e:*)",
+      "Bash(npx next build:*)"
     ]
   }
 }
