@@ -41,12 +41,12 @@ export default function DataTable({
 }) {
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState(
-    new Set(initialVisibleColumns || columns.map((c) => c.uid))
+    new Set(initialVisibleColumns || columns.map((c) => c.uid)),
   );
   const [statusFilter, setStatusFilter] = useState("all");
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
   const [sortDescriptor, setSortDescriptor] = useState(
-    defaultSortDescriptor || {}
+    defaultSortDescriptor || {},
   );
   const [page, setPage] = useState(1);
 
@@ -59,7 +59,7 @@ export default function DataTable({
       visibleColumns === "all"
         ? columns
         : columns.filter((column) =>
-            Array.from(visibleColumns).includes(column.uid)
+            Array.from(visibleColumns).includes(column.uid),
           );
     return [noColumn, ...visible];
   }, [columns, visibleColumns]);
@@ -73,8 +73,8 @@ export default function DataTable({
         searchKeys.some((key) =>
           String(item[key] || "")
             .toLowerCase()
-            .includes(term)
-        )
+            .includes(term),
+        ),
       );
     }
 
@@ -84,12 +84,20 @@ export default function DataTable({
       Array.from(statusFilter).length !== statusOptions.length
     ) {
       filtered = filtered.filter((item) =>
-        Array.from(statusFilter).includes(item[statusField])
+        Array.from(statusFilter).includes(item[statusField]),
       );
     }
 
     return filtered;
-  }, [data, filterValue, statusFilter, searchKeys, statusField, statusOptions, hasSearchFilter]);
+  }, [
+    data,
+    filterValue,
+    statusFilter,
+    searchKeys,
+    statusField,
+    statusOptions,
+    hasSearchFilter,
+  ]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
 
@@ -135,8 +143,6 @@ export default function DataTable({
               value={filterValue}
               onClear={() => setFilterValue("")}
               onValueChange={onSearchChange}
-              size="sm"
-              variant="bordered"
             />
           ) : (
             <div />
@@ -145,13 +151,7 @@ export default function DataTable({
             {statusField && statusOptions.length > 0 && (
               <Dropdown>
                 <DropdownTrigger className="hidden sm:flex">
-                  <Button
-                    endContent={<ChevronDown />}
-                    variant="flat"
-                    size="sm"
-                  >
-                    Status
-                  </Button>
+                  <Button endContent={<ChevronDown />}>Status</Button>
                 </DropdownTrigger>
                 <DropdownMenu
                   disallowEmptySelection
@@ -171,13 +171,7 @@ export default function DataTable({
             )}
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
-                <Button
-                  endContent={<ChevronDown />}
-                  variant="flat"
-                  size="sm"
-                >
-                  Columns
-                </Button>
+                <Button endContent={<ChevronDown />}>Columns</Button>
               </DropdownTrigger>
               <DropdownMenu
                 disallowEmptySelection
@@ -243,25 +237,20 @@ export default function DataTable({
           isCompact
           showControls
           showShadow
-          color="primary"
+          color="default"
           page={page}
           total={pages}
           onChange={setPage}
-          size="sm"
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button
             isDisabled={pages === 1}
-            size="sm"
-            variant="flat"
             onPress={() => setPage((p) => Math.max(1, p - 1))}
           >
             Previous
           </Button>
           <Button
             isDisabled={pages === 1}
-            size="sm"
-            variant="flat"
             onPress={() => setPage((p) => Math.min(pages, p + 1))}
           >
             Next
@@ -298,7 +287,7 @@ export default function DataTable({
         emptyContent={emptyContent}
         items={sortedItems}
         isLoading={isLoading}
-        loadingContent={<Spinner size="sm" />}
+        loadingContent={<Spinner />}
       >
         {(item) => (
           <TableRow key={item[rowKey]}>

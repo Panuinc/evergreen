@@ -126,21 +126,10 @@ export default function ActionsPage() {
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              onPress={() => handleOpen(action)}
-            >
+            <Button isIconOnly onPress={() => handleOpen(action)}>
               <Edit />
             </Button>
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              color="danger"
-              onPress={() => handleDelete(action)}
-            >
+            <Button isIconOnly onPress={() => handleDelete(action)}>
               <Trash2 />
             </Button>
           </div>
@@ -163,12 +152,7 @@ export default function ActionsPage() {
         searchKeys={["actionName", "actionDescription"]}
         emptyContent="No actions found"
         topEndContent={
-          <Button
-            color="primary"
-            size="sm"
-            startContent={<Plus />}
-            onPress={() => handleOpen()}
-          >
+          <Button startContent={<Plus />} onPress={() => handleOpen()}>
             Add Action
           </Button>
         }
@@ -187,7 +171,6 @@ export default function ActionsPage() {
               onChange={(e) =>
                 setFormData({ ...formData, actionName: e.target.value })
               }
-              variant="bordered"
             />
             <Textarea
               label="Description"
@@ -199,14 +182,11 @@ export default function ActionsPage() {
                   actionDescription: e.target.value,
                 })
               }
-              variant="bordered"
             />
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button color="primary" onPress={handleSave}>
+            <Button onPress={onClose}>Cancel</Button>
+            <Button onPress={handleSave}>
               {editingAction ? "Update" : "Create"}
             </Button>
           </ModalFooter>

@@ -175,9 +175,7 @@ export default function UsersPage() {
   const renderCell = useCallback((user, columnKey) => {
     switch (columnKey) {
       case "userProfileEmail":
-        return (
-          <span className="font-medium">{user.userProfileEmail}</span>
-        );
+        return <span className="font-medium">{user.userProfileEmail}</span>;
       case "roles":
         return (
           <div className="flex flex-wrap gap-1">
@@ -185,8 +183,6 @@ export default function UsersPage() {
               user.roles.map((role) => (
                 <Chip
                   key={role.roleId}
-                  size="sm"
-                  variant="flat"
                   color={role.roleIsSuperadmin ? "danger" : "primary"}
                 >
                   {role.roleName}
@@ -207,8 +203,6 @@ export default function UsersPage() {
         return (
           <Button
             isIconOnly
-            variant="light"
-            size="sm"
             onPress={() => openRoleAssignment(user)}
             title="Manage Roles"
           >
@@ -233,12 +227,7 @@ export default function UsersPage() {
         searchKeys={["userProfileEmail"]}
         emptyContent="No users found"
         topEndContent={
-          <Button
-            color="primary"
-            size="sm"
-            startContent={<Plus />}
-            onPress={openCreateAccount}
-          >
+          <Button startContent={<Plus />} onPress={openCreateAccount}>
             Create Account
           </Button>
         }
@@ -258,15 +247,10 @@ export default function UsersPage() {
                   isSelected={userRoleIds.includes(role.roleId)}
                   onValueChange={() => toggleRole(role.roleId)}
                   isDisabled={saving}
-                  size="sm"
                 >
                   <div className="flex items-center gap-2">
                     <span>{role.roleName}</span>
-                    {role.roleIsSuperadmin && (
-                      <Chip size="sm" color="danger" variant="flat">
-                        Superadmin
-                      </Chip>
-                    )}
+                    {role.roleIsSuperadmin && <Chip>Superadmin</Chip>}
                   </div>
                   {role.roleDescription && (
                     <p className="text-default-400">{role.roleDescription}</p>
@@ -276,9 +260,7 @@ export default function UsersPage() {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={handleCloseRoles}>
-              Done
-            </Button>
+            <Button onPress={handleCloseRoles}>Done</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -296,7 +278,6 @@ export default function UsersPage() {
               onChange={(e) =>
                 setCreateForm({ ...createForm, email: e.target.value })
               }
-              variant="bordered"
             />
             <Input
               label="Password"
@@ -306,7 +287,6 @@ export default function UsersPage() {
               onChange={(e) =>
                 setCreateForm({ ...createForm, password: e.target.value })
               }
-              variant="bordered"
             />
             <Select
               label="Link to Employee (optional)"
@@ -317,7 +297,7 @@ export default function UsersPage() {
               onSelectionChange={(keys) => {
                 const selectedId = Array.from(keys)[0] || "";
                 const emp = unlinkedEmployees.find(
-                  (e) => e.employeeId === selectedId
+                  (e) => e.employeeId === selectedId,
                 );
                 setCreateForm({
                   ...createForm,
@@ -325,7 +305,6 @@ export default function UsersPage() {
                   email: emp?.employeeEmail || createForm.email,
                 });
               }}
-              variant="bordered"
             >
               {unlinkedEmployees.map((emp) => (
                 <SelectItem
@@ -339,14 +318,8 @@ export default function UsersPage() {
             </Select>
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={() => setCreateOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              color="primary"
-              onPress={handleCreateAccount}
-              isLoading={creating}
-            >
+            <Button onPress={() => setCreateOpen(false)}>Cancel</Button>
+            <Button onPress={handleCreateAccount} isLoading={creating}>
               Create
             </Button>
           </ModalFooter>

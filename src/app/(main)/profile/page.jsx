@@ -51,7 +51,7 @@ export default function ProfilePage() {
     try {
       await changePassword(
         passwordForm.currentPassword,
-        passwordForm.newPassword
+        passwordForm.newPassword,
       );
       toast.success("Password changed successfully");
       setPasswordForm({
@@ -69,7 +69,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner size="lg" />
+        <Spinner />
       </div>
     );
   }
@@ -108,8 +108,6 @@ export default function ProfilePage() {
                   roles.map((role) => (
                     <Chip
                       key={role.roleId}
-                      size="sm"
-                      variant="flat"
                       color={role.roleIsSuperadmin ? "danger" : "primary"}
                     >
                       {role.roleName}
@@ -140,9 +138,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-default-500">Last Name</span>
-                <span className="font-medium">
-                  {employee.employeeLastName}
-                </span>
+                <span className="font-medium">{employee.employeeLastName}</span>
               </div>
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1 text-sm text-default-500">
@@ -180,12 +176,8 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-default-500">Status</span>
                 <Chip
-                  size="sm"
-                  variant="flat"
                   color={
-                    employee.employeeStatus === "active"
-                      ? "success"
-                      : "default"
+                    employee.employeeStatus === "active" ? "success" : "default"
                   }
                 >
                   {employee.employeeStatus}
@@ -218,7 +210,6 @@ export default function ProfilePage() {
                   currentPassword: e.target.value,
                 })
               }
-              variant="bordered"
             />
             <Input
               label="New Password"
@@ -231,7 +222,6 @@ export default function ProfilePage() {
                   newPassword: e.target.value,
                 })
               }
-              variant="bordered"
             />
             <Input
               label="Confirm New Password"
@@ -244,15 +234,10 @@ export default function ProfilePage() {
                   confirmPassword: e.target.value,
                 })
               }
-              variant="bordered"
             />
           </div>
           <div className="flex justify-end">
-            <Button
-              color="primary"
-              onPress={handleChangePassword}
-              isLoading={changing}
-            >
+            <Button onPress={handleChangePassword} isLoading={changing}>
               Change Password
             </Button>
           </div>

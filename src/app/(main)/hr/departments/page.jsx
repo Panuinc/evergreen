@@ -142,21 +142,10 @@ export default function DepartmentsPage() {
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              onPress={() => handleOpen(dept)}
-            >
+            <Button isIconOnly onPress={() => handleOpen(dept)}>
               <Edit />
             </Button>
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              color="danger"
-              onPress={() => confirmDelete(dept)}
-            >
+            <Button isIconOnly onPress={() => confirmDelete(dept)}>
               <Trash2 />
             </Button>
           </div>
@@ -179,12 +168,7 @@ export default function DepartmentsPage() {
         searchKeys={["departmentName", "departmentDescription"]}
         emptyContent="No departments found"
         topEndContent={
-          <Button
-            color="primary"
-            size="sm"
-            startContent={<Plus />}
-            onPress={() => handleOpen()}
-          >
+          <Button startContent={<Plus />} onPress={() => handleOpen()}>
             Add Department
           </Button>
         }
@@ -204,7 +188,6 @@ export default function DepartmentsPage() {
               onChange={(e) =>
                 setFormData({ ...formData, departmentName: e.target.value })
               }
-              variant="bordered"
               isRequired
             />
             <Textarea
@@ -217,14 +200,11 @@ export default function DepartmentsPage() {
                   departmentDescription: e.target.value,
                 })
               }
-              variant="bordered"
             />
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button color="primary" onPress={handleSave} isLoading={saving}>
+            <Button onPress={onClose}>Cancel</Button>
+            <Button onPress={handleSave} isLoading={saving}>
               {editingDept ? "Update" : "Create"}
             </Button>
           </ModalFooter>
@@ -232,11 +212,7 @@ export default function DepartmentsPage() {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={deleteModal.isOpen}
-        onClose={deleteModal.onClose}
-        size="sm"
-      >
+      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>Delete Department</ModalHeader>
           <ModalBody>
@@ -249,12 +225,8 @@ export default function DepartmentsPage() {
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={deleteModal.onClose}>
-              Cancel
-            </Button>
-            <Button color="danger" onPress={handleDelete}>
-              Delete
-            </Button>
+            <Button onPress={deleteModal.onClose}>Cancel</Button>
+            <Button onPress={handleDelete}>Delete</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

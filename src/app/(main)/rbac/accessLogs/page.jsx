@@ -51,7 +51,7 @@ export default function AccessLogsPage() {
         </TableHeader>
         <TableBody
           isLoading={loading}
-          loadingContent={<Spinner size="sm" />}
+          loadingContent={<Spinner />}
           emptyContent="No access logs found"
         >
           {logs.map((log) => (
@@ -62,14 +62,12 @@ export default function AccessLogsPage() {
               <TableCell className="font-mono">
                 {log.accessLogUserId?.slice(0, 8) || "-"}
               </TableCell>
-              <TableCell className="font-medium">{log.accessLogResource}</TableCell>
+              <TableCell className="font-medium">
+                {log.accessLogResource}
+              </TableCell>
               <TableCell>{log.accessLogAction}</TableCell>
               <TableCell>
-                <Chip
-                  size="sm"
-                  variant="flat"
-                  color={log.accessLogGranted ? "success" : "danger"}
-                >
+                <Chip color={log.accessLogGranted ? "success" : "danger"}>
                   {log.accessLogGranted ? "Granted" : "Denied"}
                 </Chip>
               </TableCell>

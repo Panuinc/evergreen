@@ -119,9 +119,7 @@ export default function ResourcesPage() {
   const renderCell = useCallback((resource, columnKey) => {
     switch (columnKey) {
       case "resourceName":
-        return (
-          <span className="font-medium">{resource.resourceName}</span>
-        );
+        return <span className="font-medium">{resource.resourceName}</span>;
       case "resourceModuleId":
         return (
           <span className="text-default-500">
@@ -137,21 +135,10 @@ export default function ResourcesPage() {
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              onPress={() => handleOpen(resource)}
-            >
+            <Button isIconOnly onPress={() => handleOpen(resource)}>
               <Edit />
             </Button>
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              color="danger"
-              onPress={() => handleDelete(resource)}
-            >
+            <Button isIconOnly onPress={() => handleDelete(resource)}>
               <Trash2 />
             </Button>
           </div>
@@ -171,19 +158,10 @@ export default function ResourcesPage() {
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="Search by name, module, description..."
-        searchKeys={[
-          "resourceName",
-          "resourceModuleId",
-          "resourceDescription",
-        ]}
+        searchKeys={["resourceName", "resourceModuleId", "resourceDescription"]}
         emptyContent="No resources found"
         topEndContent={
-          <Button
-            color="primary"
-            size="sm"
-            startContent={<Plus />}
-            onPress={() => handleOpen()}
-          >
+          <Button startContent={<Plus />} onPress={() => handleOpen()}>
             Add Resource
           </Button>
         }
@@ -202,15 +180,12 @@ export default function ResourcesPage() {
               onChange={(e) =>
                 setFormData({ ...formData, resourceName: e.target.value })
               }
-              variant="bordered"
             />
             <Select
               label="Module"
               placeholder="Select a module"
               selectedKeys={
-                formData.resourceModuleId
-                  ? [formData.resourceModuleId]
-                  : []
+                formData.resourceModuleId ? [formData.resourceModuleId] : []
               }
               onSelectionChange={(keys) =>
                 setFormData({
@@ -218,7 +193,6 @@ export default function ResourcesPage() {
                   resourceModuleId: Array.from(keys)[0] || "",
                 })
               }
-              variant="bordered"
             >
               {menuData.map((menu) => (
                 <SelectItem key={menu.id}>{menu.name}</SelectItem>
@@ -234,14 +208,11 @@ export default function ResourcesPage() {
                   resourceDescription: e.target.value,
                 })
               }
-              variant="bordered"
             />
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button color="primary" onPress={handleSave}>
+            <Button onPress={onClose}>Cancel</Button>
+            <Button onPress={handleSave}>
               {editingResource ? "Update" : "Create"}
             </Button>
           </ModalFooter>

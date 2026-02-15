@@ -65,7 +65,6 @@ export default function Header() {
           <DropdownTrigger>
             <button className="flex items-center gap-2 h-9 pl-1 pr-3 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
               <Avatar
-                size="sm"
                 src="https://i.pravatar.cc/150?u=user"
                 className="w-7 h-7"
               />
@@ -76,13 +75,14 @@ export default function Header() {
             </button>
           </DropdownTrigger>
           <DropdownMenu aria-label="User Actions">
-            <DropdownItem key="profile" onPress={() => router.push("/profile")}>My Profile</DropdownItem>
+            <DropdownItem key="profile" onPress={() => router.push("/profile")}>
+              My Profile
+            </DropdownItem>
             <DropdownItem key="settings">Settings</DropdownItem>
             <DropdownItem key="help">Help & Support</DropdownItem>
             <DropdownItem
               key="logout"
               className="text-danger"
-              color="danger"
               onPress={signOut}
             >
               Logout

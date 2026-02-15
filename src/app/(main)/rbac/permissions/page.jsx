@@ -57,7 +57,9 @@ export default function PermissionsPage() {
       const existing = permMap[key];
       if (existing) {
         await deletePermission(existing.permissionId);
-        setPermissions((prev) => prev.filter((p) => p.permissionId !== existing.permissionId));
+        setPermissions((prev) =>
+          prev.filter((p) => p.permissionId !== existing.permissionId),
+        );
         toast.success("Permission removed");
       } else {
         const newPerm = await createPermission({
@@ -77,7 +79,7 @@ export default function PermissionsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner size="sm" />
+        <Spinner />
       </div>
     );
   }
@@ -130,14 +132,16 @@ export default function PermissionsPage() {
                       className="p-2 border-b border-default text-center"
                     >
                       {isToggling ? (
-                        <Spinner size="sm" />
+                        <Spinner />
                       ) : (
                         <Checkbox
                           isSelected={exists}
                           onValueChange={() =>
-                            togglePermission(resource.resourceId, action.actionId)
+                            togglePermission(
+                              resource.resourceId,
+                              action.actionId,
+                            )
                           }
-                          size="sm"
                         />
                       )}
                     </td>

@@ -194,13 +194,9 @@ export default function RolesPage() {
         );
       case "roleType":
         return role.roleIsSuperadmin ? (
-          <Chip color="danger" variant="flat" size="sm">
-            Superadmin
-          </Chip>
+          <Chip>Superadmin</Chip>
         ) : (
-          <Chip color="default" variant="flat" size="sm">
-            Standard
-          </Chip>
+          <Chip>Standard</Chip>
         );
       case "userCount":
         return role.userRoles?.[0]?.count ?? 0;
@@ -211,26 +207,16 @@ export default function RolesPage() {
           <div className="flex items-center gap-1">
             <Button
               isIconOnly
-              variant="light"
-              size="sm"
               onPress={() => openPermissions(role)}
               title="Manage Permissions"
             >
               <Shield />
             </Button>
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              onPress={() => handleOpen(role)}
-            >
+            <Button isIconOnly onPress={() => handleOpen(role)}>
               <Edit />
             </Button>
             <Button
               isIconOnly
-              variant="light"
-              size="sm"
-              color="danger"
               onPress={() => handleDelete(role)}
               isDisabled={role.roleIsSuperadmin}
             >
@@ -256,12 +242,7 @@ export default function RolesPage() {
         searchKeys={["roleName", "roleDescription"]}
         emptyContent="No roles found"
         topEndContent={
-          <Button
-            color="primary"
-            size="sm"
-            startContent={<Plus />}
-            onPress={() => handleOpen()}
-          >
+          <Button startContent={<Plus />} onPress={() => handleOpen()}>
             Add Role
           </Button>
         }
@@ -270,9 +251,7 @@ export default function RolesPage() {
       {/* Create/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <ModalHeader>
-            {editingRole ? "Edit Role" : "Create Role"}
-          </ModalHeader>
+          <ModalHeader>{editingRole ? "Edit Role" : "Create Role"}</ModalHeader>
           <ModalBody>
             <Input
               label="Name"
@@ -281,7 +260,6 @@ export default function RolesPage() {
               onChange={(e) =>
                 setFormData({ ...formData, roleName: e.target.value })
               }
-              variant="bordered"
             />
             <Textarea
               label="Description"
@@ -290,7 +268,6 @@ export default function RolesPage() {
               onChange={(e) =>
                 setFormData({ ...formData, roleDescription: e.target.value })
               }
-              variant="bordered"
             />
             <Switch
               isSelected={formData.roleIsSuperadmin}
@@ -302,10 +279,8 @@ export default function RolesPage() {
             </Switch>
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button color="primary" onPress={handleSave}>
+            <Button onPress={onClose}>Cancel</Button>
+            <Button onPress={handleSave}>
               {editingRole ? "Update" : "Create"}
             </Button>
           </ModalFooter>
@@ -326,40 +301,33 @@ export default function RolesPage() {
           <ModalBody>
             {permLoading ? (
               <div className="flex justify-center p-4">
-                <Spinner size="sm" />
+                <Spinner />
               </div>
             ) : (
               <div className="flex flex-col gap-4">
-                {Object.entries(groupedPermissions).map(
-                  ([resource, perms]) => (
-                    <div key={resource} className="flex flex-col gap-2">
-                      <h3 className="font-semibold capitalize">{resource}</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {perms.map((perm) => (
-                          <Checkbox
-                            key={perm.permissionId}
-                            isSelected={rolePermIds.includes(
-                              perm.permissionId
-                            )}
-                            onValueChange={() =>
-                              togglePermission(perm.permissionId)
-                            }
-                            size="sm"
-                          >
-                            {perm.actions?.actionName}
-                          </Checkbox>
-                        ))}
-                      </div>
+                {Object.entries(groupedPermissions).map(([resource, perms]) => (
+                  <div key={resource} className="flex flex-col gap-2">
+                    <h3 className="font-semibold capitalize">{resource}</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {perms.map((perm) => (
+                        <Checkbox
+                          key={perm.permissionId}
+                          isSelected={rolePermIds.includes(perm.permissionId)}
+                          onValueChange={() =>
+                            togglePermission(perm.permissionId)
+                          }
+                        >
+                          {perm.actions?.actionName}
+                        </Checkbox>
+                      ))}
                     </div>
-                  )
-                )}
+                  </div>
+                ))}
               </div>
             )}
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={() => setPermModalOpen(false)}>
-              Done
-            </Button>
+            <Button onPress={() => setPermModalOpen(false)}>Done</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

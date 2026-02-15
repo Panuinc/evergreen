@@ -201,32 +201,17 @@ export default function EmployeesPage() {
           : "-";
       case "employeeStatus":
         return (
-          <Chip
-            color={emp.employeeStatus === "active" ? "success" : "default"}
-            variant="flat"
-            size="sm"
-          >
+          <Chip color={emp.employeeStatus === "active" ? "success" : "default"}>
             {emp.employeeStatus}
           </Chip>
         );
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              onPress={() => handleOpen(emp)}
-            >
+            <Button isIconOnly onPress={() => handleOpen(emp)}>
               <Edit />
             </Button>
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              color="danger"
-              onPress={() => confirmDelete(emp)}
-            >
+            <Button isIconOnly onPress={() => confirmDelete(emp)}>
               <Trash2 />
             </Button>
           </div>
@@ -258,12 +243,7 @@ export default function EmployeesPage() {
         statusOptions={statusOptions}
         emptyContent="No employees found"
         topEndContent={
-          <Button
-            color="primary"
-            size="sm"
-            startContent={<Plus />}
-            onPress={() => handleOpen()}
-          >
+          <Button startContent={<Plus />} onPress={() => handleOpen()}>
             Add Employee
           </Button>
         }
@@ -289,7 +269,6 @@ export default function EmployeesPage() {
                 onChange={(e) =>
                   updateField("employeeFirstName", e.target.value)
                 }
-                variant="bordered"
                 isRequired
               />
               <Input
@@ -299,7 +278,6 @@ export default function EmployeesPage() {
                 onChange={(e) =>
                   updateField("employeeLastName", e.target.value)
                 }
-                variant="bordered"
                 isRequired
               />
               <Input
@@ -308,14 +286,12 @@ export default function EmployeesPage() {
                 type="email"
                 value={formData.employeeEmail}
                 onChange={(e) => updateField("employeeEmail", e.target.value)}
-                variant="bordered"
               />
               <Input
                 label="Phone"
                 placeholder="Enter phone number"
                 value={formData.employeePhone}
                 onChange={(e) => updateField("employeePhone", e.target.value)}
-                variant="bordered"
               />
               <Select
                 label="Department"
@@ -329,7 +305,6 @@ export default function EmployeesPage() {
                   const val = Array.from(keys)[0] || "";
                   updateField("employeeDepartment", val);
                 }}
-                variant="bordered"
               >
                 {departments.map((dept) => (
                   <SelectItem key={dept.departmentName}>
@@ -347,7 +322,6 @@ export default function EmployeesPage() {
                   const val = Array.from(keys)[0] || "";
                   updateField("employeePosition", val);
                 }}
-                variant="bordered"
               >
                 {positions.map((pos) => (
                   <SelectItem key={pos.positionTitle}>
@@ -361,7 +335,6 @@ export default function EmployeesPage() {
                 type="number"
                 value={formData.employeeSalary}
                 onChange={(e) => updateField("employeeSalary", e.target.value)}
-                variant="bordered"
               />
               <Select
                 label="Status"
@@ -370,7 +343,6 @@ export default function EmployeesPage() {
                   const val = Array.from(keys)[0] || "active";
                   updateField("employeeStatus", val);
                 }}
-                variant="bordered"
               >
                 <SelectItem key="active">Active</SelectItem>
                 <SelectItem key="inactive">Inactive</SelectItem>
@@ -378,10 +350,8 @@ export default function EmployeesPage() {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button color="primary" onPress={handleSave} isLoading={saving}>
+            <Button onPress={onClose}>Cancel</Button>
+            <Button onPress={handleSave} isLoading={saving}>
               {editingEmployee ? "Update" : "Create"}
             </Button>
           </ModalFooter>
@@ -389,11 +359,7 @@ export default function EmployeesPage() {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={deleteModal.isOpen}
-        onClose={deleteModal.onClose}
-        size="sm"
-      >
+      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>Delete Employee</ModalHeader>
           <ModalBody>
@@ -407,12 +373,8 @@ export default function EmployeesPage() {
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={deleteModal.onClose}>
-              Cancel
-            </Button>
-            <Button color="danger" onPress={handleDelete}>
-              Delete
-            </Button>
+            <Button onPress={deleteModal.onClose}>Cancel</Button>
+            <Button onPress={handleDelete}>Delete</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
