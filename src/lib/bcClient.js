@@ -54,5 +54,18 @@ export async function bcGet(endpoint, params = {}) {
   }
 
   const data = await res.json();
-  return data.value;
+  return (data.value || []).map(sanitizeKeys);
+}
+
+function sanitizeKeys(obj) {
+  if (Array.isArray(obj)) return obj.map(sanitizeKeys);
+  if (obj && typeof obj === "object") {
+    return Object.fromEntries(
+      Object.entries(obj).map(([k, v]) => [
+        k.replace(/_x0020_/g, ""),
+        sanitizeKeys(v),
+      ]),
+    );
+  }
+  return obj;
 }

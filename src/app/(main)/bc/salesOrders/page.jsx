@@ -111,7 +111,13 @@ export default function BcSalesOrdersPage() {
 
   const renderCard = useCallback(
     (order) => (
-      <Card key={order.id} variant="bordered" radius="md" shadow="none">
+      <Card
+        key={order.id}
+        variant="bordered"
+        radius="md"
+        shadow="none"
+        className="border-2 border-default"
+      >
         <CardBody className="gap-3">
           <div className="flex items-center justify-between">
             <span className="font-semibold text-lg">{order.number}</span>

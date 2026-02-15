@@ -55,67 +55,13 @@ export default function UsersPage() {
     handleCreateAccount,
   } = useUsers();
 
-  const renderCell = useCallback((user, columnKey) => {
-    switch (columnKey) {
-      case "userProfileEmail":
-        return <span className="font-medium">{user.userProfileEmail}</span>;
-      case "roles":
-        return (
-          <div className="flex flex-wrap gap-1">
-            {user.roles?.length > 0 ? (
-              user.roles.map((role) => (
-                <Chip
-                  key={role.roleId}
-                  variant="bordered"
-                  size="md"
-                  radius="md"
-                  color={role.roleIsSuperadmin ? "danger" : "primary"}
-                >
-                  {role.roleName}
-                </Chip>
-              ))
-            ) : (
-              <span className="text-default-400">No roles</span>
-            )}
-          </div>
-        );
-      case "userProfileCreatedAt":
-        return (
-          <span className="text-default-500">
-            {new Date(user.userProfileCreatedAt).toLocaleDateString()}
-          </span>
-        );
-      case "actions":
-        return (
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            isIconOnly
-            onPress={() => openRoleAssignment(user)}
-            title="Manage Roles"
-          >
-            <Settings />
-          </Button>
-        );
-      default:
-        return user[columnKey] || "-";
-    }
-  }, [openRoleAssignment]);
-
-  const renderCard = useCallback((user) => (
-    <Card key={user.userProfileId} variant="bordered" radius="md" shadow="none">
-      <CardBody className="gap-3">
-        <span className="font-semibold text-lg">{user.userProfileEmail}</span>
-        <div className="flex flex-col gap-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-default-400">Created</span>
-            <span className="text-default-500">
-              {new Date(user.userProfileCreatedAt).toLocaleDateString()}
-            </span>
-          </div>
-          <div>
-            <span className="text-default-400 block mb-1">Roles</span>
+  const renderCell = useCallback(
+    (user, columnKey) => {
+      switch (columnKey) {
+        case "userProfileEmail":
+          return <span className="font-medium">{user.userProfileEmail}</span>;
+        case "roles":
+          return (
             <div className="flex flex-wrap gap-1">
               {user.roles?.length > 0 ? (
                 user.roles.map((role) => (
@@ -133,16 +79,89 @@ export default function UsersPage() {
                 <span className="text-default-400">No roles</span>
               )}
             </div>
+          );
+        case "userProfileCreatedAt":
+          return (
+            <span className="text-default-500">
+              {new Date(user.userProfileCreatedAt).toLocaleDateString()}
+            </span>
+          );
+        case "actions":
+          return (
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => openRoleAssignment(user)}
+              title="Manage Roles"
+            >
+              <Settings />
+            </Button>
+          );
+        default:
+          return user[columnKey] || "-";
+      }
+    },
+    [openRoleAssignment],
+  );
+
+  const renderCard = useCallback(
+    (user) => (
+      <Card
+        key={user.userProfileId}
+        variant="bordered"
+        radius="md"
+        shadow="none"
+        className="border-2 border-default"
+      >
+        <CardBody className="gap-3">
+          <span className="font-semibold text-lg">{user.userProfileEmail}</span>
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-default-400">Created</span>
+              <span className="text-default-500">
+                {new Date(user.userProfileCreatedAt).toLocaleDateString()}
+              </span>
+            </div>
+            <div>
+              <span className="text-default-400 block mb-1">Roles</span>
+              <div className="flex flex-wrap gap-1">
+                {user.roles?.length > 0 ? (
+                  user.roles.map((role) => (
+                    <Chip
+                      key={role.roleId}
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      color={role.roleIsSuperadmin ? "danger" : "primary"}
+                    >
+                      {role.roleName}
+                    </Chip>
+                  ))
+                ) : (
+                  <span className="text-default-400">No roles</span>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </CardBody>
-      <CardFooter className="gap-1 justify-end">
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => openRoleAssignment(user)} title="Manage Roles">
-          <Settings />
-        </Button>
-      </CardFooter>
-    </Card>
-  ), [openRoleAssignment]);
+        </CardBody>
+        <CardFooter className="gap-1 justify-end">
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => openRoleAssignment(user)}
+            title="Manage Roles"
+          >
+            <Settings />
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    [openRoleAssignment],
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -189,7 +208,11 @@ export default function UsersPage() {
                 >
                   <div className="flex items-center gap-2">
                     <span>{role.roleName}</span>
-                    {role.roleIsSuperadmin && <Chip variant="bordered" size="md" radius="md">Superadmin</Chip>}
+                    {role.roleIsSuperadmin && (
+                      <Chip variant="bordered" size="md" radius="md">
+                        Superadmin
+                      </Chip>
+                    )}
                   </div>
                   {role.roleDescription && (
                     <p className="text-default-400">{role.roleDescription}</p>

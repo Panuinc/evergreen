@@ -60,102 +60,140 @@ export default function RolesPage() {
     togglePermission,
   } = useRoles();
 
-  const renderCell = useCallback((role, columnKey) => {
-    switch (columnKey) {
-      case "roleName":
-        return <span className="font-medium">{role.roleName}</span>;
-      case "roleDescription":
-        return (
-          <span className="text-default-500">
-            {role.roleDescription || "-"}
-          </span>
-        );
-      case "roleType":
-        return role.roleIsSuperadmin ? (
-          <Chip variant="bordered" size="md" radius="md">Superadmin</Chip>
-        ) : (
-          <Chip variant="bordered" size="md" radius="md">Standard</Chip>
-        );
-      case "userCount":
-        return role.userRoles?.[0]?.count ?? 0;
-      case "permCount":
-        return role.rolePermissions?.[0]?.count ?? 0;
-      case "actions":
-        return (
-          <div className="flex items-center gap-1">
-            <Button
-              isIconOnly
-              variant="bordered"
-              size="md"
-              radius="md"
-              onPress={() => openPermissions(role)}
-              title="Manage Permissions"
-            >
-              <Shield />
-            </Button>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleOpen(role)}
-            >
-              <Edit />
-            </Button>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleDelete(role)}
-              isDisabled={role.roleIsSuperadmin}
-            >
-              <Trash2 />
-            </Button>
-          </div>
-        );
-      default:
-        return role[columnKey] || "-";
-    }
-  }, [handleOpen, handleDelete, openPermissions]);
+  const renderCell = useCallback(
+    (role, columnKey) => {
+      switch (columnKey) {
+        case "roleName":
+          return <span className="font-medium">{role.roleName}</span>;
+        case "roleDescription":
+          return (
+            <span className="text-default-500">
+              {role.roleDescription || "-"}
+            </span>
+          );
+        case "roleType":
+          return role.roleIsSuperadmin ? (
+            <Chip variant="bordered" size="md" radius="md">
+              Superadmin
+            </Chip>
+          ) : (
+            <Chip variant="bordered" size="md" radius="md">
+              Standard
+            </Chip>
+          );
+        case "userCount":
+          return role.userRoles?.[0]?.count ?? 0;
+        case "permCount":
+          return role.rolePermissions?.[0]?.count ?? 0;
+        case "actions":
+          return (
+            <div className="flex items-center gap-1">
+              <Button
+                isIconOnly
+                variant="bordered"
+                size="md"
+                radius="md"
+                onPress={() => openPermissions(role)}
+                title="Manage Permissions"
+              >
+                <Shield />
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleOpen(role)}
+              >
+                <Edit />
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleDelete(role)}
+                isDisabled={role.roleIsSuperadmin}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          );
+        default:
+          return role[columnKey] || "-";
+      }
+    },
+    [handleOpen, handleDelete, openPermissions],
+  );
 
-  const renderCard = useCallback((role) => (
-    <Card key={role.roleId} variant="bordered" radius="md" shadow="none">
-      <CardBody className="gap-3">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-lg">{role.roleName}</span>
-          <Chip variant="bordered" size="md" radius="md">
-            {role.roleIsSuperadmin ? "Superadmin" : "Standard"}
-          </Chip>
-        </div>
-        <div className="flex flex-col gap-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-default-400">Description</span>
-            <span className="text-default-500">{role.roleDescription || "-"}</span>
+  const renderCard = useCallback(
+    (role) => (
+      <Card
+        key={role.roleId}
+        variant="bordered"
+        radius="md"
+        shadow="none"
+        className="border-2 border-default"
+      >
+        <CardBody className="gap-3">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-lg">{role.roleName}</span>
+            <Chip variant="bordered" size="md" radius="md">
+              {role.roleIsSuperadmin ? "Superadmin" : "Standard"}
+            </Chip>
           </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Users</span>
-            <span>{role.userRoles?.[0]?.count ?? 0}</span>
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-default-400">Description</span>
+              <span className="text-default-500">
+                {role.roleDescription || "-"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Users</span>
+              <span>{role.userRoles?.[0]?.count ?? 0}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Permissions</span>
+              <span>{role.rolePermissions?.[0]?.count ?? 0}</span>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Permissions</span>
-            <span>{role.rolePermissions?.[0]?.count ?? 0}</span>
-          </div>
-        </div>
-      </CardBody>
-      <CardFooter className="gap-1 justify-end">
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => openPermissions(role)} title="Manage Permissions">
-          <Shield />
-        </Button>
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleOpen(role)}>
-          <Edit />
-        </Button>
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleDelete(role)} isDisabled={role.roleIsSuperadmin}>
-          <Trash2 />
-        </Button>
-      </CardFooter>
-    </Card>
-  ), [handleOpen, handleDelete, openPermissions]);
+        </CardBody>
+        <CardFooter className="gap-1 justify-end">
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => openPermissions(role)}
+            title="Manage Permissions"
+          >
+            <Shield />
+          </Button>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleOpen(role)}
+          >
+            <Edit />
+          </Button>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleDelete(role)}
+            isDisabled={role.roleIsSuperadmin}
+          >
+            <Trash2 />
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    [handleOpen, handleDelete, openPermissions],
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -213,7 +251,10 @@ export default function RolesPage() {
                   radius="md"
                   value={formData.roleDescription}
                   onChange={(e) =>
-                    setFormData({ ...formData, roleDescription: e.target.value })
+                    setFormData({
+                      ...formData,
+                      roleDescription: e.target.value,
+                    })
                   }
                 />
               </div>

@@ -64,124 +64,154 @@ export default function EmployeesPage() {
     handleDelete,
   } = useEmployees();
 
-  const renderCell = useCallback((emp, columnKey) => {
-    switch (columnKey) {
-      case "name":
-        return (
-          <span className="font-medium">
-            {emp.employeeFirstName} {emp.employeeLastName}
-          </span>
-        );
-      case "employeeEmail":
-        return (
-          <span className="text-default-500">{emp.employeeEmail || "-"}</span>
-        );
-      case "employeePhone":
-        return (
-          <span className="text-default-500">{emp.employeePhone || "-"}</span>
-        );
-      case "employeeDepartment":
-        return emp.employeeDepartment || "-";
-      case "employeePosition":
-        return emp.employeePosition || "-";
-      case "employeeSalary":
-        return emp.employeeSalary
-          ? Number(emp.employeeSalary).toLocaleString("th-TH", {
-              minimumFractionDigits: 2,
-            })
-          : "-";
-      case "employeeStatus":
-        return (
-          <Chip
-            variant="bordered"
-            size="md"
-            radius="md"
-            color={emp.employeeStatus === "active" ? "success" : "default"}
-          >
-            {emp.employeeStatus}
-          </Chip>
-        );
-      case "actions":
-        return (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleOpen(emp)}
-            >
-              <Edit />
-            </Button>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => confirmDelete(emp)}
-            >
-              <Trash2 />
-            </Button>
-          </div>
-        );
-      default:
-        return emp[columnKey] || "-";
-    }
-  }, [handleOpen, confirmDelete]);
-
-  const renderCard = useCallback((emp) => (
-    <Card key={emp.employeeId} variant="bordered" radius="md" shadow="none">
-      <CardBody className="gap-3">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-lg">
-            {emp.employeeFirstName} {emp.employeeLastName}
-          </span>
-          <Chip
-            variant="bordered"
-            size="md"
-            radius="md"
-            color={emp.employeeStatus === "active" ? "success" : "default"}
-          >
-            {emp.employeeStatus}
-          </Chip>
-        </div>
-        <div className="flex flex-col gap-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-default-400">Email</span>
-            <span className="text-default-500">{emp.employeeEmail || "-"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Phone</span>
-            <span className="text-default-500">{emp.employeePhone || "-"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Department</span>
-            <span>{emp.employeeDepartment || "-"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Position</span>
-            <span>{emp.employeePosition || "-"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Salary</span>
-            <span className="font-semibold">
-              {emp.employeeSalary
-                ? Number(emp.employeeSalary).toLocaleString("th-TH", { minimumFractionDigits: 2 })
-                : "-"}
+  const renderCell = useCallback(
+    (emp, columnKey) => {
+      switch (columnKey) {
+        case "name":
+          return (
+            <span className="font-medium">
+              {emp.employeeFirstName} {emp.employeeLastName}
             </span>
+          );
+        case "employeeEmail":
+          return (
+            <span className="text-default-500">{emp.employeeEmail || "-"}</span>
+          );
+        case "employeePhone":
+          return (
+            <span className="text-default-500">{emp.employeePhone || "-"}</span>
+          );
+        case "employeeDepartment":
+          return emp.employeeDepartment || "-";
+        case "employeePosition":
+          return emp.employeePosition || "-";
+        case "employeeSalary":
+          return emp.employeeSalary
+            ? Number(emp.employeeSalary).toLocaleString("th-TH", {
+                minimumFractionDigits: 2,
+              })
+            : "-";
+        case "employeeStatus":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={emp.employeeStatus === "active" ? "success" : "default"}
+            >
+              {emp.employeeStatus}
+            </Chip>
+          );
+        case "actions":
+          return (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleOpen(emp)}
+              >
+                <Edit />
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => confirmDelete(emp)}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          );
+        default:
+          return emp[columnKey] || "-";
+      }
+    },
+    [handleOpen, confirmDelete],
+  );
+
+  const renderCard = useCallback(
+    (emp) => (
+      <Card
+        key={emp.employeeId}
+        variant="bordered"
+        radius="md"
+        shadow="none"
+        className="border-2 border-default"
+      >
+        <CardBody className="gap-3">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-lg">
+              {emp.employeeFirstName} {emp.employeeLastName}
+            </span>
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={emp.employeeStatus === "active" ? "success" : "default"}
+            >
+              {emp.employeeStatus}
+            </Chip>
           </div>
-        </div>
-      </CardBody>
-      <CardFooter className="gap-1 justify-end">
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleOpen(emp)}>
-          <Edit />
-        </Button>
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => confirmDelete(emp)}>
-          <Trash2 />
-        </Button>
-      </CardFooter>
-    </Card>
-  ), [handleOpen, confirmDelete]);
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-default-400">Email</span>
+              <span className="text-default-500">
+                {emp.employeeEmail || "-"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Phone</span>
+              <span className="text-default-500">
+                {emp.employeePhone || "-"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Department</span>
+              <span>{emp.employeeDepartment || "-"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Position</span>
+              <span>{emp.employeePosition || "-"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Salary</span>
+              <span className="font-semibold">
+                {emp.employeeSalary
+                  ? Number(emp.employeeSalary).toLocaleString("th-TH", {
+                      minimumFractionDigits: 2,
+                    })
+                  : "-"}
+              </span>
+            </div>
+          </div>
+        </CardBody>
+        <CardFooter className="gap-1 justify-end">
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleOpen(emp)}
+          >
+            <Edit />
+          </Button>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => confirmDelete(emp)}
+          >
+            <Trash2 />
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    [handleOpen, confirmDelete],
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -272,7 +302,9 @@ export default function EmployeesPage() {
                     size="md"
                     radius="md"
                     value={formData.employeeEmail}
-                    onChange={(e) => updateField("employeeEmail", e.target.value)}
+                    onChange={(e) =>
+                      updateField("employeeEmail", e.target.value)
+                    }
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -284,7 +316,9 @@ export default function EmployeesPage() {
                     size="md"
                     radius="md"
                     value={formData.employeePhone}
-                    onChange={(e) => updateField("employeePhone", e.target.value)}
+                    onChange={(e) =>
+                      updateField("employeePhone", e.target.value)
+                    }
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">

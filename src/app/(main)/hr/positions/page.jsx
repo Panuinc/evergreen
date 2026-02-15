@@ -48,77 +48,103 @@ export default function PositionsPage() {
     handleDelete,
   } = usePositions();
 
-  const renderCell = useCallback((pos, columnKey) => {
-    switch (columnKey) {
-      case "positionTitle":
-        return <span className="font-medium">{pos.positionTitle}</span>;
-      case "positionDescription":
-        return (
-          <span className="text-default-500">
-            {pos.positionDescription || "-"}
-          </span>
-        );
-      case "positionCreatedAt":
-        return (
-          <span className="text-default-500">
-            {new Date(pos.positionCreatedAt).toLocaleDateString("th-TH")}
-          </span>
-        );
-      case "actions":
-        return (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleOpen(pos)}
-            >
-              <Edit />
-            </Button>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => confirmDelete(pos)}
-            >
-              <Trash2 />
-            </Button>
-          </div>
-        );
-      default:
-        return pos[columnKey] || "-";
-    }
-  }, [handleOpen, confirmDelete]);
-
-  const renderCard = useCallback((pos) => (
-    <Card key={pos.positionId} variant="bordered" radius="md" shadow="none">
-      <CardBody className="gap-3">
-        <span className="font-semibold text-lg">{pos.positionTitle}</span>
-        <div className="flex flex-col gap-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-default-400">Description</span>
-            <span className="text-default-500">{pos.positionDescription || "-"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Created</span>
+  const renderCell = useCallback(
+    (pos, columnKey) => {
+      switch (columnKey) {
+        case "positionTitle":
+          return <span className="font-medium">{pos.positionTitle}</span>;
+        case "positionDescription":
+          return (
+            <span className="text-default-500">
+              {pos.positionDescription || "-"}
+            </span>
+          );
+        case "positionCreatedAt":
+          return (
             <span className="text-default-500">
               {new Date(pos.positionCreatedAt).toLocaleDateString("th-TH")}
             </span>
+          );
+        case "actions":
+          return (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleOpen(pos)}
+              >
+                <Edit />
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => confirmDelete(pos)}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          );
+        default:
+          return pos[columnKey] || "-";
+      }
+    },
+    [handleOpen, confirmDelete],
+  );
+
+  const renderCard = useCallback(
+    (pos) => (
+      <Card
+        key={pos.positionId}
+        variant="bordered"
+        radius="md"
+        shadow="none"
+        className="border-2 border-default"
+      >
+        <CardBody className="gap-3">
+          <span className="font-semibold text-lg">{pos.positionTitle}</span>
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-default-400">Description</span>
+              <span className="text-default-500">
+                {pos.positionDescription || "-"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Created</span>
+              <span className="text-default-500">
+                {new Date(pos.positionCreatedAt).toLocaleDateString("th-TH")}
+              </span>
+            </div>
           </div>
-        </div>
-      </CardBody>
-      <CardFooter className="gap-1 justify-end">
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleOpen(pos)}>
-          <Edit />
-        </Button>
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => confirmDelete(pos)}>
-          <Trash2 />
-        </Button>
-      </CardFooter>
-    </Card>
-  ), [handleOpen, confirmDelete]);
+        </CardBody>
+        <CardFooter className="gap-1 justify-end">
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleOpen(pos)}
+          >
+            <Edit />
+          </Button>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => confirmDelete(pos)}
+          >
+            <Trash2 />
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    [handleOpen, confirmDelete],
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">

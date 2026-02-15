@@ -44,77 +44,103 @@ export default function ActionsPage() {
     handleDelete,
   } = useActions();
 
-  const renderCell = useCallback((action, columnKey) => {
-    switch (columnKey) {
-      case "actionName":
-        return <span className="font-medium">{action.actionName}</span>;
-      case "actionDescription":
-        return (
-          <span className="text-default-500">
-            {action.actionDescription || "-"}
-          </span>
-        );
-      case "actionCreatedAt":
-        return (
-          <span className="text-default-500">
-            {new Date(action.actionCreatedAt).toLocaleDateString()}
-          </span>
-        );
-      case "actions":
-        return (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleOpen(action)}
-            >
-              <Edit />
-            </Button>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleDelete(action)}
-            >
-              <Trash2 />
-            </Button>
-          </div>
-        );
-      default:
-        return action[columnKey] || "-";
-    }
-  }, [handleOpen, handleDelete]);
-
-  const renderCard = useCallback((action) => (
-    <Card key={action.actionId} variant="bordered" radius="md" shadow="none">
-      <CardBody className="gap-3">
-        <span className="font-semibold text-lg">{action.actionName}</span>
-        <div className="flex flex-col gap-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-default-400">Description</span>
-            <span className="text-default-500">{action.actionDescription || "-"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Created</span>
+  const renderCell = useCallback(
+    (action, columnKey) => {
+      switch (columnKey) {
+        case "actionName":
+          return <span className="font-medium">{action.actionName}</span>;
+        case "actionDescription":
+          return (
+            <span className="text-default-500">
+              {action.actionDescription || "-"}
+            </span>
+          );
+        case "actionCreatedAt":
+          return (
             <span className="text-default-500">
               {new Date(action.actionCreatedAt).toLocaleDateString()}
             </span>
+          );
+        case "actions":
+          return (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleOpen(action)}
+              >
+                <Edit />
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleDelete(action)}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          );
+        default:
+          return action[columnKey] || "-";
+      }
+    },
+    [handleOpen, handleDelete],
+  );
+
+  const renderCard = useCallback(
+    (action) => (
+      <Card
+        key={action.actionId}
+        variant="bordered"
+        radius="md"
+        shadow="none"
+        className="border-2 border-default"
+      >
+        <CardBody className="gap-3">
+          <span className="font-semibold text-lg">{action.actionName}</span>
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-default-400">Description</span>
+              <span className="text-default-500">
+                {action.actionDescription || "-"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Created</span>
+              <span className="text-default-500">
+                {new Date(action.actionCreatedAt).toLocaleDateString()}
+              </span>
+            </div>
           </div>
-        </div>
-      </CardBody>
-      <CardFooter className="gap-1 justify-end">
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleOpen(action)}>
-          <Edit />
-        </Button>
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleDelete(action)}>
-          <Trash2 />
-        </Button>
-      </CardFooter>
-    </Card>
-  ), [handleOpen, handleDelete]);
+        </CardBody>
+        <CardFooter className="gap-1 justify-end">
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleOpen(action)}
+          >
+            <Edit />
+          </Button>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleDelete(action)}
+          >
+            <Trash2 />
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    [handleOpen, handleDelete],
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">

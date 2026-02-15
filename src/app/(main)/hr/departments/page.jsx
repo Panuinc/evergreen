@@ -48,77 +48,103 @@ export default function DepartmentsPage() {
     handleDelete,
   } = useDepartments();
 
-  const renderCell = useCallback((dept, columnKey) => {
-    switch (columnKey) {
-      case "departmentName":
-        return <span className="font-medium">{dept.departmentName}</span>;
-      case "departmentDescription":
-        return (
-          <span className="text-default-500">
-            {dept.departmentDescription || "-"}
-          </span>
-        );
-      case "departmentCreatedAt":
-        return (
-          <span className="text-default-500">
-            {new Date(dept.departmentCreatedAt).toLocaleDateString("th-TH")}
-          </span>
-        );
-      case "actions":
-        return (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleOpen(dept)}
-            >
-              <Edit />
-            </Button>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => confirmDelete(dept)}
-            >
-              <Trash2 />
-            </Button>
-          </div>
-        );
-      default:
-        return dept[columnKey] || "-";
-    }
-  }, [handleOpen, confirmDelete]);
-
-  const renderCard = useCallback((dept) => (
-    <Card key={dept.departmentId} variant="bordered" radius="md" shadow="none">
-      <CardBody className="gap-3">
-        <span className="font-semibold text-lg">{dept.departmentName}</span>
-        <div className="flex flex-col gap-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-default-400">Description</span>
-            <span className="text-default-500">{dept.departmentDescription || "-"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Created</span>
+  const renderCell = useCallback(
+    (dept, columnKey) => {
+      switch (columnKey) {
+        case "departmentName":
+          return <span className="font-medium">{dept.departmentName}</span>;
+        case "departmentDescription":
+          return (
+            <span className="text-default-500">
+              {dept.departmentDescription || "-"}
+            </span>
+          );
+        case "departmentCreatedAt":
+          return (
             <span className="text-default-500">
               {new Date(dept.departmentCreatedAt).toLocaleDateString("th-TH")}
             </span>
+          );
+        case "actions":
+          return (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleOpen(dept)}
+              >
+                <Edit />
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => confirmDelete(dept)}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          );
+        default:
+          return dept[columnKey] || "-";
+      }
+    },
+    [handleOpen, confirmDelete],
+  );
+
+  const renderCard = useCallback(
+    (dept) => (
+      <Card
+        key={dept.departmentId}
+        variant="bordered"
+        radius="md"
+        shadow="none"
+        className="border-2 border-default"
+      >
+        <CardBody className="gap-3">
+          <span className="font-semibold text-lg">{dept.departmentName}</span>
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-default-400">Description</span>
+              <span className="text-default-500">
+                {dept.departmentDescription || "-"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Created</span>
+              <span className="text-default-500">
+                {new Date(dept.departmentCreatedAt).toLocaleDateString("th-TH")}
+              </span>
+            </div>
           </div>
-        </div>
-      </CardBody>
-      <CardFooter className="gap-1 justify-end">
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleOpen(dept)}>
-          <Edit />
-        </Button>
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => confirmDelete(dept)}>
-          <Trash2 />
-        </Button>
-      </CardFooter>
-    </Card>
-  ), [handleOpen, confirmDelete]);
+        </CardBody>
+        <CardFooter className="gap-1 justify-end">
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleOpen(dept)}
+          >
+            <Edit />
+          </Button>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => confirmDelete(dept)}
+          >
+            <Trash2 />
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    [handleOpen, confirmDelete],
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">

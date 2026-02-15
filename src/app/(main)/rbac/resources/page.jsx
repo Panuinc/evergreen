@@ -47,75 +47,103 @@ export default function ResourcesPage() {
     handleDelete,
   } = useResources();
 
-  const renderCell = useCallback((resource, columnKey) => {
-    switch (columnKey) {
-      case "resourceName":
-        return <span className="font-medium">{resource.resourceName}</span>;
-      case "resourceModuleId":
-        return (
-          <span className="text-default-500">
-            {resource.resourceModuleId || "-"}
-          </span>
-        );
-      case "resourceDescription":
-        return (
-          <span className="text-default-500">
-            {resource.resourceDescription || "-"}
-          </span>
-        );
-      case "actions":
-        return (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleOpen(resource)}
-            >
-              <Edit />
-            </Button>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => handleDelete(resource)}
-            >
-              <Trash2 />
-            </Button>
-          </div>
-        );
-      default:
-        return resource[columnKey] || "-";
-    }
-  }, [handleOpen, handleDelete]);
+  const renderCell = useCallback(
+    (resource, columnKey) => {
+      switch (columnKey) {
+        case "resourceName":
+          return <span className="font-medium">{resource.resourceName}</span>;
+        case "resourceModuleId":
+          return (
+            <span className="text-default-500">
+              {resource.resourceModuleId || "-"}
+            </span>
+          );
+        case "resourceDescription":
+          return (
+            <span className="text-default-500">
+              {resource.resourceDescription || "-"}
+            </span>
+          );
+        case "actions":
+          return (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleOpen(resource)}
+              >
+                <Edit />
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => handleDelete(resource)}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          );
+        default:
+          return resource[columnKey] || "-";
+      }
+    },
+    [handleOpen, handleDelete],
+  );
 
-  const renderCard = useCallback((resource) => (
-    <Card key={resource.resourceId} variant="bordered" radius="md" shadow="none">
-      <CardBody className="gap-3">
-        <span className="font-semibold text-lg">{resource.resourceName}</span>
-        <div className="flex flex-col gap-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-default-400">Module</span>
-            <span className="text-default-500">{resource.resourceModuleId || "-"}</span>
+  const renderCard = useCallback(
+    (resource) => (
+      <Card
+        key={resource.resourceId}
+        variant="bordered"
+        radius="md"
+        shadow="none"
+        className="border-2 border-default"
+      >
+        <CardBody className="gap-3">
+          <span className="font-semibold text-lg">{resource.resourceName}</span>
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-default-400">Module</span>
+              <span className="text-default-500">
+                {resource.resourceModuleId || "-"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Description</span>
+              <span className="text-default-500">
+                {resource.resourceDescription || "-"}
+              </span>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="text-default-400">Description</span>
-            <span className="text-default-500">{resource.resourceDescription || "-"}</span>
-          </div>
-        </div>
-      </CardBody>
-      <CardFooter className="gap-1 justify-end">
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleOpen(resource)}>
-          <Edit />
-        </Button>
-        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleDelete(resource)}>
-          <Trash2 />
-        </Button>
-      </CardFooter>
-    </Card>
-  ), [handleOpen, handleDelete]);
+        </CardBody>
+        <CardFooter className="gap-1 justify-end">
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleOpen(resource)}
+          >
+            <Edit />
+          </Button>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => handleDelete(resource)}
+          >
+            <Trash2 />
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    [handleOpen, handleDelete],
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
