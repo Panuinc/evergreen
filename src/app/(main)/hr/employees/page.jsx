@@ -14,7 +14,6 @@ import {
   Chip,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { Card, CardBody, CardFooter } from "@heroui/react";
 import { useEmployees } from "@/hooks/useEmployees";
 import DataTable from "@/components/ui/DataTable";
 
@@ -132,94 +131,13 @@ export default function EmployeesPage() {
     [handleOpen, confirmDelete],
   );
 
-  const renderCard = useCallback(
-    (emp) => (
-      <Card
-        key={emp.employeeId}
-        variant="bordered"
-        radius="md"
-        shadow="none"
-        className="border-2 border-default"
-      >
-        <CardBody className="gap-3">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-lg">
-              {emp.employeeFirstName} {emp.employeeLastName}
-            </span>
-            <Chip
-              variant="bordered"
-              size="md"
-              radius="md"
-              color={emp.employeeStatus === "active" ? "success" : "default"}
-            >
-              {emp.employeeStatus}
-            </Chip>
-          </div>
-          <div className="flex flex-col gap-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-default-400">Email</span>
-              <span className="text-default-500">
-                {emp.employeeEmail || "-"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Phone</span>
-              <span className="text-default-500">
-                {emp.employeePhone || "-"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Department</span>
-              <span>{emp.employeeDepartment || "-"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Position</span>
-              <span>{emp.employeePosition || "-"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Salary</span>
-              <span className="font-semibold">
-                {emp.employeeSalary
-                  ? Number(emp.employeeSalary).toLocaleString("th-TH", {
-                      minimumFractionDigits: 2,
-                    })
-                  : "-"}
-              </span>
-            </div>
-          </div>
-        </CardBody>
-        <CardFooter className="gap-1 justify-end">
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            isIconOnly
-            onPress={() => handleOpen(emp)}
-          >
-            <Edit />
-          </Button>
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            isIconOnly
-            onPress={() => confirmDelete(emp)}
-          >
-            <Trash2 />
-          </Button>
-        </CardFooter>
-      </Card>
-    ),
-    [handleOpen, confirmDelete],
-  );
-
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <DataTable
         columns={columns}
         data={employees}
         renderCell={renderCell}
-        renderCard={renderCard}
+        enableCardView
         rowKey="employeeId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}

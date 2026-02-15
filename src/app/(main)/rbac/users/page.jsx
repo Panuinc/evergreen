@@ -15,7 +15,6 @@ import {
   Checkbox,
 } from "@heroui/react";
 import { Plus, Settings } from "lucide-react";
-import { Card, CardBody, CardFooter } from "@heroui/react";
 import { useUsers } from "@/hooks/useUsers";
 import DataTable from "@/components/ui/DataTable";
 
@@ -106,70 +105,13 @@ export default function UsersPage() {
     [openRoleAssignment],
   );
 
-  const renderCard = useCallback(
-    (user) => (
-      <Card
-        key={user.userProfileId}
-        variant="bordered"
-        radius="md"
-        shadow="none"
-        className="border-2 border-default"
-      >
-        <CardBody className="gap-3">
-          <span className="font-semibold text-lg">{user.userProfileEmail}</span>
-          <div className="flex flex-col gap-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-default-400">Created</span>
-              <span className="text-default-500">
-                {new Date(user.userProfileCreatedAt).toLocaleDateString()}
-              </span>
-            </div>
-            <div>
-              <span className="text-default-400 block mb-1">Roles</span>
-              <div className="flex flex-wrap gap-1">
-                {user.roles?.length > 0 ? (
-                  user.roles.map((role) => (
-                    <Chip
-                      key={role.roleId}
-                      variant="bordered"
-                      size="md"
-                      radius="md"
-                      color={role.roleIsSuperadmin ? "danger" : "primary"}
-                    >
-                      {role.roleName}
-                    </Chip>
-                  ))
-                ) : (
-                  <span className="text-default-400">No roles</span>
-                )}
-              </div>
-            </div>
-          </div>
-        </CardBody>
-        <CardFooter className="gap-1 justify-end">
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            isIconOnly
-            onPress={() => openRoleAssignment(user)}
-            title="Manage Roles"
-          >
-            <Settings />
-          </Button>
-        </CardFooter>
-      </Card>
-    ),
-    [openRoleAssignment],
-  );
-
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <DataTable
         columns={columns}
         data={users}
         renderCell={renderCell}
-        renderCard={renderCard}
+        enableCardView
         rowKey="userProfileId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}

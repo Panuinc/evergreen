@@ -4,9 +4,6 @@ import { useCallback } from "react";
 import {
   Chip,
   Button,
-  Card,
-  CardBody,
-  CardFooter,
   Modal,
   ModalContent,
   ModalHeader,
@@ -109,73 +106,6 @@ export default function BcSalesOrdersPage() {
     [openLines],
   );
 
-  const renderCard = useCallback(
-    (order) => (
-      <Card
-        key={order.id}
-        variant="bordered"
-        radius="md"
-        shadow="none"
-        className="border-2 border-default"
-      >
-        <CardBody className="gap-3">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-lg">{order.number}</span>
-            <Chip
-              variant="bordered"
-              size="md"
-              radius="md"
-              color={statusColorMap[order.status] || "default"}
-            >
-              {order.status || "-"}
-            </Chip>
-          </div>
-          <div className="flex flex-col gap-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-default-400">Customer</span>
-              <span>{order.customerName || "-"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Order Date</span>
-              <span>
-                {order.orderDate
-                  ? new Date(order.orderDate).toLocaleDateString("th-TH")
-                  : "-"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Currency</span>
-              <span>{order.currencyCode || "THB"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Total (incl. Tax)</span>
-              <span className="font-semibold">
-                {formatNumber(order.totalAmountIncludingTax)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Lines</span>
-              <span>{order.salesOrderLines?.length ?? "-"}</span>
-            </div>
-          </div>
-        </CardBody>
-        <CardFooter>
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            className="w-full"
-            startContent={<Eye size={16} />}
-            onPress={() => openLines(order)}
-          >
-            View Lines
-          </Button>
-        </CardFooter>
-      </Card>
-    ),
-    [openLines],
-  );
-
   const lines = selectedOrder?.salesOrderLines || [];
 
   return (
@@ -184,7 +114,7 @@ export default function BcSalesOrdersPage() {
         columns={columns}
         data={salesOrders}
         renderCell={renderCell}
-        renderCard={renderCard}
+        enableCardView
         rowKey="id"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}

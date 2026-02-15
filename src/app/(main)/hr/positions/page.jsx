@@ -12,7 +12,6 @@ import {
   Textarea,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { Card, CardBody, CardFooter } from "@heroui/react";
 import { usePositions } from "@/hooks/usePositions";
 import DataTable from "@/components/ui/DataTable";
 
@@ -95,64 +94,13 @@ export default function PositionsPage() {
     [handleOpen, confirmDelete],
   );
 
-  const renderCard = useCallback(
-    (pos) => (
-      <Card
-        key={pos.positionId}
-        variant="bordered"
-        radius="md"
-        shadow="none"
-        className="border-2 border-default"
-      >
-        <CardBody className="gap-3">
-          <span className="font-semibold text-lg">{pos.positionTitle}</span>
-          <div className="flex flex-col gap-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-default-400">Description</span>
-              <span className="text-default-500">
-                {pos.positionDescription || "-"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-default-400">Created</span>
-              <span className="text-default-500">
-                {new Date(pos.positionCreatedAt).toLocaleDateString("th-TH")}
-              </span>
-            </div>
-          </div>
-        </CardBody>
-        <CardFooter className="gap-1 justify-end">
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            isIconOnly
-            onPress={() => handleOpen(pos)}
-          >
-            <Edit />
-          </Button>
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            isIconOnly
-            onPress={() => confirmDelete(pos)}
-          >
-            <Trash2 />
-          </Button>
-        </CardFooter>
-      </Card>
-    ),
-    [handleOpen, confirmDelete],
-  );
-
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <DataTable
         columns={columns}
         data={positions}
         renderCell={renderCell}
-        renderCard={renderCard}
+        enableCardView
         rowKey="positionId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}

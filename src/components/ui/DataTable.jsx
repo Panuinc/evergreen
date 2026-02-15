@@ -16,6 +16,9 @@ import {
   DropdownItem,
   Pagination,
   Spinner,
+  Card,
+  CardBody,
+  CardFooter,
 } from "@heroui/react";
 import { Search, ChevronDown, LayoutGrid, TableProperties } from "lucide-react";
 
@@ -27,7 +30,6 @@ export default function DataTable({
   columns = [],
   data = [],
   renderCell,
-  renderCard,
   rowKey = "id",
   isLoading = false,
   initialVisibleColumns,
@@ -39,6 +41,7 @@ export default function DataTable({
   defaultRowsPerPage = 10,
   defaultSortDescriptor,
   emptyContent = "No data found",
+  enableCardView = false,
 }) {
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState(
@@ -132,28 +135,43 @@ export default function DataTable({
     setPage(1);
   }, []);
 
-  const viewToggle = renderCard ? (
-    <div className="flex gap-1">
-      <Button
-        variant={view === "table" ? "solid" : "bordered"}
-        size="md"
-        radius="md"
-        isIconOnly
-        onPress={() => setView("table")}
-      >
-        <TableProperties size={18} />
-      </Button>
-      <Button
-        variant={view === "card" ? "solid" : "bordered"}
-        size="md"
-        radius="md"
-        isIconOnly
-        onPress={() => setView("card")}
-      >
-        <LayoutGrid size={18} />
-      </Button>
-    </div>
-  ) : null;
+  const cardColumns = useMemo(() => {
+    const visible = columns.filter(
+      (c) => c.uid !== "actions" && initialVisibleColumns?.includes(c.uid),
+    );
+    return {
+      title: visible[0] || null,
+      fields: visible.slice(1),
+      hasActions: columns.some((c) => c.uid === "actions"),
+    };
+  }, [columns, initialVisibleColumns]);
+
+  const viewToggle = useMemo(
+    () =>
+      enableCardView ? (
+        <div className="flex gap-1">
+          <Button
+            variant={view === "table" ? "solid" : "bordered"}
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => setView("table")}
+          >
+            <TableProperties size={18} />
+          </Button>
+          <Button
+            variant={view === "card" ? "solid" : "bordered"}
+            size="md"
+            radius="md"
+            isIconOnly
+            onPress={() => setView("card")}
+          >
+            <LayoutGrid size={18} />
+          </Button>
+        </div>
+      ) : null,
+    [enableCardView, view],
+  );
 
   const topContent = useMemo(() => {
     return (
@@ -313,7 +331,7 @@ export default function DataTable({
     );
   }, [page, pages]);
 
-  if (view === "card" && renderCard) {
+  if (view === "card" && enableCardView) {
     return (
       <div className="flex flex-col gap-4">
         {topContent}
@@ -327,7 +345,36 @@ export default function DataTable({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sortedItems.map((item) => renderCard(item))}
+            {sortedItems.map((item) => (
+              <Card
+                key={item[rowKey]}
+                variant="bordered"
+                radius="md"
+                shadow="none"
+                className="border-2 border-default"
+              >
+                <CardBody className="gap-3">
+                  {cardColumns.title && (
+                    <div className="font-semibold text-lg">
+                      {renderCell(item, cardColumns.title.uid)}
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1 text-sm">
+                    {cardColumns.fields.map((col) => (
+                      <div key={col.uid} className="flex justify-between">
+                        <span className="text-default-400">{col.name}</span>
+                        <span>{renderCell(item, col.uid)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardBody>
+                {cardColumns.hasActions && (
+                  <CardFooter className="gap-1 justify-end">
+                    {renderCell(item, "actions")}
+                  </CardFooter>
+                )}
+              </Card>
+            ))}
           </div>
         )}
         {bottomContent}
