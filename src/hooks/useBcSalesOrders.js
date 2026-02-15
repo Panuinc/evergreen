@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { getBcSalesOrders } from "@/actions/bc";
 
 export function useBcSalesOrders() {
   const [salesOrders, setSalesOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     loadSalesOrders();
@@ -24,5 +27,10 @@ export function useBcSalesOrders() {
     }
   };
 
-  return { salesOrders, loading };
+  const openLines = (order) => {
+    setSelectedOrder(order);
+    onOpen();
+  };
+
+  return { salesOrders, loading, selectedOrder, isOpen, onClose, openLines };
 }
