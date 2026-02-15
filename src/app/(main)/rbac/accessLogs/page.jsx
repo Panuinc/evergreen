@@ -10,7 +10,7 @@ import {
   Chip,
   Spinner,
 } from "@heroui/react";
-import { useAccessLogs } from "@/hooks/use-access-logs";
+import { useAccessLogs } from "@/hooks/useAccessLogs";
 
 export default function AccessLogsPage() {
   const { logs, loading } = useAccessLogs();

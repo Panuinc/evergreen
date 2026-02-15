@@ -1,4 +1,4 @@
-import { get, post, put, del } from "@/lib/api-client";
+import { get, post, put, del } from "@/lib/apiClient";
 
 // ==================== HR Employee CRUD ====================
 
@@ -29,11 +29,11 @@ export async function searchEmployees(searchTerm) {
 // ==================== User Linking ====================
 
 export async function getUnlinkedUsers() {
-  return get("/api/hr/unlinked-users");
+  return get("/api/hr/unlinkedUsers");
 }
 
 export async function getUnlinkedEmployees() {
-  return get("/api/hr/unlinked-employees");
+  return get("/api/hr/unlinkedEmployees");
 }
 
 // ==================== Departments ====================

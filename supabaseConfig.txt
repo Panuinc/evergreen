@@ -3,3 +3,38 @@ Database password : JQFJHsHDX9VPPSFi
 
 NEXT_PUBLIC_SUPABASE_URL=https://nersjlyaqgjrjznbwuhq.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=sb_publishable_XKQRj-5GRrOSScRocisEpA_qJO5qWfm
+
+
+//
+
+AUTH_SECRET="Dev"
+AUTH_URL="http://localhost:3000/"
+
+# LINE Login Configuration
+# สร้าง Channel ที่ https://developers.line.biz/
+LINE_CHANNEL_ACCESS_TOKEN=ngBXp7ZaKys2HtCw8BlVz07ZoWjq0XRKErW5OjjpmgjnZMces+XpaQmWeDyoVQh/4MuAqgKVLNTCAsXWxeg0uQEHYLSisiTxtyQ4wudX8GTgXF3QoDWqL9oM7bp+CWywNNmFtQskuF7N+hFBb2b0CgdB04t89/1O/w1cDnyilFU=
+LINE_VISITOR_GROUP_ID=Ca1d86ee4837fc054efe25c4b2c720b61
+NEXT_PUBLIC_BASE_URL=http://localhost:3000/
+NEXT_PUBLIC_APP_URL= http://localhost:3000/"
+
+# Authentication
+BC_AUTH_URL="https://login.microsoftonline.com/02b9e7ae-caa9-4b54-90cf-7ffdba07084c/oauth2/v2.0/token"
+BC_CLIENT_ID=4423e0d6-d367-444c-b25e-01898b8886d2 
+BC_CLIENT_SECRET=wpp8Q~toF4l5OHA.n4sJb9h-R_lPkxRLri1SQcSO 
+BC_SCOPE="https://api.businesscentral.dynamics.com/.default" 
+
+# API Configuration
+BC_BASE_URL="https://api.businesscentral.dynamics.com/v2.0" 
+BC_TENANT_ID=02b9e7ae-caa9-4b54-90cf-7ffdba07084c 
+BC_ENVIRONMENT=Production 
+BC_COMPANY=a407ba9f-2151-ec11-9f09-000d3ac85269 
+
+# Optional
+BC_DEBUG=false
+
+# RFID Printer Settings
+RFID_PRINTER_IP=169.254.112.200
+RFID_PRINTER_PORT=9100
+
+# Thailand Post EMS API (escape $ ด้วย \$ เพื่อหลีกเลี่ยงการตีความเป็นตัวแปร)
+THAILAND_POST_API_KEY="S%LrKoNyNIS:WOEUVqAkX8EbKRRhClAqHfHRP8BPOPR?KkWXRIDmJ*LOR7M3L=FCL9GiJ2SAEHZ\$D%RqN@IOCqVpV!WAS.X_F9Vo"

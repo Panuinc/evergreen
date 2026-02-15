@@ -2,7 +2,7 @@
 
 import { Input, Button, Chip, Spinner } from "@heroui/react";
 import { User, Lock, Briefcase } from "lucide-react";
-import { useProfile } from "@/hooks/use-profile";
+import { useProfile } from "@/hooks/useProfile";
 
 export default function ProfilePage() {
   const {

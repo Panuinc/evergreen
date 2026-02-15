@@ -1,4 +1,4 @@
-import { get, post, put, del } from "@/lib/api-client";
+import { get, post, put, del } from "@/lib/apiClient";
 
 // ==================== Roles ====================
 
@@ -75,47 +75,47 @@ export async function deletePermission(id) {
 // ==================== Role Permissions ====================
 
 export async function getRolePermissions(roleId) {
-  return get(`/api/rbac/role-permissions/${roleId}`);
+  return get(`/api/rbac/rolePermissions/${roleId}`);
 }
 
 export async function assignPermissionToRole(roleId, permissionId) {
-  return post(`/api/rbac/role-permissions/${roleId}`, { permissionId });
+  return post(`/api/rbac/rolePermissions/${roleId}`, { permissionId });
 }
 
 export async function removePermissionFromRole(roleId, permissionId) {
   return del(
-    `/api/rbac/role-permissions/${roleId}?permissionId=${permissionId}`
+    `/api/rbac/rolePermissions/${roleId}?permissionId=${permissionId}`
   );
 }
 
 // ==================== User Roles ====================
 
 export async function getUsersWithRoles() {
-  return get("/api/rbac/user-roles");
+  return get("/api/rbac/userRoles");
 }
 
 export async function getUserRoles(userId) {
-  return get(`/api/rbac/user-roles/${userId}`);
+  return get(`/api/rbac/userRoles/${userId}`);
 }
 
 export async function assignRoleToUser(userId, roleId) {
-  return post(`/api/rbac/user-roles/${userId}`, { roleId });
+  return post(`/api/rbac/userRoles/${userId}`, { roleId });
 }
 
 export async function removeRoleFromUser(userId, roleId) {
-  return del(`/api/rbac/user-roles/${userId}?roleId=${roleId}`);
+  return del(`/api/rbac/userRoles/${userId}?roleId=${roleId}`);
 }
 
 // ==================== Permission Checking ====================
 
 export async function getUserPermissions(userId) {
-  return get(`/api/rbac/user-permissions/${userId}`);
+  return get(`/api/rbac/userPermissions/${userId}`);
 }
 
 // ==================== Access Logs ====================
 
 export async function getAccessLogs() {
-  return get("/api/rbac/access-logs");
+  return get("/api/rbac/accessLogs");
 }
 
 export async function logAccess(
@@ -126,7 +126,7 @@ export async function logAccess(
   metadata = null
 ) {
   try {
-    await post("/api/rbac/access-logs", {
+    await post("/api/rbac/accessLogs", {
       userId,
       resource,
       action,

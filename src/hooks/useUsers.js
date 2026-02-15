@@ -112,7 +112,7 @@ export function useUsers() {
     setCreating(true);
 
     try {
-      const res = await fetch("/api/admin/create-user", {
+      const res = await fetch("/api/admin/createUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

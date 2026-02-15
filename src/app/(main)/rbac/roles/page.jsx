@@ -16,7 +16,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Shield } from "lucide-react";
-import { useRoles } from "@/hooks/use-roles";
+import { useRoles } from "@/hooks/useRoles";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
