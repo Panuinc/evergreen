@@ -52,11 +52,16 @@ export default function DataTable({
 
   const hasSearchFilter = Boolean(filterValue);
 
+  const noColumn = { name: "No.", uid: "_no", sortable: false };
+
   const headerColumns = useMemo(() => {
-    if (visibleColumns === "all") return columns;
-    return columns.filter((column) =>
-      Array.from(visibleColumns).includes(column.uid)
-    );
+    const visible =
+      visibleColumns === "all"
+        ? columns
+        : columns.filter((column) =>
+            Array.from(visibleColumns).includes(column.uid)
+          );
+    return [noColumn, ...visible];
   }, [columns, visibleColumns]);
 
   const filteredItems = useMemo(() => {
@@ -297,7 +302,11 @@ export default function DataTable({
         {(item) => (
           <TableRow key={item[rowKey]}>
             {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
+              <TableCell>
+                {columnKey === "_no"
+                  ? (page - 1) * rowsPerPage + sortedItems.indexOf(item) + 1
+                  : renderCell(item, columnKey)}
+              </TableCell>
             )}
           </TableRow>
         )}

@@ -1,13 +1,35 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase/client";
 
 const AuthContext = createContext({});
 
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const SESSION_CHECK_INTERVAL = 60 * 1000; // 1 minute
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const inactivityTimer = useRef(null);
+
+  const signOut = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    } finally {
+      window.location.href = "/auth/signin";
+    }
+  }, []);
+
+  // Reset inactivity timer on user activity
+  const resetInactivityTimer = useCallback(() => {
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    inactivityTimer.current = setTimeout(() => {
+      signOut();
+    }, INACTIVITY_TIMEOUT);
+  }, [signOut]);
 
   useEffect(() => {
     const getSession = async () => {
@@ -22,7 +44,12 @@ export function AuthProvider({ children }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT" || event === "TOKEN_REFRESHED" && !session) {
+        setUser(null);
+        window.location.href = "/auth/signin";
+        return;
+      }
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -30,9 +57,37 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Inactivity tracking
+  useEffect(() => {
+    if (!user) return;
+
+    const events = ["mousedown", "keydown", "scroll", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, resetInactivityTimer));
+    resetInactivityTimer();
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, resetInactivityTimer));
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    };
+  }, [user, resetInactivityTimer]);
+
+  // Periodic session validation
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = setInterval(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        signOut();
+      }
+    }, SESSION_CHECK_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [user, signOut]);
+
   const signIn = async (email, password) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -44,15 +99,6 @@ export function AuthProvider({ children }) {
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      window.location.href = "/auth/signin";
-    } catch (error) {
-      console.error("Error signing out:", error);
     }
   };
 
