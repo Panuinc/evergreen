@@ -6,7 +6,10 @@ export async function GET() {
   if (auth.error) return auth.error;
 
   try {
-    const data = await bcGet("/items");
+    const data = await bcGet("/items", {
+      $filter: "blocked eq false",
+      $orderby: "generalProductPostingGroupCode",
+    });
     return Response.json(data);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -37,6 +37,7 @@ export default function DataTable({
   searchKeys = [],
   statusField,
   statusOptions = [],
+  filterLabel = "Status",
   topEndContent,
   defaultRowsPerPage = 10,
   defaultSortDescriptor,
@@ -203,7 +204,7 @@ export default function DataTable({
                     radius="md"
                     endContent={<ChevronDown />}
                   >
-                    Status
+                    {filterLabel}
                   </Button>
                 </DropdownTrigger>
                 <DropdownMenu
@@ -289,6 +290,7 @@ export default function DataTable({
     searchPlaceholder,
     statusField,
     statusOptions,
+    filterLabel,
     topEndContent,
     view,
     viewToggle,
