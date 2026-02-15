@@ -7,6 +7,7 @@ import { menuData, findActiveMenuByPathname } from "@/config/menu";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import SubMenuPanel from "@/components/layout/SubMenuPanel";
+import ChatBot from "@/components/ui/ChatBot";
 
 export default function MainLayout({ children }) {
   const pathname = usePathname();
@@ -56,6 +57,7 @@ export default function MainLayout({ children }) {
           </div>
         </div>
       </div>
+      <ChatBot />
     </div>
   );
 }

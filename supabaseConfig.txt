@@ -38,3 +38,6 @@ RFID_PRINTER_PORT=9100
 
 # Thailand Post EMS API (escape $ ด้วย \$ เพื่อหลีกเลี่ยงการตีความเป็นตัวแปร)
 THAILAND_POST_API_KEY="S%LrKoNyNIS:WOEUVqAkX8EbKRRhClAqHfHRP8BPOPR?KkWXRIDmJ*LOR7M3L=FCL9GiJ2SAEHZ\$D%RqN@IOCqVpV!WAS.X_F9Vo"
+
+
+sk-kimi-2lG9I02CZ1piQvk94nBl7BQXdyUId0Fo2tBUj1qdh1jss5Cwf0WKCV1IOgqdbrHh

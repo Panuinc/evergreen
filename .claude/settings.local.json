@@ -10,7 +10,10 @@
       "Bash(npx next build:*)",
       "Bash(ls:*)",
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:platform.moonshot.ai)",
+      "WebFetch(domain:platform.moonshot.cn)",
+      "WebFetch(domain:www.kimi.com)"
     ]
   }
 }
