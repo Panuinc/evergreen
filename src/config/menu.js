@@ -255,6 +255,17 @@ export const menuData = [
     ],
   },
   {
+    id: "bc",
+    name: "365 Business Central",
+    icon: Building2,
+    href: "/bc/customers",
+    subMenus: [
+      { name: "Customers", icon: Users, href: "/bc/customers" },
+      { name: "Items", icon: Package, href: "/bc/items" },
+      { name: "Sales Orders", icon: ShoppingCart, href: "/bc/salesOrders" },
+    ],
+  },
+  {
     id: "rbac",
     name: "Access Control",
     icon: Shield,

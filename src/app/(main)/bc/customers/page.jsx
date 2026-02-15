@@ -1,0 +1,83 @@
+"use client";
+
+import { useCallback } from "react";
+import { Chip } from "@heroui/react";
+import { useBcCustomers } from "@/hooks/useBcCustomers";
+import DataTable from "@/components/ui/DataTable";
+
+const columns = [
+  { name: "Number", uid: "number", sortable: true },
+  { name: "Display Name", uid: "displayName", sortable: true },
+  { name: "Type", uid: "type", sortable: true },
+  { name: "Email", uid: "email", sortable: true },
+  { name: "Phone", uid: "phoneNumber" },
+  { name: "City", uid: "city", sortable: true },
+  { name: "Balance Due", uid: "balanceDue", sortable: true },
+  { name: "Blocked", uid: "blocked", sortable: true },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "number",
+  "displayName",
+  "type",
+  "email",
+  "city",
+  "balanceDue",
+  "blocked",
+];
+
+export default function BcCustomersPage() {
+  const { customers, loading } = useBcCustomers();
+
+  const renderCell = useCallback((customer, columnKey) => {
+    switch (columnKey) {
+      case "displayName":
+        return <span className="font-medium">{customer.displayName}</span>;
+      case "email":
+        return (
+          <span className="text-default-500">{customer.email || "-"}</span>
+        );
+      case "phoneNumber":
+        return (
+          <span className="text-default-500">
+            {customer.phoneNumber || "-"}
+          </span>
+        );
+      case "balanceDue":
+        return customer.balanceDue != null
+          ? Number(customer.balanceDue).toLocaleString("th-TH", {
+              minimumFractionDigits: 2,
+            })
+          : "-";
+      case "blocked":
+        return (
+          <Chip
+            variant="bordered"
+            size="md"
+            radius="md"
+            color={customer.blocked === " " || !customer.blocked ? "success" : "danger"}
+          >
+            {customer.blocked === " " || !customer.blocked ? "No" : customer.blocked}
+          </Chip>
+        );
+      default:
+        return customer[columnKey] || "-";
+    }
+  }, []);
+
+  return (
+    <div className="flex flex-col w-full h-full gap-4">
+      <DataTable
+        columns={columns}
+        data={customers}
+        renderCell={renderCell}
+        rowKey="id"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="Search by name, email, city..."
+        searchKeys={["number", "displayName", "email", "city"]}
+        emptyContent="No customers found"
+      />
+    </div>
+  );
+}
