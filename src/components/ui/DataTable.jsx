@@ -281,6 +281,7 @@ export default function DataTable({
       topContent={topContent}
       topContentPlacement="outside"
       onSortChange={setSortDescriptor}
+      shadow="none"
     >
       <TableHeader columns={headerColumns}>
         {(column) => (
