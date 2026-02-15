@@ -271,39 +271,47 @@ export default function RolesPage() {
         <ModalContent>
           <ModalHeader>{editingRole ? "Edit Role" : "Create Role"}</ModalHeader>
           <ModalBody>
-            <Input
-              label="Name"
-              labelPlacement="outside"
-              placeholder="e.g. hr_manager"
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.roleName}
-              onChange={(e) =>
-                setFormData({ ...formData, roleName: e.target.value })
-              }
-            />
-            <Textarea
-              label="Description"
-              labelPlacement="outside"
-              placeholder="Describe this role..."
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.roleDescription}
-              onChange={(e) =>
-                setFormData({ ...formData, roleDescription: e.target.value })
-              }
-            />
-            <Switch
-              size="md"
-              isSelected={formData.roleIsSuperadmin}
-              onValueChange={(val) =>
-                setFormData({ ...formData, roleIsSuperadmin: val })
-              }
-            >
-              Superadmin (bypass all permission checks)
-            </Switch>
+            <div className="flex flex-col w-full gap-2">
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="Name"
+                  labelPlacement="outside"
+                  placeholder="e.g. hr_manager"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.roleName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, roleName: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Textarea
+                  label="Description"
+                  labelPlacement="outside"
+                  placeholder="Describe this role..."
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.roleDescription}
+                  onChange={(e) =>
+                    setFormData({ ...formData, roleDescription: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Switch
+                  size="md"
+                  isSelected={formData.roleIsSuperadmin}
+                  onValueChange={(val) =>
+                    setFormData({ ...formData, roleIsSuperadmin: val })
+                  }
+                >
+                  Superadmin (bypass all permission checks)
+                </Switch>
+              </div>
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>

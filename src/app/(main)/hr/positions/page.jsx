@@ -199,34 +199,40 @@ export default function PositionsPage() {
             {editingPos ? "Edit Position" : "Add Position"}
           </ModalHeader>
           <ModalBody>
-            <Input
-              label="Title"
-              labelPlacement="outside"
-              placeholder="e.g. Software Engineer, HR Manager"
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.positionTitle}
-              onChange={(e) =>
-                setFormData({ ...formData, positionTitle: e.target.value })
-              }
-              isRequired
-            />
-            <Textarea
-              label="Description"
-              labelPlacement="outside"
-              placeholder="Describe this position..."
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.positionDescription}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  positionDescription: e.target.value,
-                })
-              }
-            />
+            <div className="flex flex-col w-full gap-2">
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="Title"
+                  labelPlacement="outside"
+                  placeholder="e.g. Software Engineer, HR Manager"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.positionTitle}
+                  onChange={(e) =>
+                    setFormData({ ...formData, positionTitle: e.target.value })
+                  }
+                  isRequired
+                />
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Textarea
+                  label="Description"
+                  labelPlacement="outside"
+                  placeholder="Describe this position..."
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.positionDescription}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      positionDescription: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>

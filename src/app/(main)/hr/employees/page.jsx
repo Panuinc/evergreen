@@ -284,124 +284,146 @@ export default function EmployeesPage() {
             {editingEmployee ? "Edit Employee" : "Add Employee"}
           </ModalHeader>
           <ModalBody>
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="First Name"
-                labelPlacement="outside"
-                placeholder="Enter first name"
-                variant="bordered"
-                size="md"
-                radius="md"
-                value={formData.employeeFirstName}
-                onChange={(e) =>
-                  updateField("employeeFirstName", e.target.value)
-                }
-                isRequired
-              />
-              <Input
-                label="Last Name"
-                labelPlacement="outside"
-                placeholder="Enter last name"
-                variant="bordered"
-                size="md"
-                radius="md"
-                value={formData.employeeLastName}
-                onChange={(e) =>
-                  updateField("employeeLastName", e.target.value)
-                }
-                isRequired
-              />
-              <Input
-                type="email"
-                label="Email"
-                labelPlacement="outside"
-                placeholder="Enter email"
-                variant="bordered"
-                size="md"
-                radius="md"
-                value={formData.employeeEmail}
-                onChange={(e) => updateField("employeeEmail", e.target.value)}
-              />
-              <Input
-                label="Phone"
-                labelPlacement="outside"
-                placeholder="Enter phone number"
-                variant="bordered"
-                size="md"
-                radius="md"
-                value={formData.employeePhone}
-                onChange={(e) => updateField("employeePhone", e.target.value)}
-              />
-              <Select
-                label="Department"
-                labelPlacement="outside"
-                placeholder="Select department"
-                variant="bordered"
-                size="md"
-                radius="md"
-                selectedKeys={
-                  formData.employeeDepartment
-                    ? [formData.employeeDepartment]
-                    : []
-                }
-                onSelectionChange={(keys) => {
-                  const val = Array.from(keys)[0] || "";
-                  updateField("employeeDepartment", val);
-                }}
-              >
-                {departments.map((dept) => (
-                  <SelectItem key={dept.departmentName}>
-                    {dept.departmentName}
-                  </SelectItem>
-                ))}
-              </Select>
-              <Select
-                label="Position"
-                labelPlacement="outside"
-                placeholder="Select position"
-                variant="bordered"
-                size="md"
-                radius="md"
-                selectedKeys={
-                  formData.employeePosition ? [formData.employeePosition] : []
-                }
-                onSelectionChange={(keys) => {
-                  const val = Array.from(keys)[0] || "";
-                  updateField("employeePosition", val);
-                }}
-              >
-                {positions.map((pos) => (
-                  <SelectItem key={pos.positionTitle}>
-                    {pos.positionTitle}
-                  </SelectItem>
-                ))}
-              </Select>
-              <Input
-                type="number"
-                label="Salary"
-                labelPlacement="outside"
-                placeholder="Enter salary"
-                variant="bordered"
-                size="md"
-                radius="md"
-                value={formData.employeeSalary}
-                onChange={(e) => updateField("employeeSalary", e.target.value)}
-              />
-              <Select
-                label="Status"
-                labelPlacement="outside"
-                variant="bordered"
-                size="md"
-                radius="md"
-                selectedKeys={[formData.employeeStatus]}
-                onSelectionChange={(keys) => {
-                  const val = Array.from(keys)[0] || "active";
-                  updateField("employeeStatus", val);
-                }}
-              >
-                <SelectItem key="active">Active</SelectItem>
-                <SelectItem key="inactive">Inactive</SelectItem>
-              </Select>
+            <div className="flex flex-col w-full gap-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Input
+                    label="First Name"
+                    labelPlacement="outside"
+                    placeholder="Enter first name"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={formData.employeeFirstName}
+                    onChange={(e) =>
+                      updateField("employeeFirstName", e.target.value)
+                    }
+                    isRequired
+                  />
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Input
+                    label="Last Name"
+                    labelPlacement="outside"
+                    placeholder="Enter last name"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={formData.employeeLastName}
+                    onChange={(e) =>
+                      updateField("employeeLastName", e.target.value)
+                    }
+                    isRequired
+                  />
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Input
+                    type="email"
+                    label="Email"
+                    labelPlacement="outside"
+                    placeholder="Enter email"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={formData.employeeEmail}
+                    onChange={(e) => updateField("employeeEmail", e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Input
+                    label="Phone"
+                    labelPlacement="outside"
+                    placeholder="Enter phone number"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={formData.employeePhone}
+                    onChange={(e) => updateField("employeePhone", e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Select
+                    label="Department"
+                    labelPlacement="outside"
+                    placeholder="Select department"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    selectedKeys={
+                      formData.employeeDepartment
+                        ? [formData.employeeDepartment]
+                        : []
+                    }
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("employeeDepartment", val);
+                    }}
+                  >
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.departmentName}>
+                        {dept.departmentName}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Select
+                    label="Position"
+                    labelPlacement="outside"
+                    placeholder="Select position"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    selectedKeys={
+                      formData.employeePosition
+                        ? [formData.employeePosition]
+                        : []
+                    }
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("employeePosition", val);
+                    }}
+                  >
+                    {positions.map((pos) => (
+                      <SelectItem key={pos.positionTitle}>
+                        {pos.positionTitle}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Input
+                    type="number"
+                    label="Salary"
+                    labelPlacement="outside"
+                    placeholder="Enter salary"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={formData.employeeSalary}
+                    onChange={(e) =>
+                      updateField("employeeSalary", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Select
+                    label="Status"
+                    labelPlacement="outside"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    selectedKeys={[formData.employeeStatus]}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "active";
+                      updateField("employeeStatus", val);
+                    }}
+                  >
+                    <SelectItem key="active">Active</SelectItem>
+                    <SelectItem key="inactive">Inactive</SelectItem>
+                  </Select>
+                </div>
+              </div>
             </div>
           </ModalBody>
           <ModalFooter>

@@ -191,54 +191,62 @@ export default function ResourcesPage() {
             {editingResource ? "Edit Resource" : "Create Resource"}
           </ModalHeader>
           <ModalBody>
-            <Input
-              label="Name"
-              labelPlacement="outside"
-              placeholder="e.g. employees"
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.resourceName}
-              onChange={(e) =>
-                setFormData({ ...formData, resourceName: e.target.value })
-              }
-            />
-            <Select
-              label="Module"
-              labelPlacement="outside"
-              placeholder="Select a module"
-              variant="bordered"
-              size="md"
-              radius="md"
-              selectedKeys={
-                formData.resourceModuleId ? [formData.resourceModuleId] : []
-              }
-              onSelectionChange={(keys) =>
-                setFormData({
-                  ...formData,
-                  resourceModuleId: Array.from(keys)[0] || "",
-                })
-              }
-            >
-              {menuData.map((menu) => (
-                <SelectItem key={menu.id}>{menu.name}</SelectItem>
-              ))}
-            </Select>
-            <Textarea
-              label="Description"
-              labelPlacement="outside"
-              placeholder="Describe this resource..."
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.resourceDescription}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  resourceDescription: e.target.value,
-                })
-              }
-            />
+            <div className="flex flex-col w-full gap-2">
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="Name"
+                  labelPlacement="outside"
+                  placeholder="e.g. employees"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.resourceName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, resourceName: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Select
+                  label="Module"
+                  labelPlacement="outside"
+                  placeholder="Select a module"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  selectedKeys={
+                    formData.resourceModuleId ? [formData.resourceModuleId] : []
+                  }
+                  onSelectionChange={(keys) =>
+                    setFormData({
+                      ...formData,
+                      resourceModuleId: Array.from(keys)[0] || "",
+                    })
+                  }
+                >
+                  {menuData.map((menu) => (
+                    <SelectItem key={menu.id}>{menu.name}</SelectItem>
+                  ))}
+                </Select>
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Textarea
+                  label="Description"
+                  labelPlacement="outside"
+                  placeholder="Describe this resource..."
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.resourceDescription}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      resourceDescription: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>

@@ -182,33 +182,39 @@ export default function ActionsPage() {
             {editingAction ? "Edit Action" : "Create Action"}
           </ModalHeader>
           <ModalBody>
-            <Input
-              label="Name"
-              labelPlacement="outside"
-              placeholder="e.g. create, read, update, delete"
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.actionName}
-              onChange={(e) =>
-                setFormData({ ...formData, actionName: e.target.value })
-              }
-            />
-            <Textarea
-              label="Description"
-              labelPlacement="outside"
-              placeholder="Describe this action..."
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.actionDescription}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  actionDescription: e.target.value,
-                })
-              }
-            />
+            <div className="flex flex-col w-full gap-2">
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="Name"
+                  labelPlacement="outside"
+                  placeholder="e.g. create, read, update, delete"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.actionName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, actionName: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Textarea
+                  label="Description"
+                  labelPlacement="outside"
+                  placeholder="Describe this action..."
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.actionDescription}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      actionDescription: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>

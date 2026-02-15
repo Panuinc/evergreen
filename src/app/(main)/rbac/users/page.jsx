@@ -291,64 +291,72 @@ export default function UsersPage() {
         <ModalContent>
           <ModalHeader>Create Account</ModalHeader>
           <ModalBody>
-            <Input
-              label="Email"
-              labelPlacement="outside"
-              type="email"
-              placeholder="employee@company.com"
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={createForm.email}
-              onChange={(e) =>
-                setCreateForm({ ...createForm, email: e.target.value })
-              }
-            />
-            <Input
-              label="Password"
-              labelPlacement="outside"
-              type="password"
-              placeholder="At least 6 characters"
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={createForm.password}
-              onChange={(e) =>
-                setCreateForm({ ...createForm, password: e.target.value })
-              }
-            />
-            <Select
-              label="Link to Employee (optional)"
-              labelPlacement="outside"
-              placeholder="Select an employee"
-              variant="bordered"
-              size="md"
-              radius="md"
-              selectedKeys={
-                createForm.employeeId ? [createForm.employeeId] : []
-              }
-              onSelectionChange={(keys) => {
-                const selectedId = Array.from(keys)[0] || "";
-                const emp = unlinkedEmployees.find(
-                  (e) => e.employeeId === selectedId,
-                );
-                setCreateForm({
-                  ...createForm,
-                  employeeId: selectedId,
-                  email: emp?.employeeEmail || createForm.email,
-                });
-              }}
-            >
-              {unlinkedEmployees.map((emp) => (
-                <SelectItem
-                  key={emp.employeeId}
-                  textValue={`${emp.employeeFirstName} ${emp.employeeLastName}${emp.employeeEmail ? ` (${emp.employeeEmail})` : ""}`}
+            <div className="flex flex-col w-full gap-2">
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="Email"
+                  labelPlacement="outside"
+                  type="email"
+                  placeholder="employee@company.com"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={createForm.email}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, email: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="Password"
+                  labelPlacement="outside"
+                  type="password"
+                  placeholder="At least 6 characters"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={createForm.password}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, password: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Select
+                  label="Link to Employee (optional)"
+                  labelPlacement="outside"
+                  placeholder="Select an employee"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  selectedKeys={
+                    createForm.employeeId ? [createForm.employeeId] : []
+                  }
+                  onSelectionChange={(keys) => {
+                    const selectedId = Array.from(keys)[0] || "";
+                    const emp = unlinkedEmployees.find(
+                      (e) => e.employeeId === selectedId,
+                    );
+                    setCreateForm({
+                      ...createForm,
+                      employeeId: selectedId,
+                      email: emp?.employeeEmail || createForm.email,
+                    });
+                  }}
                 >
-                  {emp.employeeFirstName} {emp.employeeLastName}
-                  {emp.employeeEmail ? ` (${emp.employeeEmail})` : ""}
-                </SelectItem>
-              ))}
-            </Select>
+                  {unlinkedEmployees.map((emp) => (
+                    <SelectItem
+                      key={emp.employeeId}
+                      textValue={`${emp.employeeFirstName} ${emp.employeeLastName}${emp.employeeEmail ? ` (${emp.employeeEmail})` : ""}`}
+                    >
+                      {emp.employeeFirstName} {emp.employeeLastName}
+                      {emp.employeeEmail ? ` (${emp.employeeEmail})` : ""}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button

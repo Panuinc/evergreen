@@ -199,34 +199,40 @@ export default function DepartmentsPage() {
             {editingDept ? "Edit Department" : "Add Department"}
           </ModalHeader>
           <ModalBody>
-            <Input
-              label="Name"
-              labelPlacement="outside"
-              placeholder="e.g. IT, HR, Finance"
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.departmentName}
-              onChange={(e) =>
-                setFormData({ ...formData, departmentName: e.target.value })
-              }
-              isRequired
-            />
-            <Textarea
-              label="Description"
-              labelPlacement="outside"
-              placeholder="Describe this department..."
-              variant="bordered"
-              size="md"
-              radius="md"
-              value={formData.departmentDescription}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  departmentDescription: e.target.value,
-                })
-              }
-            />
+            <div className="flex flex-col w-full gap-2">
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="Name"
+                  labelPlacement="outside"
+                  placeholder="e.g. IT, HR, Finance"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.departmentName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, departmentName: e.target.value })
+                  }
+                  isRequired
+                />
+              </div>
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Textarea
+                  label="Description"
+                  labelPlacement="outside"
+                  placeholder="Describe this department..."
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.departmentDescription}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      departmentDescription: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
