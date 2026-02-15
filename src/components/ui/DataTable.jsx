@@ -393,6 +393,11 @@ export default function DataTable({
       topContentPlacement="outside"
       onSortChange={setSortDescriptor}
       shadow="none"
+      classNames={{
+        // wrapper: "border-2 border-default rounded-xl",
+        th: "border-b-2 border-r-2 border-default last:border-r-0",
+        td: "border-b-2 border-r-2 border-default last:border-r-0",
+      }}
     >
       <TableHeader columns={headerColumns}>
         {(column) => (
