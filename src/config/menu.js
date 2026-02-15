@@ -75,6 +75,7 @@ export const menuData = [
     icon: User,
     href: "/hr/employees",
     subMenus: [
+      { name: "Human Resources", icon: LayoutDashboard, href: "/hr/dashboard" },
       { name: "Employee List", icon: Users, href: "/hr/employees" },
       { name: "Departments", icon: Building2, href: "/hr/departments" },
       { name: "Positions", icon: Briefcase, href: "/hr/positions" },
@@ -264,8 +265,16 @@ export const menuData = [
       { name: "Resources", icon: Server, href: "/rbac/resources" },
       { name: "Actions", icon: Zap, href: "/rbac/actions" },
       { name: "Permissions", icon: Lock, href: "/rbac/permissions" },
-      { name: "Approval Hierarchy", icon: GitBranch, href: "/rbac/approvalHierarchy" },
-      { name: "Approval Workflows", icon: Workflow, href: "/rbac/approvalWorkflows" },
+      {
+        name: "Approval Hierarchy",
+        icon: GitBranch,
+        href: "/rbac/approvalHierarchy",
+      },
+      {
+        name: "Approval Workflows",
+        icon: Workflow,
+        href: "/rbac/approvalWorkflows",
+      },
       { name: "Access Logs", icon: FileText, href: "/rbac/accessLogs" },
     ],
   },

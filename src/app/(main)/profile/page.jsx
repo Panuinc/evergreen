@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Input, Button, Chip, Spinner } from "@heroui/react";
-import { User, Lock, Briefcase, Mail, Phone, Building2 } from "lucide-react";
+import { User, Lock, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { getProfile, changePassword } from "@/actions/profile";
 
@@ -78,133 +78,124 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col w-full h-full gap-6">
-      <h1 className="text-lg font-semibold">My Profile</h1>
+      {/* Account Information */}
+      <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
+        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
+          <User />
+          Account Information
+        </div>
 
-      <div className="grid grid-cols-2 gap-6 w-full">
-        {/* User Info */}
-        <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
-          <div className="flex items-center gap-2">
-            <User />
-            <h2 className="font-semibold">Account Information</h2>
+        <div className="flex flex-col w-full gap-2">
+          <div className="flex items-center w-full h-fit p-2 gap-2">
+            <span className="text-sm text-default-500 w-20">Email</span>
+            <span className="font-medium">{user?.email}</span>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-default-500">Email</span>
-              <span className="font-medium">{user?.email}</span>
+          <div className="flex items-center w-full h-fit p-2 gap-2">
+            <span className="text-sm text-default-500 w-20">Created</span>
+            <span className="font-medium">
+              {user?.createdAt
+                ? new Date(user.createdAt).toLocaleDateString("th-TH")
+                : "-"}
+            </span>
+          </div>
+          <div className="flex items-center w-full h-fit p-2 gap-2">
+            <span className="text-sm text-default-500 w-20">Roles</span>
+            <div className="flex flex-wrap gap-1">
+              {roles?.length > 0 ? (
+                roles.map((role) => (
+                  <Chip
+                    key={role.roleId}
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    color={role.roleIsSuperadmin ? "danger" : "primary"}
+                  >
+                    {role.roleName}
+                  </Chip>
+                ))
+              ) : (
+                <span className="text-default-400">No roles assigned</span>
+              )}
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-default-500">Created</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Employee Information */}
+      <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
+        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
+          <Briefcase />
+          Employee Information
+        </div>
+
+        {employee ? (
+          <div className="flex flex-col w-full gap-2">
+            <div className="flex items-center w-full h-fit p-2 gap-2">
+              <span className="text-sm text-default-500 w-24">First Name</span>
               <span className="font-medium">
-                {user?.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString("th-TH")
-                  : "-"}
+                {employee.employeeFirstName}
               </span>
             </div>
-            <div className="flex flex-col gap-1 col-span-2">
-              <span className="text-sm text-default-500">Roles</span>
-              <div className="flex flex-wrap gap-1">
-                {roles?.length > 0 ? (
-                  roles.map((role) => (
-                    <Chip
-                      key={role.roleId}
-                      variant="bordered"
-                      size="md"
-                      radius="md"
-                      color={role.roleIsSuperadmin ? "danger" : "primary"}
-                    >
-                      {role.roleName}
-                    </Chip>
-                  ))
-                ) : (
-                  <span className="text-default-400">No roles assigned</span>
-                )}
-              </div>
+            <div className="flex items-center w-full h-fit p-2 gap-2">
+              <span className="text-sm text-default-500 w-24">Last Name</span>
+              <span className="font-medium">
+                {employee.employeeLastName}
+              </span>
+            </div>
+            <div className="flex items-center w-full h-fit p-2 gap-2">
+              <span className="text-sm text-default-500 w-24">Email</span>
+              <span className="font-medium">
+                {employee.employeeEmail || "-"}
+              </span>
+            </div>
+            <div className="flex items-center w-full h-fit p-2 gap-2">
+              <span className="text-sm text-default-500 w-24">Phone</span>
+              <span className="font-medium">
+                {employee.employeePhone || "-"}
+              </span>
+            </div>
+            <div className="flex items-center w-full h-fit p-2 gap-2">
+              <span className="text-sm text-default-500 w-24">Department</span>
+              <span className="font-medium">
+                {employee.employeeDepartment || "-"}
+              </span>
+            </div>
+            <div className="flex items-center w-full h-fit p-2 gap-2">
+              <span className="text-sm text-default-500 w-24">Position</span>
+              <span className="font-medium">
+                {employee.employeePosition || "-"}
+              </span>
+            </div>
+            <div className="flex items-center w-full h-fit p-2 gap-2">
+              <span className="text-sm text-default-500 w-24">Status</span>
+              <Chip
+                variant="bordered"
+                size="md"
+                radius="md"
+                color={
+                  employee.employeeStatus === "active" ? "success" : "default"
+                }
+              >
+                {employee.employeeStatus}
+              </Chip>
             </div>
           </div>
+        ) : (
+          <div className="flex items-center w-full h-fit p-2 gap-2 text-default-400">
+            No employee record linked to this account
+          </div>
+        )}
+      </div>
+
+      {/* Change Password */}
+      <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
+        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
+          <Lock />
+          Change Password
         </div>
 
-        {/* Employee Info */}
-        <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
-          <div className="flex items-center gap-2">
-            <Briefcase />
-            <h2 className="font-semibold">Employee Information</h2>
-          </div>
-
-          {employee ? (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <span className="text-sm text-default-500">First Name</span>
-                <span className="font-medium">
-                  {employee.employeeFirstName}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm text-default-500">Last Name</span>
-                <span className="font-medium">{employee.employeeLastName}</span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1 text-sm text-default-500">
-                  <Mail />
-                  <span>Email</span>
-                </div>
-                <span className="font-medium">
-                  {employee.employeeEmail || "-"}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1 text-sm text-default-500">
-                  <Phone />
-                  <span>Phone</span>
-                </div>
-                <span className="font-medium">
-                  {employee.employeePhone || "-"}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1 text-sm text-default-500">
-                  <Building2 />
-                  <span>Department</span>
-                </div>
-                <span className="font-medium">
-                  {employee.employeeDepartment || "-"}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm text-default-500">Position</span>
-                <span className="font-medium">
-                  {employee.employeePosition || "-"}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm text-default-500">Status</span>
-                <Chip
-                  variant="bordered"
-                  size="md"
-                  radius="md"
-                  color={
-                    employee.employeeStatus === "active" ? "success" : "default"
-                  }
-                >
-                  {employee.employeeStatus}
-                </Chip>
-              </div>
-            </div>
-          ) : (
-            <span className="text-default-400">
-              No employee record linked to this account
-            </span>
-          )}
-        </div>
-
-        {/* Change Password */}
-        <div className="flex flex-col gap-4 p-4 border border-default rounded-xl col-span-2">
-          <div className="flex items-center gap-2">
-            <Lock />
-            <h2 className="font-semibold">Change Password</h2>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
+        <div className="flex flex-col w-full gap-2">
+          <div className="flex items-center w-full h-fit p-2 gap-2">
             <Input
               label="Current Password"
               labelPlacement="outside"
@@ -221,6 +212,8 @@ export default function ProfilePage() {
                 })
               }
             />
+          </div>
+          <div className="flex items-center w-full h-fit p-2 gap-2">
             <Input
               label="New Password"
               labelPlacement="outside"
@@ -237,6 +230,8 @@ export default function ProfilePage() {
                 })
               }
             />
+          </div>
+          <div className="flex items-center w-full h-fit p-2 gap-2">
             <Input
               label="Confirm New Password"
               labelPlacement="outside"
@@ -254,7 +249,7 @@ export default function ProfilePage() {
               }
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end w-full h-fit p-2 gap-2">
             <Button
               variant="bordered"
               size="md"
