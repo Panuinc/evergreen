@@ -142,10 +142,22 @@ export default function PositionsPage() {
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button isIconOnly onPress={() => handleOpen(pos)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => handleOpen(pos)}
+            >
               <Edit />
             </Button>
-            <Button isIconOnly onPress={() => confirmDelete(pos)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => confirmDelete(pos)}
+            >
               <Trash2 />
             </Button>
           </div>
@@ -168,7 +180,13 @@ export default function PositionsPage() {
         searchKeys={["positionTitle", "positionDescription"]}
         emptyContent="No positions found"
         topEndContent={
-          <Button startContent={<Plus />} onPress={() => handleOpen()}>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
             Add Position
           </Button>
         }
@@ -183,7 +201,11 @@ export default function PositionsPage() {
           <ModalBody>
             <Input
               label="Title"
+              labelPlacement="outside"
               placeholder="e.g. Software Engineer, HR Manager"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.positionTitle}
               onChange={(e) =>
                 setFormData({ ...formData, positionTitle: e.target.value })
@@ -192,7 +214,11 @@ export default function PositionsPage() {
             />
             <Textarea
               label="Description"
+              labelPlacement="outside"
               placeholder="Describe this position..."
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.positionDescription}
               onChange={(e) =>
                 setFormData({
@@ -203,8 +229,16 @@ export default function PositionsPage() {
             />
           </ModalBody>
           <ModalFooter>
-            <Button onPress={onClose}>Cancel</Button>
-            <Button onPress={handleSave} isLoading={saving}>
+            <Button variant="bordered" size="md" radius="md" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleSave}
+              isLoading={saving}
+            >
               {editingPos ? "Update" : "Create"}
             </Button>
           </ModalFooter>
@@ -225,8 +259,22 @@ export default function PositionsPage() {
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button onPress={deleteModal.onClose}>Cancel</Button>
-            <Button onPress={handleDelete}>Delete</Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={deleteModal.onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleDelete}
+            >
+              Delete
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

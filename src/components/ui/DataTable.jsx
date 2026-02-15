@@ -139,6 +139,9 @@ export default function DataTable({
               isClearable
               className="w-full sm:max-w-[44%]"
               placeholder={searchPlaceholder}
+              variant="bordered"
+              size="md"
+              radius="md"
               startContent={<Search />}
               value={filterValue}
               onClear={() => setFilterValue("")}
@@ -151,7 +154,14 @@ export default function DataTable({
             {statusField && statusOptions.length > 0 && (
               <Dropdown>
                 <DropdownTrigger className="hidden sm:flex">
-                  <Button endContent={<ChevronDown />}>Status</Button>
+                  <Button
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    endContent={<ChevronDown />}
+                  >
+                    Status
+                  </Button>
                 </DropdownTrigger>
                 <DropdownMenu
                   disallowEmptySelection
@@ -171,7 +181,14 @@ export default function DataTable({
             )}
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDown />}>Columns</Button>
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  endContent={<ChevronDown />}
+                >
+                  Columns
+                </Button>
               </DropdownTrigger>
               <DropdownMenu
                 disallowEmptySelection
@@ -244,12 +261,18 @@ export default function DataTable({
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button
+            variant="bordered"
+            size="md"
+            radius="md"
             isDisabled={pages === 1}
             onPress={() => setPage((p) => Math.max(1, p - 1))}
           >
             Previous
           </Button>
           <Button
+            variant="bordered"
+            size="md"
+            radius="md"
             isDisabled={pages === 1}
             onPress={() => setPage((p) => Math.min(pages, p + 1))}
           >

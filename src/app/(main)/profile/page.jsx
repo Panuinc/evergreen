@@ -108,6 +108,9 @@ export default function ProfilePage() {
                   roles.map((role) => (
                     <Chip
                       key={role.roleId}
+                      variant="bordered"
+                      size="md"
+                      radius="md"
                       color={role.roleIsSuperadmin ? "danger" : "primary"}
                     >
                       {role.roleName}
@@ -176,6 +179,9 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-default-500">Status</span>
                 <Chip
+                  variant="bordered"
+                  size="md"
+                  radius="md"
                   color={
                     employee.employeeStatus === "active" ? "success" : "default"
                   }
@@ -201,8 +207,12 @@ export default function ProfilePage() {
           <div className="grid grid-cols-3 gap-3">
             <Input
               label="Current Password"
+              labelPlacement="outside"
               type="password"
               placeholder="Enter current password"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={passwordForm.currentPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -213,8 +223,12 @@ export default function ProfilePage() {
             />
             <Input
               label="New Password"
+              labelPlacement="outside"
               type="password"
               placeholder="At least 6 characters"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={passwordForm.newPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -225,8 +239,12 @@ export default function ProfilePage() {
             />
             <Input
               label="Confirm New Password"
+              labelPlacement="outside"
               type="password"
               placeholder="Re-enter new password"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={passwordForm.confirmPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -237,7 +255,13 @@ export default function ProfilePage() {
             />
           </div>
           <div className="flex justify-end">
-            <Button onPress={handleChangePassword} isLoading={changing}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleChangePassword}
+              isLoading={changing}
+            >
               Change Password
             </Button>
           </div>

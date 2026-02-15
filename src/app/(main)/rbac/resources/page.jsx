@@ -135,10 +135,22 @@ export default function ResourcesPage() {
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button isIconOnly onPress={() => handleOpen(resource)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => handleOpen(resource)}
+            >
               <Edit />
             </Button>
-            <Button isIconOnly onPress={() => handleDelete(resource)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => handleDelete(resource)}
+            >
               <Trash2 />
             </Button>
           </div>
@@ -161,7 +173,13 @@ export default function ResourcesPage() {
         searchKeys={["resourceName", "resourceModuleId", "resourceDescription"]}
         emptyContent="No resources found"
         topEndContent={
-          <Button startContent={<Plus />} onPress={() => handleOpen()}>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
             Add Resource
           </Button>
         }
@@ -175,7 +193,11 @@ export default function ResourcesPage() {
           <ModalBody>
             <Input
               label="Name"
+              labelPlacement="outside"
               placeholder="e.g. employees"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.resourceName}
               onChange={(e) =>
                 setFormData({ ...formData, resourceName: e.target.value })
@@ -183,7 +205,11 @@ export default function ResourcesPage() {
             />
             <Select
               label="Module"
+              labelPlacement="outside"
               placeholder="Select a module"
+              variant="bordered"
+              size="md"
+              radius="md"
               selectedKeys={
                 formData.resourceModuleId ? [formData.resourceModuleId] : []
               }
@@ -200,7 +226,11 @@ export default function ResourcesPage() {
             </Select>
             <Textarea
               label="Description"
+              labelPlacement="outside"
               placeholder="Describe this resource..."
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.resourceDescription}
               onChange={(e) =>
                 setFormData({
@@ -211,8 +241,10 @@ export default function ResourcesPage() {
             />
           </ModalBody>
           <ModalFooter>
-            <Button onPress={onClose}>Cancel</Button>
-            <Button onPress={handleSave}>
+            <Button variant="bordered" size="md" radius="md" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button variant="solid" size="md" radius="md" onPress={handleSave}>
               {editingResource ? "Update" : "Create"}
             </Button>
           </ModalFooter>

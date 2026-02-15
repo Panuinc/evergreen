@@ -183,6 +183,9 @@ export default function UsersPage() {
               user.roles.map((role) => (
                 <Chip
                   key={role.roleId}
+                  variant="bordered"
+                  size="md"
+                  radius="md"
                   color={role.roleIsSuperadmin ? "danger" : "primary"}
                 >
                   {role.roleName}
@@ -202,6 +205,9 @@ export default function UsersPage() {
       case "actions":
         return (
           <Button
+            variant="bordered"
+            size="md"
+            radius="md"
             isIconOnly
             onPress={() => openRoleAssignment(user)}
             title="Manage Roles"
@@ -227,7 +233,13 @@ export default function UsersPage() {
         searchKeys={["userProfileEmail"]}
         emptyContent="No users found"
         topEndContent={
-          <Button startContent={<Plus />} onPress={openCreateAccount}>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Plus />}
+            onPress={openCreateAccount}
+          >
             Create Account
           </Button>
         }
@@ -244,13 +256,15 @@ export default function UsersPage() {
               {allRoles.map((role) => (
                 <Checkbox
                   key={role.roleId}
+                  size="md"
+                  radius="md"
                   isSelected={userRoleIds.includes(role.roleId)}
                   onValueChange={() => toggleRole(role.roleId)}
                   isDisabled={saving}
                 >
                   <div className="flex items-center gap-2">
                     <span>{role.roleName}</span>
-                    {role.roleIsSuperadmin && <Chip>Superadmin</Chip>}
+                    {role.roleIsSuperadmin && <Chip variant="bordered" size="md" radius="md">Superadmin</Chip>}
                   </div>
                   {role.roleDescription && (
                     <p className="text-default-400">{role.roleDescription}</p>
@@ -260,7 +274,14 @@ export default function UsersPage() {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button onPress={handleCloseRoles}>Done</Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleCloseRoles}
+            >
+              Done
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -272,8 +293,12 @@ export default function UsersPage() {
           <ModalBody>
             <Input
               label="Email"
+              labelPlacement="outside"
               type="email"
               placeholder="employee@company.com"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={createForm.email}
               onChange={(e) =>
                 setCreateForm({ ...createForm, email: e.target.value })
@@ -281,8 +306,12 @@ export default function UsersPage() {
             />
             <Input
               label="Password"
+              labelPlacement="outside"
               type="password"
               placeholder="At least 6 characters"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={createForm.password}
               onChange={(e) =>
                 setCreateForm({ ...createForm, password: e.target.value })
@@ -290,7 +319,11 @@ export default function UsersPage() {
             />
             <Select
               label="Link to Employee (optional)"
+              labelPlacement="outside"
               placeholder="Select an employee"
+              variant="bordered"
+              size="md"
+              radius="md"
               selectedKeys={
                 createForm.employeeId ? [createForm.employeeId] : []
               }
@@ -318,8 +351,21 @@ export default function UsersPage() {
             </Select>
           </ModalBody>
           <ModalFooter>
-            <Button onPress={() => setCreateOpen(false)}>Cancel</Button>
-            <Button onPress={handleCreateAccount} isLoading={creating}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={() => setCreateOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="solid"
+              size="md"
+              radius="md"
+              onPress={handleCreateAccount}
+              isLoading={creating}
+            >
               Create
             </Button>
           </ModalFooter>

@@ -201,17 +201,34 @@ export default function EmployeesPage() {
           : "-";
       case "employeeStatus":
         return (
-          <Chip color={emp.employeeStatus === "active" ? "success" : "default"}>
+          <Chip
+            variant="bordered"
+            size="md"
+            radius="md"
+            color={emp.employeeStatus === "active" ? "success" : "default"}
+          >
             {emp.employeeStatus}
           </Chip>
         );
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button isIconOnly onPress={() => handleOpen(emp)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => handleOpen(emp)}
+            >
               <Edit />
             </Button>
-            <Button isIconOnly onPress={() => confirmDelete(emp)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => confirmDelete(emp)}
+            >
               <Trash2 />
             </Button>
           </div>
@@ -243,7 +260,13 @@ export default function EmployeesPage() {
         statusOptions={statusOptions}
         emptyContent="No employees found"
         topEndContent={
-          <Button startContent={<Plus />} onPress={() => handleOpen()}>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
             Add Employee
           </Button>
         }
@@ -264,7 +287,11 @@ export default function EmployeesPage() {
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="First Name"
+                labelPlacement="outside"
                 placeholder="Enter first name"
+                variant="bordered"
+                size="md"
+                radius="md"
                 value={formData.employeeFirstName}
                 onChange={(e) =>
                   updateField("employeeFirstName", e.target.value)
@@ -273,7 +300,11 @@ export default function EmployeesPage() {
               />
               <Input
                 label="Last Name"
+                labelPlacement="outside"
                 placeholder="Enter last name"
+                variant="bordered"
+                size="md"
+                radius="md"
                 value={formData.employeeLastName}
                 onChange={(e) =>
                   updateField("employeeLastName", e.target.value)
@@ -281,21 +312,33 @@ export default function EmployeesPage() {
                 isRequired
               />
               <Input
-                label="Email"
-                placeholder="Enter email"
                 type="email"
+                label="Email"
+                labelPlacement="outside"
+                placeholder="Enter email"
+                variant="bordered"
+                size="md"
+                radius="md"
                 value={formData.employeeEmail}
                 onChange={(e) => updateField("employeeEmail", e.target.value)}
               />
               <Input
                 label="Phone"
+                labelPlacement="outside"
                 placeholder="Enter phone number"
+                variant="bordered"
+                size="md"
+                radius="md"
                 value={formData.employeePhone}
                 onChange={(e) => updateField("employeePhone", e.target.value)}
               />
               <Select
                 label="Department"
+                labelPlacement="outside"
                 placeholder="Select department"
+                variant="bordered"
+                size="md"
+                radius="md"
                 selectedKeys={
                   formData.employeeDepartment
                     ? [formData.employeeDepartment]
@@ -314,7 +357,11 @@ export default function EmployeesPage() {
               </Select>
               <Select
                 label="Position"
+                labelPlacement="outside"
                 placeholder="Select position"
+                variant="bordered"
+                size="md"
+                radius="md"
                 selectedKeys={
                   formData.employeePosition ? [formData.employeePosition] : []
                 }
@@ -330,14 +377,22 @@ export default function EmployeesPage() {
                 ))}
               </Select>
               <Input
-                label="Salary"
-                placeholder="Enter salary"
                 type="number"
+                label="Salary"
+                labelPlacement="outside"
+                placeholder="Enter salary"
+                variant="bordered"
+                size="md"
+                radius="md"
                 value={formData.employeeSalary}
                 onChange={(e) => updateField("employeeSalary", e.target.value)}
               />
               <Select
                 label="Status"
+                labelPlacement="outside"
+                variant="bordered"
+                size="md"
+                radius="md"
                 selectedKeys={[formData.employeeStatus]}
                 onSelectionChange={(keys) => {
                   const val = Array.from(keys)[0] || "active";
@@ -350,8 +405,16 @@ export default function EmployeesPage() {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button onPress={onClose}>Cancel</Button>
-            <Button onPress={handleSave} isLoading={saving}>
+            <Button variant="bordered" size="md" radius="md" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleSave}
+              isLoading={saving}
+            >
               {editingEmployee ? "Update" : "Create"}
             </Button>
           </ModalFooter>
@@ -373,8 +436,22 @@ export default function EmployeesPage() {
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button onPress={deleteModal.onClose}>Cancel</Button>
-            <Button onPress={handleDelete}>Delete</Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={deleteModal.onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleDelete}
+            >
+              Delete
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

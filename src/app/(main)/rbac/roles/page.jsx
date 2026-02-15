@@ -194,9 +194,9 @@ export default function RolesPage() {
         );
       case "roleType":
         return role.roleIsSuperadmin ? (
-          <Chip>Superadmin</Chip>
+          <Chip variant="bordered" size="md" radius="md">Superadmin</Chip>
         ) : (
-          <Chip>Standard</Chip>
+          <Chip variant="bordered" size="md" radius="md">Standard</Chip>
         );
       case "userCount":
         return role.userRoles?.[0]?.count ?? 0;
@@ -207,15 +207,27 @@ export default function RolesPage() {
           <div className="flex items-center gap-1">
             <Button
               isIconOnly
+              variant="bordered"
+              size="md"
+              radius="md"
               onPress={() => openPermissions(role)}
               title="Manage Permissions"
             >
               <Shield />
             </Button>
-            <Button isIconOnly onPress={() => handleOpen(role)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => handleOpen(role)}
+            >
               <Edit />
             </Button>
             <Button
+              variant="bordered"
+              size="md"
+              radius="md"
               isIconOnly
               onPress={() => handleDelete(role)}
               isDisabled={role.roleIsSuperadmin}
@@ -242,7 +254,13 @@ export default function RolesPage() {
         searchKeys={["roleName", "roleDescription"]}
         emptyContent="No roles found"
         topEndContent={
-          <Button startContent={<Plus />} onPress={() => handleOpen()}>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
             Add Role
           </Button>
         }
@@ -255,7 +273,11 @@ export default function RolesPage() {
           <ModalBody>
             <Input
               label="Name"
+              labelPlacement="outside"
               placeholder="e.g. hr_manager"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.roleName}
               onChange={(e) =>
                 setFormData({ ...formData, roleName: e.target.value })
@@ -263,13 +285,18 @@ export default function RolesPage() {
             />
             <Textarea
               label="Description"
+              labelPlacement="outside"
               placeholder="Describe this role..."
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.roleDescription}
               onChange={(e) =>
                 setFormData({ ...formData, roleDescription: e.target.value })
               }
             />
             <Switch
+              size="md"
               isSelected={formData.roleIsSuperadmin}
               onValueChange={(val) =>
                 setFormData({ ...formData, roleIsSuperadmin: val })
@@ -279,8 +306,10 @@ export default function RolesPage() {
             </Switch>
           </ModalBody>
           <ModalFooter>
-            <Button onPress={onClose}>Cancel</Button>
-            <Button onPress={handleSave}>
+            <Button variant="bordered" size="md" radius="md" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button variant="solid" size="md" radius="md" onPress={handleSave}>
               {editingRole ? "Update" : "Create"}
             </Button>
           </ModalFooter>
@@ -312,6 +341,8 @@ export default function RolesPage() {
                       {perms.map((perm) => (
                         <Checkbox
                           key={perm.permissionId}
+                          size="md"
+                          radius="md"
                           isSelected={rolePermIds.includes(perm.permissionId)}
                           onValueChange={() =>
                             togglePermission(perm.permissionId)
@@ -327,7 +358,14 @@ export default function RolesPage() {
             )}
           </ModalBody>
           <ModalFooter>
-            <Button onPress={() => setPermModalOpen(false)}>Done</Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={() => setPermModalOpen(false)}
+            >
+              Done
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

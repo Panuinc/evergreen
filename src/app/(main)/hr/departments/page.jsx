@@ -142,10 +142,22 @@ export default function DepartmentsPage() {
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button isIconOnly onPress={() => handleOpen(dept)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => handleOpen(dept)}
+            >
               <Edit />
             </Button>
-            <Button isIconOnly onPress={() => confirmDelete(dept)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => confirmDelete(dept)}
+            >
               <Trash2 />
             </Button>
           </div>
@@ -168,7 +180,13 @@ export default function DepartmentsPage() {
         searchKeys={["departmentName", "departmentDescription"]}
         emptyContent="No departments found"
         topEndContent={
-          <Button startContent={<Plus />} onPress={() => handleOpen()}>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
             Add Department
           </Button>
         }
@@ -183,7 +201,11 @@ export default function DepartmentsPage() {
           <ModalBody>
             <Input
               label="Name"
+              labelPlacement="outside"
               placeholder="e.g. IT, HR, Finance"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.departmentName}
               onChange={(e) =>
                 setFormData({ ...formData, departmentName: e.target.value })
@@ -192,7 +214,11 @@ export default function DepartmentsPage() {
             />
             <Textarea
               label="Description"
+              labelPlacement="outside"
               placeholder="Describe this department..."
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.departmentDescription}
               onChange={(e) =>
                 setFormData({
@@ -203,8 +229,16 @@ export default function DepartmentsPage() {
             />
           </ModalBody>
           <ModalFooter>
-            <Button onPress={onClose}>Cancel</Button>
-            <Button onPress={handleSave} isLoading={saving}>
+            <Button variant="bordered" size="md" radius="md" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleSave}
+              isLoading={saving}
+            >
               {editingDept ? "Update" : "Create"}
             </Button>
           </ModalFooter>
@@ -225,8 +259,22 @@ export default function DepartmentsPage() {
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button onPress={deleteModal.onClose}>Cancel</Button>
-            <Button onPress={handleDelete}>Delete</Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={deleteModal.onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleDelete}
+            >
+              Delete
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

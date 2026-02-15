@@ -126,10 +126,22 @@ export default function ActionsPage() {
       case "actions":
         return (
           <div className="flex items-center gap-1">
-            <Button isIconOnly onPress={() => handleOpen(action)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => handleOpen(action)}
+            >
               <Edit />
             </Button>
-            <Button isIconOnly onPress={() => handleDelete(action)}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              isIconOnly
+              onPress={() => handleDelete(action)}
+            >
               <Trash2 />
             </Button>
           </div>
@@ -152,7 +164,13 @@ export default function ActionsPage() {
         searchKeys={["actionName", "actionDescription"]}
         emptyContent="No actions found"
         topEndContent={
-          <Button startContent={<Plus />} onPress={() => handleOpen()}>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Plus />}
+            onPress={() => handleOpen()}
+          >
             Add Action
           </Button>
         }
@@ -166,7 +184,11 @@ export default function ActionsPage() {
           <ModalBody>
             <Input
               label="Name"
+              labelPlacement="outside"
               placeholder="e.g. create, read, update, delete"
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.actionName}
               onChange={(e) =>
                 setFormData({ ...formData, actionName: e.target.value })
@@ -174,7 +196,11 @@ export default function ActionsPage() {
             />
             <Textarea
               label="Description"
+              labelPlacement="outside"
               placeholder="Describe this action..."
+              variant="bordered"
+              size="md"
+              radius="md"
               value={formData.actionDescription}
               onChange={(e) =>
                 setFormData({
@@ -185,8 +211,10 @@ export default function ActionsPage() {
             />
           </ModalBody>
           <ModalFooter>
-            <Button onPress={onClose}>Cancel</Button>
-            <Button onPress={handleSave}>
+            <Button variant="bordered" size="md" radius="md" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button variant="solid" size="md" radius="md" onPress={handleSave}>
               {editingAction ? "Update" : "Create"}
             </Button>
           </ModalFooter>

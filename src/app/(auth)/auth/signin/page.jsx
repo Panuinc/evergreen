@@ -74,6 +74,9 @@ export default function SignInPage() {
             label="Email"
             labelPlacement="outside"
             placeholder="Please enter your email"
+            variant="bordered"
+            size="md"
+            radius="md"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -85,6 +88,9 @@ export default function SignInPage() {
             label="Password"
             labelPlacement="outside"
             placeholder="Please enter your password"
+            variant="bordered"
+            size="md"
+            radius="md"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -92,6 +98,9 @@ export default function SignInPage() {
 
         <div className="flex items-center justify-center w-10/12 h-fit p-2 gap-2">
           <Button
+            variant="bordered"
+            size="md"
+            radius="md"
             className="w-full"
             isLoading={isLoading}
             onPress={handleSignIn}

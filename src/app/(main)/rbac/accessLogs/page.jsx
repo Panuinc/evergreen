@@ -67,7 +67,12 @@ export default function AccessLogsPage() {
               </TableCell>
               <TableCell>{log.accessLogAction}</TableCell>
               <TableCell>
-                <Chip color={log.accessLogGranted ? "success" : "danger"}>
+                <Chip
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  color={log.accessLogGranted ? "success" : "danger"}
+                >
                   {log.accessLogGranted ? "Granted" : "Denied"}
                 </Chip>
               </TableCell>

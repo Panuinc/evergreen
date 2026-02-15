@@ -135,6 +135,8 @@ export default function PermissionsPage() {
                         <Spinner />
                       ) : (
                         <Checkbox
+                          size="md"
+                          radius="md"
                           isSelected={exists}
                           onValueChange={() =>
                             togglePermission(
