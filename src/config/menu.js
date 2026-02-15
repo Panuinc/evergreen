@@ -266,6 +266,15 @@ export const menuData = [
     ],
   },
   {
+    id: "settings",
+    name: "Settings",
+    icon: Settings,
+    href: "/settings/configCheck",
+    subMenus: [
+      { name: "Config Check", icon: Activity, href: "/settings/configCheck" },
+    ],
+  },
+  {
     id: "rbac",
     name: "Access Control",
     icon: Shield,
