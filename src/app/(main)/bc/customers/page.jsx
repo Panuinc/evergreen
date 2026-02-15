@@ -13,7 +13,6 @@ const columns = [
   { name: "Phone", uid: "phoneNumber" },
   { name: "City", uid: "city", sortable: true },
   { name: "Balance Due", uid: "balanceDue", sortable: true },
-  { name: "Blocked", uid: "blocked", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -23,7 +22,6 @@ const INITIAL_VISIBLE_COLUMNS = [
   "email",
   "city",
   "balanceDue",
-  "blocked",
 ];
 
 export default function BcCustomersPage() {
@@ -49,23 +47,6 @@ export default function BcCustomersPage() {
               minimumFractionDigits: 2,
             })
           : "-";
-      case "blocked":
-        return (
-          <Chip
-            variant="bordered"
-            size="md"
-            radius="md"
-            color={
-              customer.blocked === " " || !customer.blocked
-                ? "success"
-                : "danger"
-            }
-          >
-            {customer.blocked === " " || !customer.blocked
-              ? "No"
-              : customer.blocked}
-          </Chip>
-        );
       default:
         return customer[columnKey] || "-";
     }
@@ -85,20 +66,6 @@ export default function BcCustomersPage() {
             <span className="font-semibold text-lg">
               {customer.displayName}
             </span>
-            <Chip
-              variant="bordered"
-              size="md"
-              radius="md"
-              color={
-                customer.blocked === " " || !customer.blocked
-                  ? "success"
-                  : "danger"
-              }
-            >
-              {customer.blocked === " " || !customer.blocked
-                ? "No"
-                : customer.blocked}
-            </Chip>
           </div>
           <div className="flex flex-col gap-1 text-sm">
             <div className="flex justify-between">
