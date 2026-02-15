@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import {
   Button,
   Modal,
@@ -12,16 +12,9 @@ import {
   Textarea,
   Select,
   SelectItem,
-  useDisclosure,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import {
-  getResources,
-  createResource,
-  updateResource,
-  deleteResource,
-} from "@/actions/rbac";
+import { useResources } from "@/hooks/use-resources";
 import { menuData } from "@/config/menu";
 import DataTable from "@/components/ui/DataTable";
 
@@ -40,81 +33,18 @@ const INITIAL_VISIBLE_COLUMNS = [
 ];
 
 export default function ResourcesPage() {
-  const [resources, setResources] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingResource, setEditingResource] = useState(null);
-  const [formData, setFormData] = useState({
-    resourceName: "",
-    resourceModuleId: "",
-    resourceDescription: "",
-  });
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  useEffect(() => {
-    loadResources();
-  }, []);
-
-  const loadResources = async () => {
-    try {
-      setLoading(true);
-      const data = await getResources();
-      setResources(data);
-    } catch (error) {
-      toast.error("Failed to load resources");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpen = (resource = null) => {
-    if (resource) {
-      setEditingResource(resource);
-      setFormData({
-        resourceName: resource.resourceName,
-        resourceModuleId: resource.resourceModuleId || "",
-        resourceDescription: resource.resourceDescription || "",
-      });
-    } else {
-      setEditingResource(null);
-      setFormData({
-        resourceName: "",
-        resourceModuleId: "",
-        resourceDescription: "",
-      });
-    }
-    onOpen();
-  };
-
-  const handleSave = async () => {
-    if (!formData.resourceName.trim()) {
-      toast.error("Resource name is required");
-      return;
-    }
-
-    try {
-      if (editingResource) {
-        await updateResource(editingResource.resourceId, formData);
-        toast.success("Resource updated");
-      } else {
-        await createResource(formData);
-        toast.success("Resource created");
-      }
-      onClose();
-      loadResources();
-    } catch (error) {
-      toast.error(error.message || "Failed to save resource");
-    }
-  };
-
-  const handleDelete = async (resource) => {
-    try {
-      await deleteResource(resource.resourceId);
-      toast.success("Resource deleted");
-      loadResources();
-    } catch (error) {
-      toast.error(error.message || "Failed to delete resource");
-    }
-  };
+  const {
+    resources,
+    loading,
+    editingResource,
+    formData,
+    setFormData,
+    isOpen,
+    onClose,
+    handleOpen,
+    handleSave,
+    handleDelete,
+  } = useResources();
 
   const renderCell = useCallback((resource, columnKey) => {
     switch (columnKey) {
@@ -158,7 +88,7 @@ export default function ResourcesPage() {
       default:
         return resource[columnKey] || "-";
     }
-  }, []);
+  }, [handleOpen, handleDelete]);
 
   return (
     <div className="flex flex-col w-full h-full gap-4">

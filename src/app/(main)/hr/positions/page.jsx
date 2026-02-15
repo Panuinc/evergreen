@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import {
   Button,
   Modal,
@@ -10,16 +10,9 @@ import {
   ModalFooter,
   Input,
   Textarea,
-  useDisclosure,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import {
-  getPositions,
-  createPosition,
-  updatePosition,
-  deletePosition,
-} from "@/actions/hr";
+import { usePositions } from "@/hooks/use-positions";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
@@ -36,92 +29,23 @@ const INITIAL_VISIBLE_COLUMNS = [
   "actions",
 ];
 
-const emptyForm = {
-  positionTitle: "",
-  positionDescription: "",
-};
-
 export default function PositionsPage() {
-  const [positions, setPositions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editingPos, setEditingPos] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const deleteModal = useDisclosure();
-  const [deletingPos, setDeletingPos] = useState(null);
-
-  useEffect(() => {
-    loadPositions();
-  }, []);
-
-  const loadPositions = async () => {
-    try {
-      setLoading(true);
-      const data = await getPositions();
-      setPositions(data);
-    } catch (error) {
-      toast.error("Failed to load positions");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpen = (pos = null) => {
-    if (pos) {
-      setEditingPos(pos);
-      setFormData({
-        positionTitle: pos.positionTitle || "",
-        positionDescription: pos.positionDescription || "",
-      });
-    } else {
-      setEditingPos(null);
-      setFormData(emptyForm);
-    }
-    onOpen();
-  };
-
-  const handleSave = async () => {
-    if (!formData.positionTitle.trim()) {
-      toast.error("Position title is required");
-      return;
-    }
-
-    try {
-      setSaving(true);
-      if (editingPos) {
-        await updatePosition(editingPos.positionId, formData);
-        toast.success("Position updated");
-      } else {
-        await createPosition(formData);
-        toast.success("Position created");
-      }
-      onClose();
-      loadPositions();
-    } catch (error) {
-      toast.error(error.message || "Failed to save position");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const confirmDelete = (pos) => {
-    setDeletingPos(pos);
-    deleteModal.onOpen();
-  };
-
-  const handleDelete = async () => {
-    if (!deletingPos) return;
-    try {
-      await deletePosition(deletingPos.positionId);
-      toast.success("Position deleted");
-      deleteModal.onClose();
-      setDeletingPos(null);
-      loadPositions();
-    } catch (error) {
-      toast.error(error.message || "Failed to delete position");
-    }
-  };
+  const {
+    positions,
+    loading,
+    saving,
+    editingPos,
+    formData,
+    setFormData,
+    deletingPos,
+    isOpen,
+    onClose,
+    deleteModal,
+    handleOpen,
+    handleSave,
+    confirmDelete,
+    handleDelete,
+  } = usePositions();
 
   const renderCell = useCallback((pos, columnKey) => {
     switch (columnKey) {
@@ -165,7 +89,7 @@ export default function PositionsPage() {
       default:
         return pos[columnKey] || "-";
     }
-  }, []);
+  }, [handleOpen, confirmDelete]);
 
   return (
     <div className="flex flex-col w-full h-full gap-4">

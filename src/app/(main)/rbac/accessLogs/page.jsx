@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -11,28 +10,10 @@ import {
   Chip,
   Spinner,
 } from "@heroui/react";
-import { toast } from "sonner";
-import { getAccessLogs } from "@/actions/rbac";
+import { useAccessLogs } from "@/hooks/use-access-logs";
 
 export default function AccessLogsPage() {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadLogs();
-  }, []);
-
-  const loadLogs = async () => {
-    try {
-      setLoading(true);
-      const data = await getAccessLogs();
-      setLogs(data);
-    } catch (error) {
-      toast.error("Failed to load access logs");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { logs, loading } = useAccessLogs();
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
