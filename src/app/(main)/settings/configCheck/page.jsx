@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardBody, Chip, Button, Spinner } from "@heroui/react";
-import { RefreshCw, Database, Building2 } from "lucide-react";
+import { RefreshCw, Database, Building2, Bot } from "lucide-react";
 import { useConfigCheck } from "@/hooks/useConfigCheck";
 
 const services = [
@@ -16,6 +16,12 @@ const services = [
     name: "365 Business Central",
     description: "ERP Integration (OAuth2)",
     icon: Building2,
+  },
+  {
+    key: "openrouter",
+    name: "OpenRouter AI",
+    description: "AI Chatbot (Kimi K2.5)",
+    icon: Bot,
   },
 ];
 

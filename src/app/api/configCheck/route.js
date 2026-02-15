@@ -24,14 +24,29 @@ async function checkBc() {
   }
 }
 
+async function checkOpenRouter() {
+  const start = Date.now();
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/models", {
+      headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` },
+    });
+    const latency = Date.now() - start;
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return { status: "connected", latency, error: null };
+  } catch (err) {
+    return { status: "error", latency: Date.now() - start, error: err.message };
+  }
+}
+
 export async function GET() {
   const auth = await withAuth();
   if (auth.error) return auth.error;
 
-  const [supabase, bc] = await Promise.all([
+  const [supabase, bc, openrouter] = await Promise.all([
     checkSupabase(auth.supabase),
     checkBc(),
+    checkOpenRouter(),
   ]);
 
-  return Response.json({ supabase, bc });
+  return Response.json({ supabase, bc, openrouter });
 }
