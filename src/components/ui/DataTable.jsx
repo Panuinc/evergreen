@@ -17,7 +17,7 @@ import {
   Pagination,
   Spinner,
 } from "@heroui/react";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, LayoutGrid, TableProperties } from "lucide-react";
 
 function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -27,6 +27,7 @@ export default function DataTable({
   columns = [],
   data = [],
   renderCell,
+  renderCard,
   rowKey = "id",
   isLoading = false,
   initialVisibleColumns,
@@ -49,6 +50,7 @@ export default function DataTable({
     defaultSortDescriptor || {},
   );
   const [page, setPage] = useState(1);
+  const [view, setView] = useState("table");
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -130,6 +132,29 @@ export default function DataTable({
     setPage(1);
   }, []);
 
+  const viewToggle = renderCard ? (
+    <div className="flex gap-1">
+      <Button
+        variant={view === "table" ? "solid" : "bordered"}
+        size="md"
+        radius="md"
+        isIconOnly
+        onPress={() => setView("table")}
+      >
+        <TableProperties size={18} />
+      </Button>
+      <Button
+        variant={view === "card" ? "solid" : "bordered"}
+        size="md"
+        radius="md"
+        isIconOnly
+        onPress={() => setView("card")}
+      >
+        <LayoutGrid size={18} />
+      </Button>
+    </div>
+  ) : null;
+
   const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -179,35 +204,38 @@ export default function DataTable({
                 </DropdownMenu>
               </Dropdown>
             )}
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button
-                  variant="bordered"
-                  size="md"
-                  radius="md"
-                  endContent={<ChevronDown />}
+            {view === "table" && (
+              <Dropdown>
+                <DropdownTrigger className="hidden sm:flex">
+                  <Button
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    endContent={<ChevronDown />}
+                  >
+                    Columns
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label="Table Columns"
+                  closeOnSelect={false}
+                  selectedKeys={visibleColumns}
+                  selectionMode="multiple"
+                  onSelectionChange={setVisibleColumns}
                 >
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns
-                  .filter((c) => c.uid !== "actions")
-                  .map((column) => (
-                    <DropdownItem key={column.uid} className="capitalize">
-                      {capitalize(column.name)}
-                    </DropdownItem>
-                  ))}
-              </DropdownMenu>
-            </Dropdown>
+                  {columns
+                    .filter((c) => c.uid !== "actions")
+                    .map((column) => (
+                      <DropdownItem key={column.uid} className="capitalize">
+                        {capitalize(column.name)}
+                      </DropdownItem>
+                    ))}
+                </DropdownMenu>
+              </Dropdown>
+            )}
             {topEndContent}
+            {viewToggle}
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -244,6 +272,8 @@ export default function DataTable({
     statusField,
     statusOptions,
     topEndContent,
+    view,
+    viewToggle,
   ]);
 
   const bottomContent = useMemo(() => {
@@ -282,6 +312,28 @@ export default function DataTable({
       </div>
     );
   }, [page, pages]);
+
+  if (view === "card" && renderCard) {
+    return (
+      <div className="flex flex-col gap-4">
+        {topContent}
+        {isLoading ? (
+          <div className="flex items-center justify-center w-full py-12">
+            <Spinner />
+          </div>
+        ) : sortedItems.length === 0 ? (
+          <div className="flex items-center justify-center w-full py-12 text-default-400">
+            {emptyContent}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {sortedItems.map((item) => renderCard(item))}
+          </div>
+        )}
+        {bottomContent}
+      </div>
+    );
+  }
 
   return (
     <Table

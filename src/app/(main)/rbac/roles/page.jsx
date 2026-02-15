@@ -16,6 +16,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Shield } from "lucide-react";
+import { Card, CardBody, CardFooter } from "@heroui/react";
 import { useRoles } from "@/hooks/useRoles";
 import DataTable from "@/components/ui/DataTable";
 
@@ -118,12 +119,51 @@ export default function RolesPage() {
     }
   }, [handleOpen, handleDelete, openPermissions]);
 
+  const renderCard = useCallback((role) => (
+    <Card key={role.roleId} variant="bordered" radius="md" shadow="none">
+      <CardBody className="gap-3">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-lg">{role.roleName}</span>
+          <Chip variant="bordered" size="md" radius="md">
+            {role.roleIsSuperadmin ? "Superadmin" : "Standard"}
+          </Chip>
+        </div>
+        <div className="flex flex-col gap-1 text-sm">
+          <div className="flex justify-between">
+            <span className="text-default-400">Description</span>
+            <span className="text-default-500">{role.roleDescription || "-"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-default-400">Users</span>
+            <span>{role.userRoles?.[0]?.count ?? 0}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-default-400">Permissions</span>
+            <span>{role.rolePermissions?.[0]?.count ?? 0}</span>
+          </div>
+        </div>
+      </CardBody>
+      <CardFooter className="gap-1 justify-end">
+        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => openPermissions(role)} title="Manage Permissions">
+          <Shield />
+        </Button>
+        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleOpen(role)}>
+          <Edit />
+        </Button>
+        <Button variant="bordered" size="md" radius="md" isIconOnly onPress={() => handleDelete(role)} isDisabled={role.roleIsSuperadmin}>
+          <Trash2 />
+        </Button>
+      </CardFooter>
+    </Card>
+  ), [handleOpen, handleDelete, openPermissions]);
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <DataTable
         columns={columns}
         data={roles}
         renderCell={renderCell}
+        renderCard={renderCard}
         rowKey="roleId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}

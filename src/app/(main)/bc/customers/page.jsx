@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { Chip } from "@heroui/react";
+import { Chip, Card, CardBody } from "@heroui/react";
 import { useBcCustomers } from "@/hooks/useBcCustomers";
 import DataTable from "@/components/ui/DataTable";
 
@@ -65,12 +65,61 @@ export default function BcCustomersPage() {
     }
   }, []);
 
+  const renderCard = useCallback((customer) => (
+    <Card key={customer.id} variant="bordered" radius="md" shadow="none">
+      <CardBody className="gap-3">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-lg">{customer.displayName}</span>
+          <Chip
+            variant="bordered"
+            size="md"
+            radius="md"
+            color={customer.blocked === " " || !customer.blocked ? "success" : "danger"}
+          >
+            {customer.blocked === " " || !customer.blocked ? "No" : customer.blocked}
+          </Chip>
+        </div>
+        <div className="flex flex-col gap-1 text-sm">
+          <div className="flex justify-between">
+            <span className="text-default-400">Number</span>
+            <span>{customer.number || "-"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-default-400">Type</span>
+            <span>{customer.type || "-"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-default-400">Email</span>
+            <span className="text-default-500">{customer.email || "-"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-default-400">Phone</span>
+            <span className="text-default-500">{customer.phoneNumber || "-"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-default-400">City</span>
+            <span>{customer.city || "-"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-default-400">Balance Due</span>
+            <span className="font-semibold">
+              {customer.balanceDue != null
+                ? Number(customer.balanceDue).toLocaleString("th-TH", { minimumFractionDigits: 2 })
+                : "-"}
+            </span>
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  ), []);
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <DataTable
         columns={columns}
         data={customers}
         renderCell={renderCell}
+        renderCard={renderCard}
         rowKey="id"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}

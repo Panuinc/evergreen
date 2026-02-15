@@ -4,6 +4,9 @@ import { useCallback } from "react";
 import {
   Chip,
   Button,
+  Card,
+  CardBody,
+  CardFooter,
   Modal,
   ModalContent,
   ModalHeader,
@@ -49,6 +52,12 @@ const statusColorMap = {
   "Pending Prepayment": "warning",
 };
 
+function formatNumber(value) {
+  return value != null
+    ? Number(value).toLocaleString("th-TH", { minimumFractionDigits: 2 })
+    : "-";
+}
+
 export default function BcSalesOrdersPage() {
   const { salesOrders, loading, selectedOrder, isOpen, onClose, openLines } =
     useBcSalesOrders();
@@ -78,11 +87,7 @@ export default function BcSalesOrdersPage() {
         case "currencyCode":
           return order.currencyCode || "THB";
         case "totalAmountIncludingTax":
-          return order.totalAmountIncludingTax != null
-            ? Number(order.totalAmountIncludingTax).toLocaleString("th-TH", {
-                minimumFractionDigits: 2,
-              })
-            : "-";
+          return formatNumber(order.totalAmountIncludingTax);
         case "lineCount":
           return order.salesOrderLines?.length ?? "-";
         case "actions":
@@ -104,6 +109,67 @@ export default function BcSalesOrdersPage() {
     [openLines],
   );
 
+  const renderCard = useCallback(
+    (order) => (
+      <Card key={order.id} variant="bordered" radius="md" shadow="none">
+        <CardBody className="gap-3">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-lg">{order.number}</span>
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={statusColorMap[order.status] || "default"}
+            >
+              {order.status || "-"}
+            </Chip>
+          </div>
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-default-400">Customer</span>
+              <span>{order.customerName || "-"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Order Date</span>
+              <span>
+                {order.orderDate
+                  ? new Date(order.orderDate).toLocaleDateString("th-TH")
+                  : "-"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Currency</span>
+              <span>{order.currencyCode || "THB"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Total (incl. Tax)</span>
+              <span className="font-semibold">
+                {formatNumber(order.totalAmountIncludingTax)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-default-400">Lines</span>
+              <span>{order.salesOrderLines?.length ?? "-"}</span>
+            </div>
+          </div>
+        </CardBody>
+        <CardFooter>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            className="w-full"
+            startContent={<Eye size={16} />}
+            onPress={() => openLines(order)}
+          >
+            View Lines
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    [openLines],
+  );
+
   const lines = selectedOrder?.salesOrderLines || [];
 
   return (
@@ -112,6 +178,7 @@ export default function BcSalesOrdersPage() {
         columns={columns}
         data={salesOrders}
         renderCell={renderCell}
+        renderCard={renderCard}
         rowKey="id"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
@@ -120,11 +187,14 @@ export default function BcSalesOrdersPage() {
         emptyContent="No sales orders found"
       />
 
-      <Modal isOpen={isOpen} onClose={onClose} size="4xl" scrollBehavior="inside">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="4xl"
+        scrollBehavior="inside"
+      >
         <ModalContent>
-          <ModalHeader>
-            Order Lines — {selectedOrder?.number}
-          </ModalHeader>
+          <ModalHeader>Order Lines — {selectedOrder?.number}</ModalHeader>
           <ModalBody>
             <Table aria-label="Sales order lines" shadow="none">
               <TableHeader>
