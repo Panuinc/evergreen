@@ -128,7 +128,9 @@ export const menuData = [
     id: "marketing",
     name: "Marketing",
     icon: Megaphone,
+    href: "/marketing/omnichannel",
     subMenus: [
+      { name: "Omnichannel Chat", icon: MessageCircle, href: "/marketing/omnichannel" },
       { name: "Campaigns", icon: Target },
       { name: "Social Media", icon: Globe },
       { name: "Email Marketing", icon: Mail },

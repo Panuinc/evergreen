@@ -1,0 +1,142 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { Button, Chip, Spinner, ScrollShadow } from "@heroui/react";
+import { ArrowLeft, Info, X as CloseIcon, RotateCcw } from "lucide-react";
+import ChannelBadge from "./ChannelBadge";
+import MessageInput from "./MessageInput";
+
+const STATUS_COLORS = {
+  open: "success",
+  waiting: "warning",
+  closed: "default",
+};
+
+function formatMessageTime(dateStr) {
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleTimeString("th-TH", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+export default function ChatWindow({
+  conversation,
+  messages,
+  messagesLoading,
+  sending,
+  onSendMessage,
+  onUpdateStatus,
+  onBack,
+  onToggleDetail,
+}) {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const contact = conversation?.omContacts;
+  const isClosed = conversation?.conversationStatus === "closed";
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center gap-3 p-3 border-b-2 border-default">
+        {onBack && (
+          <Button isIconOnly variant="light" size="sm" radius="md" onPress={onBack}>
+            <ArrowLeft size={18} />
+          </Button>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold truncate">
+              {contact?.contactDisplayName || "Unknown"}
+            </span>
+            <ChannelBadge channelType={conversation?.conversationChannelType} />
+            <Chip
+              size="sm"
+              color={STATUS_COLORS[conversation?.conversationStatus] || "default"}
+              variant="flat"
+            >
+              {conversation?.conversationStatus}
+            </Chip>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          {isClosed ? (
+            <Button
+              size="sm"
+              variant="bordered"
+              radius="md"
+              startContent={<RotateCcw size={14} />}
+              onPress={() => onUpdateStatus(conversation.conversationId, "open")}
+            >
+              Reopen
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="bordered"
+              radius="md"
+              color="danger"
+              startContent={<CloseIcon size={14} />}
+              onPress={() => onUpdateStatus(conversation.conversationId, "closed")}
+            >
+              Close
+            </Button>
+          )}
+          <Button isIconOnly variant="light" size="sm" radius="md" onPress={onToggleDetail}>
+            <Info size={18} />
+          </Button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <ScrollShadow ref={scrollRef} className="flex-1 p-3 overflow-y-auto">
+        {messagesLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <Spinner />
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-default-400">
+            ยังไม่มีข้อความ
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {messages.map((msg) => (
+              <div
+                key={msg.messageId}
+                className={`flex ${msg.messageSenderType === "agent" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${
+                    msg.messageSenderType === "agent"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-default-100"
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap break-words">{msg.messageContent}</p>
+                  <p
+                    className={`text-[10px] mt-1 ${
+                      msg.messageSenderType === "agent"
+                        ? "text-primary-foreground/70"
+                        : "text-default-400"
+                    }`}
+                  >
+                    {formatMessageTime(msg.messageCreatedAt)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </ScrollShadow>
+
+      {/* Input */}
+      <MessageInput onSend={onSendMessage} sending={sending} disabled={isClosed} />
+    </div>
+  );
+}

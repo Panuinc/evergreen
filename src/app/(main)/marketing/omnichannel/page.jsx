@@ -1,0 +1,128 @@
+"use client";
+
+import { useState } from "react";
+import { Button, useDisclosure } from "@heroui/react";
+import { Settings } from "lucide-react";
+import { useOmnichannelChat } from "@/hooks/useOmnichannelChat";
+import ConversationList from "@/components/omnichannel/ConversationList";
+import ChatWindow from "@/components/omnichannel/ChatWindow";
+import ConversationDetail from "@/components/omnichannel/ConversationDetail";
+import EmptyState from "@/components/omnichannel/EmptyState";
+import ChannelSettings from "@/components/omnichannel/ChannelSettings";
+
+export default function OmnichannelPage() {
+  const {
+    conversations,
+    selectedConversation,
+    messages,
+    loading,
+    messagesLoading,
+    sending,
+    statusFilter,
+    channelFilter,
+    searchQuery,
+    setStatusFilter,
+    setChannelFilter,
+    setSearchQuery,
+    selectConversation,
+    sendMessage,
+    updateStatus,
+    updateContact,
+  } = useOmnichannelChat();
+
+  const [showDetail, setShowDetail] = useState(false);
+  const [mobileView, setMobileView] = useState("list"); // "list" | "chat"
+  const settingsModal = useDisclosure();
+
+  const handleSelectConversation = (conv) => {
+    selectConversation(conv);
+    setMobileView("chat");
+  };
+
+  const handleBack = () => {
+    selectConversation(null);
+    setMobileView("list");
+  };
+
+  return (
+    <div className="flex flex-col w-full h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-semibold">Omnichannel Chat</h2>
+        <Button
+          variant="bordered"
+          size="md"
+          radius="md"
+          startContent={<Settings size={16} />}
+          onPress={settingsModal.onOpen}
+        >
+          Channel Settings
+        </Button>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-1 min-h-0 border-2 border-default rounded-xl overflow-hidden">
+        {/* Conversation List - always visible on desktop, conditional on mobile */}
+        <div
+          className={`${
+            mobileView === "list" ? "flex" : "hidden"
+          } md:flex flex-col w-full md:w-4/12 border-r-2 border-default`}
+        >
+          <ConversationList
+            conversations={conversations}
+            selectedConversation={selectedConversation}
+            loading={loading}
+            statusFilter={statusFilter}
+            channelFilter={channelFilter}
+            searchQuery={searchQuery}
+            onStatusFilterChange={setStatusFilter}
+            onChannelFilterChange={setChannelFilter}
+            onSearchChange={setSearchQuery}
+            onSelect={handleSelectConversation}
+          />
+        </div>
+
+        {/* Chat Window - always visible on desktop, conditional on mobile */}
+        <div
+          className={`${
+            mobileView === "chat" ? "flex" : "hidden"
+          } md:flex flex-col flex-1`}
+        >
+          {selectedConversation ? (
+            <div className="flex flex-1 min-h-0">
+              <div className={`flex flex-col ${showDetail ? "w-full md:w-7/12" : "w-full"}`}>
+                <ChatWindow
+                  conversation={selectedConversation}
+                  messages={messages}
+                  messagesLoading={messagesLoading}
+                  sending={sending}
+                  onSendMessage={sendMessage}
+                  onUpdateStatus={updateStatus}
+                  onBack={mobileView === "chat" ? handleBack : undefined}
+                  onToggleDetail={() => setShowDetail(!showDetail)}
+                />
+              </div>
+              {showDetail && (
+                <div className="hidden md:flex flex-col w-5/12 border-l-2 border-default">
+                  <ConversationDetail
+                    conversation={selectedConversation}
+                    onUpdateContact={updateContact}
+                    onClose={() => setShowDetail(false)}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <EmptyState />
+          )}
+        </div>
+      </div>
+
+      {/* Channel Settings Modal */}
+      <ChannelSettings
+        isOpen={settingsModal.isOpen}
+        onClose={settingsModal.onClose}
+      />
+    </div>
+  );
+}
