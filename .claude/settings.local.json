@@ -15,7 +15,9 @@
       "WebFetch(domain:platform.moonshot.cn)",
       "WebFetch(domain:www.kimi.com)",
       "Bash(python3:*)",
-      "Bash(pip3 install:*)"
+      "Bash(pip3 install:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"=== {} ===\"\" && wc -l {}')",
+      "Bash(cat:*)"
     ]
   }
 }

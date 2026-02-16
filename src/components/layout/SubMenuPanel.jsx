@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Chip } from "@heroui/react";
+import { useMenuBadges } from "@/hooks/useMenuBadges";
 
 export default function SubMenuPanel({ activeMenu, isCollapsed }) {
   const pathname = usePathname();
+  const badges = useMenuBadges();
 
   return (
     <div
@@ -21,6 +24,7 @@ export default function SubMenuPanel({ activeMenu, isCollapsed }) {
           const href = subMenu.href || "#";
           const isSubActive =
             subMenu.href && pathname.startsWith(subMenu.href);
+          const badgeCount = subMenu.badgeKey ? badges[subMenu.badgeKey] : 0;
           return (
             <Link
               key={index}
@@ -37,6 +41,11 @@ export default function SubMenuPanel({ activeMenu, isCollapsed }) {
               <div className="flex items-center justify-start w-full h-full gap-2">
                 {subMenu.name}
               </div>
+              {badgeCount > 0 && (
+                <Chip size="sm" color="danger" variant="solid" className="ml-auto min-w-6 h-5 text-xs">
+                  {badgeCount}
+                </Chip>
+              )}
             </Link>
           );
         })}

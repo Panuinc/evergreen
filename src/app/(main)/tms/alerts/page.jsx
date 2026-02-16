@@ -1,0 +1,157 @@
+"use client";
+
+import { Card, CardBody, Chip, Spinner, Button } from "@heroui/react";
+import { AlertTriangle, AlertCircle, RefreshCw, Truck, User, Wrench } from "lucide-react";
+import { useTmsAlerts } from "@/hooks/useTmsAlerts";
+
+const TYPE_ICONS = {
+  vehicle_registration: Truck,
+  vehicle_insurance: Truck,
+  vehicle_act: Truck,
+  driver_license: User,
+  maintenance_due: Wrench,
+  maintenance_mileage: Wrench,
+};
+
+const TYPE_LABELS = {
+  vehicle_registration: "Vehicle Registration",
+  vehicle_insurance: "Vehicle Insurance",
+  vehicle_act: "Vehicle Act",
+  driver_license: "Driver License",
+  maintenance_due: "Maintenance Due",
+  maintenance_mileage: "Maintenance Mileage",
+};
+
+const FILTER_OPTIONS = [
+  { key: "all", label: "All" },
+  { key: "critical", label: "Critical" },
+  { key: "warning", label: "Warning" },
+  { key: "vehicle_registration", label: "Registration" },
+  { key: "vehicle_insurance", label: "Insurance" },
+  { key: "driver_license", label: "License" },
+  { key: "maintenance_due", label: "Maintenance" },
+];
+
+export default function AlertsPage() {
+  const {
+    alerts,
+    alertCount,
+    criticalCount,
+    warningCount,
+    loading,
+    filter,
+    setFilter,
+    loadAlerts,
+  } = useTmsAlerts();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col w-full h-full gap-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Alerts & Notifications</h2>
+        <Button variant="bordered" size="md" radius="md" startContent={<RefreshCw size={16} />} onPress={loadAlerts}>
+          Refresh
+        </Button>
+      </div>
+
+      {/* Summary */}
+      <div className="flex gap-4">
+        <Card shadow="sm" className="flex-1">
+          <CardBody className="p-4 flex-row items-center gap-3">
+            <AlertTriangle size={24} className="text-danger" />
+            <div>
+              <p className="text-2xl font-bold">{criticalCount}</p>
+              <p className="text-xs text-default-500">Critical</p>
+            </div>
+          </CardBody>
+        </Card>
+        <Card shadow="sm" className="flex-1">
+          <CardBody className="p-4 flex-row items-center gap-3">
+            <AlertCircle size={24} className="text-warning" />
+            <div>
+              <p className="text-2xl font-bold">{warningCount}</p>
+              <p className="text-xs text-default-500">Warning</p>
+            </div>
+          </CardBody>
+        </Card>
+        <Card shadow="sm" className="flex-1">
+          <CardBody className="p-4 flex-row items-center gap-3">
+            <div>
+              <p className="text-2xl font-bold">{alertCount}</p>
+              <p className="text-xs text-default-500">Total Alerts</p>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-2 flex-wrap">
+        {FILTER_OPTIONS.map((opt) => (
+          <Chip
+            key={opt.key}
+            variant={filter === opt.key ? "solid" : "bordered"}
+            color={opt.key === "critical" ? "danger" : opt.key === "warning" ? "warning" : "default"}
+            className="cursor-pointer"
+            onClick={() => setFilter(opt.key)}
+          >
+            {opt.label}
+          </Chip>
+        ))}
+      </div>
+
+      {/* Alert List */}
+      {alerts.length === 0 ? (
+        <p className="text-default-400 text-center py-10">No alerts found</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {alerts.map((alert, i) => {
+            const Icon = TYPE_ICONS[alert.type] || AlertCircle;
+            return (
+              <Card key={i} shadow="sm">
+                <CardBody className="p-4 flex-row items-start gap-4">
+                  <div className={`mt-1 ${alert.severity === "critical" ? "text-danger" : "text-warning"}`}>
+                    {alert.severity === "critical" ? (
+                      <AlertTriangle size={20} />
+                    ) : (
+                      <AlertCircle size={20} />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-semibold text-sm">{alert.title}</p>
+                      <Chip
+                        size="sm"
+                        variant="flat"
+                        color={alert.severity === "critical" ? "danger" : "warning"}
+                      >
+                        {alert.severity}
+                      </Chip>
+                    </div>
+                    <p className="text-sm text-default-500">{alert.detail}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Chip size="sm" variant="bordered" startContent={<Icon size={12} />}>
+                        {TYPE_LABELS[alert.type] || alert.type}
+                      </Chip>
+                      {alert.date && (
+                        <span className="text-xs text-default-400">
+                          {new Date(alert.date).toLocaleDateString("th-TH")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
