@@ -1,6 +1,5 @@
 import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
 import { extractOrderFromChat } from "@/lib/omnichannel/quotationExtractor";
-import { sendAiMessage } from "@/lib/omnichannel/aiSender";
 
 export const maxDuration = 60;
 
@@ -100,15 +99,6 @@ export async function POST(request) {
 
       await supabase.from("omQuotationLines").insert(lines);
     }
-
-    // Send quotation link to customer
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const quotationUrl = `${baseUrl}/quotation/${quotation.quotationId}`;
-    await sendAiMessage(
-      supabase,
-      conversationId,
-      `ใบเสนอราคาของท่าน: ${quotationUrl}`
-    );
 
     console.log("[Quotation] Created:", quotation.quotationNumber);
     return Response.json({

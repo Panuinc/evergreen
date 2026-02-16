@@ -131,6 +131,7 @@ export const menuData = [
     href: "/marketing/omnichannel",
     subMenus: [
       { name: "Omnichannel Chat", icon: MessageCircle, href: "/marketing/omnichannel" },
+      { name: "ใบเสนอราคา", icon: FileText, href: "/marketing/omnichannel/quotations" },
       { name: "Campaigns", icon: Target },
       { name: "Social Media", icon: Globe },
       { name: "Email Marketing", icon: Mail },

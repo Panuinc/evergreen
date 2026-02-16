@@ -185,7 +185,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                         size="sm"
                         variant="light"
                         radius="md"
-                        onPress={() => window.open(`/quotation/${q.quotationId}`, "_blank")}
+                        onPress={() => window.open(`/marketing/omnichannel/quotations/${q.quotationId}`, "_self")}
                       >
                         <ExternalLink size={14} />
                       </Button>
