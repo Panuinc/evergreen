@@ -13,7 +13,9 @@
       "Bash(grep:*)",
       "WebFetch(domain:platform.moonshot.ai)",
       "WebFetch(domain:platform.moonshot.cn)",
-      "WebFetch(domain:www.kimi.com)"
+      "WebFetch(domain:www.kimi.com)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)"
     ]
   }
 }
