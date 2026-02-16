@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Input, Chip, Textarea } from "@heroui/react";
-import { X, Plus, Tag, StickyNote } from "lucide-react";
+import { X, Plus, Tag, StickyNote, FileText, ExternalLink } from "lucide-react";
+import { supabase } from "@/lib/supabase/client";
 import ChannelBadge from "./ChannelBadge";
 
 export default function ConversationDetail({ conversation, onUpdateContact, onClose }) {
@@ -10,6 +11,17 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   const [newTag, setNewTag] = useState("");
   const [notes, setNotes] = useState(contact?.contactNotes || "");
   const [editingNotes, setEditingNotes] = useState(false);
+  const [quotations, setQuotations] = useState([]);
+
+  useEffect(() => {
+    if (!conversation?.conversationId) return;
+    supabase
+      .from("omQuotations")
+      .select("quotationId, quotationNumber, quotationStatus, quotationCreatedAt")
+      .eq("quotationConversationId", conversation.conversationId)
+      .order("quotationCreatedAt", { ascending: false })
+      .then(({ data }) => setQuotations(data || []));
+  }, [conversation?.conversationId]);
 
   if (!conversation || !contact) return null;
 
@@ -139,6 +151,47 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 className="text-sm text-default-400 cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
               >
                 {contact.contactNotes || "คลิกเพื่อเพิ่ม notes..."}
+              </div>
+            )}
+          </div>
+
+          {/* Quotations */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <FileText size={14} />
+              <p className="font-semibold text-sm">ใบเสนอราคา</p>
+            </div>
+            {quotations.length === 0 ? (
+              <p className="text-sm text-default-400">ยังไม่มีใบเสนอราคา</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {quotations.map((q) => (
+                  <div
+                    key={q.quotationId}
+                    className="flex items-center justify-between p-2 rounded-md bg-default/50"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{q.quotationNumber}</span>
+                      <span className="text-[10px] text-default-400">
+                        {new Date(q.quotationCreatedAt).toLocaleDateString("th-TH")}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Chip size="sm" variant="flat" color={q.quotationStatus === "draft" ? "warning" : "success"}>
+                        {q.quotationStatus === "draft" ? "ร่าง" : q.quotationStatus}
+                      </Chip>
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        radius="md"
+                        onPress={() => window.open(`/quotation/${q.quotationId}`, "_blank")}
+                      >
+                        <ExternalLink size={14} />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
