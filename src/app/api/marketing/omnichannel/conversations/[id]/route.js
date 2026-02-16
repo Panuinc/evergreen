@@ -41,3 +41,23 @@ export async function PUT(request, { params }) {
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json(data);
 }
+
+export async function DELETE(request, { params }) {
+  const auth = await withAuth();
+  if (auth.error) return auth.error;
+  const { supabase } = auth;
+
+  const { id } = await params;
+
+  // Delete messages first (cascade should handle this, but be explicit)
+  await supabase.from("omMessages").delete().eq("messageConversationId", id);
+
+  // Delete conversation
+  const { error } = await supabase
+    .from("omConversations")
+    .delete()
+    .eq("conversationId", id);
+
+  if (error) return Response.json({ error: error.message }, { status: 400 });
+  return Response.json({ success: true });
+}

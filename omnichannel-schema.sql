@@ -19,6 +19,9 @@ create table if not exists "omChannels" (
     "channelUpdatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+create unique index if not exists "omChannels_channelType_idx"
+    on "omChannels" ("channelType");
+
 -- =====================================================
 -- Table 2: omContacts - ลูกค้าจากทุกช่องทาง
 -- =====================================================

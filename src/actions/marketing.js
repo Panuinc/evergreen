@@ -1,4 +1,4 @@
-import { get, post, put } from "@/lib/apiClient";
+import { get, post, put, del } from "@/lib/apiClient";
 
 // ==================== Conversations ====================
 
@@ -13,6 +13,10 @@ export async function getConversation(id) {
 
 export async function updateConversation(id, data) {
   return put(`/api/marketing/omnichannel/conversations/${id}`, data);
+}
+
+export async function deleteConversation(id) {
+  return del(`/api/marketing/omnichannel/conversations/${id}`);
 }
 
 // ==================== Messages ====================

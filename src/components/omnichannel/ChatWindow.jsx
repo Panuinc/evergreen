@@ -1,8 +1,19 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Button, Chip, Spinner, ScrollShadow } from "@heroui/react";
-import { ArrowLeft, Info, X as CloseIcon, RotateCcw } from "lucide-react";
+import {
+  Button,
+  Chip,
+  Spinner,
+  ScrollShadow,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/react";
+import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2 } from "lucide-react";
 import ChannelBadge from "./ChannelBadge";
 import MessageInput from "./MessageInput";
 
@@ -27,10 +38,12 @@ export default function ChatWindow({
   sending,
   onSendMessage,
   onUpdateStatus,
+  onDelete,
   onBack,
   onToggleDetail,
 }) {
   const scrollRef = useRef(null);
+  const deleteModal = useDisclosure();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -88,6 +101,16 @@ export default function ChatWindow({
               Close
             </Button>
           )}
+          <Button
+            isIconOnly
+            variant="light"
+            size="sm"
+            radius="md"
+            color="danger"
+            onPress={deleteModal.onOpen}
+          >
+            <Trash2 size={18} />
+          </Button>
           <Button isIconOnly variant="light" size="sm" radius="md" onPress={onToggleDetail}>
             <Info size={18} />
           </Button>
@@ -137,6 +160,32 @@ export default function ChatWindow({
 
       {/* Input */}
       <MessageInput onSend={onSendMessage} sending={sending} disabled={isClosed} />
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="sm">
+        <ModalContent>
+          <ModalHeader>ยืนยันการลบ</ModalHeader>
+          <ModalBody>
+            <p>ต้องการลบการสนทนากับ <strong>{contact?.contactDisplayName || "Unknown"}</strong> หรือไม่?</p>
+            <p className="text-sm text-default-400">ข้อความทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="bordered" radius="md" onPress={deleteModal.onClose}>
+              ยกเลิก
+            </Button>
+            <Button
+              color="danger"
+              radius="md"
+              onPress={() => {
+                onDelete(conversation.conversationId);
+                deleteModal.onClose();
+              }}
+            >
+              ลบการสนทนา
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

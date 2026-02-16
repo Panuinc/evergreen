@@ -28,6 +28,7 @@ export default function OmnichannelPage() {
     sendMessage,
     updateStatus,
     updateContact,
+    deleteConversation,
   } = useOmnichannelChat();
 
   const [showDetail, setShowDetail] = useState(false);
@@ -98,6 +99,7 @@ export default function OmnichannelPage() {
                   sending={sending}
                   onSendMessage={sendMessage}
                   onUpdateStatus={updateStatus}
+                  onDelete={deleteConversation}
                   onBack={mobileView === "chat" ? handleBack : undefined}
                   onToggleDetail={() => setShowDetail(!showDetail)}
                 />

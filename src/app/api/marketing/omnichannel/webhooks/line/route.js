@@ -14,13 +14,58 @@ export async function POST(request) {
   const body = JSON.parse(rawBody);
   const supabase = getServiceSupabase();
 
-  for (const event of body.events || []) {
-    if (event.type === "message") {
-      await handleMessage(supabase, event);
+  // Process events in background, respond immediately to prevent LINE redelivery
+  const processing = (async () => {
+    for (const event of body.events || []) {
+      if (event.type === "message") {
+        try {
+          await handleMessage(supabase, event);
+        } catch (err) {
+          console.error("[LINE Webhook] Error:", err.message);
+        }
+      }
     }
-  }
+  })();
+
+  // Wait max 1 second, then respond regardless
+  await Promise.race([
+    processing,
+    new Promise((resolve) => setTimeout(resolve, 1000)),
+  ]);
 
   return Response.json({ status: "ok" });
+}
+
+// Cache profile per userId to avoid repeated API calls
+const profileCache = new Map();
+
+async function getLineProfile(supabase, userId) {
+  if (profileCache.has(userId)) return profileCache.get(userId);
+
+  const { data: channel } = await supabase
+    .from("omChannels")
+    .select("channelAccessToken")
+    .eq("channelType", "line")
+    .eq("channelStatus", "active")
+    .single();
+
+  if (!channel?.channelAccessToken) return null;
+
+  try {
+    const res = await fetch(`https://api.line.me/v2/bot/profile/${userId}`, {
+      headers: { Authorization: `Bearer ${channel.channelAccessToken}` },
+    });
+    if (res.ok) {
+      const profile = await res.json();
+      profileCache.set(userId, profile);
+      // Clear cache after 5 minutes
+      setTimeout(() => profileCache.delete(userId), 5 * 60 * 1000);
+      return profile;
+    }
+  } catch (err) {
+    console.error("[LINE Webhook] Failed to fetch profile:", err.message);
+  }
+  return null;
 }
 
 async function handleMessage(supabase, event) {
@@ -29,6 +74,19 @@ async function handleMessage(supabase, event) {
   const messageText = message.type === "text" ? message.text : `[${message.type}]`;
   const messageType = message.type === "text" ? "text" : message.type === "sticker" ? "sticker" : "image";
 
+  // Check for duplicate message (LINE may redeliver)
+  const { data: existing } = await supabase
+    .from("omMessages")
+    .select("messageId")
+    .eq("messageExternalId", message.id)
+    .limit(1)
+    .single();
+
+  if (existing) return; // Already processed
+
+  // Fetch LINE profile for display name and avatar
+  const profile = await getLineProfile(supabase, userId);
+
   // Upsert contact
   const { data: contact } = await supabase
     .from("omContacts")
@@ -36,7 +94,8 @@ async function handleMessage(supabase, event) {
       {
         contactChannelType: "line",
         contactExternalId: userId,
-        contactDisplayName: userId,
+        contactDisplayName: profile?.displayName || userId,
+        contactAvatarUrl: profile?.pictureUrl || null,
       },
       { onConflict: "contactChannelType,contactExternalId" }
     )

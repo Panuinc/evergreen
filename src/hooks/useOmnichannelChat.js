@@ -8,7 +8,10 @@ import {
   getMessages,
   sendMessage as sendMessageAction,
   updateConversation,
+  deleteConversation as deleteConversationAction,
 } from "@/actions/marketing";
+
+const POLL_INTERVAL = 3000; // 3 seconds
 
 export function useOmnichannelChat() {
   const [conversations, setConversations] = useState([]);
@@ -20,7 +23,9 @@ export function useOmnichannelChat() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const channelRef = useRef(null);
+  const selectedConvRef = useRef(null);
+  const realtimeConnected = useRef(false);
+  const pollTimerRef = useRef(null);
 
   // Load conversations
   const loadConversations = useCallback(async () => {
@@ -76,14 +81,33 @@ export function useOmnichannelChat() {
     }
   }, []);
 
-  // Send message
+  // Send message with optimistic update
   const handleSendMessage = useCallback(
     async (content) => {
       if (!selectedConversation || !content.trim()) return;
+
+      // Optimistic: add message to UI immediately
+      const tempId = `temp-${Date.now()}`;
+      const optimisticMsg = {
+        messageId: tempId,
+        messageConversationId: selectedConversation.conversationId,
+        messageSenderType: "agent",
+        messageContent: content,
+        messageType: "text",
+        messageCreatedAt: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, optimisticMsg]);
+
       try {
         setSending(true);
-        await sendMessageAction(selectedConversation.conversationId, content);
+        const savedMsg = await sendMessageAction(selectedConversation.conversationId, content);
+        // Replace temp message with real one
+        setMessages((prev) =>
+          prev.map((m) => (m.messageId === tempId ? savedMsg : m))
+        );
       } catch (error) {
+        // Remove optimistic message on error
+        setMessages((prev) => prev.filter((m) => m.messageId !== tempId));
         toast.error(error.message || "Failed to send message");
       } finally {
         setSending(false);
@@ -138,28 +162,111 @@ export function useOmnichannelChat() {
     [selectedConversation]
   );
 
-  // Supabase Realtime subscriptions
+  // Delete conversation
+  const handleDeleteConversation = useCallback(
+    async (conversationId) => {
+      try {
+        await deleteConversationAction(conversationId);
+        setConversations((prev) =>
+          prev.filter((c) => c.conversationId !== conversationId)
+        );
+        if (selectedConversation?.conversationId === conversationId) {
+          setSelectedConversation(null);
+          setMessages([]);
+        }
+        toast.success("ลบการสนทนาแล้ว");
+      } catch (error) {
+        toast.error("Failed to delete conversation");
+      }
+    },
+    [selectedConversation]
+  );
+
+  // Keep ref in sync with state
   useEffect(() => {
+    selectedConvRef.current = selectedConversation;
+  }, [selectedConversation]);
+
+  // Polling fallback for messages + conversations
+  useEffect(() => {
+    const poll = async () => {
+      const currentConv = selectedConvRef.current;
+
+      // Poll messages for selected conversation
+      if (currentConv) {
+        try {
+          const freshMessages = await getMessages(currentConv.conversationId);
+          setMessages((prev) => {
+            // Only update if there are new messages
+            if (freshMessages.length !== prev.length ||
+                (freshMessages.length > 0 && prev.length > 0 &&
+                 freshMessages[freshMessages.length - 1]?.messageId !== prev[prev.length - 1]?.messageId &&
+                 !prev[prev.length - 1]?.messageId?.startsWith?.("temp-"))) {
+              // Preserve any optimistic temp messages
+              const tempMsgs = prev.filter((m) => m.messageId?.startsWith?.("temp-"));
+              return [...freshMessages, ...tempMsgs];
+            }
+            return prev;
+          });
+        } catch {
+          // Silently ignore polling errors
+        }
+      }
+
+      // Poll conversations list
+      try {
+        const params = {};
+        if (statusFilter !== "all") params.status = statusFilter;
+        if (channelFilter !== "all") params.channel = channelFilter;
+        if (searchQuery) params.search = searchQuery;
+        const freshConvs = await getConversations(params);
+        setConversations(freshConvs);
+      } catch {
+        // Silently ignore
+      }
+    };
+
+    pollTimerRef.current = setInterval(poll, POLL_INTERVAL);
+
+    return () => {
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+      }
+    };
+  }, [statusFilter, channelFilter, searchQuery]);
+
+  // Supabase Realtime subscriptions (bonus: instant updates when it works)
+  useEffect(() => {
+    const channelName = `omnichannel-rt-${Date.now()}`;
     const channel = supabase
-      .channel("omnichannel-realtime")
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "omMessages" },
         (payload) => {
           const newMessage = payload.new;
+          const currentConv = selectedConvRef.current;
 
-          // If this message belongs to selected conversation, append it
           if (
-            selectedConversation &&
-            newMessage.messageConversationId === selectedConversation.conversationId
+            currentConv &&
+            newMessage.messageConversationId === currentConv.conversationId
           ) {
             setMessages((prev) => {
               if (prev.some((m) => m.messageId === newMessage.messageId)) return prev;
+              if (newMessage.messageSenderType === "agent") {
+                const tempIdx = prev.findIndex(
+                  (m) => m.messageId?.startsWith?.("temp-") && m.messageContent === newMessage.messageContent
+                );
+                if (tempIdx !== -1) {
+                  const updated = [...prev];
+                  updated[tempIdx] = newMessage;
+                  return updated;
+                }
+              }
               return [...prev, newMessage];
             });
           }
 
-          // Update conversation list
           setConversations((prev) =>
             prev.map((c) => {
               if (c.conversationId === newMessage.messageConversationId) {
@@ -168,7 +275,7 @@ export function useOmnichannelChat() {
                   conversationLastMessageAt: newMessage.messageCreatedAt,
                   conversationLastMessagePreview: newMessage.messageContent?.slice(0, 100),
                   conversationUnreadCount:
-                    selectedConversation?.conversationId === c.conversationId
+                    currentConv?.conversationId === c.conversationId
                       ? 0
                       : (c.conversationUnreadCount || 0) + (newMessage.messageSenderType === "customer" ? 1 : 0),
                 };
@@ -183,6 +290,8 @@ export function useOmnichannelChat() {
         { event: "UPDATE", schema: "public", table: "omConversations" },
         (payload) => {
           const updated = payload.new;
+          const currentConv = selectedConvRef.current;
+
           setConversations((prev) =>
             prev.map((c) =>
               c.conversationId === updated.conversationId
@@ -190,7 +299,7 @@ export function useOmnichannelChat() {
                 : c
             )
           );
-          if (selectedConversation?.conversationId === updated.conversationId) {
+          if (currentConv?.conversationId === updated.conversationId) {
             setSelectedConversation((prev) => ({ ...prev, ...updated }));
           }
         }
@@ -199,20 +308,18 @@ export function useOmnichannelChat() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "omConversations" },
         () => {
-          // New conversation from webhook - reload list
           loadConversations();
         }
       )
-      .subscribe();
-
-    channelRef.current = channel;
+      .subscribe((status) => {
+        console.log("[Realtime] Status:", status);
+        realtimeConnected.current = status === "SUBSCRIBED";
+      });
 
     return () => {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-      }
+      supabase.removeChannel(channel);
     };
-  }, [selectedConversation, loadConversations]);
+  }, [loadConversations]);
 
   return {
     conversations,
@@ -231,6 +338,7 @@ export function useOmnichannelChat() {
     sendMessage: handleSendMessage,
     updateStatus: handleUpdateStatus,
     updateContact: handleUpdateContact,
+    deleteConversation: handleDeleteConversation,
     loadConversations,
   };
 }
