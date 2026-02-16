@@ -125,6 +125,7 @@ async function handleMessage(supabase, event) {
         conversationLastMessageAt: new Date().toISOString(),
         conversationLastMessagePreview: messageText.slice(0, 100),
         conversationUnreadCount: 1,
+        conversationAiAutoReply: true,
       })
       .select()
       .single();

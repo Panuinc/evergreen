@@ -8,10 +8,7 @@ async function fetchProductCatalog() {
       "blocked eq false and generalProductPostingGroupCode eq 'FG' and startswith(number,'FG-00003')";
     const rows = await bcGet("/items", { $filter: filter });
     return rows.map((i) => ({
-      number: i.number,
       name: i.displayName,
-      price: i.unitPrice,
-      stock: i.inventory,
     }));
   } catch (err) {
     console.error("[AI] Failed to fetch products:", err.message);
@@ -22,11 +19,12 @@ async function fetchProductCatalog() {
 function buildSystemPrompt(basePrompt, products) {
   let prompt = basePrompt;
   if (products.length > 0) {
-    prompt += `\n\n## สินค้าที่มีจำหน่าย\nใช้ข้อมูลนี้ในการตอบคำถามเกี่ยวกับสินค้าและราคา ไม่ต้องบอกจำนวนสต๊อก:\n`;
+    prompt += `\n\n## สินค้าที่มีจำหน่าย\nใช้ข้อมูลนี้ในการตอบคำถามเกี่ยวกับสินค้า ห้ามบอกราคา ห้ามบอกจำนวนสต๊อก ห้ามบอกว่า 0 บาท:\n`;
     for (const p of products) {
-      prompt += `- ${p.name}: ราคา ${p.price.toLocaleString()} บาท\n`;
+      prompt += `- ${p.name}\n`;
     }
-    prompt += `\nถ้าลูกค้าถามสินค้าที่ไม่อยู่ในรายการ ให้บอกว่าสินค้ารุ่นนี้ไม่มีจำหน่ายในขณะนี้`;
+    prompt += `\nถ้าลูกค้าถามสินค้าที่ไม่อยู่ในรายการ ให้บอกว่าสินค้ารุ่นนี้ไม่มีจำหน่ายในขณะนี้
+ถ้าลูกค้าถามราคา ให้บอกว่ากรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามราคา`;
   }
   return prompt;
 }
