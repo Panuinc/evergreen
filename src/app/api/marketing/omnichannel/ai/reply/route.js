@@ -2,6 +2,8 @@ import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
 import { generateAiReply } from "@/lib/omnichannel/aiAgent";
 import { sendAiMessage } from "@/lib/omnichannel/aiSender";
 
+export const maxDuration = 60;
+
 export async function POST(request) {
   const authHeader = request.headers.get("x-internal-secret");
   if (authHeader !== process.env.INTERNAL_API_SECRET) {
@@ -16,8 +18,8 @@ export async function POST(request) {
   const supabase = getServiceSupabase();
 
   try {
-    // Debounce: wait 2 seconds for rapid messages
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Debounce: wait 1 second for rapid messages
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Re-check if auto-reply is still enabled
     const { data: conv } = await supabase

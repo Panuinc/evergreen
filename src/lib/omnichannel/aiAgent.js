@@ -2,75 +2,33 @@ import { bcGet } from "@/lib/bcClient";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-const customerTools = [
-  {
-    type: "function",
-    function: {
-      name: "get_products",
-      description: "ค้นหาสินค้า ราคา และจำนวนสต๊อก",
-      parameters: {
-        type: "object",
-        properties: {
-          search: {
-            type: "string",
-            description: "ชื่อสินค้าที่ต้องการค้นหา (optional)",
-          },
-        },
-      },
-    },
-  },
-];
-
-async function executeCustomerTool(name, args) {
-  switch (name) {
-    case "get_products": {
-      const params = { $filter: "blocked eq false" };
-      if (args?.search) {
-        params.$filter += ` and contains(displayName,'${args.search}')`;
-      }
-      const rows = await bcGet("/items", params);
-      return rows.map((i) => ({
-        name: i.displayName,
-        price: i.unitPrice,
-        stock: i.inventory,
-        number: i.number,
-      }));
-    }
-    default:
-      throw new Error(`Unknown tool: ${name}`);
+async function fetchProductCatalog() {
+  try {
+    const filter =
+      "blocked eq false and generalProductPostingGroupCode eq 'FG' and startswith(number,'FG-00003')";
+    const rows = await bcGet("/items", { $filter: filter });
+    return rows.map((i) => ({
+      number: i.number,
+      name: i.displayName,
+      price: i.unitPrice,
+      stock: i.inventory,
+    }));
+  } catch (err) {
+    console.error("[AI] Failed to fetch products:", err.message);
+    return [];
   }
 }
 
-async function callAI(messages, model, temperature) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60000);
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        tools: customerTools,
-        temperature,
-        stream: false,
-      }),
-      signal: controller.signal,
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`AI API error: ${res.status} ${text}`);
+function buildSystemPrompt(basePrompt, products) {
+  let prompt = basePrompt;
+  if (products.length > 0) {
+    prompt += `\n\n## สินค้าที่มีจำหน่าย\nใช้ข้อมูลนี้ในการตอบคำถามเกี่ยวกับสินค้าและราคา ไม่ต้องบอกจำนวนสต๊อก:\n`;
+    for (const p of products) {
+      prompt += `- ${p.name}: ราคา ${p.price.toLocaleString()} บาท\n`;
     }
-
-    return res.json();
-  } finally {
-    clearTimeout(timeout);
+    prompt += `\nถ้าลูกค้าถามสินค้าที่ไม่อยู่ในรายการ ให้บอกว่าสินค้ารุ่นนี้ไม่มีจำหน่ายในขณะนี้`;
   }
+  return prompt;
 }
 
 export async function getAiSettings(supabase) {
@@ -94,15 +52,20 @@ export async function getConversationContext(conversationId, supabase, limit = 2
 }
 
 export async function generateAiReply(conversationId, supabase) {
-  const settings = await getAiSettings(supabase);
+  // Fetch settings, history, and products in parallel
+  const [settings, history, products] = await Promise.all([
+    getAiSettings(supabase),
+    getConversationContext(conversationId, supabase),
+    fetchProductCatalog(),
+  ]);
+
   const model = settings?.aiModel || "google/gemini-2.5-flash-lite";
   const temperature = Number(settings?.aiTemperature) || 0.3;
-  const maxHistory = settings?.aiMaxHistoryMessages || 20;
-  const systemPrompt =
+  const basePrompt =
     settings?.aiSystemPrompt ||
     "คุณเป็นเจ้าหน้าที่บริการลูกค้า ตอบเป็นภาษาไทย";
 
-  const history = await getConversationContext(conversationId, supabase, maxHistory);
+  const systemPrompt = buildSystemPrompt(basePrompt, products);
 
   const aiMessages = [
     { role: "system", content: systemPrompt },
@@ -112,46 +75,12 @@ export async function generateAiReply(conversationId, supabase) {
     })),
   ];
 
-  // First call - check for tool calls
-  const firstData = await callAI(aiMessages, model, temperature);
-  const choice = firstData.choices?.[0];
-  if (!choice) throw new Error("No response from AI");
+  // Single API call - no tool-calling needed
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
 
-  const hasToolCalls =
-    choice.finish_reason === "tool_calls" &&
-    choice.message?.tool_calls?.length > 0;
-
-  if (!hasToolCalls) {
-    return choice.message?.content || "";
-  }
-
-  // Execute tool calls
-  const toolMessages = [...aiMessages, choice.message];
-  for (const toolCall of choice.message.tool_calls) {
-    try {
-      const args = JSON.parse(toolCall.function.arguments || "{}");
-      const result = await executeCustomerTool(toolCall.function.name, args);
-      toolMessages.push({
-        role: "tool",
-        tool_call_id: toolCall.id,
-        content: JSON.stringify(result ?? []),
-      });
-    } catch (toolError) {
-      toolMessages.push({
-        role: "tool",
-        tool_call_id: toolCall.id,
-        content: JSON.stringify({ error: toolError.message }),
-      });
-    }
-  }
-
-  // Final call with tool results
-  const finalController = new AbortController();
-  const finalTimeout = setTimeout(() => finalController.abort(), 60000);
-
-  let finalData;
   try {
-    const finalRes = await fetch(API_URL, {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -159,21 +88,21 @@ export async function generateAiReply(conversationId, supabase) {
       },
       body: JSON.stringify({
         model,
-        messages: toolMessages,
+        messages: aiMessages,
         temperature,
         stream: false,
       }),
-      signal: finalController.signal,
+      signal: controller.signal,
     });
 
-    if (!finalRes.ok) {
-      const text = await finalRes.text();
-      throw new Error(`AI API error (final): ${finalRes.status} ${text}`);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`AI API error: ${res.status} ${text}`);
     }
 
-    finalData = await finalRes.json();
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "";
   } finally {
-    clearTimeout(finalTimeout);
+    clearTimeout(timeout);
   }
-  return finalData.choices?.[0]?.message?.content || "";
 }
