@@ -153,4 +153,23 @@ async function handleMessage(supabase, event) {
     messageExternalId: message.id,
     messageMetadata: message,
   });
+
+  // Trigger AI auto-reply if enabled
+  if (conversation.conversationAiAutoReply) {
+    triggerAiReply(conversation.conversationId);
+  }
+}
+
+function triggerAiReply(conversationId) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  fetch(`${baseUrl}/api/marketing/omnichannel/ai/reply`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-internal-secret": process.env.INTERNAL_API_SECRET,
+    },
+    body: JSON.stringify({ conversationId }),
+  }).catch((err) => {
+    console.error("[LINE Webhook] Failed to trigger AI reply:", err.message);
+  });
 }

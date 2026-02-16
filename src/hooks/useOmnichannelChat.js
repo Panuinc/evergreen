@@ -9,6 +9,7 @@ import {
   sendMessage as sendMessageAction,
   updateConversation,
   deleteConversation as deleteConversationAction,
+  suggestReply as suggestReplyAction,
 } from "@/actions/marketing";
 
 const POLL_INTERVAL = 3000; // 3 seconds
@@ -20,6 +21,8 @@ export function useOmnichannelChat() {
   const [loading, setLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [suggestLoading, setSuggestLoading] = useState(false);
+  const [suggestedText, setSuggestedText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,6 +103,7 @@ export function useOmnichannelChat() {
 
       try {
         setSending(true);
+        setSuggestedText("");
         const savedMsg = await sendMessageAction(selectedConversation.conversationId, content);
         // Replace temp message with real one
         setMessages((prev) =>
@@ -181,6 +185,42 @@ export function useOmnichannelChat() {
     },
     [selectedConversation]
   );
+
+  // Toggle AI auto-reply for a conversation
+  const handleToggleAiAutoReply = useCallback(
+    async (conversationId, enabled) => {
+      try {
+        const updated = await updateConversation(conversationId, {
+          conversationAiAutoReply: enabled,
+        });
+        setConversations((prev) =>
+          prev.map((c) => (c.conversationId === conversationId ? updated : c))
+        );
+        if (selectedConversation?.conversationId === conversationId) {
+          setSelectedConversation(updated);
+        }
+        toast.success(enabled ? "เปิด AI Auto-Reply แล้ว" : "ปิด AI Auto-Reply แล้ว");
+      } catch (error) {
+        toast.error("Failed to toggle AI auto-reply");
+      }
+    },
+    [selectedConversation]
+  );
+
+  // Request AI suggestion
+  const handleSuggestReply = useCallback(async () => {
+    if (!selectedConversation) return;
+    try {
+      setSuggestLoading(true);
+      setSuggestedText("");
+      const result = await suggestReplyAction(selectedConversation.conversationId);
+      setSuggestedText(result.suggestion);
+    } catch (error) {
+      toast.error("AI ไม่สามารถแนะนำคำตอบได้");
+    } finally {
+      setSuggestLoading(false);
+    }
+  }, [selectedConversation]);
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -340,5 +380,9 @@ export function useOmnichannelChat() {
     updateContact: handleUpdateContact,
     deleteConversation: handleDeleteConversation,
     loadConversations,
+    suggestLoading,
+    suggestedText,
+    toggleAiAutoReply: handleToggleAiAutoReply,
+    suggestReply: handleSuggestReply,
   };
 }

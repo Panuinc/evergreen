@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { Input, Button } from "@heroui/react";
-import { Send } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Input, Button, Tooltip } from "@heroui/react";
+import { Send, Sparkles } from "lucide-react";
 
-export default function MessageInput({ onSend, sending, disabled }) {
+export default function MessageInput({ onSend, onSuggest, sending, suggestLoading, disabled, suggestedText }) {
   const [input, setInput] = useState("");
+
+  useEffect(() => {
+    if (suggestedText) {
+      setInput(suggestedText);
+    }
+  }, [suggestedText]);
 
   const handleSend = () => {
     const trimmed = input.trim();
@@ -23,6 +29,21 @@ export default function MessageInput({ onSend, sending, disabled }) {
 
   return (
     <div className="flex items-center gap-2 p-3 border-t-2 border-default">
+      {onSuggest && (
+        <Tooltip content="AI แนะนำคำตอบ">
+          <Button
+            isIconOnly
+            variant="bordered"
+            size="md"
+            radius="md"
+            onPress={onSuggest}
+            isLoading={suggestLoading}
+            isDisabled={disabled || sending || suggestLoading}
+          >
+            <Sparkles size={18} />
+          </Button>
+        </Tooltip>
+      )}
       <Input
         placeholder={disabled ? "การสนทนานี้ปิดแล้ว" : "พิมพ์ข้อความ..."}
         variant="bordered"

@@ -29,6 +29,10 @@ export default function OmnichannelPage() {
     updateStatus,
     updateContact,
     deleteConversation,
+    suggestLoading,
+    suggestedText,
+    toggleAiAutoReply,
+    suggestReply,
   } = useOmnichannelChat();
 
   const [showDetail, setShowDetail] = useState(false);
@@ -102,6 +106,10 @@ export default function OmnichannelPage() {
                   onDelete={deleteConversation}
                   onBack={mobileView === "chat" ? handleBack : undefined}
                   onToggleDetail={() => setShowDetail(!showDetail)}
+                  onToggleAiAutoReply={toggleAiAutoReply}
+                  onSuggestReply={suggestReply}
+                  suggestLoading={suggestLoading}
+                  suggestedText={suggestedText}
                 />
               </div>
               {showDetail && (

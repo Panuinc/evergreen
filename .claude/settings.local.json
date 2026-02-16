@@ -17,7 +17,9 @@
       "Bash(python3:*)",
       "Bash(pip3 install:*)",
       "Bash(xargs -I {} sh -c 'echo \"\"=== {} ===\"\" && wc -l {}')",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(echo:*)",
+      "WebFetch(domain:openrouter.ai)"
     ]
   }
 }

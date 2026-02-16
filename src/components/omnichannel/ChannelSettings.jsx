@@ -9,10 +9,12 @@ import {
   ModalFooter,
   Button,
   Input,
+  Textarea,
   Chip,
 } from "@heroui/react";
-import { Facebook } from "lucide-react";
+import { Facebook, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { getAiSettings, updateAiSettings } from "@/actions/marketing";
 import { toast } from "sonner";
 
 export default function ChannelSettings({ isOpen, onClose }) {
@@ -23,8 +25,15 @@ export default function ChannelSettings({ isOpen, onClose }) {
   const [fbPageId, setFbPageId] = useState("");
   const [lineToken, setLineToken] = useState("");
 
+  // AI Settings
+  const [aiSystemPrompt, setAiSystemPrompt] = useState("");
+  const [aiMaxHistory, setAiMaxHistory] = useState("20");
+
   useEffect(() => {
-    if (isOpen) loadChannels();
+    if (isOpen) {
+      loadChannels();
+      loadAiSettings();
+    }
   }, [isOpen]);
 
   const loadChannels = async () => {
@@ -43,6 +52,18 @@ export default function ChannelSettings({ isOpen, onClose }) {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAiSettings = async () => {
+    try {
+      const data = await getAiSettings();
+      if (data) {
+        setAiSystemPrompt(data.aiSystemPrompt || "");
+        setAiMaxHistory(String(data.aiMaxHistoryMessages || 20));
+      }
+    } catch {
+      // AI settings table may not exist yet
     }
   };
 
@@ -73,7 +94,17 @@ export default function ChannelSettings({ isOpen, onClose }) {
         { onConflict: "channelType" }
       );
 
-      toast.success("Channel settings saved");
+      // Save AI settings
+      try {
+        await updateAiSettings({
+          aiSystemPrompt,
+          aiMaxHistoryMessages: parseInt(aiMaxHistory) || 20,
+        });
+      } catch {
+        // AI settings table may not exist yet
+      }
+
+      toast.success("Settings saved");
       onClose();
     } catch (error) {
       toast.error("Failed to save settings");
@@ -83,7 +114,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onClose} size="2xl">
+    <Modal isOpen={isOpen} onOpenChange={onClose} size="2xl" scrollBehavior="inside">
       <ModalContent>
         <ModalHeader>Channel Settings</ModalHeader>
         <ModalBody>
@@ -139,6 +170,37 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 value={lineToken}
                 onValueChange={setLineToken}
                 type="password"
+              />
+            </div>
+
+            {/* AI Agent Settings */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Sparkles size={18} className="text-secondary" />
+                <span className="font-semibold">AI Agent Settings</span>
+              </div>
+              <Textarea
+                label="System Prompt"
+                labelPlacement="outside"
+                placeholder="กำหนด system prompt สำหรับ AI agent..."
+                variant="bordered"
+                size="md"
+                radius="md"
+                minRows={4}
+                value={aiSystemPrompt}
+                onValueChange={setAiSystemPrompt}
+              />
+              <Input
+                label="Max History Messages"
+                labelPlacement="outside"
+                placeholder="20"
+                description="จำนวนข้อความย้อนหลังที่ AI จะอ่านเพื่อตอบ"
+                variant="bordered"
+                size="md"
+                radius="md"
+                type="number"
+                value={aiMaxHistory}
+                onValueChange={setAiMaxHistory}
               />
             </div>
           </div>

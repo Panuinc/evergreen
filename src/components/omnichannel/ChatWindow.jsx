@@ -6,6 +6,8 @@ import {
   Chip,
   Spinner,
   ScrollShadow,
+  Switch,
+  Tooltip,
   Modal,
   ModalContent,
   ModalHeader,
@@ -13,7 +15,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2 } from "lucide-react";
+import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles } from "lucide-react";
 import ChannelBadge from "./ChannelBadge";
 import MessageInput from "./MessageInput";
 
@@ -41,6 +43,10 @@ export default function ChatWindow({
   onDelete,
   onBack,
   onToggleDetail,
+  onToggleAiAutoReply,
+  onSuggestReply,
+  suggestLoading,
+  suggestedText,
 }) {
   const scrollRef = useRef(null);
   const deleteModal = useDisclosure();
@@ -79,6 +85,17 @@ export default function ChatWindow({
           </div>
         </div>
         <div className="flex items-center gap-1">
+          <Tooltip content="AI Auto-Reply">
+            <div className="flex items-center gap-1 px-2">
+              <Bot size={14} className="text-secondary" />
+              <Switch
+                size="sm"
+                color="secondary"
+                isSelected={conversation?.conversationAiAutoReply || false}
+                onValueChange={(val) => onToggleAiAutoReply(conversation.conversationId, val)}
+              />
+            </div>
+          </Tooltip>
           {isClosed ? (
             <Button
               size="sm"
@@ -137,15 +154,25 @@ export default function ChatWindow({
                 <div
                   className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${
                     msg.messageSenderType === "agent"
-                      ? "bg-primary text-primary-foreground"
+                      ? msg.messageIsAi
+                        ? "bg-secondary text-secondary-foreground"
+                        : "bg-primary text-primary-foreground"
                       : "bg-default-100"
                   }`}
                 >
+                  {msg.messageIsAi && (
+                    <div className="flex items-center gap-1 mb-1 text-[10px] opacity-70">
+                      <Sparkles size={10} />
+                      <span>AI</span>
+                    </div>
+                  )}
                   <p className="whitespace-pre-wrap break-words">{msg.messageContent}</p>
                   <p
                     className={`text-[10px] mt-1 ${
                       msg.messageSenderType === "agent"
-                        ? "text-primary-foreground/70"
+                        ? msg.messageIsAi
+                          ? "text-secondary-foreground/70"
+                          : "text-primary-foreground/70"
                         : "text-default-400"
                     }`}
                   >
@@ -159,7 +186,14 @@ export default function ChatWindow({
       </ScrollShadow>
 
       {/* Input */}
-      <MessageInput onSend={onSendMessage} sending={sending} disabled={isClosed} />
+      <MessageInput
+        onSend={onSendMessage}
+        onSuggest={onSuggestReply}
+        sending={sending}
+        suggestLoading={suggestLoading}
+        disabled={isClosed}
+        suggestedText={suggestedText}
+      />
 
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="sm">

@@ -1,0 +1,60 @@
+import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
+import { generateAiReply } from "@/lib/omnichannel/aiAgent";
+import { sendAiMessage } from "@/lib/omnichannel/aiSender";
+
+export async function POST(request) {
+  const authHeader = request.headers.get("x-internal-secret");
+  if (authHeader !== process.env.INTERNAL_API_SECRET) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { conversationId } = await request.json();
+  if (!conversationId) {
+    return Response.json({ error: "conversationId required" }, { status: 400 });
+  }
+
+  const supabase = getServiceSupabase();
+
+  try {
+    // Debounce: wait 2 seconds for rapid messages
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Re-check if auto-reply is still enabled
+    const { data: conv } = await supabase
+      .from("omConversations")
+      .select("conversationAiAutoReply")
+      .eq("conversationId", conversationId)
+      .single();
+
+    if (!conv?.conversationAiAutoReply) {
+      return Response.json({ status: "skipped", reason: "auto-reply disabled" });
+    }
+
+    // Check if the latest message is still from a customer (agent may have replied)
+    const { data: latestMsg } = await supabase
+      .from("omMessages")
+      .select("messageSenderType")
+      .eq("messageConversationId", conversationId)
+      .order("messageCreatedAt", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (latestMsg?.messageSenderType !== "customer") {
+      return Response.json({ status: "skipped", reason: "agent already replied" });
+    }
+
+    // Generate AI reply
+    const replyContent = await generateAiReply(conversationId, supabase);
+    if (!replyContent?.trim()) {
+      return Response.json({ status: "skipped", reason: "empty reply" });
+    }
+
+    // Send the reply
+    const message = await sendAiMessage(supabase, conversationId, replyContent);
+
+    return Response.json({ status: "sent", messageId: message.messageId });
+  } catch (error) {
+    console.error("[AI Reply] Error:", error.message);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+}

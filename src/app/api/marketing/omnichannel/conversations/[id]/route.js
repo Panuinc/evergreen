@@ -30,6 +30,7 @@ export async function PUT(request, { params }) {
   if (body.conversationStatus !== undefined) updateData.conversationStatus = body.conversationStatus;
   if (body.conversationAssignedTo !== undefined) updateData.conversationAssignedTo = body.conversationAssignedTo;
   if (body.conversationUnreadCount !== undefined) updateData.conversationUnreadCount = body.conversationUnreadCount;
+  if (body.conversationAiAutoReply !== undefined) updateData.conversationAiAutoReply = body.conversationAiAutoReply;
 
   const { data, error } = await supabase
     .from("omConversations")
