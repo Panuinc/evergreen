@@ -9,6 +9,8 @@ import {
   ModalBody,
   ModalFooter,
   Input,
+  Select,
+  SelectItem,
   Textarea,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
@@ -17,6 +19,7 @@ import DataTable from "@/components/ui/DataTable";
 
 const columns = [
   { name: "Title", uid: "positionTitle", sortable: true },
+  { name: "Department", uid: "positionDepartment", sortable: true },
   { name: "Description", uid: "positionDescription" },
   { name: "Created At", uid: "positionCreatedAt", sortable: true },
   { name: "Actions", uid: "actions" },
@@ -24,14 +27,15 @@ const columns = [
 
 const INITIAL_VISIBLE_COLUMNS = [
   "positionTitle",
+  "positionDepartment",
   "positionDescription",
-  "positionCreatedAt",
   "actions",
 ];
 
 export default function PositionsPage() {
   const {
     positions,
+    departments,
     loading,
     saving,
     editingPos,
@@ -47,11 +51,18 @@ export default function PositionsPage() {
     handleDelete,
   } = usePositions();
 
+  const deptOptions = departments.map((d) => ({
+    name: d.departmentName,
+    uid: d.departmentName,
+  }));
+
   const renderCell = useCallback(
     (pos, columnKey) => {
       switch (columnKey) {
         case "positionTitle":
           return <span className="font-medium">{pos.positionTitle}</span>;
+        case "positionDepartment":
+          return pos.positionDepartment || "-";
         case "positionDescription":
           return (
             <span className="text-default-500">
@@ -104,8 +115,15 @@ export default function PositionsPage() {
         rowKey="positionId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by title, description..."
-        searchKeys={["positionTitle", "positionDescription"]}
+        searchPlaceholder="Search by title, department, description..."
+        searchKeys={[
+          "positionTitle",
+          "positionDepartment",
+          "positionDescription",
+        ]}
+        statusField="positionDepartment"
+        statusOptions={deptOptions}
+        filterLabel="Department"
         emptyContent="No positions found"
         topEndContent={
           <Button
@@ -128,6 +146,32 @@ export default function PositionsPage() {
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Select
+                  label="Department"
+                  labelPlacement="outside"
+                  placeholder="Select department"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  selectedKeys={
+                    formData.positionDepartment
+                      ? [formData.positionDepartment]
+                      : []
+                  }
+                  onSelectionChange={(keys) => {
+                    const val = Array.from(keys)[0] || "";
+                    setFormData({ ...formData, positionDepartment: val });
+                  }}
+                  isRequired
+                >
+                  {departments.map((dept) => (
+                    <SelectItem key={dept.departmentName}>
+                      {dept.departmentName}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
                   label="Title"

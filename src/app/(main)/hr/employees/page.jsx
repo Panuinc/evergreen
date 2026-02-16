@@ -255,6 +255,7 @@ export default function EmployeesPage() {
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
                       updateField("employeeDepartment", val);
+                      updateField("employeePosition", "");
                     }}
                   >
                     {departments.map((dept) => (
@@ -268,10 +269,11 @@ export default function EmployeesPage() {
                   <Select
                     label="Position"
                     labelPlacement="outside"
-                    placeholder="Select position"
+                    placeholder={formData.employeeDepartment ? "Select position" : "Select department first"}
                     variant="bordered"
                     size="md"
                     radius="md"
+                    isDisabled={!formData.employeeDepartment}
                     selectedKeys={
                       formData.employeePosition
                         ? [formData.employeePosition]
@@ -282,11 +284,13 @@ export default function EmployeesPage() {
                       updateField("employeePosition", val);
                     }}
                   >
-                    {positions.map((pos) => (
-                      <SelectItem key={pos.positionTitle}>
-                        {pos.positionTitle}
-                      </SelectItem>
-                    ))}
+                    {positions
+                      .filter((pos) => pos.positionDepartment === formData.employeeDepartment)
+                      .map((pos) => (
+                        <SelectItem key={pos.positionTitle}>
+                          {pos.positionTitle}
+                        </SelectItem>
+                      ))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">

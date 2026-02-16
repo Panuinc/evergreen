@@ -129,7 +129,7 @@ async function executeTool(name, supabase) {
     case "get_positions": {
       const { data } = await supabase
         .from("positions")
-        .select("positionId, positionTitle")
+        .select("positionId, positionTitle, positionDepartment")
         .order("positionTitle");
       return data;
     }

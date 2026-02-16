@@ -8,15 +8,18 @@ import {
   createPosition,
   updatePosition,
   deletePosition,
+  getDepartments,
 } from "@/actions/hr";
 
 const emptyForm = {
   positionTitle: "",
   positionDescription: "",
+  positionDepartment: "",
 };
 
 export function usePositions() {
   const [positions, setPositions] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingPos, setEditingPos] = useState(null);
@@ -26,15 +29,19 @@ export function usePositions() {
   const [deletingPos, setDeletingPos] = useState(null);
 
   useEffect(() => {
-    loadPositions();
+    loadData();
   }, []);
 
-  const loadPositions = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getPositions();
-      setPositions(data);
-    } catch (error) {
+      const [posData, deptData] = await Promise.all([
+        getPositions(),
+        getDepartments(),
+      ]);
+      setPositions(posData);
+      setDepartments(deptData);
+    } catch {
       toast.error("Failed to load positions");
     } finally {
       setLoading(false);
@@ -47,6 +54,7 @@ export function usePositions() {
       setFormData({
         positionTitle: pos.positionTitle || "",
         positionDescription: pos.positionDescription || "",
+        positionDepartment: pos.positionDepartment || "",
       });
     } else {
       setEditingPos(null);
@@ -71,7 +79,7 @@ export function usePositions() {
         toast.success("Position created");
       }
       onClose();
-      loadPositions();
+      loadData();
     } catch (error) {
       toast.error(error.message || "Failed to save position");
     } finally {
@@ -91,7 +99,7 @@ export function usePositions() {
       toast.success("Position deleted");
       deleteModal.onClose();
       setDeletingPos(null);
-      loadPositions();
+      loadData();
     } catch (error) {
       toast.error(error.message || "Failed to delete position");
     }
@@ -99,6 +107,7 @@ export function usePositions() {
 
   return {
     positions,
+    departments,
     loading,
     saving,
     editingPos,
