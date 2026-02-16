@@ -40,7 +40,7 @@ export default function ChatBot() {
         color="primary"
         size="lg"
         radius="full"
-        className="fixed bottom-6 right-6 z-50 shadow-lg w-14 h-14"
+        className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 shadow-lg w-14 h-14"
         onPress={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
@@ -54,7 +54,7 @@ export default function ChatBot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-6 z-50 w-96 h-[500px] flex flex-col bg-background border-2 border-default rounded-xl shadow-xl overflow-hidden"
+            className="fixed bottom-24 right-4 left-4 md:left-auto md:right-6 z-50 md:w-96 h-[70vh] md:h-[500px] flex flex-col bg-background border-2 border-default rounded-xl shadow-xl overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-3 border-b-2 border-default">

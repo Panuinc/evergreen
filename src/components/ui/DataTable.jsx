@@ -385,6 +385,7 @@ export default function DataTable({
   }
 
   return (
+    <div className="overflow-x-auto w-full">
     <Table
       isHeaderSticky
       aria-label="Data table"
@@ -396,9 +397,9 @@ export default function DataTable({
       onSortChange={setSortDescriptor}
       shadow="none"
       classNames={{
-        // wrapper: "border-2 border-default rounded-xl",
         th: "border-b-2 border-r-2 border-default last:border-r-0",
         td: "border-b-2 border-r-2 border-default last:border-r-0",
+        table: "min-w-[600px]",
       }}
     >
       <TableHeader columns={headerColumns}>
@@ -431,5 +432,6 @@ export default function DataTable({
         )}
       </TableBody>
     </Table>
+    </div>
   );
 }

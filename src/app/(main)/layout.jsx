@@ -2,7 +2,14 @@
 
 import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
+import {
+  Breadcrumbs,
+  BreadcrumbItem,
+  Drawer,
+  DrawerContent,
+  DrawerBody,
+  useDisclosure,
+} from "@heroui/react";
 import { menuData, findActiveMenuByPathname } from "@/config/menu";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
@@ -13,6 +20,11 @@ export default function MainLayout({ children }) {
   const pathname = usePathname();
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const {
+    isOpen: isMobileNavOpen,
+    onOpen: openMobileNav,
+    onClose: closeMobileNav,
+  } = useDisclosure();
 
   const activeMenu = useMemo(() => {
     if (activeMenuId) {
@@ -24,11 +36,12 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="flex flex-col items-center justify-start w-full h-full overflow-hidden">
-      <Header />
+      <Header onMobileMenuToggle={openMobileNav} />
 
       <div className="flex flex-row items-center justify-center w-full min-h-0 flex-1 border-t-1 border-default">
+        {/* Desktop sidebar - hidden on mobile */}
         <div
-          className={`flex flex-row items-center justify-center min-h-0 h-full border-r-1 border-default transition-all duration-300 ${
+          className={`hidden md:flex flex-row items-center justify-center min-h-0 h-full border-r-1 border-default transition-all duration-300 ${
             isCollapsed ? "w-[15%]" : "w-3/12"
           }`}
         >
@@ -41,9 +54,10 @@ export default function MainLayout({ children }) {
           <SubMenuPanel activeMenu={activeMenu} isCollapsed={isCollapsed} />
         </div>
 
+        {/* Content area - full width on mobile */}
         <div
-          className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 border-l-1 border-default overflow-hidden transition-all duration-300 ${
-            isCollapsed ? "w-[85%]" : "w-9/12"
+          className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 md:border-l-1 border-default overflow-hidden transition-all duration-300 w-full ${
+            isCollapsed ? "md:w-[85%]" : "md:w-9/12"
           }`}
         >
           <div className="flex flex-row items-center justify-start w-full h-fit p-2 gap-2 border-b-2 border-default">
@@ -57,6 +71,34 @@ export default function MainLayout({ children }) {
           </div>
         </div>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      <Drawer
+        isOpen={isMobileNavOpen}
+        onClose={closeMobileNav}
+        placement="left"
+        size="sm"
+        hideCloseButton
+      >
+        <DrawerContent>
+          <DrawerBody className="p-0">
+            <div className="flex flex-row h-full">
+              <Sidebar
+                activeMenu={activeMenu}
+                isCollapsed={false}
+                onMenuSelect={(id) => setActiveMenuId(id)}
+                onToggleCollapse={() => {}}
+              />
+              <SubMenuPanel
+                activeMenu={activeMenu}
+                isCollapsed={false}
+                onSubMenuClick={closeMobileNav}
+              />
+            </div>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
       <ChatBot />
     </div>
   );

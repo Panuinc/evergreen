@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Chip } from "@heroui/react";
 import { useMenuBadges } from "@/hooks/useMenuBadges";
 
-export default function SubMenuPanel({ activeMenu, isCollapsed }) {
+export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }) {
   const pathname = usePathname();
   const badges = useMenuBadges();
 
@@ -29,6 +29,7 @@ export default function SubMenuPanel({ activeMenu, isCollapsed }) {
             <Link
               key={index}
               href={href}
+              onClick={onSubMenuClick}
               className={`flex flex-row items-center justify-start w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
                 isSubActive
                   ? "bg-default font-medium"

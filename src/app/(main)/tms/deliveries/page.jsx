@@ -223,8 +223,8 @@ export default function DeliveriesPage() {
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center w-full h-fit p-2 gap-2 col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Select
                     label="Shipment"
                     labelPlacement="outside"
@@ -322,7 +322,7 @@ export default function DeliveriesPage() {
                     }
                   />
                 </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2 col-span-2">
+                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input
                     label="Notes"
                     labelPlacement="outside"
@@ -336,7 +336,7 @@ export default function DeliveriesPage() {
                     }
                   />
                 </div>
-                <div className="p-2 col-span-2">
+                <div className="p-2 md:col-span-2">
                   <FileUpload
                     label="Signature"
                     accept="image/*"
@@ -346,7 +346,7 @@ export default function DeliveriesPage() {
                     folder="delivery-signatures"
                   />
                 </div>
-                <div className="p-2 col-span-2">
+                <div className="p-2 md:col-span-2">
                   <FileUpload
                     label="Delivery Photos"
                     accept="image/*"

@@ -235,14 +235,14 @@ export default function ShipmentsPage() {
           <ModalHeader>{editingShipment ? "Edit Shipment" : "New Shipment"}</ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input label="Customer Name" labelPlacement="outside" placeholder="Enter customer name" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerName} onChange={(e) => updateField("shipmentCustomerName", e.target.value)} isRequired />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input label="Customer Phone" labelPlacement="outside" placeholder="Enter phone" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerPhone} onChange={(e) => updateField("shipmentCustomerPhone", e.target.value)} />
                 </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2 col-span-2">
+                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input label="Customer Address" labelPlacement="outside" placeholder="Enter address" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerAddress} onChange={(e) => updateField("shipmentCustomerAddress", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -274,10 +274,10 @@ export default function ShipmentsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input type="number" label="Weight (Kg)" labelPlacement="outside" placeholder="Enter weight" variant="bordered" size="md" radius="md" value={formData.shipmentWeightKg} onChange={(e) => updateField("shipmentWeightKg", e.target.value)} />
                 </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2 col-span-2">
+                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input label="Items Summary" labelPlacement="outside" placeholder="Description of items" variant="bordered" size="md" radius="md" value={formData.shipmentItemsSummary} onChange={(e) => updateField("shipmentItemsSummary", e.target.value)} />
                 </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2 col-span-2">
+                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input label="Notes" labelPlacement="outside" placeholder="Additional notes" variant="bordered" size="md" radius="md" value={formData.shipmentNotes} onChange={(e) => updateField("shipmentNotes", e.target.value)} />
                 </div>
               </div>

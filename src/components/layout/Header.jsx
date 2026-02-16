@@ -7,6 +7,7 @@ import {
   Bell,
   MessageSquare,
   ChevronDown,
+  Menu,
 } from "lucide-react";
 import {
   Avatar,
@@ -19,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function Header() {
+export default function Header({ onMobileMenuToggle }) {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
@@ -27,9 +28,16 @@ export default function Header() {
   return (
     <div className="flex flex-row items-center justify-center w-full h-fit gap-2 border-b-1 border-default">
       <div className="flex flex-row items-center justify-start w-full h-full p-2 gap-2">
+        {/* Hamburger menu - mobile only */}
+        <button
+          onClick={onMobileMenuToggle}
+          className="flex md:hidden items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer"
+        >
+          <Menu />
+        </button>
         Evergreen By CHH Industry
       </div>
-      <div className="flex flex-row items-center justify-center w-full h-full p-2 gap-2">
+      <div className="hidden md:flex flex-row items-center justify-center w-full h-full p-2 gap-2">
         {" "}
       </div>
       <div className="flex flex-row items-center justify-end w-full h-full p-2 gap-2">
@@ -57,7 +65,7 @@ export default function Header() {
           </span>
         </button>
 
-        <button className="flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
+        <button className="hidden md:flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer">
           <Settings />
         </button>
 
@@ -68,7 +76,7 @@ export default function Header() {
                 src="https://i.pravatar.cc/150?u=user"
                 className="w-7 h-7"
               />
-              <span className="font-medium">
+              <span className="hidden md:inline font-medium">
                 {user?.email?.split("@")[0] || "User"}
               </span>
               <ChevronDown />
