@@ -2,6 +2,7 @@ import {
   getServiceSupabase,
   verifyLineSignature,
 } from "@/app/api/_lib/webhookAuth";
+import { downloadLineImage } from "@/lib/omnichannel/imageStorage";
 
 export async function POST(request) {
   const rawBody = await request.text();
@@ -144,15 +145,34 @@ async function handleMessage(supabase, event) {
 
   if (!conversation) return;
 
+  // Download image if applicable
+  let imageUrl = null;
+  if (message.type === "image") {
+    try {
+      const { data: channel } = await supabase
+        .from("omChannels")
+        .select("channelAccessToken")
+        .eq("channelType", "line")
+        .eq("channelStatus", "active")
+        .single();
+      if (channel?.channelAccessToken) {
+        imageUrl = await downloadLineImage(supabase, message.id, channel.channelAccessToken);
+      }
+    } catch (err) {
+      console.error("[LINE Webhook] Failed to download image:", err.message);
+    }
+  }
+
   // Insert message
   await supabase.from("omMessages").insert({
     messageConversationId: conversation.conversationId,
     messageSenderType: "customer",
     messageSenderId: userId,
-    messageContent: messageText,
+    messageContent: imageUrl || messageText,
     messageType: messageType,
     messageExternalId: message.id,
     messageMetadata: message,
+    messageImageUrl: imageUrl,
   });
 
   // Trigger AI auto-reply if enabled

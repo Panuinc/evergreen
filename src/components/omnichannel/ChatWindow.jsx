@@ -15,7 +15,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles } from "lucide-react";
+import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles, Receipt } from "lucide-react";
 import ChannelBadge from "./ChannelBadge";
 import MessageInput from "./MessageInput";
 
@@ -188,7 +188,58 @@ export default function ChatWindow({
                       <span>AI</span>
                     </div>
                   )}
-                  <p className="whitespace-pre-wrap break-words">{renderMessageContent(msg.messageContent)}</p>
+                  {msg.messageType === "image" && msg.messageImageUrl ? (
+                    <div className="space-y-2">
+                      <a href={msg.messageImageUrl} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={msg.messageImageUrl}
+                          alt="รูปภาพ"
+                          className="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                          style={{ maxHeight: 300 }}
+                        />
+                      </a>
+                      {msg.messageOcrData && (
+                        <div className="bg-default-50 rounded-lg p-2 text-xs space-y-1 border border-default-200">
+                          <div className="flex items-center gap-1 font-semibold text-default-600 mb-1">
+                            <Receipt size={12} />
+                            <span>ข้อมูลสลิป</span>
+                          </div>
+                          {msg.messageOcrData.amount && (
+                            <div className="flex justify-between">
+                              <span className="text-default-400">ยอดเงิน</span>
+                              <span className="font-semibold">{Number(msg.messageOcrData.amount).toLocaleString()} บาท</span>
+                            </div>
+                          )}
+                          {msg.messageOcrData.fromBank && (
+                            <div className="flex justify-between">
+                              <span className="text-default-400">จาก</span>
+                              <span>{msg.messageOcrData.fromBank}</span>
+                            </div>
+                          )}
+                          {msg.messageOcrData.toBank && (
+                            <div className="flex justify-between">
+                              <span className="text-default-400">ไปยัง</span>
+                              <span>{msg.messageOcrData.toBank}</span>
+                            </div>
+                          )}
+                          {msg.messageOcrData.datetime && (
+                            <div className="flex justify-between">
+                              <span className="text-default-400">วันเวลา</span>
+                              <span>{msg.messageOcrData.datetime}</span>
+                            </div>
+                          )}
+                          {msg.messageOcrData.reference && (
+                            <div className="flex justify-between">
+                              <span className="text-default-400">อ้างอิง</span>
+                              <span>{msg.messageOcrData.reference}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap break-words">{renderMessageContent(msg.messageContent)}</p>
+                  )}
                   <p
                     className={`text-[10px] mt-1 ${
                       msg.messageSenderType === "agent"

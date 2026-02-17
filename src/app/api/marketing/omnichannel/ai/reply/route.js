@@ -1,6 +1,7 @@
 import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
 import { generateAiReply } from "@/lib/omnichannel/aiAgent";
 import { sendAiMessage } from "@/lib/omnichannel/aiSender";
+import { ocrPaymentSlip } from "@/lib/omnichannel/slipOcr";
 
 export const maxDuration = 60;
 
@@ -65,6 +66,26 @@ export async function POST(request) {
         .from("omConversations")
         .update({ conversationAiAutoReply: false })
         .eq("conversationId", conversationId);
+
+      // OCR the payment slip image
+      const { data: imgMsg } = await supabase
+        .from("omMessages")
+        .select("messageId, messageImageUrl")
+        .eq("messageConversationId", conversationId)
+        .eq("messageType", "image")
+        .order("messageCreatedAt", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (imgMsg?.messageImageUrl) {
+        const ocrData = await ocrPaymentSlip(imgMsg.messageImageUrl);
+        if (ocrData) {
+          await supabase
+            .from("omMessages")
+            .update({ messageOcrData: ocrData })
+            .eq("messageId", imgMsg.messageId);
+        }
+      }
     }
 
     return Response.json({ status: "sent", messageId: message.messageId });

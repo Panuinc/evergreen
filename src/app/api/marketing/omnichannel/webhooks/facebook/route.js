@@ -2,6 +2,7 @@ import {
   getServiceSupabase,
   verifyFacebookSignature,
 } from "@/app/api/_lib/webhookAuth";
+import { downloadFacebookImage } from "@/lib/omnichannel/imageStorage";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -101,15 +102,29 @@ async function handleMessage(supabase, event) {
 
   if (!conversation) return;
 
+  // Download image if applicable
+  let imageUrl = null;
+  if (event.message.attachments) {
+    const imgAttachment = event.message.attachments.find((a) => a.type === "image");
+    if (imgAttachment?.payload?.url) {
+      try {
+        imageUrl = await downloadFacebookImage(supabase, imgAttachment.payload.url, externalId);
+      } catch (err) {
+        console.error("[Facebook Webhook] Failed to download image:", err.message);
+      }
+    }
+  }
+
   // Insert message
   await supabase.from("omMessages").insert({
     messageConversationId: conversation.conversationId,
     messageSenderType: "customer",
     messageSenderId: senderId,
-    messageContent: messageText,
+    messageContent: imageUrl || messageText || "[image]",
     messageType: messageType,
     messageExternalId: externalId,
     messageMetadata: event.message,
+    messageImageUrl: imageUrl,
   });
 
   // Trigger AI auto-reply if enabled
