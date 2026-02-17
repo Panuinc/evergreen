@@ -74,7 +74,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
     };
 
     const key = `shipping-label-${order.No}`;
-    sessionStorage.setItem(key, JSON.stringify(data));
+    localStorage.setItem(key, JSON.stringify(data));
     window.open(`/marketing/shippingLabel/${encodeURIComponent(order.No)}`, "_blank");
     onClose();
   };

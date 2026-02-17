@@ -8,17 +8,24 @@ const SENDER = {
   address: "EVERGREEN by CHH",
 };
 
+function readAndClear(orderNo) {
+  const key = `shipping-label-${orderNo}`;
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      localStorage.removeItem(key);
+      return JSON.parse(raw);
+    }
+  } catch {}
+  return null;
+}
+
 export default function ShippingLabelDocument({ orderNo }) {
-  const [data, setData] = useState(null);
+  const [data] = useState(() => readAndClear(orderNo));
 
   useEffect(() => {
-    const key = `shipping-label-${orderNo}`;
-    const raw = sessionStorage.getItem(key);
-    if (raw) {
-      setData(JSON.parse(raw));
-      setTimeout(() => window.print(), 500);
-    }
-  }, [orderNo]);
+    if (data) setTimeout(() => window.print(), 500);
+  }, [data]);
 
   if (!data) {
     return (
@@ -81,19 +88,22 @@ export default function ShippingLabelDocument({ orderNo }) {
       `}</style>
 
       {/* Print Button */}
-      <div className="no-print fixed top-4 right-4 z-50 flex gap-2">
-        <button
-          onClick={() => window.print()}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-blue-700 text-sm font-medium"
-        >
-          พิมพ์ ({labels.length} ใบ)
-        </button>
-        <button
-          onClick={() => window.close()}
-          className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg shadow hover:bg-gray-300 text-sm font-medium"
-        >
-          ปิด
-        </button>
+      <div className="no-print flex items-center justify-between mb-4">
+        <p className="text-sm text-default-500">ใบปะหน้าส่งสินค้า — {data.orderNo} ({labels.length} ใบ)</p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => window.print()}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium"
+          >
+            พิมพ์
+          </button>
+          <button
+            onClick={() => window.close()}
+            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm font-medium"
+          >
+            ปิด
+          </button>
+        </div>
       </div>
 
       {labels.map((label, idx) => (
@@ -157,11 +167,11 @@ export default function ShippingLabelDocument({ orderNo }) {
             )}
           </div>
 
-          {/* Order & Item Info */}
+          {/* Order & Items List */}
           <div
             style={{
               borderTop: "1px dashed #999",
-              paddingTop: "3mm",
+              paddingTop: "2mm",
               marginTop: "2mm",
             }}
           >
@@ -171,23 +181,51 @@ export default function ShippingLabelDocument({ orderNo }) {
                 justifyContent: "space-between",
                 fontSize: "9pt",
                 color: "#333",
+                marginBottom: "2mm",
               }}
             >
               <span>Order: {data.orderNo}</span>
               {data.externalDocNo && <span>Ref: {data.externalDocNo}</span>}
             </div>
-            <div
-              style={{
-                fontSize: "10pt",
-                marginTop: "1mm",
-                fontWeight: "500",
-              }}
-            >
-              {label.item.description}
-            </div>
-            <div style={{ fontSize: "9pt", color: "#555", marginTop: "1mm" }}>
-              จำนวน: {label.item.qty} {label.item.uom}
-            </div>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8pt" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid #999" }}>
+                  <th style={{ textAlign: "left", padding: "1mm 0", fontWeight: "600" }}>รายการ</th>
+                  <th style={{ textAlign: "right", padding: "1mm 0", fontWeight: "600", width: "15mm" }}>จำนวน</th>
+                  <th style={{ textAlign: "left", padding: "1mm 0 1mm 2mm", fontWeight: "600", width: "15mm" }}>หน่วย</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.items.map((item, i) => {
+                  const isCurrentItem = item.description === label.item.description && item.itemNo === label.item.itemNo;
+                  return (
+                    <tr key={i} style={{ borderBottom: "1px dotted #ddd" }}>
+                      <td style={{
+                        padding: "1mm 0",
+                        fontWeight: isCurrentItem ? "bold" : "normal",
+                        color: isCurrentItem ? "#000" : "#555",
+                      }}>
+                        {isCurrentItem ? "▸ " : ""}{item.description}
+                      </td>
+                      <td style={{
+                        textAlign: "right",
+                        padding: "1mm 0",
+                        fontWeight: isCurrentItem ? "bold" : "normal",
+                        color: isCurrentItem ? "#000" : "#555",
+                      }}>
+                        {item.qty}
+                      </td>
+                      <td style={{
+                        padding: "1mm 0 1mm 2mm",
+                        color: isCurrentItem ? "#000" : "#555",
+                      }}>
+                        {item.uom}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
           {/* Running Number */}
