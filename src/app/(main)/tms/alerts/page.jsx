@@ -63,7 +63,7 @@ export default function AlertsPage() {
 
       {/* Summary */}
       <div className="flex gap-4">
-        <Card shadow="sm" className="flex-1">
+        <Card shadow="none" className="border border-default-200 flex-1">
           <CardBody className="p-4 flex-row items-center gap-3">
             <AlertTriangle size={24} className="text-danger" />
             <div>
@@ -72,7 +72,7 @@ export default function AlertsPage() {
             </div>
           </CardBody>
         </Card>
-        <Card shadow="sm" className="flex-1">
+        <Card shadow="none" className="border border-default-200 flex-1">
           <CardBody className="p-4 flex-row items-center gap-3">
             <AlertCircle size={24} className="text-warning" />
             <div>
@@ -81,7 +81,7 @@ export default function AlertsPage() {
             </div>
           </CardBody>
         </Card>
-        <Card shadow="sm" className="flex-1">
+        <Card shadow="none" className="border border-default-200 flex-1">
           <CardBody className="p-4 flex-row items-center gap-3">
             <div>
               <p className="text-2xl font-bold">{alertCount}</p>
@@ -114,7 +114,7 @@ export default function AlertsPage() {
           {alerts.map((alert, i) => {
             const Icon = TYPE_ICONS[alert.type] || AlertCircle;
             return (
-              <Card key={i} shadow="sm">
+              <Card key={i} shadow="none" className="border border-default-200">
                 <CardBody className="p-4 flex-row items-start gap-4">
                   <div className={`mt-1 ${alert.severity === "critical" ? "text-danger" : "text-warning"}`}>
                     {alert.severity === "critical" ? (

@@ -56,7 +56,7 @@ function GrowthBadge({ value }) {
 
 function KpiCard({ title, value, sub, icon: Icon, color, growth }) {
   return (
-    <Card shadow="sm">
+    <Card shadow="none" className="border border-default-200">
       <CardBody className="p-5 gap-1">
         <div className="flex items-center justify-between">
           <p className="text-xs text-default-500 uppercase tracking-wide">{title}</p>
@@ -76,7 +76,7 @@ function KpiCard({ title, value, sub, icon: Icon, color, growth }) {
 
 function PeriodCard({ title, revenue, orders, icon: Icon, color, growth, prevLabel }) {
   return (
-    <Card shadow="sm">
+    <Card shadow="none" className="border border-default-200">
       <CardBody className="p-5 gap-1">
         <div className="flex items-center justify-between">
           <p className="text-xs text-default-500 uppercase tracking-wide">{title}</p>
@@ -195,7 +195,7 @@ export default function MarketingAnalyticsPage() {
 
       {/* ROW 4: Main Charts — Revenue Tabs + Status/Fulfillment/Location Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="sm" className="lg:col-span-2">
+        <Card shadow="none" className="border border-default-200 lg:col-span-2">
           <CardBody className="p-5">
             <Tabs variant="underlined" size="sm" classNames={{ tabList: "mb-3" }}>
               <Tab key="trend" title="Revenue Trend">
@@ -214,7 +214,7 @@ export default function MarketingAnalyticsPage() {
           </CardBody>
         </Card>
 
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <Tabs variant="underlined" size="sm" classNames={{ tabList: "mb-3" }}>
               <Tab key="status" title="สถานะ">
@@ -243,13 +243,13 @@ export default function MarketingAnalyticsPage() {
 
       {/* ROW 5: Analytical Insights — Order Value Dist + Monthly Comparison */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">การกระจายมูลค่าออเดอร์</p>
             <OrderValueDistChart data={stats.orderValueDist} />
           </CardBody>
         </Card>
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">เปรียบเทียบรายเดือน</p>
             <MonthlyComparisonTable data={stats.monthlyComparison} />
@@ -259,7 +259,7 @@ export default function MarketingAnalyticsPage() {
 
       {/* ROW 6: Customer Segmentation — Channel / Group / Type */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">ช่องทางลูกค้า</p>
@@ -268,13 +268,13 @@ export default function MarketingAnalyticsPage() {
             <ChannelDistChart data={stats.customerSegmentation?.byChannel} />
           </CardBody>
         </Card>
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">กลุ่มลูกค้า</p>
             <CustomerGroupChart data={stats.customerSegmentation?.byGroup} />
           </CardBody>
         </Card>
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ประเภทงาน</p>
             <ProjectTypeChart data={stats.customerSegmentation?.byType} />
@@ -284,13 +284,13 @@ export default function MarketingAnalyticsPage() {
 
       {/* ROW 7: Customer & Product Intelligence */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">Customer Insights</p>
             <CustomerInsightsCard data={stats.customerInsights} />
           </CardBody>
         </Card>
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Top 10 ลูกค้า</p>
@@ -299,7 +299,7 @@ export default function MarketingAnalyticsPage() {
             <TopCustomersChart data={stats.topCustomers} />
           </CardBody>
         </Card>
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Top 10 SKU</p>

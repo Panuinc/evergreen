@@ -39,7 +39,7 @@ export default function TmsDashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map((card) => (
-          <Card key={card.title} shadow="sm">
+          <Card key={card.title} shadow="none" className="border border-default-200">
             <CardBody className="p-5 gap-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-default-500">{card.title}</p>
@@ -53,31 +53,31 @@ export default function TmsDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">Shipment Status Distribution</p>
             <ShipmentStatusChart data={stats.shipmentStatusDistribution} />
           </CardBody>
         </Card>
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">Monthly Shipments (Last 6 Months)</p>
             <MonthlyShipmentChart data={stats.monthlyShipmentTrend} />
           </CardBody>
         </Card>
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">Fuel Cost Trend</p>
             <FuelCostChart data={stats.fuelCostTrend} />
           </CardBody>
         </Card>
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">Vehicle Utilization (30 Days)</p>
             <VehicleUtilizationChart data={stats.vehicleUtilization} />
           </CardBody>
         </Card>
-        <Card shadow="sm" className="lg:col-span-2">
+        <Card shadow="none" className="border border-default-200 lg:col-span-2">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">Maintenance Cost Summary</p>
             <MaintenanceCostChart data={stats.maintenanceCostTrend} />

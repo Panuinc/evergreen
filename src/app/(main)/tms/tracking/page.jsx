@@ -95,10 +95,10 @@ export default function GpsTrackingPage() {
             return (
               <Card
                 key={vehicle.vehicleId}
-                shadow="sm"
+                shadow="none"
                 isPressable
                 onPress={() => setSelectedVehicleId(vehicle.vehicleId)}
-                className={isSelected ? "border-2 border-primary" : ""}
+                className={isSelected ? "border-2 border-primary" : "border border-default-200"}
               >
                 <CardBody className="p-3 gap-2">
                   <div className="flex items-center justify-between">

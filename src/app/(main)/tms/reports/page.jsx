@@ -154,7 +154,7 @@ export default function ReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card shadow="sm">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="p-4">
             <p className="text-xs text-default-500">Total Records</p>
             <p className="text-xl font-bold">{summary.total}</p>
@@ -162,19 +162,19 @@ export default function ReportsPage() {
         </Card>
         {activeTab === "fuelLogs" && (
           <>
-            <Card shadow="sm">
+            <Card shadow="none" className="border border-default-200">
               <CardBody className="p-4">
                 <p className="text-xs text-default-500">Total Liters</p>
                 <p className="text-xl font-bold">{Number(summary.totalLiters).toLocaleString()}</p>
               </CardBody>
             </Card>
-            <Card shadow="sm">
+            <Card shadow="none" className="border border-default-200">
               <CardBody className="p-4">
                 <p className="text-xs text-default-500">Total Cost</p>
                 <p className="text-xl font-bold">฿{Number(summary.totalCost).toLocaleString()}</p>
               </CardBody>
             </Card>
-            <Card shadow="sm">
+            <Card shadow="none" className="border border-default-200">
               <CardBody className="p-4">
                 <p className="text-xs text-default-500">Avg Cost/Liter</p>
                 <p className="text-xl font-bold">฿{summary.avgCostPerLiter}</p>
@@ -183,7 +183,7 @@ export default function ReportsPage() {
           </>
         )}
         {activeTab === "maintenances" && (
-          <Card shadow="sm">
+          <Card shadow="none" className="border border-default-200">
             <CardBody className="p-4">
               <p className="text-xs text-default-500">Total Cost</p>
               <p className="text-xl font-bold">฿{Number(summary.totalCost).toLocaleString()}</p>
@@ -192,7 +192,7 @@ export default function ReportsPage() {
         )}
         {(activeTab === "shipments" || activeTab === "vehicles") && summary.byStatus && (
           Object.entries(summary.byStatus).map(([status, count]) => (
-            <Card key={status} shadow="sm">
+            <Card key={status} shadow="none" className="border border-default-200">
               <CardBody className="p-4">
                 <p className="text-xs text-default-500 capitalize">{status.replace(/_/g, " ")}</p>
                 <p className="text-xl font-bold">{count}</p>

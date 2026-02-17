@@ -347,9 +347,9 @@ export default function DataTable({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sortedItems.map((item) => (
+            {sortedItems.map((item, idx) => (
               <Card
-                key={item[rowKey]}
+                key={item[rowKey] ?? `card-${idx}`}
                 variant="bordered"
                 radius="md"
                 shadow="none"
@@ -420,7 +420,7 @@ export default function DataTable({
         loadingContent={<Spinner />}
       >
         {(item) => (
-          <TableRow key={item[rowKey]}>
+          <TableRow key={item[rowKey] ?? `row-${sortedItems.indexOf(item)}`}>
             {(columnKey) => (
               <TableCell>
                 {columnKey === "_no"
