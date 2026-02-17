@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardBody, Chip, Spinner, Divider } from "@heroui/react";
+import { Card, CardBody, Chip, Spinner, Divider, useDisclosure } from "@heroui/react";
 import { Button } from "@heroui/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import { getMarketingAnalytics } from "@/actions/marketing";
 import DataTable from "@/components/ui/DataTable";
+import ShippingLabelModal from "@/components/marketing/ShippingLabelModal";
 
 const STATUS_COLORS = {
   Open: "warning",
@@ -28,7 +29,9 @@ export default function SalesOrderDetailPage() {
   const { no } = useParams();
   const router = useRouter();
   const [order, setOrder] = useState(null);
+  const [customerPhone, setCustomerPhone] = useState("");
   const [loading, setLoading] = useState(true);
+  const labelModal = useDisclosure();
 
   useEffect(() => {
     loadOrder();
@@ -40,6 +43,9 @@ export default function SalesOrderDetailPage() {
       const data = await getMarketingAnalytics();
       const found = data.orders?.find((o) => o.No === decodeURIComponent(no));
       setOrder(found || null);
+      if (found && data.customerPhones) {
+        setCustomerPhone(data.customerPhones[found.Sell_to_Customer_No] || "");
+      }
     } finally {
       setLoading(false);
     }
@@ -104,6 +110,16 @@ export default function SalesOrderDetailPage() {
         ) : (
           <Chip size="sm" variant="flat" color="default">รอจัดส่ง</Chip>
         )}
+        <div className="flex-1" />
+        <Button
+          variant="bordered"
+          size="sm"
+          radius="md"
+          startContent={<Printer size={14} />}
+          onPress={labelModal.onOpen}
+        >
+          พิมพ์ใบปะหน้า
+        </Button>
       </div>
 
       {/* Order Info */}
@@ -192,6 +208,13 @@ export default function SalesOrderDetailPage() {
           </span>
         </div>
       </div>
+
+      <ShippingLabelModal
+        isOpen={labelModal.isOpen}
+        onClose={labelModal.onClose}
+        order={order}
+        customerPhone={customerPhone}
+      />
     </div>
   );
 }

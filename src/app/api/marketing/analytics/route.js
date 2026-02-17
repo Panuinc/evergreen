@@ -11,7 +11,7 @@ export async function GET() {
         $filter: "Salesperson_Code eq 'ONLINE' and startswith(No,'SO26')",
         $orderby: "Order_Date desc",
         $select:
-          "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Order_Date,Due_Date,Status,Completely_Shipped,External_Document_No,Salesperson_Code",
+          "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,External_Document_No,Salesperson_Code",
       }),
       bcODataGet("Sales_Order_Line_Excel", {
         $filter: "startswith(Document_No,'SO26')",
@@ -28,7 +28,7 @@ export async function GET() {
     try {
       customers = await bcODataGet("CustomerList", {
         $filter: "Salesperson_Code eq 'ONLINE'",
-        $select: "No,Name,Contact",
+        $select: "No,Name,Contact,Phone_No",
       });
       console.log(`[Marketing Analytics] Customers loaded: ${customers.length}`);
     } catch (e) {
@@ -303,6 +303,7 @@ export async function GET() {
       customerByNo[c.No] = {
         name: c.Name,
         code,
+        phone: c.Phone_No || "",
         channel: normalize(parts[0], CHANNEL_NORMALIZE),
         group: normalize(parts[1], GROUP_NORMALIZE),
         type: normalize(parts[2], TYPE_NORMALIZE),
@@ -370,8 +371,15 @@ export async function GET() {
       channelGroupCross: Object.values(channelGroupMap).sort((a, b) => b.revenue - a.revenue),
     };
 
+    // Build a simple phone lookup for order detail page
+    const customerPhones = {};
+    for (const [no, c] of Object.entries(customerByNo)) {
+      if (c.phone) customerPhones[no] = c.phone;
+    }
+
     return Response.json({
       orders: ordersWithLines,
+      customerPhones,
       stats: {
         totalOrders,
         totalRevenue,
