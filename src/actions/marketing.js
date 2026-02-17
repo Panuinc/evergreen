@@ -42,3 +42,9 @@ export async function getAiSettings() {
 export async function updateAiSettings(data) {
   return put("/api/marketing/omnichannel/ai/settings", data);
 }
+
+// ==================== Analytics ====================
+
+export async function getMarketingAnalytics() {
+  return get("/api/marketing/analytics");
+}

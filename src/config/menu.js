@@ -137,7 +137,7 @@ export const menuData = [
       //{ name: "Social Media", icon: Globe },
       //{ name: "Email Marketing", icon: Mail },
      // { name: "Events", icon: Calendar },
-      { name: "Analytics", icon: BarChart3 },
+      { name: "Analytics", icon: BarChart3, href: "/marketing/analytics" },
       //{ name: "Content", icon: FileText },
     ],
   },
