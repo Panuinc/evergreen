@@ -2,23 +2,17 @@
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
-function formatMonth(monthStr) {
-  const [year, month] = monthStr.split("-");
-  const date = new Date(parseInt(year), parseInt(month) - 1);
-  return date.toLocaleDateString("th-TH", { month: "short", year: "2-digit" });
-}
-
 function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function MonthlySalesChart({ data = [] }) {
+export default function DailyTrendChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูลเดือนนี้</p>;
   }
 
   const chartData = data.map((d) => ({
-    month: formatMonth(d.month),
+    date: d.date.slice(8, 10),
     revenue: d.revenue,
     orders: d.orders,
   }));
@@ -27,15 +21,16 @@ export default function MonthlySalesChart({ data = [] }) {
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-        <XAxis dataKey="month" fontSize={12} />
-        <YAxis fontSize={12} tickFormatter={(v) => `฿${(v / 1000).toFixed(0)}k`} />
+        <XAxis dataKey="date" fontSize={11} />
+        <YAxis fontSize={11} tickFormatter={(v) => `฿${(v / 1000).toFixed(0)}k`} />
         <Tooltip
           formatter={(value, name) => [
             name === "revenue" ? formatCurrency(value) : `${value} รายการ`,
             name === "revenue" ? "ยอดขาย" : "ออเดอร์",
           ]}
+          labelFormatter={(label) => `วันที่ ${label}`}
         />
-        <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="revenue" fill="#10b981" radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

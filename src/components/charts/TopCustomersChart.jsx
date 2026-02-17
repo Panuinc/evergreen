@@ -13,23 +13,23 @@ export default function TopCustomersChart({ data = [] }) {
 
   const chartData = data.map((d) => ({
     name: d.name.length > 25 ? d.name.slice(0, 25) + "..." : d.name,
-    amount: d.amount,
-    count: d.count,
+    revenue: d.revenue,
+    orders: d.orders,
   }));
 
   return (
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
         <XAxis type="number" fontSize={12} tickFormatter={(v) => `฿${(v / 1000).toFixed(0)}k`} />
         <YAxis type="category" dataKey="name" fontSize={11} width={160} />
         <Tooltip
           formatter={(value, name) => [
-            formatCurrency(value),
-            name === "amount" ? "ยอดขาย" : "จำนวน",
+            name === "revenue" ? formatCurrency(value) : `${value} ออเดอร์`,
+            name === "revenue" ? "ยอดขาย" : "จำนวน",
           ]}
         />
-        <Bar dataKey="amount" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+        <Bar dataKey="revenue" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

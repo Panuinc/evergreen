@@ -11,13 +11,12 @@ export default function TopSkuChart({ data = [] }) {
     return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>;
   }
 
-  // Use amount if available, otherwise fall back to quantity
-  const hasAmount = data.some((d) => d.amount > 0);
-  const dataKey = hasAmount ? "amount" : "quantity";
+  const hasRevenue = data.some((d) => d.revenue > 0);
+  const dataKey = hasRevenue ? "revenue" : "quantity";
 
   const chartData = data.map((d) => ({
     name: (d.description || d.sku || "").length > 25 ? (d.description || d.sku).slice(0, 25) + "..." : (d.description || d.sku),
-    amount: d.amount,
+    revenue: d.revenue,
     quantity: d.quantity,
   }));
 
@@ -28,13 +27,13 @@ export default function TopSkuChart({ data = [] }) {
         <XAxis
           type="number"
           fontSize={12}
-          tickFormatter={hasAmount ? (v) => `฿${(v / 1000).toFixed(0)}k` : undefined}
+          tickFormatter={hasRevenue ? (v) => `฿${(v / 1000).toFixed(0)}k` : undefined}
         />
         <YAxis type="category" dataKey="name" fontSize={11} width={160} />
         <Tooltip
           formatter={(value, name) => [
-            name === "amount" ? formatCurrency(value) : `${value} ชิ้น`,
-            name === "amount" ? "ยอดขาย" : "จำนวน",
+            name === "revenue" ? formatCurrency(value) : `${value} ชิ้น`,
+            name === "revenue" ? "ยอดขาย" : "จำนวน",
           ]}
         />
         <Bar dataKey={dataKey} fill="#f59e0b" radius={[0, 4, 4, 0]} />

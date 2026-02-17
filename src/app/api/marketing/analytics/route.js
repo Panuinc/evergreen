@@ -6,7 +6,6 @@ export async function GET() {
   if (auth.error) return auth.error;
 
   try {
-    // Fetch orders and lines in parallel
     const [orders, allLines] = await Promise.all([
       bcODataGet("Sales_Order_Excel", {
         $filter: "Salesperson_Code eq 'ONLINE' and startswith(No,'SO26')",
@@ -21,10 +20,7 @@ export async function GET() {
       }),
     ]);
 
-    // Build set of order numbers for filtering lines
     const orderNos = new Set(orders.map((o) => o.No));
-
-    // Filter lines to only include those belonging to our orders
     const lines = allLines.filter((l) => orderNos.has(l.Document_No));
 
     // Group lines by Document_No
@@ -34,74 +30,118 @@ export async function GET() {
       linesByOrder[line.Document_No].push(line);
     }
 
-    // Attach lines to orders + calc order totals
+    // Attach lines + calc totals
     const ordersWithLines = orders.map((order) => {
-      const orderLines = linesByOrder[order.No] || [];
-      const totalAmount = orderLines.reduce((sum, l) => sum + (l.Line_Amount || 0), 0);
-      const totalQty = orderLines.reduce((sum, l) => sum + (l.Quantity || 0), 0);
-      const shippedQty = orderLines.reduce((sum, l) => sum + (l.Quantity_Shipped || 0), 0);
-      return { ...order, lines: orderLines, totalAmount, totalQty, shippedQty };
+      const ol = linesByOrder[order.No] || [];
+      const totalAmount = ol.reduce((s, l) => s + (l.Line_Amount || 0), 0);
+      const totalQty = ol.reduce((s, l) => s + (l.Quantity || 0), 0);
+      const shippedQty = ol.reduce((s, l) => s + (l.Quantity_Shipped || 0), 0);
+      return { ...order, lines: ol, totalAmount, totalQty, shippedQty };
     });
 
-    // KPI stats
-    const totalOrders = ordersWithLines.length;
-    const totalRevenue = ordersWithLines.reduce((sum, o) => sum + o.totalAmount, 0);
-    const shippedOrders = ordersWithLines.filter((o) => o.Completely_Shipped).length;
-    const pendingOrders = totalOrders - shippedOrders;
+    // === Date helpers ===
+    const now = new Date();
+    const today = now.toISOString().slice(0, 10);
+    const currentMonth = today.slice(0, 7);
+    const currentYear = today.slice(0, 4);
 
-    // Monthly sales (group by YYYY-MM)
-    const monthlyMap = {};
-    for (const order of ordersWithLines) {
-      const month = order.Order_Date?.slice(0, 7); // "2026-02"
-      if (!month) continue;
-      if (!monthlyMap[month]) monthlyMap[month] = { month, amount: 0, count: 0 };
-      monthlyMap[month].amount += order.totalAmount;
-      monthlyMap[month].count += 1;
-    }
-    const monthlySales = Object.values(monthlyMap).sort((a, b) => a.month.localeCompare(b.month));
+    // Previous month
+    const pm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevMonth = `${pm.getFullYear()}-${String(pm.getMonth() + 1).padStart(2, "0")}`;
+    const prevYear = String(now.getFullYear() - 1);
 
-    // Top 10 customers by revenue
-    const customerMap = {};
-    for (const order of ordersWithLines) {
-      const name = order.Sell_to_Customer_Name || "Unknown";
-      if (!customerMap[name]) customerMap[name] = { name, amount: 0, count: 0 };
-      customerMap[name].amount += order.totalAmount;
-      customerMap[name].count += 1;
-    }
-    const topCustomers = Object.values(customerMap)
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 10);
-
-    // Top 10 SKU by revenue (fallback to quantity if no amount)
-    const skuMap = {};
-    for (const line of lines) {
-      const key = line.No?.trim() || line.Description?.trim();
-      if (!key) continue;
-      if (!line.Quantity && !line.Line_Amount) continue;
-      if (!skuMap[key]) skuMap[key] = { sku: key, description: line.Description || key, quantity: 0, amount: 0 };
-      skuMap[key].quantity += line.Quantity || 0;
-      skuMap[key].amount += line.Line_Amount || 0;
-    }
-    const topSkus = Object.values(skuMap)
-      .sort((a, b) => (b.amount || b.quantity) - (a.amount || a.quantity))
-      .slice(0, 10);
-
-    // DTD / MTD / YTD
-    const today = new Date().toISOString().slice(0, 10); // "2026-02-17"
-    const currentMonth = today.slice(0, 7); // "2026-02"
-    const currentYear = today.slice(0, 4); // "2026"
-
+    // === KPI: DTD / MTD / YTD with comparison ===
     const dtd = { orders: 0, revenue: 0 };
     const mtd = { orders: 0, revenue: 0 };
     const ytd = { orders: 0, revenue: 0 };
+    const prevMtd = { orders: 0, revenue: 0 };
+    const prevYtd = { orders: 0, revenue: 0 };
 
-    for (const order of ordersWithLines) {
-      const d = order.Order_Date;
+    for (const o of ordersWithLines) {
+      const d = o.Order_Date;
       if (!d) continue;
-      if (d === today) { dtd.orders++; dtd.revenue += order.totalAmount; }
-      if (d.startsWith(currentMonth)) { mtd.orders++; mtd.revenue += order.totalAmount; }
-      if (d.startsWith(currentYear)) { ytd.orders++; ytd.revenue += order.totalAmount; }
+      if (d === today) { dtd.orders++; dtd.revenue += o.totalAmount; }
+      if (d.startsWith(currentMonth)) { mtd.orders++; mtd.revenue += o.totalAmount; }
+      if (d.startsWith(currentYear)) { ytd.orders++; ytd.revenue += o.totalAmount; }
+      if (d.startsWith(prevMonth)) { prevMtd.orders++; prevMtd.revenue += o.totalAmount; }
+      if (d.startsWith(prevYear)) { prevYtd.orders++; prevYtd.revenue += o.totalAmount; }
     }
+
+    // Growth %
+    const mtdGrowth = prevMtd.revenue ? ((mtd.revenue - prevMtd.revenue) / prevMtd.revenue) * 100 : null;
+    const ytdGrowth = prevYtd.revenue ? ((ytd.revenue - prevYtd.revenue) / prevYtd.revenue) * 100 : null;
+
+    // === Overall KPIs ===
+    const totalOrders = ordersWithLines.length;
+    const totalRevenue = ordersWithLines.reduce((s, o) => s + o.totalAmount, 0);
+    const shippedOrders = ordersWithLines.filter((o) => o.Completely_Shipped).length;
+    const pendingOrders = totalOrders - shippedOrders;
+    const avgOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
+
+    // === Order Status distribution ===
+    const statusMap = {};
+    for (const o of ordersWithLines) {
+      const st = o.Status || "Unknown";
+      if (!statusMap[st]) statusMap[st] = { status: st, count: 0, revenue: 0 };
+      statusMap[st].count++;
+      statusMap[st].revenue += o.totalAmount;
+    }
+    const orderStatusDist = Object.values(statusMap);
+
+    // Ship status
+    const shipStatusDist = [
+      { status: "จัดส่งแล้ว", count: shippedOrders },
+      { status: "รอจัดส่ง", count: pendingOrders },
+    ];
+
+    // === Monthly revenue trend ===
+    const monthlyMap = {};
+    for (const o of ordersWithLines) {
+      const m = o.Order_Date?.slice(0, 7);
+      if (!m) continue;
+      if (!monthlyMap[m]) monthlyMap[m] = { month: m, revenue: 0, orders: 0 };
+      monthlyMap[m].revenue += o.totalAmount;
+      monthlyMap[m].orders++;
+    }
+    const monthlyTrend = Object.values(monthlyMap).sort((a, b) => a.month.localeCompare(b.month));
+
+    // === Daily trend (current month) ===
+    const dailyMap = {};
+    for (const o of ordersWithLines) {
+      const d = o.Order_Date;
+      if (!d || !d.startsWith(currentMonth)) continue;
+      if (!dailyMap[d]) dailyMap[d] = { date: d, revenue: 0, orders: 0 };
+      dailyMap[d].revenue += o.totalAmount;
+      dailyMap[d].orders++;
+    }
+    const dailyTrend = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+
+    // === Top 10 customers ===
+    const custMap = {};
+    for (const o of ordersWithLines) {
+      const n = o.Sell_to_Customer_Name || "Unknown";
+      if (!custMap[n]) custMap[n] = { name: n, revenue: 0, orders: 0, avgValue: 0 };
+      custMap[n].revenue += o.totalAmount;
+      custMap[n].orders++;
+    }
+    const topCustomers = Object.values(custMap)
+      .map((c) => ({ ...c, avgValue: c.orders ? c.revenue / c.orders : 0 }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+
+    // === Top 10 SKU ===
+    const skuMap = {};
+    for (const l of lines) {
+      const key = l.No?.trim() || l.Description?.trim();
+      if (!key) continue;
+      if (!l.Quantity && !l.Line_Amount) continue;
+      if (!skuMap[key]) skuMap[key] = { sku: key, description: l.Description || key, quantity: 0, revenue: 0 };
+      skuMap[key].quantity += l.Quantity || 0;
+      skuMap[key].revenue += l.Line_Amount || 0;
+    }
+    const topSkus = Object.values(skuMap)
+      .sort((a, b) => (b.revenue || b.quantity) - (a.revenue || a.quantity))
+      .slice(0, 10);
 
     return Response.json({
       orders: ordersWithLines,
@@ -110,12 +150,20 @@ export async function GET() {
         totalRevenue,
         shippedOrders,
         pendingOrders,
-        monthlySales,
-        topCustomers,
-        topSkus,
+        avgOrderValue,
         dtd,
         mtd,
         ytd,
+        prevMtd,
+        prevYtd,
+        mtdGrowth,
+        ytdGrowth,
+        monthlyTrend,
+        dailyTrend,
+        orderStatusDist,
+        shipStatusDist,
+        topCustomers,
+        topSkus,
       },
     });
   } catch (error) {
