@@ -12,15 +12,25 @@ import {
   TrendingUp,
   TrendingDown,
   BarChart3,
+  CalendarCheck,
 } from "lucide-react";
 import { Button } from "@heroui/react";
 import { useMarketingAnalytics } from "@/hooks/useMarketingAnalytics";
 import RevenueTrendChart from "@/components/charts/RevenueTrendChart";
 import MonthlySalesChart from "@/components/charts/MonthlySalesChart";
 import DailyTrendChart from "@/components/charts/DailyTrendChart";
+import RevenueByDayChart from "@/components/charts/RevenueByDayChart";
 import TopCustomersChart from "@/components/charts/TopCustomersChart";
 import TopSkuChart from "@/components/charts/TopSkuChart";
 import OrderStatusChart from "@/components/charts/OrderStatusChart";
+import FulfillmentChart from "@/components/charts/FulfillmentChart";
+import LocationDistChart from "@/components/charts/LocationDistChart";
+import OrderValueDistChart from "@/components/charts/OrderValueDistChart";
+import MonthlyComparisonTable from "@/components/charts/MonthlyComparisonTable";
+import CustomerInsightsCard from "@/components/charts/CustomerInsightsCard";
+import ChannelDistChart from "@/components/charts/ChannelDistChart";
+import CustomerGroupChart from "@/components/charts/CustomerGroupChart";
+import ProjectTypeChart from "@/components/charts/ProjectTypeChart";
 
 function formatCurrency(value) {
   return `฿${Number(value || 0).toLocaleString("th-TH")}`;
@@ -113,14 +123,23 @@ export default function MarketingAnalyticsPage() {
         </Button>
       </div>
 
-      {/* Period KPIs: DTD / MTD / YTD */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* ROW 2: Period KPIs — DTD / WTD / MTD / YTD */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <PeriodCard
           title="วันนี้ (DTD)"
           revenue={stats.dtd?.revenue}
           orders={stats.dtd?.orders || 0}
           icon={CalendarDays}
           color="text-primary"
+        />
+        <PeriodCard
+          title="สัปดาห์นี้ (WTD)"
+          revenue={stats.wtd?.revenue}
+          orders={stats.wtd?.orders || 0}
+          icon={CalendarCheck}
+          color="text-secondary"
+          growth={stats.wowGrowth}
+          prevLabel="vs สัปดาห์ก่อน"
         />
         <PeriodCard
           title="เดือนนี้ (MTD)"
@@ -142,7 +161,7 @@ export default function MarketingAnalyticsPage() {
         />
       </div>
 
-      {/* Summary KPIs */}
+      {/* ROW 3: Summary KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
           title="ออเดอร์ทั้งหมด"
@@ -174,7 +193,7 @@ export default function MarketingAnalyticsPage() {
         />
       </div>
 
-      {/* Charts — Tabbed Revenue View + Order Status */}
+      {/* ROW 4: Main Charts — Revenue Tabs + Status/Fulfillment/Location Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card shadow="sm" className="lg:col-span-2">
           <CardBody className="p-5">
@@ -185,8 +204,11 @@ export default function MarketingAnalyticsPage() {
               <Tab key="monthly" title="รายเดือน">
                 <MonthlySalesChart data={stats.monthlyTrend} />
               </Tab>
-              <Tab key="daily" title="รายวัน (เดือนนี้)">
+              <Tab key="daily" title="รายวัน">
                 <DailyTrendChart data={stats.dailyTrend} />
+              </Tab>
+              <Tab key="dow" title="ตามวัน">
+                <RevenueByDayChart data={stats.revenueByDayOfWeek} />
               </Tab>
             </Tabs>
           </CardBody>
@@ -194,24 +216,80 @@ export default function MarketingAnalyticsPage() {
 
         <Card shadow="sm">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">สถานะออเดอร์</p>
-            <OrderStatusChart data={stats.orderStatusDist} />
-            <div className="flex justify-center gap-6 mt-2">
-              <div className="text-center">
-                <p className="text-lg font-bold text-success">{stats.shippedOrders}</p>
-                <p className="text-xs text-default-400">จัดส่งแล้ว</p>
-              </div>
-              <div className="text-center">
-                <p className="text-lg font-bold text-warning">{stats.pendingOrders}</p>
-                <p className="text-xs text-default-400">รอจัดส่ง</p>
-              </div>
-            </div>
+            <Tabs variant="underlined" size="sm" classNames={{ tabList: "mb-3" }}>
+              <Tab key="status" title="สถานะ">
+                <OrderStatusChart data={stats.orderStatusDist} />
+                <div className="flex justify-center gap-6 mt-2">
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-success">{stats.shippedOrders}</p>
+                    <p className="text-xs text-default-400">จัดส่งแล้ว</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-warning">{stats.pendingOrders}</p>
+                    <p className="text-xs text-default-400">รอจัดส่ง</p>
+                  </div>
+                </div>
+              </Tab>
+              <Tab key="fulfillment" title="Fulfillment">
+                <FulfillmentChart data={stats.fulfillmentMetrics} />
+              </Tab>
+              <Tab key="location" title="คลังสินค้า">
+                <LocationDistChart data={stats.locationDist} />
+              </Tab>
+            </Tabs>
           </CardBody>
         </Card>
       </div>
 
-      {/* Charts Row 2 — Top Customers + Top SKU */}
+      {/* ROW 5: Analytical Insights — Order Value Dist + Monthly Comparison */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card shadow="sm">
+          <CardBody className="p-5">
+            <p className="text-sm font-semibold mb-3">การกระจายมูลค่าออเดอร์</p>
+            <OrderValueDistChart data={stats.orderValueDist} />
+          </CardBody>
+        </Card>
+        <Card shadow="sm">
+          <CardBody className="p-5">
+            <p className="text-sm font-semibold mb-3">เปรียบเทียบรายเดือน</p>
+            <MonthlyComparisonTable data={stats.monthlyComparison} />
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* ROW 6: Customer Segmentation — Channel / Group / Type */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card shadow="sm">
+          <CardBody className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold">ช่องทางลูกค้า</p>
+              <Chip size="sm" variant="flat">{stats.customerSegmentation?.totalCustomers || 0} ราย</Chip>
+            </div>
+            <ChannelDistChart data={stats.customerSegmentation?.byChannel} />
+          </CardBody>
+        </Card>
+        <Card shadow="sm">
+          <CardBody className="p-5">
+            <p className="text-sm font-semibold mb-3">กลุ่มลูกค้า</p>
+            <CustomerGroupChart data={stats.customerSegmentation?.byGroup} />
+          </CardBody>
+        </Card>
+        <Card shadow="sm">
+          <CardBody className="p-5">
+            <p className="text-sm font-semibold mb-3">ประเภทงาน</p>
+            <ProjectTypeChart data={stats.customerSegmentation?.byType} />
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* ROW 7: Customer & Product Intelligence */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card shadow="sm">
+          <CardBody className="p-5">
+            <p className="text-sm font-semibold mb-3">Customer Insights</p>
+            <CustomerInsightsCard data={stats.customerInsights} />
+          </CardBody>
+        </Card>
         <Card shadow="sm">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
@@ -231,7 +309,6 @@ export default function MarketingAnalyticsPage() {
           </CardBody>
         </Card>
       </div>
-
     </div>
   );
 }
