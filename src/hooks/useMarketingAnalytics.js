@@ -13,10 +13,10 @@ export function useMarketingAnalytics() {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (refresh = false) => {
     try {
       setLoading(true);
-      const data = await getMarketingAnalytics();
+      const data = await getMarketingAnalytics(refresh);
       setOrders(data.orders || []);
       setStats(data.stats || null);
     } catch (error) {
@@ -27,5 +27,5 @@ export function useMarketingAnalytics() {
     }
   };
 
-  return { orders, stats, loading, reload: loadData };
+  return { orders, stats, loading, reload: () => loadData(true) };
 }

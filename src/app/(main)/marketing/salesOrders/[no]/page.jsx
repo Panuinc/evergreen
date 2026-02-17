@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Card, CardBody, Chip, Spinner, Divider, useDisclosure } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { ArrowLeft, Printer } from "lucide-react";
-import { getMarketingAnalytics } from "@/actions/marketing";
+import { getSalesOrder } from "@/actions/marketing";
 import DataTable from "@/components/ui/DataTable";
 import ShippingLabelModal from "@/components/marketing/ShippingLabelModal";
 
@@ -40,12 +40,9 @@ export default function SalesOrderDetailPage() {
   const loadOrder = async () => {
     try {
       setLoading(true);
-      const data = await getMarketingAnalytics();
-      const found = data.orders?.find((o) => o.No === decodeURIComponent(no));
-      setOrder(found || null);
-      if (found && data.customerPhones) {
-        setCustomerPhone(data.customerPhones[found.Sell_to_Customer_No] || "");
-      }
+      const data = await getSalesOrder(decodeURIComponent(no));
+      setOrder(data.order || null);
+      setCustomerPhone(data.customerPhone || "");
     } finally {
       setLoading(false);
     }

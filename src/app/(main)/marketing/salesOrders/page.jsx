@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Chip, Spinner } from "@heroui/react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@heroui/react";
-import { useMarketingAnalytics } from "@/hooks/useMarketingAnalytics";
+import { getSalesOrders } from "@/actions/marketing";
 import DataTable from "@/components/ui/DataTable";
 
 const STATUS_COLORS = {
@@ -25,8 +25,23 @@ const ORDER_COLUMNS = [
 const INITIAL_VISIBLE = ["No", "Sell_to_Customer_Name", "Order_Date", "Status", "totalAmount", "shipStatus"];
 
 export default function MarketingSalesOrdersPage() {
-  const { orders, loading, reload } = useMarketingAnalytics();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const data = await getSalesOrders();
+      setOrders(data.orders || []);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
@@ -70,7 +85,7 @@ export default function MarketingSalesOrdersPage() {
     }
   }, [router]);
 
-  const tableData = useMemo(() => orders, [orders]);
+  const tableData = orders;
 
   if (loading) {
     return (
@@ -87,7 +102,7 @@ export default function MarketingSalesOrdersPage() {
           <h2 className="text-lg font-semibold">Sales Orders</h2>
           <p className="text-xs text-default-400">Online Channel — Business Central</p>
         </div>
-        <Button variant="bordered" size="sm" radius="md" startContent={<RefreshCw size={14} />} onPress={reload}>
+        <Button variant="bordered" size="sm" radius="md" startContent={<RefreshCw size={14} />} onPress={loadOrders}>
           รีเฟรช
         </Button>
       </div>

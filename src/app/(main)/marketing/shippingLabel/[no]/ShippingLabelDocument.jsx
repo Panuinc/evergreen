@@ -120,18 +120,18 @@ export default function ShippingLabelDocument({ orderNo }) {
           {/* Sender Section */}
           <div
             style={{
-              borderBottom: "2px solid #000",
-              paddingBottom: "3mm",
-              marginBottom: "3mm",
+              borderBottom: "1.5px solid #000",
+              paddingBottom: "2mm",
+              marginBottom: "2mm",
             }}
           >
-            <div style={{ fontSize: "11pt", fontWeight: "bold" }}>
+            <div style={{ fontSize: "8pt", fontWeight: "bold" }}>
               {SENDER.name}
             </div>
-            <div style={{ fontSize: "8pt", color: "#666" }}>
+            <div style={{ fontSize: "6pt", color: "#666" }}>
               {SENDER.nameEn}
             </div>
-            <div style={{ fontSize: "9pt", marginTop: "1mm", color: "#333" }}>
+            <div style={{ fontSize: "7pt", marginTop: "0.5mm", color: "#333" }}>
               ผู้ส่ง: {SENDER.address}
             </div>
           </div>
@@ -142,20 +142,20 @@ export default function ShippingLabelDocument({ orderNo }) {
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              gap: "2mm",
+              gap: "1mm",
             }}
           >
-            <div style={{ fontSize: "9pt", color: "#666", fontWeight: "bold" }}>
+            <div style={{ fontSize: "7pt", color: "#666", fontWeight: "bold" }}>
               ผู้รับ
             </div>
-            <div style={{ fontSize: "14pt", fontWeight: "bold" }}>
+            <div style={{ fontSize: "11pt", fontWeight: "bold" }}>
               {data.recipient.name}
             </div>
-            <div style={{ fontSize: "10pt", lineHeight: "1.4", whiteSpace: "pre-wrap" }}>
+            <div style={{ fontSize: "8pt", lineHeight: "1.3", whiteSpace: "pre-wrap" }}>
               {data.recipient.address}
             </div>
             {data.recipient.phone && (
-              <div style={{ fontSize: "11pt", fontWeight: "bold" }}>
+              <div style={{ fontSize: "9pt", fontWeight: "bold" }}>
                 โทร: {data.recipient.phone}
               </div>
             )}
@@ -165,28 +165,28 @@ export default function ShippingLabelDocument({ orderNo }) {
           <div
             style={{
               borderTop: "1px dashed #999",
-              paddingTop: "2mm",
-              marginTop: "2mm",
+              paddingTop: "1.5mm",
+              marginTop: "1mm",
             }}
           >
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: "9pt",
+                fontSize: "7pt",
                 color: "#333",
-                marginBottom: "2mm",
+                marginBottom: "1mm",
               }}
             >
               <span>Order: {data.orderNo}</span>
               {data.externalDocNo && <span>Ref: {data.externalDocNo}</span>}
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8pt" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "6.5pt" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #999" }}>
-                  <th style={{ textAlign: "left", padding: "1mm 0", fontWeight: "600" }}>รายการ</th>
-                  <th style={{ textAlign: "right", padding: "1mm 0", fontWeight: "600", width: "15mm" }}>จำนวน</th>
-                  <th style={{ textAlign: "left", padding: "1mm 0 1mm 2mm", fontWeight: "600", width: "15mm" }}>หน่วย</th>
+                  <th style={{ textAlign: "left", padding: "0.5mm 0", fontWeight: "600" }}>รายการ</th>
+                  <th style={{ textAlign: "right", padding: "0.5mm 0", fontWeight: "600", width: "12mm" }}>จำนวน</th>
+                  <th style={{ textAlign: "left", padding: "0.5mm 0 0.5mm 1mm", fontWeight: "600", width: "12mm" }}>หน่วย</th>
                 </tr>
               </thead>
               <tbody>
@@ -195,7 +195,7 @@ export default function ShippingLabelDocument({ orderNo }) {
                   return (
                     <tr key={i} style={{ borderBottom: "1px dotted #ddd" }}>
                       <td style={{
-                        padding: "1mm 0",
+                        padding: "0.5mm 0",
                         fontWeight: isCurrentItem ? "bold" : "normal",
                         color: isCurrentItem ? "#000" : "#555",
                       }}>
@@ -203,14 +203,14 @@ export default function ShippingLabelDocument({ orderNo }) {
                       </td>
                       <td style={{
                         textAlign: "right",
-                        padding: "1mm 0",
+                        padding: "0.5mm 0",
                         fontWeight: isCurrentItem ? "bold" : "normal",
                         color: isCurrentItem ? "#000" : "#555",
                       }}>
                         {item.qty}
                       </td>
                       <td style={{
-                        padding: "1mm 0 1mm 2mm",
+                        padding: "0.5mm 0 0.5mm 1mm",
                         color: isCurrentItem ? "#000" : "#555",
                       }}>
                         {item.uom}
@@ -225,13 +225,13 @@ export default function ShippingLabelDocument({ orderNo }) {
           {/* Running Number */}
           <div
             style={{
-              borderTop: "2px solid #000",
-              marginTop: "3mm",
-              paddingTop: "3mm",
+              borderTop: "1.5px solid #000",
+              marginTop: "2mm",
+              paddingTop: "2mm",
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: "20pt", fontWeight: "bold", letterSpacing: "2px" }}>
+            <div style={{ fontSize: "16pt", fontWeight: "bold", letterSpacing: "2px" }}>
               {label.runningNo} / {label.total}
             </div>
           </div>

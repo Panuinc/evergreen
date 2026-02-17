@@ -1,9 +1,19 @@
 import { withAuth } from "@/app/api/_lib/auth";
 import { bcODataGet } from "@/lib/bcClient";
 
-export async function GET() {
+// In-memory cache (5 min TTL)
+let cache = { data: null, ts: 0 };
+const CACHE_TTL = 5 * 60 * 1000;
+
+export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
+
+  // Return cached data if fresh (skip if ?refresh=1)
+  const refresh = new URL(request.url).searchParams.get("refresh");
+  if (!refresh && cache.data && Date.now() - cache.ts < CACHE_TTL) {
+    return Response.json(cache.data);
+  }
 
   try {
     const [orders, allLines] = await Promise.all([
@@ -377,7 +387,7 @@ export async function GET() {
       if (c.phone) customerPhones[no] = c.phone;
     }
 
-    return Response.json({
+    const result = {
       orders: ordersWithLines,
       customerPhones,
       stats: {
@@ -410,7 +420,9 @@ export async function GET() {
         locationDist,
         customerSegmentation,
       },
-    });
+    };
+    cache = { data: result, ts: Date.now() };
+    return Response.json(result);
   } catch (error) {
     console.error("[Marketing Analytics] Error:", error.message);
     return Response.json({ error: error.message }, { status: 500 });
