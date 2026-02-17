@@ -85,17 +85,38 @@ export async function POST(request) {
 
     if (qError) throw qError;
 
-    // Create quotation lines
+    // Create quotation lines with price lookup
     if (orderData.items?.length > 0) {
-      const lines = orderData.items.map((item, i) => ({
-        lineQuotationId: quotation.quotationId,
-        lineOrder: i + 1,
-        lineProductName: item.productName || "สินค้า",
-        lineVariant: item.variant || null,
-        lineQuantity: item.quantity || 1,
-        lineUnitPrice: 0,
-        lineAmount: 0,
-      }));
+      // Fetch price list for auto-pricing
+      const { data: priceList } = await supabase
+        .from("omPriceList")
+        .select("priceItemName, priceUnitPrice");
+
+      const lines = orderData.items.map((item, i) => {
+        // Try to match product name with price list
+        let unitPrice = 0;
+        const itemName = (item.productName || "").toLowerCase();
+        if (priceList?.length && itemName) {
+          const match = priceList.find(
+            (p) => p.priceItemName && p.priceItemName.toLowerCase().includes(itemName) ||
+              itemName.includes((p.priceItemName || "").toLowerCase())
+          );
+          if (match && Number(match.priceUnitPrice) > 0) {
+            unitPrice = Number(match.priceUnitPrice);
+          }
+        }
+
+        const qty = item.quantity || 1;
+        return {
+          lineQuotationId: quotation.quotationId,
+          lineOrder: i + 1,
+          lineProductName: item.productName || "สินค้า",
+          lineVariant: item.variant || null,
+          lineQuantity: qty,
+          lineUnitPrice: unitPrice,
+          lineAmount: qty * unitPrice,
+        };
+      });
 
       await supabase.from("omQuotationLines").insert(lines);
     }

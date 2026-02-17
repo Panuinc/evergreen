@@ -1,4 +1,5 @@
 import { bcGet } from "@/lib/bcClient";
+import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -6,9 +7,23 @@ async function fetchProductCatalog() {
   try {
     const filter =
       "blocked eq false and generalProductPostingGroupCode eq 'FG' and startswith(number,'FG-00003')";
-    const rows = await bcGet("/items", { $filter: filter });
-    return rows.map((i) => ({
+
+    // Fetch BC items and price list in parallel
+    const supabase = getServiceSupabase();
+    const [bcItems, priceResult] = await Promise.all([
+      bcGet("/items", { $filter: filter }),
+      supabase.from("omPriceList").select("priceItemNumber, priceUnitPrice"),
+    ]);
+
+    // Build price lookup map
+    const priceMap = {};
+    for (const p of priceResult.data || []) {
+      priceMap[p.priceItemNumber] = Number(p.priceUnitPrice) || 0;
+    }
+
+    return bcItems.map((i) => ({
       name: i.displayName,
+      price: priceMap[i.number] || 0,
     }));
   } catch (err) {
     console.error("[AI] Failed to fetch products:", err.message);
@@ -19,12 +34,17 @@ async function fetchProductCatalog() {
 function buildSystemPrompt(basePrompt, products) {
   let prompt = basePrompt;
   if (products.length > 0) {
-    prompt += `\n\n## สินค้าที่มีจำหน่าย\nใช้ข้อมูลนี้ในการตอบคำถามเกี่ยวกับสินค้า ห้ามบอกราคา ห้ามบอกจำนวนสต๊อก ห้ามบอกว่า 0 บาท:\n`;
+    prompt += `\n\n## สินค้าที่มีจำหน่าย\nใช้ข้อมูลนี้ในการตอบคำถามเกี่ยวกับสินค้าและราคา ห้ามบอกจำนวนสต๊อก:\n`;
     for (const p of products) {
-      prompt += `- ${p.name}\n`;
+      if (p.price > 0) {
+        prompt += `- ${p.name} ราคา ${p.price.toLocaleString("th-TH")} บาท\n`;
+      } else {
+        prompt += `- ${p.name} (ยังไม่ระบุราคา)\n`;
+      }
     }
     prompt += `\nถ้าลูกค้าถามสินค้าที่ไม่อยู่ในรายการ ให้บอกว่าสินค้ารุ่นนี้ไม่มีจำหน่ายในขณะนี้
-ถ้าลูกค้าถามราคา ให้บอกว่ากรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามราคา
+ถ้าลูกค้าถามราคาสินค้าที่มีราคาอยู่แล้ว ให้บอกราคาตามข้อมูลข้างต้นได้เลย
+ถ้าลูกค้าถามราคาสินค้าที่ยังไม่ระบุราคา ให้บอกว่ากรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามราคา
 
 ## ขั้นตอนการปิดการขาย
 เมื่อลูกค้าต้องการสั่งซื้อสินค้า ให้ถามข้อมูลต่อไปนี้ทีละข้อ (ถ้ายังไม่มีข้อมูล):
