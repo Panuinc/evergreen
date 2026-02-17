@@ -15,7 +15,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { ArrowLeft, ExternalLink, Send, Check, X, Banknote } from "lucide-react";
+import { ArrowLeft, ExternalLink, Send, Check, X, Banknote, Receipt } from "lucide-react";
 import { useQuotationEditor } from "@/hooks/useQuotationEditor";
 import DataTable from "@/components/ui/DataTable";
 
@@ -270,6 +270,60 @@ export default function QuotationEditorPage() {
           onValueChange={(v) => setQuotation((q) => ({ ...q, quotationNotes: v }))}
           isReadOnly={!canEdit}
         />
+
+        {/* Payment Slip */}
+        {quotation.paymentSlip?.messageImageUrl && (
+          <div className="p-4 bg-default-50 rounded-lg border border-default-200">
+            <p className="font-semibold mb-3 flex items-center gap-2">
+              <Receipt size={16} />
+              หลักฐานการชำระเงิน
+            </p>
+            <div className="flex gap-4">
+              <a href={quotation.paymentSlip.messageImageUrl} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={quotation.paymentSlip.messageImageUrl}
+                  alt="สลิปการโอนเงิน"
+                  className="rounded-lg border border-default-200 cursor-pointer hover:opacity-90 transition-opacity"
+                  style={{ maxHeight: 300, maxWidth: 220 }}
+                />
+              </a>
+              {quotation.paymentSlip.messageOcrData && (
+                <div className="text-sm space-y-2 flex-1">
+                  {quotation.paymentSlip.messageOcrData.amount && (
+                    <div className="flex justify-between max-w-xs">
+                      <span className="text-default-400">ยอดเงิน</span>
+                      <span className="font-semibold">{Number(quotation.paymentSlip.messageOcrData.amount).toLocaleString()} บาท</span>
+                    </div>
+                  )}
+                  {quotation.paymentSlip.messageOcrData.fromBank && (
+                    <div className="flex justify-between max-w-xs">
+                      <span className="text-default-400">ธนาคารผู้โอน</span>
+                      <span>{quotation.paymentSlip.messageOcrData.fromBank}</span>
+                    </div>
+                  )}
+                  {quotation.paymentSlip.messageOcrData.toBank && (
+                    <div className="flex justify-between max-w-xs">
+                      <span className="text-default-400">ธนาคารผู้รับ</span>
+                      <span>{quotation.paymentSlip.messageOcrData.toBank}</span>
+                    </div>
+                  )}
+                  {quotation.paymentSlip.messageOcrData.datetime && (
+                    <div className="flex justify-between max-w-xs">
+                      <span className="text-default-400">วันเวลา</span>
+                      <span>{quotation.paymentSlip.messageOcrData.datetime}</span>
+                    </div>
+                  )}
+                  {quotation.paymentSlip.messageOcrData.reference && (
+                    <div className="flex justify-between max-w-xs">
+                      <span className="text-default-400">เลขอ้างอิง</span>
+                      <span>{quotation.paymentSlip.messageOcrData.reference}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Approval Info */}
         {quotation.quotationApprovalNote && (

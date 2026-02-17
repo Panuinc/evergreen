@@ -31,7 +31,25 @@ export async function GET(request, { params }) {
     .eq("lineQuotationId", id)
     .order("lineOrder", { ascending: true });
 
-  return Response.json({ ...quotation, lines: lines || [] });
+  // Fetch payment slip from conversation (latest image with OCR data)
+  let paymentSlip = null;
+  if (quotation.quotationConversationId && ["approved", "paid"].includes(quotation.quotationStatus)) {
+    const { data: slipMsg } = await auth.supabase
+      .from("omMessages")
+      .select("messageImageUrl, messageOcrData, messageCreatedAt")
+      .eq("messageConversationId", quotation.quotationConversationId)
+      .eq("messageType", "image")
+      .not("messageImageUrl", "is", null)
+      .order("messageCreatedAt", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (slipMsg?.messageImageUrl) {
+      paymentSlip = slipMsg;
+    }
+  }
+
+  return Response.json({ ...quotation, lines: lines || [], paymentSlip });
 }
 
 export async function PUT(request, { params }) {
@@ -160,6 +178,20 @@ export async function PATCH(request, { params }) {
       }
     } catch (err) {
       console.error("[Quotation] Failed to send link:", err.message);
+    }
+  }
+
+  // On confirm payment: send confirmation message to customer
+  if (action === "confirm_payment") {
+    try {
+      const serviceSupabase = getServiceSupabase();
+      await sendAiMessage(
+        serviceSupabase,
+        quotation.quotationConversationId,
+        `ได้รับการชำระเงินเรียบร้อยแล้วค่ะ ขอบคุณที่ใช้บริการค่ะ 🙏`
+      );
+    } catch (err) {
+      console.error("[Quotation] Failed to send payment confirmation:", err.message);
     }
   }
 
