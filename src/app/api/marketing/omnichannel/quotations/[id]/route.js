@@ -6,6 +6,7 @@ const VALID_TRANSITIONS = {
   submit: { from: ["draft", "rejected"], to: "pending_approval" },
   approve: { from: ["pending_approval"], to: "approved" },
   reject: { from: ["pending_approval"], to: "rejected" },
+  confirm_payment: { from: ["approved"], to: "paid" },
 };
 
 export async function GET(request, { params }) {
@@ -129,17 +130,34 @@ export async function PATCH(request, { params }) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 
-  // On approve: send quotation link to customer
+  // On approve: send quotation link + bank account info to customer
   if (action === "approve") {
     try {
       const serviceSupabase = getServiceSupabase();
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const quotationUrl = `${baseUrl}/quotation/${id}`;
+
+      // Send quotation link
       await sendAiMessage(
         serviceSupabase,
         quotation.quotationConversationId,
         `ใบเสนอราคาของท่าน: ${quotationUrl}`
       );
+
+      // Send bank account info if configured
+      const { data: aiSettings } = await serviceSupabase
+        .from("omAiSettings")
+        .select("aiBankAccountInfo")
+        .limit(1)
+        .single();
+
+      if (aiSettings?.aiBankAccountInfo) {
+        await sendAiMessage(
+          serviceSupabase,
+          quotation.quotationConversationId,
+          `รายละเอียดการชำระเงิน:\n${aiSettings.aiBankAccountInfo}\n\nเมื่อชำระเงินแล้ว กรุณาส่งหลักฐานการโอนเงินมาทางแชทนี้ค่ะ`
+        );
+      }
     } catch (err) {
       console.error("[Quotation] Failed to send link:", err.message);
     }

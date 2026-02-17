@@ -25,6 +25,7 @@ export async function PUT(request) {
   if (body.aiModel !== undefined) updateData.aiModel = body.aiModel;
   if (body.aiTemperature !== undefined) updateData.aiTemperature = body.aiTemperature;
   if (body.aiMaxHistoryMessages !== undefined) updateData.aiMaxHistoryMessages = body.aiMaxHistoryMessages;
+  if (body.aiBankAccountInfo !== undefined) updateData.aiBankAccountInfo = body.aiBankAccountInfo;
 
   const { data: existing } = await auth.supabase
     .from("omAiSettings")

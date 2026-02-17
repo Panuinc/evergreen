@@ -83,11 +83,13 @@ export function useQuotationEditor(id) {
         });
       }
       await quotationAction(id, action, note);
-      toast.success(
-        action === "submit" ? "ส่งอนุมัติเรียบร้อย" :
-        action === "approve" ? "อนุมัติเรียบร้อย ส่งลิงก์ให้ลูกค้าแล้ว" :
-        "ส่งกลับแก้ไข"
-      );
+      const messages = {
+        submit: "ส่งอนุมัติเรียบร้อย",
+        approve: "อนุมัติเรียบร้อย ส่งลิงก์และข้อมูลชำระเงินให้ลูกค้าแล้ว",
+        reject: "ส่งกลับแก้ไข",
+        confirm_payment: "ยืนยันชำระเงินเรียบร้อย",
+      };
+      toast.success(messages[action] || "ดำเนินการเรียบร้อย");
       await loadQuotation();
     } catch (err) {
       toast.error(err.message);

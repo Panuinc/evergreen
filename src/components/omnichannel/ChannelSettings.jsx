@@ -28,6 +28,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
   // AI Settings
   const [aiSystemPrompt, setAiSystemPrompt] = useState("");
   const [aiMaxHistory, setAiMaxHistory] = useState("20");
+  const [aiBankAccountInfo, setAiBankAccountInfo] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -61,6 +62,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
       if (data) {
         setAiSystemPrompt(data.aiSystemPrompt || "");
         setAiMaxHistory(String(data.aiMaxHistoryMessages || 20));
+        setAiBankAccountInfo(data.aiBankAccountInfo || "");
       }
     } catch {
       // AI settings table may not exist yet
@@ -99,6 +101,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
         await updateAiSettings({
           aiSystemPrompt,
           aiMaxHistoryMessages: parseInt(aiMaxHistory) || 20,
+          aiBankAccountInfo,
         });
       } catch {
         // AI settings table may not exist yet
@@ -201,6 +204,18 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 type="number"
                 value={aiMaxHistory}
                 onValueChange={setAiMaxHistory}
+              />
+              <Textarea
+                label="ข้อมูลบัญชีธนาคาร"
+                labelPlacement="outside"
+                placeholder={"ธนาคารกสิกรไทย\nชื่อบัญชี: บริษัท xxx จำกัด\nเลขบัญชี: 123-4-56789-0"}
+                description="ส่งให้ลูกค้าหลังอนุมัติใบเสนอราคา"
+                variant="bordered"
+                size="md"
+                radius="md"
+                minRows={3}
+                value={aiBankAccountInfo}
+                onValueChange={setAiBankAccountInfo}
               />
             </div>
           </div>

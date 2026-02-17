@@ -15,7 +15,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { ArrowLeft, ExternalLink, Send, Check, X } from "lucide-react";
+import { ArrowLeft, ExternalLink, Send, Check, X, Banknote } from "lucide-react";
 import { useQuotationEditor } from "@/hooks/useQuotationEditor";
 import DataTable from "@/components/ui/DataTable";
 
@@ -24,6 +24,7 @@ const STATUS_MAP = {
   pending_approval: { label: "รออนุมัติ", color: "warning" },
   approved: { label: "อนุมัติแล้ว", color: "success" },
   rejected: { label: "ไม่อนุมัติ", color: "danger" },
+  paid: { label: "ชำระแล้ว", color: "primary" },
 };
 
 export default function QuotationEditorPage() {
@@ -68,6 +69,7 @@ export default function QuotationEditorPage() {
   const canEdit = ["draft", "rejected"].includes(quotation.quotationStatus);
   const canSubmit = canEdit;
   const canApprove = quotation.quotationStatus === "pending_approval";
+  const canConfirmPayment = quotation.quotationStatus === "approved";
 
   const lineColumns = [
     { name: "สินค้า", uid: "lineProductName" },
@@ -234,16 +236,6 @@ export default function QuotationEditorPage() {
             isReadOnly={!canEdit}
             className="col-span-2"
           />
-          <Input
-            label="ช่องทางชำระเงิน"
-            labelPlacement="outside"
-            variant="bordered"
-            radius="md"
-            size="md"
-            value={quotation.quotationPaymentMethod || ""}
-            onValueChange={(v) => setQuotation((q) => ({ ...q, quotationPaymentMethod: v }))}
-            isReadOnly={!canEdit}
-          />
         </div>
 
         {/* Lines */}
@@ -324,6 +316,18 @@ export default function QuotationEditorPage() {
                 อนุมัติ
               </Button>
             </>
+          )}
+          {canConfirmPayment && (
+            <Button
+              color="primary"
+              size="md"
+              radius="md"
+              startContent={<Banknote size={14} />}
+              onPress={() => handleAction("confirm_payment")}
+              isLoading={saving}
+            >
+              ยืนยันชำระเงิน
+            </Button>
           )}
         </div>
       </div>

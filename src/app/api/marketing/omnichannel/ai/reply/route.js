@@ -59,6 +59,14 @@ export async function POST(request) {
       triggerQuotationCreation(conversationId);
     }
 
+    // Turn off auto-reply when payment slip received (staff takes over)
+    if (replyContent.includes("ได้รับหลักฐานการชำระเงิน")) {
+      await supabase
+        .from("omConversations")
+        .update({ conversationAiAutoReply: false })
+        .eq("conversationId", conversationId);
+    }
+
     return Response.json({ status: "sent", messageId: message.messageId });
   } catch (error) {
     console.error("[AI Reply] Error:", error.message);

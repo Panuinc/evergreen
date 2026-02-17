@@ -11,6 +11,7 @@ const STATUS_MAP = {
   pending_approval: { label: "รออนุมัติ", color: "warning" },
   approved: { label: "อนุมัติแล้ว", color: "success" },
   rejected: { label: "ไม่อนุมัติ", color: "danger" },
+  paid: { label: "ชำระแล้ว", color: "primary" },
 };
 
 const columns = [
@@ -95,6 +96,7 @@ export default function QuotationListPage() {
         <Tab key="draft" title="ร่าง" />
         <Tab key="pending_approval" title="รออนุมัติ" />
         <Tab key="approved" title="อนุมัติแล้ว" />
+        <Tab key="paid" title="ชำระแล้ว" />
         <Tab key="rejected" title="ไม่อนุมัติ" />
       </Tabs>
 
