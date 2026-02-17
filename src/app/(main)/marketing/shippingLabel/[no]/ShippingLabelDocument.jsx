@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const SENDER = {
   name: "บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด",
@@ -8,24 +8,18 @@ const SENDER = {
   address: "EVERGREEN by CHH",
 };
 
-function readAndClear(orderNo) {
-  const key = `shipping-label-${orderNo}`;
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw) {
-      localStorage.removeItem(key);
-      return JSON.parse(raw);
-    }
-  } catch {}
-  return null;
-}
-
 export default function ShippingLabelDocument({ orderNo }) {
-  const [data] = useState(() => readAndClear(orderNo));
+  const key = `shipping-label-${orderNo}`;
+  const raw = localStorage.getItem(key);
+  const data = raw ? JSON.parse(raw) : null;
+  const printed = useRef(false);
 
   useEffect(() => {
-    if (data) setTimeout(() => window.print(), 500);
-  }, [data]);
+    if (data && !printed.current) {
+      printed.current = true;
+      setTimeout(() => window.print(), 500);
+    }
+  });
 
   if (!data) {
     return (
