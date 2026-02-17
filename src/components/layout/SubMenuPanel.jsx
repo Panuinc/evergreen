@@ -23,7 +23,15 @@ export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }
           const Icon = subMenu.icon;
           const href = subMenu.href || "#";
           const isSubActive =
-            subMenu.href && pathname.startsWith(subMenu.href);
+            subMenu.href &&
+            pathname.startsWith(subMenu.href) &&
+            !activeMenu.subMenus.some(
+              (other) =>
+                other.href &&
+                other.href !== subMenu.href &&
+                other.href.startsWith(subMenu.href) &&
+                pathname.startsWith(other.href)
+            );
           const badgeCount = subMenu.badgeKey ? badges[subMenu.badgeKey] : 0;
           return (
             <Link
