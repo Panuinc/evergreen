@@ -1,26 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Button,
-  Input,
-  Spinner,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "@heroui/react";
+import { useState, useCallback, useMemo } from "react";
+import { Button, Input } from "@heroui/react";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { useStockItems } from "@/hooks/useStockItems";
 import { saveStockItemPrices } from "@/actions/omnichannel";
+import DataTable from "@/components/ui/DataTable";
+
+const columns = [
+  { name: "รหัสสินค้า", uid: "number", sortable: true },
+  { name: "ชื่อสินค้า", uid: "displayName", sortable: true },
+  { name: "Stock", uid: "inventory", sortable: true },
+  { name: "ราคา BC", uid: "unitPrice", sortable: true },
+  { name: "ราคาขาย", uid: "customPrice", sortable: true },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "number",
+  "displayName",
+  "inventory",
+  "unitPrice",
+  "customPrice",
+];
 
 export default function StockItemsPage() {
   const { items, loading, prices, updatePrice } = useStockItems();
   const [saving, setSaving] = useState(false);
-  const [search, setSearch] = useState("");
 
   const handleSaveAll = async () => {
     try {
@@ -47,102 +53,96 @@ export default function StockItemsPage() {
     }
   };
 
-  const filtered = items.filter((item) => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return (
-      item.number?.toLowerCase().includes(s) ||
-      item.displayName?.toLowerCase().includes(s)
-    );
-  });
+  const tableData = useMemo(
+    () =>
+      items.map((item) => ({
+        ...item,
+        customPrice: prices[item.number] != null ? prices[item.number] : "",
+      })),
+    [items, prices]
+  );
+
+  const renderCell = useCallback(
+    (item, columnKey) => {
+      switch (columnKey) {
+        case "displayName":
+          return <span className="font-medium">{item.displayName}</span>;
+        case "inventory":
+          return (
+            <span
+              className={`block text-right ${
+                Number(item.inventory) > 0 ? "text-success" : "text-danger"
+              }`}
+            >
+              {item.inventory != null
+                ? Number(item.inventory).toLocaleString("th-TH")
+                : "-"}
+            </span>
+          );
+        case "unitPrice":
+          return (
+            <span className="block text-right text-default-400">
+              {item.unitPrice != null
+                ? Number(item.unitPrice).toLocaleString("th-TH", {
+                    minimumFractionDigits: 2,
+                  })
+                : "-"}
+            </span>
+          );
+        case "customPrice":
+          return (
+            <Input
+              variant="bordered"
+              radius="md"
+              size="sm"
+              type="number"
+              placeholder="0.00"
+              classNames={{ input: "text-right" }}
+              value={
+                prices[item.number] != null
+                  ? String(prices[item.number])
+                  : ""
+              }
+              onValueChange={(v) => updatePrice(item.number, v)}
+            />
+          );
+        default:
+          return item[columnKey] || "-";
+      }
+    },
+    [prices, updatePrice]
+  );
+
+  const saveButton = (
+    <Button
+      color="primary"
+      size="md"
+      radius="md"
+      startContent={<Save size={14} />}
+      onPress={handleSaveAll}
+      isLoading={saving}
+    >
+      บันทึกทั้งหมด
+    </Button>
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Price List</h2>
-        <Button
-          color="primary"
-          size="md"
-          radius="md"
-          startContent={<Save size={14} />}
-          onPress={handleSaveAll}
-          isLoading={saving}
-        >
-          บันทึกทั้งหมด
-        </Button>
-      </div>
+      <h2 className="text-lg font-semibold">Price List</h2>
 
-      <Input
-        placeholder="ค้นหาด้วยรหัส, ชื่อสินค้า..."
-        variant="bordered"
-        radius="md"
-        size="md"
-        value={search}
-        onValueChange={setSearch}
-        className="max-w-md"
+      <DataTable
+        columns={columns}
+        data={tableData}
+        renderCell={renderCell}
+        rowKey="number"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="ค้นหาด้วยรหัส, ชื่อสินค้า..."
+        searchKeys={["number", "displayName"]}
+        topEndContent={saveButton}
+        defaultRowsPerPage={20}
+        emptyContent="ไม่พบสินค้า"
       />
-
-      {loading ? (
-        <div className="flex items-center justify-center flex-1">
-          <Spinner />
-        </div>
-      ) : (
-        <Table aria-label="Price List" classNames={{ tr: "border-b border-default" }}>
-          <TableHeader>
-            <TableColumn>รหัสสินค้า</TableColumn>
-            <TableColumn>ชื่อสินค้า</TableColumn>
-            <TableColumn width={120} className="text-right">Stock</TableColumn>
-            <TableColumn width={160} className="text-right">ราคา BC</TableColumn>
-            <TableColumn width={180}>ราคาขาย</TableColumn>
-          </TableHeader>
-          <TableBody emptyContent="ไม่พบสินค้า">
-            {filtered.map((item) => (
-              <TableRow key={item.number}>
-                <TableCell>{item.number}</TableCell>
-                <TableCell>
-                  <span className="font-medium">{item.displayName}</span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`block text-right ${
-                      Number(item.inventory) > 0 ? "text-success" : "text-danger"
-                    }`}
-                  >
-                    {item.inventory != null
-                      ? Number(item.inventory).toLocaleString("th-TH")
-                      : "-"}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="block text-right text-default-400">
-                    {item.unitPrice != null
-                      ? Number(item.unitPrice).toLocaleString("th-TH", {
-                          minimumFractionDigits: 2,
-                        })
-                      : "-"}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <Input
-                    variant="bordered"
-                    radius="md"
-                    size="sm"
-                    type="number"
-                    placeholder="0.00"
-                    classNames={{ input: "text-right" }}
-                    value={
-                      prices[item.number] != null
-                        ? String(prices[item.number])
-                        : ""
-                    }
-                    onValueChange={(v) => updatePrice(item.number, v)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
     </div>
   );
 }

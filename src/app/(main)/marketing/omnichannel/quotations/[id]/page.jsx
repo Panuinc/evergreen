@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
@@ -17,6 +17,7 @@ import {
 } from "@heroui/react";
 import { ArrowLeft, ExternalLink, Send, Check, X } from "lucide-react";
 import { useQuotationEditor } from "@/hooks/useQuotationEditor";
+import DataTable from "@/components/ui/DataTable";
 
 const STATUS_MAP = {
   draft: { label: "ร่าง", color: "default" },
@@ -67,6 +68,94 @@ export default function QuotationEditorPage() {
   const canEdit = ["draft", "rejected"].includes(quotation.quotationStatus);
   const canSubmit = canEdit;
   const canApprove = quotation.quotationStatus === "pending_approval";
+
+  const lineColumns = [
+    { name: "สินค้า", uid: "lineProductName" },
+    { name: "รุ่น/สี/ขนาด", uid: "lineVariant" },
+    { name: "จำนวน", uid: "lineQuantity" },
+    { name: "ราคา/หน่วย", uid: "lineUnitPrice" },
+    { name: "รวม", uid: "lineTotal" },
+  ];
+
+  const lineData = useMemo(
+    () =>
+      lines.map((line) => ({
+        ...line,
+        lineTotal: (line.lineQuantity || 0) * (line.lineUnitPrice || 0),
+      })),
+    [lines]
+  );
+
+  const renderLineCell = useCallback(
+    (item, columnKey) => {
+      const idx = lines.findIndex((l) => l.lineId === item.lineId);
+      switch (columnKey) {
+        case "lineProductName":
+          return canEdit ? (
+            <Input
+              variant="bordered"
+              radius="md"
+              size="sm"
+              value={item.lineProductName}
+              onValueChange={(v) => updateLine(idx, "lineProductName", v)}
+            />
+          ) : (
+            item.lineProductName
+          );
+        case "lineVariant":
+          return canEdit ? (
+            <Input
+              variant="bordered"
+              radius="md"
+              size="sm"
+              value={item.lineVariant || ""}
+              onValueChange={(v) => updateLine(idx, "lineVariant", v)}
+            />
+          ) : (
+            item.lineVariant || "-"
+          );
+        case "lineQuantity":
+          return canEdit ? (
+            <Input
+              variant="bordered"
+              radius="md"
+              size="sm"
+              type="number"
+              classNames={{ input: "text-right" }}
+              value={String(item.lineQuantity)}
+              onValueChange={(v) => updateLine(idx, "lineQuantity", Number(v) || 0)}
+            />
+          ) : (
+            <span className="block text-right">{item.lineQuantity}</span>
+          );
+        case "lineUnitPrice":
+          return canEdit ? (
+            <Input
+              variant="bordered"
+              radius="md"
+              size="sm"
+              type="number"
+              classNames={{ input: "text-right" }}
+              value={String(item.lineUnitPrice)}
+              onValueChange={(v) => updateLine(idx, "lineUnitPrice", Number(v) || 0)}
+            />
+          ) : (
+            <span className="block text-right">
+              {(item.lineUnitPrice || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+            </span>
+          );
+        case "lineTotal":
+          return (
+            <span className="block text-right font-medium">
+              {item.lineTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+            </span>
+          );
+        default:
+          return item[columnKey] || "-";
+      }
+    },
+    [lines, canEdit, updateLine]
+  );
 
   return (
     <div className="flex flex-col w-full h-full overflow-auto">
@@ -160,98 +249,21 @@ export default function QuotationEditorPage() {
         {/* Lines */}
         <div>
           <p className="font-semibold mb-2">รายการสินค้า</p>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b-2 border-default">
-                <th className="text-left py-2 px-2 w-8">#</th>
-                <th className="text-left py-2 px-2">สินค้า</th>
-                <th className="text-left py-2 px-2 w-40">รุ่น/สี/ขนาด</th>
-                <th className="text-right py-2 px-2 w-24">จำนวน</th>
-                <th className="text-right py-2 px-2 w-32">ราคา/หน่วย</th>
-                <th className="text-right py-2 px-2 w-32">รวม</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lines.map((line, i) => (
-                <tr key={line.lineId} className="border-b border-default">
-                  <td className="py-2 px-2">{line.lineOrder}</td>
-                  <td className="py-2 px-2">
-                    {canEdit ? (
-                      <Input
-                        variant="bordered"
-                        radius="md"
-                        size="sm"
-                        value={line.lineProductName}
-                        onValueChange={(v) => updateLine(i, "lineProductName", v)}
-                      />
-                    ) : (
-                      line.lineProductName
-                    )}
-                  </td>
-                  <td className="py-2 px-2">
-                    {canEdit ? (
-                      <Input
-                        variant="bordered"
-                        radius="md"
-                        size="sm"
-                        value={line.lineVariant || ""}
-                        onValueChange={(v) => updateLine(i, "lineVariant", v)}
-                      />
-                    ) : (
-                      line.lineVariant || "-"
-                    )}
-                  </td>
-                  <td className="py-2 px-2">
-                    {canEdit ? (
-                      <Input
-                        variant="bordered"
-                        radius="md"
-                        size="sm"
-                        type="number"
-                        classNames={{ input: "text-right" }}
-                        value={String(line.lineQuantity)}
-                        onValueChange={(v) => updateLine(i, "lineQuantity", Number(v) || 0)}
-                      />
-                    ) : (
-                      <span className="block text-right">{line.lineQuantity}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-2">
-                    {canEdit ? (
-                      <Input
-                        variant="bordered"
-                        radius="md"
-                        size="sm"
-                        type="number"
-                        classNames={{ input: "text-right" }}
-                        value={String(line.lineUnitPrice)}
-                        onValueChange={(v) => updateLine(i, "lineUnitPrice", Number(v) || 0)}
-                      />
-                    ) : (
-                      <span className="block text-right">
-                        {(line.lineUnitPrice || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2 px-2 text-right font-medium">
-                    {((line.lineQuantity || 0) * (line.lineUnitPrice || 0)).toLocaleString("th-TH", {
-                      minimumFractionDigits: 2,
-                    })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="border-t-2 border-default">
-                <td colSpan={5} className="py-2 px-2 text-right font-semibold">
-                  รวมทั้งสิ้น
-                </td>
-                <td className="py-2 px-2 text-right font-bold">
-                  {calcTotal().toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+          <DataTable
+            columns={lineColumns}
+            data={lineData}
+            renderCell={renderLineCell}
+            rowKey="lineId"
+            initialVisibleColumns={["lineProductName", "lineVariant", "lineQuantity", "lineUnitPrice", "lineTotal"]}
+            emptyContent="ไม่มีรายการสินค้า"
+            defaultRowsPerPage={20}
+          />
+          <div className="flex justify-end mt-2 px-2">
+            <span className="font-semibold mr-4">รวมทั้งสิ้น</span>
+            <span className="font-bold">
+              {calcTotal().toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท
+            </span>
+          </div>
         </div>
 
         {/* Notes */}

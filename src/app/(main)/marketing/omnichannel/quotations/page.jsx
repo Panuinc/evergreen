@@ -1,19 +1,10 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Chip,
-  Spinner,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Tabs,
-  Tab,
-} from "@heroui/react";
+import { Chip, Tabs, Tab } from "@heroui/react";
 import { useQuotations } from "@/hooks/useQuotations";
+import DataTable from "@/components/ui/DataTable";
 
 const STATUS_MAP = {
   draft: { label: "ร่าง", color: "default" },
@@ -22,9 +13,72 @@ const STATUS_MAP = {
   rejected: { label: "ไม่อนุมัติ", color: "danger" },
 };
 
+const columns = [
+  { name: "เลขที่", uid: "quotationNumber", sortable: true },
+  { name: "ลูกค้า", uid: "customerName", sortable: true },
+  { name: "ช่องทาง", uid: "channelType", sortable: true },
+  { name: "สถานะ", uid: "quotationStatus", sortable: true },
+  { name: "วันที่สร้าง", uid: "quotationCreatedAt", sortable: true },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "quotationNumber",
+  "customerName",
+  "channelType",
+  "quotationStatus",
+  "quotationCreatedAt",
+];
+
 export default function QuotationListPage() {
   const router = useRouter();
   const { quotations, loading, statusFilter, setStatusFilter } = useQuotations();
+
+  const tableData = useMemo(
+    () =>
+      quotations.map((q) => ({
+        ...q,
+        customerName:
+          q.quotationCustomerName ||
+          q.omContacts?.contactDisplayName ||
+          "-",
+        channelType: q.omContacts?.contactChannelType || "-",
+      })),
+    [quotations]
+  );
+
+  const renderCell = useCallback((item, columnKey) => {
+    switch (columnKey) {
+      case "quotationNumber":
+        return (
+          <span
+            className="text-primary cursor-pointer"
+            onClick={() =>
+              router.push(`/marketing/omnichannel/quotations/${item.quotationId}`)
+            }
+          >
+            {item.quotationNumber}
+          </span>
+        );
+      case "channelType":
+        return (
+          <Chip size="sm" variant="flat">
+            {item.channelType}
+          </Chip>
+        );
+      case "quotationStatus": {
+        const s = STATUS_MAP[item.quotationStatus] || STATUS_MAP.draft;
+        return (
+          <Chip size="sm" variant="flat" color={s.color}>
+            {s.label}
+          </Chip>
+        );
+      }
+      case "quotationCreatedAt":
+        return new Date(item.quotationCreatedAt).toLocaleDateString("th-TH");
+      default:
+        return item[columnKey] || "-";
+    }
+  }, [router]);
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -44,52 +98,17 @@ export default function QuotationListPage() {
         <Tab key="rejected" title="ไม่อนุมัติ" />
       </Tabs>
 
-      {loading ? (
-        <div className="flex items-center justify-center flex-1">
-          <Spinner />
-        </div>
-      ) : (
-        <Table
-          aria-label="Quotations"
-          selectionMode="single"
-          onRowAction={(key) =>
-            router.push(`/marketing/omnichannel/quotations/${key}`)
-          }
-          classNames={{ tr: "cursor-pointer" }}
-        >
-          <TableHeader>
-            <TableColumn>เลขที่</TableColumn>
-            <TableColumn>ลูกค้า</TableColumn>
-            <TableColumn>ช่องทาง</TableColumn>
-            <TableColumn>สถานะ</TableColumn>
-            <TableColumn>วันที่สร้าง</TableColumn>
-          </TableHeader>
-          <TableBody emptyContent="ไม่มีใบเสนอราคา">
-            {quotations.map((q) => {
-              const s = STATUS_MAP[q.quotationStatus] || STATUS_MAP.draft;
-              return (
-                <TableRow key={q.quotationId}>
-                  <TableCell>{q.quotationNumber}</TableCell>
-                  <TableCell>{q.quotationCustomerName || q.omContacts?.contactDisplayName || "-"}</TableCell>
-                  <TableCell>
-                    <Chip size="sm" variant="flat">
-                      {q.omContacts?.contactChannelType || "-"}
-                    </Chip>
-                  </TableCell>
-                  <TableCell>
-                    <Chip size="sm" variant="flat" color={s.color}>
-                      {s.label}
-                    </Chip>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(q.quotationCreatedAt).toLocaleDateString("th-TH")}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      )}
+      <DataTable
+        columns={columns}
+        data={tableData}
+        renderCell={renderCell}
+        rowKey="quotationId"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อลูกค้า..."
+        searchKeys={["quotationNumber", "customerName"]}
+        emptyContent="ไม่มีใบเสนอราคา"
+      />
     </div>
   );
 }
