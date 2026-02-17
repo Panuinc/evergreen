@@ -1,7 +1,5 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardBody, Chip, Spinner, Tabs, Tab } from "@heroui/react";
 import {
   ShoppingCart,
@@ -23,23 +21,6 @@ import DailyTrendChart from "@/components/charts/DailyTrendChart";
 import TopCustomersChart from "@/components/charts/TopCustomersChart";
 import TopSkuChart from "@/components/charts/TopSkuChart";
 import OrderStatusChart from "@/components/charts/OrderStatusChart";
-import DataTable from "@/components/ui/DataTable";
-
-const STATUS_COLORS = {
-  Open: "warning",
-  Released: "success",
-};
-
-const ORDER_COLUMNS = [
-  { name: "เลขที่", uid: "No", sortable: true },
-  { name: "ลูกค้า", uid: "Sell_to_Customer_Name", sortable: true },
-  { name: "วันที่สั่ง", uid: "Order_Date", sortable: true },
-  { name: "สถานะ", uid: "Status", sortable: true },
-  { name: "ยอดรวม", uid: "totalAmount", sortable: true },
-  { name: "จัดส่ง", uid: "shipStatus" },
-];
-
-const INITIAL_VISIBLE = ["No", "Sell_to_Customer_Name", "Order_Date", "Status", "totalAmount", "shipStatus"];
 
 function formatCurrency(value) {
   return `฿${Number(value || 0).toLocaleString("th-TH")}`;
@@ -105,52 +86,7 @@ function PeriodCard({ title, revenue, orders, icon: Icon, color, growth, prevLab
 }
 
 export default function MarketingAnalyticsPage() {
-  const { orders, stats, loading, reload } = useMarketingAnalytics();
-  const router = useRouter();
-
-  const renderCell = useCallback((item, columnKey) => {
-    switch (columnKey) {
-      case "No":
-        return (
-          <button
-            className="text-primary underline text-left"
-            onClick={() => router.push(`/marketing/analytics/${encodeURIComponent(item.No)}`)}
-          >
-            {item.No}
-          </button>
-        );
-      case "Order_Date":
-        return item.Order_Date
-          ? new Date(item.Order_Date).toLocaleDateString("th-TH", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          : "-";
-      case "Status":
-        return (
-          <Chip size="sm" variant="flat" color={STATUS_COLORS[item.Status] || "default"}>
-            {item.Status}
-          </Chip>
-        );
-      case "totalAmount":
-        return (
-          <span className="block text-right font-medium">
-            {(item.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-          </span>
-        );
-      case "shipStatus":
-        return item.Completely_Shipped ? (
-          <Chip size="sm" variant="flat" color="success">จัดส่งแล้ว</Chip>
-        ) : (
-          <Chip size="sm" variant="flat" color="default">รอจัดส่ง</Chip>
-        );
-      default:
-        return item[columnKey] || "-";
-    }
-  }, [router]);
-
-  const tableData = useMemo(() => orders, [orders]);
+  const { stats, loading, reload } = useMarketingAnalytics();
 
   if (loading) {
     return (
@@ -296,21 +232,6 @@ export default function MarketingAnalyticsPage() {
         </Card>
       </div>
 
-      {/* Orders DataTable */}
-      <div>
-        <DataTable
-          columns={ORDER_COLUMNS}
-          data={tableData}
-          renderCell={renderCell}
-          rowKey="No"
-          initialVisibleColumns={INITIAL_VISIBLE}
-          searchPlaceholder="ค้นหาเลขที่, ชื่อลูกค้า..."
-          searchKeys={["No", "Sell_to_Customer_Name"]}
-          defaultRowsPerPage={15}
-          defaultSortDescriptor={{ column: "Order_Date", direction: "descending" }}
-          emptyContent="ไม่พบออเดอร์"
-        />
-      </div>
     </div>
   );
 }

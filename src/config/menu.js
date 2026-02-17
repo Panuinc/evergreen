@@ -131,6 +131,7 @@ export const menuData = [
     href: "/marketing/omnichannel",
     subMenus: [
       { name: "Analytics", icon: BarChart3, href: "/marketing/analytics" },
+      { name: "Sales Orders", icon: ShoppingCart, href: "/marketing/salesOrders" },
       { name: "Quotation", icon: FileText, href: "/marketing/omnichannel/quotations" },
       { name: "Price List", icon: Package, href: "/marketing/omnichannel/stockItems" },
       { name: "Omnichannel Chat", icon: MessageCircle, href: "/marketing/omnichannel" },

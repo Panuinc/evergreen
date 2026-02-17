@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardBody, Chip, Spinner, Divider } from "@heroui/react";
 import { Button } from "@heroui/react";
-import { ArrowLeft, MapPin, Phone, Mail, Calendar, FileText } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { getMarketingAnalytics } from "@/actions/marketing";
 import DataTable from "@/components/ui/DataTable";
-import { useCallback } from "react";
 
 const STATUS_COLORS = {
   Open: "warning",
@@ -76,7 +75,7 @@ export default function SalesOrderDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <p className="text-default-400">ไม่พบออเดอร์</p>
-        <Button variant="bordered" radius="md" onPress={() => router.push("/marketing/analytics")}>
+        <Button variant="bordered" radius="md" onPress={() => router.push("/marketing/salesOrders")}>
           กลับ
         </Button>
       </div>
@@ -84,7 +83,7 @@ export default function SalesOrderDetailPage() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full gap-6 overflow-auto">
+    <div className="flex flex-col w-full gap-6 pb-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button
@@ -92,7 +91,7 @@ export default function SalesOrderDetailPage() {
           variant="light"
           size="sm"
           radius="md"
-          onPress={() => router.push("/marketing/analytics")}
+          onPress={() => router.push("/marketing/salesOrders")}
         >
           <ArrowLeft size={18} />
         </Button>
