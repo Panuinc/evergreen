@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Button,
   Input,
@@ -13,41 +13,14 @@ import {
   TableCell,
 } from "@heroui/react";
 import { Save } from "lucide-react";
-import { get, post } from "@/lib/apiClient";
 import { toast } from "sonner";
+import { useStockItems } from "@/hooks/useStockItems";
+import { saveStockItemPrices } from "@/actions/omnichannel";
 
 export default function StockItemsPage() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { items, loading, prices, updatePrice } = useStockItems();
   const [saving, setSaving] = useState(false);
-  const [prices, setPrices] = useState({});
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await get("/api/marketing/omnichannel/stock-items");
-        setItems(data);
-        // Initialize prices from customPrice
-        const initial = {};
-        for (const item of data) {
-          if (item.customPrice != null) {
-            initial[item.number] = item.customPrice;
-          }
-        }
-        setPrices(initial);
-      } catch (err) {
-        toast.error(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
-
-  const updatePrice = (number, value) => {
-    setPrices((prev) => ({ ...prev, [number]: value }));
-  };
 
   const handleSaveAll = async () => {
     try {
@@ -65,7 +38,7 @@ export default function StockItemsPage() {
         return;
       }
 
-      await post("/api/marketing/omnichannel/stock-items", { items: toSave });
+      await saveStockItemPrices(toSave);
       toast.success(`บันทึกราคา ${toSave.length} รายการเรียบร้อย`);
     } catch (err) {
       toast.error(err.message);

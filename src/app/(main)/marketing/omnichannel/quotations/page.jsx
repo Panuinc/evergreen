@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Button,
   Chip,
   Spinner,
   Table,
@@ -15,7 +13,7 @@ import {
   Tabs,
   Tab,
 } from "@heroui/react";
-import { get } from "@/lib/apiClient";
+import { useQuotations } from "@/hooks/useQuotations";
 
 const STATUS_MAP = {
   draft: { label: "ร่าง", color: "default" },
@@ -26,28 +24,7 @@ const STATUS_MAP = {
 
 export default function QuotationListPage() {
   const router = useRouter();
-  const [quotations, setQuotations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState("all");
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const url =
-          statusFilter === "all"
-            ? "/api/marketing/omnichannel/quotations"
-            : `/api/marketing/omnichannel/quotations?status=${statusFilter}`;
-        const data = await get(url);
-        setQuotations(data);
-      } catch {
-        setQuotations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [statusFilter]);
+  const { quotations, loading, statusFilter, setStatusFilter } = useQuotations();
 
   return (
     <div className="flex flex-col w-full h-full gap-4">

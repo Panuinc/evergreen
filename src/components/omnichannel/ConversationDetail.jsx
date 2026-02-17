@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button, Input, Chip, Textarea } from "@heroui/react";
 import { X, Plus, Tag, StickyNote, FileText, ExternalLink } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { getQuotationsByConversation } from "@/actions/omnichannel";
 import ChannelBadge from "./ChannelBadge";
 
 export default function ConversationDetail({ conversation, onUpdateContact, onClose }) {
@@ -15,12 +15,9 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
 
   useEffect(() => {
     if (!conversation?.conversationId) return;
-    supabase
-      .from("omQuotations")
-      .select("quotationId, quotationNumber, quotationStatus, quotationCreatedAt")
-      .eq("quotationConversationId", conversation.conversationId)
-      .order("quotationCreatedAt", { ascending: false })
-      .then(({ data }) => setQuotations(data || []));
+    getQuotationsByConversation(conversation.conversationId)
+      .then((data) => setQuotations(data || []))
+      .catch(() => setQuotations([]));
   }, [conversation?.conversationId]);
 
   if (!conversation || !contact) return null;

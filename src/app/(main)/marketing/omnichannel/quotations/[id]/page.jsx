@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
@@ -16,8 +16,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { ArrowLeft, ExternalLink, Send, Check, X } from "lucide-react";
-import { get, put } from "@/lib/apiClient";
-import { toast } from "sonner";
+import { useQuotationEditor } from "@/hooks/useQuotationEditor";
 
 const STATUS_MAP = {
   draft: { label: "ร่าง", color: "default" },
@@ -29,108 +28,24 @@ const STATUS_MAP = {
 export default function QuotationEditorPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [quotation, setQuotation] = useState(null);
-  const [lines, setLines] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const {
+    quotation,
+    setQuotation,
+    lines,
+    loading,
+    saving,
+    updateLine,
+    calcTotal,
+    handleSave,
+    handleAction,
+  } = useQuotationEditor(id);
   const [rejectNote, setRejectNote] = useState("");
   const rejectModal = useDisclosure();
 
-  const loadQuotation = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await get(`/api/marketing/omnichannel/quotations/${id}`);
-      setQuotation(data);
-      setLines(data.lines || []);
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    loadQuotation();
-  }, [loadQuotation]);
-
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      await put(`/api/marketing/omnichannel/quotations/${id}`, {
-        quotationCustomerName: quotation.quotationCustomerName,
-        quotationCustomerPhone: quotation.quotationCustomerPhone,
-        quotationCustomerAddress: quotation.quotationCustomerAddress,
-        quotationPaymentMethod: quotation.quotationPaymentMethod,
-        quotationNotes: quotation.quotationNotes,
-        lines: lines.map((l) => ({
-          lineId: l.lineId,
-          lineProductName: l.lineProductName,
-          lineVariant: l.lineVariant,
-          lineQuantity: l.lineQuantity,
-          lineUnitPrice: l.lineUnitPrice,
-        })),
-      });
-      toast.success("บันทึกเรียบร้อย");
-      await loadQuotation();
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setSaving(false);
-    }
+  const onReject = async () => {
+    await handleAction("reject", rejectNote);
+    rejectModal.onClose();
   };
-
-  const handleAction = async (action, note) => {
-    try {
-      setSaving(true);
-      // Auto-save before submit
-      if (action === "submit") {
-        await put(`/api/marketing/omnichannel/quotations/${id}`, {
-          quotationCustomerName: quotation.quotationCustomerName,
-          quotationCustomerPhone: quotation.quotationCustomerPhone,
-          quotationCustomerAddress: quotation.quotationCustomerAddress,
-          quotationPaymentMethod: quotation.quotationPaymentMethod,
-          quotationNotes: quotation.quotationNotes,
-          lines: lines.map((l) => ({
-            lineId: l.lineId,
-            lineProductName: l.lineProductName,
-            lineVariant: l.lineVariant,
-            lineQuantity: l.lineQuantity,
-            lineUnitPrice: l.lineUnitPrice,
-          })),
-        });
-      }
-      await fetch(`/api/marketing/omnichannel/quotations/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, note }),
-      }).then(async (res) => {
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error);
-        }
-      });
-      toast.success(
-        action === "submit" ? "ส่งอนุมัติเรียบร้อย" :
-        action === "approve" ? "อนุมัติเรียบร้อย ส่งลิงก์ให้ลูกค้าแล้ว" :
-        "ส่งกลับแก้ไข"
-      );
-      await loadQuotation();
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setSaving(false);
-      rejectModal.onClose();
-    }
-  };
-
-  const updateLine = (index, field, value) => {
-    setLines((prev) =>
-      prev.map((l, i) => (i === index ? { ...l, [field]: value } : l))
-    );
-  };
-
-  const calcTotal = () =>
-    lines.reduce((sum, l) => sum + (l.lineQuantity || 0) * (l.lineUnitPrice || 0), 0);
 
   if (loading) {
     return (
@@ -422,7 +337,7 @@ export default function QuotationEditorPage() {
             <Button
               color="danger"
               radius="md"
-              onPress={() => handleAction("reject", rejectNote)}
+              onPress={onReject}
               isLoading={saving}
             >
               ไม่อนุมัติ

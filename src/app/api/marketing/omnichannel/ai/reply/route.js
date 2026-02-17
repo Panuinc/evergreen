@@ -68,7 +68,7 @@ export async function POST(request) {
 
 function triggerQuotationCreation(conversationId) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  fetch(`${baseUrl}/api/marketing/omnichannel/quotations/create-from-chat`, {
+  fetch(`${baseUrl}/api/marketing/omnichannel/quotations/createFromChat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
