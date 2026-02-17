@@ -72,6 +72,37 @@ export async function GET() {
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 10);
 
+    // Top 10 SKU by revenue (fallback to quantity if no amount)
+    const skuMap = {};
+    for (const line of lines) {
+      const key = line.No?.trim() || line.Description?.trim();
+      if (!key) continue;
+      if (!line.Quantity && !line.Line_Amount) continue;
+      if (!skuMap[key]) skuMap[key] = { sku: key, description: line.Description || key, quantity: 0, amount: 0 };
+      skuMap[key].quantity += line.Quantity || 0;
+      skuMap[key].amount += line.Line_Amount || 0;
+    }
+    const topSkus = Object.values(skuMap)
+      .sort((a, b) => (b.amount || b.quantity) - (a.amount || a.quantity))
+      .slice(0, 10);
+
+    // DTD / MTD / YTD
+    const today = new Date().toISOString().slice(0, 10); // "2026-02-17"
+    const currentMonth = today.slice(0, 7); // "2026-02"
+    const currentYear = today.slice(0, 4); // "2026"
+
+    const dtd = { orders: 0, revenue: 0 };
+    const mtd = { orders: 0, revenue: 0 };
+    const ytd = { orders: 0, revenue: 0 };
+
+    for (const order of ordersWithLines) {
+      const d = order.Order_Date;
+      if (!d) continue;
+      if (d === today) { dtd.orders++; dtd.revenue += order.totalAmount; }
+      if (d.startsWith(currentMonth)) { mtd.orders++; mtd.revenue += order.totalAmount; }
+      if (d.startsWith(currentYear)) { ytd.orders++; ytd.revenue += order.totalAmount; }
+    }
+
     return Response.json({
       orders: ordersWithLines,
       stats: {
@@ -81,6 +112,10 @@ export async function GET() {
         pendingOrders,
         monthlySales,
         topCustomers,
+        topSkus,
+        dtd,
+        mtd,
+        ytd,
       },
     });
   } catch (error) {

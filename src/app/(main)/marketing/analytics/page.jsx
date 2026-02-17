@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardBody, Chip, Spinner } from "@heroui/react";
-import { ShoppingCart, DollarSign, Truck, Clock, RefreshCw } from "lucide-react";
+import { ShoppingCart, DollarSign, Truck, Clock, RefreshCw, CalendarDays, CalendarRange, Calendar } from "lucide-react";
 import { Button } from "@heroui/react";
 import { useMarketingAnalytics } from "@/hooks/useMarketingAnalytics";
 import MonthlySalesChart from "@/components/charts/MonthlySalesChart";
 import TopCustomersChart from "@/components/charts/TopCustomersChart";
+import TopSkuChart from "@/components/charts/TopSkuChart";
 import DataTable from "@/components/ui/DataTable";
 
 const STATUS_COLORS = {
@@ -25,9 +27,13 @@ const ORDER_COLUMNS = [
 
 const INITIAL_VISIBLE = ["No", "Sell_to_Customer_Name", "Order_Date", "Status", "totalAmount", "shipStatus"];
 
+function formatCurrency(value) {
+  return `฿${Number(value || 0).toLocaleString("th-TH")}`;
+}
+
 export default function MarketingAnalyticsPage() {
   const { orders, stats, loading, reload } = useMarketingAnalytics();
-  const [expandedOrder, setExpandedOrder] = useState(null);
+  const router = useRouter();
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
@@ -35,7 +41,7 @@ export default function MarketingAnalyticsPage() {
         return (
           <button
             className="text-primary underline text-left"
-            onClick={() => setExpandedOrder(expandedOrder === item.No ? null : item.No)}
+            onClick={() => router.push(`/marketing/analytics/${encodeURIComponent(item.No)}`)}
           >
             {item.No}
           </button>
@@ -69,7 +75,7 @@ export default function MarketingAnalyticsPage() {
       default:
         return item[columnKey] || "-";
     }
-  }, [expandedOrder]);
+  }, [router]);
 
   const tableData = useMemo(() => orders, [orders]);
 
@@ -86,24 +92,41 @@ export default function MarketingAnalyticsPage() {
   }
 
   const kpiCards = [
-    { title: "จำนวนออเดอร์", value: stats.totalOrders, sub: "รายการ", icon: ShoppingCart, color: "text-primary" },
-    { title: "ยอดขายรวม", value: `฿${Number(stats.totalRevenue).toLocaleString("th-TH")}`, sub: "บาท", icon: DollarSign, color: "text-success" },
+    { title: "จำนวนออเดอร์", value: stats.totalOrders, sub: "รายการทั้งหมด", icon: ShoppingCart, color: "text-primary" },
+    { title: "ยอดขายรวม", value: formatCurrency(stats.totalRevenue), sub: "ทั้งหมด", icon: DollarSign, color: "text-success" },
     { title: "จัดส่งแล้ว", value: stats.shippedOrders, sub: "ออเดอร์", icon: Truck, color: "text-secondary" },
     { title: "รอจัดส่ง", value: stats.pendingOrders, sub: "ออเดอร์", icon: Clock, color: "text-warning" },
   ];
 
-  // Find expanded order's lines
-  const expandedLines = expandedOrder
-    ? orders.find((o) => o.No === expandedOrder)?.lines || []
-    : [];
+  const periodCards = [
+    { title: "วันนี้ (DTD)", value: formatCurrency(stats.dtd?.revenue), sub: `${stats.dtd?.orders || 0} ออเดอร์`, icon: CalendarDays, color: "text-primary" },
+    { title: "เดือนนี้ (MTD)", value: formatCurrency(stats.mtd?.revenue), sub: `${stats.mtd?.orders || 0} ออเดอร์`, icon: CalendarRange, color: "text-success" },
+    { title: "ปีนี้ (YTD)", value: formatCurrency(stats.ytd?.revenue), sub: `${stats.ytd?.orders || 0} ออเดอร์`, icon: Calendar, color: "text-warning" },
+  ];
 
   return (
-    <div className="flex flex-col w-full h-full gap-6 overflow-auto">
+    <div className="flex flex-col w-full gap-6 pb-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Sales Analytics (Online)</h2>
         <Button variant="bordered" size="sm" radius="md" startContent={<RefreshCw size={14} />} onPress={reload}>
           รีเฟรช
         </Button>
+      </div>
+
+      {/* DTD / MTD / YTD */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {periodCards.map((card) => (
+          <Card key={card.title} shadow="sm">
+            <CardBody className="p-5 gap-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-default-500">{card.title}</p>
+                <card.icon size={20} className={card.color} />
+              </div>
+              <p className="text-2xl font-bold">{card.value}</p>
+              <p className="text-xs text-default-400">{card.sub}</p>
+            </CardBody>
+          </Card>
+        ))}
       </div>
 
       {/* KPI Cards */}
@@ -122,7 +145,7 @@ export default function MarketingAnalyticsPage() {
         ))}
       </div>
 
-      {/* Charts */}
+      {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="sm">
           <CardBody className="p-5">
@@ -137,6 +160,14 @@ export default function MarketingAnalyticsPage() {
           </CardBody>
         </Card>
       </div>
+
+      {/* Charts Row 2 */}
+      <Card shadow="sm">
+        <CardBody className="p-5">
+          <p className="text-sm font-semibold mb-3">Top 10 SKU (ตามยอดขาย)</p>
+          <TopSkuChart data={stats.topSkus} />
+        </CardBody>
+      </Card>
 
       {/* Orders DataTable */}
       <div>
@@ -153,52 +184,6 @@ export default function MarketingAnalyticsPage() {
           emptyContent="ไม่พบออเดอร์"
         />
       </div>
-
-      {/* Expanded Lines */}
-      {expandedOrder && expandedLines.length > 0 && (
-        <Card shadow="sm" className="border border-primary-200">
-          <CardBody className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold">รายการสินค้า — {expandedOrder}</p>
-              <Button size="sm" variant="light" onPress={() => setExpandedOrder(null)}>
-                ปิด
-              </Button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-default-200">
-                    <th className="text-left py-2 px-3 text-default-500 font-medium">รหัส</th>
-                    <th className="text-left py-2 px-3 text-default-500 font-medium">รายละเอียด</th>
-                    <th className="text-right py-2 px-3 text-default-500 font-medium">จำนวน</th>
-                    <th className="text-right py-2 px-3 text-default-500 font-medium">ราคา/หน่วย</th>
-                    <th className="text-right py-2 px-3 text-default-500 font-medium">ยอดรวม</th>
-                    <th className="text-right py-2 px-3 text-default-500 font-medium">ส่งแล้ว</th>
-                    <th className="text-right py-2 px-3 text-default-500 font-medium">คงค้าง</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {expandedLines.map((line) => (
-                    <tr key={line.Line_No} className="border-b border-default-100">
-                      <td className="py-2 px-3">{line.No || "-"}</td>
-                      <td className="py-2 px-3">{line.Description || "-"}</td>
-                      <td className="py-2 px-3 text-right">{line.Quantity || 0}</td>
-                      <td className="py-2 px-3 text-right">
-                        {(line.Unit_Price || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-2 px-3 text-right font-medium">
-                        {(line.Line_Amount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-2 px-3 text-right">{line.Quantity_Shipped || 0}</td>
-                      <td className="py-2 px-3 text-right">{line.BWK_Outstanding_Quantity || 0}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardBody>
-        </Card>
-      )}
     </div>
   );
 }
