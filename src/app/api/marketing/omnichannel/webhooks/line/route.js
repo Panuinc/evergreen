@@ -4,6 +4,8 @@ import {
 } from "@/app/api/_lib/webhookAuth";
 import { downloadLineImage } from "@/lib/omnichannel/imageStorage";
 
+export const maxDuration = 30;
+
 export async function POST(request) {
   const rawBody = await request.text();
   const signature = request.headers.get("x-line-signature");
@@ -15,24 +17,16 @@ export async function POST(request) {
   const body = JSON.parse(rawBody);
   const supabase = getServiceSupabase();
 
-  // Process events in background, respond immediately to prevent LINE redelivery
-  const processing = (async () => {
-    for (const event of body.events || []) {
-      if (event.type === "message") {
-        try {
-          await handleMessage(supabase, event);
-        } catch (err) {
-          console.error("[LINE Webhook] Error:", err.message);
-        }
+  // Process all events sequentially — LINE allows up to 30 seconds
+  for (const event of body.events || []) {
+    if (event.type === "message") {
+      try {
+        await handleMessage(supabase, event);
+      } catch (err) {
+        console.error("[LINE Webhook] Error:", err.message);
       }
     }
-  })();
-
-  // Wait max 1 second, then respond regardless
-  await Promise.race([
-    processing,
-    new Promise((resolve) => setTimeout(resolve, 1000)),
-  ]);
+  }
 
   return Response.json({ status: "ok" });
 }

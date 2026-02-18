@@ -38,12 +38,13 @@ export async function proxy(request) {
     const { data: { session } } = await supabase.auth.getSession();
     const isAuthenticated = !!session;
     const isAuthPage = pathname.startsWith("/auth");
+    const isPublicPage = pathname.startsWith("/quotation");
 
     if (isAuthenticated && (pathname === "/" || isAuthPage)) {
       return NextResponse.redirect(new URL("/overview/dashboard", request.url));
     }
 
-    if (!isAuthenticated && !isAuthPage) {
+    if (!isAuthenticated && !isAuthPage && !isPublicPage) {
       return NextResponse.redirect(new URL("/auth/signin", request.url));
     }
 
