@@ -7,7 +7,7 @@ const RoutePlaybackInner = dynamic(() => import("./RoutePlaybackInner"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full min-h-[300px]">
-      <Spinner size="lg" />
+      <Spinner />
     </div>
   ),
 });

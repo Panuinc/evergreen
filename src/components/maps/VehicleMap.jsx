@@ -7,7 +7,7 @@ const VehicleMapInner = dynamic(() => import("./VehicleMapInner"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full min-h-[400px]">
-      <Spinner size="lg" />
+      <Spinner />
     </div>
   ),
 });

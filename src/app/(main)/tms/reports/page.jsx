@@ -204,7 +204,7 @@ export default function ReportsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-10">
-          <Spinner size="lg" />
+          <Spinner />
         </div>
       ) : (
         <DataTable

@@ -53,7 +53,7 @@ export default function GpsTrackingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Spinner size="lg" />
+        <Spinner />
       </div>
     );
   }
@@ -278,7 +278,7 @@ export default function GpsTrackingPage() {
           <ModalBody>
             {loadingRoute ? (
               <div className="flex items-center justify-center py-10">
-                <Spinner size="lg" />
+                <Spinner />
               </div>
             ) : (
               <RoutePlayback gpsLogs={routeHistory} />

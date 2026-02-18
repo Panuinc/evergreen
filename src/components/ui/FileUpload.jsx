@@ -88,7 +88,7 @@ export default function FileUpload({
         className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-default-300 rounded-md cursor-pointer hover:border-primary transition-colors"
       >
         {uploading ? (
-          <Spinner size="sm" />
+          <Spinner />
         ) : (
           <>
             <Upload size={16} className="text-default-400" />
