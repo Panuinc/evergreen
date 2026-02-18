@@ -2,7 +2,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 import { bcGet } from "@/lib/bcClient";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_MODEL = "moonshotai/kimi-k2.5";
+const API_MODEL = "google/gemini-2.5-flash-lite";
 
 const SYSTEM_PROMPT = `คุณเป็น AI assistant ของระบบ ERP ชื่อ **Evergreen** ของบริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด
 ตอบเป็นภาษาไทยเสมอ ยกเว้นเมื่อผู้ใช้ถามเป็นภาษาอังกฤษ
