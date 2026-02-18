@@ -22,7 +22,10 @@
       "WebFetch(domain:openrouter.ai)",
       "Bash(npm install:*)",
       "Bash(curl:*)",
-      "Bash(nslookup:*)"
+      "Bash(nslookup:*)",
+      "Bash(npx:*)",
+      "Bash(node /e/evergreen/scripts/gen-seed-employees.js:*)",
+      "Bash(node:*)"
     ]
   }
 }
