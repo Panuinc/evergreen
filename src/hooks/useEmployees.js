@@ -21,7 +21,6 @@ const emptyForm = {
   employeeDivision: "",
   employeeDepartment: "",
   employeePosition: "",
-  employeeSalary: "",
   employeeStatus: "active",
 };
 
@@ -73,7 +72,6 @@ export function useEmployees() {
         employeeDivision: employee.employeeDivision || "",
         employeeDepartment: employee.employeeDepartment || "",
         employeePosition: employee.employeePosition || "",
-        employeeSalary: employee.employeeSalary?.toString() || "",
         employeeStatus: employee.employeeStatus || "active",
       });
     } else {
@@ -92,20 +90,13 @@ export function useEmployees() {
       return;
     }
 
-    const payload = {
-      ...formData,
-      employeeSalary: formData.employeeSalary
-        ? parseFloat(formData.employeeSalary)
-        : null,
-    };
-
     try {
       setSaving(true);
       if (editingEmployee) {
-        await updateEmployee(editingEmployee.employeeId, payload);
+        await updateEmployee(editingEmployee.employeeId, formData);
         toast.success("Employee updated");
       } else {
-        await createEmployee(payload);
+        await createEmployee(formData);
         toast.success("Employee created");
       }
       onClose();

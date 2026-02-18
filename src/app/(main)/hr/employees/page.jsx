@@ -24,7 +24,6 @@ const columns = [
   { name: "Division", uid: "employeeDivision", sortable: true },
   { name: "Department", uid: "employeeDepartment", sortable: true },
   { name: "Position", uid: "employeePosition", sortable: true },
-  { name: "Salary", uid: "employeeSalary", sortable: true },
   { name: "Status", uid: "employeeStatus", sortable: true },
   { name: "Actions", uid: "actions" },
 ];
@@ -40,7 +39,6 @@ const INITIAL_VISIBLE_COLUMNS = [
   "employeeDivision",
   "employeeDepartment",
   "employeePosition",
-  "employeeSalary",
   "employeeStatus",
   "actions",
 ];
@@ -89,12 +87,6 @@ export default function EmployeesPage() {
           return emp.employeeDepartment || "-";
         case "employeePosition":
           return emp.employeePosition || "-";
-        case "employeeSalary":
-          return emp.employeeSalary
-            ? Number(emp.employeeSalary).toLocaleString("th-TH", {
-                minimumFractionDigits: 2,
-              })
-            : "-";
         case "employeeStatus":
           return (
             <Chip
@@ -328,21 +320,6 @@ export default function EmployeesPage() {
                         </SelectItem>
                       ))}
                   </Select>
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    type="number"
-                    label="Salary"
-                    labelPlacement="outside"
-                    placeholder="Enter salary"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.employeeSalary}
-                    onChange={(e) =>
-                      updateField("employeeSalary", e.target.value)
-                    }
-                  />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
