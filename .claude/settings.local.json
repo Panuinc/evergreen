@@ -19,7 +19,8 @@
       "Bash(xargs -I {} sh -c 'echo \"\"=== {} ===\"\" && wc -l {}')",
       "Bash(cat:*)",
       "Bash(echo:*)",
-      "WebFetch(domain:openrouter.ai)"
+      "WebFetch(domain:openrouter.ai)",
+      "Bash(npm install:*)"
     ]
   }
 }

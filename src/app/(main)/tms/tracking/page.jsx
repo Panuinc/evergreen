@@ -96,9 +96,8 @@ export default function GpsTrackingPage() {
               <Card
                 key={vehicle.vehicleId}
                 shadow="none"
-                isPressable
-                onPress={() => setSelectedVehicleId(vehicle.vehicleId)}
-                className={isSelected ? "border-2 border-primary" : "border border-default-200"}
+                className={`cursor-pointer ${isSelected ? "border-2 border-primary" : "border border-default-200"}`}
+                onClick={() => setSelectedVehicleId(vehicle.vehicleId)}
               >
                 <CardBody className="p-3 gap-2">
                   <div className="flex items-center justify-between">
@@ -133,7 +132,7 @@ export default function GpsTrackingPage() {
                   ) : (
                     <p className="text-xs text-default-300">No GPS data</p>
                   )}
-                  <div className="flex gap-1">
+                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="bordered"
                       size="sm"
@@ -162,7 +161,7 @@ export default function GpsTrackingPage() {
         </div>
 
         {/* Right Panel - Map */}
-        <div className="flex-1 rounded-xl overflow-hidden border border-default-200">
+        <div className="flex-1 rounded-xl overflow-hidden border border-default-200" style={{ isolation: "isolate" }}>
           <VehicleMap
             positions={positions}
             vehicles={vehicles}
