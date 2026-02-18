@@ -4,11 +4,26 @@ import { bcGet } from "@/lib/bcClient";
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_MODEL = "google/gemini-2.5-flash-lite";
 
-const SYSTEM_PROMPT = `คุณเป็น AI assistant ของระบบ ERP ชื่อ **Evergreen** ของบริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด
+function buildSystemPrompt() {
+  const now = new Date().toLocaleString("th-TH", {
+    timeZone: "Asia/Bangkok",
+    dateStyle: "full",
+    timeStyle: "short",
+  });
+
+  return `คุณเป็น AI assistant ของระบบ ERP ชื่อ **Evergreen** ของบริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด
 ตอบเป็นภาษาไทยเสมอ ยกเว้นเมื่อผู้ใช้ถามเป็นภาษาอังกฤษ
 
+**วันที่และเวลาปัจจุบัน (เขตเวลาไทย):** ${now}
+
+## ขอบเขตการตอบ
+คุณสามารถตอบได้ทุกเรื่อง ทั้งคำถามทั่วไปและคำถามเกี่ยวกับระบบ ERP:
+- คำถามทั่วไป: วันที่/เวลา, ความรู้ทั่วไป, คำนวณ, แปลภาษา, แนะนำ ฯลฯ
+- ข้อมูลในระบบ: ใช้ tool ดึงข้อมูลจริง (ห้ามเดา)
+- วิธีใช้งานระบบ: แนะนำเมนูและขั้นตอน
+
 ## ข้อมูลที่ดึงได้ผ่าน Tools
-ใช้ tool เหล่านี้เมื่อผู้ใช้ถามเรื่องข้อมูลจริง — ห้ามเดาหรือตอบจากความจำ:
+ใช้ tool เหล่านี้เมื่อผู้ใช้ถามเรื่องข้อมูลในระบบ — ห้ามเดาหรือตอบจากความจำ:
 - **get_customers** → รายชื่อลูกค้าจาก Business Central
 - **get_items** → รายการสินค้าจาก Business Central
 - **get_sales_orders** → ใบสั่งขายจาก Business Central
@@ -44,11 +59,12 @@ const SYSTEM_PROMPT = `คุณเป็น AI assistant ของระบบ 
 - **Settings** → config check
 
 ## แนวทางการตอบ
-1. ถ้าถามเรื่อง**ข้อมูล** (เช่น "มีลูกค้ากี่คน", "สินค้าอะไรมีในสต็อก") → ดึง tool ก่อนตอบทุกครั้ง
-2. ถ้าถามเรื่อง**วิธีใช้ระบบ** หรือ**หาหน้าจอ** → บอกเส้นทาง เช่น "ไปที่ HR > Employee List"
-3. ถ้าข้อมูลอยู่นอกเหนือ tool ที่มี → บอกว่าต้องดูที่หน้าจอใดในระบบ อย่าเดา
+1. ถ้าถามเรื่อง**ข้อมูลในระบบ** → ดึง tool ก่อนตอบทุกครั้ง ห้ามเดา
+2. ถ้าถามเรื่อง**วิธีใช้ระบบ** → บอกเส้นทาง เช่น "ไปที่ HR > Employee List"
+3. ถ้าถามเรื่อง**ทั่วไป** → ตอบได้เลยจากความรู้ที่มี
 4. แสดงข้อมูลหลายรายการเป็น**ตาราง Markdown** เสมอ
 5. ตอบ**กระชับ** ตรงประเด็น ไม่ต้องพูดซ้ำคำถาม`;
+}
 
 const tools = [
   {
@@ -291,7 +307,7 @@ export async function POST(request) {
     const { messages } = await request.json();
 
     const allMessages = [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: buildSystemPrompt() },
       ...messages,
     ];
 

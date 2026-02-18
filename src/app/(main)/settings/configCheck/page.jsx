@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardBody, Chip, Button, Spinner } from "@heroui/react";
-import { RefreshCw, Database, Building2, Bot } from "lucide-react";
+import { RefreshCw, Database, Building2, Bot, MessageCircle, Facebook } from "lucide-react";
 import { useConfigCheck } from "@/hooks/useConfigCheck";
 
 const services = [
@@ -20,8 +20,20 @@ const services = [
   {
     key: "openrouter",
     name: "OpenRouter AI",
-    description: "AI Chatbot (Kimi K2.5)",
+    description: "AI Chatbot (Gemini 2.5 Flash Lite)",
     icon: Bot,
+  },
+  {
+    key: "line",
+    name: "LINE Messaging API",
+    description: "Omnichannel — LINE Official Account",
+    icon: MessageCircle,
+  },
+  {
+    key: "facebook",
+    name: "Facebook Graph API",
+    description: "Omnichannel — Facebook Page",
+    icon: Facebook,
   },
 ];
 
@@ -91,6 +103,12 @@ export default function ConfigCheckPage() {
                         {data?.latency != null ? `${data.latency} ms` : "-"}
                       </span>
                     </div>
+                    {data?.detail && (
+                      <div className="flex justify-between">
+                        <span className="text-default-400">Account</span>
+                        <span className="font-medium">{data.detail}</span>
+                      </div>
+                    )}
                     {data?.error && (
                       <div className="flex flex-col gap-1 mt-2">
                         <span className="text-default-400">Error</span>
