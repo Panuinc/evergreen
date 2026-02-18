@@ -16,6 +16,11 @@ const SYSTEM_PROMPT = `คุณเป็น AI assistant ของระบบ 
 - **get_departments** → รายชื่อแผนก
 - **get_positions** → รายชื่อตำแหน่งงาน
 - **get_roles** → บทบาทผู้ใช้งาน (RBAC)
+- **get_vehicles** → ทะเบียนรถทั้งหมดจากระบบ TMS
+- **get_drivers** → รายชื่อคนขับรถจากระบบ TMS
+- **get_shipments** → รายการ shipment จากระบบ TMS
+- **get_fuel_logs** → บันทึกการเติมน้ำมัน 50 รายการล่าสุด
+- **get_maintenances** → บันทึกการซ่อมบำรุงรถ 50 รายการล่าสุด
 
 ## โมดูลทั้งหมดในระบบ Evergreen
 ถ้าถามเรื่องโมดูลที่ไม่มี tool ให้แนะนำเมนูที่ต้องไปแทน:
@@ -102,6 +107,47 @@ const tools = [
       parameters: { type: "object", properties: {} },
     },
   },
+  // ── TMS ──
+  {
+    type: "function",
+    function: {
+      name: "get_vehicles",
+      description: "ดึงรายการรถทั้งหมดจากระบบ TMS พร้อมสถานะและรายละเอียด",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_drivers",
+      description: "ดึงรายชื่อคนขับรถทั้งหมดจากระบบ TMS พร้อมสถานะใบขับขี่",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_shipments",
+      description: "ดึงรายการ Shipment ล่าสุดจากระบบ TMS",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_fuel_logs",
+      description: "ดึงบันทึกการเติมน้ำมัน 50 รายการล่าสุดจากระบบ TMS",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_maintenances",
+      description: "ดึงบันทึกการซ่อมบำรุงรถ 50 รายการล่าสุดจากระบบ TMS",
+      parameters: { type: "object", properties: {} },
+    },
+  },
 ];
 
 async function executeTool(name, supabase) {
@@ -167,6 +213,45 @@ async function executeTool(name, supabase) {
         .from("roles")
         .select("roleId, roleName")
         .order("roleCreatedAt", { ascending: false });
+      return data;
+    }
+    // ── TMS ──
+    case "get_vehicles": {
+      const { data } = await supabase
+        .from("vehicles")
+        .select("vehicleId, vehicleName, vehiclePlateNumber, vehicleType, vehicleBrand, vehicleModel, vehicleYear, vehicleStatus, vehicleCurrentMileage, vehicleFuelType, vehicleCapacityKg, vehicleRegistrationExpiry, vehicleInsuranceExpiry")
+        .order("vehicleName");
+      return data;
+    }
+    case "get_drivers": {
+      const { data } = await supabase
+        .from("drivers")
+        .select("driverId, driverFirstName, driverLastName, driverPhone, driverLicenseNumber, driverLicenseType, driverLicenseExpiry, driverRole, driverStatus")
+        .order("driverFirstName");
+      return data;
+    }
+    case "get_shipments": {
+      const { data } = await supabase
+        .from("shipments")
+        .select("shipmentId, shipmentNumber, shipmentCustomerName, shipmentDestination, shipmentStatus, shipmentEstimatedArrival, shipmentWeightKg, shipmentCreatedAt")
+        .order("shipmentCreatedAt", { ascending: false })
+        .limit(50);
+      return data;
+    }
+    case "get_fuel_logs": {
+      const { data } = await supabase
+        .from("fuelLogs")
+        .select("fuelLogId, fuelLogDate, fuelLogFuelType, fuelLogLiters, fuelLogPricePerLiter, fuelLogTotalCost, fuelLogMileage, fuelLogStation, fuelLogVehicleId")
+        .order("fuelLogDate", { ascending: false })
+        .limit(50);
+      return data;
+    }
+    case "get_maintenances": {
+      const { data } = await supabase
+        .from("maintenances")
+        .select("maintenanceId, maintenanceVehicleId, maintenanceType, maintenanceDescription, maintenanceDate, maintenanceStatus, maintenanceCost, maintenanceVendor, maintenanceNextDueDate")
+        .order("maintenanceDate", { ascending: false })
+        .limit(50);
       return data;
     }
     default:
