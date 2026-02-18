@@ -275,28 +275,37 @@ async function executeTool(name, supabase) {
   }
 }
 
-async function callAI(messages, stream = true) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: API_MODEL,
-      messages,
-      tools,
-      temperature: 0.3,
-      stream,
-    }),
-  });
+async function callAI(messages, stream = true, retries = 1) {
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: API_MODEL,
+        messages,
+        tools,
+        temperature: 0.3,
+        stream,
+      }),
+    });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`AI API error: ${res.status} ${text}`);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`AI API error: ${res.status} ${text}`);
+    }
+
+    return res;
+  } catch (err) {
+    const isReset = err.cause?.code === "ECONNRESET" || err.cause?.errno === -4077;
+    if (retries > 0 && isReset) {
+      await new Promise((r) => setTimeout(r, 500));
+      return callAI(messages, stream, retries - 1);
+    }
+    throw err;
   }
-
-  return res;
 }
 
 export async function POST(request) {
