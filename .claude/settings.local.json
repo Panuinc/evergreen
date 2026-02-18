@@ -25,7 +25,11 @@
       "Bash(nslookup:*)",
       "Bash(npx:*)",
       "Bash(node /e/evergreen/scripts/gen-seed-employees.js:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(unzip:*)",
+      "Bash(python3.13:*)",
+      "Bash(/c/Users/inc10/AppData/Local/Programs/Python/Python313/python:*)",
+      "Bash(1:*)"
     ]
   }
 }
