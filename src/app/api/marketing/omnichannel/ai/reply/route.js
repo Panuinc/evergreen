@@ -57,7 +57,7 @@ export async function POST(request) {
 
     // Trigger quotation creation if order confirmed
     if (replyContent.includes("รับออเดอร์เรียบร้อยแล้ว")) {
-      triggerQuotationCreation(conversationId);
+      await triggerQuotationCreation(conversationId);
     }
 
     // Turn off auto-reply when payment slip received (staff takes over)
@@ -95,16 +95,18 @@ export async function POST(request) {
   }
 }
 
-function triggerQuotationCreation(conversationId) {
+async function triggerQuotationCreation(conversationId) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  fetch(`${baseUrl}/api/marketing/omnichannel/quotations/createFromChat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-internal-secret": process.env.INTERNAL_API_SECRET,
-    },
-    body: JSON.stringify({ conversationId }),
-  }).catch((err) => {
+  try {
+    await fetch(`${baseUrl}/api/marketing/omnichannel/quotations/createFromChat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-secret": process.env.INTERNAL_API_SECRET,
+      },
+      body: JSON.stringify({ conversationId }),
+    });
+  } catch (err) {
     console.error("[Quotation] Failed to trigger:", err.message);
-  });
+  }
 }
