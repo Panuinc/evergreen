@@ -21,6 +21,7 @@ const columns = [
   { name: "Name", uid: "name", sortable: true },
   { name: "Email", uid: "employeeEmail", sortable: true },
   { name: "Phone", uid: "employeePhone" },
+  { name: "Division", uid: "employeeDivision", sortable: true },
   { name: "Department", uid: "employeeDepartment", sortable: true },
   { name: "Position", uid: "employeePosition", sortable: true },
   { name: "Salary", uid: "employeeSalary", sortable: true },
@@ -36,6 +37,7 @@ const statusOptions = [
 const INITIAL_VISIBLE_COLUMNS = [
   "name",
   "employeeEmail",
+  "employeeDivision",
   "employeeDepartment",
   "employeePosition",
   "employeeSalary",
@@ -46,6 +48,7 @@ const INITIAL_VISIBLE_COLUMNS = [
 export default function EmployeesPage() {
   const {
     employees,
+    divisions,
     departments,
     positions,
     loading,
@@ -80,6 +83,8 @@ export default function EmployeesPage() {
           return (
             <span className="text-default-500">{emp.employeePhone || "-"}</span>
           );
+        case "employeeDivision":
+          return emp.employeeDivision || "-";
         case "employeeDepartment":
           return emp.employeeDepartment || "-";
         case "employeePosition":
@@ -147,6 +152,7 @@ export default function EmployeesPage() {
           "employeeLastName",
           "employeeEmail",
           "employeePhone",
+          "employeeDivision",
           "employeeDepartment",
           "employeePosition",
         ]}
@@ -241,12 +247,40 @@ export default function EmployeesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Department"
+                    label="Division"
                     labelPlacement="outside"
-                    placeholder="Select department"
+                    placeholder="Select division"
                     variant="bordered"
                     size="md"
                     radius="md"
+                    selectedKeys={
+                      formData.employeeDivision
+                        ? [formData.employeeDivision]
+                        : []
+                    }
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("employeeDivision", val);
+                      updateField("employeeDepartment", "");
+                      updateField("employeePosition", "");
+                    }}
+                  >
+                    {divisions.map((div) => (
+                      <SelectItem key={div.divisionName}>
+                        {div.divisionName}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Select
+                    label="Department"
+                    labelPlacement="outside"
+                    placeholder={formData.employeeDivision ? "Select department" : "Select division first"}
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    isDisabled={!formData.employeeDivision}
                     selectedKeys={
                       formData.employeeDepartment
                         ? [formData.employeeDepartment]
@@ -258,11 +292,13 @@ export default function EmployeesPage() {
                       updateField("employeePosition", "");
                     }}
                   >
-                    {departments.map((dept) => (
-                      <SelectItem key={dept.departmentName}>
-                        {dept.departmentName}
-                      </SelectItem>
-                    ))}
+                    {departments
+                      .filter((dept) => dept.departmentDivision === formData.employeeDivision)
+                      .map((dept) => (
+                        <SelectItem key={dept.departmentName}>
+                          {dept.departmentName}
+                        </SelectItem>
+                      ))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">

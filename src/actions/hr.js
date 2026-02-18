@@ -36,6 +36,24 @@ export async function getUnlinkedEmployees() {
   return get("/api/hr/unlinkedEmployees");
 }
 
+// ==================== Divisions ====================
+
+export async function getDivisions() {
+  return get("/api/hr/divisions");
+}
+
+export async function createDivision(divisionData) {
+  return post("/api/hr/divisions", divisionData);
+}
+
+export async function updateDivision(id, divisionData) {
+  return put(`/api/hr/divisions/${id}`, divisionData);
+}
+
+export async function deleteDivision(id) {
+  return del(`/api/hr/divisions/${id}`);
+}
+
 // ==================== Departments ====================
 
 export async function getDepartments() {

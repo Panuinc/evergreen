@@ -77,6 +77,7 @@ export const menuData = [
     subMenus: [
       { name: "Human Resources", icon: LayoutDashboard, href: "/hr/dashboard" },
       { name: "Employee List", icon: Users, href: "/hr/employees" },
+      { name: "Divisions", icon: Building2, href: "/hr/divisions" },
       { name: "Departments", icon: Building2, href: "/hr/departments" },
       { name: "Positions", icon: Briefcase, href: "/hr/positions" },
       { name: "Recruitment", icon: Briefcase },

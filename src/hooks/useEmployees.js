@@ -8,6 +8,7 @@ import {
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  getDivisions,
   getDepartments,
   getPositions,
 } from "@/actions/hr";
@@ -17,6 +18,7 @@ const emptyForm = {
   employeeLastName: "",
   employeeEmail: "",
   employeePhone: "",
+  employeeDivision: "",
   employeeDepartment: "",
   employeePosition: "",
   employeeSalary: "",
@@ -25,6 +27,7 @@ const emptyForm = {
 
 export function useEmployees() {
   const [employees, setEmployees] = useState([]);
+  const [divisions, setDivisions] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,12 +45,14 @@ export function useEmployees() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [empData, deptData, posData] = await Promise.all([
+      const [empData, divData, deptData, posData] = await Promise.all([
         getEmployees(),
+        getDivisions(),
         getDepartments(),
         getPositions(),
       ]);
       setEmployees(empData);
+      setDivisions(divData);
       setDepartments(deptData);
       setPositions(posData);
     } catch (error) {
@@ -65,6 +70,7 @@ export function useEmployees() {
         employeeLastName: employee.employeeLastName || "",
         employeeEmail: employee.employeeEmail || "",
         employeePhone: employee.employeePhone || "",
+        employeeDivision: employee.employeeDivision || "",
         employeeDepartment: employee.employeeDepartment || "",
         employeePosition: employee.employeePosition || "",
         employeeSalary: employee.employeeSalary?.toString() || "",
@@ -135,6 +141,7 @@ export function useEmployees() {
 
   return {
     employees,
+    divisions,
     departments,
     positions,
     loading,

@@ -10,39 +10,34 @@ import {
   ModalFooter,
   Input,
   Textarea,
-  Select,
-  SelectItem,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { useDepartments } from "@/hooks/useDepartments";
+import { useDivisions } from "@/hooks/useDivisions";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Name", uid: "departmentName", sortable: true },
-  { name: "Division", uid: "departmentDivision", sortable: true },
-  { name: "Description", uid: "departmentDescription" },
-  { name: "Created At", uid: "departmentCreatedAt", sortable: true },
+  { name: "Name", uid: "divisionName", sortable: true },
+  { name: "Description", uid: "divisionDescription" },
+  { name: "Created At", uid: "divisionCreatedAt", sortable: true },
   { name: "Actions", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "departmentName",
-  "departmentDivision",
-  "departmentDescription",
-  "departmentCreatedAt",
+  "divisionName",
+  "divisionDescription",
+  "divisionCreatedAt",
   "actions",
 ];
 
-export default function DepartmentsPage() {
+export default function DivisionsPage() {
   const {
-    departments,
     divisions,
     loading,
     saving,
-    editingDept,
+    editingDiv,
     formData,
     setFormData,
-    deletingDept,
+    deletingDiv,
     isOpen,
     onClose,
     deleteModal,
@@ -50,25 +45,23 @@ export default function DepartmentsPage() {
     handleSave,
     confirmDelete,
     handleDelete,
-  } = useDepartments();
+  } = useDivisions();
 
   const renderCell = useCallback(
-    (dept, columnKey) => {
+    (div, columnKey) => {
       switch (columnKey) {
-        case "departmentName":
-          return <span className="font-medium">{dept.departmentName}</span>;
-        case "departmentDivision":
-          return dept.departmentDivision || "-";
-        case "departmentDescription":
+        case "divisionName":
+          return <span className="font-medium">{div.divisionName}</span>;
+        case "divisionDescription":
           return (
             <span className="text-default-500">
-              {dept.departmentDescription || "-"}
+              {div.divisionDescription || "-"}
             </span>
           );
-        case "departmentCreatedAt":
+        case "divisionCreatedAt":
           return (
             <span className="text-default-500">
-              {new Date(dept.departmentCreatedAt).toLocaleDateString("th-TH")}
+              {new Date(div.divisionCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );
         case "actions":
@@ -79,7 +72,7 @@ export default function DepartmentsPage() {
                 size="md"
                 radius="md"
                 isIconOnly
-                onPress={() => handleOpen(dept)}
+                onPress={() => handleOpen(div)}
               >
                 <Edit />
               </Button>
@@ -88,14 +81,14 @@ export default function DepartmentsPage() {
                 size="md"
                 radius="md"
                 isIconOnly
-                onPress={() => confirmDelete(dept)}
+                onPress={() => confirmDelete(div)}
               >
                 <Trash2 />
               </Button>
             </div>
           );
         default:
-          return dept[columnKey] || "-";
+          return div[columnKey] || "-";
       }
     },
     [handleOpen, confirmDelete],
@@ -105,15 +98,15 @@ export default function DepartmentsPage() {
     <div className="flex flex-col w-full h-full gap-4">
       <DataTable
         columns={columns}
-        data={departments}
+        data={divisions}
         renderCell={renderCell}
         enableCardView
-        rowKey="departmentId"
+        rowKey="divisionId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, division, description..."
-        searchKeys={["departmentName", "departmentDivision", "departmentDescription"]}
-        emptyContent="No departments found"
+        searchPlaceholder="Search by name, description..."
+        searchKeys={["divisionName", "divisionDescription"]}
+        emptyContent="No divisions found"
         topEndContent={
           <Button
             variant="bordered"
@@ -122,7 +115,7 @@ export default function DepartmentsPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Department
+            Add Division
           </Button>
         }
       />
@@ -131,46 +124,21 @@ export default function DepartmentsPage() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
-            {editingDept ? "Edit Department" : "Add Department"}
+            {editingDiv ? "Edit Division" : "Add Division"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="flex items-center w-full h-fit p-2 gap-2">
-                <Select
-                  label="Division"
-                  labelPlacement="outside"
-                  placeholder="Select division"
-                  variant="bordered"
-                  size="md"
-                  radius="md"
-                  selectedKeys={
-                    formData.departmentDivision
-                      ? [formData.departmentDivision]
-                      : []
-                  }
-                  onSelectionChange={(keys) => {
-                    const val = Array.from(keys)[0] || "";
-                    setFormData({ ...formData, departmentDivision: val });
-                  }}
-                >
-                  {divisions.map((div) => (
-                    <SelectItem key={div.divisionName}>
-                      {div.divisionName}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </div>
-              <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
                   label="Name"
                   labelPlacement="outside"
-                  placeholder="e.g. IT, HR, Finance"
+                  placeholder="e.g. Operations, Corporate, Support"
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.departmentName}
+                  value={formData.divisionName}
                   onChange={(e) =>
-                    setFormData({ ...formData, departmentName: e.target.value })
+                    setFormData({ ...formData, divisionName: e.target.value })
                   }
                   isRequired
                 />
@@ -179,15 +147,15 @@ export default function DepartmentsPage() {
                 <Textarea
                   label="Description"
                   labelPlacement="outside"
-                  placeholder="Describe this department..."
+                  placeholder="Describe this division..."
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.departmentDescription}
+                  value={formData.divisionDescription}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      departmentDescription: e.target.value,
+                      divisionDescription: e.target.value,
                     })
                   }
                 />
@@ -205,7 +173,7 @@ export default function DepartmentsPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingDept ? "Update" : "Create"}
+              {editingDiv ? "Update" : "Create"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -214,12 +182,12 @@ export default function DepartmentsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Department</ModalHeader>
+          <ModalHeader>Delete Division</ModalHeader>
           <ModalBody>
             <p>
               Are you sure you want to delete{" "}
               <span className="font-semibold">
-                {deletingDept?.departmentName}
+                {deletingDiv?.divisionName}
               </span>
               ? This action cannot be undone.
             </p>

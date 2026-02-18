@@ -8,15 +8,18 @@ import {
   createDepartment,
   updateDepartment,
   deleteDepartment,
+  getDivisions,
 } from "@/actions/hr";
 
 const emptyForm = {
   departmentName: "",
   departmentDescription: "",
+  departmentDivision: "",
 };
 
 export function useDepartments() {
   const [departments, setDepartments] = useState([]);
+  const [divisions, setDivisions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingDept, setEditingDept] = useState(null);
@@ -26,16 +29,20 @@ export function useDepartments() {
   const [deletingDept, setDeletingDept] = useState(null);
 
   useEffect(() => {
-    loadDepartments();
+    loadData();
   }, []);
 
-  const loadDepartments = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getDepartments();
-      setDepartments(data);
+      const [deptData, divData] = await Promise.all([
+        getDepartments(),
+        getDivisions(),
+      ]);
+      setDepartments(deptData);
+      setDivisions(divData);
     } catch (error) {
-      toast.error("Failed to load departments");
+      toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -47,6 +54,7 @@ export function useDepartments() {
       setFormData({
         departmentName: dept.departmentName || "",
         departmentDescription: dept.departmentDescription || "",
+        departmentDivision: dept.departmentDivision || "",
       });
     } else {
       setEditingDept(null);
@@ -71,7 +79,7 @@ export function useDepartments() {
         toast.success("Department created");
       }
       onClose();
-      loadDepartments();
+      loadData();
     } catch (error) {
       toast.error(error.message || "Failed to save department");
     } finally {
@@ -91,7 +99,7 @@ export function useDepartments() {
       toast.success("Department deleted");
       deleteModal.onClose();
       setDeletingDept(null);
-      loadDepartments();
+      loadData();
     } catch (error) {
       toast.error(error.message || "Failed to delete department");
     }
@@ -99,6 +107,7 @@ export function useDepartments() {
 
   return {
     departments,
+    divisions,
     loading,
     saving,
     editingDept,
