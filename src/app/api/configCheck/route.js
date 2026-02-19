@@ -1,5 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
-import { bcGet } from "@/lib/bcClient";
+import { bcODataGet } from "@/lib/bcClient";
 
 async function checkSupabase(supabase) {
   const start = Date.now();
@@ -16,7 +16,7 @@ async function checkSupabase(supabase) {
 async function checkBc() {
   const start = Date.now();
   try {
-    await bcGet("/companies", { $top: "1" });
+    await bcODataGet("CustomerList", { $top: "1" });
     const latency = Date.now() - start;
     return { status: "connected", latency, error: null };
   } catch (err) {

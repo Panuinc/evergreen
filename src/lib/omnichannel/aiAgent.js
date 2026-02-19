@@ -1,17 +1,18 @@
-import { bcGet } from "@/lib/bcClient";
+import { bcODataGet } from "@/lib/bcClient";
 import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 async function fetchProductCatalog() {
   try {
-    const filter =
-      "blocked eq false and generalProductPostingGroupCode eq 'FG' and startswith(number,'FG-00003')";
-
     // Fetch BC items and price list in parallel
     const supabase = getServiceSupabase();
     const [bcItems, priceResult] = await Promise.all([
-      bcGet("/items", { $filter: filter }),
+      bcODataGet("Item_Card_Excel", {
+        $filter: "Blocked eq false and startswith(No,'FG-00003')",
+        $select: "No,Description",
+        $orderby: "No",
+      }),
       supabase.from("omPriceList").select("priceItemNumber, priceUnitPrice"),
     ]);
 
@@ -22,8 +23,8 @@ async function fetchProductCatalog() {
     }
 
     return bcItems.map((i) => ({
-      name: i.displayName,
-      price: priceMap[i.number] || 0,
+      name: i.Description,
+      price: priceMap[i.No] || 0,
     }));
   } catch (err) {
     console.error("[AI] Failed to fetch products:", err.message);

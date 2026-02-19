@@ -31,32 +31,7 @@ async function getToken() {
   return tokenCache.accessToken;
 }
 
-const BC_BASE_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/api/v2.0`;
 const BC_ODATA_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/ODataV4/Company('C.H.H._Go-Live')`;
-
-export async function bcGet(endpoint, params = {}) {
-  const token = await getToken();
-
-  const url = new URL(`${BC_BASE_URL}${endpoint}`);
-  for (const [key, value] of Object.entries(params)) {
-    url.searchParams.set(key, value);
-  }
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-    },
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`BC API error: ${res.status} ${text}`);
-  }
-
-  const data = await res.json();
-  return data.value;
-}
 
 export async function bcODataGet(entity, params = {}) {
   const token = await getToken();
