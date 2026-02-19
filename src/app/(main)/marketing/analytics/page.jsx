@@ -95,8 +95,16 @@ function PeriodCard({ title, revenue, orders, icon: Icon, color, growth, prevLab
   );
 }
 
+const PERIODS = [
+  { key: "all", label: "ทั้งหมด" },
+  { key: "day", label: "วันนี้" },
+  { key: "week", label: "สัปดาห์นี้" },
+  { key: "month", label: "เดือนนี้" },
+  { key: "year", label: "ปีนี้" },
+];
+
 export default function MarketingAnalyticsPage() {
-  const { stats, loading, reload } = useMarketingAnalytics();
+  const { stats, loading, reload, period, setPeriod } = useMarketingAnalytics();
 
   if (loading) {
     return (
@@ -113,14 +121,30 @@ export default function MarketingAnalyticsPage() {
   return (
     <div className="flex flex-col w-full gap-6 pb-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">Sales Analytics</h2>
           <p className="text-xs text-default-400">Online Channel — Business Central</p>
         </div>
-        <Button variant="bordered" size="sm" radius="md" startContent={<RefreshCw size={14} />} onPress={reload}>
-          รีเฟรช
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            {PERIODS.map((p) => (
+              <Button
+                key={p.key}
+                size="sm"
+                radius="md"
+                variant={period === p.key ? "solid" : "bordered"}
+                color={period === p.key ? "primary" : "default"}
+                onPress={() => setPeriod(p.key)}
+              >
+                {p.label}
+              </Button>
+            ))}
+          </div>
+          <Button variant="bordered" size="sm" radius="md" isIconOnly onPress={reload}>
+            <RefreshCw size={14} />
+          </Button>
+        </div>
       </div>
 
       {/* ROW 2: Period KPIs — DTD / WTD / MTD / YTD */}

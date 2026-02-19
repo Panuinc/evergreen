@@ -41,18 +41,26 @@ export async function bcODataGet(entity, params = {}) {
     url.searchParams.set(key, value);
   }
 
-  const res = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-    },
-  });
+  const allValues = [];
+  let nextUrl = url.toString();
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`BC OData error: ${res.status} ${text}`);
+  while (nextUrl) {
+    const res = await fetch(nextUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`BC OData error: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    allValues.push(...(data.value || []));
+    nextUrl = data["@odata.nextLink"] || null;
   }
 
-  const data = await res.json();
-  return data.value;
+  return allValues;
 }

@@ -45,8 +45,12 @@ export async function updateAiSettings(data) {
 
 // ==================== Analytics ====================
 
-export async function getMarketingAnalytics(refresh = false) {
-  return get(`/api/marketing/analytics${refresh ? "?refresh=1" : ""}`);
+export async function getMarketingAnalytics(refresh = false, period = "all") {
+  const params = new URLSearchParams();
+  if (refresh) params.set("refresh", "1");
+  if (period && period !== "all") params.set("period", period);
+  const qs = params.toString();
+  return get(`/api/marketing/analytics${qs ? `?${qs}` : ""}`);
 }
 
 // ==================== Sales Orders ====================

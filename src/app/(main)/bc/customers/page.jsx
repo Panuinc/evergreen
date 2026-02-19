@@ -7,19 +7,18 @@ import DataTable from "@/components/ui/DataTable";
 const columns = [
   { name: "Number", uid: "number", sortable: true },
   { name: "Display Name", uid: "displayName", sortable: true },
-  { name: "Type", uid: "type", sortable: true },
-  { name: "Email", uid: "email", sortable: true },
+  { name: "Contact", uid: "contact", sortable: true },
   { name: "Phone", uid: "phoneNumber" },
-  { name: "City", uid: "city", sortable: true },
+  { name: "Salesperson", uid: "salespersonCode", sortable: true },
   { name: "Balance Due", uid: "balanceDue", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
   "number",
   "displayName",
-  "type",
-  "email",
-  "city",
+  "contact",
+  "phoneNumber",
+  "salespersonCode",
   "balanceDue",
 ];
 
@@ -30,9 +29,9 @@ export default function BcCustomersPage() {
     switch (columnKey) {
       case "displayName":
         return <span className="font-medium">{customer.displayName}</span>;
-      case "email":
+      case "contact":
         return (
-          <span className="text-default-500">{customer.email || "-"}</span>
+          <span className="text-default-500">{customer.contact || "-"}</span>
         );
       case "phoneNumber":
         return (
@@ -61,8 +60,8 @@ export default function BcCustomersPage() {
         rowKey="id"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, email, city..."
-        searchKeys={["number", "displayName", "email", "city"]}
+        searchPlaceholder="Search by number, name, contact..."
+        searchKeys={["number", "displayName", "contact", "salespersonCode"]}
         emptyContent="No customers found"
       />
     </div>

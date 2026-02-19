@@ -29,7 +29,8 @@
       "Bash(unzip:*)",
       "Bash(python3.13:*)",
       "Bash(/c/Users/inc10/AppData/Local/Programs/Python/Python313/python:*)",
-      "Bash(1:*)"
+      "Bash(1:*)",
+      "Bash(python -m json.tool:*)"
     ]
   }
 }

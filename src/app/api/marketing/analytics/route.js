@@ -1,49 +1,96 @@
 import { withAuth } from "@/app/api/_lib/auth";
-import { bcODataGet } from "@/lib/bcClient";
 
-// In-memory cache (5 min TTL)
-let cache = { data: null, ts: 0 };
+// In-memory cache keyed by period (5 min TTL)
+const periodCaches = {};
 const CACHE_TTL = 5 * 60 * 1000;
+
+async function fetchAllLines(supabase) {
+  const allLines = [];
+  const PAGE = 1000;
+  let from = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .from("bcSalesOrderLines")
+      .select("*")
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    if (data && data.length > 0) allLines.push(...data);
+    if (!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+  return allLines;
+}
 
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
 
-  // Return cached data if fresh (skip if ?refresh=1)
-  const refresh = new URL(request.url).searchParams.get("refresh");
-  if (!refresh && cache.data && Date.now() - cache.ts < CACHE_TTL) {
-    return Response.json(cache.data);
+  const url = new URL(request.url);
+  const refresh = url.searchParams.get("refresh");
+  const period = url.searchParams.get("period") || "all";
+
+  if (!refresh && periodCaches[period]?.data && Date.now() - periodCaches[period].ts < CACHE_TTL) {
+    return Response.json(periodCaches[period].data);
   }
 
   try {
-    const [orders, allLines] = await Promise.all([
-      bcODataGet("Sales_Order_Excel", {
-        $filter: "Salesperson_Code eq 'ONLINE' and startswith(No,'SO26')",
-        $orderby: "Order_Date desc",
-        $select:
-          "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,External_Document_No,Salesperson_Code",
-      }),
-      bcODataGet("Sales_Order_Line_Excel", {
-        $filter: "startswith(Document_No,'SO26')",
-        $select:
-          "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code",
-      }),
+    const [rawOrders, rawLines, rawCustomers] = await Promise.all([
+      auth.supabase
+        .from("bcSalesOrders")
+        .select("*")
+        .eq("salespersonCode", "ONLINE")
+        .order("orderDate", { ascending: false }),
+      fetchAllLines(auth.supabase),
+      auth.supabase
+        .from("bcCustomers")
+        .select("number,displayName,contact,phoneNumber")
+        .eq("salespersonCode", "ONLINE"),
     ]);
 
-    const orderNos = new Set(orders.map((o) => o.No));
-    const lines = allLines.filter((l) => orderNos.has(l.Document_No));
+    // Map Supabase camelCase → OData-style field names (ให้ logic เดิมทำงานได้เลย)
+    const orders = (rawOrders.data || []).map((o) => ({
+      No: o.number,
+      Sell_to_Customer_No: o.customerNumber,
+      Sell_to_Customer_Name: o.customerName,
+      Sell_to_Address: o.sellToAddress,
+      Sell_to_City: o.sellToCity,
+      Sell_to_Post_Code: o.sellToPostCode,
+      Ship_to_Name: o.shipToName,
+      Ship_to_Address: o.shipToAddress,
+      Ship_to_City: o.shipToCity,
+      Ship_to_Post_Code: o.shipToPostCode,
+      Order_Date: o.orderDate,
+      Due_Date: o.dueDate,
+      Status: o.status,
+      Completely_Shipped: o.completelyShipped,
+      External_Document_No: o.externalDocumentNumber,
+      Salesperson_Code: o.salespersonCode,
+    }));
 
-    // CustomerList — use this entity instead of Customer_Card_Excel (avoids BWK permission issue)
-    let customers = [];
-    try {
-      customers = await bcODataGet("CustomerList", {
-        $filter: "Salesperson_Code eq 'ONLINE'",
-        $select: "No,Name,Contact,Phone_No",
-      });
-      console.log(`[Marketing Analytics] Customers loaded: ${customers.length}`);
-    } catch (e) {
-      console.warn(`[Marketing Analytics] CustomerList failed (${e.message})`);
-    }
+    const orderNos = new Set(orders.map((o) => o.No));
+    const allLines = (rawLines || []).filter((l) => orderNos.has(l.documentNo));
+    const lines = allLines.map((l) => ({
+      Document_No: l.documentNo,
+      Line_No: l.lineNo,
+      Type: l.type,
+      No: l.lineObjectNumber,
+      Description: l.description,
+      Quantity: l.quantity,
+      Unit_Price: l.unitPrice,
+      Line_Amount: l.amountIncludingTax,
+      Quantity_Shipped: l.quantityShipped,
+      BWK_Outstanding_Quantity: l.bwkOutstandingQuantity,
+      Unit_of_Measure_Code: l.unitOfMeasureCode,
+      Location_Code: l.locationCode,
+    }));
+
+    const customers = (rawCustomers.data || []).map((c) => ({
+      No: c.number,
+      Name: c.displayName,
+      Contact: c.contact,
+      Phone_No: c.phoneNumber,
+    }));
+    console.log(`[Marketing Analytics] Customers loaded: ${customers.length}`);
 
     // Group lines by Document_No
     const linesByOrder = {};
@@ -67,50 +114,72 @@ export async function GET(request) {
     const currentMonth = today.slice(0, 7);
     const currentYear = today.slice(0, 4);
 
-    // Previous month
     const pm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const prevMonth = `${pm.getFullYear()}-${String(pm.getMonth() + 1).padStart(2, "0")}`;
     const prevYear = String(now.getFullYear() - 1);
 
-    // === KPI: DTD / MTD / YTD with comparison ===
+    // Week dates
+    const msPerDay = 86400000;
+    const todayDate = new Date(today);
+    const dayOfWeek = todayDate.getDay();
+    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const thisWeekStart = new Date(todayDate - mondayOffset * msPerDay).toISOString().slice(0, 10);
+    const lastWeekStart = new Date(todayDate - (mondayOffset + 7) * msPerDay).toISOString().slice(0, 10);
+    const lastWeekEnd = new Date(todayDate - (mondayOffset + 1) * msPerDay).toISOString().slice(0, 10);
+
+    // === Period filter ===
+    const filtered = (() => {
+      if (period === "day") return ordersWithLines.filter((o) => o.Order_Date === today);
+      if (period === "week") return ordersWithLines.filter((o) => o.Order_Date >= thisWeekStart && o.Order_Date <= today);
+      if (period === "month") return ordersWithLines.filter((o) => o.Order_Date?.startsWith(currentMonth));
+      if (period === "year") return ordersWithLines.filter((o) => o.Order_Date?.startsWith(currentYear));
+      return ordersWithLines;
+    })();
+
+    const filteredOrderNos = new Set(filtered.map((o) => o.No));
+    const filteredLines = lines.filter((l) => filteredOrderNos.has(l.Document_No));
+
+    // === KPI: DTD / WTD / MTD / YTD with comparison ===
     const dtd = { orders: 0, revenue: 0 };
+    const wtd = { orders: 0, revenue: 0 };
     const mtd = { orders: 0, revenue: 0 };
     const ytd = { orders: 0, revenue: 0 };
+    const prevWtd = { orders: 0, revenue: 0 };
     const prevMtd = { orders: 0, revenue: 0 };
     const prevYtd = { orders: 0, revenue: 0 };
 
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       const d = o.Order_Date;
       if (!d) continue;
       if (d === today) { dtd.orders++; dtd.revenue += o.totalAmount; }
+      if (d >= thisWeekStart && d <= today) { wtd.orders++; wtd.revenue += o.totalAmount; }
       if (d.startsWith(currentMonth)) { mtd.orders++; mtd.revenue += o.totalAmount; }
       if (d.startsWith(currentYear)) { ytd.orders++; ytd.revenue += o.totalAmount; }
       if (d.startsWith(prevMonth)) { prevMtd.orders++; prevMtd.revenue += o.totalAmount; }
       if (d.startsWith(prevYear)) { prevYtd.orders++; prevYtd.revenue += o.totalAmount; }
+      if (d >= lastWeekStart && d <= lastWeekEnd) { prevWtd.orders++; prevWtd.revenue += o.totalAmount; }
     }
 
-    // Growth %
+    const wowGrowth = prevWtd.revenue ? ((wtd.revenue - prevWtd.revenue) / prevWtd.revenue) * 100 : null;
     const mtdGrowth = prevMtd.revenue ? ((mtd.revenue - prevMtd.revenue) / prevMtd.revenue) * 100 : null;
     const ytdGrowth = prevYtd.revenue ? ((ytd.revenue - prevYtd.revenue) / prevYtd.revenue) * 100 : null;
 
     // === Overall KPIs ===
-    const totalOrders = ordersWithLines.length;
-    const totalRevenue = ordersWithLines.reduce((s, o) => s + o.totalAmount, 0);
-    const shippedOrders = ordersWithLines.filter((o) => o.Completely_Shipped).length;
+    const totalOrders = filtered.length;
+    const totalRevenue = filtered.reduce((s, o) => s + o.totalAmount, 0);
+    const shippedOrders = filtered.filter((o) => o.Completely_Shipped).length;
     const pendingOrders = totalOrders - shippedOrders;
     const avgOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
 
     // === Order Status distribution ===
     const statusMap = {};
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       const st = o.Status || "Unknown";
       if (!statusMap[st]) statusMap[st] = { status: st, count: 0, revenue: 0 };
       statusMap[st].count++;
       statusMap[st].revenue += o.totalAmount;
     }
     const orderStatusDist = Object.values(statusMap);
-
-    // Ship status
     const shipStatusDist = [
       { status: "จัดส่งแล้ว", count: shippedOrders },
       { status: "รอจัดส่ง", count: pendingOrders },
@@ -118,7 +187,7 @@ export async function GET(request) {
 
     // === Monthly revenue trend ===
     const monthlyMap = {};
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       const m = o.Order_Date?.slice(0, 7);
       if (!m) continue;
       if (!monthlyMap[m]) monthlyMap[m] = { month: m, revenue: 0, orders: 0 };
@@ -127,11 +196,11 @@ export async function GET(request) {
     }
     const monthlyTrend = Object.values(monthlyMap).sort((a, b) => a.month.localeCompare(b.month));
 
-    // === Daily trend (current month) ===
+    // === Daily trend (for "all" period, limit to current month to avoid too many data points) ===
     const dailyMap = {};
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       const d = o.Order_Date;
-      if (!d || !d.startsWith(currentMonth)) continue;
+      if (!d || (period === "all" && !d.startsWith(currentMonth))) continue;
       if (!dailyMap[d]) dailyMap[d] = { date: d, revenue: 0, orders: 0 };
       dailyMap[d].revenue += o.totalAmount;
       dailyMap[d].orders++;
@@ -140,7 +209,7 @@ export async function GET(request) {
 
     // === Top 10 customers ===
     const custMap = {};
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       const n = o.Sell_to_Customer_Name || "Unknown";
       if (!custMap[n]) custMap[n] = { name: n, revenue: 0, orders: 0, avgValue: 0 };
       custMap[n].revenue += o.totalAmount;
@@ -153,7 +222,7 @@ export async function GET(request) {
 
     // === Top 10 SKU ===
     const skuMap = {};
-    for (const l of lines) {
+    for (const l of filteredLines) {
       const key = l.No?.trim() || l.Description?.trim();
       if (!key) continue;
       if (!l.Quantity && !l.Line_Amount) continue;
@@ -165,29 +234,10 @@ export async function GET(request) {
       .sort((a, b) => (b.revenue || b.quantity) - (a.revenue || a.quantity))
       .slice(0, 10);
 
-    // === Week-to-Date + WoW Growth ===
-    const msPerDay = 86400000;
-    const todayDate = new Date(today);
-    const dayOfWeek = todayDate.getDay();
-    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    const thisWeekStart = new Date(todayDate - mondayOffset * msPerDay).toISOString().slice(0, 10);
-    const lastWeekStart = new Date(todayDate - (mondayOffset + 7) * msPerDay).toISOString().slice(0, 10);
-    const lastWeekEnd = new Date(todayDate - (mondayOffset + 1) * msPerDay).toISOString().slice(0, 10);
-
-    const wtd = { orders: 0, revenue: 0 };
-    const prevWtd = { orders: 0, revenue: 0 };
-    for (const o of ordersWithLines) {
-      const d = o.Order_Date;
-      if (!d) continue;
-      if (d >= thisWeekStart && d <= today) { wtd.orders++; wtd.revenue += o.totalAmount; }
-      if (d >= lastWeekStart && d <= lastWeekEnd) { prevWtd.orders++; prevWtd.revenue += o.totalAmount; }
-    }
-    const wowGrowth = prevWtd.revenue ? ((wtd.revenue - prevWtd.revenue) / prevWtd.revenue) * 100 : null;
-
     // === Revenue by Day of Week ===
     const dayNames = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
     const dowStats = Array.from({ length: 7 }, (_, i) => ({ day: i, dayName: dayNames[i], revenue: 0, orders: 0 }));
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       if (!o.Order_Date) continue;
       const dow = new Date(o.Order_Date).getDay();
       dowStats[dow].revenue += o.totalAmount;
@@ -205,7 +255,7 @@ export async function GET(request) {
       { label: "20K-50K", min: 20000, max: 50000, count: 0, revenue: 0 },
       { label: "50K+", min: 50000, max: Infinity, count: 0, revenue: 0 },
     ];
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       const bucket = valueBuckets.find((b) => o.totalAmount >= b.min && o.totalAmount < b.max);
       if (bucket) { bucket.count++; bucket.revenue += o.totalAmount; }
     }
@@ -234,7 +284,7 @@ export async function GET(request) {
 
     // === Fulfillment Metrics ===
     let totalQtyOrdered = 0, totalQtyShipped = 0, totalOutstanding = 0, ordersWithOutstanding = 0;
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       totalQtyOrdered += o.totalQty;
       totalQtyShipped += o.shippedQty;
       const outstanding = o.totalQty - o.shippedQty;
@@ -263,13 +313,13 @@ export async function GET(request) {
       };
     }
     const monthlyComparison = {
-      current: { month: currentMonth, ...computeMonthStats(ordersWithLines.filter((o) => o.Order_Date?.startsWith(currentMonth))) },
-      previous: { month: prevMonth, ...computeMonthStats(ordersWithLines.filter((o) => o.Order_Date?.startsWith(prevMonth))) },
+      current: { month: currentMonth, ...computeMonthStats(filtered.filter((o) => o.Order_Date?.startsWith(currentMonth))) },
+      previous: { month: prevMonth, ...computeMonthStats(filtered.filter((o) => o.Order_Date?.startsWith(prevMonth))) },
     };
 
     // === Location Distribution ===
     const locationMap = {};
-    for (const l of lines) {
+    for (const l of filteredLines) {
       const loc = l.Location_Code?.trim() || "ไม่ระบุ";
       if (!locationMap[loc]) locationMap[loc] = { location: loc, quantity: 0, revenue: 0, lineCount: 0 };
       locationMap[loc].quantity += l.Quantity || 0;
@@ -282,8 +332,6 @@ export async function GET(request) {
     const CHANNEL_LABELS = { L: "LINE", FB: "Facebook", IN: "Instagram", SP: "Shopee", TT: "TikTok", LZ: "Lazada", W: "Website" };
     const GROUP_LABELS = { CLT: "ลูกค้าทั่วไป", OWN: "เจ้าของโครงการ", DEV: "บ.พัฒนาอสังหาฯ", MC: "ผู้รับเหมาหลัก", SUB: "ผู้รับเหมาช่วง", ARCH: "สถาปนิก", PM: "ที่ปรึกษาโครงการ" };
     const TYPE_LABELS = { RES: "ที่อยู่อาศัย", COM: "อาคารพาณิชย์", IND: "อุตสาหกรรม", INFRA: "สาธารณูปโภค" };
-
-    // Normalize variations (case-insensitive, full names, abbreviations) → standard codes
     const CHANNEL_NORMALIZE = {
       l: "L", line: "L", li: "L",
       fb: "FB", facebook: "FB", f: "FB",
@@ -293,19 +341,14 @@ export async function GET(request) {
       lz: "LZ", lazada: "LZ",
       w: "W", website: "W", web: "W",
     };
-    const GROUP_NORMALIZE = {
-      clt: "CLT", own: "OWN", dev: "DEV", mc: "MC", sub: "SUB", arch: "ARCH", pm: "PM",
-    };
-    const TYPE_NORMALIZE = {
-      res: "RES", com: "COM", ind: "IND", infra: "INFRA",
-    };
+    const GROUP_NORMALIZE = { clt: "CLT", own: "OWN", dev: "DEV", mc: "MC", sub: "SUB", arch: "ARCH", pm: "PM" };
+    const TYPE_NORMALIZE = { res: "RES", com: "COM", ind: "IND", infra: "INFRA" };
     function normalize(val, map) {
       if (!val) return "";
       const key = val.toLowerCase();
       return map[key] || val.toUpperCase();
     }
 
-    // Build customer lookup by No -> parsed segments
     const customerByNo = {};
     for (const c of customers) {
       const code = (c.Contact || "").trim();
@@ -320,45 +363,34 @@ export async function GET(request) {
       };
     }
 
-    // Aggregate segmentation from orders (so we get revenue-weighted data)
     const channelMap = {};
     const groupMap = {};
     const typeMap = {};
     const channelGroupMap = {};
-
-    for (const o of ordersWithLines) {
+    for (const o of filtered) {
       const cust = customerByNo[o.Sell_to_Customer_No];
       if (!cust || !cust.code) continue;
-
       const ch = cust.channel;
       const gr = cust.group;
       const tp = cust.type;
-
-      // Channel distribution
       if (ch) {
         if (!channelMap[ch]) channelMap[ch] = { code: ch, label: CHANNEL_LABELS[ch] || ch, customers: new Set(), orders: 0, revenue: 0 };
         channelMap[ch].customers.add(o.Sell_to_Customer_No);
         channelMap[ch].orders++;
         channelMap[ch].revenue += o.totalAmount;
       }
-
-      // Customer group distribution
       if (gr) {
         if (!groupMap[gr]) groupMap[gr] = { code: gr, label: GROUP_LABELS[gr] || gr, customers: new Set(), orders: 0, revenue: 0 };
         groupMap[gr].customers.add(o.Sell_to_Customer_No);
         groupMap[gr].orders++;
         groupMap[gr].revenue += o.totalAmount;
       }
-
-      // Project type distribution
       if (tp) {
         if (!typeMap[tp]) typeMap[tp] = { code: tp, label: TYPE_LABELS[tp] || tp, customers: new Set(), orders: 0, revenue: 0 };
         typeMap[tp].customers.add(o.Sell_to_Customer_No);
         typeMap[tp].orders++;
         typeMap[tp].revenue += o.totalAmount;
       }
-
-      // Channel x Group cross-tab
       if (ch && gr) {
         const key = `${ch}-${gr}`;
         if (!channelGroupMap[key]) channelGroupMap[key] = { channel: CHANNEL_LABELS[ch] || ch, group: GROUP_LABELS[gr] || gr, orders: 0, revenue: 0 };
@@ -366,12 +398,10 @@ export async function GET(request) {
         channelGroupMap[key].revenue += o.totalAmount;
       }
     }
-
     const serializeSegment = (map) =>
       Object.values(map)
         .map((s) => ({ ...s, customers: s.customers.size }))
         .sort((a, b) => b.revenue - a.revenue);
-
     const customerSegmentation = {
       totalCustomers: customers.length,
       parsedCustomers: Object.keys(customerByNo).filter((k) => customerByNo[k].code).length,
@@ -388,7 +418,7 @@ export async function GET(request) {
     }
 
     const result = {
-      orders: ordersWithLines,
+      orders: filtered,
       customerPhones,
       stats: {
         totalOrders,
@@ -421,7 +451,7 @@ export async function GET(request) {
         customerSegmentation,
       },
     };
-    cache = { data: result, ts: Date.now() };
+    periodCaches[period] = { data: result, ts: Date.now() };
     return Response.json(result);
   } catch (error) {
     console.error("[Marketing Analytics] Error:", error.message);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { getMarketingAnalytics } from "@/actions/marketing";
 
@@ -8,15 +8,12 @@ export function useMarketingAnalytics() {
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriodState] = useState("all");
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async (refresh = false) => {
+  const loadData = useCallback(async (refresh = false, p = "all") => {
     try {
       setLoading(true);
-      const data = await getMarketingAnalytics(refresh);
+      const data = await getMarketingAnalytics(refresh, p);
       setOrders(data.orders || []);
       setStats(data.stats || null);
     } catch (error) {
@@ -25,7 +22,19 @@ export function useMarketingAnalytics() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  return { orders, stats, loading, reload: () => loadData(true) };
+  useEffect(() => {
+    loadData(false, period);
+  }, [period, loadData]);
+
+  const setPeriod = useCallback((p) => {
+    setPeriodState(p);
+  }, []);
+
+  const reload = useCallback(() => {
+    loadData(true, period);
+  }, [loadData, period]);
+
+  return { orders, stats, loading, period, setPeriod, reload };
 }

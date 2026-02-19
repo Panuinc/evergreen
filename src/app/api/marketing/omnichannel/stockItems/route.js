@@ -1,21 +1,20 @@
 import { withAuth } from "@/app/api/_lib/auth";
-import { bcODataGet } from "@/lib/bcClient";
 
 export async function GET() {
   const auth = await withAuth();
   if (auth.error) return auth.error;
 
   try {
-    // Fetch BC items and price list in parallel
-    const [bcItems, priceResult] = await Promise.all([
-      bcODataGet("Item_Card_Excel", {
-        $filter: "Blocked eq false and startswith(No,'FG-00003')",
-        $select:
-          "No,Description,Unit_Price,Unit_Cost,Inventory,Base_Unit_of_Measure",
-        $orderby: "No",
-      }),
+    // Fetch from Supabase cache and price list in parallel
+    const [{ data: bcItems, error: itemErr }, priceResult] = await Promise.all([
+      auth.supabase
+        .from("bcItems")
+        .select("number,displayName,unitPrice,unitCost,inventory,baseUnitOfMeasure")
+        .like("number", "FG-00003%"),
       auth.supabase.from("omPriceList").select("*"),
     ]);
+
+    if (itemErr) throw new Error(itemErr.message);
 
     // Build price lookup map
     const priceMap = {};
@@ -23,15 +22,14 @@ export async function GET() {
       priceMap[p.priceItemNumber] = p.priceUnitPrice;
     }
 
-    // Merge BC items with custom prices (map OData fields to expected names)
-    const merged = bcItems.map((item) => ({
-      number: item.No,
-      displayName: item.Description,
-      unitPrice: item.Unit_Price,
-      unitCost: item.Unit_Cost,
-      inventory: item.Inventory,
-      baseUnitOfMeasure: item.Base_Unit_of_Measure,
-      customPrice: priceMap[item.No] ?? null,
+    const merged = (bcItems || []).map((item) => ({
+      number: item.number,
+      displayName: item.displayName,
+      unitPrice: item.unitPrice,
+      unitCost: item.unitCost,
+      inventory: item.inventory,
+      baseUnitOfMeasure: item.baseUnitOfMeasure,
+      customPrice: priceMap[item.number] ?? null,
     }));
 
     return Response.json(merged);
