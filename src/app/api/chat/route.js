@@ -1,281 +1,118 @@
 import { withAuth } from "@/app/api/_lib/auth";
-import { bcGet } from "@/lib/bcClient";
+import { hrAgent, runHrAgent } from "@/lib/agents/hrAgent";
+import { salesAgent, runSalesAgent } from "@/lib/agents/salesAgent";
+import { tmsAgent, runTmsAgent } from "@/lib/agents/tmsAgent";
+import { financeAgent, runFinanceAgent } from "@/lib/agents/financeAgent";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_MODEL = "google/gemini-2.5-flash-lite";
 
-function buildSystemPrompt() {
+const AGENT_MAP = {
+  ask_hr_agent: { meta: hrAgent, run: runHrAgent, needsSupabase: true },
+  ask_sales_agent: { meta: salesAgent, run: runSalesAgent, needsSupabase: false },
+  ask_tms_agent: { meta: tmsAgent, run: runTmsAgent, needsSupabase: true },
+  ask_finance_agent: { meta: financeAgent, run: runFinanceAgent, needsSupabase: false },
+};
+
+function buildOrchestratorPrompt() {
   const now = new Date().toLocaleString("th-TH", {
     timeZone: "Asia/Bangkok",
     dateStyle: "full",
     timeStyle: "short",
   });
 
-  return `คุณเป็น AI assistant ของระบบ ERP ชื่อ **Evergreen** ของบริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด
+  return `คุณเป็น Orchestrator AI ของระบบ ERP Evergreen บริษัท ชี้อะฮะฮวด อุตสาหกรรม จำกัด
 ตอบเป็นภาษาไทยเสมอ ยกเว้นเมื่อผู้ใช้ถามเป็นภาษาอังกฤษ
 
 **วันที่และเวลาปัจจุบัน (เขตเวลาไทย):** ${now}
 
-## ขอบเขตการตอบ
-คุณสามารถตอบได้ทุกเรื่อง ทั้งคำถามทั่วไปและคำถามเกี่ยวกับระบบ ERP:
-- คำถามทั่วไป: วันที่/เวลา, ความรู้ทั่วไป, คำนวณ, แปลภาษา, แนะนำ ฯลฯ
-- ข้อมูลในระบบ: ใช้ tool ดึงข้อมูลจริง (ห้ามเดา)
-- วิธีใช้งานระบบ: แนะนำเมนูและขั้นตอน
+## บทบาทของคุณ
+คุณทำหน้าที่รับคำถามจากผู้ใช้และประสานงานกับ specialist agents ที่เชี่ยวชาญในแต่ละด้าน:
 
-## ข้อมูลที่ดึงได้ผ่าน Tools
-ใช้ tool เหล่านี้เมื่อผู้ใช้ถามเรื่องข้อมูลในระบบ — ห้ามเดาหรือตอบจากความจำ:
-- **get_customers** → รายชื่อลูกค้าจาก Business Central
-- **get_items** → รายการสินค้าจาก Business Central
-- **get_sales_orders** → ใบสั่งขายจาก Business Central
-- **get_employees** → รายชื่อพนักงานจากระบบ HR
-- **get_departments** → รายชื่อแผนก
-- **get_positions** → รายชื่อตำแหน่งงาน
-- **get_roles** → บทบาทผู้ใช้งาน (RBAC)
-- **get_vehicles** → ทะเบียนรถทั้งหมดจากระบบ TMS
-- **get_drivers** → รายชื่อคนขับรถจากระบบ TMS
-- **get_shipments** → รายการ shipment จากระบบ TMS
-- **get_fuel_logs** → บันทึกการเติมน้ำมัน 50 รายการล่าสุด
-- **get_maintenances** → บันทึกการซ่อมบำรุงรถ 50 รายการล่าสุด
+- **ask_hr_agent** → คำถามเกี่ยวกับ HR: พนักงาน แผนก ตำแหน่ง สายงาน การจ้างงาน
+- **ask_sales_agent** → คำถามเกี่ยวกับ Sales/BC: ลูกค้า สินค้า ใบสั่งขาย Business Central
+- **ask_tms_agent** → คำถามเกี่ยวกับ TMS: รถ คนขับ shipment เส้นทาง เชื้อเพลิง การซ่อมบำรุง GPS
+- **ask_finance_agent** → คำถามเกี่ยวกับการเงิน: บัญชี งบประมาณ รายงานการเงิน
+
+## แนวทาง
+1. ถ้าคำถามเกี่ยวกับ**ข้อมูลในระบบ** → ส่งต่อให้ agent ที่เหมาะสม
+2. ถ้าคำถามเกี่ยวข้องหลายด้าน → เรียกหลาย agent พร้อมกันได้
+3. ถ้าเป็นคำถาม**ทั่วไป** (วันที่ เวลา ความรู้ทั่วไป) → ตอบได้เลยโดยไม่ต้องใช้ agent
+4. สรุปคำตอบจาก agent ต่างๆ เป็นภาษาไทย กระชับ ตรงประเด็น
+5. แสดงข้อมูลหลายรายการเป็น**ตาราง Markdown** เสมอ
 
 ## โมดูลทั้งหมดในระบบ Evergreen
-ถ้าถามเรื่องโมดูลที่ไม่มี tool ให้แนะนำเมนูที่ต้องไปแทน:
-- **Overview** → dashboard, analytics, activities, recent updates, favorites, reports
-- **Human Resources (HR)** → พนักงาน, แผนก, ตำแหน่ง, recruitment, attendance, payroll, performance
-- **Information Technology (IT)** → assets, help desk, system access, network, software, security
-- **Finance & Accounting** → general ledger, AP, AR, budget, financial reports, tax
-- **Sales** → leads, opportunities, quotations, orders, customers, reports
-- **Marketing** → omnichannel chat, sales orders, price list, quotation, campaigns, social media, email marketing
-- **Operations** → process management, resource planning, KPI dashboard, workflow, audit
-- **Procurement** → purchase requests, purchase orders, vendors, contracts, negotiations
-- **Production** → production plan, work orders, BOM, machine status, efficiency, maintenance
-- **Quality Assurance (QA)** → inspections, test reports, NCR, CAPA, standards, audits
-- **R&D** → projects, experiments, prototypes, patents, research, innovation
-- **Customer Service** → tickets, call center, live chat, feedback, FAQ, SLA
-- **Transportation (TMS)** → vehicles, drivers, shipments, routes, deliveries, fuel logs, maintenance, GPS tracking, alerts
-- **Warehouse** → inventory, receiving, picking, stock check, locations, transfers
-- **Legal & Compliance** → contracts, regulations, policies, litigation, compliance, risk
-- **Business Central** → ข้อมูลตรงจาก BC: customers, items, sales orders
-- **Access Control (RBAC)** → roles, users, resources, actions, permissions, approval hierarchy, approval workflows, access logs
-- **Settings** → config check
-
-## แนวทางการตอบ
-1. ถ้าถามเรื่อง**ข้อมูลในระบบ** → ดึง tool ก่อนตอบทุกครั้ง ห้ามเดา
-2. ถ้าถามเรื่อง**วิธีใช้ระบบ** → บอกเส้นทาง เช่น "ไปที่ HR > Employee List"
-3. ถ้าถามเรื่อง**ทั่วไป** → ตอบได้เลยจากความรู้ที่มี
-4. แสดงข้อมูลหลายรายการเป็น**ตาราง Markdown** เสมอ
-5. ตอบ**กระชับ** ตรงประเด็น ไม่ต้องพูดซ้ำคำถาม`;
+ถ้าถามเรื่องโมดูลที่ไม่มี agent ให้แนะนำเมนูที่ต้องไปแทน:
+- **Overview** → dashboard, analytics, activities
+- **HR** → พนักงาน แผนก ตำแหน่ง (ใช้ ask_hr_agent)
+- **Sales/BC** → ลูกค้า สินค้า ใบสั่งขาย (ใช้ ask_sales_agent)
+- **TMS** → รถ คนขับ shipment (ใช้ ask_tms_agent)
+- **Finance** → การเงิน บัญชี (ใช้ ask_finance_agent)
+- **Marketing** → omnichannel chat → เมนู Marketing > Omnichannel
+- **RBAC** → roles, permissions → เมนู Access Control
+- **Settings** → config check → เมนู Settings`;
 }
 
-const tools = [
+const orchestratorTools = [
   {
     type: "function",
     function: {
-      name: "get_customers",
-      description: "ดึงรายชื่อลูกค้าจาก Business Central",
-      parameters: { type: "object", properties: {} },
+      name: "ask_hr_agent",
+      description: "ส่งคำถามให้ HR Agent ผู้เชี่ยวชาญด้านทรัพยากรบุคคล (พนักงาน แผนก ตำแหน่ง)",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "คำถามที่ต้องการถาม HR Agent" },
+        },
+        required: ["query"],
+      },
     },
   },
   {
     type: "function",
     function: {
-      name: "get_items",
-      description: "ดึงรายการสินค้าทั้งหมดจาก Business Central (เฉพาะที่ไม่ถูก block)",
-      parameters: { type: "object", properties: {} },
+      name: "ask_sales_agent",
+      description: "ส่งคำถามให้ Sales Agent ผู้เชี่ยวชาญด้านการขายและ Business Central (ลูกค้า สินค้า ใบสั่งขาย)",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "คำถามที่ต้องการถาม Sales Agent" },
+        },
+        required: ["query"],
+      },
     },
   },
   {
     type: "function",
     function: {
-      name: "get_sales_orders",
-      description: "ดึงรายการ Sales Orders ทั้งหมดจาก Business Central",
-      parameters: { type: "object", properties: {} },
+      name: "ask_tms_agent",
+      description: "ส่งคำถามให้ TMS Agent ผู้เชี่ยวชาญด้านการขนส่ง (รถ คนขับ shipment เชื้อเพลิง ซ่อมบำรุง)",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "คำถามที่ต้องการถาม TMS Agent" },
+        },
+        required: ["query"],
+      },
     },
   },
   {
     type: "function",
     function: {
-      name: "get_employees",
-      description: "ดึงรายชื่อพนักงานทั้งหมดจากระบบ HR",
-      parameters: { type: "object", properties: {} },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_departments",
-      description: "ดึงรายชื่อแผนกทั้งหมดจากระบบ HR",
-      parameters: { type: "object", properties: {} },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_positions",
-      description: "ดึงรายชื่อตำแหน่งงานทั้งหมดจากระบบ HR",
-      parameters: { type: "object", properties: {} },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_roles",
-      description: "ดึงรายชื่อบทบาท (Roles) ทั้งหมดจากระบบ RBAC",
-      parameters: { type: "object", properties: {} },
-    },
-  },
-  // ── TMS ──
-  {
-    type: "function",
-    function: {
-      name: "get_vehicles",
-      description: "ดึงรายการรถทั้งหมดจากระบบ TMS พร้อมสถานะและรายละเอียด",
-      parameters: { type: "object", properties: {} },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_drivers",
-      description: "ดึงรายชื่อคนขับรถทั้งหมดจากระบบ TMS พร้อมสถานะใบขับขี่",
-      parameters: { type: "object", properties: {} },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_shipments",
-      description: "ดึงรายการ Shipment ล่าสุดจากระบบ TMS",
-      parameters: { type: "object", properties: {} },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_fuel_logs",
-      description: "ดึงบันทึกการเติมน้ำมัน 50 รายการล่าสุดจากระบบ TMS",
-      parameters: { type: "object", properties: {} },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_maintenances",
-      description: "ดึงบันทึกการซ่อมบำรุงรถ 50 รายการล่าสุดจากระบบ TMS",
-      parameters: { type: "object", properties: {} },
+      name: "ask_finance_agent",
+      description: "ส่งคำถามให้ Finance Agent ผู้เชี่ยวชาญด้านการเงินและบัญชี",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "คำถามที่ต้องการถาม Finance Agent" },
+        },
+        required: ["query"],
+      },
     },
   },
 ];
 
-async function executeTool(name, supabase) {
-  switch (name) {
-    case "get_customers": {
-      const rows = await bcGet("/customers");
-      return rows.map((c) => ({
-        number: c.number,
-        displayName: c.displayName,
-        city: c.city,
-        phoneNumber: c.phoneNumber,
-      }));
-    }
-    case "get_items": {
-      const rows = await bcGet("/items", {
-        $filter: "blocked eq false",
-      });
-      return rows.map((i) => ({
-        number: i.number,
-        displayName: i.displayName,
-        type: i.type,
-        inventory: i.inventory,
-        unitPrice: i.unitPrice,
-        unitCost: i.unitCost,
-        generalProductPostingGroupCode: i.generalProductPostingGroupCode,
-      }));
-    }
-    case "get_sales_orders": {
-      const rows = await bcGet("/salesOrders", {
-        $orderby: "number desc",
-      });
-      return rows.map((o) => ({
-        number: o.number,
-        customerName: o.customerName,
-        orderDate: o.orderDate,
-        status: o.status,
-        totalAmountIncludingTax: o.totalAmountIncludingTax,
-      }));
-    }
-    case "get_employees": {
-      const { data } = await supabase
-        .from("employees")
-        .select("employeeId, employeeFirstName, employeeLastName, employeeEmail")
-        .order("employeeCreatedAt", { ascending: false });
-      return data;
-    }
-    case "get_departments": {
-      const { data } = await supabase
-        .from("departments")
-        .select("departmentId, departmentName")
-        .order("departmentName");
-      return data;
-    }
-    case "get_positions": {
-      const { data } = await supabase
-        .from("positions")
-        .select("positionId, positionTitle, positionDepartment")
-        .order("positionTitle");
-      return data;
-    }
-    case "get_roles": {
-      const { data } = await supabase
-        .from("roles")
-        .select("roleId, roleName")
-        .order("roleCreatedAt", { ascending: false });
-      return data;
-    }
-    // ── TMS ──
-    case "get_vehicles": {
-      const { data } = await supabase
-        .from("vehicles")
-        .select("vehicleId, vehicleName, vehiclePlateNumber, vehicleType, vehicleBrand, vehicleModel, vehicleYear, vehicleStatus, vehicleCurrentMileage, vehicleFuelType, vehicleCapacityKg, vehicleRegistrationExpiry, vehicleInsuranceExpiry")
-        .order("vehicleName");
-      return data;
-    }
-    case "get_drivers": {
-      const { data } = await supabase
-        .from("drivers")
-        .select("driverId, driverFirstName, driverLastName, driverPhone, driverLicenseNumber, driverLicenseType, driverLicenseExpiry, driverRole, driverStatus")
-        .order("driverFirstName");
-      return data;
-    }
-    case "get_shipments": {
-      const { data } = await supabase
-        .from("shipments")
-        .select("shipmentId, shipmentNumber, shipmentCustomerName, shipmentDestination, shipmentStatus, shipmentEstimatedArrival, shipmentWeightKg, shipmentCreatedAt")
-        .order("shipmentCreatedAt", { ascending: false })
-        .limit(50);
-      return data;
-    }
-    case "get_fuel_logs": {
-      const { data } = await supabase
-        .from("fuelLogs")
-        .select("fuelLogId, fuelLogDate, fuelLogFuelType, fuelLogLiters, fuelLogPricePerLiter, fuelLogTotalCost, fuelLogMileage, fuelLogStation, fuelLogVehicleId")
-        .order("fuelLogDate", { ascending: false })
-        .limit(50);
-      return data;
-    }
-    case "get_maintenances": {
-      const { data } = await supabase
-        .from("maintenances")
-        .select("maintenanceId, maintenanceVehicleId, maintenanceType, maintenanceDescription, maintenanceDate, maintenanceStatus, maintenanceCost, maintenanceVendor, maintenanceNextDueDate")
-        .order("maintenanceDate", { ascending: false })
-        .limit(50);
-      return data;
-    }
-    default:
-      throw new Error(`Unknown tool: ${name}`);
-  }
-}
-
-async function callAI(messages, stream = true, retries = 1) {
+async function callOrchestrator(messages, stream = false, retries = 2) {
   try {
     const res = await fetch(API_URL, {
       method: "POST",
@@ -286,7 +123,7 @@ async function callAI(messages, stream = true, retries = 1) {
       body: JSON.stringify({
         model: API_MODEL,
         messages,
-        tools,
+        tools: orchestratorTools,
         temperature: 0.3,
         stream,
       }),
@@ -294,15 +131,15 @@ async function callAI(messages, stream = true, retries = 1) {
 
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`AI API error: ${res.status} ${text}`);
+      throw new Error(`Orchestrator API error: ${res.status} ${text}`);
     }
 
     return res;
   } catch (err) {
     const isReset = err.cause?.code === "ECONNRESET" || err.cause?.errno === -4077;
     if (retries > 0 && isReset) {
-      await new Promise((r) => setTimeout(r, 500));
-      return callAI(messages, stream, retries - 1);
+      await new Promise((r) => setTimeout(r, 600));
+      return callOrchestrator(messages, stream, retries - 1);
     }
     throw err;
   }
@@ -316,29 +153,28 @@ export async function POST(request) {
     const { messages } = await request.json();
 
     const allMessages = [
-      { role: "system", content: buildSystemPrompt() },
+      { role: "system", content: buildOrchestratorPrompt() },
       ...messages,
     ];
 
-    // First call — non-streaming to check for tool calls
-    const firstRes = await callAI(allMessages, false);
+    // Step 1: Orchestrator decides what to do (non-streaming)
+    const firstRes = await callOrchestrator(allMessages, false);
     const firstData = await firstRes.json();
 
     const choice = firstData.choices?.[0];
     if (!choice) {
-      console.error("AI response:", JSON.stringify(firstData));
-      throw new Error("Invalid response from Kimi API");
+      throw new Error("Orchestrator: invalid response");
     }
 
     const hasToolCalls =
       choice.finish_reason === "tool_calls" && choice.message?.tool_calls?.length > 0;
 
-    // If no tool call, return the already-received response as SSE (no second API call)
+    // No tool calls → direct answer (general question)
     if (!hasToolCalls) {
       const content = choice.message?.content || "";
-      const ssePayload = `data: ${JSON.stringify({
-        choices: [{ delta: { content } }],
-      })}\n\ndata: [DONE]\n\n`;
+      const ssePayload =
+        `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n` +
+        `data: [DONE]\n\n`;
 
       return new Response(ssePayload, {
         headers: {
@@ -349,29 +185,88 @@ export async function POST(request) {
       });
     }
 
-    // Execute tool calls
-    const toolMessages = [...allMessages, choice.message];
+    // Step 2: Execute specialist agents via custom ReadableStream
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
 
-    for (const toolCall of choice.message.tool_calls) {
+    const writeSSE = (data) => writer.write(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+
+    (async () => {
       try {
-        const result = await executeTool(toolCall.function.name, auth.supabase);
-        toolMessages.push({
-          role: "tool",
-          tool_call_id: toolCall.id,
-          content: JSON.stringify(result ?? []),
-        });
-      } catch (toolError) {
-        toolMessages.push({
-          role: "tool",
-          tool_call_id: toolCall.id,
-          content: JSON.stringify({ error: toolError.message }),
-        });
-      }
-    }
+        const toolMessages = [...allMessages, choice.message];
 
-    // Final call with tool results — streaming
-    const finalRes = await callAI(toolMessages, true);
-    return new Response(finalRes.body, {
+        for (const toolCall of choice.message.tool_calls) {
+          const toolName = toolCall.function.name;
+          const agentEntry = AGENT_MAP[toolName];
+
+          if (!agentEntry) {
+            toolMessages.push({
+              role: "tool",
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ error: `Unknown agent: ${toolName}` }),
+            });
+            continue;
+          }
+
+          // Notify client which agent is now working
+          await writeSSE({
+            type: "agent_start",
+            agentName: agentEntry.meta.name,
+            agentIcon: agentEntry.meta.icon,
+          });
+
+          try {
+            let args = {};
+            try {
+              args = JSON.parse(toolCall.function.arguments || "{}");
+            } catch {
+              args = {};
+            }
+
+            const query = args.query || allMessages[allMessages.length - 1]?.content || "";
+
+            let result;
+            if (agentEntry.needsSupabase) {
+              result = await agentEntry.run(query, auth.supabase);
+            } else {
+              result = await agentEntry.run(query);
+            }
+
+            toolMessages.push({
+              role: "tool",
+              tool_call_id: toolCall.id,
+              content: result || "(ไม่มีข้อมูล)",
+            });
+          } catch (agentErr) {
+            toolMessages.push({
+              role: "tool",
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ error: agentErr.message }),
+            });
+          }
+        }
+
+        // Step 3: Orchestrator synthesizes and streams final answer
+        const finalRes = await callOrchestrator(toolMessages, true);
+        const reader = finalRes.body.getReader();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          await writer.write(value);
+        }
+
+        await writer.write(encoder.encode("data: [DONE]\n\n"));
+      } catch (err) {
+        const errMsg = `data: ${JSON.stringify({ choices: [{ delta: { content: `\n\n⚠️ เกิดข้อผิดพลาด: ${err.message}` } }] })}\n\ndata: [DONE]\n\n`;
+        await writer.write(encoder.encode(errMsg));
+      } finally {
+        await writer.close();
+      }
+    })();
+
+    return new Response(readable, {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",

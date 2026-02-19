@@ -6,6 +6,7 @@ import { toast } from "sonner";
 export function useChat() {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeAgent, setActiveAgent] = useState(null);
   const abortRef = useRef(null);
 
   const sendMessage = useCallback(async (content) => {
@@ -14,6 +15,7 @@ export function useChat() {
 
     setMessages([...updatedMessages, { role: "assistant", content: "" }]);
     setIsLoading(true);
+    setActiveAgent(null);
 
     try {
       const controller = new AbortController();
@@ -49,6 +51,14 @@ export function useChat() {
 
           try {
             const parsed = JSON.parse(data);
+
+            // Agent notification event
+            if (parsed.type === "agent_start") {
+              setActiveAgent({ name: parsed.agentName, icon: parsed.agentIcon });
+              continue;
+            }
+
+            // Content delta
             const delta = parsed.choices?.[0]?.delta?.content;
             if (delta) {
               assistantContent += delta;
@@ -73,6 +83,7 @@ export function useChat() {
       setMessages(updatedMessages);
     } finally {
       setIsLoading(false);
+      setActiveAgent(null);
       abortRef.current = null;
     }
   }, [messages]);
@@ -81,7 +92,8 @@ export function useChat() {
     if (abortRef.current) abortRef.current.abort();
     setMessages([]);
     setIsLoading(false);
+    setActiveAgent(null);
   }, []);
 
-  return { messages, isLoading, sendMessage, clearMessages };
+  return { messages, isLoading, activeAgent, sendMessage, clearMessages };
 }
