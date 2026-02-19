@@ -1,4 +1,4 @@
-import { bcODataGet } from "@/lib/bcClient";
+import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_MODEL = "google/gemini-2.5-flash-lite";
@@ -54,84 +54,82 @@ const tools = [
 ];
 
 async function executeTool(name) {
+  const supabase = getServiceSupabase();
   switch (name) {
     case "get_customers": {
-      const rows = await bcODataGet("CustomerList", {
-        $select: "No,Name,Phone_No,Contact",
-        $orderby: "No asc",
-      });
-      return rows.map((c) => ({
-        no: c.No,
-        name: c.Name,
-        phone: c.Phone_No,
-        contact: c.Contact,
+      const { data, error } = await supabase
+        .from("bcCustomers")
+        .select("number,displayName,phoneNumber,contact")
+        .order("number");
+      if (error) throw new Error(error.message);
+      return (data || []).map((c) => ({
+        no: c.number,
+        name: c.displayName,
+        phone: c.phoneNumber,
+        contact: c.contact,
       }));
     }
 
     case "get_items": {
-      const rows = await bcODataGet("Item_Card_Excel", {
-        $filter: "Blocked eq false",
-        $select: "No,Description,Inventory,Unit_Price,Unit_Cost,Blocked,Type,Base_Unit_of_Measure",
-        $orderby: "No asc",
-      });
-      return rows.map((i) => ({
-        no: i.No,
-        description: i.Description,
-        type: i.Type,
-        inventory: i.Inventory,
-        unitPrice: i.Unit_Price,
-        unitCost: i.Unit_Cost,
-        uom: i.Base_Unit_of_Measure,
+      const { data, error } = await supabase
+        .from("bcItems")
+        .select("number,displayName,type,inventory,unitPrice,unitCost,baseUnitOfMeasure")
+        .eq("blocked", false)
+        .order("number");
+      if (error) throw new Error(error.message);
+      return (data || []).map((i) => ({
+        no: i.number,
+        description: i.displayName,
+        type: i.type,
+        inventory: i.inventory,
+        unitPrice: i.unitPrice,
+        unitCost: i.unitCost,
+        uom: i.baseUnitOfMeasure,
       }));
     }
 
     case "get_sales_orders": {
-      // Fetch orders and their lines in parallel
-      const [orders, allLines] = await Promise.all([
-        bcODataGet("Sales_Order_Excel", {
-          $orderby: "Order_Date desc",
-          $top: "50",
-          $select:
-            "No,Sell_to_Customer_No,Sell_to_Customer_Name,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No",
-        }),
-        bcODataGet("Sales_Order_Line_Excel", {
-          $select:
-            "Document_No,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,Unit_of_Measure_Code",
-        }),
-      ]);
+      const { data: orders, error: oErr } = await supabase
+        .from("bcSalesOrders")
+        .select("number,customerNumber,customerName,orderDate,dueDate,status,completelyShipped,salespersonCode,externalDocumentNumber")
+        .order("orderDate", { ascending: false })
+        .limit(50);
+      if (oErr) throw new Error(oErr.message);
 
-      // Build a set of order numbers for fast lookup
-      const orderNos = new Set(orders.map((o) => o.No));
+      const orderNos = (orders || []).map((o) => o.number);
+      const { data: allLines, error: lErr } = await supabase
+        .from("bcSalesOrderLines")
+        .select("documentNo,lineObjectNumber,description,quantity,unitPrice,amountIncludingTax,quantityShipped,unitOfMeasureCode")
+        .in("documentNo", orderNos);
+      if (lErr) throw new Error(lErr.message);
 
-      // Filter lines to only those belonging to fetched orders
       const linesByOrder = {};
-      for (const line of allLines) {
-        if (!orderNos.has(line.Document_No)) continue;
-        if (!linesByOrder[line.Document_No]) linesByOrder[line.Document_No] = [];
-        linesByOrder[line.Document_No].push({
-          no: line.No,
-          description: line.Description,
-          quantity: line.Quantity,
-          unitPrice: line.Unit_Price,
-          lineAmount: line.Line_Amount,
-          quantityShipped: line.Quantity_Shipped,
-          uom: line.Unit_of_Measure_Code,
+      for (const line of allLines || []) {
+        if (!linesByOrder[line.documentNo]) linesByOrder[line.documentNo] = [];
+        linesByOrder[line.documentNo].push({
+          no: line.lineObjectNumber,
+          description: line.description,
+          quantity: line.quantity,
+          unitPrice: line.unitPrice,
+          lineAmount: line.amountIncludingTax,
+          quantityShipped: line.quantityShipped,
+          uom: line.unitOfMeasureCode,
         });
       }
 
-      return orders.map((o) => {
-        const lines = linesByOrder[o.No] || [];
+      return (orders || []).map((o) => {
+        const lines = linesByOrder[o.number] || [];
         const totalAmount = lines.reduce((s, l) => s + (l.lineAmount || 0), 0);
         return {
-          no: o.No,
-          customerNo: o.Sell_to_Customer_No,
-          customerName: o.Sell_to_Customer_Name,
-          orderDate: o.Order_Date,
-          dueDate: o.Due_Date,
-          status: o.Status,
-          completelyShipped: o.Completely_Shipped,
-          salespersonCode: o.Salesperson_Code,
-          externalDocNo: o.External_Document_No,
+          no: o.number,
+          customerNo: o.customerNumber,
+          customerName: o.customerName,
+          orderDate: o.orderDate,
+          dueDate: o.dueDate,
+          status: o.status,
+          completelyShipped: o.completelyShipped,
+          salespersonCode: o.salespersonCode,
+          externalDocNo: o.externalDocumentNumber,
           totalAmount,
           lines,
         };
