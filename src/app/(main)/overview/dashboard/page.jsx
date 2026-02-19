@@ -186,7 +186,7 @@ export default function OverviewDashboardPage() {
             <div className="flex flex-col items-center gap-4 text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo/logo-01.png"
+                src="/logo/logo-03.png"
                 alt="Evergreen"
                 className="w-16 h-16 object-contain opacity-90"
               />

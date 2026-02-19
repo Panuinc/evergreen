@@ -60,40 +60,44 @@ export default function ShippingLabelDocument({ orderNo }) {
 
   return (
     <div id="label-print-area">
-      <style jsx global>{`
-        @media print {
-          @page {
-            size: 100mm 150mm;
-            margin: 0;
-          }
-          body {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            margin: 0;
-          }
-          .no-print {
-            display: none !important;
-          }
-          body * {
-            visibility: hidden !important;
-          }
-          #label-print-area,
-          #label-print-area * {
-            visibility: visible !important;
-          }
-          #label-print-area {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-          }
-        }
-        @media screen {
-          .label-page {
-            margin: 16px auto;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
-          }
-        }
-      `}</style>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @page {
+              size: 100mm 150mm;
+              margin: 0;
+            }
+            @media print {
+              body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                margin: 0;
+              }
+              .no-print {
+                display: none !important;
+              }
+              body * {
+                visibility: hidden !important;
+              }
+              #label-print-area,
+              #label-print-area * {
+                visibility: visible !important;
+              }
+              #label-print-area {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+              }
+            }
+            @media screen {
+              .label-page {
+                margin: 16px auto;
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+              }
+            }
+          `,
+        }}
+      />
 
       {/* ปุ่มสำหรับหน้าจอ */}
       <div className="no-print flex items-center justify-between mb-4 px-4 pt-4">
@@ -157,7 +161,7 @@ export default function ShippingLabelDocument({ orderNo }) {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/logo/logo-01.png"
+                  src="/logo/logo-03.png"
                   alt="Evergreen"
                   style={{
                     width: "14mm",
