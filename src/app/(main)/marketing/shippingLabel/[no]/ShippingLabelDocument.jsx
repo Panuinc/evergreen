@@ -2,16 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import JsBarcode from "jsbarcode";
-import { QRCodeSVG } from "qrcode.react";
 
 const SENDER = {
   name: "บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด",
   address: "9/1 หมู่ 2 ถนนบางเลน-ลาดหลมแก้ว ต.ขนศรี อ.ไทรน้อย จ.นนทบุรี 11150",
   phone: "02-921-9979, 062-539-9980",
 };
-
-// TODO: เปลี่ยนเป็น LINE OA URL จริง
-const LINE_URL = "https://line.me/R/ti/p/@evergreendoor";
 
 function BarcodeImg({ value }) {
   const ref = useRef(null);
@@ -163,7 +159,11 @@ export default function ShippingLabelDocument({ orderNo }) {
                 <img
                   src="/logo/logo-01.png"
                   alt="Evergreen"
-                  style={{ width: "14mm", height: "14mm", objectFit: "contain" }}
+                  style={{
+                    width: "14mm",
+                    height: "14mm",
+                    objectFit: "contain",
+                  }}
                 />
               </div>
 
@@ -217,7 +217,7 @@ export default function ShippingLabelDocument({ orderNo }) {
             {/* ── ส่วนที่ 2: Barcode ── */}
             <div
               style={{
-                border: "1px dashed #aaa",
+                border: "0px dashed #aaa",
                 padding: "1mm",
                 marginBottom: "2mm",
                 textAlign: "center",
@@ -242,7 +242,9 @@ export default function ShippingLabelDocument({ orderNo }) {
             >
               <div>
                 <span style={{ color: "#555" }}>ผู้รับ: </span>
-                <strong style={{ fontSize: "10pt" }}>{data.recipient.name}</strong>
+                <strong style={{ fontSize: "10pt" }}>
+                  {data.recipient.name}
+                </strong>
               </div>
               <div>
                 <span style={{ color: "#555" }}>ที่อยู่: </span>
@@ -265,7 +267,13 @@ export default function ShippingLabelDocument({ orderNo }) {
                 overflow: "hidden",
               }}
             >
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "6.5pt" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "6.5pt",
+                }}
+              >
                 <thead>
                   <tr style={{ borderBottom: "1px solid #000" }}>
                     <th
@@ -363,8 +371,23 @@ export default function ShippingLabelDocument({ orderNo }) {
                 <div>ไม่มีหลักฐานงดเคลมทุกกรณี</div>
               </div>
               <div style={{ flexShrink: 0, textAlign: "center" }}>
-                <QRCodeSVG value={LINE_URL} size={48} />
-                <div style={{ fontSize: "5.5pt", marginTop: "1mm", fontWeight: "bold" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/qrCode/lineEvergreen.png"
+                  alt="LINE QR"
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    objectFit: "contain",
+                  }}
+                />
+                <div
+                  style={{
+                    fontSize: "5.5pt",
+                    marginTop: "1mm",
+                    fontWeight: "bold",
+                  }}
+                >
                   LINE
                 </div>
               </div>
