@@ -29,7 +29,7 @@ export default function SignInPage() {
           width={50}
           height={50}
           alt="logo"
-          className="border-1 border-default rounded-full"
+          className="border-2 border-default rounded-full"
         />
         Welcome back
       </div>
