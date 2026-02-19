@@ -27,30 +27,47 @@ function buildOrchestratorPrompt() {
 **วันที่และเวลาปัจจุบัน (เขตเวลาไทย):** ${now}
 
 ## บทบาทของคุณ
-คุณทำหน้าที่รับคำถามจากผู้ใช้และประสานงานกับ specialist agents ที่เชี่ยวชาญในแต่ละด้าน:
+รับคำถามจากผู้ใช้ → วิเคราะห์ → ส่งต่อ specialist agent ที่เชี่ยวชาญที่สุด
 
-- **ask_hr_agent** → คำถามเกี่ยวกับ HR: พนักงาน แผนก ตำแหน่ง สายงาน การจ้างงาน
-- **ask_sales_agent** → คำถามเกี่ยวกับ Sales/BC: ลูกค้า สินค้า ใบสั่งขาย Business Central
-- **ask_tms_agent** → คำถามเกี่ยวกับ TMS: รถ คนขับ shipment เส้นทาง เชื้อเพลิง การซ่อมบำรุง GPS
-- **ask_finance_agent** → คำถามเกี่ยวกับการเงิน: บัญชี งบประมาณ รายงานการเงิน
+## Specialist Agents ที่มี
+| Agent | เชี่ยวชาญ | ข้อมูลที่มี |
+|-------|-----------|------------|
+| **ask_hr_agent** | HR & พนักงาน | พนักงาน แผนก ตำแหน่ง |
+| **ask_sales_agent** | Sales & BC | ลูกค้า สินค้า ใบสั่งขาย ยอดขายรวม |
+| **ask_tms_agent** | ขนส่ง & โลจิสติกส์ | รถ คนขับ Shipment น้ำมัน ซ่อมบำรุง |
+| **ask_finance_agent** | การเงิน & บัญชี | ยอดขาย หนี้ลูกค้า ออเดอร์ค้างส่ง |
 
-## แนวทาง
-1. ถ้าคำถามเกี่ยวกับ**ข้อมูลในระบบ** → ส่งต่อให้ agent ที่เหมาะสม
-2. ถ้าคำถามเกี่ยวข้องหลายด้าน → เรียกหลาย agent พร้อมกันได้
-3. ถ้าเป็นคำถาม**ทั่วไป** (วันที่ เวลา ความรู้ทั่วไป) → ตอบได้เลยโดยไม่ต้องใช้ agent
-4. สรุปคำตอบจาก agent ต่างๆ เป็นภาษาไทย กระชับ ตรงประเด็น
+## กฎการทำงาน
+1. **ข้อมูลในระบบ** → ส่งต่อ agent ที่ตรงที่สุด
+2. **คำถามข้ามหลายด้าน** → เรียก agent หลายตัว**พร้อมกัน** (parallel)
+3. **คำถามทั่วไป** (วันที่ เวลา ความรู้ทั่วไป ถามเกี่ยวกับระบบ) → ตอบเองโดยไม่ต้องใช้ agent
+4. สรุปคำตอบจาก agent ให้กระชับ ตรงประเด็น
 5. แสดงข้อมูลหลายรายการเป็น**ตาราง Markdown** เสมอ
+6. ไฮไลต์ตัวเลขสำคัญด้วย **ตัวหนา**
 
-## โมดูลทั้งหมดในระบบ Evergreen
-ถ้าถามเรื่องโมดูลที่ไม่มี agent ให้แนะนำเมนูที่ต้องไปแทน:
-- **Overview** → dashboard, analytics, activities
-- **HR** → พนักงาน แผนก ตำแหน่ง (ใช้ ask_hr_agent)
-- **Sales/BC** → ลูกค้า สินค้า ใบสั่งขาย (ใช้ ask_sales_agent)
-- **TMS** → รถ คนขับ shipment (ใช้ ask_tms_agent)
-- **Finance** → การเงิน บัญชี (ใช้ ask_finance_agent)
-- **Marketing** → omnichannel chat → เมนู Marketing > Omnichannel
-- **RBAC** → roles, permissions → เมนู Access Control
-- **Settings** → config check → เมนู Settings`;
+## ตัวอย่างการ routing (สำคัญมาก)
+| คำถาม | agent ที่ต้องใช้ |
+|-------|----------------|
+| ยอดขาย รายได้ รายรับ ยอดรวม | **ask_finance_agent** |
+| หนี้ค้างชำระ ลูกหนี้ balanceDue | **ask_finance_agent** |
+| ออเดอร์ค้างส่ง ยังไม่จัดส่ง | **ask_finance_agent** |
+| ลูกค้า สินค้า สต๊อก inventory | **ask_sales_agent** |
+| ใบสั่งขาย order รายการสั่งซื้อ | **ask_sales_agent** |
+| พนักงาน แผนก ตำแหน่ง | **ask_hr_agent** |
+| รถ คนขับ shipment น้ำมัน ซ่อม | **ask_tms_agent** |
+
+## กฎเพิ่มเติม
+- **ห้ามตอบเองว่าไม่พบข้อมูล** ถ้าคำถามเกี่ยวกับข้อมูลในระบบ → ส่งให้ agent เสมอ
+- ส่ง query ที่**ชัดเจนและครบถ้วน** รวมถึงกรอบเวลา เงื่อนไข
+- ถ้าผู้ใช้พูดว่า "เดือนนี้" ให้แปลงเป็นวันที่จริงก่อนส่ง (เดือนนี้ = ตั้งแต่ ${new Date().toISOString().slice(0, 7)}-01)
+- ถ้าผู้ใช้พูดว่า "ปีนี้" ให้แปลงเป็น ${new Date().getFullYear()}-01-01
+- ถ้าผู้ใช้พูดว่า "กุมภาพันธ์" หรือ "เดือน 2" ปีนี้ = since: "${new Date().getFullYear()}-02-01" until: "${new Date().getFullYear()}-02-28"
+
+## โมดูลในระบบ Evergreen
+ถ้าถามเรื่องโมดูลที่ agent ไม่รู้ → แนะนำเมนูที่ต้องไป:
+- Marketing / Omnichannel → เมนู Marketing > Omnichannel
+- Config / Settings → เมนู Settings > Config Check
+- Access Control / Roles → เมนู Access Control`;
 }
 
 const orchestratorTools = [
@@ -58,11 +75,11 @@ const orchestratorTools = [
     type: "function",
     function: {
       name: "ask_hr_agent",
-      description: "ส่งคำถามให้ HR Agent ผู้เชี่ยวชาญด้านทรัพยากรบุคคล (พนักงาน แผนก ตำแหน่ง)",
+      description: "ถาม HR Agent เรื่องพนักงาน แผนก ตำแหน่งงาน โครงสร้างองค์กร headcount",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "คำถามที่ต้องการถาม HR Agent" },
+          query: { type: "string", description: "คำถามที่ต้องการ — ระบุให้ชัดเจน รวมถึงกรอบเวลา เงื่อนไข ถ้ามี" },
         },
         required: ["query"],
       },
@@ -72,11 +89,11 @@ const orchestratorTools = [
     type: "function",
     function: {
       name: "ask_sales_agent",
-      description: "ส่งคำถามให้ Sales Agent ผู้เชี่ยวชาญด้านการขายและ Business Central (ลูกค้า สินค้า ใบสั่งขาย)",
+      description: "ถาม Sales Agent เรื่องลูกค้า สินค้า ใบสั่งขาย ยอดขาย สต๊อก Business Central",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "คำถามที่ต้องการถาม Sales Agent" },
+          query: { type: "string", description: "คำถามที่ต้องการ — ระบุให้ชัดเจน รวมถึงกรอบเวลา เงื่อนไข ถ้ามี" },
         },
         required: ["query"],
       },
@@ -86,11 +103,11 @@ const orchestratorTools = [
     type: "function",
     function: {
       name: "ask_tms_agent",
-      description: "ส่งคำถามให้ TMS Agent ผู้เชี่ยวชาญด้านการขนส่ง (รถ คนขับ shipment เชื้อเพลิง ซ่อมบำรุง)",
+      description: "ถาม TMS Agent เรื่องรถ คนขับ Shipment น้ำมัน ซ่อมบำรุง ใบขับขี่หมดอายุ",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "คำถามที่ต้องการถาม TMS Agent" },
+          query: { type: "string", description: "คำถามที่ต้องการ — ระบุให้ชัดเจน รวมถึงกรอบเวลา เงื่อนไข ถ้ามี" },
         },
         required: ["query"],
       },
@@ -100,11 +117,11 @@ const orchestratorTools = [
     type: "function",
     function: {
       name: "ask_finance_agent",
-      description: "ส่งคำถามให้ Finance Agent ผู้เชี่ยวชาญด้านการเงินและบัญชี",
+      description: "ถาม Finance Agent เรื่องยอดขายรวม รายได้ หนี้ลูกค้า ค้างชำระ ออเดอร์ค้างส่ง งบการเงิน",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "คำถามที่ต้องการถาม Finance Agent" },
+          query: { type: "string", description: "คำถามที่ต้องการ — ระบุให้ชัดเจน รวมถึงกรอบเวลา เงื่อนไข ถ้ามี" },
         },
         required: ["query"],
       },
@@ -124,7 +141,7 @@ async function callOrchestrator(messages, stream = false, retries = 2) {
         model: API_MODEL,
         messages,
         tools: orchestratorTools,
-        temperature: 0.3,
+        temperature: 0.2,
         stream,
       }),
     });
@@ -162,9 +179,7 @@ export async function POST(request) {
     const firstData = await firstRes.json();
 
     const choice = firstData.choices?.[0];
-    if (!choice) {
-      throw new Error("Orchestrator: invalid response");
-    }
+    if (!choice) throw new Error("Orchestrator: invalid response");
 
     const hasToolCalls =
       choice.finish_reason === "tool_calls" && choice.message?.tool_calls?.length > 0;
@@ -185,7 +200,7 @@ export async function POST(request) {
       });
     }
 
-    // Step 2: Execute specialist agents via custom ReadableStream
+    // Step 2: Execute ALL specialist agents in PARALLEL
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
@@ -194,58 +209,62 @@ export async function POST(request) {
 
     (async () => {
       try {
-        const toolMessages = [...allMessages, choice.message];
+        // Notify client which agents are starting (all at once)
+        await Promise.all(
+          choice.message.tool_calls.map(async (toolCall) => {
+            const agentEntry = AGENT_MAP[toolCall.function.name];
+            if (agentEntry) {
+              await writeSSE({
+                type: "agent_start",
+                agentName: agentEntry.meta.name,
+                agentIcon: agentEntry.meta.icon,
+              });
+            }
+          }),
+        );
 
-        for (const toolCall of choice.message.tool_calls) {
-          const toolName = toolCall.function.name;
-          const agentEntry = AGENT_MAP[toolName];
+        // Run all agents in parallel
+        const agentResults = await Promise.all(
+          choice.message.tool_calls.map(async (toolCall) => {
+            const toolName = toolCall.function.name;
+            const agentEntry = AGENT_MAP[toolName];
 
-          if (!agentEntry) {
-            toolMessages.push({
-              role: "tool",
-              tool_call_id: toolCall.id,
-              content: JSON.stringify({ error: `Unknown agent: ${toolName}` }),
-            });
-            continue;
-          }
+            if (!agentEntry) {
+              return {
+                tool_call_id: toolCall.id,
+                content: JSON.stringify({ error: `Unknown agent: ${toolName}` }),
+              };
+            }
 
-          // Notify client which agent is now working
-          await writeSSE({
-            type: "agent_start",
-            agentName: agentEntry.meta.name,
-            agentIcon: agentEntry.meta.icon,
-          });
-
-          try {
-            let args = {};
             try {
-              args = JSON.parse(toolCall.function.arguments || "{}");
-            } catch {
-              args = {};
+              let args = {};
+              try { args = JSON.parse(toolCall.function.arguments || "{}"); } catch {}
+              const query = args.query || allMessages[allMessages.length - 1]?.content || "";
+
+              const result = agentEntry.needsSupabase
+                ? await agentEntry.run(query, auth.supabase)
+                : await agentEntry.run(query);
+
+              return { tool_call_id: toolCall.id, content: result || "(ไม่มีข้อมูล)" };
+            } catch (agentErr) {
+              return {
+                tool_call_id: toolCall.id,
+                content: JSON.stringify({ error: agentErr.message }),
+              };
             }
+          }),
+        );
 
-            const query = args.query || allMessages[allMessages.length - 1]?.content || "";
-
-            let result;
-            if (agentEntry.needsSupabase) {
-              result = await agentEntry.run(query, auth.supabase);
-            } else {
-              result = await agentEntry.run(query);
-            }
-
-            toolMessages.push({
-              role: "tool",
-              tool_call_id: toolCall.id,
-              content: result || "(ไม่มีข้อมูล)",
-            });
-          } catch (agentErr) {
-            toolMessages.push({
-              role: "tool",
-              tool_call_id: toolCall.id,
-              content: JSON.stringify({ error: agentErr.message }),
-            });
-          }
-        }
+        // Build messages with all agent results
+        const toolMessages = [
+          ...allMessages,
+          choice.message,
+          ...agentResults.map((r) => ({
+            role: "tool",
+            tool_call_id: r.tool_call_id,
+            content: r.content,
+          })),
+        ];
 
         // Step 3: Orchestrator synthesizes and streams final answer
         const finalRes = await callOrchestrator(toolMessages, true);
@@ -259,7 +278,9 @@ export async function POST(request) {
 
         await writer.write(encoder.encode("data: [DONE]\n\n"));
       } catch (err) {
-        const errMsg = `data: ${JSON.stringify({ choices: [{ delta: { content: `\n\n⚠️ เกิดข้อผิดพลาด: ${err.message}` } }] })}\n\ndata: [DONE]\n\n`;
+        const errMsg =
+          `data: ${JSON.stringify({ choices: [{ delta: { content: `\n\n⚠️ เกิดข้อผิดพลาด: ${err.message}` } }] })}\n\n` +
+          `data: [DONE]\n\n`;
         await writer.write(encoder.encode(errMsg));
       } finally {
         await writer.close();

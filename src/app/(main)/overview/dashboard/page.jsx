@@ -143,6 +143,13 @@ export default function OverviewDashboardPage() {
     ta.style.height = Math.min(ta.scrollHeight, 160) + "px";
   }, [input]);
 
+  // Refocus textarea when AI finishes responding
+  useEffect(() => {
+    if (!isLoading) {
+      textareaRef.current?.focus();
+    }
+  }, [isLoading]);
+
   const handleSend = () => {
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;

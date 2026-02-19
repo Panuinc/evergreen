@@ -9,131 +9,236 @@ export const salesAgent = {
   description: "ผู้เชี่ยวชาญด้านการขายและ Business Central",
 };
 
-const systemPrompt = `คุณเป็น Sales Specialist Agent ของระบบ ERP Evergreen
-เชี่ยวชาญด้านการขาย: ลูกค้า สินค้า ใบสั่งขาย ข้อมูลจาก Business Central
+const systemPrompt = `คุณเป็น Sales Specialist Agent ของระบบ ERP Evergreen มีความเชี่ยวชาญสูงสุดด้านการขายและ Business Central
 
-## กฎสำคัญ
-1. **ดึงข้อมูลจาก tool ก่อนเสมอ** ไม่ว่าคำถามจะเป็นอะไรก็ตาม ห้ามตอบหรือขอโทษโดยไม่ได้ดึงข้อมูลก่อน
-2. ถ้าผู้ใช้ถามข้อมูลที่ระบบไม่สามารถ filter ได้โดยตรง (เช่น ยอดขายออนไลน์, ยอดขายรายวัน) → ดึงข้อมูลทั้งหมดที่มีมาแสดงก่อน แล้วอธิบายว่า filter นั้นไม่มีในระบบ
-3. ห้ามถามผู้ใช้ว่า "ต้องการดูข้อมูลไหม?" ถ้ายังไม่ได้ดึงข้อมูล — ให้ดึงก่อนแล้วค่อยแสดง
-4. ตอบเป็นภาษาไทย กระชับ ตรงประเด็น
-5. แสดงเป็นตาราง Markdown เมื่อมีหลายรายการ
+## ข้อมูลที่คุณเข้าถึงได้
+- **ลูกค้า (bcCustomers)**: number, displayName, phoneNumber, contact, balance, balanceDue, salespersonCode
+- **สินค้า (bcItems)**: number, displayName, type, inventory, unitPrice, unitCost, itemCategoryCode, baseUnitOfMeasure, blocked
+- **ใบสั่งขาย (bcSalesOrders)**: number, customerName, orderDate, dueDate, status, completelyShipped, salespersonCode, externalDocumentNumber, totalAmountIncludingTax
+- **รายการสินค้าในใบสั่งขาย (bcSalesOrderLines)**: description, quantity, unitPrice, amountIncludingTax, quantityShipped, unitOfMeasureCode
 
-## ข้อมูลที่มีในแต่ละ tool
-- get_customers: No, Name, Phone_No, Contact (channel-group-type code)
-- get_items: No, Description, Type, Inventory, Unit_Price, Unit_Cost, Base_Unit_of_Measure (Item_Card_Excel)
-- get_sales_orders: หัว order + line items รวม totalAmount (50 order ล่าสุด)
-  - header: No, Sell_to_Customer_Name, Order_Date, Status, Completely_Shipped, Salesperson_Code
-  - lines: No (item), Description, Quantity, Unit_Price, Line_Amount, Quantity_Shipped`;
+## ความรู้เฉพาะทาง
+- **status ของ order**: "Open" = ร่าง, "Released" = ยืนยันแล้ว รอจัดส่ง, "Pending Approval" = รอ approve
+- **completelyShipped**: true = จัดส่งครบแล้ว, false = ยังค้างส่ง
+- **salespersonCode "ONLINE"** = ช่องทางออนไลน์ (LINE/Facebook)
+- **balance** = ยอดค้างชำระทั้งหมด, **balanceDue** = ยอดที่เกินกำหนด
+- **externalDocumentNumber** = เลข PO หรือเลขอ้างอิงของลูกค้า
+
+## กฎเหล็ก
+1. **ดึงข้อมูลจาก tool ก่อนเสมอ** ห้ามตอบโดยไม่มีข้อมูล
+2. ใช้ **parameter กรองที่ DB** ไม่ดึงมาทั้งหมดโดยไม่จำเป็น
+3. ถ้าถามสรุป/ยอดรวม → ใช้ **get_sales_summary** แทน get_sales_orders
+4. ถ้าถามหลายเรื่องพร้อมกัน → เรียก tool พร้อมกัน (parallel)
+5. **คำนวณเองได้**: รวม เฉลี่ย จัดอันดับ คำนวณ margin, % shipped
+6. ตอบภาษาไทย กระชับ ตรงประเด็น ใช้ตาราง Markdown เมื่อมีหลายรายการ
+
+## วิธีจัดการคำถามซับซ้อน
+- "ยอดขายเดือนนี้" → get_sales_summary(since: "2026-02-01")
+- "order ที่ยังค้างส่ง" → get_sales_orders(status: "Released") แล้วกรอง completelyShipped=false
+- "ลูกค้า X สั่งอะไรบ้าง" → get_customers(search:"X") เพื่อหา customerNumber แล้ว get_sales_orders(customerNumber)
+- "สินค้า FG มีของเท่าไหร่" → get_items(search:"FG", inStockOnly:false)`;
 
 const tools = [
   {
     type: "function",
     function: {
       name: "get_customers",
-      description: "ดึงรายชื่อลูกค้าจาก Business Central (CustomerList OData)",
-      parameters: { type: "object", properties: {} },
+      description: "ดึงรายชื่อลูกค้า สามารถค้นหาด้วยชื่อหรือกรองตาม salesperson ได้",
+      parameters: {
+        type: "object",
+        properties: {
+          search: { type: "string", description: "ค้นหาชื่อลูกค้า (บางส่วนก็ได้)" },
+          salespersonCode: { type: "string", description: "กรองตาม salesperson เช่น 'ONLINE'" },
+          limit: { type: "number", description: "จำนวนสูงสุด (default: 100)" },
+        },
+      },
     },
   },
   {
     type: "function",
     function: {
       name: "get_items",
-      description: "ดึงรายการสินค้าทั้งหมดจาก Business Central (Item_Card_Excel OData) เฉพาะที่ไม่ถูก block",
-      parameters: { type: "object", properties: {} },
+      description: "ดึงรายการสินค้า สามารถค้นหา กรองตามหมวดหมู่ หรือดูเฉพาะที่มีสต๊อก",
+      parameters: {
+        type: "object",
+        properties: {
+          search: { type: "string", description: "ค้นหาชื่อหรือรหัสสินค้า" },
+          category: { type: "string", description: "กรองตาม itemCategoryCode" },
+          inStockOnly: { type: "boolean", description: "true = เฉพาะสินค้าที่มีสต๊อก (inventory > 0)" },
+          limit: { type: "number", description: "จำนวนสูงสุด (default: 100)" },
+        },
+      },
     },
   },
   {
     type: "function",
     function: {
       name: "get_sales_orders",
-      description: "ดึง Sales Orders 50 รายการล่าสุดจาก Business Central พร้อม line items และ totalAmount (OData)",
-      parameters: { type: "object", properties: {} },
+      description: "ดึงใบสั่งขายพร้อมรายการสินค้า สามารถกรองตาม status, วันที่, salesperson, ลูกค้า",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", description: "กรองตาม status: 'Open', 'Released', 'Pending Approval'" },
+          salespersonCode: { type: "string", description: "กรองตาม salesperson เช่น 'ONLINE'" },
+          customerNumber: { type: "string", description: "กรองตามรหัสลูกค้า" },
+          since: { type: "string", description: "วันเริ่มต้น (YYYY-MM-DD) เช่น '2026-02-01'" },
+          limit: { type: "number", description: "จำนวนสูงสุด (default: 30)" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_sales_summary",
+      description: "สรุปยอดขายรวม จำนวน order ค่าเฉลี่ย สามารถจัดกลุ่มตาม salesperson, ลูกค้า, สถานะ, เดือน",
+      parameters: {
+        type: "object",
+        properties: {
+          since: { type: "string", description: "วันเริ่มต้น (YYYY-MM-DD)" },
+          until: { type: "string", description: "วันสิ้นสุด (YYYY-MM-DD)" },
+          salespersonCode: { type: "string", description: "กรองเฉพาะ salesperson นี้" },
+          groupBy: {
+            type: "string",
+            enum: ["salesperson", "customer", "status", "month"],
+            description: "จัดกลุ่มผลลัพธ์ตาม",
+          },
+        },
+      },
     },
   },
 ];
 
-async function executeTool(name) {
+async function executeTool(name, args) {
   const supabase = getServiceSupabase();
   switch (name) {
     case "get_customers": {
-      const { data, error } = await supabase
+      let q = supabase
         .from("bcCustomers")
-        .select("number,displayName,phoneNumber,contact")
-        .order("number");
+        .select("number,displayName,phoneNumber,contact,balance,balanceDue,salespersonCode")
+        .order("displayName")
+        .limit(args.limit || 100);
+      if (args.search) q = q.ilike("displayName", `%${args.search}%`);
+      if (args.salespersonCode) q = q.eq("salespersonCode", args.salespersonCode);
+      const { data, error } = await q;
       if (error) throw new Error(error.message);
-      return (data || []).map((c) => ({
-        no: c.number,
-        name: c.displayName,
-        phone: c.phoneNumber,
-        contact: c.contact,
-      }));
+      return data || [];
     }
 
     case "get_items": {
-      const { data, error } = await supabase
+      let q = supabase
         .from("bcItems")
-        .select("number,displayName,type,inventory,unitPrice,unitCost,baseUnitOfMeasure")
+        .select("number,displayName,type,inventory,unitPrice,unitCost,itemCategoryCode,baseUnitOfMeasure,blocked")
         .eq("blocked", false)
-        .order("number");
+        .order("number")
+        .limit(args.limit || 100);
+      if (args.search) {
+        q = q.or(`number.ilike.%${args.search}%,displayName.ilike.%${args.search}%`);
+      }
+      if (args.category) q = q.eq("itemCategoryCode", args.category);
+      if (args.inStockOnly) q = q.gt("inventory", 0);
+      const { data, error } = await q;
       if (error) throw new Error(error.message);
-      return (data || []).map((i) => ({
-        no: i.number,
-        description: i.displayName,
-        type: i.type,
-        inventory: i.inventory,
-        unitPrice: i.unitPrice,
-        unitCost: i.unitCost,
-        uom: i.baseUnitOfMeasure,
-      }));
+      return data || [];
     }
 
     case "get_sales_orders": {
-      const { data: orders, error: oErr } = await supabase
+      let q = supabase
         .from("bcSalesOrders")
-        .select("number,customerNumber,customerName,orderDate,dueDate,status,completelyShipped,salespersonCode,externalDocumentNumber")
+        .select("number,customerNumber,customerName,orderDate,dueDate,status,completelyShipped,salespersonCode,externalDocumentNumber,totalAmountIncludingTax")
         .order("orderDate", { ascending: false })
-        .limit(50);
+        .limit(args.limit || 30);
+      if (args.status) q = q.eq("status", args.status);
+      if (args.salespersonCode) q = q.eq("salespersonCode", args.salespersonCode);
+      if (args.customerNumber) q = q.eq("customerNumber", args.customerNumber);
+      if (args.since) q = q.gte("orderDate", args.since);
+      const { data: orders, error: oErr } = await q;
       if (oErr) throw new Error(oErr.message);
 
-      const orderNos = (orders || []).map((o) => o.number);
-      const { data: allLines, error: lErr } = await supabase
+      if (!orders?.length) return [];
+
+      const orderNos = orders.map((o) => o.number);
+      const { data: lines, error: lErr } = await supabase
         .from("bcSalesOrderLines")
         .select("documentNo,lineObjectNumber,description,quantity,unitPrice,amountIncludingTax,quantityShipped,unitOfMeasureCode")
         .in("documentNo", orderNos);
       if (lErr) throw new Error(lErr.message);
 
       const linesByOrder = {};
-      for (const line of allLines || []) {
-        if (!linesByOrder[line.documentNo]) linesByOrder[line.documentNo] = [];
-        linesByOrder[line.documentNo].push({
-          no: line.lineObjectNumber,
-          description: line.description,
-          quantity: line.quantity,
-          unitPrice: line.unitPrice,
-          lineAmount: line.amountIncludingTax,
-          quantityShipped: line.quantityShipped,
-          uom: line.unitOfMeasureCode,
+      for (const l of lines || []) {
+        if (!linesByOrder[l.documentNo]) linesByOrder[l.documentNo] = [];
+        linesByOrder[l.documentNo].push({
+          no: l.lineObjectNumber,
+          description: l.description,
+          quantity: l.quantity,
+          unitPrice: l.unitPrice,
+          lineAmount: l.amountIncludingTax,
+          quantityShipped: l.quantityShipped,
+          uom: l.unitOfMeasureCode,
         });
       }
+      return orders.map((o) => ({ ...o, lines: linesByOrder[o.number] || [] }));
+    }
 
-      return (orders || []).map((o) => {
-        const lines = linesByOrder[o.number] || [];
-        const totalAmount = lines.reduce((s, l) => s + (l.lineAmount || 0), 0);
-        return {
-          no: o.number,
-          customerNo: o.customerNumber,
-          customerName: o.customerName,
-          orderDate: o.orderDate,
-          dueDate: o.dueDate,
-          status: o.status,
-          completelyShipped: o.completelyShipped,
-          salespersonCode: o.salespersonCode,
-          externalDocNo: o.externalDocumentNumber,
-          totalAmount,
-          lines,
-        };
-      });
+    case "get_sales_summary": {
+      let q = supabase
+        .from("bcSalesOrders")
+        .select("number,customerNumber,customerName,orderDate,status,completelyShipped,salespersonCode,totalAmountIncludingTax");
+      if (args.since) q = q.gte("orderDate", args.since);
+      if (args.until) q = q.lte("orderDate", args.until);
+      if (args.salespersonCode) q = q.eq("salespersonCode", args.salespersonCode);
+      const { data: orders, error } = await q;
+      if (error) throw new Error(error.message);
+
+      const rows = orders || [];
+      const totalRevenue = rows.reduce((s, o) => s + (o.totalAmountIncludingTax || 0), 0);
+      const result = {
+        totalOrders: rows.length,
+        totalRevenue,
+        avgOrderValue: rows.length > 0 ? Math.round(totalRevenue / rows.length) : 0,
+        shippedOrders: rows.filter((o) => o.completelyShipped).length,
+        pendingOrders: rows.filter((o) => !o.completelyShipped).length,
+      };
+
+      if (args.groupBy === "salesperson") {
+        const groups = {};
+        for (const o of rows) {
+          const key = o.salespersonCode || "ไม่ระบุ";
+          if (!groups[key]) groups[key] = { salespersonCode: key, orders: 0, revenue: 0 };
+          groups[key].orders++;
+          groups[key].revenue += o.totalAmountIncludingTax || 0;
+        }
+        result.byGroup = Object.values(groups).sort((a, b) => b.revenue - a.revenue);
+      } else if (args.groupBy === "customer") {
+        const groups = {};
+        for (const o of rows) {
+          const key = o.customerNumber;
+          if (!groups[key]) groups[key] = { customerNumber: key, customerName: o.customerName, orders: 0, revenue: 0 };
+          groups[key].orders++;
+          groups[key].revenue += o.totalAmountIncludingTax || 0;
+        }
+        result.byGroup = Object.values(groups).sort((a, b) => b.revenue - a.revenue).slice(0, 20);
+      } else if (args.groupBy === "status") {
+        const groups = {};
+        for (const o of rows) {
+          const key = o.status || "ไม่ระบุ";
+          if (!groups[key]) groups[key] = { status: key, orders: 0, revenue: 0 };
+          groups[key].orders++;
+          groups[key].revenue += o.totalAmountIncludingTax || 0;
+        }
+        result.byGroup = Object.values(groups);
+      } else if (args.groupBy === "month") {
+        const groups = {};
+        for (const o of rows) {
+          const month = o.orderDate ? o.orderDate.slice(0, 7) : "ไม่ระบุ";
+          if (!groups[month]) groups[month] = { month, orders: 0, revenue: 0 };
+          groups[month].orders++;
+          groups[month].revenue += o.totalAmountIncludingTax || 0;
+        }
+        result.byGroup = Object.values(groups).sort((a, b) => a.month.localeCompare(b.month));
+      }
+
+      return result;
     }
 
     default:
@@ -149,7 +254,7 @@ async function callAI(messages, retries = 2) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       },
-      body: JSON.stringify({ model: API_MODEL, messages, tools, temperature: 0.2, stream: false }),
+      body: JSON.stringify({ model: API_MODEL, messages, tools, temperature: 0.1, stream: false }),
     });
     if (!res.ok) throw new Error(`Sales Agent API error: ${res.status}`);
     return res;
@@ -180,23 +285,21 @@ export async function runSalesAgent(query) {
     return choice1.message?.content || "";
   }
 
-  const toolMessages = [...messages, choice1.message];
-  for (const tc of choice1.message.tool_calls) {
-    try {
-      const result = await executeTool(tc.function.name);
-      toolMessages.push({
-        role: "tool",
-        tool_call_id: tc.id,
-        content: JSON.stringify(result),
-      });
-    } catch (err) {
-      toolMessages.push({
-        role: "tool",
-        tool_call_id: tc.id,
-        content: JSON.stringify({ error: err.message }),
-      });
-    }
-  }
+  // Execute all tool calls in parallel
+  const toolResults = await Promise.all(
+    choice1.message.tool_calls.map(async (tc) => {
+      try {
+        let args = {};
+        try { args = JSON.parse(tc.function.arguments || "{}"); } catch {}
+        const result = await executeTool(tc.function.name, args);
+        return { role: "tool", tool_call_id: tc.id, content: JSON.stringify(result) };
+      } catch (err) {
+        return { role: "tool", tool_call_id: tc.id, content: JSON.stringify({ error: err.message }) };
+      }
+    }),
+  );
+
+  const toolMessages = [...messages, choice1.message, ...toolResults];
 
   const res2 = await callAI(toolMessages);
   if (!res2.ok) throw new Error(`Sales Agent API error (round 2): ${res2.status}`);
