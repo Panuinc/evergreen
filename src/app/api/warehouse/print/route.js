@@ -95,8 +95,16 @@ function buildZpl(item, pieceNumber, totalPieces, cfg) {
     zpl += `^FO${seqX},15^A0N,${sf},${sf}^FD${seqText}^FS`;
   }
 
+  if (item.displayName) {
+    const df = Math.max(Math.round(fs * 0.65), 14);
+    const nameY = 15 + fs + 5;
+    zpl += `^FO20,${nameY}^A0N,${df},${df}^FB${pw - 40},2,0,L^FD${item.displayName}^FS`;
+  }
+
   if (cfg.showBarcode) {
-    const by = 20 + fs + 5;
+    const by = item.displayName
+      ? 15 + fs + 5 + Math.max(Math.round(fs * 0.65), 14) * 2 + 5
+      : 15 + fs + 5;
     const bh = Math.max(ll - by - 10, 20);
     zpl += `^FO20,${by}^BY2^BCN,${bh},Y,N,N^FD${item.number}^FS`;
   }
@@ -133,7 +141,7 @@ export async function POST(request) {
       labelHeight: 21,
       labelShift: 7,
       fontSize: 28,
-      showBarcode: true,
+      showBarcode: false,
       showPieceNumber: true,
       encodeRfid: false,
       ...config,

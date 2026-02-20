@@ -8,7 +8,7 @@ const DEFAULT_CONFIG = {
   printSpeed: 4,
   darkness: 15,
   fontSize: 28,
-  showBarcode: true,
+  showBarcode: false,
   showPieceNumber: true,
   encodeRfid: false,
 };

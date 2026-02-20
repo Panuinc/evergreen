@@ -13,7 +13,7 @@ import {
   Chip,
   Divider,
 } from "@heroui/react";
-import { Printer, Save, TestTube, Usb } from "lucide-react";
+import { Printer, Save, TestTube, Wifi } from "lucide-react";
 import { toast } from "sonner";
 import {
   getPrinterConfig,
@@ -61,7 +61,7 @@ export default function PrinterConfigPage() {
       toast.success("เชื่อมต่อเครื่องพิมพ์สำเร็จ");
     } catch {
       setConnected(false);
-      toast.error("ไม่สามารถเชื่อมต่อเครื่องพิมพ์ได้ กรุณาตรวจสอบสาย USB");
+      toast.error("ไม่สามารถเชื่อมต่อเครื่องพิมพ์ได้ กรุณาตรวจสอบเครือข่าย");
     } finally {
       setChecking(false);
     }
@@ -91,7 +91,7 @@ export default function PrinterConfigPage() {
         <CardBody className="gap-3">
           <div className="flex gap-2 items-center">
             <p className="text-sm text-default-500">
-              Chainway CP30 (USB — Port USB002)
+              Chainway CP30 (Network — 192.168.1.43:9100)
             </p>
             {connected === true && (
               <Chip size="sm" color="success" variant="flat">
@@ -108,7 +108,7 @@ export default function PrinterConfigPage() {
             variant="flat"
             onPress={handleTestConnection}
             isLoading={checking}
-            startContent={!checking && <Usb size={16} />}
+            startContent={!checking && <Wifi size={16} />}
           >
             ทดสอบการเชื่อมต่อ
           </Button>
