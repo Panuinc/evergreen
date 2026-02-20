@@ -7,10 +7,10 @@ const DEFAULT_CONFIG = {
   labelShift: 7,
   printSpeed: 4,
   darkness: 15,
-  fontSize: 28,
+  fontSize: 40,
   showBarcode: false,
   showPieceNumber: true,
-  encodeRfid: false,
+  encodeRfid: true,
 };
 
 export function getPrinterConfig() {

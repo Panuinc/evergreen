@@ -31,3 +31,8 @@ export async function printTestLabel() {
     config: cfg,
   });
 }
+
+export async function previewLabel(item, quantity) {
+  const cfg = getPrinterConfig();
+  return callPrintApi({ action: "preview", item, quantity, config: cfg });
+}

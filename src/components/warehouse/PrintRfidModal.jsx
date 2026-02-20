@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   ModalContent,
@@ -9,20 +9,44 @@ import {
   ModalFooter,
   Button,
   Input,
+  Skeleton,
 } from "@heroui/react";
-import { Printer } from "lucide-react";
+import { Printer, Eye } from "lucide-react";
 import { toast } from "sonner";
-import { printRfidLabels } from "@/lib/qzPrinter";
+import { printRfidLabels, previewLabel } from "@/lib/qzPrinter";
 
 export default function PrintRfidModal({ isOpen, onClose, item }) {
   const [quantity, setQuantity] = useState("");
   const [printing, setPrinting] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   useEffect(() => {
     if (isOpen && item) {
       setQuantity(String(Math.max(Number(item.inventory) || 0, 1)));
+      setPreviewSrc(null);
     }
   }, [isOpen, item]);
+
+  const loadPreview = useCallback(async () => {
+    if (!item) return;
+    setLoadingPreview(true);
+    try {
+      const qty = Number(quantity) || 1;
+      const res = await previewLabel(item, qty);
+      setPreviewSrc(`data:image/png;base64,${res.preview}`);
+    } catch {
+      toast.error("ไม่สามารถโหลด preview ได้");
+    } finally {
+      setLoadingPreview(false);
+    }
+  }, [item, quantity]);
+
+  useEffect(() => {
+    if (isOpen && item) {
+      loadPreview();
+    }
+  }, [isOpen, item, loadPreview]);
 
   const handlePrint = async () => {
     const qty = Number(quantity);
@@ -46,7 +70,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
   if (!item) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalContent>
         <ModalHeader className="flex items-center gap-2">
           <Printer size={20} />
@@ -60,6 +84,37 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
               <p className="text-default-400">
                 คงเหลือ: {Number(item.inventory || 0).toLocaleString("th-TH")}
               </p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-medium text-default-600">
+                ตัวอย่าง Label
+              </p>
+              <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-default-200 bg-white p-3 min-h-20">
+                {loadingPreview ? (
+                  <Skeleton className="w-full h-15 rounded" />
+                ) : previewSrc ? (
+                  <img
+                    src={previewSrc}
+                    alt="Label preview"
+                    className="max-w-full h-auto"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                ) : (
+                  <p className="text-xs text-default-400">
+                    กดปุ่มด้านล่างเพื่อดูตัวอย่าง
+                  </p>
+                )}
+              </div>
+              <Button
+                size="sm"
+                variant="flat"
+                onPress={loadPreview}
+                isLoading={loadingPreview}
+                startContent={!loadingPreview && <Eye size={14} />}
+              >
+                รีเฟรช Preview
+              </Button>
             </div>
 
             <Input
