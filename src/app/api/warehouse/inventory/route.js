@@ -2,9 +2,24 @@ import { withAuth } from "@/app/api/_lib/auth";
 
 const PAGE_SIZE = 1000;
 
-export async function GET() {
+export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
+
+  const { searchParams } = new URL(request.url);
+  const group = searchParams.get("group");
+
+  if (group) {
+    const { data, error } = await auth.supabase
+      .from("bcItems")
+      .select("*")
+      .ilike("generalProductPostingGroupCode", group)
+      .order("number");
+
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+    const filtered = (data || []).filter((item) => !item.blocked);
+    return Response.json(filtered);
+  }
 
   let allData = [];
   let from = 0;

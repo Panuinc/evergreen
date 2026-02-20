@@ -1,0 +1,131 @@
+"use client";
+
+import { useCallback, useMemo } from "react";
+import { useParams } from "next/navigation";
+import { Chip, Card, CardBody } from "@heroui/react";
+import { useWarehouseInventory } from "@/hooks/useWarehouseInventory";
+import DataTable from "@/components/ui/DataTable";
+
+const columns = [
+  { name: "รหัสสินค้า", uid: "number", sortable: true },
+  { name: "ชื่อสินค้า", uid: "displayName", sortable: true },
+  { name: "ประเภท", uid: "type", sortable: true },
+  { name: "คงเหลือ", uid: "inventory", sortable: true },
+  { name: "หน่วย", uid: "baseUnitOfMeasure", sortable: true },
+  { name: "ราคาต่อหน่วย", uid: "unitPrice", sortable: true },
+  { name: "ต้นทุน", uid: "unitCost", sortable: true },
+  { name: "หมวดหมู่", uid: "itemCategoryCode", sortable: true },
+];
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "number",
+  "displayName",
+  "type",
+  "inventory",
+  "baseUnitOfMeasure",
+  "unitPrice",
+  "unitCost",
+  "itemCategoryCode",
+];
+
+export default function WarehouseGroupPage() {
+  const { group } = useParams();
+  const decodedGroup = decodeURIComponent(group);
+  const { items, loading } = useWarehouseInventory(decodedGroup);
+
+  const summary = useMemo(() => {
+    const totalQty = items.reduce((s, i) => s + (Number(i.inventory) || 0), 0);
+    const totalValue = items.reduce(
+      (s, i) => s + (Number(i.inventory) || 0) * (Number(i.unitCost) || 0),
+      0,
+    );
+    return { totalItems: items.length, totalQty, totalValue };
+  }, [items]);
+
+  const renderCell = useCallback((item, columnKey) => {
+    switch (columnKey) {
+      case "displayName":
+        return <span className="font-medium">{item.displayName}</span>;
+      case "inventory": {
+        const inv = Number(item.inventory);
+        return (
+          <span className={inv > 0 ? "text-success" : "text-danger"}>
+            {item.inventory != null ? inv.toLocaleString("th-TH") : "-"}
+          </span>
+        );
+      }
+      case "unitPrice":
+        return item.unitPrice != null
+          ? Number(item.unitPrice).toLocaleString("th-TH", {
+              minimumFractionDigits: 2,
+            })
+          : "-";
+      case "unitCost": {
+        const hasCost = item.unitCost != null && Number(item.unitCost) > 0;
+        return (
+          <span className={hasCost ? "text-primary" : "text-danger"}>
+            {item.unitCost != null
+              ? Number(item.unitCost).toLocaleString("th-TH", {
+                  minimumFractionDigits: 2,
+                })
+              : "-"}
+          </span>
+        );
+      }
+      case "type":
+        return (
+          <Chip variant="flat" size="sm" color="default">
+            {item.type || "-"}
+          </Chip>
+        );
+      default:
+        return item[columnKey] || "-";
+    }
+  }, []);
+
+  return (
+    <div className="flex flex-col w-full gap-4">
+      <div className="grid grid-cols-3 gap-3">
+        <Card shadow="none" className="bg-default-50">
+          <CardBody className="gap-1">
+            <p className="text-xs text-default-500">รายการสินค้า</p>
+            <p className="text-2xl font-bold">
+              {summary.totalItems.toLocaleString("th-TH")}
+            </p>
+          </CardBody>
+        </Card>
+        <Card shadow="none" className="bg-default-50">
+          <CardBody className="gap-1">
+            <p className="text-xs text-default-500">จำนวนคงเหลือ</p>
+            <p className="text-2xl font-bold text-success">
+              {summary.totalQty.toLocaleString("th-TH")}
+            </p>
+          </CardBody>
+        </Card>
+        <Card shadow="none" className="bg-default-50">
+          <CardBody className="gap-1">
+            <p className="text-xs text-default-500">มูลค่า (ต้นทุน)</p>
+            <p className="text-2xl font-bold text-primary">
+              {summary.totalValue.toLocaleString("th-TH", {
+                minimumFractionDigits: 2,
+              })}
+            </p>
+          </CardBody>
+        </Card>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={items}
+        renderCell={renderCell}
+        enableCardView
+        rowKey="id"
+        isLoading={loading}
+        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        searchPlaceholder="ค้นหาด้วยรหัสหรือชื่อสินค้า..."
+        searchKeys={["number", "displayName"]}
+        emptyContent="ไม่พบรายการสินค้า"
+      />
+    </div>
+  );
+}
