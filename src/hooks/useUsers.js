@@ -8,6 +8,7 @@ import {
   getRoles,
   assignRoleToUser,
   removeRoleFromUser,
+  createUser,
 } from "@/actions/rbac";
 import { getUnlinkedEmployees } from "@/actions/hr";
 
@@ -112,22 +113,11 @@ export function useUsers() {
     setCreating(true);
 
     try {
-      const res = await fetch("/api/admin/createUser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: createForm.email,
-          password: createForm.password,
-          employeeId: createForm.employeeId || null,
-        }),
+      const result = await createUser({
+        email: createForm.email,
+        password: createForm.password,
+        employeeId: createForm.employeeId || null,
       });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        toast.error(result.error || "Failed to create account");
-        return;
-      }
 
       if (result.warning) {
         toast.warning(result.warning);

@@ -112,6 +112,12 @@ export async function getUserPermissions(userId) {
   return get(`/api/rbac/userPermissions/${userId}`);
 }
 
+// ==================== Create User ====================
+
+export async function createUser(userData) {
+  return post("/api/admin/createUser", userData);
+}
+
 // ==================== Access Logs ====================
 
 export async function getAccessLogs() {
