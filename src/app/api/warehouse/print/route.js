@@ -1,57 +1,53 @@
 import { NextResponse } from "next/server";
-import { exec } from "child_process";
-import { writeFile, unlink } from "fs/promises";
-import { tmpdir } from "os";
-import path from "path";
-import { fileURLToPath } from "url";
+import net from "net";
 
-const PRINTER_NAME =
-  process.env.RFID_PRINTER_NAME || "CHAINWAY CP30 (300 dpi)";
+const PRINTER_HOST = process.env.RFID_PRINTER_HOST || "192.168.1.43";
+const PRINTER_PORT = Number(process.env.RFID_PRINTER_PORT) || 9100;
 const TIMEOUT = 15000;
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SCRIPT_PATH = path.join(__dirname, "rawprint.ps1");
+function sendToPrinter(data, host = PRINTER_HOST, port = PRINTER_PORT) {
+  return new Promise((resolve, reject) => {
+    const socket = new net.Socket();
+    socket.setTimeout(TIMEOUT);
 
-function sendToPrinter(data, printerName = PRINTER_NAME) {
-  const tmpFile = path.join(tmpdir(), `zpl_${Date.now()}.bin`);
-  return writeFile(tmpFile, data, "utf8").then(
-    () =>
-      new Promise((resolve, reject) => {
-        const cmd = `powershell -NoProfile -ExecutionPolicy Bypass -File "${SCRIPT_PATH}" -PrinterName "${printerName}" -FilePath "${tmpFile}"`;
-        exec(cmd, { timeout: TIMEOUT }, (err, stdout, stderr) => {
-          unlink(tmpFile).catch(() => {});
-          if (err) {
-            reject(
-              new Error(
-                `Send failed: ${stderr?.trim() || err.message}`,
-              ),
-            );
-          } else {
-            resolve({ success: true, message: "Sent successfully" });
-          }
-        });
-      }),
-  );
+    socket.connect(port, host, () => {
+      socket.write(data, "utf8", () => {
+        socket.end();
+        resolve({ success: true, message: "Sent successfully" });
+      });
+    });
+
+    socket.on("timeout", () => {
+      socket.destroy();
+      reject(new Error(`Connection timed out (${host}:${port})`));
+    });
+
+    socket.on("error", (err) => {
+      socket.destroy();
+      reject(new Error(`Send failed: ${err.message}`));
+    });
+  });
 }
 
-function testConnection(printerName = PRINTER_NAME) {
+function testConnection(host = PRINTER_HOST, port = PRINTER_PORT) {
   return new Promise((resolve) => {
-    exec(
-      `powershell -NoProfile "(Get-Printer -Name '${printerName}' -ErrorAction SilentlyContinue).PrinterStatus"`,
-      { timeout: 5000 },
-      (err, stdout) => {
-        if (err || !stdout.trim()) {
-          resolve({ success: false, error: "ไม่พบเครื่องพิมพ์" });
-        } else {
-          const status = stdout.trim();
-          resolve({
-            success: status === "Normal" || status === "0",
-            status,
-            printer: printerName,
-          });
-        }
-      },
-    );
+    const socket = new net.Socket();
+    socket.setTimeout(5000);
+
+    socket.connect(port, host, () => {
+      socket.end();
+      resolve({ success: true, status: "Connected", printer: `${host}:${port}` });
+    });
+
+    socket.on("timeout", () => {
+      socket.destroy();
+      resolve({ success: false, error: "เชื่อมต่อไม่ได้ (timeout)" });
+    });
+
+    socket.on("error", () => {
+      socket.destroy();
+      resolve({ success: false, error: "ไม่พบเครื่องพิมพ์" });
+    });
   });
 }
 
