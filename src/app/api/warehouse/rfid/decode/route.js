@@ -2,22 +2,30 @@ import { NextResponse } from "next/server";
 import { withAuth } from "@/app/api/_lib/auth";
 
 function decodeEpc(hex) {
-  let ascii = "";
-  for (let i = 0; i < hex.length; i += 2) {
+  if (hex.length !== 24) {
+    return { type: "tid", raw: hex };
+  }
+
+  let itemChars = "";
+  for (let i = 0; i < 20; i += 2) {
     const code = parseInt(hex.substring(i, i + 2), 16);
-    if (code === 0) break;
-    ascii += String.fromCharCode(code);
+    if (code > 31 && code < 127) itemChars += String.fromCharCode(code);
   }
-  const parts = ascii.split("|");
-  if (parts.length >= 2 && parts[0].length > 2) {
-    return {
-      type: "epc",
-      itemNumber: parts[0],
-      pieceNumber: parts[1] ? Number(parts[1]) : null,
-      totalPieces: parts[2] ? Number(parts[2]) : null,
-    };
+  const itemCompact = itemChars.trim();
+
+  if (!itemCompact || itemCompact.length < 3) {
+    return { type: "tid", raw: hex };
   }
-  return { type: "tid", raw: hex };
+
+  const piece = parseInt(hex.substring(20, 22), 16);
+  const total = parseInt(hex.substring(22, 24), 16);
+
+  return {
+    type: "epc",
+    itemCompact,
+    pieceNumber: piece,
+    totalPieces: total,
+  };
 }
 
 export async function POST(request) {
@@ -36,12 +44,15 @@ export async function POST(request) {
 
     const decoded = decodeEpc(hex);
 
-    if (decoded.type === "epc" && decoded.itemNumber) {
-      const { data: item } = await auth.supabase
+    if (decoded.type === "epc" && decoded.itemCompact) {
+      const pattern = `%${decoded.itemCompact.replace(/ /g, "%")}%`;
+      const { data: items } = await auth.supabase
         .from("bcItems")
         .select("*")
-        .eq("number", decoded.itemNumber)
-        .single();
+        .ilike("number", pattern)
+        .limit(1);
+
+      const item = items?.[0] || null;
 
       return NextResponse.json({
         success: true,

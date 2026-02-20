@@ -30,7 +30,27 @@
       "Bash(python3.13:*)",
       "Bash(/c/Users/inc10/AppData/Local/Programs/Python/Python313/python:*)",
       "Bash(1:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "WebFetch(domain:manuals.plus)",
+      "WebFetch(domain:device.report)",
+      "WebFetch(domain:cleversoftsolutions.com)",
+      "WebFetch(domain:support.rfidlinked.com)",
+      "WebFetch(domain:www.chainwayeurope.com)",
+      "WebFetch(domain:docs.zebra.com)",
+      "WebFetch(domain:fs.tscprinters.com)",
+      "WebFetch(domain:www.scribd.com)",
+      "WebFetch(domain:docplayer.net)",
+      "WebFetch(domain:developer.zebra.com)",
+      "WebFetch(domain:aredel.com)",
+      "WebFetch(domain:www.yumpu.com)",
+      "WebFetch(domain:manualzz.com)",
+      "WebFetch(domain:www.aredel.com)",
+      "WebFetch(domain:masonreview.com)",
+      "WebFetch(domain:www.zebra.com)",
+      "WebFetch(domain:119.136.31.217)",
+      "WebFetch(domain:www.alcaidc.com)",
+      "WebFetch(domain:static.frigolit.net)",
+      "WebFetch(domain:www.servopack.de)"
     ]
   }
 }

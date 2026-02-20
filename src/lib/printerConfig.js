@@ -6,7 +6,7 @@ const DEFAULT_CONFIG = {
   labelHeight: 21,
   labelShift: 7,
   printSpeed: 4,
-  darkness: 15,
+  darkness: 20,
   fontSize: 40,
   showBarcode: false,
   showPieceNumber: true,
