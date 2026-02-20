@@ -9,43 +9,20 @@ import {
   ModalFooter,
   Button,
   Input,
-  Select,
-  SelectItem,
-  Spinner,
 } from "@heroui/react";
 import { Printer } from "lucide-react";
 import { toast } from "sonner";
-import { listPrinters, printRfidLabels } from "@/lib/qzPrinter";
+import { printRfidLabels } from "@/lib/qzPrinter";
 
 export default function PrintRfidModal({ isOpen, onClose, item }) {
-  const [printers, setPrinters] = useState([]);
-  const [selectedPrinter, setSelectedPrinter] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [loadingPrinters, setLoadingPrinters] = useState(false);
   const [printing, setPrinting] = useState(false);
 
   useEffect(() => {
     if (isOpen && item) {
       setQuantity(String(Math.max(Number(item.inventory) || 0, 1)));
-      loadPrinters();
     }
   }, [isOpen, item]);
-
-  const loadPrinters = async () => {
-    setLoadingPrinters(true);
-    try {
-      const list = await listPrinters();
-      setPrinters(Array.isArray(list) ? list : [list]);
-      const cp30 = (Array.isArray(list) ? list : [list]).find((p) =>
-        p.toLowerCase().includes("cp30"),
-      );
-      if (cp30) setSelectedPrinter(cp30);
-    } catch {
-      toast.error("ไม่สามารถเชื่อมต่อ QZ Tray ได้ กรุณาตรวจสอบว่าเปิดโปรแกรมแล้ว");
-    } finally {
-      setLoadingPrinters(false);
-    }
-  };
 
   const handlePrint = async () => {
     const qty = Number(quantity);
@@ -53,14 +30,10 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
       toast.error("กรุณาระบุจำนวนที่ต้องการพิมพ์");
       return;
     }
-    if (!selectedPrinter) {
-      toast.error("กรุณาเลือกเครื่องพิมพ์");
-      return;
-    }
 
     setPrinting(true);
     try {
-      await printRfidLabels(selectedPrinter, item, qty);
+      await printRfidLabels(null, item, qty);
       toast.success(`พิมพ์ RFID ${qty} ใบ สำเร็จ`);
       onClose();
     } catch (err) {
@@ -89,24 +62,6 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
               </p>
             </div>
 
-            {loadingPrinters ? (
-              <Spinner size="sm" label="กำลังค้นหาเครื่องพิมพ์..." />
-            ) : (
-              <Select
-                label="เครื่องพิมพ์"
-                placeholder="เลือกเครื่องพิมพ์"
-                selectedKeys={selectedPrinter ? [selectedPrinter] : []}
-                onSelectionChange={(keys) => {
-                  const val = Array.from(keys)[0];
-                  if (val) setSelectedPrinter(val);
-                }}
-              >
-                {printers.map((p) => (
-                  <SelectItem key={p}>{p}</SelectItem>
-                ))}
-              </Select>
-            )}
-
             <Input
               type="number"
               label="จำนวนที่พิมพ์"
@@ -129,7 +84,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             color="primary"
             onPress={handlePrint}
             isLoading={printing}
-            isDisabled={!selectedPrinter || !quantity}
+            isDisabled={!quantity}
             startContent={!printing && <Printer size={16} />}
           >
             พิมพ์ {quantity} ใบ

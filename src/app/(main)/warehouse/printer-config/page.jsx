@@ -10,43 +10,27 @@ import {
   Select,
   SelectItem,
   Switch,
-  Spinner,
+  Chip,
   Divider,
 } from "@heroui/react";
-import { Printer, Save, TestTube } from "lucide-react";
+import { Printer, Save, TestTube, Usb } from "lucide-react";
 import { toast } from "sonner";
 import {
   getPrinterConfig,
   savePrinterConfig,
   getDefaultConfig,
 } from "@/lib/printerConfig";
-import { listPrinters, printTestLabel } from "@/lib/qzPrinter";
-
-const PRINT_MODES = [
-  { key: "DT", label: "Direct Thermal (DT)" },
-  { key: "TT", label: "Thermal Transfer (TT)" },
-];
-
-const MEDIA_TYPES = [
-  { key: "W", label: "Web Sensing (Gap)" },
-  { key: "M", label: "Mark Sensing (Black Mark)" },
-  { key: "N", label: "Continuous" },
-];
+import { testConnection, printTestLabel } from "@/lib/qzPrinter";
 
 const DPI_OPTIONS = [
   { key: "203", label: "203 DPI" },
   { key: "300", label: "300 DPI" },
 ];
 
-const LANGUAGE_OPTIONS = [
-  { key: "TSPL", label: "TSPL (แนะนำ)" },
-  { key: "ZPL", label: "ZPL-II" },
-];
-
 export default function PrinterConfigPage() {
   const [config, setConfig] = useState(getDefaultConfig);
-  const [printers, setPrinters] = useState([]);
-  const [loadingPrinters, setLoadingPrinters] = useState(false);
+  const [connected, setConnected] = useState(null);
+  const [checking, setChecking] = useState(false);
   const [testing, setTesting] = useState(false);
 
   useEffect(() => {
@@ -69,35 +53,25 @@ export default function PrinterConfigPage() {
     toast.success("รีเซ็ตเป็นค่าเริ่มต้นแล้ว");
   };
 
-  const handleLoadPrinters = async () => {
-    setLoadingPrinters(true);
+  const handleTestConnection = async () => {
+    setChecking(true);
     try {
-      const list = await listPrinters();
-      const arr = Array.isArray(list) ? list : [list];
-      setPrinters(arr);
-      if (arr.length > 0 && !config.printerName) {
-        const cp30 = arr.find((p) => p.toLowerCase().includes("cp30"));
-        if (cp30) updateField("printerName", cp30);
-      }
-      toast.success(`พบเครื่องพิมพ์ ${arr.length} เครื่อง`);
+      await testConnection();
+      setConnected(true);
+      toast.success("เชื่อมต่อเครื่องพิมพ์สำเร็จ");
     } catch {
-      toast.error(
-        "ไม่สามารถเชื่อมต่อ QZ Tray ได้ กรุณาตรวจสอบว่าเปิดโปรแกรมแล้ว",
-      );
+      setConnected(false);
+      toast.error("ไม่สามารถเชื่อมต่อเครื่องพิมพ์ได้ กรุณาตรวจสอบสาย USB");
     } finally {
-      setLoadingPrinters(false);
+      setChecking(false);
     }
   };
 
   const handleTestPrint = async () => {
-    if (!config.printerName) {
-      toast.error("กรุณาเลือกเครื่องพิมพ์ก่อน");
-      return;
-    }
     setTesting(true);
     try {
       savePrinterConfig(config);
-      await printTestLabel(config.printerName);
+      await printTestLabel();
       toast.success("ส่งพิมพ์ทดสอบแล้ว");
     } catch (err) {
       toast.error(`ทดสอบไม่สำเร็จ: ${err.message || err}`);
@@ -115,28 +89,29 @@ export default function PrinterConfigPage() {
           <p className="font-semibold text-lg">เครื่องพิมพ์</p>
         </CardHeader>
         <CardBody className="gap-3">
-          <div className="flex gap-2 items-end">
-            {loadingPrinters ? (
-              <Spinner size="sm" label="กำลังค้นหา..." />
-            ) : (
-              <Select
-                label="เลือกเครื่องพิมพ์"
-                className="flex-1"
-                selectedKeys={config.printerName ? [config.printerName] : []}
-                onSelectionChange={(keys) => {
-                  const val = Array.from(keys)[0];
-                  if (val) updateField("printerName", val);
-                }}
-              >
-                {printers.map((p) => (
-                  <SelectItem key={p}>{p}</SelectItem>
-                ))}
-              </Select>
+          <div className="flex gap-2 items-center">
+            <p className="text-sm text-default-500">
+              Chainway CP30 (USB — Port USB002)
+            </p>
+            {connected === true && (
+              <Chip size="sm" color="success" variant="flat">
+                เชื่อมต่อแล้ว
+              </Chip>
             )}
-            <Button variant="flat" onPress={handleLoadPrinters}>
-              ค้นหา
-            </Button>
+            {connected === false && (
+              <Chip size="sm" color="danger" variant="flat">
+                ไม่พบเครื่องพิมพ์
+              </Chip>
+            )}
           </div>
+          <Button
+            variant="flat"
+            onPress={handleTestConnection}
+            isLoading={checking}
+            startContent={!checking && <Usb size={16} />}
+          >
+            ทดสอบการเชื่อมต่อ
+          </Button>
         </CardBody>
       </Card>
 
@@ -147,45 +122,6 @@ export default function PrinterConfigPage() {
         </CardHeader>
         <CardBody className="gap-4">
           <div className="grid grid-cols-2 gap-3">
-            <Select
-              label="ภาษาเครื่องพิมพ์"
-              selectedKeys={[config.printerLanguage]}
-              onSelectionChange={(keys) => {
-                const val = Array.from(keys)[0];
-                if (val) updateField("printerLanguage", val);
-              }}
-            >
-              {LANGUAGE_OPTIONS.map((m) => (
-                <SelectItem key={m.key}>{m.label}</SelectItem>
-              ))}
-            </Select>
-
-            <Select
-              label="โหมดพิมพ์"
-              selectedKeys={[config.printMode]}
-              onSelectionChange={(keys) => {
-                const val = Array.from(keys)[0];
-                if (val) updateField("printMode", val);
-              }}
-            >
-              {PRINT_MODES.map((m) => (
-                <SelectItem key={m.key}>{m.label}</SelectItem>
-              ))}
-            </Select>
-
-            <Select
-              label="ประเภทกระดาษ"
-              selectedKeys={[config.mediaType]}
-              onSelectionChange={(keys) => {
-                const val = Array.from(keys)[0];
-                if (val) updateField("mediaType", val);
-              }}
-            >
-              {MEDIA_TYPES.map((m) => (
-                <SelectItem key={m.key}>{m.label}</SelectItem>
-              ))}
-            </Select>
-
             <Select
               label="DPI"
               selectedKeys={[String(config.dpi)]}
@@ -198,6 +134,14 @@ export default function PrinterConfigPage() {
                 <SelectItem key={m.key}>{m.label}</SelectItem>
               ))}
             </Select>
+            <Input
+              type="number"
+              label="ขนาดตัวอักษร (dots)"
+              min={10}
+              max={100}
+              value={String(config.fontSize)}
+              onValueChange={(v) => updateField("fontSize", Number(v))}
+            />
           </div>
 
           <Divider />
@@ -239,15 +183,6 @@ export default function PrinterConfigPage() {
               onValueChange={(v) => updateField("darkness", Number(v))}
             />
           </div>
-
-          <Input
-            type="number"
-            label="ขนาดตัวอักษร (dots)"
-            min={10}
-            max={100}
-            value={String(config.fontSize)}
-            onValueChange={(v) => updateField("fontSize", Number(v))}
-          />
         </CardBody>
       </Card>
 

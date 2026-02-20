@@ -1,15 +1,11 @@
 const STORAGE_KEY = "cp30-printer-config";
 
 const DEFAULT_CONFIG = {
-  printerName: "",
-  printerLanguage: "TSPL",
-  printMode: "DT",
   dpi: 300,
   labelWidth: 75,
   labelHeight: 20,
   printSpeed: 4,
   darkness: 15,
-  mediaType: "W",
   fontSize: 28,
   showBarcode: true,
   showPieceNumber: true,
