@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { Chip, Card, CardBody } from "@heroui/react";
+import { Chip, Card, CardBody, Button } from "@heroui/react";
+import { Printer } from "lucide-react";
 import { useWarehouseInventory } from "@/hooks/useWarehouseInventory";
 import DataTable from "@/components/ui/DataTable";
+import PrintRfidModal from "@/components/warehouse/PrintRfidModal";
 
 const columns = [
   { name: "รหัสสินค้า", uid: "number", sortable: true },
@@ -15,6 +17,7 @@ const columns = [
   { name: "ราคาต่อหน่วย", uid: "unitPrice", sortable: true },
   { name: "ต้นทุน", uid: "unitCost", sortable: true },
   { name: "หมวดหมู่", uid: "itemCategoryCode", sortable: true },
+  { name: "", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -26,12 +29,14 @@ const INITIAL_VISIBLE_COLUMNS = [
   "unitPrice",
   "unitCost",
   "itemCategoryCode",
+  "actions",
 ];
 
 export default function WarehouseGroupPage() {
   const { group } = useParams();
   const decodedGroup = decodeURIComponent(group);
   const { items, loading } = useWarehouseInventory(decodedGroup);
+  const [printItem, setPrintItem] = useState(null);
 
   const summary = useMemo(() => {
     const totalQty = items.reduce((s, i) => s + (Number(i.inventory) || 0), 0);
@@ -77,6 +82,17 @@ export default function WarehouseGroupPage() {
           <Chip variant="flat" size="sm" color="default">
             {item.type || "-"}
           </Chip>
+        );
+      case "actions":
+        return (
+          <Button
+            isIconOnly
+            size="sm"
+            variant="light"
+            onPress={() => setPrintItem(item)}
+          >
+            <Printer size={16} />
+          </Button>
         );
       default:
         return item[columnKey] || "-";
@@ -125,6 +141,12 @@ export default function WarehouseGroupPage() {
         searchPlaceholder="ค้นหาด้วยรหัสหรือชื่อสินค้า..."
         searchKeys={["number", "displayName"]}
         emptyContent="ไม่พบรายการสินค้า"
+      />
+
+      <PrintRfidModal
+        isOpen={!!printItem}
+        onClose={() => setPrintItem(null)}
+        item={printItem}
       />
     </div>
   );

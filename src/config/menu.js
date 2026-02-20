@@ -274,6 +274,7 @@ export const menuData = [
     href: "/warehouse/inventory",
     subMenus: [
       { name: "ภาพรวมคลัง", icon: Boxes, href: "/warehouse/inventory" },
+      { name: "ตั้งค่าเครื่องพิมพ์", icon: Settings, href: "/warehouse/printer-config" },
     ],
   },
   {
