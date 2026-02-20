@@ -20,23 +20,23 @@ import { exportToCsv } from "@/lib/exportCsv";
 import FileUpload from "@/components/ui/FileUpload";
 
 const fuelCsvColumns = [
-  { header: "Date", key: "fuelLogDate" },
-  { header: "Liters", key: "fuelLogLiters" },
-  { header: "Price/Liter", key: "fuelLogPricePerLiter" },
-  { header: "Total Cost", key: "fuelLogTotalCost" },
-  { header: "Mileage", key: "fuelLogMileage" },
-  { header: "Station", key: "fuelLogStation" },
+  { header: "วันที่", key: "fuelLogDate" },
+  { header: "ลิตร", key: "fuelLogLiters" },
+  { header: "ราคา/ลิตร", key: "fuelLogPricePerLiter" },
+  { header: "ค่าใช้จ่ายรวม", key: "fuelLogTotalCost" },
+  { header: "เลขไมล์", key: "fuelLogMileage" },
+  { header: "สถานี", key: "fuelLogStation" },
 ];
 
 const columns = [
-  { name: "Date", uid: "fuelLogDate", sortable: true },
-  { name: "Vehicle", uid: "vehicleName", sortable: true },
-  { name: "Liters", uid: "fuelLogLiters", sortable: true },
-  { name: "Price/Liter", uid: "fuelLogPricePerLiter", sortable: true },
-  { name: "Total Cost", uid: "fuelLogTotalCost", sortable: true },
-  { name: "Mileage", uid: "fuelLogMileage", sortable: true },
-  { name: "Station", uid: "fuelLogStation" },
-  { name: "Actions", uid: "actions" },
+  { name: "วันที่", uid: "fuelLogDate", sortable: true },
+  { name: "ยานพาหนะ", uid: "vehicleName", sortable: true },
+  { name: "ลิตร", uid: "fuelLogLiters", sortable: true },
+  { name: "ราคา/ลิตร", uid: "fuelLogPricePerLiter", sortable: true },
+  { name: "ค่าใช้จ่ายรวม", uid: "fuelLogTotalCost", sortable: true },
+  { name: "เลขไมล์", uid: "fuelLogMileage", sortable: true },
+  { name: "สถานี", uid: "fuelLogStation" },
+  { name: "จัดการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -152,19 +152,19 @@ export default function FuelLogsPage() {
         rowKey="fuelLogId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by station..."
+        searchPlaceholder="ค้นหาด้วยชื่อสถานี..."
         searchKeys={["fuelLogStation"]}
         statusField="fuelLogVehicleId"
         statusOptions={vehicleOptions}
-        filterLabel="Vehicle"
-        emptyContent="No fuel logs found"
+        filterLabel="ยานพาหนะ"
+        emptyContent="ไม่พบบันทึกน้ำมัน"
         topEndContent={
           <div className="flex gap-2">
             <Button variant="bordered" size="md" radius="md" startContent={<Download size={16} />} onPress={() => exportToCsv("fuel-logs.csv", fuelCsvColumns, fuelLogs)}>
-              Export
+              ส่งออก
             </Button>
             <Button variant="bordered" size="md" radius="md" startContent={<Plus />} onPress={() => handleOpen()}>
-              Add Fuel Log
+              เพิ่มบันทึกน้ำมัน
             </Button>
           </div>
         }
@@ -179,16 +179,16 @@ export default function FuelLogsPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingFuelLog ? "Edit Fuel Log" : "Add Fuel Log"}
+            {editingFuelLog ? "แก้ไขบันทึกน้ำมัน" : "เพิ่มบันทึกน้ำมัน"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Vehicle"
+                    label="ยานพาหนะ"
                     labelPlacement="outside"
-                    placeholder="Select vehicle"
+                    placeholder="เลือกยานพาหนะ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -212,9 +212,9 @@ export default function FuelLogsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Driver"
+                    label="พนักงานขับรถ"
                     labelPlacement="outside"
-                    placeholder="Select driver"
+                    placeholder="เลือกพนักงานขับรถ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -238,9 +238,9 @@ export default function FuelLogsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Date"
+                    label="วันที่"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -252,9 +252,9 @@ export default function FuelLogsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Fuel Type"
+                    label="ชนิดเชื้อเพลิง"
                     labelPlacement="outside"
-                    placeholder="Select fuel type"
+                    placeholder="เลือกชนิดเชื้อเพลิง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -268,18 +268,18 @@ export default function FuelLogsPage() {
                       updateField("fuelLogFuelType", val);
                     }}
                   >
-                    <SelectItem key="diesel">Diesel</SelectItem>
-                    <SelectItem key="gasoline">Gasoline</SelectItem>
+                    <SelectItem key="diesel">ดีเซล</SelectItem>
+                    <SelectItem key="gasoline">เบนซิน</SelectItem>
                     <SelectItem key="ngv">NGV</SelectItem>
-                    <SelectItem key="electric">Electric</SelectItem>
+                    <SelectItem key="electric">ไฟฟ้า</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Liters"
+                    label="ลิตร"
                     labelPlacement="outside"
-                    placeholder="Enter liters"
+                    placeholder="กรอกจำนวนลิตร"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -293,9 +293,9 @@ export default function FuelLogsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Price/Liter"
+                    label="ราคา/ลิตร"
                     labelPlacement="outside"
-                    placeholder="Enter price per liter"
+                    placeholder="กรอกราคาต่อลิตร"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -309,9 +309,9 @@ export default function FuelLogsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Total Cost"
+                    label="ค่าใช้จ่ายรวม"
                     labelPlacement="outside"
-                    placeholder="Enter total cost"
+                    placeholder="กรอกค่าใช้จ่ายรวม"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -325,9 +325,9 @@ export default function FuelLogsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Mileage"
+                    label="เลขไมล์"
                     labelPlacement="outside"
-                    placeholder="Enter mileage"
+                    placeholder="กรอกเลขไมล์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -339,9 +339,9 @@ export default function FuelLogsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Station"
+                    label="สถานี"
                     labelPlacement="outside"
-                    placeholder="Enter station name"
+                    placeholder="กรอกชื่อสถานี"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -353,9 +353,9 @@ export default function FuelLogsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Notes"
+                    label="หมายเหตุ"
                     labelPlacement="outside"
-                    placeholder="Enter notes"
+                    placeholder="กรอกหมายเหตุ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -368,7 +368,7 @@ export default function FuelLogsPage() {
               </div>
               <div className="p-2">
                 <FileUpload
-                  label="Receipt"
+                  label="ใบเสร็จ"
                   accept="image/*,.pdf"
                   multiple={false}
                   value={formData.fuelLogReceiptUrl}
@@ -380,7 +380,7 @@ export default function FuelLogsPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -389,7 +389,7 @@ export default function FuelLogsPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingFuelLog ? "Update" : "Create"}
+              {editingFuelLog ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -398,14 +398,14 @@ export default function FuelLogsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Fuel Log</ModalHeader>
+          <ModalHeader>ลบบันทึกน้ำมัน</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete this fuel log
+              คุณต้องการลบบันทึกน้ำมันนี้
               {deletingFuelLog?.fuelLogDate && (
                 <>
                   {" "}
-                  from{" "}
+                  จากวันที่{" "}
                   <span className="font-semibold">
                     {new Date(
                       deletingFuelLog.fuelLogDate,
@@ -413,7 +413,7 @@ export default function FuelLogsPage() {
                   </span>
                 </>
               )}
-              ? This action cannot be undone.
+              หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -423,7 +423,7 @@ export default function FuelLogsPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -431,7 +431,7 @@ export default function FuelLogsPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

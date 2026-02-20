@@ -19,29 +19,29 @@ import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 
 const maintenanceCsvColumns = [
-  { header: "Date", key: "maintenanceDate" },
-  { header: "Type", key: "maintenanceType" },
-  { header: "Description", key: "maintenanceDescription" },
-  { header: "Cost", key: "maintenanceCost" },
-  { header: "Vendor", key: "maintenanceVendor" },
-  { header: "Status", key: "maintenanceStatus" },
+  { header: "วันที่", key: "maintenanceDate" },
+  { header: "ประเภท", key: "maintenanceType" },
+  { header: "รายละเอียด", key: "maintenanceDescription" },
+  { header: "ค่าใช้จ่าย", key: "maintenanceCost" },
+  { header: "ผู้ให้บริการ", key: "maintenanceVendor" },
+  { header: "สถานะ", key: "maintenanceStatus" },
 ];
 
 const columns = [
-  { name: "Date", uid: "maintenanceDate", sortable: true },
-  { name: "Vehicle", uid: "vehicleName", sortable: true },
-  { name: "Type", uid: "maintenanceType", sortable: true },
-  { name: "Description", uid: "maintenanceDescription" },
-  { name: "Cost", uid: "maintenanceCost", sortable: true },
-  { name: "Status", uid: "maintenanceStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "วันที่", uid: "maintenanceDate", sortable: true },
+  { name: "ยานพาหนะ", uid: "vehicleName", sortable: true },
+  { name: "ประเภท", uid: "maintenanceType", sortable: true },
+  { name: "รายละเอียด", uid: "maintenanceDescription" },
+  { name: "ค่าใช้จ่าย", uid: "maintenanceCost", sortable: true },
+  { name: "สถานะ", uid: "maintenanceStatus", sortable: true },
+  { name: "จัดการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Scheduled", uid: "scheduled" },
-  { name: "In Progress", uid: "in_progress" },
-  { name: "Completed", uid: "completed" },
-  { name: "Cancelled", uid: "cancelled" },
+  { name: "นัดหมาย", uid: "scheduled" },
+  { name: "กำลังดำเนินการ", uid: "in_progress" },
+  { name: "เสร็จสิ้น", uid: "completed" },
+  { name: "ยกเลิก", uid: "cancelled" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -165,21 +165,21 @@ export default function MaintenancePage() {
         rowKey="maintenanceId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by description, vendor..."
+        searchPlaceholder="ค้นหาด้วยรายละเอียด, ผู้ให้บริการ..."
         searchKeys={[
           "maintenanceDescription",
           "maintenanceVendor",
         ]}
         statusField="maintenanceStatus"
         statusOptions={statusOptions}
-        emptyContent="No maintenance records found"
+        emptyContent="ไม่พบรายการซ่อมบำรุง"
         topEndContent={
           <div className="flex gap-2">
             <Button variant="bordered" size="md" radius="md" startContent={<Download size={16} />} onPress={() => exportToCsv("maintenance.csv", maintenanceCsvColumns, maintenance)}>
-              Export
+              ส่งออก
             </Button>
             <Button variant="bordered" size="md" radius="md" startContent={<Plus />} onPress={() => handleOpen()}>
-              Add Maintenance
+              เพิ่มรายการซ่อมบำรุง
             </Button>
           </div>
         }
@@ -194,16 +194,16 @@ export default function MaintenancePage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingMaintenance ? "Edit Maintenance" : "Add Maintenance"}
+            {editingMaintenance ? "แก้ไขรายการซ่อมบำรุง" : "เพิ่มรายการซ่อมบำรุง"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Vehicle"
+                    label="ยานพาหนะ"
                     labelPlacement="outside"
-                    placeholder="Select vehicle"
+                    placeholder="เลือกยานพาหนะ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -227,9 +227,9 @@ export default function MaintenancePage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Type"
+                    label="ประเภท"
                     labelPlacement="outside"
-                    placeholder="Select type"
+                    placeholder="เลือกประเภท"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -243,19 +243,19 @@ export default function MaintenancePage() {
                       updateField("maintenanceType", val);
                     }}
                   >
-                    <SelectItem key="preventive">Preventive</SelectItem>
-                    <SelectItem key="repair">Repair</SelectItem>
-                    <SelectItem key="inspection">Inspection</SelectItem>
-                    <SelectItem key="tire">Tire</SelectItem>
-                    <SelectItem key="oil_change">Oil Change</SelectItem>
-                    <SelectItem key="other">Other</SelectItem>
+                    <SelectItem key="preventive">ป้องกัน</SelectItem>
+                    <SelectItem key="repair">ซ่อม</SelectItem>
+                    <SelectItem key="inspection">ตรวจสภาพ</SelectItem>
+                    <SelectItem key="tire">ยาง</SelectItem>
+                    <SelectItem key="oil_change">เปลี่ยนถ่ายน้ำมัน</SelectItem>
+                    <SelectItem key="other">อื่นๆ</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Description"
+                    label="รายละเอียด"
                     labelPlacement="outside"
-                    placeholder="Enter description"
+                    placeholder="กรอกรายละเอียด"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -269,9 +269,9 @@ export default function MaintenancePage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Date"
+                    label="วันที่"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -284,9 +284,9 @@ export default function MaintenancePage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Completed Date"
+                    label="วันที่เสร็จ"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -299,9 +299,9 @@ export default function MaintenancePage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Mileage"
+                    label="เลขไมล์"
                     labelPlacement="outside"
-                    placeholder="Enter mileage"
+                    placeholder="กรอกเลขไมล์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -314,9 +314,9 @@ export default function MaintenancePage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Cost"
+                    label="ค่าใช้จ่าย"
                     labelPlacement="outside"
-                    placeholder="Enter cost"
+                    placeholder="กรอกค่าใช้จ่าย"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -328,9 +328,9 @@ export default function MaintenancePage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Vendor"
+                    label="ผู้ให้บริการ"
                     labelPlacement="outside"
-                    placeholder="Enter vendor"
+                    placeholder="กรอกผู้ให้บริการ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -342,7 +342,7 @@ export default function MaintenancePage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -353,18 +353,18 @@ export default function MaintenancePage() {
                       updateField("maintenanceStatus", val);
                     }}
                   >
-                    <SelectItem key="scheduled">Scheduled</SelectItem>
-                    <SelectItem key="in_progress">In Progress</SelectItem>
-                    <SelectItem key="completed">Completed</SelectItem>
-                    <SelectItem key="cancelled">Cancelled</SelectItem>
+                    <SelectItem key="scheduled">นัดหมาย</SelectItem>
+                    <SelectItem key="in_progress">กำลังดำเนินการ</SelectItem>
+                    <SelectItem key="completed">เสร็จสิ้น</SelectItem>
+                    <SelectItem key="cancelled">ยกเลิก</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Next Due Date"
+                    label="วันนัดครั้งถัดไป"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -377,9 +377,9 @@ export default function MaintenancePage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Next Due Mileage"
+                    label="เลขไมล์ครั้งถัดไป"
                     labelPlacement="outside"
-                    placeholder="Enter next due mileage"
+                    placeholder="กรอกเลขไมล์ครั้งถัดไป"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -392,9 +392,9 @@ export default function MaintenancePage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="กรอกหมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -408,7 +408,7 @@ export default function MaintenancePage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -417,7 +417,7 @@ export default function MaintenancePage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingMaintenance ? "Update" : "Create"}
+              {editingMaintenance ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -426,10 +426,10 @@ export default function MaintenancePage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Maintenance</ModalHeader>
+          <ModalHeader>ลบรายการซ่อมบำรุง</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete this maintenance record
+              คุณต้องการลบรายการซ่อมบำรุงนี้
               {deletingMaintenance?.maintenanceDescription && (
                 <>
                   {" "}
@@ -438,7 +438,7 @@ export default function MaintenancePage() {
                   </span>
                 </>
               )}
-              ? This action cannot be undone.
+              หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -448,7 +448,7 @@ export default function MaintenancePage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -456,7 +456,7 @@ export default function MaintenancePage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

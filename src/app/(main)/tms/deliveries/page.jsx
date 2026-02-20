@@ -21,22 +21,22 @@ import FileUpload from "@/components/ui/FileUpload";
 import ImagePreviewModal from "@/components/ui/ImagePreviewModal";
 
 const columns = [
-  { name: "Shipment", uid: "shipment", sortable: true },
-  { name: "Receiver Name", uid: "deliveryReceiverName", sortable: true },
-  { name: "Status", uid: "deliveryStatus", sortable: true },
-  { name: "Signature", uid: "deliverySignatureUrl" },
-  { name: "Photos", uid: "deliveryPhotoUrls" },
-  { name: "Received At", uid: "deliveryReceivedAt", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "การขนส่ง", uid: "shipment", sortable: true },
+  { name: "ชื่อผู้รับ", uid: "deliveryReceiverName", sortable: true },
+  { name: "สถานะ", uid: "deliveryStatus", sortable: true },
+  { name: "ลายเซ็น", uid: "deliverySignatureUrl" },
+  { name: "รูปภาพ", uid: "deliveryPhotoUrls" },
+  { name: "เวลารับสินค้า", uid: "deliveryReceivedAt", sortable: true },
+  { name: "จัดการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Pending", uid: "pending" },
-  { name: "Delivered OK", uid: "delivered_ok" },
-  { name: "Delivered Partial", uid: "delivered_partial" },
-  { name: "Delivered Damaged", uid: "delivered_damaged" },
-  { name: "Refused", uid: "refused" },
-  { name: "Returned", uid: "returned" },
+  { name: "รอดำเนินการ", uid: "pending" },
+  { name: "ส่งสำเร็จ", uid: "delivered_ok" },
+  { name: "ส่งบางส่วน", uid: "delivered_partial" },
+  { name: "ส่งชำรุด", uid: "delivered_damaged" },
+  { name: "ปฏิเสธ", uid: "refused" },
+  { name: "ส่งคืน", uid: "returned" },
 ];
 
 const STATUS_COLORS = {
@@ -49,12 +49,12 @@ const STATUS_COLORS = {
 };
 
 const STATUS_LABELS = {
-  pending: "Pending",
-  delivered_ok: "Delivered OK",
-  delivered_partial: "Delivered Partial",
-  delivered_damaged: "Delivered Damaged",
-  refused: "Refused",
-  returned: "Returned",
+  pending: "รอดำเนินการ",
+  delivered_ok: "ส่งสำเร็จ",
+  delivered_partial: "ส่งบางส่วน",
+  delivered_damaged: "ส่งชำรุด",
+  refused: "ปฏิเสธ",
+  returned: "ส่งคืน",
 };
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -192,11 +192,11 @@ export default function DeliveriesPage() {
         rowKey="deliveryId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by receiver, notes..."
+        searchPlaceholder="ค้นหาด้วยชื่อผู้รับ, หมายเหตุ..."
         searchKeys={["deliveryReceiverName", "deliveryNotes"]}
         statusField="deliveryStatus"
         statusOptions={statusOptions}
-        emptyContent="No deliveries found"
+        emptyContent="ไม่พบการจัดส่ง"
         topEndContent={
           <Button
             variant="bordered"
@@ -205,7 +205,7 @@ export default function DeliveriesPage() {
             startContent={<Plus size={16} />}
             onPress={() => handleOpen()}
           >
-            New Delivery
+            สร้างการจัดส่ง
           </Button>
         }
       />
@@ -219,16 +219,16 @@ export default function DeliveriesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingDelivery ? "Edit Delivery" : "New Delivery"}
+            {editingDelivery ? "แก้ไขการจัดส่ง" : "สร้างการจัดส่ง"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Select
-                    label="Shipment"
+                    label="การขนส่ง"
                     labelPlacement="outside"
-                    placeholder="Select shipment"
+                    placeholder="เลือกการขนส่ง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -254,9 +254,9 @@ export default function DeliveriesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Receiver Name"
+                    label="ชื่อผู้รับ"
                     labelPlacement="outside"
-                    placeholder="Enter receiver name"
+                    placeholder="กรอกชื่อผู้รับ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -268,9 +268,9 @@ export default function DeliveriesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Receiver Phone"
+                    label="เบอร์โทรผู้รับ"
                     labelPlacement="outside"
-                    placeholder="Enter receiver phone"
+                    placeholder="กรอกเบอร์โทรผู้รับ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -282,9 +282,9 @@ export default function DeliveriesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
-                    placeholder="Select status"
+                    placeholder="เลือกสถานะ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -296,23 +296,23 @@ export default function DeliveriesPage() {
                       updateField("deliveryStatus", val);
                     }}
                   >
-                    <SelectItem key="pending">Pending</SelectItem>
-                    <SelectItem key="delivered_ok">Delivered OK</SelectItem>
+                    <SelectItem key="pending">รอดำเนินการ</SelectItem>
+                    <SelectItem key="delivered_ok">ส่งสำเร็จ</SelectItem>
                     <SelectItem key="delivered_partial">
-                      Delivered Partial
+                      ส่งบางส่วน
                     </SelectItem>
                     <SelectItem key="delivered_damaged">
-                      Delivered Damaged
+                      ส่งชำรุด
                     </SelectItem>
-                    <SelectItem key="refused">Refused</SelectItem>
-                    <SelectItem key="returned">Returned</SelectItem>
+                    <SelectItem key="refused">ปฏิเสธ</SelectItem>
+                    <SelectItem key="returned">ส่งคืน</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Damage Notes"
+                    label="หมายเหตุความเสียหาย"
                     labelPlacement="outside"
-                    placeholder="Enter damage notes"
+                    placeholder="กรอกหมายเหตุความเสียหาย"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -324,9 +324,9 @@ export default function DeliveriesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input
-                    label="Notes"
+                    label="หมายเหตุ"
                     labelPlacement="outside"
-                    placeholder="Additional notes"
+                    placeholder="หมายเหตุเพิ่มเติม"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -338,7 +338,7 @@ export default function DeliveriesPage() {
                 </div>
                 <div className="p-2 md:col-span-2">
                   <FileUpload
-                    label="Signature"
+                    label="ลายเซ็น"
                     accept="image/*"
                     multiple={false}
                     value={formData.deliverySignatureUrl}
@@ -348,7 +348,7 @@ export default function DeliveriesPage() {
                 </div>
                 <div className="p-2 md:col-span-2">
                   <FileUpload
-                    label="Delivery Photos"
+                    label="รูปภาพการจัดส่ง"
                     accept="image/*"
                     multiple={true}
                     value={formData.deliveryPhotoUrls}
@@ -361,7 +361,7 @@ export default function DeliveriesPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -370,7 +370,7 @@ export default function DeliveriesPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingDelivery ? "Update" : "Create"}
+              {editingDelivery ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -379,14 +379,14 @@ export default function DeliveriesPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Delivery</ModalHeader>
+          <ModalHeader>ลบการจัดส่ง</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete this delivery for{" "}
+              คุณต้องการลบการจัดส่งของ{" "}
               <span className="font-semibold">
                 {deletingDelivery?.deliveryReceiverName}
               </span>
-              ? This action cannot be undone.
+              {" "}หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -396,7 +396,7 @@ export default function DeliveriesPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -404,7 +404,7 @@ export default function DeliveriesPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

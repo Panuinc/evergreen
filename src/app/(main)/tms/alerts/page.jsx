@@ -14,22 +14,22 @@ const TYPE_ICONS = {
 };
 
 const TYPE_LABELS = {
-  vehicle_registration: "Vehicle Registration",
-  vehicle_insurance: "Vehicle Insurance",
-  vehicle_act: "Vehicle Act",
-  driver_license: "Driver License",
-  maintenance_due: "Maintenance Due",
-  maintenance_mileage: "Maintenance Mileage",
+  vehicle_registration: "ทะเบียนยานพาหนะ",
+  vehicle_insurance: "ประกันภัยยานพาหนะ",
+  vehicle_act: "พ.ร.บ. ยานพาหนะ",
+  driver_license: "ใบขับขี่",
+  maintenance_due: "ครบกำหนดซ่อมบำรุง",
+  maintenance_mileage: "เลขไมล์ครบกำหนดซ่อม",
 };
 
 const FILTER_OPTIONS = [
-  { key: "all", label: "All" },
-  { key: "critical", label: "Critical" },
-  { key: "warning", label: "Warning" },
-  { key: "vehicle_registration", label: "Registration" },
-  { key: "vehicle_insurance", label: "Insurance" },
-  { key: "driver_license", label: "License" },
-  { key: "maintenance_due", label: "Maintenance" },
+  { key: "all", label: "ทั้งหมด" },
+  { key: "critical", label: "วิกฤต" },
+  { key: "warning", label: "เตือน" },
+  { key: "vehicle_registration", label: "ทะเบียน" },
+  { key: "vehicle_insurance", label: "ประกันภัย" },
+  { key: "driver_license", label: "ใบขับขี่" },
+  { key: "maintenance_due", label: "ซ่อมบำรุง" },
 ];
 
 export default function AlertsPage() {
@@ -55,9 +55,9 @@ export default function AlertsPage() {
   return (
     <div className="flex flex-col w-full h-full gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Alerts & Notifications</h2>
+        <h2 className="text-lg font-semibold">การแจ้งเตือน</h2>
         <Button variant="bordered" size="md" radius="md" startContent={<RefreshCw size={16} />} onPress={loadAlerts}>
-          Refresh
+          รีเฟรช
         </Button>
       </div>
 
@@ -68,7 +68,7 @@ export default function AlertsPage() {
             <AlertTriangle size={24} className="text-danger" />
             <div>
               <p className="text-2xl font-bold">{criticalCount}</p>
-              <p className="text-xs text-default-500">Critical</p>
+              <p className="text-xs text-default-500">วิกฤต</p>
             </div>
           </CardBody>
         </Card>
@@ -77,7 +77,7 @@ export default function AlertsPage() {
             <AlertCircle size={24} className="text-warning" />
             <div>
               <p className="text-2xl font-bold">{warningCount}</p>
-              <p className="text-xs text-default-500">Warning</p>
+              <p className="text-xs text-default-500">เตือน</p>
             </div>
           </CardBody>
         </Card>
@@ -85,7 +85,7 @@ export default function AlertsPage() {
           <CardBody className="p-4 flex-row items-center gap-3">
             <div>
               <p className="text-2xl font-bold">{alertCount}</p>
-              <p className="text-xs text-default-500">Total Alerts</p>
+              <p className="text-xs text-default-500">แจ้งเตือนทั้งหมด</p>
             </div>
           </CardBody>
         </Card>
@@ -108,7 +108,7 @@ export default function AlertsPage() {
 
       {/* Alert List */}
       {alerts.length === 0 ? (
-        <p className="text-default-400 text-center py-10">No alerts found</p>
+        <p className="text-default-400 text-center py-10">ไม่พบการแจ้งเตือน</p>
       ) : (
         <div className="flex flex-col gap-3">
           {alerts.map((alert, i) => {

@@ -18,18 +18,18 @@ import { useRoutes } from "@/hooks/useRoutes";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Route Name", uid: "routeName", sortable: true },
-  { name: "Origin", uid: "routeOrigin", sortable: true },
-  { name: "Destination", uid: "routeDestination", sortable: true },
-  { name: "Distance", uid: "routeDistanceKm", sortable: true },
-  { name: "Estimated Time", uid: "routeEstimatedMinutes", sortable: true },
-  { name: "Status", uid: "routeStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อเส้นทาง", uid: "routeName", sortable: true },
+  { name: "ต้นทาง", uid: "routeOrigin", sortable: true },
+  { name: "ปลายทาง", uid: "routeDestination", sortable: true },
+  { name: "ระยะทาง", uid: "routeDistanceKm", sortable: true },
+  { name: "เวลาโดยประมาณ", uid: "routeEstimatedMinutes", sortable: true },
+  { name: "สถานะ", uid: "routeStatus", sortable: true },
+  { name: "จัดการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Active", uid: "active" },
-  { name: "Inactive", uid: "inactive" },
+  { name: "ใช้งาน", uid: "active" },
+  { name: "ไม่ใช้งาน", uid: "inactive" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -138,14 +138,14 @@ export default function RoutesPage() {
         rowKey="routeId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by route name, destination..."
+        searchPlaceholder="ค้นหาด้วยชื่อเส้นทาง, ปลายทาง..."
         searchKeys={[
           "routeName",
           "routeDestination",
         ]}
         statusField="routeStatus"
         statusOptions={statusOptions}
-        emptyContent="No routes found"
+        emptyContent="ไม่พบเส้นทาง"
         topEndContent={
           <Button
             variant="bordered"
@@ -154,7 +154,7 @@ export default function RoutesPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Route
+            เพิ่มเส้นทาง
           </Button>
         }
       />
@@ -168,16 +168,16 @@ export default function RoutesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingRoute ? "Edit Route" : "Add Route"}
+            {editingRoute ? "แก้ไขเส้นทาง" : "เพิ่มเส้นทาง"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Route Name"
+                    label="ชื่อเส้นทาง"
                     labelPlacement="outside"
-                    placeholder="Enter route name"
+                    placeholder="กรอกชื่อเส้นทาง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -190,9 +190,9 @@ export default function RoutesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Origin"
+                    label="ต้นทาง"
                     labelPlacement="outside"
-                    placeholder="Enter origin"
+                    placeholder="กรอกต้นทาง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -204,9 +204,9 @@ export default function RoutesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Destination"
+                    label="ปลายทาง"
                     labelPlacement="outside"
-                    placeholder="Enter destination"
+                    placeholder="กรอกปลายทาง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -220,9 +220,9 @@ export default function RoutesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Distance (km)"
+                    label="ระยะทาง (กม.)"
                     labelPlacement="outside"
-                    placeholder="Enter distance"
+                    placeholder="กรอกระยะทาง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -235,9 +235,9 @@ export default function RoutesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Estimated Time (minutes)"
+                    label="เวลาโดยประมาณ (นาที)"
                     labelPlacement="outside"
-                    placeholder="Enter estimated time"
+                    placeholder="กรอกเวลาโดยประมาณ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -249,7 +249,7 @@ export default function RoutesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -260,16 +260,16 @@ export default function RoutesPage() {
                       updateField("routeStatus", val);
                     }}
                   >
-                    <SelectItem key="active">Active</SelectItem>
-                    <SelectItem key="inactive">Inactive</SelectItem>
+                    <SelectItem key="active">ใช้งาน</SelectItem>
+                    <SelectItem key="inactive">ไม่ใช้งาน</SelectItem>
                   </Select>
                 </div>
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="กรอกหมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -283,7 +283,7 @@ export default function RoutesPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -292,7 +292,7 @@ export default function RoutesPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingRoute ? "Update" : "Create"}
+              {editingRoute ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -301,14 +301,14 @@ export default function RoutesPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Route</ModalHeader>
+          <ModalHeader>ลบเส้นทาง</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingRoute?.routeName}
               </span>
-              ? This action cannot be undone.
+              หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -318,7 +318,7 @@ export default function RoutesPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -326,7 +326,7 @@ export default function RoutesPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

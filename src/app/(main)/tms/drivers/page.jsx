@@ -18,20 +18,20 @@ import { useDrivers } from "@/hooks/useDrivers";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Name", uid: "name", sortable: true },
-  { name: "Phone", uid: "driverPhone" },
-  { name: "Role", uid: "driverRole", sortable: true },
-  { name: "License Type", uid: "driverLicenseType", sortable: true },
-  { name: "License Expiry", uid: "driverLicenseExpiry", sortable: true },
-  { name: "Status", uid: "driverStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อ", uid: "name", sortable: true },
+  { name: "โทรศัพท์", uid: "driverPhone" },
+  { name: "ตำแหน่ง", uid: "driverRole", sortable: true },
+  { name: "ประเภทใบขับขี่", uid: "driverLicenseType", sortable: true },
+  { name: "วันหมดอายุใบขับขี่", uid: "driverLicenseExpiry", sortable: true },
+  { name: "สถานะ", uid: "driverStatus", sortable: true },
+  { name: "จัดการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Available", uid: "available" },
-  { name: "On Duty", uid: "on_duty" },
-  { name: "On Leave", uid: "on_leave" },
-  { name: "Inactive", uid: "inactive" },
+  { name: "พร้อม", uid: "available" },
+  { name: "ปฏิบัติงาน", uid: "on_duty" },
+  { name: "ลา", uid: "on_leave" },
+  { name: "ไม่ใช้งาน", uid: "inactive" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -160,7 +160,7 @@ export default function DriversPage() {
         rowKey="driverId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, phone..."
+        searchPlaceholder="ค้นหาด้วยชื่อ, เบอร์โทร..."
         searchKeys={[
           "driverFirstName",
           "driverLastName",
@@ -168,7 +168,7 @@ export default function DriversPage() {
         ]}
         statusField="driverStatus"
         statusOptions={statusOptions}
-        emptyContent="No drivers found"
+        emptyContent="ไม่พบพนักงานขับรถ"
         topEndContent={
           <Button
             variant="bordered"
@@ -177,7 +177,7 @@ export default function DriversPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Driver
+            เพิ่มพนักงานขับรถ
           </Button>
         }
       />
@@ -191,16 +191,16 @@ export default function DriversPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingDriver ? "Edit Driver" : "Add Driver"}
+            {editingDriver ? "แก้ไขพนักงานขับรถ" : "เพิ่มพนักงานขับรถ"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="First Name"
+                    label="ชื่อ"
                     labelPlacement="outside"
-                    placeholder="Enter first name"
+                    placeholder="กรอกชื่อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -213,9 +213,9 @@ export default function DriversPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Last Name"
+                    label="นามสกุล"
                     labelPlacement="outside"
-                    placeholder="Enter last name"
+                    placeholder="กรอกนามสกุล"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -228,9 +228,9 @@ export default function DriversPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Phone"
+                    label="โทรศัพท์"
                     labelPlacement="outside"
-                    placeholder="Enter phone number"
+                    placeholder="กรอกเบอร์โทรศัพท์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -242,9 +242,9 @@ export default function DriversPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Role"
+                    label="ตำแหน่ง"
                     labelPlacement="outside"
-                    placeholder="Select role"
+                    placeholder="เลือกตำแหน่ง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -256,15 +256,15 @@ export default function DriversPage() {
                       updateField("driverRole", val);
                     }}
                   >
-                    <SelectItem key="driver">Driver</SelectItem>
-                    <SelectItem key="assistant">Assistant</SelectItem>
+                    <SelectItem key="driver">พนักงานขับรถ</SelectItem>
+                    <SelectItem key="assistant">ผู้ช่วย</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="License Number"
+                    label="เลขใบขับขี่"
                     labelPlacement="outside"
-                    placeholder="Enter license number"
+                    placeholder="กรอกเลขใบขับขี่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -276,9 +276,9 @@ export default function DriversPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="License Type"
+                    label="ประเภทใบขับขี่"
                     labelPlacement="outside"
-                    placeholder="Select license type"
+                    placeholder="เลือกประเภทใบขับขี่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -301,9 +301,9 @@ export default function DriversPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="License Expiry"
+                    label="วันหมดอายุใบขับขี่"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -315,9 +315,9 @@ export default function DriversPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Employee Link"
+                    label="เชื่อมโยงพนักงาน"
                     labelPlacement="outside"
-                    placeholder="Select employee"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -340,7 +340,7 @@ export default function DriversPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -351,17 +351,17 @@ export default function DriversPage() {
                       updateField("driverStatus", val);
                     }}
                   >
-                    <SelectItem key="available">Available</SelectItem>
-                    <SelectItem key="on_duty">On Duty</SelectItem>
-                    <SelectItem key="on_leave">On Leave</SelectItem>
-                    <SelectItem key="inactive">Inactive</SelectItem>
+                    <SelectItem key="available">พร้อม</SelectItem>
+                    <SelectItem key="on_duty">ปฏิบัติงาน</SelectItem>
+                    <SelectItem key="on_leave">ลา</SelectItem>
+                    <SelectItem key="inactive">ไม่ใช้งาน</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Notes"
+                    label="หมายเหตุ"
                     labelPlacement="outside"
-                    placeholder="Enter notes"
+                    placeholder="กรอกหมายเหตุ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -376,7 +376,7 @@ export default function DriversPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -385,7 +385,7 @@ export default function DriversPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingDriver ? "Update" : "Create"}
+              {editingDriver ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -394,15 +394,15 @@ export default function DriversPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Driver</ModalHeader>
+          <ModalHeader>ลบพนักงานขับรถ</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingDriver?.driverFirstName}{" "}
                 {deletingDriver?.driverLastName}
               </span>
-              ? This action cannot be undone.
+              หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -412,7 +412,7 @@ export default function DriversPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -420,7 +420,7 @@ export default function DriversPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

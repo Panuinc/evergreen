@@ -19,31 +19,31 @@ import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 
 const vehicleCsvColumns = [
-  { header: "Plate Number", key: "vehiclePlateNumber" },
-  { header: "Name", key: "vehicleName" },
-  { header: "Type", key: "vehicleType" },
-  { header: "Brand", key: "vehicleBrand" },
-  { header: "Model", key: "vehicleModel" },
-  { header: "Fuel Type", key: "vehicleFuelType" },
-  { header: "Capacity (Kg)", key: "vehicleCapacityKg" },
-  { header: "Mileage", key: "vehicleCurrentMileage" },
-  { header: "Status", key: "vehicleStatus" },
+  { header: "ทะเบียนรถ", key: "vehiclePlateNumber" },
+  { header: "ชื่อ", key: "vehicleName" },
+  { header: "ประเภท", key: "vehicleType" },
+  { header: "ยี่ห้อ", key: "vehicleBrand" },
+  { header: "รุ่น", key: "vehicleModel" },
+  { header: "ชนิดเชื้อเพลิง", key: "vehicleFuelType" },
+  { header: "น้ำหนักบรรทุก (กก.)", key: "vehicleCapacityKg" },
+  { header: "เลขไมล์", key: "vehicleCurrentMileage" },
+  { header: "สถานะ", key: "vehicleStatus" },
 ];
 
 const columns = [
-  { name: "Name", uid: "vehicleName", sortable: true },
-  { name: "Plate Number", uid: "vehiclePlateNumber", sortable: true },
-  { name: "Type", uid: "vehicleType", sortable: true },
-  { name: "Brand", uid: "vehicleBrand", sortable: true },
-  { name: "Status", uid: "vehicleStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อ", uid: "vehicleName", sortable: true },
+  { name: "ทะเบียนรถ", uid: "vehiclePlateNumber", sortable: true },
+  { name: "ประเภท", uid: "vehicleType", sortable: true },
+  { name: "ยี่ห้อ", uid: "vehicleBrand", sortable: true },
+  { name: "สถานะ", uid: "vehicleStatus", sortable: true },
+  { name: "จัดการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Available", uid: "available" },
-  { name: "In Use", uid: "in_use" },
-  { name: "Maintenance", uid: "maintenance" },
-  { name: "Retired", uid: "retired" },
+  { name: "พร้อมใช้งาน", uid: "available" },
+  { name: "กำลังใช้งาน", uid: "in_use" },
+  { name: "ซ่อมบำรุง", uid: "maintenance" },
+  { name: "ปลดระวาง", uid: "retired" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -147,7 +147,7 @@ export default function VehiclesPage() {
         rowKey="vehicleId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by plate number, name, brand, model..."
+        searchPlaceholder="ค้นหาด้วยทะเบียน, ชื่อ, ยี่ห้อ, รุ่น..."
         searchKeys={[
           "vehiclePlateNumber",
           "vehicleName",
@@ -156,14 +156,14 @@ export default function VehiclesPage() {
         ]}
         statusField="vehicleStatus"
         statusOptions={statusOptions}
-        emptyContent="No vehicles found"
+        emptyContent="ไม่พบยานพาหนะ"
         topEndContent={
           <div className="flex gap-2">
             <Button variant="bordered" size="md" radius="md" startContent={<Download size={16} />} onPress={() => exportToCsv("vehicles.csv", vehicleCsvColumns, vehicles)}>
-              Export
+              ส่งออก
             </Button>
             <Button variant="bordered" size="md" radius="md" startContent={<Plus />} onPress={() => handleOpen()}>
-              Add Vehicle
+              เพิ่มยานพาหนะ
             </Button>
           </div>
         }
@@ -178,16 +178,16 @@ export default function VehiclesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingVehicle ? "Edit Vehicle" : "Add Vehicle"}
+            {editingVehicle ? "แก้ไขยานพาหนะ" : "เพิ่มยานพาหนะ"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Plate Number"
+                    label="ทะเบียนรถ"
                     labelPlacement="outside"
-                    placeholder="Enter plate number"
+                    placeholder="กรอกทะเบียนรถ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -202,9 +202,9 @@ export default function VehiclesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Name"
+                    label="ชื่อ"
                     labelPlacement="outside"
-                    placeholder="Enter vehicle name"
+                    placeholder="กรอกชื่อยานพาหนะ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -219,9 +219,9 @@ export default function VehiclesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Type"
+                    label="ประเภท"
                     labelPlacement="outside"
-                    placeholder="Select type"
+                    placeholder="เลือกประเภท"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -233,17 +233,17 @@ export default function VehiclesPage() {
                       updateField("vehicleType", val);
                     }}
                   >
-                    <SelectItem key="truck">Truck</SelectItem>
-                    <SelectItem key="pickup">Pickup</SelectItem>
-                    <SelectItem key="van">Van</SelectItem>
-                    <SelectItem key="trailer">Trailer</SelectItem>
+                    <SelectItem key="truck">รถบรรทุก</SelectItem>
+                    <SelectItem key="pickup">รถกระบะ</SelectItem>
+                    <SelectItem key="van">รถตู้</SelectItem>
+                    <SelectItem key="trailer">รถพ่วง</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Brand"
+                    label="ยี่ห้อ"
                     labelPlacement="outside"
-                    placeholder="Enter brand"
+                    placeholder="กรอกยี่ห้อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -255,9 +255,9 @@ export default function VehiclesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Model"
+                    label="รุ่น"
                     labelPlacement="outside"
-                    placeholder="Enter model"
+                    placeholder="กรอกรุ่น"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -269,9 +269,9 @@ export default function VehiclesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Year"
+                    label="ปี"
                     labelPlacement="outside"
-                    placeholder="Enter year"
+                    placeholder="กรอกปี"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -283,9 +283,9 @@ export default function VehiclesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Color"
+                    label="สี"
                     labelPlacement="outside"
-                    placeholder="Enter color"
+                    placeholder="กรอกสี"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -297,9 +297,9 @@ export default function VehiclesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="VIN Number"
+                    label="เลข VIN"
                     labelPlacement="outside"
-                    placeholder="Enter VIN number"
+                    placeholder="กรอกเลข VIN"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -311,9 +311,9 @@ export default function VehiclesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Fuel Type"
+                    label="ชนิดเชื้อเพลิง"
                     labelPlacement="outside"
-                    placeholder="Select fuel type"
+                    placeholder="เลือกชนิดเชื้อเพลิง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -327,18 +327,18 @@ export default function VehiclesPage() {
                       updateField("vehicleFuelType", val);
                     }}
                   >
-                    <SelectItem key="diesel">Diesel</SelectItem>
-                    <SelectItem key="gasoline">Gasoline</SelectItem>
+                    <SelectItem key="diesel">ดีเซล</SelectItem>
+                    <SelectItem key="gasoline">เบนซิน</SelectItem>
                     <SelectItem key="ngv">NGV</SelectItem>
-                    <SelectItem key="electric">Electric</SelectItem>
+                    <SelectItem key="electric">ไฟฟ้า</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Capacity (Kg)"
+                    label="น้ำหนักบรรทุก (กก.)"
                     labelPlacement="outside"
-                    placeholder="Enter capacity"
+                    placeholder="กรอกน้ำหนักบรรทุก"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -351,9 +351,9 @@ export default function VehiclesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Current Mileage"
+                    label="เลขไมล์ปัจจุบัน"
                     labelPlacement="outside"
-                    placeholder="Enter current mileage"
+                    placeholder="กรอกเลขไมล์ปัจจุบัน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -366,9 +366,9 @@ export default function VehiclesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Registration Expiry"
+                    label="วันหมดอายุทะเบียน"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -381,9 +381,9 @@ export default function VehiclesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Insurance Expiry"
+                    label="วันหมดอายุประกันภัย"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -396,9 +396,9 @@ export default function VehiclesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Act Expiry"
+                    label="วันหมดอายุ พ.ร.บ."
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -410,7 +410,7 @@ export default function VehiclesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -421,18 +421,18 @@ export default function VehiclesPage() {
                       updateField("vehicleStatus", val);
                     }}
                   >
-                    <SelectItem key="available">Available</SelectItem>
-                    <SelectItem key="in_use">In Use</SelectItem>
-                    <SelectItem key="maintenance">Maintenance</SelectItem>
-                    <SelectItem key="retired">Retired</SelectItem>
+                    <SelectItem key="available">พร้อมใช้งาน</SelectItem>
+                    <SelectItem key="in_use">กำลังใช้งาน</SelectItem>
+                    <SelectItem key="maintenance">ซ่อมบำรุง</SelectItem>
+                    <SelectItem key="retired">ปลดระวาง</SelectItem>
                   </Select>
                 </div>
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="กรอกหมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -446,7 +446,7 @@ export default function VehiclesPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -455,7 +455,7 @@ export default function VehiclesPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingVehicle ? "Update" : "Create"}
+              {editingVehicle ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -464,14 +464,14 @@ export default function VehiclesPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Vehicle</ModalHeader>
+          <ModalHeader>ลบยานพาหนะ</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingVehicle?.vehicleName} ({deletingVehicle?.vehiclePlateNumber})
               </span>
-              ? This action cannot be undone.
+              หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -481,7 +481,7 @@ export default function VehiclesPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -489,7 +489,7 @@ export default function VehiclesPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

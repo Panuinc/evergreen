@@ -23,35 +23,35 @@ import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 
 const shipmentCsvColumns = [
-  { header: "Number", key: "shipmentNumber" },
-  { header: "Date", key: "shipmentDate" },
-  { header: "Customer", key: "shipmentCustomerName" },
-  { header: "Phone", key: "shipmentCustomerPhone" },
-  { header: "Destination", key: "shipmentDestination" },
-  { header: "Weight (Kg)", key: "shipmentWeightKg" },
-  { header: "Status", key: "shipmentStatus" },
+  { header: "เลขที่", key: "shipmentNumber" },
+  { header: "วันที่", key: "shipmentDate" },
+  { header: "ลูกค้า", key: "shipmentCustomerName" },
+  { header: "โทรศัพท์", key: "shipmentCustomerPhone" },
+  { header: "ปลายทาง", key: "shipmentDestination" },
+  { header: "น้ำหนัก (กก.)", key: "shipmentWeightKg" },
+  { header: "สถานะ", key: "shipmentStatus" },
 ];
 
 const columns = [
-  { name: "Number", uid: "shipmentNumber", sortable: true },
-  { name: "Date", uid: "shipmentDate", sortable: true },
-  { name: "Customer", uid: "shipmentCustomerName", sortable: true },
-  { name: "Destination", uid: "shipmentDestination", sortable: true },
-  { name: "Vehicle", uid: "vehicle" },
-  { name: "Driver", uid: "driver" },
-  { name: "Status", uid: "shipmentStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่", uid: "shipmentNumber", sortable: true },
+  { name: "วันที่", uid: "shipmentDate", sortable: true },
+  { name: "ลูกค้า", uid: "shipmentCustomerName", sortable: true },
+  { name: "ปลายทาง", uid: "shipmentDestination", sortable: true },
+  { name: "ยานพาหนะ", uid: "vehicle" },
+  { name: "พนักงานขับรถ", uid: "driver" },
+  { name: "สถานะ", uid: "shipmentStatus", sortable: true },
+  { name: "จัดการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Draft", uid: "draft" },
-  { name: "Confirmed", uid: "confirmed" },
-  { name: "Dispatched", uid: "dispatched" },
-  { name: "In Transit", uid: "in_transit" },
-  { name: "Arrived", uid: "arrived" },
-  { name: "Delivered", uid: "delivered" },
-  { name: "POD Confirmed", uid: "pod_confirmed" },
-  { name: "Cancelled", uid: "cancelled" },
+  { name: "แบบร่าง", uid: "draft" },
+  { name: "ยืนยันแล้ว", uid: "confirmed" },
+  { name: "จัดส่งแล้ว", uid: "dispatched" },
+  { name: "กำลังขนส่ง", uid: "in_transit" },
+  { name: "ถึงแล้ว", uid: "arrived" },
+  { name: "ส่งแล้ว", uid: "delivered" },
+  { name: "ยืนยัน POD แล้ว", uid: "pod_confirmed" },
+  { name: "ยกเลิก", uid: "cancelled" },
 ];
 
 const STATUS_COLORS = {
@@ -75,14 +75,14 @@ const NEXT_STATUS = {
 };
 
 const STATUS_LABELS = {
-  draft: "Draft",
-  confirmed: "Confirmed",
-  dispatched: "Dispatched",
-  in_transit: "In Transit",
-  arrived: "Arrived",
-  delivered: "Delivered",
-  pod_confirmed: "POD Confirmed",
-  cancelled: "Cancelled",
+  draft: "แบบร่าง",
+  confirmed: "ยืนยันแล้ว",
+  dispatched: "จัดส่งแล้ว",
+  in_transit: "กำลังขนส่ง",
+  arrived: "ถึงแล้ว",
+  delivered: "ส่งแล้ว",
+  pod_confirmed: "ยืนยัน POD แล้ว",
+  cancelled: "ยกเลิก",
 };
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -213,18 +213,18 @@ export default function ShipmentsPage() {
         rowKey="shipmentId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by number, customer..."
+        searchPlaceholder="ค้นหาด้วยเลขที่, ลูกค้า..."
         searchKeys={["shipmentNumber", "shipmentCustomerName", "shipmentDestination"]}
         statusField="shipmentStatus"
         statusOptions={statusOptions}
-        emptyContent="No shipments found"
+        emptyContent="ไม่พบการขนส่ง"
         topEndContent={
           <div className="flex gap-2">
             <Button variant="bordered" size="md" radius="md" startContent={<Download size={16} />} onPress={() => exportToCsv("shipments.csv", shipmentCsvColumns, shipments)}>
-              Export
+              ส่งออก
             </Button>
             <Button variant="bordered" size="md" radius="md" startContent={<Plus size={16} />} onPress={() => handleOpen()}>
-              New Shipment
+              สร้างการขนส่ง
             </Button>
           </div>
         }
@@ -232,73 +232,73 @@ export default function ShipmentsPage() {
 
       <Modal isOpen={isOpen} onClose={onClose} size="2xl" scrollBehavior="inside">
         <ModalContent>
-          <ModalHeader>{editingShipment ? "Edit Shipment" : "New Shipment"}</ModalHeader>
+          <ModalHeader>{editingShipment ? "แก้ไขการขนส่ง" : "สร้างการขนส่ง"}</ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="Customer Name" labelPlacement="outside" placeholder="Enter customer name" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerName} onChange={(e) => updateField("shipmentCustomerName", e.target.value)} isRequired />
+                  <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerName} onChange={(e) => updateField("shipmentCustomerName", e.target.value)} isRequired />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="Customer Phone" labelPlacement="outside" placeholder="Enter phone" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerPhone} onChange={(e) => updateField("shipmentCustomerPhone", e.target.value)} />
+                  <Input label="เบอร์โทรลูกค้า" labelPlacement="outside" placeholder="กรอกเบอร์โทร" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerPhone} onChange={(e) => updateField("shipmentCustomerPhone", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input label="Customer Address" labelPlacement="outside" placeholder="Enter address" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerAddress} onChange={(e) => updateField("shipmentCustomerAddress", e.target.value)} />
+                  <Input label="ที่อยู่ลูกค้า" labelPlacement="outside" placeholder="กรอกที่อยู่" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerAddress} onChange={(e) => updateField("shipmentCustomerAddress", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="Destination" labelPlacement="outside" placeholder="Enter destination" variant="bordered" size="md" radius="md" value={formData.shipmentDestination} onChange={(e) => updateField("shipmentDestination", e.target.value)} isRequired />
+                  <Input label="ปลายทาง" labelPlacement="outside" placeholder="กรอกปลายทาง" variant="bordered" size="md" radius="md" value={formData.shipmentDestination} onChange={(e) => updateField("shipmentDestination", e.target.value)} isRequired />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="Route" labelPlacement="outside" placeholder="Select route" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentRouteId ? [formData.shipmentRouteId] : []} onSelectionChange={(keys) => updateField("shipmentRouteId", Array.from(keys)[0] || "")}>
+                  <Select label="เส้นทาง" labelPlacement="outside" placeholder="เลือกเส้นทาง" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentRouteId ? [formData.shipmentRouteId] : []} onSelectionChange={(keys) => updateField("shipmentRouteId", Array.from(keys)[0] || "")}>
                     {routes.map((r) => (<SelectItem key={r.routeId}>{r.routeName}</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="Vehicle" labelPlacement="outside" placeholder="Select vehicle" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentVehicleId ? [formData.shipmentVehicleId] : []} onSelectionChange={(keys) => updateField("shipmentVehicleId", Array.from(keys)[0] || "")}>
+                  <Select label="ยานพาหนะ" labelPlacement="outside" placeholder="เลือกยานพาหนะ" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentVehicleId ? [formData.shipmentVehicleId] : []} onSelectionChange={(keys) => updateField("shipmentVehicleId", Array.from(keys)[0] || "")}>
                     {(editingShipment ? vehicles : availableVehicles).map((v) => (<SelectItem key={v.vehicleId}>{v.vehicleName} ({v.vehiclePlateNumber})</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="Driver" labelPlacement="outside" placeholder="Select driver" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentDriverId ? [formData.shipmentDriverId] : []} onSelectionChange={(keys) => updateField("shipmentDriverId", Array.from(keys)[0] || "")}>
+                  <Select label="พนักงานขับรถ" labelPlacement="outside" placeholder="เลือกพนักงานขับรถ" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentDriverId ? [formData.shipmentDriverId] : []} onSelectionChange={(keys) => updateField("shipmentDriverId", Array.from(keys)[0] || "")}>
                     {(editingShipment ? drivers.filter(d => d.driverRole === "driver") : availableDrivers).map((d) => (<SelectItem key={d.driverId}>{d.driverFirstName} {d.driverLastName}</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="Assistant" labelPlacement="outside" placeholder="Select assistant" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentAssistantId ? [formData.shipmentAssistantId] : []} onSelectionChange={(keys) => updateField("shipmentAssistantId", Array.from(keys)[0] || "")}>
+                  <Select label="ผู้ช่วย" labelPlacement="outside" placeholder="เลือกผู้ช่วย" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentAssistantId ? [formData.shipmentAssistantId] : []} onSelectionChange={(keys) => updateField("shipmentAssistantId", Array.from(keys)[0] || "")}>
                     {(editingShipment ? drivers.filter(d => d.driverRole === "assistant") : availableAssistants).map((d) => (<SelectItem key={d.driverId}>{d.driverFirstName} {d.driverLastName}</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="Sales Order Ref" labelPlacement="outside" placeholder="BC order number" variant="bordered" size="md" radius="md" value={formData.shipmentSalesOrderRef} onChange={(e) => updateField("shipmentSalesOrderRef", e.target.value)} />
+                  <Input label="อ้างอิงใบสั่งขาย" labelPlacement="outside" placeholder="เลขที่ใบสั่ง BC" variant="bordered" size="md" radius="md" value={formData.shipmentSalesOrderRef} onChange={(e) => updateField("shipmentSalesOrderRef", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input type="number" label="Weight (Kg)" labelPlacement="outside" placeholder="Enter weight" variant="bordered" size="md" radius="md" value={formData.shipmentWeightKg} onChange={(e) => updateField("shipmentWeightKg", e.target.value)} />
+                  <Input type="number" label="น้ำหนัก (กก.)" labelPlacement="outside" placeholder="กรอกน้ำหนัก" variant="bordered" size="md" radius="md" value={formData.shipmentWeightKg} onChange={(e) => updateField("shipmentWeightKg", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input label="Items Summary" labelPlacement="outside" placeholder="Description of items" variant="bordered" size="md" radius="md" value={formData.shipmentItemsSummary} onChange={(e) => updateField("shipmentItemsSummary", e.target.value)} />
+                  <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="bordered" size="md" radius="md" value={formData.shipmentItemsSummary} onChange={(e) => updateField("shipmentItemsSummary", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input label="Notes" labelPlacement="outside" placeholder="Additional notes" variant="bordered" size="md" radius="md" value={formData.shipmentNotes} onChange={(e) => updateField("shipmentNotes", e.target.value)} />
+                  <Input label="หมายเหตุ" labelPlacement="outside" placeholder="หมายเหตุเพิ่มเติม" variant="bordered" size="md" radius="md" value={formData.shipmentNotes} onChange={(e) => updateField("shipmentNotes", e.target.value)} />
                 </div>
               </div>
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="bordered" size="md" radius="md" onPress={onClose}>Cancel</Button>
-            <Button variant="bordered" size="md" radius="md" onPress={handleSave} isLoading={saving}>{editingShipment ? "Update" : "Create"}</Button>
+            <Button variant="bordered" size="md" radius="md" onPress={onClose}>ยกเลิก</Button>
+            <Button variant="bordered" size="md" radius="md" onPress={handleSave} isLoading={saving}>{editingShipment ? "อัปเดต" : "สร้าง"}</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Shipment</ModalHeader>
+          <ModalHeader>ลบการขนส่ง</ModalHeader>
           <ModalBody>
-            <p>Are you sure you want to delete shipment <span className="font-semibold">{deletingShipment?.shipmentNumber}</span>? This action cannot be undone.</p>
+            <p>คุณต้องการลบการขนส่ง <span className="font-semibold">{deletingShipment?.shipmentNumber}</span> หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
           </ModalBody>
           <ModalFooter>
-            <Button variant="bordered" size="md" radius="md" onPress={deleteModal.onClose}>Cancel</Button>
-            <Button variant="bordered" size="md" radius="md" onPress={handleDelete}>Delete</Button>
+            <Button variant="bordered" size="md" radius="md" onPress={deleteModal.onClose}>ยกเลิก</Button>
+            <Button variant="bordered" size="md" radius="md" onPress={handleDelete}>ลบ</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

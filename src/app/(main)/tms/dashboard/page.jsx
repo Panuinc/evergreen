@@ -21,21 +21,21 @@ export default function TmsDashboardPage() {
   }
 
   if (!stats) {
-    return <p className="text-default-400 text-center py-10">Failed to load dashboard data</p>;
+    return <p className="text-default-400 text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
   }
 
   const cards = [
-    { title: "Total Vehicles", value: stats.totalVehicles, sub: `${stats.availableVehicles} available`, icon: Truck, color: "text-primary" },
-    { title: "Active Shipments", value: stats.activeShipments, sub: `${stats.totalShipments} total`, icon: Package, color: "text-warning" },
-    { title: "Completed This Month", value: stats.completedThisMonth, sub: "shipments", icon: CheckCircle, color: "text-success" },
-    { title: "Fuel Cost (Month)", value: `฿${Number(stats.totalFuelCostThisMonth || 0).toLocaleString("th-TH")}`, sub: "this month", icon: Fuel, color: "text-danger" },
-    { title: "Pending Maintenance", value: stats.pendingMaintenance, sub: "scheduled + in progress", icon: Wrench, color: "text-secondary" },
-    { title: "In-Use Vehicles", value: stats.inUseVehicles, sub: `of ${stats.totalVehicles}`, icon: Clock, color: "text-default-500" },
+    { title: "ยานพาหนะทั้งหมด", value: stats.totalVehicles, sub: `${stats.availableVehicles} พร้อมใช้งาน`, icon: Truck, color: "text-primary" },
+    { title: "การขนส่งที่ดำเนินการ", value: stats.activeShipments, sub: `${stats.totalShipments} รายการ`, icon: Package, color: "text-warning" },
+    { title: "สำเร็จเดือนนี้", value: stats.completedThisMonth, sub: "รายการ", icon: CheckCircle, color: "text-success" },
+    { title: "ค่าน้ำมัน (เดือน)", value: `฿${Number(stats.totalFuelCostThisMonth || 0).toLocaleString("th-TH")}`, sub: "เดือนนี้", icon: Fuel, color: "text-danger" },
+    { title: "รอซ่อมบำรุง", value: stats.pendingMaintenance, sub: "นัดหมาย + กำลังดำเนินการ", icon: Wrench, color: "text-secondary" },
+    { title: "ยานพาหนะที่ใช้งาน", value: stats.inUseVehicles, sub: `จาก ${stats.totalVehicles}`, icon: Clock, color: "text-default-500" },
   ];
 
   return (
     <div className="flex flex-col w-full h-full gap-6">
-      <h2 className="text-lg font-semibold">Transportation Dashboard</h2>
+      <h2 className="text-lg font-semibold">แดชบอร์ดระบบขนส่ง</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map((card) => (
@@ -55,31 +55,31 @@ export default function TmsDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">Shipment Status Distribution</p>
+            <p className="text-sm font-semibold mb-3">สถานะการขนส่ง</p>
             <ShipmentStatusChart data={stats.shipmentStatusDistribution} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">Monthly Shipments (Last 6 Months)</p>
+            <p className="text-sm font-semibold mb-3">การขนส่งรายเดือน (6 เดือนล่าสุด)</p>
             <MonthlyShipmentChart data={stats.monthlyShipmentTrend} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">Fuel Cost Trend</p>
+            <p className="text-sm font-semibold mb-3">แนวโน้มค่าน้ำมัน</p>
             <FuelCostChart data={stats.fuelCostTrend} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">Vehicle Utilization (30 Days)</p>
+            <p className="text-sm font-semibold mb-3">อัตราการใช้ยานพาหนะ (30 วัน)</p>
             <VehicleUtilizationChart data={stats.vehicleUtilization} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200 lg:col-span-2">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">Maintenance Cost Summary</p>
+            <p className="text-sm font-semibold mb-3">สรุปค่าซ่อมบำรุง</p>
             <MaintenanceCostChart data={stats.maintenanceCostTrend} />
           </CardBody>
         </Card>

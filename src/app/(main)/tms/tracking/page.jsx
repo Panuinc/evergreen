@@ -61,7 +61,7 @@ export default function GpsTrackingPage() {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">GPS Tracking</h2>
+        <h2 className="text-lg font-semibold">ติดตาม GPS</h2>
         <div className="flex gap-2">
           <Button
             variant="bordered"
@@ -70,7 +70,7 @@ export default function GpsTrackingPage() {
             startContent={<RefreshCw size={16} />}
             onPress={loadData}
           >
-            Refresh
+            รีเฟรช
           </Button>
           <Button
             variant="bordered"
@@ -79,7 +79,7 @@ export default function GpsTrackingPage() {
             startContent={<Navigation size={16} />}
             onPress={() => handleOpenManualUpdate()}
           >
-            Update Position
+            อัปเดตตำแหน่ง
           </Button>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function GpsTrackingPage() {
                       </p>
                       {pos.gpsLogSpeed && (
                         <p className="text-default-400">
-                          Speed: {pos.gpsLogSpeed} km/h
+                          ความเร็ว: {pos.gpsLogSpeed} km/h
                         </p>
                       )}
                       <p className="text-default-400">
@@ -130,7 +130,7 @@ export default function GpsTrackingPage() {
                       </p>
                     </div>
                   ) : (
-                    <p className="text-xs text-default-300">No GPS data</p>
+                    <p className="text-xs text-default-300">ไม่มีข้อมูล GPS</p>
                   )}
                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                     <Button
@@ -140,7 +140,7 @@ export default function GpsTrackingPage() {
                       onPress={() => handleOpenManualUpdate(vehicle)}
                       className="flex-1"
                     >
-                      Update
+                      อัปเดต
                     </Button>
                     <Button
                       variant="bordered"
@@ -151,7 +151,7 @@ export default function GpsTrackingPage() {
                       isLoading={loadingRoute && selectedVehicleId === vehicle.vehicleId}
                       className="flex-1"
                     >
-                      History
+                      ประวัติ
                     </Button>
                   </div>
                 </CardBody>
@@ -172,23 +172,23 @@ export default function GpsTrackingPage() {
       </div>
 
       <p className="text-xs text-default-400">
-        Auto-refreshes every 30 seconds
+        รีเฟรชอัตโนมัติทุก 30 วินาที
       </p>
 
       {/* Manual Update Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
-            Update Vehicle Position
+            อัปเดตตำแหน่งยานพาหนะ
             {selectedVehicle && ` - ${selectedVehicle.vehicleName}`}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-4">
               {!selectedVehicle && (
                 <Select
-                  label="Vehicle"
+                  label="ยานพาหนะ"
                   labelPlacement="outside"
-                  placeholder="Select vehicle"
+                  placeholder="เลือกยานพาหนะ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -209,7 +209,7 @@ export default function GpsTrackingPage() {
               )}
               <Input
                 type="number"
-                label="Latitude"
+                label="ละติจูด"
                 labelPlacement="outside"
                 placeholder="e.g. 13.7563"
                 variant="bordered"
@@ -223,7 +223,7 @@ export default function GpsTrackingPage() {
               />
               <Input
                 type="number"
-                label="Longitude"
+                label="ลองจิจูด"
                 labelPlacement="outside"
                 placeholder="e.g. 100.5018"
                 variant="bordered"
@@ -237,9 +237,9 @@ export default function GpsTrackingPage() {
               />
               <Input
                 type="number"
-                label="Speed (km/h)"
+                label="ความเร็ว (km/h)"
                 labelPlacement="outside"
-                placeholder="Optional"
+                placeholder="ไม่บังคับ"
                 variant="bordered"
                 size="md"
                 radius="md"
@@ -250,7 +250,7 @@ export default function GpsTrackingPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -259,7 +259,7 @@ export default function GpsTrackingPage() {
               onPress={handleSavePosition}
               isLoading={saving}
             >
-              Save Position
+              บันทึกตำแหน่ง
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -269,7 +269,7 @@ export default function GpsTrackingPage() {
       <Modal isOpen={routeModal.isOpen} onClose={routeModal.onClose} size="4xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader>
-            Route History
+            ประวัติเส้นทาง
             {selectedVehicleId && (() => {
               const v = vehicles.find((v) => v.vehicleId === selectedVehicleId);
               return v ? ` - ${v.vehicleName}` : "";
@@ -286,7 +286,7 @@ export default function GpsTrackingPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={routeModal.onClose}>
-              Close
+              ปิด
             </Button>
           </ModalFooter>
         </ModalContent>
