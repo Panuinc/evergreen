@@ -6,25 +6,32 @@ function decodeEpc(hex) {
     return { type: "tid", raw: hex };
   }
 
-  let itemChars = "";
-  for (let i = 0; i < 20; i += 2) {
+  let raw = "";
+  for (let i = 0; i < hex.length; i += 2) {
     const code = parseInt(hex.substring(i, i + 2), 16);
-    if (code > 31 && code < 127) itemChars += String.fromCharCode(code);
+    if (code === 0) break;
+    if (code > 31 && code < 127) raw += String.fromCharCode(code);
   }
-  const itemCompact = itemChars.trim();
 
-  if (!itemCompact || itemCompact.length < 3) {
+  const slashIndex = raw.lastIndexOf("/");
+  if (slashIndex < 3) {
     return { type: "tid", raw: hex };
   }
 
-  const piece = parseInt(hex.substring(20, 22), 16);
-  const total = parseInt(hex.substring(22, 24), 16);
+  const itemCompact = raw.substring(0, slashIndex).trim();
+  const seqChar = raw[slashIndex + 1];
+  const totalChar = raw[slashIndex + 2];
+
+  const pieceNumber =
+    seqChar >= "A" ? seqChar.charCodeAt(0) - 55 : parseInt(seqChar) || 0;
+  const totalPieces =
+    totalChar >= "A" ? totalChar.charCodeAt(0) - 55 : parseInt(totalChar) || 0;
 
   return {
     type: "epc",
     itemCompact,
-    pieceNumber: piece,
-    totalPieces: total,
+    pieceNumber,
+    totalPieces,
   };
 }
 

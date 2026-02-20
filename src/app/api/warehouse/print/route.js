@@ -53,26 +53,38 @@ function testConnection(host = PRINTER_HOST, port = PRINTER_PORT) {
 }
 
 function buildEpc(itemNumber, pieceNumber, totalPieces) {
+  const bytes = 12;
+  const itemMaxLen = bytes - 3; // 9
+
+  const seqChar =
+    pieceNumber <= 9
+      ? String(pieceNumber)
+      : String.fromCharCode(55 + pieceNumber);
+
+  const totalChar =
+    totalPieces <= 9
+      ? String(totalPieces)
+      : String.fromCharCode(55 + totalPieces);
+
   const compact = itemNumber.replace(/[^A-Za-z0-9]/g, "");
-  const maxItemLen = 10;
-  const itemPart = compact.substring(0, maxItemLen).padEnd(maxItemLen, " ");
-  const piece = Math.min(pieceNumber, 255);
-  const total = Math.min(totalPieces, 255);
+  const paddedItem = compact.substring(0, itemMaxLen).padEnd(itemMaxLen, " ");
+
+  const fullString = `${paddedItem}/${seqChar}${totalChar}`;
 
   let hex = "";
-  for (let i = 0; i < itemPart.length; i++) {
-    hex += itemPart.charCodeAt(i).toString(16).toUpperCase().padStart(2, "0");
+  for (let i = 0; i < fullString.length; i++) {
+    hex += fullString.charCodeAt(i).toString(16).toUpperCase().padStart(2, "0");
   }
-  hex += piece.toString(16).toUpperCase().padStart(2, "0");
-  hex += total.toString(16).toUpperCase().padStart(2, "0");
 
-  return hex;
+  return hex.padEnd(bytes * 2, "00");
 }
+
+const THAI_FONT = "sans-serif";
 
 function textToZplGraphic(text, maxWidthDots, fontSizePx) {
   const measure = createCanvas(1, 1);
   const mCtx = measure.getContext("2d");
-  mCtx.font = `bold ${fontSizePx}px sans-serif`;
+  mCtx.font = `bold ${fontSizePx}px ${THAI_FONT}`;
   const actualW = Math.min(Math.ceil(mCtx.measureText(text).width) + 10, maxWidthDots);
 
   const imgWidth = Math.ceil(actualW / 8) * 8;
@@ -85,7 +97,7 @@ function textToZplGraphic(text, maxWidthDots, fontSizePx) {
   ctx.fillRect(0, 0, imgWidth, textHeight);
 
   ctx.fillStyle = "#000000";
-  ctx.font = `bold ${fontSizePx}px sans-serif`;
+  ctx.font = `bold ${fontSizePx}px ${THAI_FONT}`;
   ctx.textBaseline = "top";
   for (let dx = 0; dx <= 1; dx++) {
     for (let dy = 0; dy <= 1; dy++) {
@@ -130,7 +142,7 @@ function buildZpl(item, pieceNumber, totalPieces, cfg) {
   const my = Math.round(2.5 * dpm);
   const usableW = pw - mx * 2;
 
-  const darkness = Math.min(cfg.darkness || 15, 30);
+  const darkness = Math.min(cfg.darkness || 20, 30);
   const speed = cfg.printSpeed || 4;
   let zpl = `^XA^MTT^PW${pw}^LL${ll}^LS${ls}~SD${darkness}^PR${speed}^CI28`;
   zpl += `^FO${mx},${my}^A0N,${fs},${fs}^FD${item.number}^FS`;
@@ -161,7 +173,7 @@ function buildZpl(item, pieceNumber, totalPieces, cfg) {
 
   if (cfg.encodeRfid) {
     const epc = buildEpc(item.number, pieceNumber, totalPieces);
-    zpl += `^RS0,0,0,0,0,E^RFW,H^FD${epc}^FS`;
+    zpl += `^RFW,H^FD${epc}^FS`;
   }
 
   zpl += "^PQ1^XZ";
@@ -194,26 +206,26 @@ function renderPreview(item, quantity, cfg) {
   ctx.fillStyle = "#000000";
   ctx.textBaseline = "top";
 
-  ctx.font = `bold ${fTitle}px sans-serif`;
+  ctx.font = `bold ${fTitle}px ${THAI_FONT}`;
   ctx.fillText(item.number, mx, my);
 
   if (cfg.showPieceNumber) {
     const seqText = `1/${quantity}`;
-    ctx.font = `bold ${fSeq}px sans-serif`;
+    ctx.font = `bold ${fSeq}px ${THAI_FONT}`;
     const seqW = ctx.measureText(seqText).width;
     ctx.fillText(seqText, PREVIEW_WIDTH - seqW - mx, my);
   }
 
   if (item.displayName) {
     const nameY = my + fTitle + Math.round(1.5 * s);
-    ctx.font = `${fName}px sans-serif`;
+    ctx.font = `${fName}px ${THAI_FONT}`;
     ctx.fillText(item.displayName, mx, nameY, PREVIEW_WIDTH - mx * 2);
   }
 
   if (cfg.encodeRfid) {
     ctx.fillStyle = "#999999";
     const rfidFs = Math.round(1.4 * s);
-    ctx.font = `italic ${rfidFs}px sans-serif`;
+    ctx.font = `italic ${rfidFs}px ${THAI_FONT}`;
     ctx.fillText("RFID", mx, previewH - rfidFs - my);
   }
 
@@ -245,13 +257,28 @@ export async function POST(request) {
       fontSize: 40,
       showBarcode: false,
       showPieceNumber: true,
-      encodeRfid: true,
+      encodeRfid: false,
       ...config,
+      encodeRfid: false,
     };
 
     if (action === "preview") {
       const preview = renderPreview(item, quantity, cfg);
       return NextResponse.json({ success: true, preview });
+    }
+
+    if (action === "debug") {
+      const zpl = buildZpl(item, 1, quantity, cfg);
+      return NextResponse.json({
+        success: true,
+        debug: {
+          cfgUsed: cfg,
+          configFromClient: config,
+          zplLength: zpl.length,
+          zplStart: zpl.substring(0, 200),
+          zplEnd: zpl.substring(zpl.length - 100),
+        },
+      });
     }
 
     let allZpl = "";
@@ -260,10 +287,10 @@ export async function POST(request) {
     }
 
     const result = await sendToPrinter(allZpl);
-    return NextResponse.json({ success: true, data: result, quantity });
+    return NextResponse.json({ success: true, data: result, quantity, zplLength: allZpl.length });
   } catch (error) {
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error.message, stack: error.stack },
       { status: 500 },
     );
   }

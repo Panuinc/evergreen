@@ -19,7 +19,10 @@ export async function testConnection() {
 
 export async function printRfidLabels(_printerName, item, quantity) {
   const cfg = getPrinterConfig();
-  return callPrintApi({ action: "print", item, quantity, config: cfg });
+  console.log("[print] config from localStorage:", JSON.stringify(cfg));
+  const result = await callPrintApi({ action: "print", item, quantity, config: cfg });
+  console.log("[print] result:", JSON.stringify(result));
+  return result;
 }
 
 export async function printTestLabel() {
