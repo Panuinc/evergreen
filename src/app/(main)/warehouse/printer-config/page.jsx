@@ -165,6 +165,15 @@ export default function PrinterConfigPage() {
             />
           </div>
 
+          <Input
+            type="number"
+            label="เลื่อนแนวนอน (mm)"
+            min={0}
+            max={30}
+            value={String(config.labelShift || 0)}
+            onValueChange={(v) => updateField("labelShift", Number(v))}
+          />
+
           <div className="grid grid-cols-2 gap-3">
             <Input
               type="number"

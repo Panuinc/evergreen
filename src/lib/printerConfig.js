@@ -2,14 +2,15 @@ const STORAGE_KEY = "cp30-printer-config";
 
 const DEFAULT_CONFIG = {
   dpi: 300,
-  labelWidth: 75,
-  labelHeight: 20,
+  labelWidth: 73,
+  labelHeight: 21,
+  labelShift: 7,
   printSpeed: 4,
   darkness: 15,
   fontSize: 28,
   showBarcode: true,
   showPieceNumber: true,
-  encodeRfid: true,
+  encodeRfid: false,
 };
 
 export function getPrinterConfig() {

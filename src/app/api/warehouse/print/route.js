@@ -86,8 +86,9 @@ function buildZpl(item, pieceNumber, totalPieces, cfg) {
   const pw = Math.round(cfg.labelWidth * dpm);
   const ll = Math.round(cfg.labelHeight * dpm);
   const fs = cfg.fontSize || 28;
+  const ls = Math.round((cfg.labelShift || 0) * dpm);
 
-  let zpl = `^XA^MTD^PW${pw}^LL${ll}^CI28`;
+  let zpl = `^XA^MTT^PW${pw}^LL${ll}^LS${ls}^CI28`;
   zpl += `^FO20,15^A0N,${fs},${fs}^FD${item.number}^FS`;
 
   if (cfg.showPieceNumber) {
@@ -132,12 +133,13 @@ export async function POST(request) {
 
     const cfg = {
       dpi: 300,
-      labelWidth: 75,
-      labelHeight: 20,
+      labelWidth: 73,
+      labelHeight: 21,
+      labelShift: 7,
       fontSize: 28,
       showBarcode: true,
       showPieceNumber: true,
-      encodeRfid: true,
+      encodeRfid: false,
       ...config,
     };
 
