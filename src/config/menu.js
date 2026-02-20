@@ -272,8 +272,9 @@ export const menuData = [
     id: "warehouse",
     name: "Warehouse",
     icon: Package,
+    href: "/warehouse/inventory",
     subMenus: [
-      { name: "Inventory", icon: Boxes },
+      { name: "Inventory", icon: Boxes, href: "/warehouse/inventory" },
       { name: "Receiving", icon: Plus },
       { name: "Picking", icon: List },
       { name: "Stock Check", icon: Search },
