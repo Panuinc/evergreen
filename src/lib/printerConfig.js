@@ -17,7 +17,9 @@ export function getPrinterConfig() {
   if (typeof window === "undefined") return DEFAULT_CONFIG;
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+    if (saved) {
+      return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+    }
   } catch {}
   return DEFAULT_CONFIG;
 }
