@@ -1,5 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
-import { bcODataGet } from "@/lib/bcClient";
+import { bcODataGet, bcApiGet } from "@/lib/bcClient";
+
+// Extract project code from item number (e.g. "FG-00003-001" → "00003")
+function extractProjectCode(itemNo) {
+  if (!itemNo) return null;
+  const parts = itemNo.split("-");
+  if (parts.length >= 2) return parts[1];
+  return null;
+}
 
 export async function GET(request) {
   // Dev mode: skip auth check / Production: verify Vercel Cron secret
@@ -19,6 +27,20 @@ export async function GET(request) {
 
   const now = new Date().toISOString();
   const results = {};
+
+  // 0. Fetch dimension values → map code → displayName (สำหรับชื่อโครงการ)
+  let dimMap = {};
+  try {
+    const dims = await bcApiGet("dimensionValues", {
+      $select: "code,displayName",
+    });
+    for (const d of dims) {
+      if (d.code) dimMap[d.code] = d.displayName || d.code;
+    }
+    results.dimensionValues = dims.length;
+  } catch (e) {
+    results.dimensionValues = `ERROR: ${e.message}`;
+  }
 
   try {
     // 1. Customers
@@ -47,27 +69,32 @@ export async function GET(request) {
   }
 
   try {
-    // 2. Items
+    // 2. Items + project mapping
     const items = await bcODataGet("Item_Card_Excel", {
       $filter: "Blocked eq false",
       $select:
         "No,Description,Type,Inventory,Unit_Price,Unit_Cost,Item_Category_Code,Gen_Prod_Posting_Group,Blocked,Base_Unit_of_Measure",
       $orderby: "No asc",
     });
-    const itemRows = items.map((i) => ({
-      id: i.No,
-      number: i.No,
-      displayName: i.Description,
-      type: i.Type,
-      inventory: i.Inventory,
-      unitPrice: i.Unit_Price,
-      unitCost: i.Unit_Cost,
-      itemCategoryCode: i.Item_Category_Code,
-      generalProductPostingGroupCode: i.Gen_Prod_Posting_Group,
-      blocked: i.Blocked,
-      baseUnitOfMeasure: i.Base_Unit_of_Measure,
-      syncedAt: now,
-    }));
+    const itemRows = items.map((i) => {
+      const projectCode = extractProjectCode(i.No);
+      return {
+        id: i.No,
+        number: i.No,
+        displayName: i.Description,
+        type: i.Type,
+        inventory: i.Inventory,
+        unitPrice: i.Unit_Price,
+        unitCost: i.Unit_Cost,
+        itemCategoryCode: i.Item_Category_Code,
+        generalProductPostingGroupCode: i.Gen_Prod_Posting_Group,
+        blocked: i.Blocked,
+        baseUnitOfMeasure: i.Base_Unit_of_Measure,
+        projectCode: projectCode,
+        projectName: projectCode ? (dimMap[projectCode] || null) : null,
+        syncedAt: now,
+      };
+    });
     const { error: iErr } = await supabase
       .from("bcItems")
       .upsert(itemRows, { onConflict: "id" });
@@ -125,8 +152,10 @@ export async function GET(request) {
       .upsert(orderRows, { onConflict: "id" });
     results.salesOrders = oErr ? `ERROR: ${oErr.message}` : orderRows.length;
 
-    // เก็บทุก line รวมถึง comment lines (No เป็น "" แต่ Description มีข้อมูล เช่น ที่อยู่ เบอร์โทร)
-    const lineRows = allLines.map((l) => ({
+    // เก็บทุก line + map project จาก item number (No)
+    const lineRows = allLines.map((l) => {
+      const projectCode = extractProjectCode(l.No);
+      return {
         id: `${l.Document_No}-${l.Line_No}`,
         documentNo: l.Document_No,
         lineNo: l.Line_No,
@@ -140,8 +169,11 @@ export async function GET(request) {
         bwkOutstandingQuantity: l.BWK_Outstanding_Quantity,
         unitOfMeasureCode: l.Unit_of_Measure_Code,
         locationCode: l.Location_Code?.trim() || null,
+        projectCode: projectCode,
+        projectName: projectCode ? (dimMap[projectCode] || null) : null,
         syncedAt: now,
-      }));
+      };
+    });
     const { error: lErr } = await supabase
       .from("bcSalesOrderLines")
       .upsert(lineRows, { onConflict: "id" });

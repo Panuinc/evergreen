@@ -19,9 +19,11 @@ import {
   Package,
   ShoppingCart,
   ClipboardList,
+  FolderKanban,
 } from "lucide-react";
 
 const TABLES = [
+  { key: "dimensionValues", label: "Dimensions", icon: FolderKanban },
   { key: "customers", label: "Customers", icon: Users },
   { key: "items", label: "Items", icon: Package },
   { key: "salesOrders", label: "Sales Orders", icon: ShoppingCart },
@@ -110,7 +112,7 @@ export default function SyncPage() {
             </Chip>
           </CardHeader>
           <CardBody>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {TABLES.map((t) => {
                 const val = result.results?.[t.key];
                 const isError =
@@ -157,17 +159,20 @@ export default function SyncPage() {
           <p className="font-semibold text-sm">รายละเอียด</p>
           <ul className="text-sm text-default-500 list-disc pl-5 space-y-1">
             <li>
+              <strong>Dimensions</strong> — ดึง dimensionValues จาก BC API v2.0 (code → ชื่อโครงการ)
+            </li>
+            <li>
               <strong>Customers</strong> — ข้อมูลลูกค้าจาก CustomerList
             </li>
             <li>
               <strong>Items</strong> — สินค้าทั้งหมดจาก Item_Card_Excel
-              (เฉพาะที่ไม่ถูก Block)
+              (เฉพาะที่ไม่ถูก Block) + map projectCode/projectName จาก Dimensions
             </li>
             <li>
               <strong>Sales Orders</strong> — คำสั่งซื้อ SO26*
             </li>
             <li>
-              <strong>Sales Order Lines</strong> — รายการสินค้าในคำสั่งซื้อ
+              <strong>Sales Order Lines</strong> — รายการสินค้าในคำสั่งซื้อ + map projectCode/projectName
             </li>
           </ul>
           <p className="text-xs text-default-400 mt-2">

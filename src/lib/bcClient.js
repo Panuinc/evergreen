@@ -33,6 +33,42 @@ async function getToken() {
 
 const BC_ODATA_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/ODataV4/Company('C.H.H._Go-Live')`;
 
+// BC API v2.0 (standard REST API — for dimensionValues, etc.)
+const BC_COMPANY_ID = "a407ba9f-2151-ec11-9f09-000d3ac85269";
+const BC_API_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/api/v2.0/companies(${BC_COMPANY_ID})`;
+
+export async function bcApiGet(endpoint, params = {}) {
+  const token = await getToken();
+
+  const url = new URL(`${BC_API_URL}/${endpoint}`);
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
+
+  const allValues = [];
+  let nextUrl = url.toString();
+
+  while (nextUrl) {
+    const res = await fetch(nextUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`BC API error: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    allValues.push(...(data.value || []));
+    nextUrl = data["@odata.nextLink"] || null;
+  }
+
+  return allValues;
+}
+
 export async function bcODataGet(entity, params = {}) {
   const token = await getToken();
 
