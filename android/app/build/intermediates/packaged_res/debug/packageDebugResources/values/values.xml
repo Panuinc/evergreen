@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#7CB342</color>
+    <color name="background">#FAFAFA</color>
+    <color name="badge_bg">#E8F5E9</color>
+    <color name="badge_text">#2E7D32</color>
+    <color name="divider">#C8E6C9</color>
+    <color name="error">#D32F2F</color>
+    <color name="input_stroke">#BDBDBD</color>
+    <color name="input_stroke_focused">#7CB342</color>
+    <color name="primary">#7CB342</color>
+    <color name="primary_dark">#689F38</color>
+    <color name="primary_light">#9CCC65</color>
+    <color name="secondary">#212121</color>
+    <color name="secondary_variant">#424242</color>
+    <color name="success">#43A047</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F1F8E9</color>
+    <color name="text_on_surface_variant">#33691E</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="warning_bg">#FFF8E1</color>
+    <color name="warning_text">#F57F17</color>
+    <color name="white">#FFFFFF</color>
+    <string name="app_name">Evergreen RFID</string>
+    <style name="EvergreenTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/primary</item>
+        <item name="hintTextColor">@color/primary</item>
+    </style>
+    <style name="Theme.EvergreenRFID" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorSecondary">@color/primary</item>
+        <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorControlActivated">@color/primary</item>
+        <item name="colorControlHighlight">#407CB342</item>
+        <item name="colorControlNormal">@color/text_secondary</item>
+    </style>
+</resources>

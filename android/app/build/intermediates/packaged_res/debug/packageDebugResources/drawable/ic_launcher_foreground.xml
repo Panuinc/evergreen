@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Door frame (black part of logo - white on green bg) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52,28 L52,28 L68,28 L68,75 L42,75 L42,45 Z" />
+    <!-- Open door (green door - slightly darker white to show depth) -->
+    <path
+        android:fillColor="#E8F5E9"
+        android:pathData="M42,45 L42,75 L58,75 L58,35 Z" />
+    <!-- Door knob -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M53,58 A1.5,1.5 0 1,1 53,58.01 Z" />
+</vector>
