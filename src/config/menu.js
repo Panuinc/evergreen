@@ -25,6 +25,7 @@ import {
   Mail,
   Globe,
   Boxes,
+  ScanLine,
   ClipboardList,
   Wrench,
   Phone,
@@ -40,7 +41,6 @@ import {
   Shield,
   FlaskConical,
   TrendingDown,
-  ScanLine,
   Lock,
   Zap,
   GitBranch,
@@ -274,6 +274,7 @@ export const menuData = [
     href: "/warehouse/inventory",
     subMenus: [
       { name: "ภาพรวมคลัง", icon: Boxes, href: "/warehouse/inventory" },
+      { name: "RFID Scanner", icon: ScanLine, href: "/warehouse/rfid-scanner" },
       { name: "ตั้งค่าเครื่องพิมพ์", icon: Settings, href: "/warehouse/printer-config" },
     ],
   },
