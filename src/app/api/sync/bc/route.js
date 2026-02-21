@@ -2,10 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 import { bcODataGet } from "@/lib/bcClient";
 
 export async function GET(request) {
-  // Vercel Cron ส่ง Authorization: Bearer ${CRON_SECRET} อัตโนมัติ
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  // Dev mode: skip auth check / Production: verify Vercel Cron secret
+  const isDev = process.env.NODE_ENV === "development";
+  if (!isDev) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   // Service role client — bypasses RLS, ไม่ต้องการ user session

@@ -51,6 +51,7 @@ import {
   Star,
   Building2,
   AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 
 export const menuData = [
@@ -274,7 +275,6 @@ export const menuData = [
     href: "/warehouse/inventory",
     subMenus: [
       { name: "ภาพรวมคลัง", icon: Boxes, href: "/warehouse/inventory" },
-      { name: "RFID Scanner", icon: ScanLine, href: "/warehouse/rfid-scanner" },
       { name: "ตั้งค่าเครื่องพิมพ์", icon: Settings, href: "/warehouse/printer-config" },
     ],
   },
@@ -309,6 +309,7 @@ export const menuData = [
     href: "/settings/configCheck",
     subMenus: [
       { name: "Config Check", icon: Activity, href: "/settings/configCheck" },
+      { name: "Sync BC", icon: RefreshCw, href: "/settings/sync-bc" },
     ],
   },
   {
