@@ -1,5 +1,8 @@
 package com.evergreen.rfid.ui
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.media.AudioManager
 import android.media.ToneGenerator
@@ -11,7 +14,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,26 +25,65 @@ import com.evergreen.rfid.MainActivity
 import com.evergreen.rfid.R
 import com.evergreen.rfid.TriggerListener
 import com.evergreen.rfid.api.ApiClient
+import com.evergreen.rfid.api.SupabaseAuth
 import com.evergreen.rfid.databinding.FragmentScannerBinding
 import com.evergreen.rfid.databinding.ItemScanResultBinding
+import com.evergreen.rfid.db.AppDatabase
+import com.evergreen.rfid.db.entity.ScanRecordEntity
+import com.evergreen.rfid.db.entity.ScanSessionEntity
 import com.evergreen.rfid.model.DecodeResult
 import com.evergreen.rfid.model.ScanResult
+import com.evergreen.rfid.sync.ConnectivityHelper
+import com.evergreen.rfid.util.AppSettings
+import com.evergreen.rfid.util.EpcDecoder
+import com.evergreen.rfid.util.ExportHelper
+import com.evergreen.rfid.util.LocationHelper
+import com.evergreen.rfid.util.PhotoHelper
+import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ScannerFragment : Fragment(), TriggerListener {
     private var _binding: FragmentScannerBinding? = null
     private val binding get() = _binding!!
     private lateinit var apiClient: ApiClient
+    private lateinit var db: AppDatabase
     private val results = mutableListOf<ScanResult>()
     private lateinit var adapter: ScanResultAdapter
     private var isScanning = false
     private var toneGenerator: ToneGenerator? = null
-    private var isAutoMode = false // false=Single, true=Auto
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    // AppCenter-like stats
+    // Modes: 0=Single, 1=Auto, 2=Count
+    private var scanMode = 0
+
+    // Stats
     private var totalReads = 0
     private var scanStartTime = 0L
 
-    // Handler for efficient UI updates from scan thread (like AppCenter)
+    // Count mode
+    private val countSet = mutableSetOf<String>()
+
+    // GPS
+    private var sessionLat: Double? = null
+    private var sessionLon: Double? = null
+
+    // Photo capture
+    private var pendingPhotoEpc: String? = null
+    private var pendingPhotoPath: String? = null
+    private val photoLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK && pendingPhotoEpc != null && pendingPhotoPath != null) {
+            val idx = results.indexOfFirst { it.epc == pendingPhotoEpc }
+            if (idx >= 0) {
+                results[idx] = results[idx].copy(photoPath = pendingPhotoPath)
+                adapter.notifyItemChanged(idx)
+            }
+        }
+        pendingPhotoEpc = null
+        pendingPhotoPath = null
+    }
+
     companion object {
         private const val MSG_TAG = 1
         private const val MSG_TIMER = 2
@@ -53,9 +97,17 @@ class ScannerFragment : Fragment(), TriggerListener {
                     val epc = data.first as String
                     val rssi = data.second as String
                     totalReads++
-                    // Beep on every read (like AppCenter) — short tone blends into continuous sound
-                    try { toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 30) } catch (_: Exception) {}
-                    handleTagOnUiThread(epc, rssi)
+
+                    if (AppSettings.soundEnabled) {
+                        try { toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 30) } catch (_: Exception) {}
+                    }
+
+                    if (scanMode == 2) {
+                        countSet.add(epc)
+                        updateCountDisplay()
+                    } else {
+                        handleTagOnUiThread(epc, rssi)
+                    }
                     updateStats()
                 }
                 MSG_TIMER -> {
@@ -77,11 +129,15 @@ class ScannerFragment : Fragment(), TriggerListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         apiClient = ApiClient(requireContext())
-        adapter = ScanResultAdapter(results)
+        db = AppDatabase.getInstance(requireContext())
+        adapter = ScanResultAdapter(results,
+            onLocate = { epc -> openLocator(epc) },
+            onPhoto = { epc -> takePhoto(epc) }
+        )
 
-        try {
-            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
-        } catch (_: Exception) {}
+        if (AppSettings.soundEnabled) {
+            try { toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100) } catch (_: Exception) {}
+        }
 
         binding.rvResults.layoutManager = LinearLayoutManager(requireContext())
         binding.rvResults.adapter = adapter
@@ -90,32 +146,37 @@ class ScannerFragment : Fragment(), TriggerListener {
         binding.toggleMode.check(R.id.btnModeSingle)
         binding.toggleMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                isAutoMode = checkedId == R.id.btnModeAuto
-                // Stop scanning when switching modes
+                scanMode = when (checkedId) {
+                    R.id.btnModeAuto -> 1
+                    R.id.btnModeCount -> 2
+                    else -> 0
+                }
                 if (isScanning) stopScan()
+                updateModeDisplay()
                 updateScanButton()
             }
         }
 
         binding.btnScan.setOnClickListener {
-            if (isAutoMode) {
-                toggleAutoScan()
-            } else {
-                doSingleScan()
+            when (scanMode) {
+                1, 2 -> toggleAutoScan()
+                else -> doSingleScan()
             }
         }
 
         binding.btnClear.setOnClickListener {
             results.clear()
+            countSet.clear()
             totalReads = 0
             adapter.notifyDataSetChanged()
             updateCount()
             updateStats()
+            updateCountDisplay()
         }
 
-        binding.btnSummary.setOnClickListener {
-            showSummary()
-        }
+        binding.btnSummary.setOnClickListener { showSummary() }
+        binding.btnExport.setOnClickListener { showExportDialog() }
+        binding.btnSaveSession.setOnClickListener { saveSession() }
 
         // Show notice if RFID reader not available
         val reader = (activity as? MainActivity)?.rfidReader
@@ -123,33 +184,48 @@ class ScannerFragment : Fragment(), TriggerListener {
             binding.tvNotice.visibility = View.VISIBLE
         }
 
+        // Capture GPS at fragment start
+        captureGps()
+
+        updateModeDisplay()
         updateScanButton()
         updateStats()
+    }
+
+    private fun captureGps() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        try {
+            val locHelper = LocationHelper(requireContext())
+            locHelper.getLastLocation { lat, lon ->
+                sessionLat = lat
+                sessionLon = lon
+            }
+        } catch (_: Exception) {}
     }
 
     // Physical trigger button
     override fun onTriggerPressed() {
         activity?.runOnUiThread {
-            if (isAutoMode) {
-                toggleAutoScan()
-            } else {
-                doSingleScan()
+            when (scanMode) {
+                1, 2 -> toggleAutoScan()
+                else -> doSingleScan()
             }
         }
     }
 
-    override fun onTriggerReleased() {
-        // No action on release for either mode
-    }
+    override fun onTriggerReleased() {}
 
     private fun doSingleScan() {
         val reader = (activity as? MainActivity)?.rfidReader
         if (reader == null || !reader.isInitialized) {
-            Toast.makeText(requireContext(), "RFID reader not ready", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.scan_rfid_not_ready), Toast.LENGTH_SHORT).show()
             return
         }
 
-        binding.btnScan.text = "กำลังอ่าน..."
+        binding.btnScan.text = getString(R.string.scan_reading)
         binding.btnScan.isEnabled = false
 
         Thread {
@@ -159,10 +235,13 @@ class ScannerFragment : Fragment(), TriggerListener {
                 updateScanButton()
                 if (tag != null) {
                     totalReads++
+                    if (AppSettings.soundEnabled) {
+                        try { toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 30) } catch (_: Exception) {}
+                    }
                     handleTagOnUiThread(tag.first, tag.second)
                     updateStats()
                 } else {
-                    Toast.makeText(requireContext(), "ไม่พบ tag", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.scan_no_tag), Toast.LENGTH_SHORT).show()
                 }
             }
         }.start()
@@ -171,7 +250,7 @@ class ScannerFragment : Fragment(), TriggerListener {
     private fun toggleAutoScan() {
         val reader = (activity as? MainActivity)?.rfidReader
         if (reader == null || !reader.isInitialized) {
-            Toast.makeText(requireContext(), "RFID reader not ready", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.scan_rfid_not_ready), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -183,7 +262,6 @@ class ScannerFragment : Fragment(), TriggerListener {
             uiHandler.sendEmptyMessage(MSG_TIMER)
             updateScanButton()
             reader.startScan { epc, rssi ->
-                // Send to UI thread via Handler (like AppCenter) — faster than runOnUiThread
                 val msg = uiHandler.obtainMessage(MSG_TAG, Pair(epc, rssi))
                 uiHandler.sendMessage(msg)
             }
@@ -195,7 +273,6 @@ class ScannerFragment : Fragment(), TriggerListener {
         reader?.stopScan()
         isScanning = false
         uiHandler.removeMessages(MSG_TIMER)
-        // Update final elapsed time
         if (scanStartTime > 0) {
             val elapsed = (System.currentTimeMillis() - scanStartTime) / 1000.0
             binding.tvElapsed.text = String.format("%.1fs", elapsed)
@@ -203,32 +280,48 @@ class ScannerFragment : Fragment(), TriggerListener {
         updateScanButton()
     }
 
-    private fun updateScanButton() {
-        if (isAutoMode) {
-            if (isScanning) {
-                binding.btnScan.text = "หยุดสแกน"
-                binding.btnScan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.error))
-            } else {
-                binding.btnScan.text = "เริ่มสแกน Auto"
-                binding.btnScan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary))
-            }
+    private fun updateModeDisplay() {
+        if (scanMode == 2) {
+            binding.countDisplay.visibility = View.VISIBLE
+            binding.normalDisplay.visibility = View.GONE
         } else {
-            binding.btnScan.text = "สแกน Single"
-            binding.btnScan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary))
+            binding.countDisplay.visibility = View.GONE
+            binding.normalDisplay.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateCountDisplay() {
+        _binding?.tvBigCount?.text = countSet.size.toString()
+        _binding?.tvBigReads?.text = "${getString(R.string.count_total_reads)}: $totalReads"
+    }
+
+    private fun updateScanButton() {
+        val ctx = context ?: return
+        when (scanMode) {
+            1, 2 -> {
+                if (isScanning) {
+                    binding.btnScan.text = getString(R.string.scan_stop)
+                    binding.btnScan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.error))
+                } else {
+                    binding.btnScan.text = if (scanMode == 2) getString(R.string.mode_count) else getString(R.string.scan_start_auto)
+                    binding.btnScan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.primary))
+                }
+            }
+            else -> {
+                binding.btnScan.text = getString(R.string.scan_single)
+                binding.btnScan.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.primary))
+            }
         }
     }
 
     private fun updateStats() {
-        _binding?.tvTagCount?.text = results.size.toString()
+        _binding?.tvTagCount?.text = if (scanMode == 2) countSet.size.toString() else results.size.toString()
         _binding?.tvTotalReads?.text = totalReads.toString()
     }
 
-    /** Called on UI thread — handles both new and duplicate tags */
     private fun handleTagOnUiThread(epc: String, rssi: String) {
-        // Check if we already have this tag
         val existingIdx = results.indexOfFirst { it.epc == epc }
         if (existingIdx >= 0) {
-            // Increment read count and update RSSI
             val existing = results[existingIdx]
             existing.readCount++
             val updatedRssi = if (rssi.isNotEmpty()) rssi else existing.rssi
@@ -238,47 +331,124 @@ class ScannerFragment : Fragment(), TriggerListener {
             return
         }
 
-        // New tag
         val scanResult = ScanResult(epc = epc, rssi = rssi)
         results.add(0, scanResult)
         adapter.notifyItemInserted(0)
         binding.rvResults.scrollToPosition(0)
         updateCount()
 
-        // Decode via API (only for new tags)
-        apiClient.decodeRfid(epc) { result ->
-            result.fold(
-                onSuccess = { decoded ->
-                    activity?.runOnUiThread {
-                        val idx = results.indexOfFirst { it.epc == epc }
-                        if (idx >= 0) {
-                            results[idx] = results[idx].copy(decodeResult = decoded)
-                            adapter.notifyItemChanged(idx)
-                        }
-                    }
-                },
-                onFailure = { err ->
-                    activity?.runOnUiThread {
-                        val idx = results.indexOfFirst { it.epc == epc }
-                        if (idx >= 0) {
-                            results[idx] = results[idx].copy(
-                                decodeResult = DecodeResult(success = false, message = "Error: ${err.message}")
-                            )
-                            adapter.notifyItemChanged(idx)
-                        }
-                    }
-                }
-            )
+        // Decode: use offline if no network, otherwise API
+        if (AppSettings.autoDecode) {
+            decodeTag(epc)
         }
+    }
+
+    private fun decodeTag(epc: String) {
+        if (ConnectivityHelper.isOnline) {
+            apiClient.decodeRfid(epc) { result ->
+                result.fold(
+                    onSuccess = { decoded -> updateDecodeResult(epc, decoded) },
+                    onFailure = { decodeOffline(epc) }
+                )
+            }
+        } else {
+            decodeOffline(epc)
+        }
+    }
+
+    private fun decodeOffline(epc: String) {
+        scope.launch {
+            try {
+                val decoded = withContext(Dispatchers.IO) {
+                    EpcDecoder.decode(epc, db)
+                }
+                updateDecodeResult(epc, decoded)
+            } catch (e: Exception) {
+                updateDecodeResult(epc, DecodeResult(success = false, message = "Decode error: ${e.message}"))
+            }
+        }
+    }
+
+    private fun updateDecodeResult(epc: String, decoded: DecodeResult) {
+        activity?.runOnUiThread {
+            val idx = results.indexOfFirst { it.epc == epc }
+            if (idx >= 0) {
+                results[idx] = results[idx].copy(decodeResult = decoded)
+                adapter.notifyItemChanged(idx)
+            }
+        }
+    }
+
+    private fun openLocator(epc: String) {
+        if (isScanning) stopScan()
+        (activity as? MainActivity)?.loadFragment(TagLocatorFragment.newInstance(epc))
+    }
+
+    private fun takePhoto(epc: String) {
+        val pair = PhotoHelper.createCaptureIntent(requireContext()) ?: return
+        pendingPhotoEpc = epc
+        pendingPhotoPath = pair.second
+        photoLauncher.launch(pair.first)
+    }
+
+    private fun saveSession() {
+        if (results.isEmpty() && countSet.isEmpty()) {
+            Toast.makeText(requireContext(), getString(R.string.scan_no_results), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val sessionName = "Scan ${SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date())}"
+        val endTime = System.currentTimeMillis()
+
+        Thread {
+            try {
+                val session = ScanSessionEntity(
+                    name = sessionName,
+                    type = if (scanMode == 2) "count" else "scan",
+                    startTime = if (scanStartTime > 0) scanStartTime else endTime,
+                    endTime = endTime,
+                    userId = SupabaseAuth(requireContext()).email ?: "",
+                    gpsLat = sessionLat,
+                    gpsLon = sessionLon,
+                    tagCount = if (scanMode == 2) countSet.size else results.size,
+                    totalReads = totalReads,
+                    synced = false
+                )
+                val sessionId = runBlocking { db.scanDao().insertSession(session) }
+
+                if (scanMode != 2 && results.isNotEmpty()) {
+                    val records = results.map { r ->
+                        ScanRecordEntity(
+                            sessionId = sessionId,
+                            epc = r.epc,
+                            rssi = r.rssi,
+                            itemNumber = r.decodeResult?.item?.number,
+                            itemName = r.decodeResult?.item?.displayName,
+                            photoPath = r.photoPath,
+                            readCount = r.readCount,
+                            scannedAt = r.timestamp
+                        )
+                    }
+                    runBlocking { db.scanDao().insertRecords(records) }
+                }
+
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), getString(R.string.session_saved), Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "Save failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
     }
 
     private fun showSummary() {
         if (results.isEmpty()) {
-            Toast.makeText(requireContext(), "ยังไม่มีผลสแกน", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.scan_no_results), Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Group by item number
         val grouped = mutableMapOf<String, MutableList<ScanResult>>()
         var unknownCount = 0
 
@@ -292,7 +462,7 @@ class ScannerFragment : Fragment(), TriggerListener {
         }
 
         val sb = StringBuilder()
-        sb.appendLine("สแกนทั้งหมด ${results.size} ชิ้น (อ่าน $totalReads ครั้ง)")
+        sb.appendLine(String.format(getString(R.string.summary_total), results.size, totalReads))
         sb.appendLine("──────────────")
 
         for ((itemNum, items) in grouped.toSortedMap()) {
@@ -300,38 +470,63 @@ class ScannerFragment : Fragment(), TriggerListener {
             val inv = items.firstOrNull()?.decodeResult?.item?.inventory?.toInt() ?: 0
             val unit = items.firstOrNull()?.decodeResult?.item?.baseUnitOfMeasure ?: ""
             sb.appendLine()
-            sb.appendLine("$itemNum  (${items.size} ชิ้น)")
+            sb.appendLine("$itemNum  (${String.format(getString(R.string.summary_pieces), items.size)})")
             if (name.isNotEmpty()) sb.appendLine(name)
             if (inv > 0) {
                 val diff = items.size - inv
                 val status = when {
-                    diff == 0 -> "ตรง"
-                    diff > 0 -> "เกิน $diff"
-                    else -> "ขาด ${-diff}"
+                    diff == 0 -> getString(R.string.summary_match)
+                    diff > 0 -> String.format(getString(R.string.summary_over), diff)
+                    else -> String.format(getString(R.string.summary_under), -diff)
                 }
-                sb.appendLine("คลัง: $inv $unit → $status")
+                sb.appendLine(String.format(getString(R.string.summary_inventory), inv, unit, status))
             }
         }
 
         if (unknownCount > 0) {
             sb.appendLine()
-            sb.appendLine("ไม่ทราบรายการ: $unknownCount ชิ้น")
+            sb.appendLine(String.format(getString(R.string.summary_unknown), unknownCount))
         }
 
         AlertDialog.Builder(requireContext())
-            .setTitle("สรุปผลสแกน")
+            .setTitle(getString(R.string.summary_title))
             .setMessage(sb.toString())
-            .setPositiveButton("OK", null)
+            .setPositiveButton(getString(R.string.ok), null)
+            .show()
+    }
+
+    private fun showExportDialog() {
+        if (results.isEmpty() && countSet.isEmpty()) {
+            Toast.makeText(requireContext(), getString(R.string.scan_no_results), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val options = arrayOf(getString(R.string.export_csv), getString(R.string.export_text))
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.scan_export))
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        val csv = ExportHelper.exportAsCsv(results)
+                        ExportHelper.share(requireContext(), csv, "text/csv", "Evergreen Scan Results.csv")
+                    }
+                    1 -> {
+                        val text = ExportHelper.exportAsText(results)
+                        ExportHelper.share(requireContext(), text, "text/plain", "Evergreen Scan Results")
+                    }
+                }
+            }
             .show()
     }
 
     private fun updateCount() {
-        _binding?.tvCount?.text = "ผลสแกน (${results.size})"
+        _binding?.tvCount?.text = String.format(getString(R.string.scan_results), results.size)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         uiHandler.removeCallbacksAndMessages(null)
+        scope.cancel()
         if (isScanning) {
             (activity as? MainActivity)?.rfidReader?.stopScan()
         }
@@ -341,8 +536,11 @@ class ScannerFragment : Fragment(), TriggerListener {
     }
 }
 
-class ScanResultAdapter(private val items: List<ScanResult>) :
-    RecyclerView.Adapter<ScanResultAdapter.ViewHolder>() {
+class ScanResultAdapter(
+    private val items: List<ScanResult>,
+    private val onLocate: ((String) -> Unit)? = null,
+    private val onPhoto: ((String) -> Unit)? = null
+) : RecyclerView.Adapter<ScanResultAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ItemScanResultBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -359,12 +557,12 @@ class ScanResultAdapter(private val items: List<ScanResult>) :
             holder.binding.tvItemNumber.text = decoded.item.number
             holder.binding.tvItemName.text = decoded.item.displayName
             holder.binding.tvPiece.text = if (decoded.decoded?.pieceNumber != null)
-                "ชิ้นที่ ${decoded.decoded.pieceNumber}/${decoded.decoded.totalPieces}" else ""
-            holder.binding.tvInventory.text = "คงเหลือ: ${decoded.item.inventory.toInt()} ${decoded.item.baseUnitOfMeasure}"
+                "Piece ${decoded.decoded.pieceNumber}/${decoded.decoded.totalPieces}" else ""
+            holder.binding.tvInventory.text = "Stock: ${decoded.item.inventory.toInt()} ${decoded.item.baseUnitOfMeasure}"
             holder.binding.tvPrice.text = "฿${String.format("%,.2f", decoded.item.unitPrice)}"
             holder.binding.tvHex.text = item.epc
         } else {
-            holder.binding.tvItemNumber.text = decoded?.message ?: "กำลังค้นหา..."
+            holder.binding.tvItemNumber.text = decoded?.message ?: holder.itemView.context.getString(R.string.scan_searching)
             holder.binding.tvItemName.text = ""
             holder.binding.tvPiece.text = ""
             holder.binding.tvInventory.text = ""
@@ -372,9 +570,31 @@ class ScanResultAdapter(private val items: List<ScanResult>) :
             holder.binding.tvHex.text = item.epc
         }
 
-        // Read count badge + RSSI
         holder.binding.tvReadCount.text = "×${item.readCount}"
         holder.binding.tvRssi.text = if (item.rssi.isNotEmpty()) "RSSI: ${item.rssi}" else ""
+
+        // Long press: Locate tag / Take photo
+        if (onLocate != null || onPhoto != null) {
+            holder.itemView.setOnLongClickListener {
+                val ctx = holder.itemView.context
+                val options = mutableListOf<String>()
+                val actions = mutableListOf<() -> Unit>()
+
+                if (onLocate != null) {
+                    options.add(ctx.getString(R.string.action_locate_tag))
+                    actions.add { onLocate.invoke(item.epc) }
+                }
+                if (onPhoto != null) {
+                    options.add(ctx.getString(R.string.action_take_photo))
+                    actions.add { onPhoto.invoke(item.epc) }
+                }
+
+                AlertDialog.Builder(ctx)
+                    .setItems(options.toTypedArray()) { _, which -> actions[which]() }
+                    .show()
+                true
+            }
+        }
     }
 
     override fun getItemCount() = items.size

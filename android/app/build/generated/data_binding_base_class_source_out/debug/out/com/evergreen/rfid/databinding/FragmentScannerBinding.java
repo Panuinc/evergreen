@@ -26,10 +26,19 @@ public final class FragmentScannerBinding implements ViewBinding {
   public final TextView btnClear;
 
   @NonNull
+  public final MaterialButton btnExport;
+
+  @NonNull
   public final MaterialButton btnModeAuto;
 
   @NonNull
+  public final MaterialButton btnModeCount;
+
+  @NonNull
   public final MaterialButton btnModeSingle;
+
+  @NonNull
+  public final MaterialButton btnSaveSession;
 
   @NonNull
   public final MaterialButton btnScan;
@@ -38,10 +47,22 @@ public final class FragmentScannerBinding implements ViewBinding {
   public final MaterialButton btnSummary;
 
   @NonNull
+  public final LinearLayout countDisplay;
+
+  @NonNull
+  public final LinearLayout normalDisplay;
+
+  @NonNull
   public final RecyclerView rvResults;
 
   @NonNull
   public final MaterialButtonToggleGroup toggleMode;
+
+  @NonNull
+  public final TextView tvBigCount;
+
+  @NonNull
+  public final TextView tvBigReads;
 
   @NonNull
   public final TextView tvCount;
@@ -59,19 +80,29 @@ public final class FragmentScannerBinding implements ViewBinding {
   public final TextView tvTotalReads;
 
   private FragmentScannerBinding(@NonNull LinearLayout rootView, @NonNull TextView btnClear,
-      @NonNull MaterialButton btnModeAuto, @NonNull MaterialButton btnModeSingle,
-      @NonNull MaterialButton btnScan, @NonNull MaterialButton btnSummary,
-      @NonNull RecyclerView rvResults, @NonNull MaterialButtonToggleGroup toggleMode,
-      @NonNull TextView tvCount, @NonNull TextView tvElapsed, @NonNull TextView tvNotice,
-      @NonNull TextView tvTagCount, @NonNull TextView tvTotalReads) {
+      @NonNull MaterialButton btnExport, @NonNull MaterialButton btnModeAuto,
+      @NonNull MaterialButton btnModeCount, @NonNull MaterialButton btnModeSingle,
+      @NonNull MaterialButton btnSaveSession, @NonNull MaterialButton btnScan,
+      @NonNull MaterialButton btnSummary, @NonNull LinearLayout countDisplay,
+      @NonNull LinearLayout normalDisplay, @NonNull RecyclerView rvResults,
+      @NonNull MaterialButtonToggleGroup toggleMode, @NonNull TextView tvBigCount,
+      @NonNull TextView tvBigReads, @NonNull TextView tvCount, @NonNull TextView tvElapsed,
+      @NonNull TextView tvNotice, @NonNull TextView tvTagCount, @NonNull TextView tvTotalReads) {
     this.rootView = rootView;
     this.btnClear = btnClear;
+    this.btnExport = btnExport;
     this.btnModeAuto = btnModeAuto;
+    this.btnModeCount = btnModeCount;
     this.btnModeSingle = btnModeSingle;
+    this.btnSaveSession = btnSaveSession;
     this.btnScan = btnScan;
     this.btnSummary = btnSummary;
+    this.countDisplay = countDisplay;
+    this.normalDisplay = normalDisplay;
     this.rvResults = rvResults;
     this.toggleMode = toggleMode;
+    this.tvBigCount = tvBigCount;
+    this.tvBigReads = tvBigReads;
     this.tvCount = tvCount;
     this.tvElapsed = tvElapsed;
     this.tvNotice = tvNotice;
@@ -112,15 +143,33 @@ public final class FragmentScannerBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnExport;
+      MaterialButton btnExport = ViewBindings.findChildViewById(rootView, id);
+      if (btnExport == null) {
+        break missingId;
+      }
+
       id = R.id.btnModeAuto;
       MaterialButton btnModeAuto = ViewBindings.findChildViewById(rootView, id);
       if (btnModeAuto == null) {
         break missingId;
       }
 
+      id = R.id.btnModeCount;
+      MaterialButton btnModeCount = ViewBindings.findChildViewById(rootView, id);
+      if (btnModeCount == null) {
+        break missingId;
+      }
+
       id = R.id.btnModeSingle;
       MaterialButton btnModeSingle = ViewBindings.findChildViewById(rootView, id);
       if (btnModeSingle == null) {
+        break missingId;
+      }
+
+      id = R.id.btnSaveSession;
+      MaterialButton btnSaveSession = ViewBindings.findChildViewById(rootView, id);
+      if (btnSaveSession == null) {
         break missingId;
       }
 
@@ -136,6 +185,18 @@ public final class FragmentScannerBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.countDisplay;
+      LinearLayout countDisplay = ViewBindings.findChildViewById(rootView, id);
+      if (countDisplay == null) {
+        break missingId;
+      }
+
+      id = R.id.normalDisplay;
+      LinearLayout normalDisplay = ViewBindings.findChildViewById(rootView, id);
+      if (normalDisplay == null) {
+        break missingId;
+      }
+
       id = R.id.rvResults;
       RecyclerView rvResults = ViewBindings.findChildViewById(rootView, id);
       if (rvResults == null) {
@@ -145,6 +206,18 @@ public final class FragmentScannerBinding implements ViewBinding {
       id = R.id.toggleMode;
       MaterialButtonToggleGroup toggleMode = ViewBindings.findChildViewById(rootView, id);
       if (toggleMode == null) {
+        break missingId;
+      }
+
+      id = R.id.tvBigCount;
+      TextView tvBigCount = ViewBindings.findChildViewById(rootView, id);
+      if (tvBigCount == null) {
+        break missingId;
+      }
+
+      id = R.id.tvBigReads;
+      TextView tvBigReads = ViewBindings.findChildViewById(rootView, id);
+      if (tvBigReads == null) {
         break missingId;
       }
 
@@ -178,9 +251,10 @@ public final class FragmentScannerBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentScannerBinding((LinearLayout) rootView, btnClear, btnModeAuto,
-          btnModeSingle, btnScan, btnSummary, rvResults, toggleMode, tvCount, tvElapsed, tvNotice,
-          tvTagCount, tvTotalReads);
+      return new FragmentScannerBinding((LinearLayout) rootView, btnClear, btnExport, btnModeAuto,
+          btnModeCount, btnModeSingle, btnSaveSession, btnScan, btnSummary, countDisplay,
+          normalDisplay, rvResults, toggleMode, tvBigCount, tvBigReads, tvCount, tvElapsed,
+          tvNotice, tvTagCount, tvTotalReads);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -1,34 +1,78 @@
 [
     {
-        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-32:/layout/fragment_stocktake.xml",
-        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-35:/layout/fragment_stocktake.xml"
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_device_info.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/fragment_device_info.xml"
     },
     {
-        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-32:/layout/item_scan_result.xml",
-        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-35:/layout/item_scan_result.xml"
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/activity_login.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/activity_login.xml"
     },
     {
-        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-32:/layout/item_stocktake_group.xml",
-        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-35:/layout/item_stocktake_group.xml"
+        "merged": "com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_order_match.xml",
+        "source": "com.evergreen.rfid.app-main-41:/layout/fragment_order_match.xml"
     },
     {
-        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-32:/layout/activity_login.xml",
-        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-35:/layout/activity_login.xml"
+        "merged": "com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_write_tag.xml",
+        "source": "com.evergreen.rfid.app-main-41:/layout/fragment_write_tag.xml"
     },
     {
-        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-32:/layout/activity_main.xml",
-        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-35:/layout/activity_main.xml"
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_history.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/fragment_history.xml"
     },
     {
-        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-32:/layout/fragment_print.xml",
-        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-35:/layout/fragment_print.xml"
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/activity_main.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/activity_main.xml"
     },
     {
-        "merged": "com.evergreen.rfid.app-mergeDebugResources-32:/layout/fragment_scanner.xml",
-        "source": "com.evergreen.rfid.app-main-35:/layout/fragment_scanner.xml"
+        "merged": "com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_dashboard.xml",
+        "source": "com.evergreen.rfid.app-main-41:/layout/fragment_dashboard.xml"
     },
     {
-        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-32:/layout/fragment_scanner.xml",
-        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-35:/layout/fragment_scanner.xml"
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/item_session.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/item_session.xml"
+    },
+    {
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/item_info_row.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/item_info_row.xml"
+    },
+    {
+        "merged": "com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_batch_upload.xml",
+        "source": "com.evergreen.rfid.app-main-41:/layout/fragment_batch_upload.xml"
+    },
+    {
+        "merged": "com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_more.xml",
+        "source": "com.evergreen.rfid.app-main-41:/layout/fragment_more.xml"
+    },
+    {
+        "merged": "com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_transfer.xml",
+        "source": "com.evergreen.rfid.app-main-41:/layout/fragment_transfer.xml"
+    },
+    {
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_settings.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/fragment_settings.xml"
+    },
+    {
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/item_scan_result.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/item_scan_result.xml"
+    },
+    {
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_session_detail.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/fragment_session_detail.xml"
+    },
+    {
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_scanner.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/fragment_scanner.xml"
+    },
+    {
+        "merged": "com.evergreen.rfid.app-mergeDebugResources-38:/layout/dialog_reprint.xml",
+        "source": "com.evergreen.rfid.app-main-41:/layout/dialog_reprint.xml"
+    },
+    {
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_more.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/fragment_more.xml"
+    },
+    {
+        "merged": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-mergeDebugResources-38:/layout/fragment_tag_locator.xml",
+        "source": "/Users/panuwatjangchudjai/.gradle/daemon/8.9/com.evergreen.rfid.app-main-41:/layout/fragment_tag_locator.xml"
     }
 ]

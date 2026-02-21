@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.evergreen.rfid.app-mergeDebugResources-31:/values-v22/values-v22.xml",
+            "outputFile": "com.evergreen.rfid.app-mergeDebugResources-37:/values-v22/values-v22.xml",
             "map": [
                 {
                     "source": "/Users/panuwatjangchudjai/.gradle/caches/8.9/transforms/b6c5e032a003934e4adfaba9fa53f2ca/transformed/appcompat-1.7.0/res/values-v22/values-v22.xml",

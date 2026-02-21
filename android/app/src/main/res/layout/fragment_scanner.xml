@@ -7,7 +7,7 @@
     android:padding="16dp"
     android:background="@color/background">
 
-    <!-- Mode toggle: Single / Auto -->
+    <!-- Mode toggle: Single / Auto / Count -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleMode"
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
-            android:text="Single"
+            android:text="@string/mode_single"
             android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
@@ -30,7 +30,16 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
-            android:text="Auto"
+            android:text="@string/mode_auto"
+            android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnModeCount"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="@string/mode_count"
             android:textSize="14sp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -39,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="8dp"
-        android:text="สแกน RFID"
+        android:text="@string/scan_rfid"
         android:textSize="16sp"
         app:cornerRadius="12dp" />
 
@@ -50,7 +59,7 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/bg_notice"
         android:padding="10dp"
-        android:text="RFID reader ไม่พร้อม"
+        android:text="@string/scan_rfid_notice"
         android:textColor="@color/warning_text"
         android:textSize="12sp"
         android:textAlignment="center"
@@ -75,7 +84,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tags"
+                android:text="@string/stats_tags"
                 android:textSize="11sp"
                 android:textColor="@color/text_on_surface_variant" />
             <TextView
@@ -102,7 +111,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reads"
+                android:text="@string/stats_reads"
                 android:textSize="11sp"
                 android:textColor="@color/text_on_surface_variant" />
             <TextView
@@ -129,7 +138,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Time"
+                android:text="@string/stats_time"
                 android:textSize="11sp"
                 android:textColor="@color/text_on_surface_variant" />
             <TextView
@@ -143,49 +152,124 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Count mode big display (hidden by default) -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:id="@+id/tvCount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="ผลสแกน (0)"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_secondary" />
-
-        <TextView
-            android:id="@+id/btnClear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ล้าง"
-            android:textColor="@color/error"
-            android:textSize="13sp"
-            android:paddingHorizontal="8dp" />
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvResults"
+        android:id="@+id/countDisplay"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="6dp" />
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
 
-    <!-- Summary button at bottom -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSummary"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/count_unique_tags"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/tvBigCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="72sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary" />
+
+        <TextView
+            android:id="@+id/tvBigReads"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary" />
+    </LinearLayout>
+
+    <!-- Normal mode: results list -->
+    <LinearLayout
+        android:id="@+id/normalDisplay"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/scan_no_results"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/btnClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scan_clear"
+                android:textColor="@color/error"
+                android:textSize="13sp"
+                android:paddingHorizontal="8dp" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvResults"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="6dp" />
+    </LinearLayout>
+
+    <!-- Bottom buttons row 1 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="สรุปผลสแกน"
-        android:textSize="15sp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSummary"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="@string/scan_summary"
+            android:textSize="13sp"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_summary"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnExport"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="@string/scan_export"
+            android:textSize="13sp"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+
+    <!-- Save session button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveSession"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/session_save"
+        android:textSize="13sp"
         app:cornerRadius="12dp"
-        app:icon="@drawable/ic_summary"
-        app:iconGravity="textStart" />
+        app:strokeColor="@color/primary" />
 </LinearLayout>

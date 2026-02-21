@@ -33,5 +33,6 @@ data class ScanResult(
     val rssi: String = "",
     val decodeResult: DecodeResult? = null,
     val timestamp: Long = System.currentTimeMillis(),
-    var readCount: Int = 1
+    var readCount: Int = 1,
+    val photoPath: String? = null
 )

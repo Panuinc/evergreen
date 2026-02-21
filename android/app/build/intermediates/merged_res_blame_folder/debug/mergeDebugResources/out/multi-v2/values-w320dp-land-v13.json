@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.evergreen.rfid.app-mergeDebugResources-31:/values-w320dp-land-v13/values-w320dp-land-v13.xml",
+            "outputFile": "com.evergreen.rfid.app-mergeDebugResources-37:/values-w320dp-land-v13/values-w320dp-land-v13.xml",
             "map": [
                 {
                     "source": "/Users/panuwatjangchudjai/.gradle/caches/8.9/transforms/71cd2808239bde278ecaa4add28b95d8/transformed/material-1.12.0/res/values-w320dp-land-v13/values-w320dp-land-v13.xml",

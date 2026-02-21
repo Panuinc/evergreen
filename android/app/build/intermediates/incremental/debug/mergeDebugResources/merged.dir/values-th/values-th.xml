@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">การแจ้งเตือนใหม่ %d รายการ</item>
+    <item quantity="other">การแจ้งเตือนใหม่ %d รายการ</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"นำทางไปหน้าแรก"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"กลับ"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"ตัวเลือกอื่น"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"เสร็จ"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"ดูทั้งหมด"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"เลือกแอป"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"ปิด"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"เปิด"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"ลบ"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"Space"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"เมนู+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"ค้นหา…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"ล้างคำค้นหา"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"คำค้นหา"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"ค้นหา"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"ส่งคำค้นหา"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"ค้นหาด้วยเสียง"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"แชร์กับ"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"แชร์ทาง <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"ยุบ"</string>
+    <string name="action_locate_tag">ค้นหา tag นี้</string>
+    <string name="action_take_photo">ถ่ายรูป</string>
+    <string name="app_name">Evergreen RFID</string>
+    <string name="bottomsheet_action_collapse">ยุบ Bottom Sheet</string>
+    <string name="bottomsheet_action_expand">ขยาย Bottom Sheet</string>
+    <string name="bottomsheet_action_expand_halfway">ขยายรายการครึ่งหนึ่ง</string>
+    <string name="bottomsheet_drag_handle_clicked">แตะแฮนเดิลการลากสองครั้ง</string>
+    <string name="bottomsheet_drag_handle_content_description">แฮนเดิลการลาก</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"รับสาย"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"วิดีโอ"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"ปฏิเสธ"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"วางสาย"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"สายเรียกเข้า"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"สายที่สนทนาอยู่"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"กำลังสกรีนสายเรียกเข้า"</string>
+    <string name="cancel">ยกเลิก</string>
+    <string name="character_counter_content_description">ป้อนอักขระแล้ว %1$d จาก %2$d ตัว</string>
+    <string name="character_counter_overflowed_content_description">เกินจำนวนอักขระสูงสุด %1$d จาก %2$d</string>
+    <string name="clear_text_end_icon_content_description">ล้างข้อความ</string>
+    <string name="coming_soon">เร็วๆ นี้</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">เปิดใช้</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">%1$s จะไม่ทำงานจนกว่าคุณจะเปิดใช้บริการ Google Play</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">เปิดใช้บริการ Google Play</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">ติดตั้ง</string>
+    <string name="common_google_play_services_install_text">%1$s จะไม่ทำงานหากไม่มีบริการ Google Play ซี่งไม่มีในอุปกรณ์ของคุณ</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">ติดตั้งบริการ Google Play</string>
+    <string name="common_google_play_services_notification_channel_name">ความพร้อมใช้งานของบริการ Google Play</string>
+    <string name="common_google_play_services_notification_ticker">ข้อผิดพลาดของบริการ Google Play</string>
+    <string name="common_google_play_services_unknown_issue">%1$s มีปัญหาเกี่ยวกับบริการของ Google Play โปรดลองอีกครั้ง</string>
+    <string name="common_google_play_services_unsupported_text">%1$s จะไม่ทำงานหากไม่มีบริการ Google Play ซึ่งอุปกรณ์ของคุณไม่สนับสนุน</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">อัปเดต</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s จะไม่ทำงานจนกว่าคุณจะอัปเดตบริการ Google Play</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">อัปเดตบริการ Google Play</string>
+    <string name="common_google_play_services_updating_text">%1$s จะไม่ทำงานหากไม่มีบริการ Google Play ซึ่งกำลังอัปเดตอยู่ในขณะนี้</string>
+    <string name="common_google_play_services_wear_update_text">จำเป็นต้องใช้บริการ Google Play เวอร์ชันใหม่ ซึ่งจะอัปเดตอัตโนมัติในอีกไม่ช้า</string>
+    <string name="common_open_on_phone">เปิดบนโทรศัพท์</string>
+    <string name="common_signin_button_text">ลงชื่อเข้าใช้</string>
+    <string name="common_signin_button_text_long">ลงชื่อเข้าใช้ด้วย Google</string>
+    <string name="confirm_logout_message">คุณต้องการออกจากระบบใช่ไหม?</string>
+    <string name="confirm_logout_title">ยืนยันออกจากระบบ</string>
+    <string name="count_total_reads">อ่านทั้งหมด</string>
+    <string name="count_unique_tags">Tags ที่พบ</string>
+    <string name="dashboard_no_data">ยังไม่มีข้อมูล</string>
+    <string name="dashboard_pending">รอดำเนินการ</string>
+    <string name="dashboard_recent">เซสชันล่าสุด</string>
+    <string name="dashboard_sessions">เซสชัน</string>
+    <string name="dashboard_tags">Tags ทั้งหมด</string>
+    <string name="dashboard_title">แดชบอร์ด</string>
+    <string name="dashboard_transfers">โอนย้าย</string>
+    <string name="device_android">Android</string>
+    <string name="device_app_version">เวอร์ชันแอป</string>
+    <string name="device_battery">แบตเตอรี่</string>
+    <string name="device_info_title">ข้อมูลอุปกรณ์</string>
+    <string name="device_model">รุ่น</string>
+    <string name="device_rfid_error">ผิดพลาด</string>
+    <string name="device_rfid_firmware">เฟิร์มแวร์</string>
+    <string name="device_rfid_hardware">ฮาร์ดแวร์</string>
+    <string name="device_rfid_power">กำลังส่ง</string>
+    <string name="device_rfid_ready">พร้อมใช้งาน</string>
+    <string name="device_rfid_status">สถานะ</string>
+    <string name="device_rfid_temp">อุณหภูมิ</string>
+    <string name="device_section_app">แอปพลิเคชัน</string>
+    <string name="device_section_device">อุปกรณ์</string>
+    <string name="device_section_rfid">RFID Reader</string>
+    <string name="device_server_url">URL เซิร์ฟเวอร์</string>
+    <string name="device_user">ผู้ใช้</string>
+    <string name="error_a11y_label">ข้อผิดพลาด: ไม่ถูกต้อง</string>
+    <string name="error_icon_content_description">ข้อผิดพลาด</string>
+    <string name="export_csv">ส่ง CSV</string>
+    <string name="export_text">ส่ง Text</string>
+    <string name="exposed_dropdown_menu_content_description">แสดงเมนูแบบเลื่อนลง</string>
+    <string name="history_cached_items">แคช %1$d รายการ (ล่าสุด: %2$s)</string>
+    <string name="history_count">%1$d เซสชัน</string>
+    <string name="history_empty">ยังไม่มีประวัติสแกน</string>
+    <string name="history_local">บนเครื่อง</string>
+    <string name="history_login_required">กรุณาเข้าสู่ระบบ</string>
+    <string name="history_no_cache">ยังไม่มีแคช — กดซิงค์</string>
+    <string name="history_session">เซสชัน</string>
+    <string name="history_sync">ซิงค์ข้อมูล</string>
+    <string name="history_sync_done">ซิงค์แล้ว %1$d รายการ</string>
+    <string name="history_synced">ซิงค์แล้ว</string>
+    <string name="history_syncing">กำลังซิงค์…</string>
+    <string name="history_title">ประวัติสแกน</string>
+    <string name="icon_content_description">ไอคอนกล่องโต้ตอบ</string>
+    <string name="item_view_role_description">แท็บ</string>
+    <string name="locator_enter_epc">กรุณาใส่ EPC ที่ต้องการค้นหา</string>
+    <string name="locator_epc_hint">ใส่ EPC hex</string>
+    <string name="locator_far_away">อยู่ไกล</string>
+    <string name="locator_getting_closer">ใกล้ขึ้น</string>
+    <string name="locator_last_signal">สัญญาณล่าสุด: %1$d%%</string>
+    <string name="locator_searching">กำลังค้นหา…</string>
+    <string name="locator_signal">ความแรงสัญญาณ</string>
+    <string name="locator_start">เริ่มค้นหา</string>
+    <string name="locator_stop">หยุด</string>
+    <string name="locator_stopped">หยุดแล้ว</string>
+    <string name="locator_title">ค้นหา Tag</string>
+    <string name="locator_very_close">ใกล้มาก!</string>
+    <string name="logged_in">เข้าสู่ระบบแล้ว</string>
+    <string name="login_button">เข้าสู่ระบบ</string>
+    <string name="login_email_hint">อีเมล</string>
+    <string name="login_fill_fields">กรุณากรอก email และ password</string>
+    <string name="login_password_hint">รหัสผ่าน</string>
+    <string name="login_title">เข้าสู่ระบบ</string>
+    <string name="logout">ออกจากระบบ</string>
+    <string name="material_clock_toggle_content_description">เลือก AM หรือ PM</string>
+    <string name="material_hour_24h_suffix">%1$s ชั่วโมง</string>
+    <string name="material_hour_selection">เลือกชั่วโมง</string>
+    <string name="material_hour_suffix">%1$s นาฬิกา</string>
+    <string name="material_minute_selection">เลือกนาที</string>
+    <string name="material_minute_suffix">%1$s นาที</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">สลับไปโหมดนาฬิกาเพื่อป้อนเวลา</string>
+    <string name="material_timepicker_hour">ชั่วโมง</string>
+    <string name="material_timepicker_minute">นาที</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">เลือกเวลา</string>
+    <string name="material_timepicker_text_input_mode_description">สลับไปโหมดป้อนข้อความเพื่อป้อนเวลา</string>
+    <string name="menu_batch_upload">อัปโหลดข้อมูล</string>
+    <string name="menu_dashboard">แดชบอร์ด</string>
+    <string name="menu_device_info">ข้อมูลอุปกรณ์</string>
+    <string name="menu_logout">ออกจากระบบ</string>
+    <string name="menu_order_match">เทียบ PO/SO</string>
+    <string name="menu_settings">ตั้งค่า</string>
+    <string name="menu_transfer">โอนย้ายสินค้า</string>
+    <string name="menu_write_tag">เขียน RFID Tag</string>
+    <string name="mode_auto">Auto</string>
+    <string name="mode_count">Count</string>
+    <string name="mode_single">Single</string>
+    <string name="mtrl_badge_numberless_content_description">การแจ้งเตือนใหม่</string>
+    <string name="mtrl_checkbox_state_description_checked">เลือกไว้</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">เลือกบางส่วน</string>
+    <string name="mtrl_checkbox_state_description_unchecked">ไม่ได้เลือก</string>
+    <string name="mtrl_chip_close_icon_content_description">นำ %1$s ออก</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">การแจ้งเตือนใหม่มากกว่า %1$d รายการ</string>
+    <string name="mtrl_picker_a11y_next_month">เปลี่ยนไปที่เดือนถัดไป</string>
+    <string name="mtrl_picker_a11y_prev_month">เปลี่ยนไปที่เดือนก่อนหน้า</string>
+    <string name="mtrl_picker_announce_current_range_selection">การเลือกวันที่เริ่มต้น: %1$s – การเลือกวันที่สิ้นสุด: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">การเลือกในปัจจุบัน: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">ไม่มี</string>
+    <string name="mtrl_picker_cancel">ยกเลิก</string>
+    <string name="mtrl_picker_confirm">ตกลง</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">เลือกวันที่</string>
+    <string name="mtrl_picker_date_header_unselected">วันที่ที่เลือก</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">วันที่สิ้นสุด %1$s</string>
+    <string name="mtrl_picker_invalid_format">รูปแบบไม่ถูกต้อง</string>
+    <string name="mtrl_picker_invalid_format_example">ตัวอย่าง: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">ใช้: %1$s</string>
+    <string name="mtrl_picker_invalid_range">ช่วงไม่ถูกต้อง</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">ไปยังปีปัจจุบัน %1$d</string>
+    <string name="mtrl_picker_navigate_to_year_description">ไปที่ปี %1$d</string>
+    <string name="mtrl_picker_out_of_range">วันที่ไม่อยู่ในช่วงที่อนุญาต: %1$s</string>
+    <string name="mtrl_picker_range_header_only_end_selected">วันที่เริ่มต้น – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – วันที่สิ้นสุด</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">เลือกช่วง</string>
+    <string name="mtrl_picker_range_header_unselected">วันที่เริ่มต้น – วันที่สิ้นสุด</string>
+    <string name="mtrl_picker_save">บันทึก</string>
+    <string name="mtrl_picker_start_date_description">วันที่เริ่มต้น %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">วันที่</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">วันที่สิ้นสุด</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">วันที่เริ่มต้น</string>
+    <string name="mtrl_picker_text_input_day_abbr">ว</string>
+    <string name="mtrl_picker_text_input_month_abbr">ด</string>
+    <string name="mtrl_picker_text_input_year_abbr">ป</string>
+    <string name="mtrl_picker_today_description">วันนี้ %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">สลับไปใช้โหมดป้อนข้อมูลปฏิทิน</string>
+    <string name="mtrl_picker_toggle_to_day_selection">แตะเพื่อเปลี่ยนเป็นมุมมองปฏิทิน</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">สลับไปใช้โหมดป้อนข้อมูลข้อความ</string>
+    <string name="mtrl_picker_toggle_to_year_selection">แตะเพื่อเปลี่ยนเป็นมุมมองปี</string>
+    <string name="mtrl_timepicker_cancel">ยกเลิก</string>
+    <string name="mtrl_timepicker_confirm">ตกลง</string>
+    <string name="nav_history">ประวัติ</string>
+    <string name="nav_more">เพิ่มเติม</string>
+    <string name="nav_scanner">สแกน</string>
+    <string name="ok">ตกลง</string>
+    <string name="order_match_search">ค้นหาเลขคำสั่งซื้อ</string>
+    <string name="order_match_status">สแกนแล้ว %1$d/%2$d รายการ (ตรง %3$d/%4$d)</string>
+    <string name="order_match_submit">ส่งผลเทียบ</string>
+    <string name="order_match_submitted">ส่งผลเทียบแล้ว!</string>
+    <string name="order_match_title">เทียบ PO/SO</string>
+    <string name="order_not_found">ไม่พบคำสั่งซื้อ</string>
+    <string name="order_search_first">กรุณาค้นหาคำสั่งซื้อก่อน</string>
+    <string name="password_toggle_content_description">แสดงรหัสผ่าน</string>
+    <string name="reprint_encode_rfid">เขียน RFID</string>
+    <string name="reprint_print">พิมพ์</string>
+    <string name="reprint_quantity">จำนวน</string>
+    <string name="reprint_sent">ส่งคำสั่งพิมพ์แล้ว!</string>
+    <string name="reprint_title">พิมพ์ฉลากซ้ำ</string>
+    <string name="rfid_connecting">RFID: กำลังเชื่อมต่อ…</string>
+    <string name="rfid_error">RFID ผิดพลาด</string>
+    <string name="rfid_init_failed">RFID เริ่มต้นไม่สำเร็จ</string>
+    <string name="rfid_ready">RFID พร้อมใช้งาน</string>
+    <string name="scan_clear">ล้าง</string>
+    <string name="scan_export">ส่งออก</string>
+    <string name="scan_no_results">ยังไม่มีผลสแกน</string>
+    <string name="scan_no_tag">ไม่พบ tag</string>
+    <string name="scan_reading">กำลังอ่าน…</string>
+    <string name="scan_results">ผลสแกน (%1$d)</string>
+    <string name="scan_rfid">สแกน RFID</string>
+    <string name="scan_rfid_not_ready">RFID reader ไม่พร้อม</string>
+    <string name="scan_rfid_notice">RFID reader ไม่พร้อม</string>
+    <string name="scan_searching">กำลังค้นหา…</string>
+    <string name="scan_single">สแกน Single</string>
+    <string name="scan_start_auto">เริ่มสแกน Auto</string>
+    <string name="scan_stop">หยุดสแกน</string>
+    <string name="scan_summary">สรุปผลสแกน</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"ค้นหา"</string>
+    <string name="searchview_clear_text_content_description">ล้างข้อความ</string>
+    <string name="searchview_navigation_content_description">กลับ</string>
+    <string name="session_delete">ลบเซสชัน</string>
+    <string name="session_delete_confirm">ลบเซสชันนี้และข้อมูลทั้งหมด?</string>
+    <string name="session_save">บันทึกเซสชัน</string>
+    <string name="session_saved">บันทึกเซสชันแล้ว!</string>
+    <string name="settings_app">แอปพลิเคชัน</string>
+    <string name="settings_auto_decode">ถอดรหัสอัตโนมัติ</string>
+    <string name="settings_connection_ok">เชื่อมต่อสำเร็จ!</string>
+    <string name="settings_language">ภาษา</string>
+    <string name="settings_rfid">RFID</string>
+    <string name="settings_rfid_power">กำลังส่งสัญญาณ</string>
+    <string name="settings_server">เซิร์ฟเวอร์</string>
+    <string name="settings_server_url">URL เซิร์ฟเวอร์</string>
+    <string name="settings_sound">เสียงสแกน</string>
+    <string name="settings_test_connection">ทดสอบการเชื่อมต่อ</string>
+    <string name="settings_testing">กำลังทดสอบ…</string>
+    <string name="settings_title">ตั้งค่า</string>
+    <string name="settings_url_empty">กรุณาใส่ URL เซิร์ฟเวอร์</string>
+    <string name="side_sheet_accessibility_pane_title">ชีตด้านข้าง</string>
+    <string name="stats_reads">Reads</string>
+    <string name="stats_tags">Tags</string>
+    <string name="stats_time">Time</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string name="summary_inventory">คลัง: %1$d %2$s → %3$s</string>
+    <string name="summary_match">ตรง</string>
+    <string name="summary_over">เกิน %d</string>
+    <string name="summary_pieces">%1$d ชิ้น</string>
+    <string name="summary_title">สรุปผลสแกน</string>
+    <string name="summary_total">สแกนทั้งหมด %1$d ชิ้น (อ่าน %2$d ครั้ง)</string>
+    <string name="summary_under">ขาด %d</string>
+    <string name="summary_unknown">ไม่ทราบรายการ: %d ชิ้น</string>
+    <string name="transfer_fill_locations">กรุณาใส่ตำแหน่งต้นทางและปลายทาง</string>
+    <string name="transfer_from">จากตำแหน่ง</string>
+    <string name="transfer_no_items">กรุณาสแกนสินค้าก่อน</string>
+    <string name="transfer_notes">หมายเหตุ (ถ้ามี)</string>
+    <string name="transfer_saved_local">บันทึกในเครื่อง (จะอัปโหลดเมื่อออนไลน์)</string>
+    <string name="transfer_scan_count">สินค้าที่สแกน: %1$d</string>
+    <string name="transfer_submit">ส่งรายการโอนย้าย</string>
+    <string name="transfer_submitted">ส่งรายการโอนย้ายแล้ว!</string>
+    <string name="transfer_title">โอนย้ายสินค้า</string>
+    <string name="transfer_to">ไปตำแหน่ง</string>
+    <string name="update_available">มีอัปเดตใหม่: v%1$s</string>
+    <string name="update_download">ดาวน์โหลด</string>
+    <string name="update_downloading">กำลังดาวน์โหลดอัปเดต…</string>
+    <string name="update_failed">ดาวน์โหลดไม่สำเร็จ</string>
+    <string name="update_later">ภายหลัง</string>
+    <string name="update_message">มีเวอร์ชันใหม่ ต้องการดาวน์โหลดและติดตั้งไหม?</string>
+    <string name="upload_all">อัปโหลดทั้งหมด</string>
+    <string name="upload_all_done">อัปโหลดแล้ว %1$d/%2$d เซสชัน</string>
+    <string name="upload_count">%1$d เซสชันรออัปโหลด</string>
+    <string name="upload_empty">ซิงค์ข้อมูลทั้งหมดแล้ว</string>
+    <string name="upload_success">อัปโหลดแล้ว: %1$s</string>
+    <string name="upload_title">อัปโหลดข้อมูล</string>
+    <string name="upload_uploading">กำลังอัปโหลด…</string>
+    <string name="write_all_done">เขียน tag ทั้งหมดสำเร็จ!</string>
+    <string name="write_failed">เขียนไม่สำเร็จ: %1$s</string>
+    <string name="write_no_item">กรุณาเลือกสินค้าก่อน</string>
+    <string name="write_not_found">ไม่พบสินค้า</string>
+    <string name="write_quantity">จำนวน</string>
+    <string name="write_search_hint">ค้นหาเลขสินค้า</string>
+    <string name="write_success_next">เขียน %1$s สำเร็จ! ถัดไป: %2$s</string>
+    <string name="write_tag">เขียน Tag</string>
+    <string name="write_title">เขียน RFID Tag</string>
+    <string name="write_writing">กำลังเขียน %1$s…</string>
+</resources>

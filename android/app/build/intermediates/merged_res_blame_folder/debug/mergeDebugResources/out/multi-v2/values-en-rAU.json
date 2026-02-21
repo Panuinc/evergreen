@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.evergreen.rfid.app-mergeDebugResources-31:/values-en-rAU/values-en-rAU.xml",
+            "outputFile": "com.evergreen.rfid.app-mergeDebugResources-37:/values-en-rAU/values-en-rAU.xml",
             "map": [
                 {
                     "source": "/Users/panuwatjangchudjai/.gradle/caches/8.9/transforms/3e85dc3a27e7bbf172ac49206d18ddee/transformed/core-1.15.0/res/values-en-rAU/values-en-rAU.xml",

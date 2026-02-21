@@ -3,5 +3,13 @@
     <item
         android:id="@+id/nav_scanner"
         android:icon="@drawable/ic_nav_scanner"
-        android:title="สแกน" />
+        android:title="@string/nav_scanner" />
+    <item
+        android:id="@+id/nav_history"
+        android:icon="@drawable/ic_nav_history"
+        android:title="@string/nav_history" />
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@drawable/ic_nav_more"
+        android:title="@string/nav_more" />
 </menu>
