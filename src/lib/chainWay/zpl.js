@@ -102,7 +102,7 @@ export async function buildThaiRFIDLabel(options) {
   const usableWidth = w - PAD.left * 2;
 
   const epc =
-    epcData || generatePlainEPC(itemNumber, sequenceNumber, totalQuantity, 96);
+    epcData || generatePlainEPC(itemNumber, sequenceNumber, totalQuantity);
 
   const printModeCmd = printMethod === "TT" ? "^MTT" : "^MTD";
 
@@ -174,7 +174,7 @@ export async function buildThaiRFIDLabels(options) {
   const labels = [];
 
   for (let i = 1; i <= quantity; i++) {
-    const epc = generatePlainEPC(itemNumber, i, quantity, 96);
+    const epc = generatePlainEPC(itemNumber, i, quantity);
 
     const zpl = await buildThaiRFIDLabel({
       itemNumber,

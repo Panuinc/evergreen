@@ -1,19 +1,8 @@
-export function compactItemNumber(itemNumber, maxLength = 12) {
-  let compact = itemNumber.replace(/-/g, "");
-  if (compact.length > maxLength) {
-    compact = compact.substring(0, maxLength);
-  }
-  return compact;
-}
-
 export function generatePlainEPC(
   itemNumber,
   sequenceNumber,
   totalQuantity,
-  bits = 96,
 ) {
-  const bytes = Math.floor(bits / 8);
-
   const seqChar =
     sequenceNumber <= 9
       ? String(sequenceNumber)
@@ -24,30 +13,26 @@ export function generatePlainEPC(
       ? String(totalQuantity)
       : String.fromCharCode(55 + totalQuantity);
 
-  const itemMaxLen = bytes - 3;
-  const compactItem = compactItemNumber(itemNumber, itemMaxLen);
+  /* Keep full item number with dashes, e.g. "EX-00162-EX51-D/11" */
+  const content = `${itemNumber}/${seqChar}${totalChar}`;
 
-  const paddedItem = compactItem.padEnd(itemMaxLen, " ");
-
-  const fullString = `${paddedItem}/${seqChar}${totalChar}`;
+  /* Round up to 2-byte boundary (Gen2 EPC requirement) */
+  const bytes = Math.ceil(content.length / 2) * 2;
 
   let hexEPC = "";
-  for (let i = 0; i < fullString.length; i++) {
-    hexEPC += fullString
-      .charCodeAt(i)
-      .toString(16)
-      .toUpperCase()
-      .padStart(2, "0");
+  for (let i = 0; i < bytes; i++) {
+    const code = i < content.length ? content.charCodeAt(i) : 0;
+    hexEPC += code.toString(16).toUpperCase().padStart(2, "0");
   }
 
-  return hexEPC.padEnd(bytes * 2, "00");
+  return hexEPC;
 }
 
 export const EPCService = {
   generate(item, options = {}) {
-    const { sequenceNumber = 1, totalQuantity = 1, bits = 96 } = options;
+    const { sequenceNumber = 1, totalQuantity = 1 } = options;
 
-    return generatePlainEPC(item.number, sequenceNumber, totalQuantity, bits);
+    return generatePlainEPC(item.number, sequenceNumber, totalQuantity);
   },
 
   generateBatch(item, quantity, options = {}) {
