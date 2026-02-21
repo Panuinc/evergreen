@@ -109,7 +109,9 @@ object EpcDecoder {
                     unitPrice = cachedItem.unitPrice,
                     unitCost = cachedItem.unitCost,
                     itemCategoryCode = cachedItem.itemCategoryCode,
-                    rfidCode = cachedItem.rfidCode
+                    rfidCode = cachedItem.rfidCode,
+                    projectCode = cachedItem.projectCode,
+                    projectName = cachedItem.projectName
                 )
             )
         } else {

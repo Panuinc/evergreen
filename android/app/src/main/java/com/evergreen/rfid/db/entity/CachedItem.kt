@@ -14,5 +14,7 @@ data class CachedItem(
     val unitCost: Double = 0.0,
     val itemCategoryCode: String = "",
     val rfidCode: Int? = null,
+    val projectCode: String? = null,
+    val projectName: String? = null,
     val cachedAt: Long = System.currentTimeMillis()
 )

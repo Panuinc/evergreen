@@ -14,7 +14,7 @@ import com.evergreen.rfid.db.entity.ScanSessionEntity
 
 @Database(
     entities = [CachedItem::class, ScanSessionEntity::class, ScanRecordEntity::class, PendingRequest::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

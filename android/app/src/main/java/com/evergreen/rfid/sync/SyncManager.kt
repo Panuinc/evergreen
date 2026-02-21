@@ -71,7 +71,9 @@ class SyncManager(context: Context) {
                                 unitPrice = (map["unitPrice"] as? Number)?.toDouble() ?: 0.0,
                                 unitCost = (map["unitCost"] as? Number)?.toDouble() ?: 0.0,
                                 itemCategoryCode = map["itemCategoryCode"]?.toString() ?: "",
-                                rfidCode = (map["rfidCode"] as? Number)?.toInt()
+                                rfidCode = (map["rfidCode"] as? Number)?.toInt(),
+                                projectCode = map["projectCode"]?.toString(),
+                                projectName = map["projectName"]?.toString()
                             )
                         } catch (e: Exception) {
                             Log.w(TAG, "Skip item: ${e.message}")

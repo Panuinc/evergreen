@@ -556,6 +556,12 @@ class ScanResultAdapter(
         if (decoded?.item != null) {
             holder.binding.tvItemNumber.text = decoded.item.number
             holder.binding.tvItemName.text = decoded.item.displayName
+            if (!decoded.item.projectName.isNullOrBlank()) {
+                holder.binding.tvProjectName.text = "โครงการ: ${decoded.item.projectName}"
+                holder.binding.tvProjectName.visibility = android.view.View.VISIBLE
+            } else {
+                holder.binding.tvProjectName.visibility = android.view.View.GONE
+            }
             holder.binding.tvPiece.text = if (decoded.decoded?.pieceNumber != null)
                 "Piece ${decoded.decoded.pieceNumber}/${decoded.decoded.totalPieces}" else ""
             holder.binding.tvInventory.text = "Stock: ${decoded.item.inventory.toInt()} ${decoded.item.baseUnitOfMeasure}"
@@ -564,6 +570,7 @@ class ScanResultAdapter(
         } else {
             holder.binding.tvItemNumber.text = decoded?.message ?: holder.itemView.context.getString(R.string.scan_searching)
             holder.binding.tvItemName.text = ""
+            holder.binding.tvProjectName.visibility = android.view.View.GONE
             holder.binding.tvPiece.text = ""
             holder.binding.tvInventory.text = ""
             holder.binding.tvPrice.text = ""

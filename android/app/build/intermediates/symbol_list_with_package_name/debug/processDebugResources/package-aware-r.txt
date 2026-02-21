@@ -3775,6 +3775,7 @@ id tvPendingTransfers
 id tvPiece
 id tvPowerValue
 id tvPrice
+id tvProjectName
 id tvReadCount
 id tvReads
 id tvRecordCount

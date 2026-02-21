@@ -55,6 +55,8 @@ function formatItem(item) {
     unitPrice: item.unitPrice,
     unitCost: item.unitCost,
     itemCategoryCode: item.itemCategoryCode,
+    projectCode: item.projectCode || null,
+    projectName: item.projectName || null,
   };
 }
 

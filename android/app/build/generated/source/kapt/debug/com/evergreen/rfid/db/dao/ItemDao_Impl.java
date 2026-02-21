@@ -42,7 +42,7 @@ public final class ItemDao_Impl implements ItemDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `cached_items` (`number`,`displayName`,`type`,`inventory`,`baseUnitOfMeasure`,`unitPrice`,`unitCost`,`itemCategoryCode`,`rfidCode`,`cachedAt`) VALUES (?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `cached_items` (`number`,`displayName`,`type`,`inventory`,`baseUnitOfMeasure`,`unitPrice`,`unitCost`,`itemCategoryCode`,`rfidCode`,`projectCode`,`projectName`,`cachedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -81,7 +81,17 @@ public final class ItemDao_Impl implements ItemDao {
         } else {
           statement.bindLong(9, entity.getRfidCode());
         }
-        statement.bindLong(10, entity.getCachedAt());
+        if (entity.getProjectCode() == null) {
+          statement.bindNull(10);
+        } else {
+          statement.bindString(10, entity.getProjectCode());
+        }
+        if (entity.getProjectName() == null) {
+          statement.bindNull(11);
+        } else {
+          statement.bindString(11, entity.getProjectName());
+        }
+        statement.bindLong(12, entity.getCachedAt());
       }
     };
     this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
@@ -159,6 +169,8 @@ public final class ItemDao_Impl implements ItemDao {
           final int _cursorIndexOfUnitCost = CursorUtil.getColumnIndexOrThrow(_cursor, "unitCost");
           final int _cursorIndexOfItemCategoryCode = CursorUtil.getColumnIndexOrThrow(_cursor, "itemCategoryCode");
           final int _cursorIndexOfRfidCode = CursorUtil.getColumnIndexOrThrow(_cursor, "rfidCode");
+          final int _cursorIndexOfProjectCode = CursorUtil.getColumnIndexOrThrow(_cursor, "projectCode");
+          final int _cursorIndexOfProjectName = CursorUtil.getColumnIndexOrThrow(_cursor, "projectName");
           final int _cursorIndexOfCachedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "cachedAt");
           final CachedItem _result;
           if (_cursor.moveToFirst()) {
@@ -204,9 +216,21 @@ public final class ItemDao_Impl implements ItemDao {
             } else {
               _tmpRfidCode = _cursor.getInt(_cursorIndexOfRfidCode);
             }
+            final String _tmpProjectCode;
+            if (_cursor.isNull(_cursorIndexOfProjectCode)) {
+              _tmpProjectCode = null;
+            } else {
+              _tmpProjectCode = _cursor.getString(_cursorIndexOfProjectCode);
+            }
+            final String _tmpProjectName;
+            if (_cursor.isNull(_cursorIndexOfProjectName)) {
+              _tmpProjectName = null;
+            } else {
+              _tmpProjectName = _cursor.getString(_cursorIndexOfProjectName);
+            }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _result = new CachedItem(_tmpNumber,_tmpDisplayName,_tmpType,_tmpInventory,_tmpBaseUnitOfMeasure,_tmpUnitPrice,_tmpUnitCost,_tmpItemCategoryCode,_tmpRfidCode,_tmpCachedAt);
+            _result = new CachedItem(_tmpNumber,_tmpDisplayName,_tmpType,_tmpInventory,_tmpBaseUnitOfMeasure,_tmpUnitPrice,_tmpUnitCost,_tmpItemCategoryCode,_tmpRfidCode,_tmpProjectCode,_tmpProjectName,_tmpCachedAt);
           } else {
             _result = null;
           }
@@ -246,6 +270,8 @@ public final class ItemDao_Impl implements ItemDao {
           final int _cursorIndexOfUnitCost = CursorUtil.getColumnIndexOrThrow(_cursor, "unitCost");
           final int _cursorIndexOfItemCategoryCode = CursorUtil.getColumnIndexOrThrow(_cursor, "itemCategoryCode");
           final int _cursorIndexOfRfidCode = CursorUtil.getColumnIndexOrThrow(_cursor, "rfidCode");
+          final int _cursorIndexOfProjectCode = CursorUtil.getColumnIndexOrThrow(_cursor, "projectCode");
+          final int _cursorIndexOfProjectName = CursorUtil.getColumnIndexOrThrow(_cursor, "projectName");
           final int _cursorIndexOfCachedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "cachedAt");
           final CachedItem _result;
           if (_cursor.moveToFirst()) {
@@ -291,9 +317,21 @@ public final class ItemDao_Impl implements ItemDao {
             } else {
               _tmpRfidCode = _cursor.getInt(_cursorIndexOfRfidCode);
             }
+            final String _tmpProjectCode;
+            if (_cursor.isNull(_cursorIndexOfProjectCode)) {
+              _tmpProjectCode = null;
+            } else {
+              _tmpProjectCode = _cursor.getString(_cursorIndexOfProjectCode);
+            }
+            final String _tmpProjectName;
+            if (_cursor.isNull(_cursorIndexOfProjectName)) {
+              _tmpProjectName = null;
+            } else {
+              _tmpProjectName = _cursor.getString(_cursorIndexOfProjectName);
+            }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _result = new CachedItem(_tmpNumber,_tmpDisplayName,_tmpType,_tmpInventory,_tmpBaseUnitOfMeasure,_tmpUnitPrice,_tmpUnitCost,_tmpItemCategoryCode,_tmpRfidCode,_tmpCachedAt);
+            _result = new CachedItem(_tmpNumber,_tmpDisplayName,_tmpType,_tmpInventory,_tmpBaseUnitOfMeasure,_tmpUnitPrice,_tmpUnitCost,_tmpItemCategoryCode,_tmpRfidCode,_tmpProjectCode,_tmpProjectName,_tmpCachedAt);
           } else {
             _result = null;
           }
@@ -333,6 +371,8 @@ public final class ItemDao_Impl implements ItemDao {
           final int _cursorIndexOfUnitCost = CursorUtil.getColumnIndexOrThrow(_cursor, "unitCost");
           final int _cursorIndexOfItemCategoryCode = CursorUtil.getColumnIndexOrThrow(_cursor, "itemCategoryCode");
           final int _cursorIndexOfRfidCode = CursorUtil.getColumnIndexOrThrow(_cursor, "rfidCode");
+          final int _cursorIndexOfProjectCode = CursorUtil.getColumnIndexOrThrow(_cursor, "projectCode");
+          final int _cursorIndexOfProjectName = CursorUtil.getColumnIndexOrThrow(_cursor, "projectName");
           final int _cursorIndexOfCachedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "cachedAt");
           final CachedItem _result;
           if (_cursor.moveToFirst()) {
@@ -378,9 +418,21 @@ public final class ItemDao_Impl implements ItemDao {
             } else {
               _tmpRfidCode = _cursor.getInt(_cursorIndexOfRfidCode);
             }
+            final String _tmpProjectCode;
+            if (_cursor.isNull(_cursorIndexOfProjectCode)) {
+              _tmpProjectCode = null;
+            } else {
+              _tmpProjectCode = _cursor.getString(_cursorIndexOfProjectCode);
+            }
+            final String _tmpProjectName;
+            if (_cursor.isNull(_cursorIndexOfProjectName)) {
+              _tmpProjectName = null;
+            } else {
+              _tmpProjectName = _cursor.getString(_cursorIndexOfProjectName);
+            }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _result = new CachedItem(_tmpNumber,_tmpDisplayName,_tmpType,_tmpInventory,_tmpBaseUnitOfMeasure,_tmpUnitPrice,_tmpUnitCost,_tmpItemCategoryCode,_tmpRfidCode,_tmpCachedAt);
+            _result = new CachedItem(_tmpNumber,_tmpDisplayName,_tmpType,_tmpInventory,_tmpBaseUnitOfMeasure,_tmpUnitPrice,_tmpUnitCost,_tmpItemCategoryCode,_tmpRfidCode,_tmpProjectCode,_tmpProjectName,_tmpCachedAt);
           } else {
             _result = null;
           }

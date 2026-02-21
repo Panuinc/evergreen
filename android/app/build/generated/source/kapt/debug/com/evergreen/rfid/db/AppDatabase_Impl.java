@@ -42,16 +42,16 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `cached_items` (`number` TEXT NOT NULL, `displayName` TEXT NOT NULL, `type` TEXT NOT NULL, `inventory` REAL NOT NULL, `baseUnitOfMeasure` TEXT NOT NULL, `unitPrice` REAL NOT NULL, `unitCost` REAL NOT NULL, `itemCategoryCode` TEXT NOT NULL, `rfidCode` INTEGER, `cachedAt` INTEGER NOT NULL, PRIMARY KEY(`number`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `cached_items` (`number` TEXT NOT NULL, `displayName` TEXT NOT NULL, `type` TEXT NOT NULL, `inventory` REAL NOT NULL, `baseUnitOfMeasure` TEXT NOT NULL, `unitPrice` REAL NOT NULL, `unitCost` REAL NOT NULL, `itemCategoryCode` TEXT NOT NULL, `rfidCode` INTEGER, `projectCode` TEXT, `projectName` TEXT, `cachedAt` INTEGER NOT NULL, PRIMARY KEY(`number`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `scan_sessions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `startTime` INTEGER NOT NULL, `endTime` INTEGER, `userId` TEXT NOT NULL, `gpsLat` REAL, `gpsLon` REAL, `tagCount` INTEGER NOT NULL, `totalReads` INTEGER NOT NULL, `synced` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `scan_records` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` INTEGER NOT NULL, `epc` TEXT NOT NULL, `rssi` TEXT NOT NULL, `itemNumber` TEXT, `itemName` TEXT, `photoPath` TEXT, `readCount` INTEGER NOT NULL, `scannedAt` INTEGER NOT NULL, FOREIGN KEY(`sessionId`) REFERENCES `scan_sessions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_scan_records_sessionId` ON `scan_records` (`sessionId`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `pending_requests` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` TEXT NOT NULL, `jsonPayload` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `status` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3557658cb8b7c999069bbda13ab691b7')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c7cbd4cb11168c9c96cf0b9c66a2585b')");
       }
 
       @Override
@@ -104,7 +104,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsCachedItems = new HashMap<String, TableInfo.Column>(10);
+        final HashMap<String, TableInfo.Column> _columnsCachedItems = new HashMap<String, TableInfo.Column>(12);
         _columnsCachedItems.put("number", new TableInfo.Column("number", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCachedItems.put("displayName", new TableInfo.Column("displayName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCachedItems.put("type", new TableInfo.Column("type", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -114,6 +114,8 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsCachedItems.put("unitCost", new TableInfo.Column("unitCost", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCachedItems.put("itemCategoryCode", new TableInfo.Column("itemCategoryCode", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCachedItems.put("rfidCode", new TableInfo.Column("rfidCode", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCachedItems.put("projectCode", new TableInfo.Column("projectCode", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCachedItems.put("projectName", new TableInfo.Column("projectName", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCachedItems.put("cachedAt", new TableInfo.Column("cachedAt", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysCachedItems = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesCachedItems = new HashSet<TableInfo.Index>(0);
@@ -183,7 +185,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "3557658cb8b7c999069bbda13ab691b7", "c8921bd6319f33c5e0524b8e55c5819c");
+    }, "c7cbd4cb11168c9c96cf0b9c66a2585b", "1d7a28a874ebfbd87dfbc24afc05b8bf");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
