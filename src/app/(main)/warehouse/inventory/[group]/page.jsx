@@ -11,6 +11,7 @@ import PrintRfidModal from "@/components/warehouse/PrintRfidModal";
 const columns = [
   { name: "รหัสสินค้า", uid: "number", sortable: true },
   { name: "ชื่อสินค้า", uid: "displayName", sortable: true },
+  { name: "โครงการ", uid: "projectName", sortable: true },
   { name: "ประเภท", uid: "type", sortable: true },
   { name: "คงเหลือ", uid: "inventory", sortable: true },
   { name: "หน่วย", uid: "baseUnitOfMeasure", sortable: true },
@@ -23,6 +24,7 @@ const columns = [
 const INITIAL_VISIBLE_COLUMNS = [
   "number",
   "displayName",
+  "projectName",
   "type",
   "inventory",
   "baseUnitOfMeasure",
@@ -51,6 +53,14 @@ export default function WarehouseGroupPage() {
     switch (columnKey) {
       case "displayName":
         return <span className="font-medium">{item.displayName}</span>;
+      case "projectName":
+        return item.projectName ? (
+          <Chip variant="flat" size="sm" color="secondary">
+            {item.projectName}
+          </Chip>
+        ) : (
+          <span className="text-default-300">-</span>
+        );
       case "inventory": {
         const inv = Number(item.inventory);
         return (
@@ -139,7 +149,7 @@ export default function WarehouseGroupPage() {
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยรหัสหรือชื่อสินค้า..."
-        searchKeys={["number", "displayName"]}
+        searchKeys={["number", "displayName", "projectName"]}
         emptyContent="ไม่พบรายการสินค้า"
       />
 

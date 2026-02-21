@@ -17,6 +17,7 @@ const STATUS_COLORS = {
 const LINE_COLUMNS = [
   { name: "รหัส", uid: "No" },
   { name: "รายละเอียด", uid: "Description" },
+  { name: "โครงการ", uid: "projectName" },
   { name: "จำนวน", uid: "Quantity", sortable: true },
   { name: "หน่วย", uid: "Unit_of_Measure_Code" },
   { name: "ราคา/หน่วย", uid: "Unit_Price", sortable: true },
@@ -50,6 +51,14 @@ export default function SalesOrderDetailPage() {
 
   const renderLineCell = useCallback((item, columnKey) => {
     switch (columnKey) {
+      case "projectName":
+        return item.projectName ? (
+          <Chip variant="flat" size="sm" color="secondary">
+            {item.projectName}
+          </Chip>
+        ) : (
+          "-"
+        );
       case "Quantity":
       case "Quantity_Shipped":
       case "BWK_Outstanding_Quantity":
@@ -194,7 +203,7 @@ export default function SalesOrderDetailPage() {
           data={order.lines || []}
           renderCell={renderLineCell}
           rowKey="Line_No"
-          initialVisibleColumns={["No", "Description", "Quantity", "Unit_of_Measure_Code", "Unit_Price", "Line_Amount", "Quantity_Shipped", "BWK_Outstanding_Quantity"]}
+          initialVisibleColumns={["No", "Description", "projectName", "Quantity", "Unit_of_Measure_Code", "Unit_Price", "Line_Amount", "Quantity_Shipped", "BWK_Outstanding_Quantity"]}
           emptyContent="ไม่มีรายการ"
           defaultRowsPerPage={20}
         />

@@ -8,6 +8,7 @@ import DataTable from "@/components/ui/DataTable";
 const columns = [
   { name: "Number", uid: "number", sortable: true },
   { name: "Display Name", uid: "displayName", sortable: true },
+  { name: "Project", uid: "projectName", sortable: true },
   { name: "Type", uid: "type", sortable: true },
   { name: "Inventory", uid: "inventory", sortable: true },
   { name: "Unit Price", uid: "unitPrice", sortable: true },
@@ -24,6 +25,7 @@ const columns = [
 const INITIAL_VISIBLE_COLUMNS = [
   "number",
   "displayName",
+  "projectName",
   "type",
   "inventory",
   "unitPrice",
@@ -49,6 +51,14 @@ export default function BcItemsPage() {
     switch (columnKey) {
       case "displayName":
         return <span className="font-medium">{item.displayName}</span>;
+      case "projectName":
+        return item.projectName ? (
+          <Chip variant="flat" size="sm" color="secondary">
+            {item.projectName}
+          </Chip>
+        ) : (
+          <span className="text-default-300">-</span>
+        );
       case "inventory": {
         const inv = Number(item.inventory);
         return (
@@ -105,7 +115,7 @@ export default function BcItemsPage() {
         statusOptions={postingGroupOptions}
         filterLabel="Posting Group"
         searchPlaceholder="Search by number, name..."
-        searchKeys={["number", "displayName"]}
+        searchKeys={["number", "displayName", "projectName"]}
         emptyContent="No items found"
       />
     </div>

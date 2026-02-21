@@ -137,6 +137,7 @@ export default function BcSalesOrdersPage() {
                 <TableColumn>No.</TableColumn>
                 <TableColumn>Item No.</TableColumn>
                 <TableColumn>Description</TableColumn>
+                <TableColumn>Project</TableColumn>
                 <TableColumn>Quantity</TableColumn>
                 <TableColumn>Unit Price</TableColumn>
                 <TableColumn>Line Amount</TableColumn>
@@ -149,6 +150,15 @@ export default function BcSalesOrdersPage() {
                       {line.lineObjectNumber || "-"}
                     </TableCell>
                     <TableCell>{line.description || "-"}</TableCell>
+                    <TableCell>
+                      {line.projectName ? (
+                        <Chip variant="flat" size="sm" color="secondary">
+                          {line.projectName}
+                        </Chip>
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
                     <TableCell>
                       {line.quantity != null
                         ? Number(line.quantity).toLocaleString("th-TH")

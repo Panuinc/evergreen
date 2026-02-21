@@ -55,6 +55,8 @@ export async function GET(request, { params }) {
     BWK_Outstanding_Quantity: l.bwkOutstandingQuantity,
     Unit_of_Measure_Code: l.unitOfMeasureCode,
     Location_Code: l.locationCode,
+    projectCode: l.projectCode,
+    projectName: l.projectName,
   }));
 
   const totalAmount = lines.reduce((s, l) => s + (l.Line_Amount || 0), 0);
