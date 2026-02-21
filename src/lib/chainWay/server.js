@@ -127,6 +127,7 @@ export const PrintService = {
       rfidCode: item.rfidCode ?? null,
       displayName: item.displayName || item.number,
       displayName2: item.displayName2 || "",
+      projectName: item.projectName || null,
       quantity,
       labelSize,
       enableRFID,

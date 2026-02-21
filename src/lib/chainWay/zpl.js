@@ -8,14 +8,17 @@ const PAD = {
 };
 
 export async function textToGraphic(text, options = {}) {
-  const { fontSize = 32, maxWidth = 800 } = options;
+  const { fontSize = 32, maxWidth = 800, bold = false } = options;
 
   try {
     const { createCanvas } = await import("canvas");
 
+    const fontWeight = bold ? "bold " : "";
+    const fontStr = `${fontWeight}${fontSize}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
+
     const measureCanvas = createCanvas(1, 1);
     const measureCtx = measureCanvas.getContext("2d");
-    measureCtx.font = `${fontSize}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
+    measureCtx.font = fontStr;
     const metrics = measureCtx.measureText(text);
 
     const textWidth = Math.min(Math.ceil(metrics.width) + 10, maxWidth);
@@ -28,7 +31,7 @@ export async function textToGraphic(text, options = {}) {
     ctx.fillRect(0, 0, textWidth, textHeight);
 
     ctx.fillStyle = "black";
-    ctx.font = `${fontSize}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
+    ctx.font = fontStr;
     ctx.textBaseline = "middle";
     ctx.fillText(text, 5, textHeight / 2);
 
@@ -123,17 +126,30 @@ export async function buildThaiRFIDLabel(options) {
   const seqX = w - seqWidth - PAD.left;
   zpl += `^FO${seqX},${row1Y}^A0N,${seqFontSize},${seqFontSize}^FD${sequenceText}^FS`;
 
+  // Row 2: Project name (bold, centered)
   const row2Y = PAD.top + mmToDots(8);
   const projectText = projectName || "-";
-  const projectFontSize = 36;
-  const projectWidth = estimateTextWidth(projectText, projectFontSize);
-  const projectX = Math.max(PAD.left, Math.floor((w - projectWidth) / 2));
-  zpl += `^FO${projectX},${row2Y}^A0N,${projectFontSize},${projectFontSize}^FD${sanitizeText(projectText, 30)}^FS`;
+  const projectFontSize = 44;
+  const projectGraphic = await textToGraphic(projectText, {
+    fontSize: 40,
+    maxWidth: usableWidth,
+    bold: true,
+  });
+  if (projectGraphic) {
+    const projectX = Math.max(PAD.left, Math.floor((w - projectGraphic.width) / 2));
+    zpl += `^FO${projectX},${row2Y}${projectGraphic.command}^FS`;
+  } else {
+    const projectWidth = estimateTextWidth(projectText, projectFontSize);
+    const projectX = Math.max(PAD.left, Math.floor((w - projectWidth) / 2));
+    zpl += `^FO${projectX},${row2Y}^A0N,${projectFontSize},${projectFontSize}^FD${sanitizeText(projectText, 30)}^FS`;
+  }
 
+  // Row 3: Display name (bold, centered)
   const row3Y = PAD.top + mmToDots(14);
   const nameGraphic = await textToGraphic(displayName, {
-    fontSize: 32,
+    fontSize: 38,
     maxWidth: usableWidth,
+    bold: true,
   });
 
   if (nameGraphic) {
@@ -141,18 +157,11 @@ export async function buildThaiRFIDLabel(options) {
     zpl += `^FO${nameX},${row3Y}${nameGraphic.command}^FS`;
   } else {
     const fallbackText = sanitizeText(displayName, 24);
-    const fallbackWidth = estimateTextWidth(fallbackText, 36);
+    const fallbackFontSize = 44;
+    const fallbackWidth = estimateTextWidth(fallbackText, fallbackFontSize);
     const fallbackX = Math.max(PAD.left, Math.floor((w - fallbackWidth) / 2));
-    zpl += `^FO${fallbackX},${row3Y}^A0N,36,36^FD${fallbackText}^FS`;
+    zpl += `^FO${fallbackX},${row3Y}^A0N,${fallbackFontSize},${fallbackFontSize}^FD${fallbackText}^FS`;
   }
-
-  const row4Y = PAD.top + mmToDots(20);
-  const epcLabelFontSize = 24;
-  zpl += `^FO${PAD.left},${row4Y}^A0N,${epcLabelFontSize},${epcLabelFontSize}^FDRFID EPC:^FS`;
-
-  const row4bY = PAD.top + mmToDots(23);
-  const epcDisplayFontSize = 20;
-  zpl += `^FO${PAD.left},${row4bY}^A0N,${epcDisplayFontSize},${epcDisplayFontSize}^FD${epc}^FS`;
 
   if (enableRFID) {
     zpl += `^RS8^RFW,H^FD${epc}^FS`;

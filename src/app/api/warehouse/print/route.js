@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import { createCanvas } from "canvas";
 import { PrinterService, PrintService } from "@/lib/chainWay/server";
 
-/* ── preview ── */
+/* ── helpers matching ZPL layout ── */
+function getShortItemNumber(fullNumber) {
+  if (!fullNumber) return fullNumber;
+  const parts = fullNumber.split("-");
+  if (parts.length >= 3) return parts.slice(-2).join("-");
+  return fullNumber;
+}
+
+/* ── preview — matches ZPL buildThaiRFIDLabel layout ── */
 function renderPreview(item, quantity) {
+  // Label: 73mm x 21mm (same ratio as LABEL_SIZES.RFID)
   const PREVIEW_WIDTH = 600;
   const ratio = 21 / 73;
   const previewH = Math.round(PREVIEW_WIDTH * ratio);
@@ -11,15 +20,14 @@ function renderPreview(item, quantity) {
 
   const mx = Math.round(2 * s);
   const my = Math.round(2 * s);
-  const fTitle = Math.round(4.5 * s);
-  const fSeq = Math.round(3.4 * s);
-  const fName = Math.round(2.8 * s);
+  const usableW = PREVIEW_WIDTH - mx * 2;
 
   const retina = 2;
   const canvas = createCanvas(PREVIEW_WIDTH * retina, previewH * retina);
   const ctx = canvas.getContext("2d");
   ctx.scale(retina, retina);
 
+  // Background
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0, 0, PREVIEW_WIDTH, previewH);
   ctx.strokeStyle = "#BBBBBB";
@@ -29,24 +37,36 @@ function renderPreview(item, quantity) {
   ctx.fillStyle = "#000000";
   ctx.textBaseline = "top";
 
-  ctx.font = `bold ${fTitle}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
-  ctx.fillText(item.number, mx, my);
+  // Row 1: Short item number (left) + sequence (right) — matches ZPL row1
+  const shortNumber = getShortItemNumber(item.number);
+  const fItem = Math.round(4.5 * s);
+  ctx.font = `bold ${fItem}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
+  ctx.fillText(shortNumber, mx, my);
 
   const seqText = `1/${quantity}`;
+  const fSeq = Math.round(3.2 * s);
   ctx.font = `bold ${fSeq}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
   const seqW = ctx.measureText(seqText).width;
   ctx.fillText(seqText, PREVIEW_WIDTH - seqW - mx, my);
 
-  if (item.displayName) {
-    const nameY = my + fTitle + Math.round(1.5 * s);
-    ctx.font = `${fName}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
-    ctx.fillText(item.displayName, mx, nameY, PREVIEW_WIDTH - mx * 2);
-  }
+  // Row 2: Project name (bold, centered) — matches ZPL row2
+  const row2Y = my + Math.round(8 * s);
+  const fProject = Math.round(3.6 * s);
+  const projectText = item.projectName || "-";
+  ctx.font = `bold ${fProject}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
+  const projectW = ctx.measureText(projectText).width;
+  const projectX = Math.max(mx, Math.round((PREVIEW_WIDTH - projectW) / 2));
+  ctx.fillText(projectText, projectX, row2Y);
 
-  ctx.fillStyle = "#999999";
-  const rfidFs = Math.round(1.4 * s);
-  ctx.font = `italic ${rfidFs}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
-  ctx.fillText("RFID", mx, previewH - rfidFs - my);
+  // Row 3: Display name in Thai (bold, centered) — matches ZPL row3
+  const row3Y = my + Math.round(13 * s);
+  const fName = Math.round(3.2 * s);
+  if (item.displayName) {
+    ctx.font = `bold ${fName}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
+    const nameW = ctx.measureText(item.displayName).width;
+    const nameX = Math.max(mx, Math.round((PREVIEW_WIDTH - nameW) / 2));
+    ctx.fillText(item.displayName, nameX, row3Y, usableW);
+  }
 
   return canvas.toBuffer("image/png").toString("base64");
 }
