@@ -109,7 +109,10 @@
       "Bash(\"/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/javap\" -classpath /tmp/sdk-check/classes.jar com.rscja.deviceapi.RFIDWithUHFUART)",
       "Bash(\"/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/javap\" -classpath /tmp/sdk-check/classes.jar com.rscja.deviceapi.entity.FastInventoryEntity)",
       "Bash(\"/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/javap\" -classpath /tmp/sdk-check/classes.jar com.rscja.deviceapi.interfaces.IUHFInventoryCallback)",
-      "Bash(/usr/libexec/java_home:*)"
+      "Bash(/usr/libexec/java_home:*)",
+      "WebFetch(domain:app-leadmanager.bcicentral.com)",
+      "WebFetch(domain:api.bciaustralia.com)",
+      "WebFetch(domain:help-leadmanager.bcicentral.com)"
     ]
   }
 }

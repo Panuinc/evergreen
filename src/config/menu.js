@@ -52,6 +52,7 @@ import {
   Building2,
   AlertTriangle,
   RefreshCw,
+  Landmark,
 } from "lucide-react";
 
 export const menuData = [
@@ -130,6 +131,7 @@ export const menuData = [
       { name: "Orders", icon: ShoppingCart, href: "/sales/orders" },
       { name: "Activities", icon: Calendar, href: "/sales/activities" },
       { name: "Reports", icon: BarChart3, href: "/sales/reports" },
+      { name: "BCI Projects", icon: Landmark, href: "/sales/bci-projects" },
     ],
   },
   {
