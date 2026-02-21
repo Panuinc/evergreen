@@ -18,7 +18,7 @@ function decodeEpc(hex) {
     return { type: "tid", raw: hex };
   }
 
-  const itemCompact = raw.substring(0, slashIndex).trim();
+  const itemPart = raw.substring(0, slashIndex).trim();
   const seqChar = raw[slashIndex + 1];
   const totalChar = raw[slashIndex + 2];
 
@@ -27,11 +27,34 @@ function decodeEpc(hex) {
   const totalPieces =
     totalChar >= "A" ? totalChar.charCodeAt(0) - 55 : parseInt(totalChar) || 0;
 
+  /* All digits = rfidCode mapping; otherwise = compact item number */
+  if (/^\d+$/.test(itemPart)) {
+    return {
+      type: "epc",
+      rfidCode: parseInt(itemPart, 10),
+      pieceNumber,
+      totalPieces,
+    };
+  }
+
   return {
     type: "epc",
-    itemCompact,
+    itemCompact: itemPart,
     pieceNumber,
     totalPieces,
+  };
+}
+
+function formatItem(item) {
+  return {
+    number: item.number,
+    displayName: item.displayName,
+    type: item.type,
+    inventory: item.inventory,
+    baseUnitOfMeasure: item.baseUnitOfMeasure,
+    unitPrice: item.unitPrice,
+    unitCost: item.unitCost,
+    itemCategoryCode: item.itemCategoryCode,
   };
 }
 
@@ -51,31 +74,32 @@ export async function POST(request) {
 
     const decoded = decodeEpc(hex);
 
-    if (decoded.type === "epc" && decoded.itemCompact) {
-      const pattern = `%${decoded.itemCompact.replace(/ /g, "%")}%`;
-      const { data: items } = await auth.supabase
-        .from("bcItems")
-        .select("*")
-        .ilike("number", pattern)
-        .limit(1);
+    if (decoded.type === "epc") {
+      let item = null;
 
-      const item = items?.[0] || null;
+      if (decoded.rfidCode) {
+        /* New format: lookup by rfidCode */
+        const { data: items } = await auth.supabase
+          .from("bcItems")
+          .select("*")
+          .eq("rfidCode", decoded.rfidCode)
+          .limit(1);
+        item = items?.[0] || null;
+      } else if (decoded.itemCompact) {
+        /* Old format: ILIKE pattern match on number */
+        const pattern = `%${decoded.itemCompact.replace(/ /g, "%")}%`;
+        const { data: items } = await auth.supabase
+          .from("bcItems")
+          .select("*")
+          .ilike("number", pattern)
+          .limit(1);
+        item = items?.[0] || null;
+      }
 
       return NextResponse.json({
         success: true,
         decoded,
-        item: item
-          ? {
-              number: item.number,
-              displayName: item.displayName,
-              type: item.type,
-              inventory: item.inventory,
-              baseUnitOfMeasure: item.baseUnitOfMeasure,
-              unitPrice: item.unitPrice,
-              unitCost: item.unitCost,
-              itemCategoryCode: item.itemCategoryCode,
-            }
-          : null,
+        item: item ? formatItem(item) : null,
         message: item ? undefined : "ไม่พบสินค้าในระบบ",
       });
     }

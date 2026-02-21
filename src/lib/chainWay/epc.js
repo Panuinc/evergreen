@@ -1,5 +1,7 @@
+const EPC_BYTES = 12; /* 96-bit tag */
+
 export function generatePlainEPC(
-  itemNumber,
+  rfidCodeOrItemNumber,
   sequenceNumber,
   totalQuantity,
 ) {
@@ -13,14 +15,21 @@ export function generatePlainEPC(
       ? String(totalQuantity)
       : String.fromCharCode(55 + totalQuantity);
 
-  /* Keep full item number with dashes, e.g. "EX-00162-EX51-D/11" */
-  const content = `${itemNumber}/${seqChar}${totalChar}`;
+  let content;
 
-  /* Round up to 2-byte boundary (Gen2 EPC requirement) */
-  const bytes = Math.ceil(content.length / 2) * 2;
+  if (typeof rfidCodeOrItemNumber === "number") {
+    /* rfidCode (integer) → zero-padded 8 digits + /seq+total = 11 chars */
+    const codeStr = String(rfidCodeOrItemNumber).padStart(8, "0");
+    content = `${codeStr}/${seqChar}${totalChar}`;
+  } else {
+    /* Fallback: compact item number (strip dashes) */
+    const compact = String(rfidCodeOrItemNumber).replace(/-/g, "");
+    const withSeq = `${compact}/${seqChar}${totalChar}`;
+    content = withSeq.length <= EPC_BYTES ? withSeq : compact;
+  }
 
   let hexEPC = "";
-  for (let i = 0; i < bytes; i++) {
+  for (let i = 0; i < EPC_BYTES; i++) {
     const code = i < content.length ? content.charCodeAt(i) : 0;
     hexEPC += code.toString(16).toUpperCase().padStart(2, "0");
   }
@@ -31,8 +40,8 @@ export function generatePlainEPC(
 export const EPCService = {
   generate(item, options = {}) {
     const { sequenceNumber = 1, totalQuantity = 1 } = options;
-
-    return generatePlainEPC(item.number, sequenceNumber, totalQuantity);
+    const key = item.rfidCode ?? item.number;
+    return generatePlainEPC(key, sequenceNumber, totalQuantity);
   },
 
   generateBatch(item, quantity, options = {}) {
@@ -70,13 +79,14 @@ export const EPCService = {
     }
 
     const slashIndex = raw.lastIndexOf("/");
-    let itemNumber = "";
+    let rfidCode = null;
+    let itemCompact = "";
     let sequence = null;
     let total = null;
     let sequenceText = "";
 
     if (slashIndex !== -1 && slashIndex < raw.length - 2) {
-      const itemCompact = raw.substring(0, slashIndex).trim();
+      itemCompact = raw.substring(0, slashIndex).trim();
       const seqChar = raw[slashIndex + 1];
       const totalChar = raw[slashIndex + 2];
 
@@ -87,19 +97,17 @@ export const EPCService = {
           ? totalChar.charCodeAt(0) - 55
           : parseInt(totalChar, 10);
 
-      if (itemCompact && itemCompact.length >= 4) {
-        const cleaned = itemCompact.replace(/[\x00\s0]+$/, "").trim();
-        const match = cleaned.match(/^([A-Z]{2})(\d{2})(\d{2})(\d+)$/);
-        if (match) {
-          itemNumber = `${match[1]}-${match[2]}-${match[3]}-${match[4]}`;
-        } else {
-          itemNumber = cleaned;
-        }
-      }
-
       sequenceText = `${sequence}/${total}`;
+
+      /* All digits = rfidCode; otherwise = compact item number */
+      if (/^\d+$/.test(itemCompact)) {
+        rfidCode = parseInt(itemCompact, 10);
+      }
     } else {
-      itemNumber = raw.trim();
+      itemCompact = raw.trim();
+      if (/^\d+$/.test(itemCompact)) {
+        rfidCode = parseInt(itemCompact, 10);
+      }
     }
 
     return {
@@ -108,11 +116,11 @@ export const EPCService = {
       bytes: bits / 8,
       hexLength: epc.length,
       decoded: raw,
-      itemNumber,
+      rfidCode,
+      itemCompact: rfidCode ? null : itemCompact,
       sequence,
       total,
       sequenceText,
-      uri: `urn:epc:tag:${epc}`,
     };
   },
 };

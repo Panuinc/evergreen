@@ -86,6 +86,7 @@ function getShortItemNumber(fullNumber) {
 export async function buildThaiRFIDLabel(options) {
   const {
     itemNumber,
+    rfidCode = null,
     displayName,
     projectName = null,
     sequenceNumber = 1,
@@ -101,8 +102,9 @@ export async function buildThaiRFIDLabel(options) {
 
   const usableWidth = w - PAD.left * 2;
 
+  const epcKey = rfidCode ?? itemNumber;
   const epc =
-    epcData || generatePlainEPC(itemNumber, sequenceNumber, totalQuantity);
+    epcData || generatePlainEPC(epcKey, sequenceNumber, totalQuantity);
 
   const printModeCmd = printMethod === "TT" ? "^MTT" : "^MTD";
 
@@ -163,6 +165,7 @@ export async function buildThaiRFIDLabel(options) {
 export async function buildThaiRFIDLabels(options) {
   const {
     itemNumber,
+    rfidCode = null,
     displayName,
     projectName = null,
     quantity = 1,
@@ -171,13 +174,15 @@ export async function buildThaiRFIDLabels(options) {
     enableRFID = true,
   } = options;
 
+  const epcKey = rfidCode ?? itemNumber;
   const labels = [];
 
   for (let i = 1; i <= quantity; i++) {
-    const epc = generatePlainEPC(itemNumber, i, quantity);
+    const epc = generatePlainEPC(epcKey, i, quantity);
 
     const zpl = await buildThaiRFIDLabel({
       itemNumber,
+      rfidCode,
       displayName,
       projectName,
       sequenceNumber: i,

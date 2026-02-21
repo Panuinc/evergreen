@@ -124,6 +124,7 @@ export const PrintService = {
 
     const labels = await buildThaiRFIDLabels({
       itemNumber: item.number,
+      rfidCode: item.rfidCode ?? null,
       displayName: item.displayName || item.number,
       displayName2: item.displayName2 || "",
       quantity,
