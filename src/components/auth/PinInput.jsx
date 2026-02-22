@@ -2,7 +2,7 @@
 
 import { useRef, useCallback } from "react";
 
-export default function PinInput({ value = "", onChange, length = 6, disabled = false, error = false }) {
+export default function PinInput({ value = "", onChange, onComplete, length = 6, disabled = false, error = false }) {
   const inputRefs = useRef([]);
 
   const digits = value.split("").concat(Array(length).fill("")).slice(0, length);
@@ -17,9 +17,11 @@ export default function PinInput({ value = "", onChange, length = 6, disabled = 
       const newPin = newDigits.join("");
       onChange(newPin);
 
-      // Auto-focus next
+      // Auto-focus next or auto-submit
       if (index < length - 1) {
         inputRefs.current[index + 1]?.focus();
+      } else if (newPin.length === length && onComplete) {
+        onComplete(newPin);
       }
     },
     [digits, length, onChange]
@@ -27,6 +29,11 @@ export default function PinInput({ value = "", onChange, length = 6, disabled = 
 
   const handleKeyDown = useCallback(
     (index, e) => {
+      if (e.key === "Enter" && value.length === length && onComplete) {
+        e.preventDefault();
+        onComplete(value);
+        return;
+      }
       if (e.key === "Backspace") {
         e.preventDefault();
         const newDigits = [...digits];

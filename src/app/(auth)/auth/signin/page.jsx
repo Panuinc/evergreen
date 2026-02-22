@@ -116,6 +116,7 @@ export default function SignInPage() {
             <PinInput
               value={pin}
               onChange={setPin}
+              onComplete={handlePinVerify}
               error={pinError}
               disabled={pinLoading}
             />
@@ -182,6 +183,7 @@ export default function SignInPage() {
             radius="md"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSignIn()}
           />
         </div>
         <div className="flex items-center justify-center w-10/12 h-fit p-2 gap-2">
@@ -196,6 +198,7 @@ export default function SignInPage() {
             radius="md"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSignIn()}
           />
         </div>
 

@@ -74,6 +74,7 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
           <PinInput
             value={step === "enter" ? pin : confirmPin}
             onChange={step === "enter" ? setPin : setConfirmPin}
+            onComplete={step === "enter" ? handleNext : handleConfirm}
             error={error}
           />
         </ModalBody>
