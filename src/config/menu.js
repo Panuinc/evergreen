@@ -84,7 +84,15 @@ export const menuData = [
       { name: "สรรหาบุคลากร", icon: Briefcase },
       { name: "การลงเวลา", icon: Calendar },
       { name: "เงินเดือน", icon: Wallet },
-      { name: "ประเมินผล", icon: Target, href: "/hr/evaluation" },
+    ],
+  },
+  {
+    id: "performance",
+    name: "ผลการปฏิบัติงาน",
+    icon: Target,
+    href: "/performance/evaluation",
+    subMenus: [
+      { name: "ประเมินค่านิยม", icon: ClipboardList, href: "/performance/evaluation" },
     ],
   },
   {

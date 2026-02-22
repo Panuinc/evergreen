@@ -90,34 +90,3 @@ export async function deletePosition(id) {
   return del(`/api/hr/positions/${id}`);
 }
 
-// ==================== Evaluation ====================
-
-export async function submitEvaluation(data) {
-  return post("/api/hr/evaluation", data);
-}
-
-export async function getMyEvaluations(period) {
-  const params = new URLSearchParams({ myResults: "true" });
-  if (period) params.set("period", period);
-  return get(`/api/hr/evaluation?${params}`);
-}
-
-export async function getMySubmittedEvaluations(period) {
-  const params = new URLSearchParams();
-  if (period) params.set("period", period);
-  return get(`/api/hr/evaluation?${params}`);
-}
-
-export async function getEvaluationSummary(params) {
-  return get(`/api/hr/evaluation/summary?${new URLSearchParams(params)}`);
-}
-
-// ==================== Evaluation AI Feedback ====================
-
-export async function getEvaluationFeedback(employeeId, period) {
-  return get(`/api/hr/evaluation/feedback?employeeId=${employeeId}&period=${period}`);
-}
-
-export async function generateEvaluationFeedbackAction(employeeId, period) {
-  return post("/api/hr/evaluation/feedback", { employeeId, period });
-}

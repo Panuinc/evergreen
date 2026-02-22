@@ -21,7 +21,7 @@ import {
 import { ClipboardList, BarChart3, Shield, Trash2, Save, Sparkles } from "lucide-react";
 import { useEvaluation } from "@/hooks/useEvaluation";
 import SpiderChart from "@/components/charts/SpiderChart";
-import AiFeedbackPanel from "@/components/hr/AiFeedbackPanel";
+import AiFeedbackPanel from "@/components/performance/AiFeedbackPanel";
 import {
   EVALUATION_CATEGORIES,
   SCORE_LABELS,

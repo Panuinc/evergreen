@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
+import { getEmployees } from "@/actions/hr";
 import {
-  getEmployees,
   submitEvaluation,
   getMyEvaluations,
   getMySubmittedEvaluations,
   getEvaluationSummary,
   getEvaluationFeedback,
   generateEvaluationFeedbackAction,
-} from "@/actions/hr";
+} from "@/actions/performance";
 import {
   EVALUATION_CATEGORIES,
   TOTAL_QUESTIONS,
