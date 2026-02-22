@@ -35,6 +35,9 @@ export function useSignIn() {
         return;
       }
 
+      // จำ email ไว้สำหรับ PIN quick unlock
+      try { localStorage.setItem("lastSignInEmail", email); } catch {}
+
       window.location.href = "/overview/dashboard";
     } catch (err) {
       toast.error("An unexpected error occurred");

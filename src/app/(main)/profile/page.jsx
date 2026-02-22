@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Input, Button, Chip, Spinner } from "@heroui/react";
-import { User, Lock, Briefcase } from "lucide-react";
+import { User, Lock, Briefcase, KeyRound } from "lucide-react";
+import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
+import { usePin } from "@/hooks/usePin";
+import PinSetupModal from "@/components/auth/PinSetupModal";
 
 export default function ProfilePage() {
   const {
@@ -14,6 +18,10 @@ export default function ProfilePage() {
     handleChangePassword,
   } = useProfile();
 
+  const { pinEnabled, loading: pinLoading, setupPin, removePin } = usePin();
+  const [showPinSetup, setShowPinSetup] = useState(false);
+  const [removingPin, setRemovingPin] = useState(false);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -23,6 +31,18 @@ export default function ProfilePage() {
   }
 
   const { user, employee, roles } = profile || {};
+
+  const handleRemovePin = async () => {
+    setRemovingPin(true);
+    try {
+      await removePin();
+      toast.success("PIN removed successfully");
+    } catch (err) {
+      toast.error(err.message || "Failed to remove PIN");
+    } finally {
+      setRemovingPin(false);
+    }
+  };
 
   return (
     <div className="flex flex-col w-full h-full gap-6">
@@ -135,6 +155,65 @@ export default function ProfilePage() {
         )}
       </div>
 
+      {/* Quick Unlock PIN */}
+      <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
+        <div className="flex items-center justify-between w-full h-fit p-2">
+          <div className="flex items-center gap-2 font-semibold">
+            <KeyRound />
+            Quick Unlock PIN
+          </div>
+          {!pinLoading && (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={pinEnabled ? "success" : "default"}
+            >
+              {pinEnabled ? "Enabled" : "Disabled"}
+            </Chip>
+          )}
+        </div>
+
+        <div className="flex flex-col w-full gap-2">
+          <p className="text-default-500 p-2">
+            Set a 6-digit PIN for quick sign in instead of entering your password every time.
+          </p>
+          <div className="flex items-center justify-end w-full h-fit p-2 gap-2">
+            {pinEnabled ? (
+              <>
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  onPress={() => setShowPinSetup(true)}
+                >
+                  Change PIN
+                </Button>
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  color="danger"
+                  onPress={handleRemovePin}
+                  isLoading={removingPin}
+                >
+                  Remove PIN
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                onPress={() => setShowPinSetup(true)}
+              >
+                Set PIN
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Change Password */}
       <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
@@ -210,6 +289,13 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* PIN Setup Modal */}
+      <PinSetupModal
+        isOpen={showPinSetup}
+        onClose={() => setShowPinSetup(false)}
+        onSetup={setupPin}
+      />
     </div>
   );
 }
