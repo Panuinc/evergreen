@@ -69,7 +69,7 @@ export async function POST(request) {
     const hex = body.epc || body.tid || body.hex;
     if (!hex) {
       return NextResponse.json(
-        { success: false, error: "EPC or TID hex is required" },
+        { success: false, error: "กรุณาระบุ EPC หรือ TID hex" },
         { status: 400 },
       );
     }

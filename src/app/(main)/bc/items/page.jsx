@@ -6,20 +6,20 @@ import { useBcItems } from "@/hooks/useBcItems";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Number", uid: "number", sortable: true },
-  { name: "Display Name", uid: "displayName", sortable: true },
-  { name: "Project", uid: "projectName", sortable: true },
-  { name: "Type", uid: "type", sortable: true },
-  { name: "Inventory", uid: "inventory", sortable: true },
-  { name: "Unit Price", uid: "unitPrice", sortable: true },
-  { name: "Unit Cost", uid: "unitCost", sortable: true },
-  { name: "Category", uid: "itemCategoryCode", sortable: true },
+  { name: "เลขที่", uid: "number", sortable: true },
+  { name: "ชื่อสินค้า", uid: "displayName", sortable: true },
+  { name: "โครงการ", uid: "projectName", sortable: true },
+  { name: "ประเภท", uid: "type", sortable: true },
+  { name: "คงคลัง", uid: "inventory", sortable: true },
+  { name: "ราคาต่อหน่วย", uid: "unitPrice", sortable: true },
+  { name: "ต้นทุนต่อหน่วย", uid: "unitCost", sortable: true },
+  { name: "หมวดหมู่", uid: "itemCategoryCode", sortable: true },
   {
-    name: "Gen. Prod. Posting Group",
+    name: "กลุ่มการลงบัญชี",
     uid: "generalProductPostingGroupCode",
     sortable: true,
   },
-  { name: "Blocked", uid: "blocked", sortable: true },
+  { name: "ถูกบล็อก", uid: "blocked", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -93,7 +93,7 @@ export default function BcItemsPage() {
             radius="md"
             color={!item.blocked ? "success" : "danger"}
           >
-            {item.blocked ? "Yes" : "No"}
+            {item.blocked ? "ใช่" : "ไม่"}
           </Chip>
         );
       default:
@@ -113,10 +113,10 @@ export default function BcItemsPage() {
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         statusField="generalProductPostingGroupCode"
         statusOptions={postingGroupOptions}
-        filterLabel="Posting Group"
-        searchPlaceholder="Search by number, name..."
+        filterLabel="กลุ่มการลงบัญชี"
+        searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อ..."
         searchKeys={["number", "displayName", "projectName"]}
-        emptyContent="No items found"
+        emptyContent="ไม่พบสินค้า"
       />
     </div>
   );

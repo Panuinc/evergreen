@@ -19,10 +19,10 @@ import { menuData } from "@/config/menu";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Name", uid: "resourceName", sortable: true },
-  { name: "Module", uid: "resourceModuleId", sortable: true },
-  { name: "Description", uid: "resourceDescription" },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อ", uid: "resourceName", sortable: true },
+  { name: "โมดูล", uid: "resourceModuleId", sortable: true },
+  { name: "รายละเอียด", uid: "resourceDescription" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -103,9 +103,9 @@ export default function ResourcesPage() {
         rowKey="resourceId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, module, description..."
+        searchPlaceholder="ค้นหาตามชื่อ, โมดูล, รายละเอียด..."
         searchKeys={["resourceName", "resourceModuleId", "resourceDescription"]}
-        emptyContent="No resources found"
+        emptyContent="ไม่พบทรัพยากร"
         topEndContent={
           <Button
             variant="bordered"
@@ -114,7 +114,7 @@ export default function ResourcesPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Resource
+            เพิ่มทรัพยากร
           </Button>
         }
       />
@@ -122,15 +122,15 @@ export default function ResourcesPage() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
-            {editingResource ? "Edit Resource" : "Create Resource"}
+            {editingResource ? "แก้ไขทรัพยากร" : "สร้างทรัพยากร"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Name"
+                  label="ชื่อ"
                   labelPlacement="outside"
-                  placeholder="e.g. employees"
+                  placeholder="เช่น employees"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -142,9 +142,9 @@ export default function ResourcesPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Select
-                  label="Module"
+                  label="โมดูล"
                   labelPlacement="outside"
-                  placeholder="Select a module"
+                  placeholder="เลือกโมดูล"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -165,9 +165,9 @@ export default function ResourcesPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Textarea
-                  label="Description"
+                  label="รายละเอียด"
                   labelPlacement="outside"
-                  placeholder="Describe this resource..."
+                  placeholder="อธิบายทรัพยากรนี้..."
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -184,10 +184,10 @@ export default function ResourcesPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button variant="solid" size="md" radius="md" onPress={handleSave}>
-              {editingResource ? "Update" : "Create"}
+              {editingResource ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -18,20 +18,20 @@ import { useItSystemAccess } from "@/hooks/useItSystemAccess";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "System", uid: "accessSystem", sortable: true },
-  { name: "Type", uid: "accessType", sortable: true },
-  { name: "Requested For", uid: "accessRequestedFor" },
-  { name: "Requested By", uid: "accessRequestedBy" },
-  { name: "Status", uid: "accessStatus", sortable: true },
-  { name: "Approved By", uid: "accessApprovedBy" },
-  { name: "Actions", uid: "actions" },
+  { name: "ระบบ", uid: "accessSystem", sortable: true },
+  { name: "ประเภท", uid: "accessType", sortable: true },
+  { name: "ร้องขอสำหรับ", uid: "accessRequestedFor" },
+  { name: "ร้องขอโดย", uid: "accessRequestedBy" },
+  { name: "สถานะ", uid: "accessStatus", sortable: true },
+  { name: "อนุมัติโดย", uid: "accessApprovedBy" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Pending", uid: "pending" },
-  { name: "Approved", uid: "approved" },
-  { name: "Rejected", uid: "rejected" },
-  { name: "Completed", uid: "completed" },
+  { name: "รอดำเนินการ", uid: "pending" },
+  { name: "อนุมัติแล้ว", uid: "approved" },
+  { name: "ปฏิเสธ", uid: "rejected" },
+  { name: "เสร็จสิ้น", uid: "completed" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -148,7 +148,7 @@ export default function SystemAccessPage() {
         rowKey="accessId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by system, requested for, requested by..."
+        searchPlaceholder="ค้นหาตามระบบ, ร้องขอสำหรับ, ร้องขอโดย..."
         searchKeys={[
           "accessSystem",
           "accessRequestedFor",
@@ -157,7 +157,7 @@ export default function SystemAccessPage() {
         ]}
         statusField="accessStatus"
         statusOptions={statusOptions}
-        emptyContent="No access requests found"
+        emptyContent="ไม่พบคำขอเข้าถึง"
         topEndContent={
           <Button
             variant="bordered"
@@ -166,7 +166,7 @@ export default function SystemAccessPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            New Request
+            คำขอใหม่
           </Button>
         }
       />
@@ -180,16 +180,16 @@ export default function SystemAccessPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingAccess ? "Edit Access Request" : "New Access Request"}
+            {editingAccess ? "แก้ไขคำขอเข้าถึง" : "คำขอเข้าถึงใหม่"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="System"
+                    label="ระบบ"
                     labelPlacement="outside"
-                    placeholder="e.g. ERP, Email, VPN"
+                    placeholder="เช่น ERP, อีเมล, VPN"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -202,9 +202,9 @@ export default function SystemAccessPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Type"
+                    label="ประเภท"
                     labelPlacement="outside"
-                    placeholder="Select type"
+                    placeholder="เลือกประเภท"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -214,16 +214,16 @@ export default function SystemAccessPage() {
                       updateField("accessType", val);
                     }}
                   >
-                    <SelectItem key="grant">Grant</SelectItem>
-                    <SelectItem key="revoke">Revoke</SelectItem>
-                    <SelectItem key="modify">Modify</SelectItem>
+                    <SelectItem key="grant">ให้สิทธิ์</SelectItem>
+                    <SelectItem key="revoke">เพิกถอน</SelectItem>
+                    <SelectItem key="modify">แก้ไข</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Requested For"
+                    label="ร้องขอสำหรับ"
                     labelPlacement="outside"
-                    placeholder="Enter employee name"
+                    placeholder="ใส่ชื่อพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -233,9 +233,9 @@ export default function SystemAccessPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Requested By"
+                    label="ร้องขอโดย"
                     labelPlacement="outside"
-                    placeholder="Enter requester name"
+                    placeholder="ใส่ชื่อผู้ร้องขอ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -245,7 +245,7 @@ export default function SystemAccessPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -256,17 +256,17 @@ export default function SystemAccessPage() {
                       updateField("accessStatus", val);
                     }}
                   >
-                    <SelectItem key="pending">Pending</SelectItem>
-                    <SelectItem key="approved">Approved</SelectItem>
-                    <SelectItem key="rejected">Rejected</SelectItem>
-                    <SelectItem key="completed">Completed</SelectItem>
+                    <SelectItem key="pending">รอดำเนินการ</SelectItem>
+                    <SelectItem key="approved">อนุมัติแล้ว</SelectItem>
+                    <SelectItem key="rejected">ปฏิเสธ</SelectItem>
+                    <SelectItem key="completed">เสร็จสิ้น</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Approved By"
+                    label="อนุมัติโดย"
                     labelPlacement="outside"
-                    placeholder="Enter approver name"
+                    placeholder="ใส่ชื่อผู้อนุมัติ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -277,9 +277,9 @@ export default function SystemAccessPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -291,7 +291,7 @@ export default function SystemAccessPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -300,7 +300,7 @@ export default function SystemAccessPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingAccess ? "Update" : "Create"}
+              {editingAccess ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -309,14 +309,14 @@ export default function SystemAccessPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Access Request</ModalHeader>
+          <ModalHeader>ลบคำขอเข้าถึง</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete the access request for{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบคำขอเข้าถึงสำหรับ{" "}
               <span className="font-semibold">
                 {deletingAccess?.accessSystem} ({deletingAccess?.accessRequestedFor})
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -326,7 +326,7 @@ export default function SystemAccessPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -334,7 +334,7 @@ export default function SystemAccessPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

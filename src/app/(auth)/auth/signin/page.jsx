@@ -38,12 +38,12 @@ export default function SignInPage() {
 
   const handlePinVerify = async () => {
     if (!lastEmail) {
-      toast.error("No previous sign-in found. Please sign in with password first.");
+      toast.error("ไม่พบการลงชื่อเข้าใช้ก่อนหน้า กรุณาลงชื่อเข้าใช้ด้วยรหัสผ่านก่อน");
       setMode("password");
       return;
     }
     if (pin.length !== 6) {
-      toast.error("Please enter 6-digit PIN");
+      toast.error("กรุณาใส่ PIN 6 หลัก");
       return;
     }
 
@@ -63,7 +63,7 @@ export default function SignInPage() {
         setPinError(true);
         setPin("");
         if (data.attemptsLeft !== undefined) {
-          toast.error(`${data.error} (${data.attemptsLeft} attempts left)`);
+          toast.error(`${data.error} (เหลืออีก ${data.attemptsLeft} ครั้ง)`);
         } else {
           toast.error(data.error);
         }
@@ -85,7 +85,7 @@ export default function SignInPage() {
 
       window.location.href = "/overview/dashboard";
     } catch (err) {
-      toast.error("An unexpected error occurred");
+      toast.error("เกิดข้อผิดพลาดที่ไม่คาดคิด");
       setPinLoading(false);
     }
   };
@@ -101,10 +101,10 @@ export default function SignInPage() {
             alt="logo"
             className="border-2 border-default rounded-full"
           />
-          Quick Unlock
+          ปลดล็อกด่วน
         </div>
         <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 font-semibold">
-          Enter your PIN to sign in
+          ใส่ PIN เพื่อลงชื่อเข้าใช้
         </div>
 
         <div className="flex flex-col items-center w-full gap-2">
@@ -132,7 +132,7 @@ export default function SignInPage() {
               onPress={handlePinVerify}
               isDisabled={pin.length !== 6}
             >
-              Unlock
+              ปลดล็อก
             </Button>
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function SignInPage() {
               setPinError(false);
             }}
           >
-            Sign in with password instead
+            ลงชื่อเข้าใช้ด้วยรหัสผ่านแทน
           </Button>
         </div>
       </>
@@ -164,10 +164,10 @@ export default function SignInPage() {
           alt="logo"
           className="border-2 border-default rounded-full"
         />
-        Welcome back
+        ยินดีต้อนรับกลับ
       </div>
       <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 font-semibold">
-        Sign in to your account
+        ลงชื่อเข้าใช้บัญชีของคุณ
       </div>
 
       <div className="flex flex-col items-center w-full gap-2">
@@ -175,9 +175,9 @@ export default function SignInPage() {
           <Input
             name="email"
             type="email"
-            label="Email"
+            label="อีเมล"
             labelPlacement="outside"
-            placeholder="Please enter your email"
+            placeholder="กรุณาใส่อีเมลของคุณ"
             variant="bordered"
             size="md"
             radius="md"
@@ -190,9 +190,9 @@ export default function SignInPage() {
           <Input
             name="password"
             type="password"
-            label="Password"
+            label="รหัสผ่าน"
             labelPlacement="outside"
-            placeholder="Please enter your password"
+            placeholder="กรุณาใส่รหัสผ่านของคุณ"
             variant="bordered"
             size="md"
             radius="md"
@@ -211,7 +211,7 @@ export default function SignInPage() {
             isLoading={isLoading}
             onPress={handleSignIn}
           >
-            Sign In
+            ลงชื่อเข้าใช้
           </Button>
         </div>
       </div>
@@ -224,11 +224,11 @@ export default function SignInPage() {
             startContent={<KeyRound className="w-4 h-4" />}
             onPress={() => setMode("pin")}
           >
-            Unlock with PIN
+            ปลดล็อกด้วย PIN
           </Button>
         )}
         <span className="text-default-400">
-          Contact your administrator for account access
+          ติดต่อผู้ดูแลระบบเพื่อขอเข้าถึงบัญชี
         </span>
       </div>
     </>

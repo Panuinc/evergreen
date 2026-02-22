@@ -19,23 +19,23 @@ import { useCrmQuotations } from "@/hooks/useCrmQuotations";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Quotation No", uid: "quotationNo", sortable: true },
-  { name: "Contact", uid: "contact" },
-  { name: "Account", uid: "account" },
-  { name: "Opportunity", uid: "opportunity" },
-  { name: "Status", uid: "quotationStatus" },
-  { name: "Total", uid: "quotationTotal" },
-  { name: "Valid Until", uid: "quotationValidUntil" },
-  { name: "Created At", uid: "quotationCreatedAt" },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่ใบเสนอราคา", uid: "quotationNo", sortable: true },
+  { name: "ผู้ติดต่อ", uid: "contact" },
+  { name: "บัญชี", uid: "account" },
+  { name: "โอกาสขาย", uid: "opportunity" },
+  { name: "สถานะ", uid: "quotationStatus" },
+  { name: "ยอดรวม", uid: "quotationTotal" },
+  { name: "ใช้ได้ถึง", uid: "quotationValidUntil" },
+  { name: "สร้างเมื่อ", uid: "quotationCreatedAt" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { uid: "draft", name: "Draft" },
-  { uid: "submitted", name: "Submitted" },
-  { uid: "approved", name: "Approved" },
-  { uid: "rejected", name: "Rejected" },
-  { uid: "converted", name: "Converted" },
+  { uid: "draft", name: "ฉบับร่าง" },
+  { uid: "submitted", name: "ส่งแล้ว" },
+  { uid: "approved", name: "อนุมัติ" },
+  { uid: "rejected", name: "ปฏิเสธ" },
+  { uid: "converted", name: "แปลงแล้ว" },
 ];
 
 const STATUS_COLOR_MAP = {
@@ -75,7 +75,7 @@ export default function QuotationsPage() {
       const newQ = await createQuotation({});
       router.push(`/sales/quotations/${newQ.quotationId}`);
     } catch (error) {
-      toast.error("Failed to create quotation");
+      toast.error("ไม่สามารถสร้างใบเสนอราคาได้");
     }
   };
 
@@ -162,11 +162,11 @@ export default function QuotationsPage() {
         size="md"
         radius="md"
       >
-        <Tab key="" title="All" />
-        <Tab key="draft" title="Draft" />
-        <Tab key="submitted" title="Submitted" />
-        <Tab key="approved" title="Approved" />
-        <Tab key="rejected" title="Rejected" />
+        <Tab key="" title="ทั้งหมด" />
+        <Tab key="draft" title="ฉบับร่าง" />
+        <Tab key="submitted" title="ส่งแล้ว" />
+        <Tab key="approved" title="อนุมัติ" />
+        <Tab key="rejected" title="ปฏิเสธ" />
       </Tabs>
 
       <DataTable
@@ -177,9 +177,9 @@ export default function QuotationsPage() {
         rowKey="quotationId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search quotations..."
+        searchPlaceholder="ค้นหาใบเสนอราคา..."
         searchKeys={["quotationNo"]}
-        emptyContent="No quotations found"
+        emptyContent="ไม่พบใบเสนอราคา"
         topEndContent={
           <Button
             variant="bordered"
@@ -188,7 +188,7 @@ export default function QuotationsPage() {
             startContent={<Plus />}
             onPress={handleNew}
           >
-            New Quotation
+            สร้างใบเสนอราคาใหม่
           </Button>
         }
       />
@@ -196,14 +196,14 @@ export default function QuotationsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Quotation</ModalHeader>
+          <ModalHeader>ลบใบเสนอราคา</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingQuotation?.quotationNo}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -213,7 +213,7 @@ export default function QuotationsPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -221,7 +221,7 @@ export default function QuotationsPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

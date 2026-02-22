@@ -56,7 +56,7 @@ export function useFuelLogs() {
       setVehicles(vehData);
       setDrivers(drvData);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ export function useFuelLogs() {
       !formData.fuelLogLiters ||
       !formData.fuelLogPricePerLiter
     ) {
-      toast.error("Vehicle, liters, and price per liter are required");
+      toast.error("กรุณาระบุยานพาหนะ จำนวนลิตร และราคาต่อลิตร");
       return;
     }
 
@@ -111,15 +111,15 @@ export function useFuelLogs() {
       setSaving(true);
       if (editingFuelLog) {
         await updateFuelLog(editingFuelLog.fuelLogId, payload);
-        toast.success("Fuel log updated");
+        toast.success("อัปเดตบันทึกเชื้อเพลิงสำเร็จ");
       } else {
         await createFuelLog(payload);
-        toast.success("Fuel log created");
+        toast.success("สร้างบันทึกเชื้อเพลิงสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save fuel log");
+      toast.error(error.message || "บันทึกเชื้อเพลิงล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -134,12 +134,12 @@ export function useFuelLogs() {
     if (!deletingFuelLog) return;
     try {
       await deleteFuelLog(deletingFuelLog.fuelLogId);
-      toast.success("Fuel log deleted");
+      toast.success("ลบบันทึกเชื้อเพลิงสำเร็จ");
       deleteModal.onClose();
       setDeletingFuelLog(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete fuel log");
+      toast.error(error.message || "ลบบันทึกเชื้อเพลิงล้มเหลว");
     }
   };
 

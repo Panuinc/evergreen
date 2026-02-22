@@ -9,14 +9,14 @@ export async function PUT(request) {
 
   if (!currentPassword || !newPassword) {
     return Response.json(
-      { error: "Current password and new password are required" },
+      { error: "กรุณาระบุรหัสผ่านปัจจุบันและรหัสผ่านใหม่" },
       { status: 400 }
     );
   }
 
   if (newPassword.length < 6) {
     return Response.json(
-      { error: "New password must be at least 6 characters" },
+      { error: "รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร" },
       { status: 400 }
     );
   }
@@ -33,7 +33,7 @@ export async function PUT(request) {
 
   if (signInError) {
     return Response.json(
-      { error: "Current password is incorrect" },
+      { error: "รหัสผ่านปัจจุบันไม่ถูกต้อง" },
       { status: 400 }
     );
   }

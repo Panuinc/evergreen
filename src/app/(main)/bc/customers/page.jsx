@@ -5,12 +5,12 @@ import { useBcCustomers } from "@/hooks/useBcCustomers";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Number", uid: "number", sortable: true },
-  { name: "Display Name", uid: "displayName", sortable: true },
-  { name: "Contact", uid: "contact", sortable: true },
-  { name: "Phone", uid: "phoneNumber" },
-  { name: "Salesperson", uid: "salespersonCode", sortable: true },
-  { name: "Balance Due", uid: "balanceDue", sortable: true },
+  { name: "เลขที่", uid: "number", sortable: true },
+  { name: "ชื่อลูกค้า", uid: "displayName", sortable: true },
+  { name: "ผู้ติดต่อ", uid: "contact", sortable: true },
+  { name: "โทรศัพท์", uid: "phoneNumber" },
+  { name: "พนักงานขาย", uid: "salespersonCode", sortable: true },
+  { name: "ยอดค้างชำระ", uid: "balanceDue", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -60,9 +60,9 @@ export default function BcCustomersPage() {
         rowKey="id"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by number, name, contact..."
+        searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อ, ผู้ติดต่อ..."
         searchKeys={["number", "displayName", "contact", "salespersonCode"]}
-        emptyContent="No customers found"
+        emptyContent="ไม่พบลูกค้า"
       />
     </div>
   );

@@ -53,7 +53,7 @@ export default function OmnichannelPage() {
     <div className="flex flex-col w-full h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-semibold">Omnichannel Chat</h2>
+        <h2 className="text-lg font-semibold">แชทรวมช่องทาง</h2>
         <Button
           variant="bordered"
           size="md"
@@ -61,7 +61,7 @@ export default function OmnichannelPage() {
           startContent={<Settings size={16} />}
           onPress={settingsModal.onOpen}
         >
-          Channel Settings
+          ตั้งค่าช่องทาง
         </Button>
       </div>
 

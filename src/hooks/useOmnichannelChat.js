@@ -41,7 +41,7 @@ export function useOmnichannelChat() {
       const data = await getConversations(params);
       setConversations(data);
     } catch (error) {
-      toast.error("Failed to load conversations");
+      toast.error("โหลดการสนทนาล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export function useOmnichannelChat() {
         );
       }
     } catch (error) {
-      toast.error("Failed to load messages");
+      toast.error("โหลดข้อความล้มเหลว");
     } finally {
       setMessagesLoading(false);
     }
@@ -112,7 +112,7 @@ export function useOmnichannelChat() {
       } catch (error) {
         // Remove optimistic message on error
         setMessages((prev) => prev.filter((m) => m.messageId !== tempId));
-        toast.error(error.message || "Failed to send message");
+        toast.error(error.message || "ส่งข้อความล้มเหลว");
       } finally {
         setSending(false);
       }
@@ -133,9 +133,9 @@ export function useOmnichannelChat() {
         if (selectedConversation?.conversationId === conversationId) {
           setSelectedConversation(updated);
         }
-        toast.success(`Conversation ${status}`);
+        toast.success(`อัปเดตสถานะการสนทนาเป็น ${status} สำเร็จ`);
       } catch (error) {
-        toast.error("Failed to update status");
+        toast.error("อัปเดตสถานะล้มเหลว");
       }
     },
     [selectedConversation]
@@ -158,9 +158,9 @@ export function useOmnichannelChat() {
             omContacts: { ...prev.omContacts, ...updates },
           }));
         }
-        toast.success("Contact updated");
+        toast.success("อัปเดตผู้ติดต่อสำเร็จ");
       } catch (error) {
-        toast.error("Failed to update contact");
+        toast.error("อัปเดตผู้ติดต่อล้มเหลว");
       }
     },
     [selectedConversation]
@@ -180,7 +180,7 @@ export function useOmnichannelChat() {
         }
         toast.success("ลบการสนทนาแล้ว");
       } catch (error) {
-        toast.error("Failed to delete conversation");
+        toast.error("ลบการสนทนาล้มเหลว");
       }
     },
     [selectedConversation]
@@ -201,7 +201,7 @@ export function useOmnichannelChat() {
         }
         toast.success(enabled ? "เปิด AI Auto-Reply แล้ว" : "ปิด AI Auto-Reply แล้ว");
       } catch (error) {
-        toast.error("Failed to toggle AI auto-reply");
+        toast.error("เปลี่ยนสถานะ AI Auto-Reply ล้มเหลว");
       }
     },
     [selectedConversation]

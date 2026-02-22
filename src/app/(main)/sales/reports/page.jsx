@@ -29,12 +29,12 @@ export default function SalesReportsPage() {
   return (
     <div className="flex flex-col w-full h-full gap-4 p-2">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Sales Reports</h1>
+        <h1 className="text-xl font-bold">รายงานการขาย</h1>
       </div>
 
       {/* Full-width Pipeline Chart */}
       <Card className="p-4">
-        <p className="text-lg font-semibold mb-4">Pipeline Analysis</p>
+        <p className="text-lg font-semibold mb-4">วิเคราะห์ไปป์ไลน์</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.pipelineByStage || []}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -52,7 +52,7 @@ export default function SalesReportsPage() {
 
       {/* Revenue Trend */}
       <Card className="p-4">
-        <p className="text-lg font-semibold mb-4">Revenue Trend</p>
+        <p className="text-lg font-semibold mb-4">แนวโน้มรายได้</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.revenueByMonth || []}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -71,21 +71,21 @@ export default function SalesReportsPage() {
       {/* Win/Loss and Salespeople side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Win Rate</p>
+          <p className="text-lg font-semibold mb-4">อัตราการชนะ</p>
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <p className="text-5xl font-bold text-success">
                 {kpis.winRate || 0}%
               </p>
               <p className="text-default-500 mt-2">
-                Won: {kpis.wonDeals || 0} | Lost: {kpis.lostDeals || 0}
+                ชนะ: {kpis.wonDeals || 0} | แพ้: {kpis.lostDeals || 0}
               </p>
             </div>
           </div>
         </Card>
 
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Top Salespeople</p>
+          <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(data.topSalespeople || []).map((person, i) => (
               <div
@@ -100,7 +100,7 @@ export default function SalesReportsPage() {
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <span className="text-default-500">
-                    {person.deals} deals
+                    {person.deals} ดีล
                   </span>
                   <span className="font-semibold">
                     ฿{Number(person.revenue || 0).toLocaleString("th-TH")}
@@ -110,7 +110,7 @@ export default function SalesReportsPage() {
             ))}
             {(!data.topSalespeople || data.topSalespeople.length === 0) && (
               <p className="text-default-400 text-sm text-center py-4">
-                No data available
+                ไม่มีข้อมูล
               </p>
             )}
           </div>

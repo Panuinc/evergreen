@@ -36,9 +36,9 @@ export default function ProfilePage() {
     setRemovingPin(true);
     try {
       await removePin();
-      toast.success("PIN removed successfully");
+      toast.success("ลบ PIN สำเร็จ");
     } catch (err) {
-      toast.error(err.message || "Failed to remove PIN");
+      toast.error(err.message || "ลบ PIN ล้มเหลว");
     } finally {
       setRemovingPin(false);
     }
@@ -46,20 +46,20 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col w-full h-full gap-6">
-      {/* Account Information */}
+      {/* ข้อมูลบัญชี */}
       <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
           <User />
-          Account Information
+          ข้อมูลบัญชี
         </div>
 
         <div className="flex flex-col w-full gap-2">
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-default-500 w-20">Email</span>
+            <span className="text-sm text-default-500 w-20">อีเมล</span>
             <span className="font-medium">{user?.email}</span>
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-default-500 w-20">Created</span>
+            <span className="text-sm text-default-500 w-20">สร้างเมื่อ</span>
             <span className="font-medium">
               {user?.createdAt
                 ? new Date(user.createdAt).toLocaleDateString("th-TH")
@@ -67,7 +67,7 @@ export default function ProfilePage() {
             </span>
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-default-500 w-20">Roles</span>
+            <span className="text-sm text-default-500 w-20">สิทธิ์</span>
             <div className="flex flex-wrap gap-1">
               {roles?.length > 0 ? (
                 roles.map((role) => (
@@ -82,60 +82,60 @@ export default function ProfilePage() {
                   </Chip>
                 ))
               ) : (
-                <span className="text-default-400">No roles assigned</span>
+                <span className="text-default-400">ยังไม่ได้กำหนดสิทธิ์</span>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Employee Information */}
+      {/* ข้อมูลพนักงาน */}
       <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
           <Briefcase />
-          Employee Information
+          ข้อมูลพนักงาน
         </div>
 
         {employee ? (
           <div className="flex flex-col w-full gap-2">
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">First Name</span>
+              <span className="text-sm text-default-500 w-24">ชื่อ</span>
               <span className="font-medium">
                 {employee.employeeFirstName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">Last Name</span>
+              <span className="text-sm text-default-500 w-24">นามสกุล</span>
               <span className="font-medium">
                 {employee.employeeLastName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">Email</span>
+              <span className="text-sm text-default-500 w-24">อีเมล</span>
               <span className="font-medium">
                 {employee.employeeEmail || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">Phone</span>
+              <span className="text-sm text-default-500 w-24">โทรศัพท์</span>
               <span className="font-medium">
                 {employee.employeePhone || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">Department</span>
+              <span className="text-sm text-default-500 w-24">แผนก</span>
               <span className="font-medium">
                 {employee.employeeDepartment || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">Position</span>
+              <span className="text-sm text-default-500 w-24">ตำแหน่ง</span>
               <span className="font-medium">
                 {employee.employeePosition || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">Status</span>
+              <span className="text-sm text-default-500 w-24">สถานะ</span>
               <Chip
                 variant="bordered"
                 size="md"
@@ -150,17 +150,17 @@ export default function ProfilePage() {
           </div>
         ) : (
           <div className="flex items-center w-full h-fit p-2 gap-2 text-default-400">
-            No employee record linked to this account
+            ไม่มีข้อมูลพนักงานเชื่อมกับบัญชีนี้
           </div>
         )}
       </div>
 
-      {/* Quick Unlock PIN */}
+      {/* PIN ปลดล็อกด่วน */}
       <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
         <div className="flex items-center justify-between w-full h-fit p-2">
           <div className="flex items-center gap-2 font-semibold">
             <KeyRound />
-            Quick Unlock PIN
+            PIN ปลดล็อกด่วน
           </div>
           {!pinLoading && (
             <Chip
@@ -169,14 +169,14 @@ export default function ProfilePage() {
               radius="md"
               color={pinEnabled ? "success" : "default"}
             >
-              {pinEnabled ? "Enabled" : "Disabled"}
+              {pinEnabled ? "เปิดใช้งาน" : "ปิดใช้งาน"}
             </Chip>
           )}
         </div>
 
         <div className="flex flex-col w-full gap-2">
           <p className="text-default-500 p-2">
-            Set a 6-digit PIN for quick sign in instead of entering your password every time.
+            ตั้ง PIN 6 หลักเพื่อลงชื่อเข้าใช้ด่วน แทนการใส่รหัสผ่านทุกครั้ง
           </p>
           <div className="flex items-center justify-end w-full h-fit p-2 gap-2">
             {pinEnabled ? (
@@ -187,7 +187,7 @@ export default function ProfilePage() {
                   radius="md"
                   onPress={() => setShowPinSetup(true)}
                 >
-                  Change PIN
+                  เปลี่ยน PIN
                 </Button>
                 <Button
                   variant="bordered"
@@ -197,7 +197,7 @@ export default function ProfilePage() {
                   onPress={handleRemovePin}
                   isLoading={removingPin}
                 >
-                  Remove PIN
+                  ลบ PIN
                 </Button>
               </>
             ) : (
@@ -207,27 +207,27 @@ export default function ProfilePage() {
                 radius="md"
                 onPress={() => setShowPinSetup(true)}
               >
-                Set PIN
+                ตั้ง PIN
               </Button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Change Password */}
+      {/* เปลี่ยนรหัสผ่าน */}
       <div className="flex flex-col gap-4 p-4 border border-default rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
           <Lock />
-          Change Password
+          เปลี่ยนรหัสผ่าน
         </div>
 
         <div className="flex flex-col w-full gap-2">
           <div className="flex items-center w-full h-fit p-2 gap-2">
             <Input
-              label="Current Password"
+              label="รหัสผ่านปัจจุบัน"
               labelPlacement="outside"
               type="password"
-              placeholder="Enter current password"
+              placeholder="ใส่รหัสผ่านปัจจุบัน"
               variant="bordered"
               size="md"
               radius="md"
@@ -242,10 +242,10 @@ export default function ProfilePage() {
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
             <Input
-              label="New Password"
+              label="รหัสผ่านใหม่"
               labelPlacement="outside"
               type="password"
-              placeholder="At least 6 characters"
+              placeholder="อย่างน้อย 6 ตัวอักษร"
               variant="bordered"
               size="md"
               radius="md"
@@ -260,10 +260,10 @@ export default function ProfilePage() {
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
             <Input
-              label="Confirm New Password"
+              label="ยืนยันรหัสผ่านใหม่"
               labelPlacement="outside"
               type="password"
-              placeholder="Re-enter new password"
+              placeholder="ใส่รหัสผ่านใหม่อีกครั้ง"
               variant="bordered"
               size="md"
               radius="md"
@@ -284,13 +284,13 @@ export default function ProfilePage() {
               onPress={handleChangePassword}
               isLoading={changing}
             >
-              Change Password
+              เปลี่ยนรหัสผ่าน
             </Button>
           </div>
         </div>
       </div>
 
-      {/* PIN Setup Modal */}
+      {/* โมดอลตั้ง PIN */}
       <PinSetupModal
         isOpen={showPinSetup}
         onClose={() => setShowPinSetup(false)}

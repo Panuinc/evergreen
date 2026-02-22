@@ -21,7 +21,7 @@ export function useBcSalesOrders() {
       const data = await getBcSalesOrders();
       setSalesOrders(data);
     } catch (error) {
-      toast.error("Failed to load sales orders from Business Central");
+      toast.error("โหลดคำสั่งขายจาก Business Central ล้มเหลว");
     } finally {
       setLoading(false);
     }

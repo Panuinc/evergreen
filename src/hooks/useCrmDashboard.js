@@ -18,7 +18,7 @@ export function useCrmDashboard() {
       const result = await getCrmDashboard();
       setData(result);
     } catch (error) {
-      toast.error("Failed to load dashboard");
+      toast.error("โหลดแดชบอร์ดล้มเหลว");
     } finally {
       setLoading(false);
     }

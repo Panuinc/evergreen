@@ -42,7 +42,7 @@ export function useDepartments() {
       setDepartments(deptData);
       setDivisions(divData);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export function useDepartments() {
 
   const handleSave = async () => {
     if (!formData.departmentName.trim()) {
-      toast.error("Department name is required");
+      toast.error("กรุณาระบุชื่อแผนก");
       return;
     }
 
@@ -73,15 +73,15 @@ export function useDepartments() {
       setSaving(true);
       if (editingDept) {
         await updateDepartment(editingDept.departmentId, formData);
-        toast.success("Department updated");
+        toast.success("อัปเดตแผนกสำเร็จ");
       } else {
         await createDepartment(formData);
-        toast.success("Department created");
+        toast.success("สร้างแผนกสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save department");
+      toast.error(error.message || "บันทึกแผนกล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -96,12 +96,12 @@ export function useDepartments() {
     if (!deletingDept) return;
     try {
       await deleteDepartment(deletingDept.departmentId);
-      toast.success("Department deleted");
+      toast.success("ลบแผนกสำเร็จ");
       deleteModal.onClose();
       setDeletingDept(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete department");
+      toast.error(error.message || "ลบแผนกล้มเหลว");
     }
   };
 

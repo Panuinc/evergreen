@@ -8,13 +8,13 @@ const services = [
   {
     key: "supabase",
     name: "Supabase",
-    description: "Database & Authentication",
+    description: "ฐานข้อมูลและการยืนยันตัวตน",
     icon: Database,
   },
   {
     key: "bc",
     name: "365 Business Central",
-    description: "ERP Integration (OAuth2)",
+    description: "เชื่อมต่อ ERP (OAuth2)",
     icon: Building2,
   },
   {
@@ -26,13 +26,13 @@ const services = [
   {
     key: "line",
     name: "LINE Messaging API",
-    description: "Omnichannel — LINE Official Account",
+    description: "ช่องทางรวม — LINE Official Account",
     icon: MessageCircle,
   },
   {
     key: "facebook",
     name: "Facebook Graph API",
-    description: "Omnichannel — Facebook Page",
+    description: "ช่องทางรวม — Facebook Page",
     icon: Facebook,
   },
 ];
@@ -43,7 +43,7 @@ export default function ConfigCheckPage() {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Config Check</h1>
+        <h1 className="text-xl font-semibold">ตรวจสอบการตั้งค่า</h1>
         <Button
           variant="bordered"
           size="md"
@@ -52,7 +52,7 @@ export default function ConfigCheckPage() {
           onPress={refetch}
           isLoading={loading}
         >
-          Recheck
+          ตรวจสอบอีกครั้ง
         </Button>
       </div>
 
@@ -92,26 +92,26 @@ export default function ConfigCheckPage() {
                       radius="md"
                       color={isConnected ? "success" : "danger"}
                     >
-                      {data?.status || "checking..."}
+                      {data?.status === "connected" ? "เชื่อมต่อแล้ว" : data?.status === "disconnected" ? "ไม่ได้เชื่อมต่อ" : data?.status || "กำลังตรวจสอบ..."}
                     </Chip>
                   </div>
 
                   <div className="flex flex-col gap-1 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-default-400">Latency</span>
+                      <span className="text-default-400">เวลาตอบสนอง</span>
                       <span>
                         {data?.latency != null ? `${data.latency} ms` : "-"}
                       </span>
                     </div>
                     {data?.detail && (
                       <div className="flex justify-between">
-                        <span className="text-default-400">Account</span>
+                        <span className="text-default-400">บัญชี</span>
                         <span className="font-medium">{data.detail}</span>
                       </div>
                     )}
                     {data?.error && (
                       <div className="flex flex-col gap-1 mt-2">
-                        <span className="text-default-400">Error</span>
+                        <span className="text-default-400">ข้อผิดพลาด</span>
                         <span className="text-danger text-xs break-all">
                           {data.error}
                         </span>

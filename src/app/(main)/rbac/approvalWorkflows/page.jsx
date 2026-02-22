@@ -8,8 +8,8 @@ export default function ApprovalWorkflowsPage() {
       <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-default-100">
         <Workflow className="w-8 h-8 text-default-500" />
       </div>
-      <h1 className="text-lg font-semibold">Approval Workflows</h1>
-      <p className="text-default-400">Coming Soon</p>
+      <h1 className="text-lg font-semibold">เวิร์กโฟลว์อนุมัติ</h1>
+      <p className="text-default-400">เร็ว ๆ นี้</p>
     </div>
   );
 }

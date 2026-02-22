@@ -16,10 +16,10 @@ import { useActions } from "@/hooks/useActions";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Name", uid: "actionName", sortable: true },
-  { name: "Description", uid: "actionDescription" },
-  { name: "Created", uid: "actionCreatedAt", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อ", uid: "actionName", sortable: true },
+  { name: "รายละเอียด", uid: "actionDescription" },
+  { name: "สร้างเมื่อ", uid: "actionCreatedAt", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -100,9 +100,9 @@ export default function ActionsPage() {
         rowKey="actionId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, description..."
+        searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
         searchKeys={["actionName", "actionDescription"]}
-        emptyContent="No actions found"
+        emptyContent="ไม่พบการดำเนินการ"
         topEndContent={
           <Button
             variant="bordered"
@@ -111,7 +111,7 @@ export default function ActionsPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Action
+            เพิ่มการดำเนินการ
           </Button>
         }
       />
@@ -119,15 +119,15 @@ export default function ActionsPage() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
-            {editingAction ? "Edit Action" : "Create Action"}
+            {editingAction ? "แก้ไขการดำเนินการ" : "สร้างการดำเนินการ"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Name"
+                  label="ชื่อ"
                   labelPlacement="outside"
-                  placeholder="e.g. create, read, update, delete"
+                  placeholder="เช่น create, read, update, delete"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -139,9 +139,9 @@ export default function ActionsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Textarea
-                  label="Description"
+                  label="รายละเอียด"
                   labelPlacement="outside"
-                  placeholder="Describe this action..."
+                  placeholder="อธิบายการดำเนินการนี้..."
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -158,10 +158,10 @@ export default function ActionsPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button variant="solid" size="md" radius="md" onPress={handleSave}>
-              {editingAction ? "Update" : "Create"}
+              {editingAction ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>

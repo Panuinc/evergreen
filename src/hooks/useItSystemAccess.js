@@ -42,7 +42,7 @@ export function useItSystemAccess() {
       const data = await getSystemAccess();
       setAccessRequests(data);
     } catch (error) {
-      toast.error("Failed to load system access requests");
+      toast.error("โหลดคำขอเข้าถึงระบบล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export function useItSystemAccess() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      accessSystem: [(v) => !isRequired(v) && "System name is required"],
+      accessSystem: [(v) => !isRequired(v) && "กรุณาระบุชื่อระบบ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -83,15 +83,15 @@ export function useItSystemAccess() {
       setSaving(true);
       if (editingAccess) {
         await updateSystemAccess(editingAccess.accessId, formData);
-        toast.success("Access request updated");
+        toast.success("อัปเดตคำขอเข้าถึงสำเร็จ");
       } else {
         await createSystemAccess(formData);
-        toast.success("Access request created");
+        toast.success("สร้างคำขอเข้าถึงสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save access request");
+      toast.error(error.message || "บันทึกคำขอเข้าถึงล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -106,12 +106,12 @@ export function useItSystemAccess() {
     if (!deletingAccess) return;
     try {
       await deleteSystemAccess(deletingAccess.accessId);
-      toast.success("Access request deleted");
+      toast.success("ลบคำขอเข้าถึงสำเร็จ");
       deleteModal.onClose();
       setDeletingAccess(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete access request");
+      toast.error(error.message || "ลบคำขอเข้าถึงล้มเหลว");
     }
   };
 

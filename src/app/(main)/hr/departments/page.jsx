@@ -18,11 +18,11 @@ import { useDepartments } from "@/hooks/useDepartments";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Name", uid: "departmentName", sortable: true },
-  { name: "Division", uid: "departmentDivision", sortable: true },
-  { name: "Description", uid: "departmentDescription" },
-  { name: "Created At", uid: "departmentCreatedAt", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อ", uid: "departmentName", sortable: true },
+  { name: "ฝ่าย", uid: "departmentDivision", sortable: true },
+  { name: "รายละเอียด", uid: "departmentDescription" },
+  { name: "วันที่สร้าง", uid: "departmentCreatedAt", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -111,9 +111,9 @@ export default function DepartmentsPage() {
         rowKey="departmentId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, division, description..."
+        searchPlaceholder="ค้นหาตามชื่อ, ฝ่าย, รายละเอียด..."
         searchKeys={["departmentName", "departmentDivision", "departmentDescription"]}
-        emptyContent="No departments found"
+        emptyContent="ไม่พบแผนก"
         topEndContent={
           <Button
             variant="bordered"
@@ -122,7 +122,7 @@ export default function DepartmentsPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Department
+            เพิ่มแผนก
           </Button>
         }
       />
@@ -131,15 +131,15 @@ export default function DepartmentsPage() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
-            {editingDept ? "Edit Department" : "Add Department"}
+            {editingDept ? "แก้ไขแผนก" : "เพิ่มแผนก"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Select
-                  label="Division"
+                  label="ฝ่าย"
                   labelPlacement="outside"
-                  placeholder="Select division"
+                  placeholder="เลือกฝ่าย"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -162,9 +162,9 @@ export default function DepartmentsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Name"
+                  label="ชื่อ"
                   labelPlacement="outside"
-                  placeholder="e.g. IT, HR, Finance"
+                  placeholder="เช่น IT, HR, การเงิน"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -177,9 +177,9 @@ export default function DepartmentsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Textarea
-                  label="Description"
+                  label="รายละเอียด"
                   labelPlacement="outside"
-                  placeholder="Describe this department..."
+                  placeholder="อธิบายเกี่ยวกับแผนกนี้..."
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -196,7 +196,7 @@ export default function DepartmentsPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -205,7 +205,7 @@ export default function DepartmentsPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingDept ? "Update" : "Create"}
+              {editingDept ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -214,14 +214,14 @@ export default function DepartmentsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Department</ModalHeader>
+          <ModalHeader>ลบแผนก</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingDept?.departmentName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -231,7 +231,7 @@ export default function DepartmentsPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -239,7 +239,7 @@ export default function DepartmentsPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

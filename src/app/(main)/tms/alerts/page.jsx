@@ -131,7 +131,7 @@ export default function AlertsPage() {
                         variant="flat"
                         color={alert.severity === "critical" ? "danger" : "warning"}
                       >
-                        {alert.severity}
+                        {alert.severity === "critical" ? "วิกฤต" : "เตือน"}
                       </Chip>
                     </div>
                     <p className="text-sm text-default-500">{alert.detail}</p>

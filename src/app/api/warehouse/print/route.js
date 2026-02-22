@@ -109,7 +109,7 @@ export async function POST(request) {
 
     if (!item?.number) {
       return NextResponse.json(
-        { success: false, error: "Item number is required" },
+        { success: false, error: "กรุณาระบุเลขที่สินค้า" },
         { status: 400 },
       );
     }

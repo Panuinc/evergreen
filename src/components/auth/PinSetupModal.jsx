@@ -22,7 +22,7 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
 
   const handleNext = () => {
     if (pin.length !== 6) {
-      toast.error("Please enter 6 digits");
+      toast.error("กรุณาใส่ตัวเลข 6 หลัก");
       return;
     }
     setStep("confirm");
@@ -33,7 +33,7 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
   const handleConfirm = async () => {
     if (confirmPin !== pin) {
       setError(true);
-      toast.error("PIN does not match");
+      toast.error("PIN ไม่ตรงกัน");
       setConfirmPin("");
       return;
     }
@@ -41,10 +41,10 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
     setLoading(true);
     try {
       await onSetup(pin);
-      toast.success("PIN set successfully");
+      toast.success("ตั้ง PIN สำเร็จ");
       handleClose();
     } catch (err) {
-      toast.error(err.message || "Failed to set PIN");
+      toast.error(err.message || "ตั้ง PIN ล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -63,13 +63,13 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
       <ModalContent>
         <ModalHeader className="flex items-center gap-2">
           <KeyRound className="w-5 h-5" />
-          {step === "enter" ? "Set Quick Unlock PIN" : "Confirm Your PIN"}
+          {step === "enter" ? "ตั้ง PIN ปลดล็อกด่วน" : "ยืนยัน PIN ของคุณ"}
         </ModalHeader>
         <ModalBody>
           <p className="text-default-500 text-center mb-4">
             {step === "enter"
-              ? "Set a 6-digit PIN for quick sign in"
-              : "Enter the same PIN again to confirm"}
+              ? "ตั้ง PIN 6 หลักสำหรับลงชื่อเข้าใช้ด่วน"
+              : "ใส่ PIN เดิมอีกครั้งเพื่อยืนยัน"}
           </p>
           <PinInput
             value={step === "enter" ? pin : confirmPin}
@@ -80,7 +80,7 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
         </ModalBody>
         <ModalFooter className="flex justify-between">
           <Button variant="light" onPress={handleClose}>
-            Skip
+            ข้าม
           </Button>
           {step === "enter" ? (
             <Button
@@ -88,7 +88,7 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
               onPress={handleNext}
               isDisabled={pin.length !== 6}
             >
-              Next
+              ถัดไป
             </Button>
           ) : (
             <div className="flex gap-2">
@@ -100,7 +100,7 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
                   setError(false);
                 }}
               >
-                Back
+                ย้อนกลับ
               </Button>
               <Button
                 color="primary"
@@ -108,7 +108,7 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
                 isDisabled={confirmPin.length !== 6}
                 isLoading={loading}
               >
-                Confirm
+                ยืนยัน
               </Button>
             </div>
           )}

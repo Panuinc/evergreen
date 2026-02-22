@@ -19,21 +19,21 @@ import { useItTickets } from "@/hooks/useItTickets";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Ticket No", uid: "ticketNo", sortable: true },
-  { name: "Title", uid: "ticketTitle", sortable: true },
-  { name: "Category", uid: "ticketCategory", sortable: true },
-  { name: "Priority", uid: "ticketPriority", sortable: true },
-  { name: "Status", uid: "ticketStatus", sortable: true },
-  { name: "Requested By", uid: "ticketRequestedBy" },
-  { name: "Assigned To", uid: "ticketAssignedTo" },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่ตั๋ว", uid: "ticketNo", sortable: true },
+  { name: "หัวข้อ", uid: "ticketTitle", sortable: true },
+  { name: "หมวดหมู่", uid: "ticketCategory", sortable: true },
+  { name: "ความสำคัญ", uid: "ticketPriority", sortable: true },
+  { name: "สถานะ", uid: "ticketStatus", sortable: true },
+  { name: "ร้องขอโดย", uid: "ticketRequestedBy" },
+  { name: "ผู้รับผิดชอบ", uid: "ticketAssignedTo" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Open", uid: "open" },
-  { name: "In Progress", uid: "in_progress" },
-  { name: "Resolved", uid: "resolved" },
-  { name: "Closed", uid: "closed" },
+  { name: "เปิด", uid: "open" },
+  { name: "กำลังดำเนินการ", uid: "in_progress" },
+  { name: "แก้ไขแล้ว", uid: "resolved" },
+  { name: "ปิด", uid: "closed" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -154,7 +154,7 @@ export default function HelpDeskPage() {
         rowKey="ticketId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by ticket no, title, requested by..."
+        searchPlaceholder="ค้นหาตามเลขที่ตั๋ว, หัวข้อ, ผู้ร้องขอ..."
         searchKeys={[
           "ticketNo",
           "ticketTitle",
@@ -163,7 +163,7 @@ export default function HelpDeskPage() {
         ]}
         statusField="ticketStatus"
         statusOptions={statusOptions}
-        emptyContent="No tickets found"
+        emptyContent="ไม่พบตั๋ว"
         topEndContent={
           <Button
             variant="bordered"
@@ -172,7 +172,7 @@ export default function HelpDeskPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            New Ticket
+            สร้างตั๋วใหม่
           </Button>
         }
       />
@@ -186,16 +186,16 @@ export default function HelpDeskPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingTicket ? `Edit Ticket ${editingTicket.ticketNo || ""}` : "New Ticket"}
+            {editingTicket ? `แก้ไขตั๋ว ${editingTicket.ticketNo || ""}` : "สร้างตั๋วใหม่"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input
-                    label="Title"
+                    label="หัวข้อ"
                     labelPlacement="outside"
-                    placeholder="Enter ticket title"
+                    placeholder="ใส่หัวข้อตั๋ว"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -208,9 +208,9 @@ export default function HelpDeskPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Category"
+                    label="หมวดหมู่"
                     labelPlacement="outside"
-                    placeholder="Select category"
+                    placeholder="เลือกหมวดหมู่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -220,18 +220,18 @@ export default function HelpDeskPage() {
                       updateField("ticketCategory", val);
                     }}
                   >
-                    <SelectItem key="hardware">Hardware</SelectItem>
-                    <SelectItem key="software">Software</SelectItem>
-                    <SelectItem key="network">Network</SelectItem>
-                    <SelectItem key="access">Access</SelectItem>
-                    <SelectItem key="other">Other</SelectItem>
+                    <SelectItem key="hardware">ฮาร์ดแวร์</SelectItem>
+                    <SelectItem key="software">ซอฟต์แวร์</SelectItem>
+                    <SelectItem key="network">เครือข่าย</SelectItem>
+                    <SelectItem key="access">การเข้าถึง</SelectItem>
+                    <SelectItem key="other">อื่นๆ</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Priority"
+                    label="ความสำคัญ"
                     labelPlacement="outside"
-                    placeholder="Select priority"
+                    placeholder="เลือกความสำคัญ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -241,15 +241,15 @@ export default function HelpDeskPage() {
                       updateField("ticketPriority", val);
                     }}
                   >
-                    <SelectItem key="low">Low</SelectItem>
-                    <SelectItem key="medium">Medium</SelectItem>
-                    <SelectItem key="high">High</SelectItem>
-                    <SelectItem key="critical">Critical</SelectItem>
+                    <SelectItem key="low">ต่ำ</SelectItem>
+                    <SelectItem key="medium">ปานกลาง</SelectItem>
+                    <SelectItem key="high">สูง</SelectItem>
+                    <SelectItem key="critical">วิกฤต</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -260,17 +260,17 @@ export default function HelpDeskPage() {
                       updateField("ticketStatus", val);
                     }}
                   >
-                    <SelectItem key="open">Open</SelectItem>
-                    <SelectItem key="in_progress">In Progress</SelectItem>
-                    <SelectItem key="resolved">Resolved</SelectItem>
-                    <SelectItem key="closed">Closed</SelectItem>
+                    <SelectItem key="open">เปิด</SelectItem>
+                    <SelectItem key="in_progress">กำลังดำเนินการ</SelectItem>
+                    <SelectItem key="resolved">แก้ไขแล้ว</SelectItem>
+                    <SelectItem key="closed">ปิด</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Requested By"
+                    label="ร้องขอโดย"
                     labelPlacement="outside"
-                    placeholder="Enter requester name"
+                    placeholder="ใส่ชื่อผู้ร้องขอ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -280,9 +280,9 @@ export default function HelpDeskPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Assigned To"
+                    label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
-                    placeholder="Enter assignee name"
+                    placeholder="ใส่ชื่อผู้รับผิดชอบ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -293,9 +293,9 @@ export default function HelpDeskPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Textarea
-                  label="Description"
+                  label="รายละเอียด"
                   labelPlacement="outside"
-                  placeholder="Describe the issue..."
+                  placeholder="อธิบายปัญหา..."
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -305,9 +305,9 @@ export default function HelpDeskPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -319,7 +319,7 @@ export default function HelpDeskPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -328,7 +328,7 @@ export default function HelpDeskPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingTicket ? "Update" : "Create"}
+              {editingTicket ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -337,14 +337,14 @@ export default function HelpDeskPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Ticket</ModalHeader>
+          <ModalHeader>ลบตั๋ว</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingTicket?.ticketNo} - {deletingTicket?.ticketTitle}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -354,7 +354,7 @@ export default function HelpDeskPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -362,7 +362,7 @@ export default function HelpDeskPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

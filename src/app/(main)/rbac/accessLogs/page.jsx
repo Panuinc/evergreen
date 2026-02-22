@@ -6,16 +6,16 @@ import { useAccessLogs } from "@/hooks/useAccessLogs";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Timestamp", uid: "accessLogCreatedAt", sortable: true },
-  { name: "User ID", uid: "accessLogUserId", sortable: true },
-  { name: "Resource", uid: "accessLogResource", sortable: true },
-  { name: "Action", uid: "accessLogAction", sortable: true },
-  { name: "Status", uid: "accessLogGranted", sortable: true },
+  { name: "เวลา", uid: "accessLogCreatedAt", sortable: true },
+  { name: "รหัสผู้ใช้", uid: "accessLogUserId", sortable: true },
+  { name: "ทรัพยากร", uid: "accessLogResource", sortable: true },
+  { name: "การดำเนินการ", uid: "accessLogAction", sortable: true },
+  { name: "สถานะ", uid: "accessLogGranted", sortable: true },
 ];
 
 const STATUS_OPTIONS = [
-  { name: "Granted", uid: "granted" },
-  { name: "Denied", uid: "denied" },
+  { name: "อนุญาต", uid: "granted" },
+  { name: "ปฏิเสธ", uid: "denied" },
 ];
 
 export default function AccessLogsPage() {
@@ -47,7 +47,7 @@ export default function AccessLogsPage() {
             radius="md"
             color={log.accessLogGranted ? "success" : "danger"}
           >
-            {log.accessLogGranted ? "Granted" : "Denied"}
+            {log.accessLogGranted ? "อนุญาต" : "ปฏิเสธ"}
           </Chip>
         );
       default:
@@ -58,8 +58,8 @@ export default function AccessLogsPage() {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">Access Logs</h1>
-        <p className="text-default-400">Last 200 entries</p>
+        <h1 className="text-lg font-semibold">บันทึกการเข้าถึง</h1>
+        <p className="text-default-400">200 รายการล่าสุด</p>
       </div>
 
       <DataTable
@@ -69,9 +69,9 @@ export default function AccessLogsPage() {
         rowKey="accessLogId"
         isLoading={loading}
         initialVisibleColumns={["accessLogCreatedAt", "accessLogUserId", "accessLogResource", "accessLogAction", "accessLogGranted"]}
-        searchPlaceholder="Search logs..."
+        searchPlaceholder="ค้นหาบันทึก..."
         searchKeys={["accessLogUserId", "accessLogResource", "accessLogAction"]}
-        emptyContent="No access logs found"
+        emptyContent="ไม่พบบันทึกการเข้าถึง"
         defaultRowsPerPage={20}
       />
     </div>

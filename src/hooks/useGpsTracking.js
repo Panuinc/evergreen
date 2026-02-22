@@ -31,7 +31,7 @@ export function useGpsTracking() {
       setPositions(posData);
       setVehicles(vehData);
     } catch {
-      toast.error("Failed to load GPS data");
+      toast.error("โหลดข้อมูล GPS ล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -67,14 +67,14 @@ export function useGpsTracking() {
 
   const handleSavePosition = async () => {
     const { isValid, errors } = validateForm(formData, {
-      gpsLogVehicleId: [(v) => !isRequired(v) && "Vehicle is required"],
+      gpsLogVehicleId: [(v) => !isRequired(v) && "กรุณาระบุยานพาหนะ"],
       gpsLogLatitude: [
-        (v) => !isRequired(v) && "Latitude is required",
-        (v) => !isValidLatitude(v) && "Latitude must be between -90 and 90",
+        (v) => !isRequired(v) && "กรุณาระบุละติจูด",
+        (v) => !isValidLatitude(v) && "ละติจูดต้องอยู่ระหว่าง -90 ถึง 90",
       ],
       gpsLogLongitude: [
-        (v) => !isRequired(v) && "Longitude is required",
-        (v) => !isValidLongitude(v) && "Longitude must be between -180 and 180",
+        (v) => !isRequired(v) && "กรุณาระบุลองจิจูด",
+        (v) => !isValidLongitude(v) && "ลองจิจูดต้องอยู่ระหว่าง -180 ถึง 180",
       ],
     });
     if (!isValid) {
@@ -94,11 +94,11 @@ export function useGpsTracking() {
           : null,
         gpsLogSource: formData.gpsLogSource,
       });
-      toast.success("Position updated");
+      toast.success("อัปเดตตำแหน่งสำเร็จ");
       onClose();
       loadData();
     } catch (e) {
-      toast.error(e.message || "Failed to update position");
+      toast.error(e.message || "อัปเดตตำแหน่งล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -126,7 +126,7 @@ export function useGpsTracking() {
       );
       routeModal.onOpen();
     } catch {
-      toast.error("Failed to load route history");
+      toast.error("โหลดประวัติเส้นทางล้มเหลว");
     } finally {
       setLoadingRoute(false);
     }

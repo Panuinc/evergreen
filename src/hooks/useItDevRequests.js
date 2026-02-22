@@ -61,7 +61,7 @@ export function useItDevRequests() {
       const data = await getDevRequests();
       setRequests(data);
     } catch (error) {
-      toast.error("Failed to load development requests");
+      toast.error("โหลดคำขอพัฒนาระบบล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ export function useItDevRequests() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      requestTitle: [(v) => !isRequired(v) && "Title is required"],
+      requestTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -109,15 +109,15 @@ export function useItDevRequests() {
       };
       if (editingRequest) {
         await updateDevRequest(editingRequest.requestId, payload);
-        toast.success("Request updated");
+        toast.success("อัปเดตคำขอสำเร็จ");
       } else {
         await createDevRequest(payload);
-        toast.success("Request created");
+        toast.success("สร้างคำขอสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save request");
+      toast.error(error.message || "บันทึกคำขอล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -132,12 +132,12 @@ export function useItDevRequests() {
     if (!deletingRequest) return;
     try {
       await deleteDevRequest(deletingRequest.requestId);
-      toast.success("Request deleted");
+      toast.success("ลบคำขอสำเร็จ");
       deleteModal.onClose();
       setDeletingRequest(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete request");
+      toast.error(error.message || "ลบคำขอล้มเหลว");
     }
   };
 
@@ -158,7 +158,7 @@ export function useItDevRequests() {
       const logs = await getProgressLogs(request.requestId);
       setProgressLogs(logs);
     } catch {
-      toast.error("Failed to load progress logs");
+      toast.error("โหลดบันทึกความคืบหน้าล้มเหลว");
     } finally {
       setProgressLoading(false);
     }
@@ -166,11 +166,11 @@ export function useItDevRequests() {
 
   const handleAddProgress = async () => {
     if (!progressForm.logDescription.trim()) {
-      toast.error("Description is required");
+      toast.error("กรุณาระบุรายละเอียด");
       return;
     }
     if (!progressForm.logProgress) {
-      toast.error("Progress percentage is required");
+      toast.error("กรุณาระบุเปอร์เซ็นต์ความคืบหน้า");
       return;
     }
 
@@ -181,7 +181,7 @@ export function useItDevRequests() {
         logProgress: parseInt(progressForm.logProgress) || 0,
         logCreatedBy: progressForm.logCreatedBy,
       });
-      toast.success("Progress updated");
+      toast.success("อัปเดตความคืบหน้าสำเร็จ");
 
       // Reload logs and request list
       const logs = await getProgressLogs(selectedRequest.requestId);
@@ -198,7 +198,7 @@ export function useItDevRequests() {
         requestProgress: parseInt(progressForm.logProgress) || 0,
       }));
     } catch (error) {
-      toast.error(error.message || "Failed to add progress");
+      toast.error(error.message || "เพิ่มความคืบหน้าล้มเหลว");
     } finally {
       setProgressSaving(false);
     }

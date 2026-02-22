@@ -18,19 +18,19 @@ import { useEmployees } from "@/hooks/useEmployees";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Name", uid: "name", sortable: true },
-  { name: "Email", uid: "employeeEmail", sortable: true },
-  { name: "Phone", uid: "employeePhone" },
-  { name: "Division", uid: "employeeDivision", sortable: true },
-  { name: "Department", uid: "employeeDepartment", sortable: true },
-  { name: "Position", uid: "employeePosition", sortable: true },
-  { name: "Status", uid: "employeeStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อ", uid: "name", sortable: true },
+  { name: "อีเมล", uid: "employeeEmail", sortable: true },
+  { name: "โทรศัพท์", uid: "employeePhone" },
+  { name: "ฝ่าย", uid: "employeeDivision", sortable: true },
+  { name: "แผนก", uid: "employeeDepartment", sortable: true },
+  { name: "ตำแหน่ง", uid: "employeePosition", sortable: true },
+  { name: "สถานะ", uid: "employeeStatus", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Active", uid: "active" },
-  { name: "Inactive", uid: "inactive" },
+  { name: "เปิดใช้งาน", uid: "active" },
+  { name: "ปิดใช้งาน", uid: "inactive" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -138,7 +138,7 @@ export default function EmployeesPage() {
         rowKey="employeeId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, email, department, position..."
+        searchPlaceholder="ค้นหาตามชื่อ, อีเมล, แผนก, ตำแหน่ง..."
         searchKeys={[
           "employeeFirstName",
           "employeeLastName",
@@ -150,7 +150,7 @@ export default function EmployeesPage() {
         ]}
         statusField="employeeStatus"
         statusOptions={statusOptions}
-        emptyContent="No employees found"
+        emptyContent="ไม่พบพนักงาน"
         topEndContent={
           <Button
             variant="bordered"
@@ -159,7 +159,7 @@ export default function EmployeesPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Employee
+            เพิ่มพนักงาน
           </Button>
         }
       />
@@ -173,16 +173,16 @@ export default function EmployeesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingEmployee ? "Edit Employee" : "Add Employee"}
+            {editingEmployee ? "แก้ไขพนักงาน" : "เพิ่มพนักงาน"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="First Name"
+                    label="ชื่อ"
                     labelPlacement="outside"
-                    placeholder="Enter first name"
+                    placeholder="ใส่ชื่อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -195,9 +195,9 @@ export default function EmployeesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Last Name"
+                    label="นามสกุล"
                     labelPlacement="outside"
-                    placeholder="Enter last name"
+                    placeholder="ใส่นามสกุล"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -211,9 +211,9 @@ export default function EmployeesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="email"
-                    label="Email"
+                    label="อีเมล"
                     labelPlacement="outside"
-                    placeholder="Enter email"
+                    placeholder="ใส่อีเมล"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -225,9 +225,9 @@ export default function EmployeesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Phone"
+                    label="โทรศัพท์"
                     labelPlacement="outside"
-                    placeholder="Enter phone number"
+                    placeholder="ใส่เบอร์โทรศัพท์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -239,9 +239,9 @@ export default function EmployeesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Division"
+                    label="ฝ่าย"
                     labelPlacement="outside"
-                    placeholder="Select division"
+                    placeholder="เลือกฝ่าย"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -266,9 +266,9 @@ export default function EmployeesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Department"
+                    label="แผนก"
                     labelPlacement="outside"
-                    placeholder={formData.employeeDivision ? "Select department" : "Select division first"}
+                    placeholder={formData.employeeDivision ? "เลือกแผนก" : "เลือกฝ่ายก่อน"}
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -295,9 +295,9 @@ export default function EmployeesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Position"
+                    label="ตำแหน่ง"
                     labelPlacement="outside"
-                    placeholder={formData.employeeDepartment ? "Select position" : "Select department first"}
+                    placeholder={formData.employeeDepartment ? "เลือกตำแหน่ง" : "เลือกแผนกก่อน"}
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -323,7 +323,7 @@ export default function EmployeesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -334,8 +334,8 @@ export default function EmployeesPage() {
                       updateField("employeeStatus", val);
                     }}
                   >
-                    <SelectItem key="active">Active</SelectItem>
-                    <SelectItem key="inactive">Inactive</SelectItem>
+                    <SelectItem key="active">เปิดใช้งาน</SelectItem>
+                    <SelectItem key="inactive">ปิดใช้งาน</SelectItem>
                   </Select>
                 </div>
               </div>
@@ -343,7 +343,7 @@ export default function EmployeesPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -352,7 +352,7 @@ export default function EmployeesPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingEmployee ? "Update" : "Create"}
+              {editingEmployee ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -361,15 +361,15 @@ export default function EmployeesPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Employee</ModalHeader>
+          <ModalHeader>ลบพนักงาน</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingEmployee?.employeeFirstName}{" "}
                 {deletingEmployee?.employeeLastName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -379,7 +379,7 @@ export default function EmployeesPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -387,7 +387,7 @@ export default function EmployeesPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

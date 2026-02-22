@@ -94,7 +94,7 @@ export default function ChatWindow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-semibold truncate">
-              {contact?.contactDisplayName || "Unknown"}
+              {contact?.contactDisplayName || "ไม่ทราบ"}
             </span>
             <ChannelBadge channelType={conversation?.conversationChannelType} />
             <Chip
@@ -107,7 +107,7 @@ export default function ChatWindow({
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Tooltip content="AI Auto-Reply">
+          <Tooltip content="AI ตอบอัตโนมัติ">
             <div className="flex items-center gap-1 px-2">
               <Bot size={14} className="text-secondary" />
               <Switch
@@ -126,7 +126,7 @@ export default function ChatWindow({
               startContent={<RotateCcw size={14} />}
               onPress={() => onUpdateStatus(conversation.conversationId, "open")}
             >
-              Reopen
+              เปิดอีกครั้ง
             </Button>
           ) : (
             <Button
@@ -137,7 +137,7 @@ export default function ChatWindow({
               startContent={<CloseIcon size={14} />}
               onPress={() => onUpdateStatus(conversation.conversationId, "closed")}
             >
-              Close
+              ปิด
             </Button>
           )}
           <Button
@@ -273,7 +273,7 @@ export default function ChatWindow({
         <ModalContent>
           <ModalHeader>ยืนยันการลบ</ModalHeader>
           <ModalBody>
-            <p>ต้องการลบการสนทนากับ <strong>{contact?.contactDisplayName || "Unknown"}</strong> หรือไม่?</p>
+            <p>ต้องการลบการสนทนากับ <strong>{contact?.contactDisplayName || "ไม่ทราบ"}</strong> หรือไม่?</p>
             <p className="text-sm text-default-400">ข้อความทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้</p>
           </ModalBody>
           <ModalFooter>

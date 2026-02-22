@@ -18,7 +18,7 @@ export function useAccessLogs() {
       const data = await getAccessLogs();
       setLogs(data);
     } catch (error) {
-      toast.error("Failed to load access logs");
+      toast.error("โหลดบันทึกการเข้าถึงล้มเหลว");
     } finally {
       setLoading(false);
     }

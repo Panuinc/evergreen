@@ -19,21 +19,21 @@ export default function ITDashboardPage() {
   }
 
   if (!stats) {
-    return <p className="text-default-400 text-center py-10">Failed to load dashboard data</p>;
+    return <p className="text-default-400 text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
   }
 
   const cards = [
-    { title: "Total Assets", value: stats.totalAssets, sub: "IT assets tracked", icon: Server, color: "text-primary" },
-    { title: "Open Tickets", value: stats.openTickets, sub: "open / in progress", icon: HeadphonesIcon, color: "text-warning" },
-    { title: "Active Licenses", value: stats.activeLicenses, sub: "software licenses", icon: FileText, color: "text-success" },
-    { title: "Network Devices", value: stats.totalNetworkDevices, sub: `${stats.onlineDevices} online`, icon: Globe, color: "text-secondary" },
-    { title: "Security Incidents", value: stats.openIncidents, sub: "open / investigating", icon: Shield, color: "text-danger" },
-    { title: "Pending Access", value: stats.pendingAccess, sub: "awaiting approval", icon: Clock, color: "text-default-500" },
+    { title: "ทรัพย์สินทั้งหมด", value: stats.totalAssets, sub: "ทรัพย์สิน IT ที่ติดตาม", icon: Server, color: "text-primary" },
+    { title: "ตั๋วที่เปิดอยู่", value: stats.openTickets, sub: "เปิด / กำลังดำเนินการ", icon: HeadphonesIcon, color: "text-warning" },
+    { title: "ไลเซนส์ที่ใช้งาน", value: stats.activeLicenses, sub: "ไลเซนส์ซอฟต์แวร์", icon: FileText, color: "text-success" },
+    { title: "อุปกรณ์เครือข่าย", value: stats.totalNetworkDevices, sub: `${stats.onlineDevices} ออนไลน์`, icon: Globe, color: "text-secondary" },
+    { title: "เหตุการณ์ด้านความปลอดภัย", value: stats.openIncidents, sub: "เปิด / กำลังสอบสวน", icon: Shield, color: "text-danger" },
+    { title: "การเข้าถึงที่รอดำเนินการ", value: stats.pendingAccess, sub: "รอการอนุมัติ", icon: Clock, color: "text-default-500" },
   ];
 
   return (
     <div className="flex flex-col w-full h-full gap-6">
-      <h2 className="text-lg font-semibold">IT Dashboard</h2>
+      <h2 className="text-lg font-semibold">แดชบอร์ด IT</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map((card) => (
@@ -53,19 +53,19 @@ export default function ITDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">Ticket Trend (Last 6 Months)</p>
+            <p className="text-sm font-semibold mb-3">แนวโน้มตั๋ว (6 เดือนล่าสุด)</p>
             <TicketTrendChart data={stats.ticketTrend} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">Assets by Category</p>
+            <p className="text-sm font-semibold mb-3">ทรัพย์สินตามหมวดหมู่</p>
             <AssetByCategoryChart data={stats.assetByCategory} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">License Expiry Overview</p>
+            <p className="text-sm font-semibold mb-3">ภาพรวมการหมดอายุไลเซนส์</p>
             <LicenseExpiryChart data={stats.licenseExpiry} />
           </CardBody>
         </Card>

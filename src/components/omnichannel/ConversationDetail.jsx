@@ -87,7 +87,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Tag size={14} />
-              <p className="font-semibold text-sm">Tags</p>
+              <p className="font-semibold text-sm">แท็ก</p>
             </div>
             <div className="flex flex-wrap gap-1">
               {(contact.contactTags || []).map((tag) => (
@@ -121,7 +121,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <StickyNote size={14} />
-              <p className="font-semibold text-sm">Notes</p>
+              <p className="font-semibold text-sm">หมายเหตุ</p>
             </div>
             {editingNotes ? (
               <div className="flex flex-col gap-2">
@@ -135,10 +135,10 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 />
                 <div className="flex gap-1 justify-end">
                   <Button size="sm" variant="bordered" radius="md" onPress={() => setEditingNotes(false)}>
-                    Cancel
+                    ยกเลิก
                   </Button>
                   <Button size="sm" color="primary" radius="md" onPress={handleSaveNotes}>
-                    Save
+                    บันทึก
                   </Button>
                 </div>
               </div>
@@ -147,7 +147,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 onClick={() => setEditingNotes(true)}
                 className="text-sm text-default-400 cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
               >
-                {contact.contactNotes || "คลิกเพื่อเพิ่ม notes..."}
+                {contact.contactNotes || "คลิกเพื่อเพิ่มหมายเหตุ..."}
               </div>
             )}
           </div>

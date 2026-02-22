@@ -15,7 +15,7 @@ export function useTmsDashboard() {
         const data = await getDashboardStats();
         setStats(data);
       } catch {
-        toast.error("Failed to load dashboard data");
+        toast.error("โหลดข้อมูลแดชบอร์ดล้มเหลว");
       } finally {
         setLoading(false);
       }

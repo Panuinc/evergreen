@@ -18,14 +18,14 @@ import { useCrmAccounts } from "@/hooks/useCrmAccounts";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Account No", uid: "accountNo", sortable: true },
-  { name: "Account Name", uid: "accountName", sortable: true },
-  { name: "Industry", uid: "accountIndustry" },
-  { name: "Phone", uid: "accountPhone" },
-  { name: "Email", uid: "accountEmail" },
-  { name: "Employees", uid: "accountEmployees" },
-  { name: "Annual Revenue", uid: "accountAnnualRevenue" },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่บัญชี", uid: "accountNo", sortable: true },
+  { name: "ชื่อบัญชี", uid: "accountName", sortable: true },
+  { name: "อุตสาหกรรม", uid: "accountIndustry" },
+  { name: "โทรศัพท์", uid: "accountPhone" },
+  { name: "อีเมล", uid: "accountEmail" },
+  { name: "จำนวนพนักงาน", uid: "accountEmployees" },
+  { name: "รายได้ต่อปี", uid: "accountAnnualRevenue" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [];
@@ -119,14 +119,14 @@ export default function AccountsPage() {
         rowKey="accountId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search accounts..."
+        searchPlaceholder="ค้นหาบัญชี..."
         searchKeys={[
           "accountName",
           "accountIndustry",
           "accountEmail",
           "accountPhone",
         ]}
-        emptyContent="No accounts found"
+        emptyContent="ไม่พบบัญชี"
         topEndContent={
           <Button
             variant="bordered"
@@ -135,7 +135,7 @@ export default function AccountsPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Account
+            เพิ่มบัญชี
           </Button>
         }
       />
@@ -149,16 +149,16 @@ export default function AccountsPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingAccount ? "Edit Account" : "Add Account"}
+            {editingAccount ? "แก้ไขบัญชี" : "เพิ่มบัญชี"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Account Name"
+                    label="ชื่อบัญชี"
                     labelPlacement="outside"
-                    placeholder="Enter account name"
+                    placeholder="ใส่ชื่อบัญชี"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -171,9 +171,9 @@ export default function AccountsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Industry"
+                    label="อุตสาหกรรม"
                     labelPlacement="outside"
-                    placeholder="Select industry"
+                    placeholder="เลือกอุตสาหกรรม"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -183,21 +183,21 @@ export default function AccountsPage() {
                       updateField("accountIndustry", val);
                     }}
                   >
-                    <SelectItem key="technology">Technology</SelectItem>
-                    <SelectItem key="manufacturing">Manufacturing</SelectItem>
-                    <SelectItem key="retail">Retail</SelectItem>
-                    <SelectItem key="services">Services</SelectItem>
-                    <SelectItem key="healthcare">Healthcare</SelectItem>
-                    <SelectItem key="finance">Finance</SelectItem>
-                    <SelectItem key="education">Education</SelectItem>
-                    <SelectItem key="other">Other</SelectItem>
+                    <SelectItem key="technology">เทคโนโลยี</SelectItem>
+                    <SelectItem key="manufacturing">อุตสาหกรรมการผลิต</SelectItem>
+                    <SelectItem key="retail">ค้าปลีก</SelectItem>
+                    <SelectItem key="services">บริการ</SelectItem>
+                    <SelectItem key="healthcare">สาธารณสุข</SelectItem>
+                    <SelectItem key="finance">การเงิน</SelectItem>
+                    <SelectItem key="education">การศึกษา</SelectItem>
+                    <SelectItem key="other">อื่นๆ</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Website"
+                    label="เว็บไซต์"
                     labelPlacement="outside"
-                    placeholder="Enter website"
+                    placeholder="ใส่เว็บไซต์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -207,9 +207,9 @@ export default function AccountsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Phone"
+                    label="โทรศัพท์"
                     labelPlacement="outside"
-                    placeholder="Enter phone"
+                    placeholder="ใส่โทรศัพท์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -219,9 +219,9 @@ export default function AccountsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Email"
+                    label="อีเมล"
                     labelPlacement="outside"
-                    placeholder="Enter email"
+                    placeholder="ใส่อีเมล"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -232,9 +232,9 @@ export default function AccountsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Employees"
+                    label="จำนวนพนักงาน"
                     labelPlacement="outside"
-                    placeholder="Enter number of employees"
+                    placeholder="ใส่จำนวนพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -245,9 +245,9 @@ export default function AccountsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Annual Revenue"
+                    label="รายได้ต่อปี"
                     labelPlacement="outside"
-                    placeholder="Enter annual revenue"
+                    placeholder="ใส่รายได้ต่อปี"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -258,9 +258,9 @@ export default function AccountsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Address"
+                  label="ที่อยู่"
                   labelPlacement="outside"
-                  placeholder="Enter address"
+                  placeholder="ใส่ที่อยู่"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -270,9 +270,9 @@ export default function AccountsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -284,7 +284,7 @@ export default function AccountsPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -293,7 +293,7 @@ export default function AccountsPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingAccount ? "Update" : "Create"}
+              {editingAccount ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -302,14 +302,14 @@ export default function AccountsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Account</ModalHeader>
+          <ModalHeader>ลบบัญชี</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingAccount?.accountName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -319,7 +319,7 @@ export default function AccountsPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -327,7 +327,7 @@ export default function AccountsPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

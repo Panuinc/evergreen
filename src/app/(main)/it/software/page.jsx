@@ -18,20 +18,20 @@ import { useItSoftware } from "@/hooks/useItSoftware";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Software Name", uid: "softwareName", sortable: true },
-  { name: "Vendor", uid: "softwareVendor", sortable: true },
-  { name: "Version", uid: "softwareVersion" },
-  { name: "License Type", uid: "softwareLicenseType" },
-  { name: "Licenses", uid: "licenseUsage" },
-  { name: "Expiry Date", uid: "softwareExpiryDate", sortable: true },
-  { name: "Status", uid: "softwareStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อซอฟต์แวร์", uid: "softwareName", sortable: true },
+  { name: "ผู้จำหน่าย", uid: "softwareVendor", sortable: true },
+  { name: "เวอร์ชัน", uid: "softwareVersion" },
+  { name: "ประเภทไลเซนส์", uid: "softwareLicenseType" },
+  { name: "ไลเซนส์", uid: "licenseUsage" },
+  { name: "วันหมดอายุ", uid: "softwareExpiryDate", sortable: true },
+  { name: "สถานะ", uid: "softwareStatus", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Active", uid: "active" },
-  { name: "Expired", uid: "expired" },
-  { name: "Cancelled", uid: "cancelled" },
+  { name: "เปิดใช้งาน", uid: "active" },
+  { name: "หมดอายุ", uid: "expired" },
+  { name: "ยกเลิก", uid: "cancelled" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -135,7 +135,7 @@ export default function SoftwarePage() {
         rowKey="softwareId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, vendor, license key..."
+        searchPlaceholder="ค้นหาตามชื่อ, ผู้จำหน่าย, รหัสไลเซนส์..."
         searchKeys={[
           "softwareName",
           "softwareVendor",
@@ -144,7 +144,7 @@ export default function SoftwarePage() {
         ]}
         statusField="softwareStatus"
         statusOptions={statusOptions}
-        emptyContent="No software found"
+        emptyContent="ไม่พบซอฟต์แวร์"
         topEndContent={
           <Button
             variant="bordered"
@@ -153,7 +153,7 @@ export default function SoftwarePage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Software
+            เพิ่มซอฟต์แวร์
           </Button>
         }
       />
@@ -167,16 +167,16 @@ export default function SoftwarePage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingSoftware ? "Edit Software" : "Add Software"}
+            {editingSoftware ? "แก้ไขซอฟต์แวร์" : "เพิ่มซอฟต์แวร์"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Software Name"
+                    label="ชื่อซอฟต์แวร์"
                     labelPlacement="outside"
-                    placeholder="Enter software name"
+                    placeholder="ใส่ชื่อซอฟต์แวร์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -189,9 +189,9 @@ export default function SoftwarePage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Vendor"
+                    label="ผู้จำหน่าย"
                     labelPlacement="outside"
-                    placeholder="Enter vendor"
+                    placeholder="ใส่ผู้จำหน่าย"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -201,9 +201,9 @@ export default function SoftwarePage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Version"
+                    label="เวอร์ชัน"
                     labelPlacement="outside"
-                    placeholder="Enter version"
+                    placeholder="ใส่เวอร์ชัน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -213,9 +213,9 @@ export default function SoftwarePage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="License Key"
+                    label="รหัสไลเซนส์"
                     labelPlacement="outside"
-                    placeholder="Enter license key"
+                    placeholder="ใส่รหัสไลเซนส์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -225,9 +225,9 @@ export default function SoftwarePage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="License Type"
+                    label="ประเภทไลเซนส์"
                     labelPlacement="outside"
-                    placeholder="Select type"
+                    placeholder="เลือกประเภท"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -237,18 +237,18 @@ export default function SoftwarePage() {
                       updateField("softwareLicenseType", val);
                     }}
                   >
-                    <SelectItem key="perpetual">Perpetual</SelectItem>
-                    <SelectItem key="subscription">Subscription</SelectItem>
-                    <SelectItem key="open_source">Open Source</SelectItem>
-                    <SelectItem key="trial">Trial</SelectItem>
+                    <SelectItem key="perpetual">ถาวร</SelectItem>
+                    <SelectItem key="subscription">สมัครสมาชิก</SelectItem>
+                    <SelectItem key="open_source">โอเพนซอร์ส</SelectItem>
+                    <SelectItem key="trial">ทดลองใช้</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Total Licenses"
+                    label="ไลเซนส์ทั้งหมด"
                     labelPlacement="outside"
-                    placeholder="Enter total count"
+                    placeholder="ใส่จำนวนทั้งหมด"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -259,9 +259,9 @@ export default function SoftwarePage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Used Licenses"
+                    label="ไลเซนส์ที่ใช้แล้ว"
                     labelPlacement="outside"
-                    placeholder="Enter used count"
+                    placeholder="ใส่จำนวนที่ใช้แล้ว"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -272,9 +272,9 @@ export default function SoftwarePage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Expiry Date"
+                    label="วันหมดอายุ"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -284,7 +284,7 @@ export default function SoftwarePage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -295,17 +295,17 @@ export default function SoftwarePage() {
                       updateField("softwareStatus", val);
                     }}
                   >
-                    <SelectItem key="active">Active</SelectItem>
-                    <SelectItem key="expired">Expired</SelectItem>
-                    <SelectItem key="cancelled">Cancelled</SelectItem>
+                    <SelectItem key="active">เปิดใช้งาน</SelectItem>
+                    <SelectItem key="expired">หมดอายุ</SelectItem>
+                    <SelectItem key="cancelled">ยกเลิก</SelectItem>
                   </Select>
                 </div>
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -317,7 +317,7 @@ export default function SoftwarePage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -326,7 +326,7 @@ export default function SoftwarePage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingSoftware ? "Update" : "Create"}
+              {editingSoftware ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -335,14 +335,14 @@ export default function SoftwarePage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Software</ModalHeader>
+          <ModalHeader>ลบซอฟต์แวร์</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingSoftware?.softwareName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -352,7 +352,7 @@ export default function SoftwarePage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -360,7 +360,7 @@ export default function SoftwarePage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

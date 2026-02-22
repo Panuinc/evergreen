@@ -13,7 +13,7 @@ export function useSignIn() {
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      toast.error("Please enter email and password");
+      toast.error("กรุณาใส่อีเมลและรหัสผ่าน");
       return;
     }
 
@@ -27,9 +27,9 @@ export function useSignIn() {
 
       if (error) {
         if (error.message === "Invalid login credentials") {
-          toast.error("Invalid email or password");
+          toast.error("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
         } else {
-          toast.error(error.message || "Authentication failed");
+          toast.error(error.message || "การยืนยันตัวตนล้มเหลว");
         }
         setIsLoading(false);
         return;
@@ -40,7 +40,7 @@ export function useSignIn() {
 
       window.location.href = "/overview/dashboard";
     } catch (err) {
-      toast.error("An unexpected error occurred");
+      toast.error("เกิดข้อผิดพลาดที่ไม่คาดคิด");
       setIsLoading(false);
     }
   };

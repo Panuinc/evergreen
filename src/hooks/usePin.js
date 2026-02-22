@@ -47,7 +47,7 @@ export function usePin() {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || "Verification failed");
+      throw new Error(data.error || "การยืนยันล้มเหลว");
     }
 
     // ใช้ token_hash จาก magiclink เพื่อ verify OTP → ได้ session

@@ -35,7 +35,7 @@ export default function Header({ onMobileMenuToggle }) {
         >
           <Menu />
         </button>
-        Evergreen By CHH Industry
+        Evergreen โดย CHH Industry
       </div>
       <div className="hidden md:flex flex-row items-center justify-center w-full h-full p-2 gap-2">
         {" "}
@@ -45,7 +45,7 @@ export default function Header({ onMobileMenuToggle }) {
           onClick={toggleTheme}
           className="flex items-center justify-center w-9 h-9 border border-default rounded-full hover:bg-default/50 transition-colors cursor-pointer"
           title={
-            theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"
+            theme === "light" ? "สลับเป็นโหมดมืด" : "สลับเป็นโหมดสว่าง"
           }
         >
           {theme === "light" ? <Moon /> : <Sun />}
@@ -77,23 +77,23 @@ export default function Header({ onMobileMenuToggle }) {
                 className="w-7 h-7"
               />
               <span className="hidden md:inline font-medium">
-                {user?.email?.split("@")[0] || "User"}
+                {user?.email?.split("@")[0] || "ผู้ใช้"}
               </span>
               <ChevronDown />
             </button>
           </DropdownTrigger>
           <DropdownMenu aria-label="User Actions">
             <DropdownItem key="profile" onPress={() => router.push("/profile")}>
-              My Profile
+              โปรไฟล์ของฉัน
             </DropdownItem>
-            <DropdownItem key="settings">Settings</DropdownItem>
-            <DropdownItem key="help">Help & Support</DropdownItem>
+            <DropdownItem key="settings">ตั้งค่า</DropdownItem>
+            <DropdownItem key="help">ช่วยเหลือและสนับสนุน</DropdownItem>
             <DropdownItem
               key="logout"
               className="text-danger"
               onPress={signOut}
             >
-              Logout
+              ออกจากระบบ
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>

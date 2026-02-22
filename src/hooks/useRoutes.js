@@ -40,7 +40,7 @@ export function useRoutes() {
       const data = await getRoutes();
       setRoutes(data);
     } catch (error) {
-      toast.error("Failed to load routes");
+      toast.error("โหลดเส้นทางล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export function useRoutes() {
       !formData.routeName.trim() ||
       !formData.routeDestination.trim()
     ) {
-      toast.error("Route name and destination are required");
+      toast.error("กรุณาระบุชื่อเส้นทางและปลายทาง");
       return;
     }
 
@@ -78,15 +78,15 @@ export function useRoutes() {
       setSaving(true);
       if (editingRoute) {
         await updateRoute(editingRoute.routeId, formData);
-        toast.success("Route updated");
+        toast.success("อัปเดตเส้นทางสำเร็จ");
       } else {
         await createRoute(formData);
-        toast.success("Route created");
+        toast.success("สร้างเส้นทางสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save route");
+      toast.error(error.message || "บันทึกเส้นทางล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -101,12 +101,12 @@ export function useRoutes() {
     if (!deletingRoute) return;
     try {
       await deleteRoute(deletingRoute.routeId);
-      toast.success("Route deleted");
+      toast.success("ลบเส้นทางสำเร็จ");
       deleteModal.onClose();
       setDeletingRoute(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete route");
+      toast.error(error.message || "ลบเส้นทางล้มเหลว");
     }
   };
 

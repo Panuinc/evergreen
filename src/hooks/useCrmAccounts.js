@@ -44,7 +44,7 @@ export function useCrmAccounts() {
       const data = await getAccounts();
       setAccounts(data);
     } catch (error) {
-      toast.error("Failed to load accounts");
+      toast.error("โหลดบัญชีลูกค้าล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export function useCrmAccounts() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      accountName: [(v) => !isRequired(v) && "Account name is required"],
+      accountName: [(v) => !isRequired(v) && "กรุณาระบุชื่อบัญชี"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -97,15 +97,15 @@ export function useCrmAccounts() {
 
       if (editingAccount) {
         await updateAccount(editingAccount.accountId, payload);
-        toast.success("Account updated");
+        toast.success("อัปเดตบัญชีสำเร็จ");
       } else {
         await createAccount(payload);
-        toast.success("Account created");
+        toast.success("สร้างบัญชีสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save account");
+      toast.error(error.message || "บันทึกบัญชีล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -120,12 +120,12 @@ export function useCrmAccounts() {
     if (!deletingAccount) return;
     try {
       await deleteAccount(deletingAccount.accountId);
-      toast.success("Account deleted");
+      toast.success("ลบบัญชีสำเร็จ");
       deleteModal.onClose();
       setDeletingAccount(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete account");
+      toast.error(error.message || "ลบบัญชีล้มเหลว");
     }
   };
 

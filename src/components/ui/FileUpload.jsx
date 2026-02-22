@@ -7,7 +7,7 @@ import { uploadFile, uploadFiles, deleteFile } from "@/lib/supabaseStorage";
 import { toast } from "sonner";
 
 export default function FileUpload({
-  label = "Upload File",
+  label = "อัปโหลดไฟล์",
   accept = "image/*",
   multiple = false,
   value,
@@ -31,9 +31,9 @@ export default function FileUpload({
         const url = await uploadFile(folder, files[0]);
         onChange(url);
       }
-      toast.success("File uploaded");
+      toast.success("อัปโหลดไฟล์สำเร็จ");
     } catch (error) {
-      toast.error("Upload failed: " + (error.message || "Unknown error"));
+      toast.error("อัปโหลดล้มเหลว: " + (error.message || "ข้อผิดพลาดไม่ทราบสาเหตุ"));
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -93,7 +93,7 @@ export default function FileUpload({
           <>
             <Upload size={16} className="text-default-400" />
             <span className="text-sm text-default-400">
-              Click to upload {multiple ? "files" : "file"}
+              คลิกเพื่ออัปโหลดไฟล์
             </span>
           </>
         )}

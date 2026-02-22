@@ -62,7 +62,7 @@ export default function MainLayout({ children }) {
         >
           <div className="flex flex-row items-center justify-start w-full h-fit p-2 gap-2 border-b-2 border-default">
             <Breadcrumbs className="h-[18px]">
-              <BreadcrumbItem href="/overview/dashboard">Home</BreadcrumbItem>
+              <BreadcrumbItem href="/overview/dashboard">หน้าหลัก</BreadcrumbItem>
               <BreadcrumbItem>{activeMenu.name}</BreadcrumbItem>
             </Breadcrumbs>
           </div>

@@ -18,14 +18,14 @@ import { useCrmContacts } from "@/hooks/useCrmContacts";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Contact No", uid: "contactNo", sortable: true },
-  { name: "Name", uid: "contactName" },
-  { name: "Email", uid: "contactEmail" },
-  { name: "Phone", uid: "contactPhone" },
-  { name: "Position", uid: "contactPosition" },
-  { name: "Account", uid: "accountName" },
-  { name: "Tags", uid: "contactTags" },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่ผู้ติดต่อ", uid: "contactNo", sortable: true },
+  { name: "ชื่อ", uid: "contactName" },
+  { name: "อีเมล", uid: "contactEmail" },
+  { name: "โทรศัพท์", uid: "contactPhone" },
+  { name: "ตำแหน่ง", uid: "contactPosition" },
+  { name: "บัญชี", uid: "accountName" },
+  { name: "แท็ก", uid: "contactTags" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [];
@@ -125,14 +125,14 @@ export default function ContactsPage() {
         rowKey="contactId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search contacts..."
+        searchPlaceholder="ค้นหาผู้ติดต่อ..."
         searchKeys={[
           "contactFirstName",
           "contactLastName",
           "contactEmail",
           "contactPhone",
         ]}
-        emptyContent="No contacts found"
+        emptyContent="ไม่พบผู้ติดต่อ"
         topEndContent={
           <Button
             variant="bordered"
@@ -141,7 +141,7 @@ export default function ContactsPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Contact
+            เพิ่มผู้ติดต่อ
           </Button>
         }
       />
@@ -155,16 +155,16 @@ export default function ContactsPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingContact ? "Edit Contact" : "Add Contact"}
+            {editingContact ? "แก้ไขผู้ติดต่อ" : "เพิ่มผู้ติดต่อ"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="First Name"
+                    label="ชื่อ"
                     labelPlacement="outside"
-                    placeholder="Enter first name"
+                    placeholder="ใส่ชื่อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -177,9 +177,9 @@ export default function ContactsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Last Name"
+                    label="นามสกุล"
                     labelPlacement="outside"
-                    placeholder="Enter last name"
+                    placeholder="ใส่นามสกุล"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -189,9 +189,9 @@ export default function ContactsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Email"
+                    label="อีเมล"
                     labelPlacement="outside"
-                    placeholder="Enter email"
+                    placeholder="ใส่อีเมล"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -201,9 +201,9 @@ export default function ContactsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Phone"
+                    label="โทรศัพท์"
                     labelPlacement="outside"
-                    placeholder="Enter phone"
+                    placeholder="ใส่โทรศัพท์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -213,9 +213,9 @@ export default function ContactsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Position"
+                    label="ตำแหน่ง"
                     labelPlacement="outside"
-                    placeholder="Enter position"
+                    placeholder="ใส่ตำแหน่ง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -225,9 +225,9 @@ export default function ContactsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Account"
+                    label="บัญชี"
                     labelPlacement="outside"
-                    placeholder="Enter account ID"
+                    placeholder="ใส่รหัสบัญชี"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -238,9 +238,9 @@ export default function ContactsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Address"
+                  label="ที่อยู่"
                   labelPlacement="outside"
-                  placeholder="Enter address"
+                  placeholder="ใส่ที่อยู่"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -250,9 +250,9 @@ export default function ContactsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Tags"
+                  label="แท็ก"
                   labelPlacement="outside"
-                  placeholder="Enter tags"
+                  placeholder="ใส่แท็ก"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -262,9 +262,9 @@ export default function ContactsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -276,7 +276,7 @@ export default function ContactsPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -285,7 +285,7 @@ export default function ContactsPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingContact ? "Update" : "Create"}
+              {editingContact ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -294,14 +294,14 @@ export default function ContactsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Contact</ModalHeader>
+          <ModalHeader>ลบผู้ติดต่อ</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingContact?.contactFirstName} {deletingContact?.contactLastName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -311,7 +311,7 @@ export default function ContactsPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -319,7 +319,7 @@ export default function ContactsPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -57,7 +57,7 @@ export function useCrmOpportunities() {
       const data = await getOpportunities();
       setOpportunities(data);
     } catch (error) {
-      toast.error("Failed to load opportunities");
+      toast.error("โหลดโอกาสการขายล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -89,7 +89,7 @@ export function useCrmOpportunities() {
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
       opportunityName: [
-        (v) => !isRequired(v) && "Opportunity name is required",
+        (v) => !isRequired(v) && "กรุณาระบุชื่อโอกาส",
       ],
     });
     if (!isValid) {
@@ -113,15 +113,15 @@ export function useCrmOpportunities() {
 
       if (editingOpp) {
         await updateOpportunity(editingOpp.opportunityId, payload);
-        toast.success("Opportunity updated");
+        toast.success("อัปเดตโอกาสสำเร็จ");
       } else {
         await createOpportunity(payload);
-        toast.success("Opportunity created");
+        toast.success("สร้างโอกาสสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save opportunity");
+      toast.error(error.message || "บันทึกโอกาสล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -140,10 +140,10 @@ export function useCrmOpportunities() {
         opportunityStage: newStage,
         opportunityProbability: STAGE_PROBABILITY[newStage] || 10,
       });
-      toast.success(`Moved to ${newStage.replace(/_/g, " ")}`);
+      toast.success(`ย้ายไปขั้นตอน ${newStage.replace(/_/g, " ")} สำเร็จ`);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to update stage");
+      toast.error(error.message || "อัปเดตขั้นตอนล้มเหลว");
     }
   };
 
@@ -155,12 +155,12 @@ export function useCrmOpportunities() {
         opportunityProbability: 0,
         opportunityLostReason: lostReason,
       });
-      toast.success("Opportunity closed as lost");
+      toast.success("ปิดโอกาสเป็นแพ้สำเร็จ");
       lostReasonModal.onClose();
       setEditingOpp(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to close opportunity");
+      toast.error(error.message || "ปิดโอกาสล้มเหลว");
     }
   };
 
@@ -173,12 +173,12 @@ export function useCrmOpportunities() {
     if (!deletingOpp) return;
     try {
       await deleteOpportunity(deletingOpp.opportunityId);
-      toast.success("Opportunity deleted");
+      toast.success("ลบโอกาสสำเร็จ");
       deleteModal.onClose();
       setDeletingOpp(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete opportunity");
+      toast.error(error.message || "ลบโอกาสล้มเหลว");
     }
   };
 

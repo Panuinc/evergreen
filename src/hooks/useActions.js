@@ -30,7 +30,7 @@ export function useActions() {
       const data = await getActions();
       setActions(data);
     } catch (error) {
-      toast.error("Failed to load actions");
+      toast.error("โหลดแอคชันล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -52,32 +52,32 @@ export function useActions() {
 
   const handleSave = async () => {
     if (!formData.actionName.trim()) {
-      toast.error("Action name is required");
+      toast.error("กรุณาระบุชื่อแอคชัน");
       return;
     }
 
     try {
       if (editingAction) {
         await updateAction(editingAction.actionId, formData);
-        toast.success("Action updated");
+        toast.success("อัปเดตแอคชันสำเร็จ");
       } else {
         await createAction(formData);
-        toast.success("Action created");
+        toast.success("สร้างแอคชันสำเร็จ");
       }
       onClose();
       loadActions();
     } catch (error) {
-      toast.error(error.message || "Failed to save action");
+      toast.error(error.message || "บันทึกแอคชันล้มเหลว");
     }
   };
 
   const handleDelete = async (action) => {
     try {
       await deleteAction(action.actionId);
-      toast.success("Action deleted");
+      toast.success("ลบแอคชันสำเร็จ");
       loadActions();
     } catch (error) {
-      toast.error(error.message || "Failed to delete action");
+      toast.error(error.message || "ลบแอคชันล้มเหลว");
     }
   };
 

@@ -25,11 +25,11 @@ import {
 
 /* ── BC Tables ── */
 const BC_TABLES = [
-  { key: "dimensionValues", label: "Dimensions", icon: FolderKanban },
-  { key: "customers", label: "Customers", icon: Users },
-  { key: "items", label: "Items", icon: Package },
-  { key: "salesOrders", label: "Sales Orders", icon: ShoppingCart },
-  { key: "salesOrderLines", label: "SO Lines", icon: ClipboardList },
+  { key: "dimensionValues", label: "มิติ", icon: FolderKanban },
+  { key: "customers", label: "ลูกค้า", icon: Users },
+  { key: "items", label: "สินค้า", icon: Package },
+  { key: "salesOrders", label: "คำสั่งขาย", icon: ShoppingCart },
+  { key: "salesOrderLines", label: "รายการคำสั่งขาย", icon: ClipboardList },
 ];
 
 
@@ -112,14 +112,14 @@ function SyncSection({ title, desc, endpoint, method = "GET", body, tables, info
           onPress={handleSync}
           isDisabled={syncing}
         >
-          {syncing ? "กำลัง Sync..." : "Sync Now"}
+          {syncing ? "กำลังซิงค์..." : "ซิงค์เลย"}
         </Button>
       </div>
 
       {lastSync && (
         <div className="flex items-center gap-2 text-sm text-default-500">
           <Clock size={14} />
-          <span>Sync ล่าสุด: {lastSync}</span>
+          <span>ซิงค์ล่าสุด: {lastSync}</span>
         </div>
       )}
 
@@ -136,7 +136,7 @@ function SyncSection({ title, desc, endpoint, method = "GET", body, tables, info
         <Card shadow="none" className="border-2 border-success bg-success-50">
           <CardHeader className="flex-row items-center gap-2 pb-0">
             <CheckCircle2 size={18} className="text-success" />
-            <span className="font-semibold text-success">Sync สำเร็จ!</span>
+            <span className="font-semibold text-success">ซิงค์สำเร็จ!</span>
           </CardHeader>
           <CardBody>
             <ResultCards tables={tables} results={result.results} />
@@ -308,7 +308,7 @@ function BciImportSection() {
 export default function SyncPage() {
   return (
     <div className="flex flex-col w-full gap-6">
-      <h1 className="text-xl font-bold">Sync ข้อมูล</h1>
+      <h1 className="text-xl font-bold">ซิงค์ข้อมูล</h1>
 
       {/* BC Section */}
       <SyncSection
@@ -331,7 +331,7 @@ export default function SyncPage() {
       <BciImportSection />
 
       <p className="text-xs text-default-400">
-        Production: Sync อัตโนมัติผ่าน Vercel Cron
+        Production: ซิงค์อัตโนมัติผ่าน Vercel Cron
       </p>
     </div>
   );

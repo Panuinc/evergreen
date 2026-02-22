@@ -18,24 +18,24 @@ import { useCrmLeads } from "@/hooks/useCrmLeads";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Lead No", uid: "leadNo", sortable: true },
-  { name: "Name", uid: "leadName", sortable: true },
-  { name: "Company", uid: "leadCompany" },
-  { name: "Email", uid: "leadEmail" },
-  { name: "Phone", uid: "leadPhone" },
-  { name: "Source", uid: "leadSource" },
-  { name: "Score", uid: "leadScore" },
-  { name: "Status", uid: "leadStatus" },
-  { name: "Assigned To", uid: "leadAssignedTo" },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่ลีด", uid: "leadNo", sortable: true },
+  { name: "ชื่อ", uid: "leadName", sortable: true },
+  { name: "บริษัท", uid: "leadCompany" },
+  { name: "อีเมล", uid: "leadEmail" },
+  { name: "โทรศัพท์", uid: "leadPhone" },
+  { name: "แหล่งที่มา", uid: "leadSource" },
+  { name: "คะแนน", uid: "leadScore" },
+  { name: "สถานะ", uid: "leadStatus" },
+  { name: "ผู้รับผิดชอบ", uid: "leadAssignedTo" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "New", uid: "new" },
-  { name: "Contacted", uid: "contacted" },
-  { name: "Qualified", uid: "qualified" },
-  { name: "Converted", uid: "converted" },
-  { name: "Lost", uid: "lost" },
+  { name: "ใหม่", uid: "new" },
+  { name: "ติดต่อแล้ว", uid: "contacted" },
+  { name: "ผ่านคุณสมบัติ", uid: "qualified" },
+  { name: "แปลงแล้ว", uid: "converted" },
+  { name: "สูญเสีย", uid: "lost" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -182,7 +182,7 @@ export default function LeadsPage() {
         rowKey="leadId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search leads..."
+        searchPlaceholder="ค้นหาลีด..."
         searchKeys={[
           "leadName",
           "leadCompany",
@@ -191,7 +191,7 @@ export default function LeadsPage() {
         ]}
         statusField="leadStatus"
         statusOptions={statusOptions}
-        emptyContent="No leads found"
+        emptyContent="ไม่พบลีด"
         topEndContent={
           <Button
             variant="bordered"
@@ -200,7 +200,7 @@ export default function LeadsPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Lead
+            เพิ่มลีด
           </Button>
         }
       />
@@ -214,16 +214,16 @@ export default function LeadsPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingLead ? "Edit Lead" : "Add Lead"}
+            {editingLead ? "แก้ไขลีด" : "เพิ่มลีด"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Name"
+                    label="ชื่อ"
                     labelPlacement="outside"
-                    placeholder="Enter name"
+                    placeholder="ใส่ชื่อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -236,9 +236,9 @@ export default function LeadsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Email"
+                    label="อีเมล"
                     labelPlacement="outside"
-                    placeholder="Enter email"
+                    placeholder="ใส่อีเมล"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -248,9 +248,9 @@ export default function LeadsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Phone"
+                    label="โทรศัพท์"
                     labelPlacement="outside"
-                    placeholder="Enter phone"
+                    placeholder="ใส่โทรศัพท์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -260,9 +260,9 @@ export default function LeadsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Company"
+                    label="บริษัท"
                     labelPlacement="outside"
-                    placeholder="Enter company"
+                    placeholder="ใส่บริษัท"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -272,9 +272,9 @@ export default function LeadsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Position"
+                    label="ตำแหน่ง"
                     labelPlacement="outside"
-                    placeholder="Enter position"
+                    placeholder="ใส่ตำแหน่ง"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -284,9 +284,9 @@ export default function LeadsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Source"
+                    label="แหล่งที่มา"
                     labelPlacement="outside"
-                    placeholder="Select source"
+                    placeholder="เลือกแหล่งที่มา"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -296,20 +296,20 @@ export default function LeadsPage() {
                       updateField("leadSource", val);
                     }}
                   >
-                    <SelectItem key="website">Website</SelectItem>
-                    <SelectItem key="referral">Referral</SelectItem>
-                    <SelectItem key="social">Social</SelectItem>
-                    <SelectItem key="event">Event</SelectItem>
-                    <SelectItem key="cold_call">Cold Call</SelectItem>
-                    <SelectItem key="advertisement">Advertisement</SelectItem>
-                    <SelectItem key="partner">Partner</SelectItem>
+                    <SelectItem key="website">เว็บไซต์</SelectItem>
+                    <SelectItem key="referral">แนะนำ</SelectItem>
+                    <SelectItem key="social">โซเชียล</SelectItem>
+                    <SelectItem key="event">อีเวนต์</SelectItem>
+                    <SelectItem key="cold_call">โทรเสนอ</SelectItem>
+                    <SelectItem key="advertisement">โฆษณา</SelectItem>
+                    <SelectItem key="partner">พาร์ทเนอร์</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Score"
+                    label="คะแนน"
                     labelPlacement="outside"
-                    placeholder="Select score"
+                    placeholder="เลือกคะแนน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -319,16 +319,16 @@ export default function LeadsPage() {
                       updateField("leadScore", val);
                     }}
                   >
-                    <SelectItem key="hot">Hot</SelectItem>
-                    <SelectItem key="warm">Warm</SelectItem>
-                    <SelectItem key="cold">Cold</SelectItem>
+                    <SelectItem key="hot">ร้อน</SelectItem>
+                    <SelectItem key="warm">อุ่น</SelectItem>
+                    <SelectItem key="cold">เย็น</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
-                    placeholder="Select status"
+                    placeholder="เลือกสถานะ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -338,18 +338,18 @@ export default function LeadsPage() {
                       updateField("leadStatus", val);
                     }}
                   >
-                    <SelectItem key="new">New</SelectItem>
-                    <SelectItem key="contacted">Contacted</SelectItem>
-                    <SelectItem key="qualified">Qualified</SelectItem>
-                    <SelectItem key="converted">Converted</SelectItem>
-                    <SelectItem key="lost">Lost</SelectItem>
+                    <SelectItem key="new">ใหม่</SelectItem>
+                    <SelectItem key="contacted">ติดต่อแล้ว</SelectItem>
+                    <SelectItem key="qualified">ผ่านคุณสมบัติ</SelectItem>
+                    <SelectItem key="converted">แปลงแล้ว</SelectItem>
+                    <SelectItem key="lost">สูญเสีย</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Assigned To"
+                    label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
-                    placeholder="Enter assigned to"
+                    placeholder="ใส่ผู้รับผิดชอบ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -360,9 +360,9 @@ export default function LeadsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -374,7 +374,7 @@ export default function LeadsPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -383,7 +383,7 @@ export default function LeadsPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingLead ? "Update" : "Create"}
+              {editingLead ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -392,14 +392,14 @@ export default function LeadsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Lead</ModalHeader>
+          <ModalHeader>ลบลีด</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingLead?.leadName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -409,7 +409,7 @@ export default function LeadsPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -417,7 +417,7 @@ export default function LeadsPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

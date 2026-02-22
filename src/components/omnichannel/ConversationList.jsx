@@ -5,14 +5,14 @@ import { Search } from "lucide-react";
 import ChannelBadge from "./ChannelBadge";
 
 const STATUS_FILTERS = [
-  { key: "all", label: "All" },
-  { key: "open", label: "Open" },
-  { key: "waiting", label: "Waiting" },
-  { key: "closed", label: "Closed" },
+  { key: "all", label: "ทั้งหมด" },
+  { key: "open", label: "เปิด" },
+  { key: "waiting", label: "รอ" },
+  { key: "closed", label: "ปิด" },
 ];
 
 const CHANNEL_FILTERS = [
-  { key: "all", label: "All" },
+  { key: "all", label: "ทั้งหมด" },
   { key: "facebook", label: "Facebook" },
   { key: "line", label: "LINE" },
 ];
@@ -122,7 +122,7 @@ export default function ConversationList({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium truncate">
-                      {contact?.contactDisplayName || "Unknown"}
+                      {contact?.contactDisplayName || "ไม่ทราบ"}
                     </span>
                     <span className="text-[10px] text-default-400 flex-shrink-0">
                       {formatTime(conv.conversationLastMessageAt)}

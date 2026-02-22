@@ -123,8 +123,8 @@ export default function MarketingAnalyticsPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Sales Analytics</h2>
-          <p className="text-xs text-default-400">Online Channel — Business Central</p>
+          <h2 className="text-lg font-semibold">วิเคราะห์ยอดขาย</h2>
+          <p className="text-xs text-default-400">ช่องทางออนไลน์ — Business Central</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
@@ -202,7 +202,7 @@ export default function MarketingAnalyticsPage() {
           color="text-success"
         />
         <KpiCard
-          title="Avg. Order Value"
+          title="มูลค่าเฉลี่ยต่อออเดอร์"
           value={formatCurrency(Math.round(stats.avgOrderValue))}
           sub="ต่อออเดอร์"
           icon={BarChart3}
@@ -222,7 +222,7 @@ export default function MarketingAnalyticsPage() {
         <Card shadow="none" className="border border-default-200 lg:col-span-2">
           <CardBody className="p-5">
             <Tabs variant="underlined" size="sm" classNames={{ tabList: "mb-3" }}>
-              <Tab key="trend" title="Revenue Trend">
+              <Tab key="trend" title="แนวโน้มรายได้">
                 <RevenueTrendChart data={stats.monthlyTrend} />
               </Tab>
               <Tab key="monthly" title="รายเดือน">
@@ -254,7 +254,7 @@ export default function MarketingAnalyticsPage() {
                   </div>
                 </div>
               </Tab>
-              <Tab key="fulfillment" title="Fulfillment">
+              <Tab key="fulfillment" title="การจัดส่ง">
                 <FulfillmentChart data={stats.fulfillmentMetrics} />
               </Tab>
               <Tab key="location" title="คลังสินค้า">
@@ -310,7 +310,7 @@ export default function MarketingAnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">Customer Insights</p>
+            <p className="text-sm font-semibold mb-3">ข้อมูลเชิงลึกลูกค้า</p>
             <CustomerInsightsCard data={stats.customerInsights} />
           </CardBody>
         </Card>

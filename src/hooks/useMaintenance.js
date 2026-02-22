@@ -53,7 +53,7 @@ export function useMaintenance() {
       setMaintenances(maintData);
       setVehicles(vehData);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -89,7 +89,7 @@ export function useMaintenance() {
       !formData.maintenanceVehicleId ||
       !formData.maintenanceDescription.trim()
     ) {
-      toast.error("Vehicle and description are required");
+      toast.error("กรุณาระบุยานพาหนะและรายละเอียด");
       return;
     }
 
@@ -110,15 +110,15 @@ export function useMaintenance() {
       setSaving(true);
       if (editingMaintenance) {
         await updateMaintenance(editingMaintenance.maintenanceId, payload);
-        toast.success("Maintenance record updated");
+        toast.success("อัปเดตบันทึกการบำรุงรักษาสำเร็จ");
       } else {
         await createMaintenance(payload);
-        toast.success("Maintenance record created");
+        toast.success("สร้างบันทึกการบำรุงรักษาสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save maintenance record");
+      toast.error(error.message || "บันทึกการบำรุงรักษาล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -133,12 +133,12 @@ export function useMaintenance() {
     if (!deletingMaintenance) return;
     try {
       await deleteMaintenance(deletingMaintenance.maintenanceId);
-      toast.success("Maintenance record deleted");
+      toast.success("ลบบันทึกการบำรุงรักษาสำเร็จ");
       deleteModal.onClose();
       setDeletingMaintenance(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete maintenance record");
+      toast.error(error.message || "ลบบันทึกการบำรุงรักษาล้มเหลว");
     }
   };
 

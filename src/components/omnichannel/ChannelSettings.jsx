@@ -107,10 +107,10 @@ export default function ChannelSettings({ isOpen, onClose }) {
         // AI settings table may not exist yet
       }
 
-      toast.success("Settings saved");
+      toast.success("บันทึกการตั้งค่าเรียบร้อย");
       onClose();
     } catch (error) {
-      toast.error("Failed to save settings");
+      toast.error("บันทึกการตั้งค่าไม่สำเร็จ");
     } finally {
       setSaving(false);
     }
@@ -119,7 +119,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose} size="2xl" scrollBehavior="inside">
       <ModalContent>
-        <ModalHeader>Channel Settings</ModalHeader>
+        <ModalHeader>ตั้งค่าช่องทาง</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-6">
             {/* Facebook */}
@@ -128,13 +128,13 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 <Facebook size={18} className="text-blue-500" />
                 <span className="font-semibold">Facebook Messenger</span>
                 <Chip size="sm" variant="flat" color={fbToken ? "success" : "default"}>
-                  {fbToken ? "Active" : "Inactive"}
+                  {fbToken ? "เปิดใช้งาน" : "ปิดใช้งาน"}
                 </Chip>
               </div>
               <Input
-                label="Page Access Token"
+                label="โทเค็นการเข้าถึงเพจ"
                 labelPlacement="outside"
-                placeholder="Enter Facebook Page Access Token"
+                placeholder="ใส่ Facebook Page Access Token"
                 variant="bordered"
                 size="md"
                 radius="md"
@@ -145,7 +145,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
               <Input
                 label="Page ID"
                 labelPlacement="outside"
-                placeholder="Enter Facebook Page ID"
+                placeholder="ใส่ Facebook Page ID"
                 variant="bordered"
                 size="md"
                 radius="md"
@@ -160,13 +160,13 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 <span className="text-green-500 font-bold text-sm">LINE</span>
                 <span className="font-semibold">LINE Official Account</span>
                 <Chip size="sm" variant="flat" color={lineToken ? "success" : "default"}>
-                  {lineToken ? "Active" : "Inactive"}
+                  {lineToken ? "เปิดใช้งาน" : "ปิดใช้งาน"}
                 </Chip>
               </div>
               <Input
                 label="Channel Access Token"
                 labelPlacement="outside"
-                placeholder="Enter LINE Channel Access Token"
+                placeholder="ใส่ LINE Channel Access Token"
                 variant="bordered"
                 size="md"
                 radius="md"
@@ -180,7 +180,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Sparkles size={18} className="text-secondary" />
-                <span className="font-semibold">AI Agent Settings</span>
+                <span className="font-semibold">ตั้งค่า AI Agent</span>
               </div>
               <Textarea
                 label="System Prompt"
@@ -194,7 +194,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 onValueChange={setAiSystemPrompt}
               />
               <Input
-                label="Max History Messages"
+                label="จำนวนข้อความย้อนหลังสูงสุด"
                 labelPlacement="outside"
                 placeholder="20"
                 description="จำนวนข้อความย้อนหลังที่ AI จะอ่านเพื่อตอบ"
@@ -222,10 +222,10 @@ export default function ChannelSettings({ isOpen, onClose }) {
         </ModalBody>
         <ModalFooter>
           <Button variant="bordered" radius="md" onPress={onClose}>
-            Cancel
+            ยกเลิก
           </Button>
           <Button color="primary" radius="md" onPress={handleSave} isLoading={saving}>
-            Save Settings
+            บันทึกการตั้งค่า
           </Button>
         </ModalFooter>
       </ModalContent>

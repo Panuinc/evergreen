@@ -76,7 +76,7 @@ export default function QuotationEditorPage() {
   if (!quotation) {
     return (
       <div className="flex items-center justify-center h-full text-default-400">
-        Quotation not found
+        ไม่พบใบเสนอราคา
       </div>
     );
   }
@@ -103,7 +103,7 @@ export default function QuotationEditorPage() {
             <ArrowLeft size={18} />
           </Button>
           <h2 className="text-lg font-semibold">
-            {quotation.quotationNo || "New Quotation"}
+            {quotation.quotationNo || "ใบเสนอราคาใหม่"}
           </h2>
           <Chip size="sm" variant="flat" color={statusColor}>
             {status}
@@ -119,7 +119,7 @@ export default function QuotationEditorPage() {
               onPress={() => handleAction("submit")}
               isLoading={saving}
             >
-              Submit for Approval
+              ส่งเพื่ออนุมัติ
             </Button>
           )}
           {canEdit && (
@@ -130,7 +130,7 @@ export default function QuotationEditorPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              Save
+              บันทึก
             </Button>
           )}
           {canApprove && (
@@ -142,7 +142,7 @@ export default function QuotationEditorPage() {
                 startContent={<X size={14} />}
                 onPress={rejectModal.onOpen}
               >
-                Reject
+                ปฏิเสธ
               </Button>
               <Button
                 variant="bordered"
@@ -152,7 +152,7 @@ export default function QuotationEditorPage() {
                 onPress={() => handleAction("approve")}
                 isLoading={saving}
               >
-                Approve
+                อนุมัติ
               </Button>
             </>
           )}
@@ -165,7 +165,7 @@ export default function QuotationEditorPage() {
               onPress={() => handleAction("convert_order")}
               isLoading={saving}
             >
-              Convert to Order
+              แปลงเป็นคำสั่งซื้อ
             </Button>
           )}
         </div>
@@ -174,11 +174,11 @@ export default function QuotationEditorPage() {
       <div className="flex flex-col gap-6">
         {/* Quotation Info */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Quotation Info</p>
+          <p className="text-lg font-semibold mb-4">ข้อมูลใบเสนอราคา</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <Input
-                label="Valid Until"
+                label="ใช้ได้ถึง"
                 labelPlacement="outside"
                 type="date"
                 variant="bordered"
@@ -193,9 +193,9 @@ export default function QuotationEditorPage() {
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <Input
-                label="Contact ID"
+                label="รหัสผู้ติดต่อ"
                 labelPlacement="outside"
-                placeholder="Enter contact ID"
+                placeholder="ใส่รหัสผู้ติดต่อ"
                 variant="bordered"
                 size="md"
                 radius="md"
@@ -208,9 +208,9 @@ export default function QuotationEditorPage() {
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <Input
-                label="Account ID"
+                label="รหัสบัญชี"
                 labelPlacement="outside"
-                placeholder="Enter account ID"
+                placeholder="ใส่รหัสบัญชี"
                 variant="bordered"
                 size="md"
                 radius="md"
@@ -226,19 +226,19 @@ export default function QuotationEditorPage() {
 
         {/* Line Items */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Line Items</p>
+          <p className="text-lg font-semibold mb-4">รายการสินค้า</p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-default-200">
                   <th className="text-left p-2 w-10">#</th>
-                  <th className="text-left p-2">Product</th>
-                  <th className="text-left p-2">Description</th>
-                  <th className="text-right p-2 w-24">Qty</th>
-                  <th className="text-right p-2 w-32">Unit Price</th>
-                  <th className="text-right p-2 w-28">Discount</th>
-                  <th className="text-right p-2 w-32">Amount</th>
-                  {canEdit && <th className="text-center p-2 w-16">Action</th>}
+                  <th className="text-left p-2">สินค้า</th>
+                  <th className="text-left p-2">รายละเอียด</th>
+                  <th className="text-right p-2 w-24">จำนวน</th>
+                  <th className="text-right p-2 w-32">ราคาต่อหน่วย</th>
+                  <th className="text-right p-2 w-28">ส่วนลด</th>
+                  <th className="text-right p-2 w-32">จำนวนเงิน</th>
+                  {canEdit && <th className="text-center p-2 w-16">การดำเนินการ</th>}
                 </tr>
               </thead>
               <tbody>
@@ -385,7 +385,7 @@ export default function QuotationEditorPage() {
                 startContent={<Plus size={14} />}
                 onPress={addLine}
               >
-                Add Line
+                เพิ่มรายการ
               </Button>
             </div>
           )}
@@ -393,10 +393,10 @@ export default function QuotationEditorPage() {
 
         {/* Summary */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Summary</p>
+          <p className="text-lg font-semibold mb-4">สรุป</p>
           <div className="flex flex-col items-end gap-3 w-full max-w-sm ml-auto">
             <div className="flex items-center justify-between w-full">
-              <span className="text-default-500">Subtotal</span>
+              <span className="text-default-500">ยอดรวมย่อย</span>
               <span>
                 ฿
                 {calcSubtotal().toLocaleString("th-TH", {
@@ -405,7 +405,7 @@ export default function QuotationEditorPage() {
               </span>
             </div>
             <div className="flex items-center justify-between w-full gap-4">
-              <span className="text-default-500">Discount</span>
+              <span className="text-default-500">ส่วนลด</span>
               <Input
                 variant="bordered"
                 size="md"
@@ -419,7 +419,7 @@ export default function QuotationEditorPage() {
               />
             </div>
             <div className="flex items-center justify-between w-full gap-4">
-              <span className="text-default-500">Tax</span>
+              <span className="text-default-500">ภาษี</span>
               <Input
                 variant="bordered"
                 size="md"
@@ -433,7 +433,7 @@ export default function QuotationEditorPage() {
               />
             </div>
             <div className="flex items-center justify-between w-full border-t border-default-200 pt-2">
-              <span className="font-bold text-lg">Total</span>
+              <span className="font-bold text-lg">ยอดรวม</span>
               <span className="font-bold text-lg">
                 ฿
                 {calcTotal().toLocaleString("th-TH", {
@@ -446,28 +446,28 @@ export default function QuotationEditorPage() {
 
         {/* Notes & Terms */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Notes & Terms</p>
+          <p className="text-lg font-semibold mb-4">หมายเหตุและเงื่อนไข</p>
           <div className="flex flex-col gap-4">
             <Textarea
-              label="Notes"
+              label="หมายเหตุ"
               labelPlacement="outside"
               variant="bordered"
               radius="md"
               size="md"
               minRows={2}
-              placeholder="Enter notes..."
+              placeholder="ใส่หมายเหตุ..."
               value={quotation.quotationNotes || ""}
               onValueChange={(v) => updateQuotationField("quotationNotes", v)}
               isReadOnly={!canEdit}
             />
             <Textarea
-              label="Terms"
+              label="เงื่อนไข"
               labelPlacement="outside"
               variant="bordered"
               radius="md"
               size="md"
               minRows={2}
-              placeholder="Enter terms..."
+              placeholder="ใส่เงื่อนไข..."
               value={quotation.quotationTerms || ""}
               onValueChange={(v) => updateQuotationField("quotationTerms", v)}
               isReadOnly={!canEdit}
@@ -479,7 +479,7 @@ export default function QuotationEditorPage() {
         {quotation.quotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
             <p className="text-sm font-semibold text-danger mb-1">
-              Rejection Note:
+              หมายเหตุการปฏิเสธ:
             </p>
             <p className="text-sm">{quotation.quotationApprovalNote}</p>
           </div>
@@ -489,13 +489,13 @@ export default function QuotationEditorPage() {
       {/* Reject Modal */}
       <Modal isOpen={rejectModal.isOpen} onClose={rejectModal.onClose} size="md">
         <ModalContent>
-          <ModalHeader>Reject Quotation</ModalHeader>
+          <ModalHeader>ปฏิเสธใบเสนอราคา</ModalHeader>
           <ModalBody>
             <Textarea
               variant="bordered"
               radius="md"
               size="md"
-              placeholder="Enter rejection note..."
+              placeholder="ใส่หมายเหตุการปฏิเสธ..."
               value={rejectNote}
               onValueChange={setRejectNote}
               minRows={3}
@@ -508,7 +508,7 @@ export default function QuotationEditorPage() {
               radius="md"
               onPress={rejectModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -517,7 +517,7 @@ export default function QuotationEditorPage() {
               onPress={onReject}
               isLoading={saving}
             >
-              Reject
+              ปฏิเสธ
             </Button>
           </ModalFooter>
         </ModalContent>

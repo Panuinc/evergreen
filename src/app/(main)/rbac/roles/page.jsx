@@ -20,12 +20,12 @@ import { useRoles } from "@/hooks/useRoles";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Name", uid: "roleName", sortable: true },
-  { name: "Description", uid: "roleDescription" },
-  { name: "Type", uid: "roleType", sortable: true },
-  { name: "Users", uid: "userCount", sortable: true },
-  { name: "Permissions", uid: "permCount", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อ", uid: "roleName", sortable: true },
+  { name: "รายละเอียด", uid: "roleDescription" },
+  { name: "ประเภท", uid: "roleType", sortable: true },
+  { name: "ผู้ใช้", uid: "userCount", sortable: true },
+  { name: "สิทธิ์", uid: "permCount", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -77,7 +77,7 @@ export default function RolesPage() {
             </Chip>
           ) : (
             <Chip variant="bordered" size="md" radius="md">
-              Standard
+              มาตรฐาน
             </Chip>
           );
         case "userCount":
@@ -93,7 +93,7 @@ export default function RolesPage() {
                 size="md"
                 radius="md"
                 onPress={() => openPermissions(role)}
-                title="Manage Permissions"
+                title="จัดการสิทธิ์"
               >
                 <Shield />
               </Button>
@@ -135,9 +135,9 @@ export default function RolesPage() {
         rowKey="roleId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, description..."
+        searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
         searchKeys={["roleName", "roleDescription"]}
-        emptyContent="No roles found"
+        emptyContent="ไม่พบบทบาท"
         topEndContent={
           <Button
             variant="bordered"
@@ -146,7 +146,7 @@ export default function RolesPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Role
+            เพิ่มบทบาท
           </Button>
         }
       />
@@ -154,14 +154,14 @@ export default function RolesPage() {
       {/* Create/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <ModalHeader>{editingRole ? "Edit Role" : "Create Role"}</ModalHeader>
+          <ModalHeader>{editingRole ? "แก้ไขบทบาท" : "สร้างบทบาท"}</ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Name"
+                  label="ชื่อ"
                   labelPlacement="outside"
-                  placeholder="e.g. hr_manager"
+                  placeholder="เช่น hr_manager"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -173,9 +173,9 @@ export default function RolesPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Textarea
-                  label="Description"
+                  label="รายละเอียด"
                   labelPlacement="outside"
-                  placeholder="Describe this role..."
+                  placeholder="อธิบายบทบาทนี้..."
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -196,17 +196,17 @@ export default function RolesPage() {
                     setFormData({ ...formData, roleIsSuperadmin: val })
                   }
                 >
-                  Superadmin (bypass all permission checks)
+                  Superadmin (ข้ามการตรวจสอบสิทธิ์ทั้งหมด)
                 </Switch>
               </div>
             </div>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button variant="solid" size="md" radius="md" onPress={handleSave}>
-              {editingRole ? "Update" : "Create"}
+              {editingRole ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -221,7 +221,7 @@ export default function RolesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            Permissions for &ldquo;{selectedRole?.roleName}&rdquo;
+            สิทธิ์ของ &ldquo;{selectedRole?.roleName}&rdquo;
           </ModalHeader>
           <ModalBody>
             {permLoading ? (
@@ -260,7 +260,7 @@ export default function RolesPage() {
               radius="md"
               onPress={() => setPermModalOpen(false)}
             >
-              Done
+              เสร็จ
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -18,11 +18,11 @@ import { usePositions } from "@/hooks/usePositions";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Title", uid: "positionTitle", sortable: true },
-  { name: "Department", uid: "positionDepartment", sortable: true },
-  { name: "Description", uid: "positionDescription" },
-  { name: "Created At", uid: "positionCreatedAt", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อตำแหน่ง", uid: "positionTitle", sortable: true },
+  { name: "แผนก", uid: "positionDepartment", sortable: true },
+  { name: "รายละเอียด", uid: "positionDescription" },
+  { name: "วันที่สร้าง", uid: "positionCreatedAt", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -115,7 +115,7 @@ export default function PositionsPage() {
         rowKey="positionId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by title, department, description..."
+        searchPlaceholder="ค้นหาตามชื่อตำแหน่ง, แผนก, รายละเอียด..."
         searchKeys={[
           "positionTitle",
           "positionDepartment",
@@ -123,8 +123,8 @@ export default function PositionsPage() {
         ]}
         statusField="positionDepartment"
         statusOptions={deptOptions}
-        filterLabel="Department"
-        emptyContent="No positions found"
+        filterLabel="แผนก"
+        emptyContent="ไม่พบตำแหน่ง"
         topEndContent={
           <Button
             variant="bordered"
@@ -133,7 +133,7 @@ export default function PositionsPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Position
+            เพิ่มตำแหน่ง
           </Button>
         }
       />
@@ -142,15 +142,15 @@ export default function PositionsPage() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
-            {editingPos ? "Edit Position" : "Add Position"}
+            {editingPos ? "แก้ไขตำแหน่ง" : "เพิ่มตำแหน่ง"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Select
-                  label="Department"
+                  label="แผนก"
                   labelPlacement="outside"
-                  placeholder="Select department"
+                  placeholder="เลือกแผนก"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -174,9 +174,9 @@ export default function PositionsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Title"
+                  label="ชื่อตำแหน่ง"
                   labelPlacement="outside"
-                  placeholder="e.g. Software Engineer, HR Manager"
+                  placeholder="เช่น วิศวกรซอฟต์แวร์, ผู้จัดการฝ่ายบุคคล"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -189,9 +189,9 @@ export default function PositionsPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Textarea
-                  label="Description"
+                  label="รายละเอียด"
                   labelPlacement="outside"
-                  placeholder="Describe this position..."
+                  placeholder="อธิบายเกี่ยวกับตำแหน่งนี้..."
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -208,7 +208,7 @@ export default function PositionsPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -217,7 +217,7 @@ export default function PositionsPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingPos ? "Update" : "Create"}
+              {editingPos ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -226,14 +226,14 @@ export default function PositionsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Position</ModalHeader>
+          <ModalHeader>ลบตำแหน่ง</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingPos?.positionTitle}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -243,7 +243,7 @@ export default function PositionsPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -251,7 +251,7 @@ export default function PositionsPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

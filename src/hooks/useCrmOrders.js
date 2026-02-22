@@ -29,7 +29,7 @@ export function useCrmOrders() {
           : data
       );
     } catch (error) {
-      toast.error("Failed to load orders");
+      toast.error("โหลดคำสั่งซื้อล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -39,10 +39,10 @@ export function useCrmOrders() {
     try {
       setSaving(true);
       await updateOrder(order.orderId, { orderStatus: newStatus });
-      toast.success(`Order status changed to ${newStatus}`);
+      toast.success(`เปลี่ยนสถานะคำสั่งซื้อเป็น ${newStatus} สำเร็จ`);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to update order");
+      toast.error(error.message || "อัปเดตคำสั่งซื้อล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -62,12 +62,12 @@ export function useCrmOrders() {
     if (!deletingOrder) return;
     try {
       await deleteOrder(deletingOrder.orderId);
-      toast.success("Order deleted");
+      toast.success("ลบคำสั่งซื้อสำเร็จ");
       deleteModal.onClose();
       setDeletingOrder(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete order");
+      toast.error(error.message || "ลบคำสั่งซื้อล้มเหลว");
     }
   };
 

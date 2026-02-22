@@ -61,7 +61,7 @@ export function useShipments() {
       setDrivers(drvData);
       setRoutes(routeData);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export function useShipments() {
       !formData.shipmentCustomerName.trim() ||
       !formData.shipmentDestination.trim()
     ) {
-      toast.error("Customer name and destination are required");
+      toast.error("กรุณาระบุชื่อลูกค้าและปลายทาง");
       return;
     }
 
@@ -105,15 +105,15 @@ export function useShipments() {
       setSaving(true);
       if (editingShipment) {
         await updateShipment(editingShipment.shipmentId, formData);
-        toast.success("Shipment updated");
+        toast.success("อัปเดตการจัดส่งสำเร็จ");
       } else {
         await createShipment(formData);
-        toast.success("Shipment created");
+        toast.success("สร้างการจัดส่งสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save shipment");
+      toast.error(error.message || "บันทึกการจัดส่งล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -122,10 +122,10 @@ export function useShipments() {
   const handleStatusChange = async (shipmentId, newStatus) => {
     try {
       await updateShipmentStatus(shipmentId, newStatus);
-      toast.success("Shipment status updated");
+      toast.success("อัปเดตสถานะการจัดส่งสำเร็จ");
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to update status");
+      toast.error(error.message || "อัปเดตสถานะล้มเหลว");
     }
   };
 
@@ -138,12 +138,12 @@ export function useShipments() {
     if (!deletingShipment) return;
     try {
       await deleteShipment(deletingShipment.shipmentId);
-      toast.success("Shipment deleted");
+      toast.success("ลบการจัดส่งสำเร็จ");
       deleteModal.onClose();
       setDeletingShipment(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete shipment");
+      toast.error(error.message || "ลบการจัดส่งล้มเหลว");
     }
   };
 

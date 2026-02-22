@@ -27,7 +27,7 @@ export async function POST(request, { params }) {
 
   if (!Array.isArray(body)) {
     return Response.json(
-      { error: "Request body must be an array of records" },
+      { error: "ข้อมูลที่ส่งต้องเป็นอาร์เรย์ของรายการ" },
       { status: 400 }
     );
   }

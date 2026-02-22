@@ -18,20 +18,20 @@ import { useItNetwork } from "@/hooks/useItNetwork";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Device Name", uid: "deviceName", sortable: true },
-  { name: "Type", uid: "deviceType", sortable: true },
-  { name: "IP Address", uid: "deviceIpAddress" },
-  { name: "MAC Address", uid: "deviceMacAddress" },
-  { name: "Location", uid: "deviceLocation" },
-  { name: "Manufacturer", uid: "deviceManufacturer" },
-  { name: "Status", uid: "deviceStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่ออุปกรณ์", uid: "deviceName", sortable: true },
+  { name: "ประเภท", uid: "deviceType", sortable: true },
+  { name: "ที่อยู่ IP", uid: "deviceIpAddress" },
+  { name: "ที่อยู่ MAC", uid: "deviceMacAddress" },
+  { name: "สถานที่", uid: "deviceLocation" },
+  { name: "ผู้ผลิต", uid: "deviceManufacturer" },
+  { name: "สถานะ", uid: "deviceStatus", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Online", uid: "online" },
-  { name: "Offline", uid: "offline" },
-  { name: "Maintenance", uid: "maintenance" },
+  { name: "ออนไลน์", uid: "online" },
+  { name: "ออฟไลน์", uid: "offline" },
+  { name: "ซ่อมบำรุง", uid: "maintenance" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -134,7 +134,7 @@ export default function NetworkPage() {
         rowKey="deviceId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, IP, location..."
+        searchPlaceholder="ค้นหาตามชื่อ, IP, สถานที่..."
         searchKeys={[
           "deviceName",
           "deviceIpAddress",
@@ -144,7 +144,7 @@ export default function NetworkPage() {
         ]}
         statusField="deviceStatus"
         statusOptions={statusOptions}
-        emptyContent="No network devices found"
+        emptyContent="ไม่พบอุปกรณ์เครือข่าย"
         topEndContent={
           <Button
             variant="bordered"
@@ -153,7 +153,7 @@ export default function NetworkPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Device
+            เพิ่มอุปกรณ์
           </Button>
         }
       />
@@ -167,16 +167,16 @@ export default function NetworkPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingDevice ? "Edit Device" : "Add Device"}
+            {editingDevice ? "แก้ไขอุปกรณ์" : "เพิ่มอุปกรณ์"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Device Name"
+                    label="ชื่ออุปกรณ์"
                     labelPlacement="outside"
-                    placeholder="Enter device name"
+                    placeholder="ใส่ชื่ออุปกรณ์"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -189,9 +189,9 @@ export default function NetworkPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Type"
+                    label="ประเภท"
                     labelPlacement="outside"
-                    placeholder="Select type"
+                    placeholder="เลือกประเภท"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -201,16 +201,16 @@ export default function NetworkPage() {
                       updateField("deviceType", val);
                     }}
                   >
-                    <SelectItem key="router">Router</SelectItem>
-                    <SelectItem key="switch">Switch</SelectItem>
-                    <SelectItem key="ap">Access Point</SelectItem>
-                    <SelectItem key="firewall">Firewall</SelectItem>
-                    <SelectItem key="other">Other</SelectItem>
+                    <SelectItem key="router">เราเตอร์</SelectItem>
+                    <SelectItem key="switch">สวิตช์</SelectItem>
+                    <SelectItem key="ap">แอคเซสพอยต์</SelectItem>
+                    <SelectItem key="firewall">ไฟร์วอลล์</SelectItem>
+                    <SelectItem key="other">อื่นๆ</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="IP Address"
+                    label="ที่อยู่ IP"
                     labelPlacement="outside"
                     placeholder="e.g. 192.168.1.1"
                     variant="bordered"
@@ -222,7 +222,7 @@ export default function NetworkPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="MAC Address"
+                    label="ที่อยู่ MAC"
                     labelPlacement="outside"
                     placeholder="e.g. AA:BB:CC:DD:EE:FF"
                     variant="bordered"
@@ -234,9 +234,9 @@ export default function NetworkPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Location"
+                    label="สถานที่"
                     labelPlacement="outside"
-                    placeholder="Enter location"
+                    placeholder="ใส่สถานที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -246,9 +246,9 @@ export default function NetworkPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Manufacturer"
+                    label="ผู้ผลิต"
                     labelPlacement="outside"
-                    placeholder="Enter manufacturer"
+                    placeholder="ใส่ผู้ผลิต"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -258,9 +258,9 @@ export default function NetworkPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Model"
+                    label="รุ่น"
                     labelPlacement="outside"
-                    placeholder="Enter model"
+                    placeholder="ใส่รุ่น"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -270,7 +270,7 @@ export default function NetworkPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -281,17 +281,17 @@ export default function NetworkPage() {
                       updateField("deviceStatus", val);
                     }}
                   >
-                    <SelectItem key="online">Online</SelectItem>
-                    <SelectItem key="offline">Offline</SelectItem>
-                    <SelectItem key="maintenance">Maintenance</SelectItem>
+                    <SelectItem key="online">ออนไลน์</SelectItem>
+                    <SelectItem key="offline">ออฟไลน์</SelectItem>
+                    <SelectItem key="maintenance">ซ่อมบำรุง</SelectItem>
                   </Select>
                 </div>
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -303,7 +303,7 @@ export default function NetworkPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -312,7 +312,7 @@ export default function NetworkPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingDevice ? "Update" : "Create"}
+              {editingDevice ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -321,14 +321,14 @@ export default function NetworkPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Device</ModalHeader>
+          <ModalHeader>ลบอุปกรณ์</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingDevice?.deviceName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -338,7 +338,7 @@ export default function NetworkPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -346,7 +346,7 @@ export default function NetworkPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

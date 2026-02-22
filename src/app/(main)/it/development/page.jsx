@@ -22,24 +22,24 @@ import { useItDevRequests } from "@/hooks/useItDevRequests";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Request No", uid: "requestNo", sortable: true },
-  { name: "Title", uid: "requestTitle", sortable: true },
-  { name: "Requested By", uid: "requestedBy" },
-  { name: "Priority", uid: "requestPriority", sortable: true },
-  { name: "Assigned To", uid: "requestAssignedTo" },
-  { name: "Progress", uid: "requestProgress", sortable: true },
-  { name: "Status", uid: "requestStatus", sortable: true },
-  { name: "Due Date", uid: "requestDueDate", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่คำขอ", uid: "requestNo", sortable: true },
+  { name: "หัวข้อ", uid: "requestTitle", sortable: true },
+  { name: "ร้องขอโดย", uid: "requestedBy" },
+  { name: "ความสำคัญ", uid: "requestPriority", sortable: true },
+  { name: "ผู้รับผิดชอบ", uid: "requestAssignedTo" },
+  { name: "ความคืบหน้า", uid: "requestProgress", sortable: true },
+  { name: "สถานะ", uid: "requestStatus", sortable: true },
+  { name: "วันครบกำหนด", uid: "requestDueDate", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Pending", uid: "pending" },
-  { name: "Approved", uid: "approved" },
-  { name: "In Progress", uid: "in_progress" },
-  { name: "Testing", uid: "testing" },
-  { name: "Completed", uid: "completed" },
-  { name: "Cancelled", uid: "cancelled" },
+  { name: "รอดำเนินการ", uid: "pending" },
+  { name: "อนุมัติแล้ว", uid: "approved" },
+  { name: "กำลังดำเนินการ", uid: "in_progress" },
+  { name: "กำลังทดสอบ", uid: "testing" },
+  { name: "เสร็จสิ้น", uid: "completed" },
+  { name: "ยกเลิก", uid: "cancelled" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -186,7 +186,7 @@ export default function DevelopmentPage() {
                 radius="md"
                 isIconOnly
                 onPress={() => openProgress(item)}
-                title="Update Progress"
+                title="อัปเดตความคืบหน้า"
               >
                 <GitBranch />
               </Button>
@@ -227,7 +227,7 @@ export default function DevelopmentPage() {
         rowKey="requestId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by request no, title, requested by..."
+        searchPlaceholder="ค้นหาตามเลขที่คำขอ, หัวข้อ, ร้องขอโดย..."
         searchKeys={[
           "requestNo",
           "requestTitle",
@@ -236,7 +236,7 @@ export default function DevelopmentPage() {
         ]}
         statusField="requestStatus"
         statusOptions={statusOptions}
-        emptyContent="No development requests found"
+        emptyContent="ไม่พบคำขอพัฒนา"
         topEndContent={
           <Button
             variant="bordered"
@@ -245,7 +245,7 @@ export default function DevelopmentPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            New Request
+            คำขอใหม่
           </Button>
         }
       />
@@ -260,15 +260,15 @@ export default function DevelopmentPage() {
         <ModalContent>
           <ModalHeader>
             {editingRequest
-              ? `Edit ${editingRequest.requestNo || "Request"}`
-              : "New Development Request"}
+              ? `แก้ไข ${editingRequest.requestNo || "คำขอ"}`
+              : "คำขอพัฒนาใหม่"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input
-                    label="Title"
+                    label="หัวข้อ"
                     labelPlacement="outside"
                     placeholder="ชื่อระบบหรือฟีเจอร์ที่ต้องการพัฒนา"
                     variant="bordered"
@@ -283,7 +283,7 @@ export default function DevelopmentPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Requested By"
+                    label="ร้องขอโดย"
                     labelPlacement="outside"
                     placeholder="ชื่อผู้แจ้ง"
                     variant="bordered"
@@ -297,9 +297,9 @@ export default function DevelopmentPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Priority"
+                    label="ความสำคัญ"
                     labelPlacement="outside"
-                    placeholder="Select priority"
+                    placeholder="เลือกความสำคัญ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -313,15 +313,15 @@ export default function DevelopmentPage() {
                       updateField("requestPriority", val);
                     }}
                   >
-                    <SelectItem key="low">Low</SelectItem>
-                    <SelectItem key="medium">Medium</SelectItem>
-                    <SelectItem key="high">High</SelectItem>
-                    <SelectItem key="critical">Critical</SelectItem>
+                    <SelectItem key="low">ต่ำ</SelectItem>
+                    <SelectItem key="medium">ปานกลาง</SelectItem>
+                    <SelectItem key="high">สูง</SelectItem>
+                    <SelectItem key="critical">วิกฤต</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -332,17 +332,17 @@ export default function DevelopmentPage() {
                       updateField("requestStatus", val);
                     }}
                   >
-                    <SelectItem key="pending">Pending</SelectItem>
-                    <SelectItem key="approved">Approved</SelectItem>
-                    <SelectItem key="in_progress">In Progress</SelectItem>
-                    <SelectItem key="testing">Testing</SelectItem>
-                    <SelectItem key="completed">Completed</SelectItem>
-                    <SelectItem key="cancelled">Cancelled</SelectItem>
+                    <SelectItem key="pending">รอดำเนินการ</SelectItem>
+                    <SelectItem key="approved">อนุมัติแล้ว</SelectItem>
+                    <SelectItem key="in_progress">กำลังดำเนินการ</SelectItem>
+                    <SelectItem key="testing">กำลังทดสอบ</SelectItem>
+                    <SelectItem key="completed">เสร็จสิ้น</SelectItem>
+                    <SelectItem key="cancelled">ยกเลิก</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Assigned To"
+                    label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
                     placeholder="ชื่อ Developer"
                     variant="bordered"
@@ -357,9 +357,9 @@ export default function DevelopmentPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Start Date"
+                    label="วันที่เริ่มต้น"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -372,9 +372,9 @@ export default function DevelopmentPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Due Date"
+                    label="วันครบกำหนด"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -387,7 +387,7 @@ export default function DevelopmentPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Textarea
-                  label="Description"
+                  label="รายละเอียด"
                   labelPlacement="outside"
                   placeholder="อธิบายรายละเอียดของระบบที่ต้องการพัฒนา..."
                   variant="bordered"
@@ -402,7 +402,7 @@ export default function DevelopmentPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
                   placeholder="หมายเหตุเพิ่มเติม"
                   variant="bordered"
@@ -416,7 +416,7 @@ export default function DevelopmentPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -425,7 +425,7 @@ export default function DevelopmentPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingRequest ? "Update" : "Create"}
+              {editingRequest ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -465,7 +465,7 @@ export default function DevelopmentPage() {
             <div className="flex flex-col gap-4">
               {/* Add Progress Form */}
               <div className="flex flex-col gap-3 p-4 rounded-lg border border-default-200 bg-default-50">
-                <p className="text-sm font-semibold">Add Progress Update</p>
+                <p className="text-sm font-semibold">เพิ่มการอัปเดตความคืบหน้า</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="md:col-span-2">
                     <Textarea
@@ -482,7 +482,7 @@ export default function DevelopmentPage() {
                   </div>
                   <Input
                     type="number"
-                    label="Progress %"
+                    label="ความคืบหน้า %"
                     labelPlacement="outside"
                     placeholder="0-100"
                     variant="bordered"
@@ -496,7 +496,7 @@ export default function DevelopmentPage() {
                     }
                   />
                   <Input
-                    label="Updated By"
+                    label="อัปเดตโดย"
                     labelPlacement="outside"
                     placeholder="ชื่อ Developer"
                     variant="bordered"
@@ -516,7 +516,7 @@ export default function DevelopmentPage() {
                     onPress={handleAddProgress}
                     isLoading={progressSaving}
                   >
-                    Add Update
+                    เพิ่มอัปเดต
                   </Button>
                 </div>
               </div>
@@ -525,14 +525,14 @@ export default function DevelopmentPage() {
 
               {/* Progress History */}
               <div className="flex flex-col gap-1">
-                <p className="text-sm font-semibold">Progress History</p>
+                <p className="text-sm font-semibold">ประวัติความคืบหน้า</p>
                 {progressLoading ? (
                   <div className="flex justify-center py-6">
                     <Spinner />
                   </div>
                 ) : progressLogs.length === 0 ? (
                   <p className="text-sm text-default-400 text-center py-6">
-                    No progress updates yet
+                    ยังไม่มีการอัปเดตความคืบหน้า
                   </p>
                 ) : (
                   <div className="flex flex-col gap-3 mt-2">
@@ -549,7 +549,7 @@ export default function DevelopmentPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-sm font-medium">
-                              {log.logCreatedBy || "Unknown"}
+                              {log.logCreatedBy || "ไม่ทราบ"}
                             </span>
                             <div className="flex items-center gap-1 text-xs text-default-400">
                               <Clock size={12} />
@@ -589,7 +589,7 @@ export default function DevelopmentPage() {
               radius="md"
               onPress={progressModal.onClose}
             >
-              Close
+              ปิด
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -598,14 +598,14 @@ export default function DevelopmentPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Request</ModalHeader>
+          <ModalHeader>ลบคำขอ</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingRequest?.requestNo} - {deletingRequest?.requestTitle}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -615,7 +615,7 @@ export default function DevelopmentPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -623,7 +623,7 @@ export default function DevelopmentPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

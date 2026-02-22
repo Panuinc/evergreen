@@ -14,7 +14,7 @@ export function useConfigCheck() {
       const data = await getConfigCheck();
       setStatus(data);
     } catch (error) {
-      toast.error("Failed to check config status");
+      toast.error("ตรวจสอบสถานะการตั้งค่าล้มเหลว");
     } finally {
       setLoading(false);
     }

@@ -49,7 +49,7 @@ export function useDrivers() {
       setDrivers(driverData);
       setEmployees(empData);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ export function useDrivers() {
       !formData.driverFirstName.trim() ||
       !formData.driverLastName.trim()
     ) {
-      toast.error("First name and last name are required");
+      toast.error("กรุณาระบุชื่อและนามสกุล");
       return;
     }
 
@@ -90,15 +90,15 @@ export function useDrivers() {
       setSaving(true);
       if (editingDriver) {
         await updateDriver(editingDriver.driverId, formData);
-        toast.success("Driver updated");
+        toast.success("อัปเดตพนักงานขับรถสำเร็จ");
       } else {
         await createDriver(formData);
-        toast.success("Driver created");
+        toast.success("สร้างพนักงานขับรถสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save driver");
+      toast.error(error.message || "บันทึกพนักงานขับรถล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -113,12 +113,12 @@ export function useDrivers() {
     if (!deletingDriver) return;
     try {
       await deleteDriver(deletingDriver.driverId);
-      toast.success("Driver deleted");
+      toast.success("ลบพนักงานขับรถสำเร็จ");
       deleteModal.onClose();
       setDeletingDriver(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete driver");
+      toast.error(error.message || "ลบพนักงานขับรถล้มเหลว");
     }
   };
 

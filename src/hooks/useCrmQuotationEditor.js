@@ -38,7 +38,7 @@ export function useCrmQuotationEditor(quotationId) {
       setDiscount(parseFloat(data.quotationDiscount) || 0);
       setTax(parseFloat(data.quotationTax) || 0);
     } catch (error) {
-      toast.error("Failed to load quotation");
+      toast.error("โหลดใบเสนอราคาล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -92,10 +92,10 @@ export function useCrmQuotationEditor(quotationId) {
         quotationAccountId: quotation.quotationAccountId,
         lines,
       });
-      toast.success("Quotation saved");
+      toast.success("บันทึกใบเสนอราคาสำเร็จ");
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save quotation");
+      toast.error(error.message || "บันทึกใบเสนอราคาล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -110,16 +110,16 @@ export function useCrmQuotationEditor(quotationId) {
       }
       const result = await quotationAction(quotationId, action, note);
       const messages = {
-        submit: "Quotation submitted for approval",
-        approve: "Quotation approved",
-        reject: "Quotation rejected",
-        convert_order: "Order created from quotation",
+        submit: "ส่งใบเสนอราคาเพื่ออนุมัติแล้ว",
+        approve: "อนุมัติใบเสนอราคาแล้ว",
+        reject: "ปฏิเสธใบเสนอราคาแล้ว",
+        convert_order: "สร้างคำสั่งซื้อจากใบเสนอราคาสำเร็จ",
       };
-      toast.success(messages[action] || "Action completed");
+      toast.success(messages[action] || "ดำเนินการสำเร็จ");
       loadData();
       return result;
     } catch (error) {
-      toast.error(error.message || "Failed to perform action");
+      toast.error(error.message || "ดำเนินการล้มเหลว");
     } finally {
       setSaving(false);
     }

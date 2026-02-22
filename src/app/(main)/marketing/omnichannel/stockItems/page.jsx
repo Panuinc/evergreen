@@ -11,7 +11,7 @@ import DataTable from "@/components/ui/DataTable";
 const columns = [
   { name: "รหัสสินค้า", uid: "number", sortable: true },
   { name: "ชื่อสินค้า", uid: "displayName", sortable: true },
-  { name: "Stock", uid: "inventory", sortable: true },
+  { name: "คงคลัง", uid: "inventory", sortable: true },
   { name: "ราคา BC", uid: "unitPrice", sortable: true },
   { name: "ราคาขาย", uid: "customPrice", sortable: true },
 ];
@@ -128,7 +128,7 @@ export default function StockItemsPage() {
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <h2 className="text-lg font-semibold">Price List</h2>
+      <h2 className="text-lg font-semibold">รายการราคา</h2>
 
       <DataTable
         columns={columns}

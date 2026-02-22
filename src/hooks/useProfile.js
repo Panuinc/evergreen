@@ -24,7 +24,7 @@ export function useProfile() {
       const data = await getProfile();
       setProfile(data);
     } catch (error) {
-      toast.error("Failed to load profile");
+      toast.error("โหลดข้อมูลโปรไฟล์ล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -32,15 +32,15 @@ export function useProfile() {
 
   const handleChangePassword = async () => {
     if (!passwordForm.currentPassword || !passwordForm.newPassword) {
-      toast.error("Please fill in all password fields");
+      toast.error("กรุณากรอกรหัสผ่านให้ครบทุกช่อง");
       return;
     }
     if (passwordForm.newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+      toast.error("รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร");
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("New passwords do not match");
+      toast.error("รหัสผ่านใหม่ไม่ตรงกัน");
       return;
     }
 
@@ -50,14 +50,14 @@ export function useProfile() {
         passwordForm.currentPassword,
         passwordForm.newPassword,
       );
-      toast.success("Password changed successfully");
+      toast.success("เปลี่ยนรหัสผ่านสำเร็จ");
       setPasswordForm({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
     } catch (error) {
-      toast.error(error.message || "Failed to change password");
+      toast.error(error.message || "เปลี่ยนรหัสผ่านล้มเหลว");
     } finally {
       setChanging(false);
     }

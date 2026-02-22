@@ -45,7 +45,7 @@ export function useItSoftware() {
       const data = await getSoftware();
       setSoftware(data);
     } catch (error) {
-      toast.error("Failed to load software");
+      toast.error("โหลดข้อมูลซอฟต์แวร์ล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ export function useItSoftware() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      softwareName: [(v) => !isRequired(v) && "Software name is required"],
+      softwareName: [(v) => !isRequired(v) && "กรุณาระบุชื่อซอฟต์แวร์"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -94,15 +94,15 @@ export function useItSoftware() {
       };
       if (editingSoftware) {
         await updateSoftware(editingSoftware.softwareId, payload);
-        toast.success("Software updated");
+        toast.success("อัปเดตซอฟต์แวร์สำเร็จ");
       } else {
         await createSoftware(payload);
-        toast.success("Software created");
+        toast.success("สร้างซอฟต์แวร์สำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save software");
+      toast.error(error.message || "บันทึกซอฟต์แวร์ล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -117,12 +117,12 @@ export function useItSoftware() {
     if (!deletingSoftware) return;
     try {
       await deleteSoftware(deletingSoftware.softwareId);
-      toast.success("Software deleted");
+      toast.success("ลบซอฟต์แวร์สำเร็จ");
       deleteModal.onClose();
       setDeletingSoftware(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete software");
+      toast.error(error.message || "ลบซอฟต์แวร์ล้มเหลว");
     }
   };
 

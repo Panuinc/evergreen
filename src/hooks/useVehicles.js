@@ -51,7 +51,7 @@ export function useVehicles() {
       const data = await getVehicles();
       setVehicles(data);
     } catch (error) {
-      toast.error("Failed to load vehicles");
+      toast.error("โหลดยานพาหนะล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -90,8 +90,8 @@ export function useVehicles() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      vehiclePlateNumber: [(v) => !isRequired(v) && "Plate number is required"],
-      vehicleName: [(v) => !isRequired(v) && "Vehicle name is required"],
+      vehiclePlateNumber: [(v) => !isRequired(v) && "กรุณาระบุหมายเลขทะเบียน"],
+      vehicleName: [(v) => !isRequired(v) && "กรุณาระบุชื่อยานพาหนะ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -104,15 +104,15 @@ export function useVehicles() {
       setSaving(true);
       if (editingVehicle) {
         await updateVehicle(editingVehicle.vehicleId, formData);
-        toast.success("Vehicle updated");
+        toast.success("อัปเดตยานพาหนะสำเร็จ");
       } else {
         await createVehicle(formData);
-        toast.success("Vehicle created");
+        toast.success("สร้างยานพาหนะสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save vehicle");
+      toast.error(error.message || "บันทึกยานพาหนะล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -127,12 +127,12 @@ export function useVehicles() {
     if (!deletingVehicle) return;
     try {
       await deleteVehicle(deletingVehicle.vehicleId);
-      toast.success("Vehicle deleted");
+      toast.success("ลบยานพาหนะสำเร็จ");
       deleteModal.onClose();
       setDeletingVehicle(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete vehicle");
+      toast.error(error.message || "ลบยานพาหนะล้มเหลว");
     }
   };
 

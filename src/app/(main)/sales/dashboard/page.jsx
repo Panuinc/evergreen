@@ -49,42 +49,42 @@ export default function SalesDashboardPage() {
 
   const kpiCards = [
     {
-      label: "Total Leads",
+      label: "ลีดทั้งหมด",
       value: kpis.totalLeads || 0,
       icon: Users,
     },
     {
-      label: "Open Opportunities",
+      label: "โอกาสที่เปิดอยู่",
       value: kpis.openOpportunities || 0,
       icon: Briefcase,
     },
     {
-      label: "Won Deals",
+      label: "ดีลที่ชนะ",
       value: kpis.wonDeals || 0,
       icon: Trophy,
     },
     {
-      label: "Total Revenue",
+      label: "รายได้ทั้งหมด",
       value: `฿${Number(kpis.totalRevenue || 0).toLocaleString("th-TH")}`,
       icon: DollarSign,
     },
     {
-      label: "Pipeline Value",
+      label: "มูลค่าไปป์ไลน์",
       value: `฿${Number(kpis.pipelineValue || 0).toLocaleString("th-TH")}`,
       icon: TrendingUp,
     },
     {
-      label: "Weighted Pipeline",
+      label: "ไปป์ไลน์ถ่วงน้ำหนัก",
       value: `฿${Number(kpis.weightedPipeline || 0).toLocaleString("th-TH")}`,
       icon: BarChart3,
     },
     {
-      label: "Win Rate",
+      label: "อัตราการชนะ",
       value: `${kpis.winRate || 0}%`,
       icon: Target,
     },
     {
-      label: "New Leads",
+      label: "ลีดใหม่",
       value: kpis.newLeads || 0,
       icon: UserPlus,
     },
@@ -113,7 +113,7 @@ export default function SalesDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Pipeline by Stage */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Pipeline by Stage</p>
+          <p className="text-lg font-semibold mb-4">ไปป์ไลน์ตามขั้นตอน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.pipelineByStage || []}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -133,7 +133,7 @@ export default function SalesDashboardPage() {
 
         {/* Revenue by Month */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Revenue by Month</p>
+          <p className="text-lg font-semibold mb-4">รายได้ตามเดือน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.revenueByMonth || []}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -156,7 +156,7 @@ export default function SalesDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Top Salespeople */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Top Salespeople</p>
+          <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(data.topSalespeople || []).map((person, i) => (
               <div
@@ -171,7 +171,7 @@ export default function SalesDashboardPage() {
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <span className="text-default-500">
-                    {person.deals} deals
+                    {person.deals} ดีล
                   </span>
                   <span className="font-semibold">
                     ฿{Number(person.revenue || 0).toLocaleString("th-TH")}
@@ -181,7 +181,7 @@ export default function SalesDashboardPage() {
             ))}
             {(!data.topSalespeople || data.topSalespeople.length === 0) && (
               <p className="text-default-400 text-sm text-center py-4">
-                No data available
+                ไม่มีข้อมูล
               </p>
             )}
           </div>
@@ -189,7 +189,7 @@ export default function SalesDashboardPage() {
 
         {/* Recent Activities */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">Recent Activities</p>
+          <p className="text-lg font-semibold mb-4">กิจกรรมล่าสุด</p>
           <div className="flex flex-col gap-3">
             {(data.recentActivities || []).map((activity, i) => {
               const Icon =
@@ -218,7 +218,7 @@ export default function SalesDashboardPage() {
             {(!data.recentActivities ||
               data.recentActivities.length === 0) && (
               <p className="text-default-400 text-sm text-center py-4">
-                No recent activities
+                ไม่มีกิจกรรมล่าสุด
               </p>
             )}
           </div>

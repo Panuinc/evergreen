@@ -44,7 +44,7 @@ export function useCrmContacts() {
       const data = await getContacts();
       setContacts(data);
     } catch (error) {
-      toast.error("Failed to load contacts");
+      toast.error("โหลดผู้ติดต่อล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,7 @@ export function useCrmContacts() {
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
       contactFirstName: [
-        (v) => !isRequired(v) && "First name is required",
+        (v) => !isRequired(v) && "กรุณาระบุชื่อ",
       ],
     });
     if (!isValid) {
@@ -92,15 +92,15 @@ export function useCrmContacts() {
 
       if (editingContact) {
         await updateContact(editingContact.contactId, payload);
-        toast.success("Contact updated");
+        toast.success("อัปเดตผู้ติดต่อสำเร็จ");
       } else {
         await createContact(payload);
-        toast.success("Contact created");
+        toast.success("สร้างผู้ติดต่อสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save contact");
+      toast.error(error.message || "บันทึกผู้ติดต่อล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -115,12 +115,12 @@ export function useCrmContacts() {
     if (!deletingContact) return;
     try {
       await deleteContact(deletingContact.contactId);
-      toast.success("Contact deleted");
+      toast.success("ลบผู้ติดต่อสำเร็จ");
       deleteModal.onClose();
       setDeletingContact(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete contact");
+      toast.error(error.message || "ลบผู้ติดต่อล้มเหลว");
     }
   };
 

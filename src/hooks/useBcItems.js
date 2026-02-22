@@ -18,7 +18,7 @@ export function useBcItems() {
       const data = await getBcItems();
       setItems(data);
     } catch (error) {
-      toast.error("Failed to load items from Business Central");
+      toast.error("โหลดรายการสินค้าจาก Business Central ล้มเหลว");
     } finally {
       setLoading(false);
     }

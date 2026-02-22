@@ -14,7 +14,7 @@ export async function POST(request) {
 
   if (!email || !pin) {
     return Response.json(
-      { error: "Email and PIN are required" },
+      { error: "กรุณาระบุอีเมลและ PIN" },
       { status: 400 }
     );
   }
@@ -22,12 +22,12 @@ export async function POST(request) {
   // หา user จาก email
   const { data: { users }, error: listError } = await adminClient.auth.admin.listUsers();
   if (listError) {
-    return Response.json({ error: "Server error" }, { status: 500 });
+    return Response.json({ error: "ข้อผิดพลาดของเซิร์ฟเวอร์" }, { status: 500 });
   }
 
   const user = users.find((u) => u.email === email);
   if (!user) {
-    return Response.json({ error: "Invalid email or PIN" }, { status: 401 });
+    return Response.json({ error: "อีเมลหรือ PIN ไม่ถูกต้อง" }, { status: 401 });
   }
 
   const meta = user.app_metadata || {};
@@ -35,7 +35,7 @@ export async function POST(request) {
   // เช็คว่ามี PIN หรือยัง
   if (!meta.pinHash) {
     return Response.json(
-      { error: "PIN is not set for this account" },
+      { error: "บัญชีนี้ยังไม่ได้ตั้ง PIN" },
       { status: 400 }
     );
   }
@@ -46,7 +46,7 @@ export async function POST(request) {
     if (lockedUntil > new Date()) {
       const minutesLeft = Math.ceil((lockedUntil - new Date()) / 60000);
       return Response.json(
-        { error: `Account locked. Try again in ${minutesLeft} minutes.`, locked: true },
+        { error: `บัญชีถูกล็อก กรุณาลองอีกครั้งใน ${minutesLeft} นาที`, locked: true },
         { status: 429 }
       );
     }
@@ -70,13 +70,13 @@ export async function POST(request) {
 
     if (attempts >= MAX_ATTEMPTS) {
       return Response.json(
-        { error: "Too many failed attempts. Account locked for 15 minutes.", locked: true },
+        { error: "ใส่ผิดหลายครั้งเกินไป บัญชีถูกล็อก 15 นาที", locked: true },
         { status: 429 }
       );
     }
 
     return Response.json(
-      { error: "Invalid email or PIN", attemptsLeft: MAX_ATTEMPTS - attempts },
+      { error: "อีเมลหรือ PIN ไม่ถูกต้อง", attemptsLeft: MAX_ATTEMPTS - attempts },
       { status: 401 }
     );
   }
@@ -93,7 +93,7 @@ export async function POST(request) {
   });
 
   if (linkError) {
-    return Response.json({ error: "Failed to generate session" }, { status: 500 });
+    return Response.json({ error: "สร้างเซสชันล้มเหลว" }, { status: 500 });
   }
 
   // ส่ง hashed_token + verification_type กลับให้ client ใช้ verifyOtp

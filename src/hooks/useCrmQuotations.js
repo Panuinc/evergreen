@@ -26,7 +26,7 @@ export function useCrmQuotations() {
           : data
       );
     } catch (error) {
-      toast.error("Failed to load quotations");
+      toast.error("โหลดใบเสนอราคาล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -41,12 +41,12 @@ export function useCrmQuotations() {
     if (!deletingQuotation) return;
     try {
       await deleteQuotation(deletingQuotation.quotationId);
-      toast.success("Quotation deleted");
+      toast.success("ลบใบเสนอราคาสำเร็จ");
       deleteModal.onClose();
       setDeletingQuotation(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete quotation");
+      toast.error(error.message || "ลบใบเสนอราคาล้มเหลว");
     }
   };
 

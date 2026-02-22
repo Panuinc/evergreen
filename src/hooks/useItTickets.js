@@ -43,7 +43,7 @@ export function useItTickets() {
       const data = await getTickets();
       setTickets(data);
     } catch (error) {
-      toast.error("Failed to load tickets");
+      toast.error("โหลดตั๋วล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export function useItTickets() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      ticketTitle: [(v) => !isRequired(v) && "Ticket title is required"],
+      ticketTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อตั๋ว"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -85,15 +85,15 @@ export function useItTickets() {
       setSaving(true);
       if (editingTicket) {
         await updateTicket(editingTicket.ticketId, formData);
-        toast.success("Ticket updated");
+        toast.success("อัปเดตตั๋วสำเร็จ");
       } else {
         await createTicket(formData);
-        toast.success("Ticket created");
+        toast.success("สร้างตั๋วสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save ticket");
+      toast.error(error.message || "บันทึกตั๋วล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -108,12 +108,12 @@ export function useItTickets() {
     if (!deletingTicket) return;
     try {
       await deleteTicket(deletingTicket.ticketId);
-      toast.success("Ticket deleted");
+      toast.success("ลบตั๋วสำเร็จ");
       deleteModal.onClose();
       setDeletingTicket(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete ticket");
+      toast.error(error.message || "ลบตั๋วล้มเหลว");
     }
   };
 

@@ -71,16 +71,16 @@ export default function RoutesPage() {
           return item.routeDestination || "-";
         case "routeDistanceKm":
           return item.routeDistanceKm
-            ? `${Number(item.routeDistanceKm).toLocaleString()} km`
+            ? `${Number(item.routeDistanceKm).toLocaleString()} กม.`
             : "-";
         case "routeEstimatedMinutes": {
           if (!item.routeEstimatedMinutes) return "-";
           const mins = Number(item.routeEstimatedMinutes);
           const hours = Math.floor(mins / 60);
           const remaining = mins % 60;
-          if (hours > 0 && remaining > 0) return `${hours}h ${remaining}m`;
-          if (hours > 0) return `${hours}h`;
-          return `${remaining}m`;
+          if (hours > 0 && remaining > 0) return `${hours} ชม. ${remaining} น.`;
+          if (hours > 0) return `${hours} ชม.`;
+          return `${remaining} น.`;
         }
         case "routeStatus": {
           const colorMap = {

@@ -30,7 +30,7 @@ export function useChat() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to send message");
+        throw new Error(data.error || "ส่งข้อความล้มเหลว");
       }
 
       const reader = res.body.getReader();
@@ -79,7 +79,7 @@ export function useChat() {
       ]);
     } catch (error) {
       if (error.name === "AbortError") return;
-      toast.error("Failed to get response");
+      toast.error("ไม่สามารถรับการตอบกลับได้");
       setMessages(updatedMessages);
     } finally {
       setIsLoading(false);

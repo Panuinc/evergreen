@@ -21,14 +21,14 @@ import { useBcSalesOrders } from "@/hooks/useBcSalesOrders";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Number", uid: "number", sortable: true },
-  { name: "Order Date", uid: "orderDate", sortable: true },
-  { name: "Customer", uid: "customerName", sortable: true },
-  { name: "Status", uid: "status", sortable: true },
-  { name: "Currency", uid: "currencyCode", sortable: true },
-  { name: "Total (incl. Tax)", uid: "totalAmountIncludingTax", sortable: true },
-  { name: "Lines", uid: "lineCount" },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่", uid: "number", sortable: true },
+  { name: "วันที่สั่ง", uid: "orderDate", sortable: true },
+  { name: "ลูกค้า", uid: "customerName", sortable: true },
+  { name: "สถานะ", uid: "status", sortable: true },
+  { name: "สกุลเงิน", uid: "currencyCode", sortable: true },
+  { name: "ยอดรวม (รวมภาษี)", uid: "totalAmountIncludingTax", sortable: true },
+  { name: "รายการ", uid: "lineCount" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -47,6 +47,14 @@ const statusColorMap = {
   Released: "success",
   "Pending Approval": "warning",
   "Pending Prepayment": "warning",
+};
+
+const statusLabelMap = {
+  Draft: "ร่าง",
+  Open: "เปิด",
+  Released: "ปล่อยแล้ว",
+  "Pending Approval": "รออนุมัติ",
+  "Pending Prepayment": "รอชำระล่วงหน้า",
 };
 
 function formatNumber(value) {
@@ -78,7 +86,7 @@ export default function BcSalesOrdersPage() {
               radius="md"
               color={statusColorMap[order.status] || "default"}
             >
-              {order.status || "-"}
+              {statusLabelMap[order.status] || order.status || "-"}
             </Chip>
           );
         case "currencyCode":
@@ -118,9 +126,9 @@ export default function BcSalesOrdersPage() {
         rowKey="id"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by number, customer..."
+        searchPlaceholder="ค้นหาด้วยเลขที่, ลูกค้า..."
         searchKeys={["number", "customerName", "status"]}
-        emptyContent="No sales orders found"
+        emptyContent="ไม่พบใบสั่งขาย"
       />
 
       <Modal
@@ -130,19 +138,19 @@ export default function BcSalesOrdersPage() {
         scrollBehavior="inside"
       >
         <ModalContent>
-          <ModalHeader>Order Lines — {selectedOrder?.number}</ModalHeader>
+          <ModalHeader>รายการสินค้า — {selectedOrder?.number}</ModalHeader>
           <ModalBody>
-            <Table aria-label="Sales order lines" shadow="none">
+            <Table aria-label="รายการสินค้าในใบสั่งขาย" shadow="none">
               <TableHeader>
-                <TableColumn>No.</TableColumn>
-                <TableColumn>Item No.</TableColumn>
-                <TableColumn>Description</TableColumn>
-                <TableColumn>Project</TableColumn>
-                <TableColumn>Quantity</TableColumn>
-                <TableColumn>Unit Price</TableColumn>
-                <TableColumn>Line Amount</TableColumn>
+                <TableColumn>ลำดับ</TableColumn>
+                <TableColumn>เลขที่สินค้า</TableColumn>
+                <TableColumn>รายละเอียด</TableColumn>
+                <TableColumn>โครงการ</TableColumn>
+                <TableColumn>จำนวน</TableColumn>
+                <TableColumn>ราคาต่อหน่วย</TableColumn>
+                <TableColumn>ยอดรวมรายการ</TableColumn>
               </TableHeader>
-              <TableBody emptyContent="No lines">
+              <TableBody emptyContent="ไม่มีรายการ">
                 {lines.map((line, idx) => (
                   <TableRow key={line.id || idx}>
                     <TableCell>{idx + 1}</TableCell>
@@ -186,7 +194,7 @@ export default function BcSalesOrdersPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Close
+              ปิด
             </Button>
           </ModalFooter>
         </ModalContent>

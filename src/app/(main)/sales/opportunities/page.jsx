@@ -18,32 +18,32 @@ import { useCrmOpportunities } from "@/hooks/useCrmOpportunities";
 import DataTable from "@/components/ui/DataTable";
 
 const KANBAN_STAGES = [
-  { key: "prospecting", name: "Prospecting", color: "#6366f1" },
-  { key: "qualification", name: "Qualification", color: "#3b82f6" },
-  { key: "proposal", name: "Proposal", color: "#f59e0b" },
-  { key: "negotiation", name: "Negotiation", color: "#f97316" },
+  { key: "prospecting", name: "สำรวจ", color: "#6366f1" },
+  { key: "qualification", name: "คัดกรอง", color: "#3b82f6" },
+  { key: "proposal", name: "เสนอ", color: "#f59e0b" },
+  { key: "negotiation", name: "เจรจา", color: "#f97316" },
 ];
 
 const columns = [
-  { name: "Opp No.", uid: "opportunityNo", sortable: true },
-  { name: "Name", uid: "opportunityName", sortable: true },
-  { name: "Contact", uid: "contact" },
-  { name: "Account", uid: "account" },
-  { name: "Stage", uid: "opportunityStage" },
-  { name: "Amount", uid: "opportunityAmount" },
-  { name: "Probability", uid: "opportunityProbability" },
-  { name: "Weighted Value", uid: "weightedValue" },
-  { name: "Expected Close", uid: "opportunityExpectedCloseDate" },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่", uid: "opportunityNo", sortable: true },
+  { name: "ชื่อ", uid: "opportunityName", sortable: true },
+  { name: "ผู้ติดต่อ", uid: "contact" },
+  { name: "บัญชี", uid: "account" },
+  { name: "ขั้นตอน", uid: "opportunityStage" },
+  { name: "มูลค่า", uid: "opportunityAmount" },
+  { name: "ความน่าจะเป็น", uid: "opportunityProbability" },
+  { name: "มูลค่าถ่วงน้ำหนัก", uid: "weightedValue" },
+  { name: "คาดว่าปิดเมื่อ", uid: "opportunityExpectedCloseDate" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Prospecting", uid: "prospecting" },
-  { name: "Qualification", uid: "qualification" },
-  { name: "Proposal", uid: "proposal" },
-  { name: "Negotiation", uid: "negotiation" },
-  { name: "Closed Won", uid: "closed_won" },
-  { name: "Closed Lost", uid: "closed_lost" },
+  { name: "สำรวจ", uid: "prospecting" },
+  { name: "คัดกรอง", uid: "qualification" },
+  { name: "เสนอ", uid: "proposal" },
+  { name: "เจรจา", uid: "negotiation" },
+  { name: "ปิดชนะ", uid: "closed_won" },
+  { name: "ปิดแพ้", uid: "closed_lost" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -178,11 +178,11 @@ export default function OpportunitiesPage() {
           rowKey="opportunityId"
           isLoading={loading}
           initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-          searchPlaceholder="Search opportunities..."
+          searchPlaceholder="ค้นหาโอกาสขาย..."
           searchKeys={["opportunityName", "opportunityAssignedTo"]}
           statusField="opportunityStage"
           statusOptions={statusOptions}
-          emptyContent="No opportunities found"
+          emptyContent="ไม่พบโอกาสขาย"
           topEndContent={
             <div className="flex gap-2">
               <Button
@@ -210,7 +210,7 @@ export default function OpportunitiesPage() {
                 startContent={<Plus />}
                 onPress={() => handleOpen()}
               >
-                Add Opportunity
+                เพิ่มโอกาสขาย
               </Button>
             </div>
           }
@@ -271,7 +271,7 @@ export default function OpportunitiesPage() {
                         {stage.name}
                       </span>
                       <span className="text-xs text-default-500">
-                        {stageOpps.length} deals &middot; ฿
+                        {stageOpps.length} ดีล &middot; ฿
                         {totalValue.toLocaleString()}
                       </span>
                     </div>
@@ -308,7 +308,7 @@ export default function OpportunitiesPage() {
                     ))}
                     {stageOpps.length === 0 && (
                       <div className="text-center text-xs text-default-400 py-4">
-                        No opportunities
+                        ไม่มีโอกาสขาย
                       </div>
                     )}
                   </div>
@@ -328,16 +328,16 @@ export default function OpportunitiesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingOpp ? "Edit Opportunity" : "Add Opportunity"}
+            {editingOpp ? "แก้ไขโอกาสขาย" : "เพิ่มโอกาสขาย"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Opportunity Name"
+                    label="ชื่อโอกาสขาย"
                     labelPlacement="outside"
-                    placeholder="Enter opportunity name"
+                    placeholder="ใส่ชื่อโอกาสขาย"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -352,9 +352,9 @@ export default function OpportunitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Stage"
+                    label="ขั้นตอน"
                     labelPlacement="outside"
-                    placeholder="Select stage"
+                    placeholder="เลือกขั้นตอน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -368,20 +368,20 @@ export default function OpportunitiesPage() {
                       updateField("opportunityStage", val);
                     }}
                   >
-                    <SelectItem key="prospecting">Prospecting</SelectItem>
-                    <SelectItem key="qualification">Qualification</SelectItem>
-                    <SelectItem key="proposal">Proposal</SelectItem>
-                    <SelectItem key="negotiation">Negotiation</SelectItem>
-                    <SelectItem key="closed_won">Closed Won</SelectItem>
-                    <SelectItem key="closed_lost">Closed Lost</SelectItem>
+                    <SelectItem key="prospecting">สำรวจ</SelectItem>
+                    <SelectItem key="qualification">คัดกรอง</SelectItem>
+                    <SelectItem key="proposal">เสนอ</SelectItem>
+                    <SelectItem key="negotiation">เจรจา</SelectItem>
+                    <SelectItem key="closed_won">ปิดชนะ</SelectItem>
+                    <SelectItem key="closed_lost">ปิดแพ้</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Amount"
+                    label="มูลค่า"
                     labelPlacement="outside"
-                    placeholder="Enter amount"
+                    placeholder="ใส่มูลค่า"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -394,9 +394,9 @@ export default function OpportunitiesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="Probability %"
+                    label="ความน่าจะเป็น %"
                     labelPlacement="outside"
-                    placeholder="Enter probability"
+                    placeholder="ใส่ความน่าจะเป็น"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -409,9 +409,9 @@ export default function OpportunitiesPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Expected Close Date"
+                    label="วันที่คาดว่าจะปิด"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -426,9 +426,9 @@ export default function OpportunitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Source"
+                    label="แหล่งที่มา"
                     labelPlacement="outside"
-                    placeholder="Select source"
+                    placeholder="เลือกแหล่งที่มา"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -442,22 +442,22 @@ export default function OpportunitiesPage() {
                       updateField("opportunitySource", val);
                     }}
                   >
-                    <SelectItem key="website">Website</SelectItem>
-                    <SelectItem key="referral">Referral</SelectItem>
-                    <SelectItem key="social">Social</SelectItem>
-                    <SelectItem key="event">Event</SelectItem>
-                    <SelectItem key="cold_call">Cold Call</SelectItem>
-                    <SelectItem key="partner">Partner</SelectItem>
+                    <SelectItem key="website">เว็บไซต์</SelectItem>
+                    <SelectItem key="referral">แนะนำ</SelectItem>
+                    <SelectItem key="social">โซเชียล</SelectItem>
+                    <SelectItem key="event">อีเวนต์</SelectItem>
+                    <SelectItem key="cold_call">โทรเสนอ</SelectItem>
+                    <SelectItem key="partner">พาร์ทเนอร์</SelectItem>
                     <SelectItem key="existing_customer">
-                      Existing Customer
+                      ลูกค้าเดิม
                     </SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Contact"
+                    label="ผู้ติดต่อ"
                     labelPlacement="outside"
-                    placeholder="Enter contact ID"
+                    placeholder="ใส่รหัสผู้ติดต่อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -469,9 +469,9 @@ export default function OpportunitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Account"
+                    label="บัญชี"
                     labelPlacement="outside"
-                    placeholder="Enter account ID"
+                    placeholder="ใส่รหัสบัญชี"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -483,9 +483,9 @@ export default function OpportunitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Assigned To"
+                    label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
-                    placeholder="Enter assigned to"
+                    placeholder="ใส่ผู้รับผิดชอบ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -498,9 +498,9 @@ export default function OpportunitiesPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -514,7 +514,7 @@ export default function OpportunitiesPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -523,7 +523,7 @@ export default function OpportunitiesPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingOpp ? "Update" : "Create"}
+              {editingOpp ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -532,14 +532,14 @@ export default function OpportunitiesPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Opportunity</ModalHeader>
+          <ModalHeader>ลบโอกาสขาย</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingOpp?.opportunityName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -549,7 +549,7 @@ export default function OpportunitiesPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -557,7 +557,7 @@ export default function OpportunitiesPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -566,12 +566,12 @@ export default function OpportunitiesPage() {
       {/* Lost Reason Modal */}
       <Modal isOpen={lostReasonModal.isOpen} onClose={lostReasonModal.onClose}>
         <ModalContent>
-          <ModalHeader>Close as Lost</ModalHeader>
+          <ModalHeader>ปิดเป็นแพ้</ModalHeader>
           <ModalBody>
             <Input
-              label="Lost Reason"
+              label="เหตุผลที่แพ้"
               labelPlacement="outside"
-              placeholder="Why was this opportunity lost?"
+              placeholder="เหตุผลที่โอกาสขายนี้แพ้?"
               variant="bordered"
               size="md"
               radius="md"
@@ -586,7 +586,7 @@ export default function OpportunitiesPage() {
               radius="md"
               onPress={lostReasonModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -594,7 +594,7 @@ export default function OpportunitiesPage() {
               radius="md"
               onPress={handleCloseLost}
             >
-              Confirm Lost
+              ยืนยันแพ้
             </Button>
           </ModalFooter>
         </ModalContent>

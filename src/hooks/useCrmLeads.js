@@ -46,7 +46,7 @@ export function useCrmLeads() {
       const data = await getLeads();
       setLeads(data);
     } catch (error) {
-      toast.error("Failed to load leads");
+      toast.error("โหลดลีดล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,7 @@ export function useCrmLeads() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      leadName: [(v) => !isRequired(v) && "Lead name is required"],
+      leadName: [(v) => !isRequired(v) && "กรุณาระบุชื่อลีด"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -90,15 +90,15 @@ export function useCrmLeads() {
       setSaving(true);
       if (editingLead) {
         await updateLead(editingLead.leadId, formData);
-        toast.success("Lead updated");
+        toast.success("อัปเดตลีดสำเร็จ");
       } else {
         await createLead(formData);
-        toast.success("Lead created");
+        toast.success("สร้างลีดสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save lead");
+      toast.error(error.message || "บันทึกลีดล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -108,11 +108,11 @@ export function useCrmLeads() {
     try {
       setSaving(true);
       const result = await convertLead(lead.leadId);
-      toast.success("Lead converted to opportunity & contact");
+      toast.success("แปลงลีดเป็นโอกาสและผู้ติดต่อสำเร็จ");
       loadData();
       return result;
     } catch (error) {
-      toast.error(error.message || "Failed to convert lead");
+      toast.error(error.message || "แปลงลีดล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -127,12 +127,12 @@ export function useCrmLeads() {
     if (!deletingLead) return;
     try {
       await deleteLead(deletingLead.leadId);
-      toast.success("Lead deleted");
+      toast.success("ลบลีดสำเร็จ");
       deleteModal.onClose();
       setDeletingLead(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete lead");
+      toast.error(error.message || "ลบลีดล้มเหลว");
     }
   };
 

@@ -33,16 +33,16 @@ export default function DataTable({
   rowKey = "id",
   isLoading = false,
   initialVisibleColumns,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = "ค้นหา...",
   searchKeys = [],
   statusField,
   statusOptions = [],
-  filterLabel = "Status",
+  filterLabel = "สถานะ",
   filterColumns = [],
   topEndContent,
   defaultRowsPerPage = 10,
   defaultSortDescriptor,
-  emptyContent = "No data found",
+  emptyContent = "ไม่พบข้อมูล",
   enableCardView = false,
 }) {
   const [filterValue, setFilterValue] = useState("");
@@ -60,7 +60,7 @@ export default function DataTable({
 
   const hasSearchFilter = Boolean(filterValue);
 
-  const noColumn = { name: "No.", uid: "_no", sortable: false };
+  const noColumn = { name: "ลำดับ", uid: "_no", sortable: false };
 
   const headerColumns = useMemo(() => {
     const visible =
@@ -276,7 +276,7 @@ export default function DataTable({
                     radius="md"
                     endContent={<ChevronDown />}
                   >
-                    Columns
+                    คอลัมน์
                   </Button>
                 </DropdownTrigger>
                 <DropdownMenu
@@ -303,10 +303,10 @@ export default function DataTable({
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {filteredItems.length} records
+            ทั้งหมด {filteredItems.length} รายการ
           </span>
           <label className="flex items-center text-default-400 text-small gap-1">
-            Rows per page:
+            แถวต่อหน้า:
             <select
               className="bg-transparent outline-none text-default-400 text-small cursor-pointer"
               value={rowsPerPage}
@@ -363,7 +363,7 @@ export default function DataTable({
             isDisabled={pages === 1}
             onPress={() => setPage((p) => Math.max(1, p - 1))}
           >
-            Previous
+            ก่อนหน้า
           </Button>
           <Button
             variant="bordered"
@@ -372,7 +372,7 @@ export default function DataTable({
             isDisabled={pages === 1}
             onPress={() => setPage((p) => Math.min(pages, p + 1))}
           >
-            Next
+            ถัดไป
           </Button>
         </div>
       </div>

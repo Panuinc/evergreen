@@ -45,7 +45,7 @@ export function useCrmActivities() {
       const data = await getActivities(Object.keys(params).length ? params : undefined);
       setActivities(data);
     } catch (error) {
-      toast.error("Failed to load activities");
+      toast.error("โหลดกิจกรรมล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export function useCrmActivities() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      activitySubject: [(v) => !isRequired(v) && "Subject is required"],
+      activitySubject: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -101,15 +101,15 @@ export function useCrmActivities() {
 
       if (editingActivity) {
         await updateActivity(editingActivity.activityId, payload);
-        toast.success("Activity updated");
+        toast.success("อัปเดตกิจกรรมสำเร็จ");
       } else {
         await createActivity(payload);
-        toast.success("Activity created");
+        toast.success("สร้างกิจกรรมสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save activity");
+      toast.error(error.message || "บันทึกกิจกรรมล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -125,11 +125,11 @@ export function useCrmActivities() {
           newStatus === "completed" ? new Date().toISOString() : null,
       });
       toast.success(
-        newStatus === "completed" ? "Activity completed" : "Activity reopened"
+        newStatus === "completed" ? "เสร็จสิ้นกิจกรรมแล้ว" : "เปิดกิจกรรมอีกครั้ง"
       );
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to update activity");
+      toast.error(error.message || "อัปเดตกิจกรรมล้มเหลว");
     }
   };
 
@@ -142,12 +142,12 @@ export function useCrmActivities() {
     if (!deletingActivity) return;
     try {
       await deleteActivity(deletingActivity.activityId);
-      toast.success("Activity deleted");
+      toast.success("ลบกิจกรรมสำเร็จ");
       deleteModal.onClose();
       setDeletingActivity(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete activity");
+      toast.error(error.message || "ลบกิจกรรมล้มเหลว");
     }
   };
 

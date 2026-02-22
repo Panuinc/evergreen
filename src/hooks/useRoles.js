@@ -42,7 +42,7 @@ export function useRoles() {
       const data = await getRoles();
       setRoles(data);
     } catch (error) {
-      toast.error("Failed to load roles");
+      toast.error("โหลดบทบาทล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -69,37 +69,37 @@ export function useRoles() {
 
   const handleSave = async () => {
     if (!formData.roleName.trim()) {
-      toast.error("Role name is required");
+      toast.error("กรุณาระบุชื่อบทบาท");
       return;
     }
 
     try {
       if (editingRole) {
         await updateRole(editingRole.roleId, formData);
-        toast.success("Role updated");
+        toast.success("อัปเดตบทบาทสำเร็จ");
       } else {
         await createRole(formData);
-        toast.success("Role created");
+        toast.success("สร้างบทบาทสำเร็จ");
       }
       onClose();
       loadRoles();
     } catch (error) {
-      toast.error(error.message || "Failed to save role");
+      toast.error(error.message || "บันทึกบทบาทล้มเหลว");
     }
   };
 
   const handleDelete = async (role) => {
     if (role.roleIsSuperadmin) {
-      toast.error("Cannot delete superadmin role");
+      toast.error("ไม่สามารถลบบทบาท superadmin ได้");
       return;
     }
 
     try {
       await deleteRole(role.roleId);
-      toast.success("Role deleted");
+      toast.success("ลบบทบาทสำเร็จ");
       loadRoles();
     } catch (error) {
-      toast.error(error.message || "Failed to delete role");
+      toast.error(error.message || "ลบบทบาทล้มเหลว");
     }
   };
 
@@ -116,7 +116,7 @@ export function useRoles() {
       setAllPermissions(perms);
       setRolePermIds(rolePerm.map((rp) => rp.rolePermissionPermissionId));
     } catch (error) {
-      toast.error("Failed to load permissions");
+      toast.error("โหลดสิทธิ์ล้มเหลว");
     } finally {
       setPermLoading(false);
     }
@@ -129,14 +129,14 @@ export function useRoles() {
       if (rolePermIds.includes(permissionId)) {
         await removePermissionFromRole(selectedRole.roleId, permissionId);
         setRolePermIds((prev) => prev.filter((id) => id !== permissionId));
-        toast.success("Permission removed");
+        toast.success("ลบสิทธิ์สำเร็จ");
       } else {
         await assignPermissionToRole(selectedRole.roleId, permissionId);
         setRolePermIds((prev) => [...prev, permissionId]);
-        toast.success("Permission assigned");
+        toast.success("กำหนดสิทธิ์สำเร็จ");
       }
     } catch (error) {
-      toast.error("Failed to update permission");
+      toast.error("อัปเดตสิทธิ์ล้มเหลว");
     }
   };
 

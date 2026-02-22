@@ -49,7 +49,7 @@ export function useUsers() {
       setUsers(usersData);
       setAllRoles(rolesData);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -69,14 +69,14 @@ export function useUsers() {
       if (userRoleIds.includes(roleId)) {
         await removeRoleFromUser(selectedUser.userProfileId, roleId);
         setUserRoleIds((prev) => prev.filter((id) => id !== roleId));
-        toast.success("Role removed");
+        toast.success("ลบบทบาทสำเร็จ");
       } else {
         await assignRoleToUser(selectedUser.userProfileId, roleId);
         setUserRoleIds((prev) => [...prev, roleId]);
-        toast.success("Role assigned");
+        toast.success("กำหนดบทบาทสำเร็จ");
       }
     } catch (error) {
-      toast.error("Failed to update role");
+      toast.error("อัปเดตบทบาทล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -102,11 +102,11 @@ export function useUsers() {
 
   const handleCreateAccount = async () => {
     if (!createForm.email || !createForm.password) {
-      toast.error("Email and password are required");
+      toast.error("กรุณาระบุอีเมลและรหัสผ่าน");
       return;
     }
     if (createForm.password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
       return;
     }
 
@@ -122,13 +122,13 @@ export function useUsers() {
       if (result.warning) {
         toast.warning(result.warning);
       } else {
-        toast.success("Account created successfully");
+        toast.success("สร้างบัญชีสำเร็จ");
       }
 
       setCreateOpen(false);
       loadData();
     } catch (error) {
-      toast.error("Failed to create account");
+      toast.error("สร้างบัญชีล้มเหลว");
     } finally {
       setCreating(false);
     }

@@ -21,7 +21,7 @@ export function useTmsReports() {
       const result = await getReportData(activeTab, startDate, endDate);
       setData(result);
     } catch {
-      toast.error("Failed to load report data");
+      toast.error("โหลดข้อมูลรายงานล้มเหลว");
       setData([]);
     } finally {
       setLoading(false);

@@ -26,7 +26,7 @@ export function useStockItems() {
       }
       setPrices(initial);
     } catch (error) {
-      toast.error("Failed to load stock items");
+      toast.error("โหลดรายการสินค้าล้มเหลว");
     } finally {
       setLoading(false);
     }

@@ -289,7 +289,7 @@ export default function ShippingLabelDocument({ orderNo }) {
                         fontWeight: "600",
                       }}
                     >
-                      Item
+                      ลำดับ
                     </th>
                     <th
                       style={{

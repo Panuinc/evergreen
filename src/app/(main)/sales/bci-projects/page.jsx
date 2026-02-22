@@ -9,30 +9,30 @@ import { exportToExcel } from "@/lib/exportExcel";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Project Name", uid: "projectName", sortable: true },
-  { name: "Description", uid: "projectDescription", sortable: false },
-  { name: "Location", uid: "cityOrTown", sortable: true },
-  { name: "Province", uid: "stateProvince", sortable: true },
-  { name: "Address", uid: "streetName", sortable: true },
-  { name: "Region", uid: "region", sortable: true },
-  { name: "Value (M)", uid: "value", sortable: true },
-  { name: "Stage", uid: "projectStage", sortable: true },
-  { name: "Status", uid: "projectStageStatus", sortable: true },
-  { name: "Category", uid: "category", sortable: true },
-  { name: "Sub Category", uid: "subCategory", sortable: true },
-  { name: "Dev Type", uid: "developmentType", sortable: true },
-  { name: "Ownership", uid: "ownershipType", sortable: true },
-  { name: "Owner", uid: "ownerCompany", sortable: true },
-  { name: "Architect", uid: "architectCompany", sortable: true },
-  { name: "Contractor", uid: "contractorCompany", sortable: true },
+  { name: "ชื่อโปรเจค", uid: "projectName", sortable: true },
+  { name: "รายละเอียด", uid: "projectDescription", sortable: false },
+  { name: "สถานที่", uid: "cityOrTown", sortable: true },
+  { name: "จังหวัด", uid: "stateProvince", sortable: true },
+  { name: "ที่อยู่", uid: "streetName", sortable: true },
+  { name: "ภูมิภาค", uid: "region", sortable: true },
+  { name: "มูลค่า (ล้าน)", uid: "value", sortable: true },
+  { name: "ขั้นตอน", uid: "projectStage", sortable: true },
+  { name: "สถานะ", uid: "projectStageStatus", sortable: true },
+  { name: "หมวดหมู่", uid: "category", sortable: true },
+  { name: "หมวดหมู่ย่อย", uid: "subCategory", sortable: true },
+  { name: "ประเภทการพัฒนา", uid: "developmentType", sortable: true },
+  { name: "ประเภทกรรมสิทธิ์", uid: "ownershipType", sortable: true },
+  { name: "เจ้าของ", uid: "ownerCompany", sortable: true },
+  { name: "สถาปนิก", uid: "architectCompany", sortable: true },
+  { name: "ผู้รับเหมา", uid: "contractorCompany", sortable: true },
   { name: "PM", uid: "pmCompany", sortable: true },
-  { name: "Storeys", uid: "storeys", sortable: true },
-  { name: "Floor Area", uid: "floorArea", sortable: true },
-  { name: "Site Area", uid: "siteArea", sortable: true },
-  { name: "Con. Start", uid: "constructionStartDate", sortable: true },
-  { name: "Con. End", uid: "constructionEndDate", sortable: true },
-  { name: "Remarks", uid: "remarks", sortable: false },
-  { name: "Updated", uid: "modifiedDate", sortable: true },
+  { name: "จำนวนชั้น", uid: "storeys", sortable: true },
+  { name: "พื้นที่อาคาร", uid: "floorArea", sortable: true },
+  { name: "พื้นที่ดิน", uid: "siteArea", sortable: true },
+  { name: "เริ่มก่อสร้าง", uid: "constructionStartDate", sortable: true },
+  { name: "สิ้นสุดก่อสร้าง", uid: "constructionEndDate", sortable: true },
+  { name: "หมายเหตุ", uid: "remarks", sortable: false },
+  { name: "อัปเดต", uid: "modifiedDate", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = columns.map((c) => c.uid);
@@ -274,7 +274,7 @@ export default function BciProjectsPage() {
 
   return (
     <DataTable
-      title="BCI Projects"
+      title="โครงการ BCI"
       description="โครงการก่อสร้างจาก BCI Central (LeadManager)"
       columns={columns}
       data={projects}
@@ -337,27 +337,27 @@ export default function BciProjectsPage() {
       filterColumns={[
         {
           uid: "projectStage",
-          name: "Stage",
+          name: "ขั้นตอน",
           options: stageOptions,
         },
         {
           uid: "projectStageStatus",
-          name: "Status",
+          name: "สถานะ",
           options: statusOptions,
         },
         {
           uid: "category",
-          name: "Category",
+          name: "หมวดหมู่",
           options: categoryOptions,
         },
         {
           uid: "developmentType",
-          name: "Dev Type",
+          name: "ประเภทการพัฒนา",
           options: devTypeOptions,
         },
         {
           uid: "region",
-          name: "Region",
+          name: "ภูมิภาค",
           options: regionOptions,
         },
       ]}

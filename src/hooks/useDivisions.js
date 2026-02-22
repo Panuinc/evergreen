@@ -35,7 +35,7 @@ export function useDivisions() {
       const data = await getDivisions();
       setDivisions(data);
     } catch (error) {
-      toast.error("Failed to load divisions");
+      toast.error("โหลดฝ่ายล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export function useDivisions() {
 
   const handleSave = async () => {
     if (!formData.divisionName.trim()) {
-      toast.error("Division name is required");
+      toast.error("กรุณาระบุชื่อฝ่าย");
       return;
     }
 
@@ -65,15 +65,15 @@ export function useDivisions() {
       setSaving(true);
       if (editingDiv) {
         await updateDivision(editingDiv.divisionId, formData);
-        toast.success("Division updated");
+        toast.success("อัปเดตฝ่ายสำเร็จ");
       } else {
         await createDivision(formData);
-        toast.success("Division created");
+        toast.success("สร้างฝ่ายสำเร็จ");
       }
       onClose();
       loadDivisions();
     } catch (error) {
-      toast.error(error.message || "Failed to save division");
+      toast.error(error.message || "บันทึกฝ่ายล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -88,12 +88,12 @@ export function useDivisions() {
     if (!deletingDiv) return;
     try {
       await deleteDivision(deletingDiv.divisionId);
-      toast.success("Division deleted");
+      toast.success("ลบฝ่ายสำเร็จ");
       deleteModal.onClose();
       setDeletingDiv(null);
       loadDivisions();
     } catch (error) {
-      toast.error(error.message || "Failed to delete division");
+      toast.error(error.message || "ลบฝ่ายล้มเหลว");
     }
   };
 

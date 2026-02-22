@@ -58,14 +58,14 @@ export default function Sidebar({
         className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer hover:bg-default/50"
       >
         <FoldHorizontal className={isCollapsed ? "rotate-180" : ""} />
-        {!isCollapsed && "Collapse Menu"}
+        {!isCollapsed && "ย่อเมนู"}
       </div>
       <div
         onClick={signOut}
         className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-default cursor-pointer hover:bg-danger/20 text-danger"
       >
         <LogOut />
-        {!isCollapsed && "Logout"}
+        {!isCollapsed && "ออกจากระบบ"}
       </div>
     </div>
   );

@@ -77,7 +77,7 @@ export default function ChatBot() {
           >
             {/* Header */}
             <div className="flex items-center justify-between p-3 border-b-2 border-default">
-              <span className="font-semibold text-lg">AI Assistant</span>
+              <span className="font-semibold text-lg">ผู้ช่วย AI</span>
               <Button
                 isIconOnly
                 variant="light"

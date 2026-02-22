@@ -29,15 +29,15 @@ import { useCrmActivities } from "@/hooks/useCrmActivities";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Type", uid: "activityType" },
-  { name: "Subject", uid: "activitySubject", sortable: true },
-  { name: "Contact", uid: "contact" },
-  { name: "Opportunity", uid: "opportunity" },
-  { name: "Priority", uid: "activityPriority" },
-  { name: "Status", uid: "activityStatus" },
-  { name: "Due Date", uid: "activityDueDate" },
-  { name: "Assigned To", uid: "activityAssignedTo" },
-  { name: "Actions", uid: "actions" },
+  { name: "ประเภท", uid: "activityType" },
+  { name: "หัวข้อ", uid: "activitySubject", sortable: true },
+  { name: "ผู้ติดต่อ", uid: "contact" },
+  { name: "โอกาสขาย", uid: "opportunity" },
+  { name: "ความสำคัญ", uid: "activityPriority" },
+  { name: "สถานะ", uid: "activityStatus" },
+  { name: "วันครบกำหนด", uid: "activityDueDate" },
+  { name: "ผู้รับผิดชอบ", uid: "activityAssignedTo" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -201,11 +201,11 @@ export default function ActivitiesPage() {
         size="md"
         radius="md"
       >
-        <Tab key="" title="All" />
-        <Tab key="task" title="Tasks" />
-        <Tab key="call" title="Calls" />
-        <Tab key="meeting" title="Meetings" />
-        <Tab key="email" title="Emails" />
+        <Tab key="" title="ทั้งหมด" />
+        <Tab key="task" title="งาน" />
+        <Tab key="call" title="โทร" />
+        <Tab key="meeting" title="ประชุม" />
+        <Tab key="email" title="อีเมล" />
       </Tabs>
 
       <DataTable
@@ -216,9 +216,9 @@ export default function ActivitiesPage() {
         rowKey="activityId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search activities..."
+        searchPlaceholder="ค้นหากิจกรรม..."
         searchKeys={["activitySubject", "activityAssignedTo"]}
-        emptyContent="No activities found"
+        emptyContent="ไม่พบกิจกรรม"
         topEndContent={
           <Button
             variant="bordered"
@@ -227,7 +227,7 @@ export default function ActivitiesPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Activity
+            เพิ่มกิจกรรม
           </Button>
         }
       />
@@ -241,14 +241,14 @@ export default function ActivitiesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingActivity ? "Edit Activity" : "Add Activity"}
+            {editingActivity ? "แก้ไขกิจกรรม" : "เพิ่มกิจกรรม"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Type"
+                    label="ประเภท"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -256,17 +256,17 @@ export default function ActivitiesPage() {
                     selectedKeys={[formData.activityType]}
                     onChange={(e) => updateField("activityType", e.target.value)}
                   >
-                    <SelectItem key="task">Task</SelectItem>
-                    <SelectItem key="call">Call</SelectItem>
-                    <SelectItem key="meeting">Meeting</SelectItem>
-                    <SelectItem key="email">Email</SelectItem>
+                    <SelectItem key="task">งาน</SelectItem>
+                    <SelectItem key="call">โทร</SelectItem>
+                    <SelectItem key="meeting">ประชุม</SelectItem>
+                    <SelectItem key="email">อีเมล</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Subject"
+                    label="หัวข้อ"
                     labelPlacement="outside"
-                    placeholder="Enter subject"
+                    placeholder="ใส่หัวข้อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -282,9 +282,9 @@ export default function ActivitiesPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Description"
+                  label="รายละเอียด"
                   labelPlacement="outside"
-                  placeholder="Enter description"
+                  placeholder="ใส่รายละเอียด"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -297,7 +297,7 @@ export default function ActivitiesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Priority"
+                    label="ความสำคัญ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -307,14 +307,14 @@ export default function ActivitiesPage() {
                       updateField("activityPriority", e.target.value)
                     }
                   >
-                    <SelectItem key="low">Low</SelectItem>
-                    <SelectItem key="medium">Medium</SelectItem>
-                    <SelectItem key="high">High</SelectItem>
+                    <SelectItem key="low">ต่ำ</SelectItem>
+                    <SelectItem key="medium">ปานกลาง</SelectItem>
+                    <SelectItem key="high">สูง</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -324,13 +324,13 @@ export default function ActivitiesPage() {
                       updateField("activityStatus", e.target.value)
                     }
                   >
-                    <SelectItem key="pending">Pending</SelectItem>
-                    <SelectItem key="completed">Completed</SelectItem>
+                    <SelectItem key="pending">รอดำเนินการ</SelectItem>
+                    <SelectItem key="completed">เสร็จสิ้น</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Due Date"
+                    label="วันครบกำหนด"
                     labelPlacement="outside"
                     type="datetime-local"
                     variant="bordered"
@@ -344,9 +344,9 @@ export default function ActivitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Contact"
+                    label="ผู้ติดต่อ"
                     labelPlacement="outside"
-                    placeholder="Enter contact ID"
+                    placeholder="ใส่รหัสผู้ติดต่อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -358,9 +358,9 @@ export default function ActivitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Opportunity"
+                    label="โอกาสขาย"
                     labelPlacement="outside"
-                    placeholder="Enter opportunity ID"
+                    placeholder="ใส่รหัสโอกาสขาย"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -372,9 +372,9 @@ export default function ActivitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Account"
+                    label="บัญชี"
                     labelPlacement="outside"
-                    placeholder="Enter account ID"
+                    placeholder="ใส่รหัสบัญชี"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -386,9 +386,9 @@ export default function ActivitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Assigned To"
+                    label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
-                    placeholder="Enter assignee"
+                    placeholder="ใส่ผู้รับผิดชอบ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -403,7 +403,7 @@ export default function ActivitiesPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -412,7 +412,7 @@ export default function ActivitiesPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingActivity ? "Update" : "Create"}
+              {editingActivity ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -421,14 +421,14 @@ export default function ActivitiesPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Activity</ModalHeader>
+          <ModalHeader>ลบกิจกรรม</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingActivity?.activitySubject}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -438,7 +438,7 @@ export default function ActivitiesPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -446,7 +446,7 @@ export default function ActivitiesPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

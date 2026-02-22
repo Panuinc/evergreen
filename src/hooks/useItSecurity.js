@@ -43,7 +43,7 @@ export function useItSecurity() {
       const data = await getSecurityIncidents();
       setIncidents(data);
     } catch (error) {
-      toast.error("Failed to load security incidents");
+      toast.error("โหลดเหตุการณ์ด้านความปลอดภัยล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export function useItSecurity() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      incidentTitle: [(v) => !isRequired(v) && "Incident title is required"],
+      incidentTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อเหตุการณ์"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -85,15 +85,15 @@ export function useItSecurity() {
       setSaving(true);
       if (editingIncident) {
         await updateSecurityIncident(editingIncident.incidentId, formData);
-        toast.success("Incident updated");
+        toast.success("อัปเดตเหตุการณ์สำเร็จ");
       } else {
         await createSecurityIncident(formData);
-        toast.success("Incident created");
+        toast.success("สร้างเหตุการณ์สำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save incident");
+      toast.error(error.message || "บันทึกเหตุการณ์ล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -108,12 +108,12 @@ export function useItSecurity() {
     if (!deletingIncident) return;
     try {
       await deleteSecurityIncident(deletingIncident.incidentId);
-      toast.success("Incident deleted");
+      toast.success("ลบเหตุการณ์สำเร็จ");
       deleteModal.onClose();
       setDeletingIncident(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete incident");
+      toast.error(error.message || "ลบเหตุการณ์ล้มเหลว");
     }
   };
 

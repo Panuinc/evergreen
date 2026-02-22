@@ -30,7 +30,7 @@ export async function POST(request) {
 
   if (!pin || pin.length !== 6 || !/^\d{6}$/.test(pin)) {
     return Response.json(
-      { error: "PIN must be exactly 6 digits" },
+      { error: "PIN ต้องเป็นตัวเลข 6 หลัก" },
       { status: 400 }
     );
   }

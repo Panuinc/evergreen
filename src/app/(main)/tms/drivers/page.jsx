@@ -292,10 +292,10 @@ export default function DriversPage() {
                       updateField("driverLicenseType", val);
                     }}
                   >
-                    <SelectItem key="type1">Type 1</SelectItem>
-                    <SelectItem key="type2">Type 2</SelectItem>
-                    <SelectItem key="type3">Type 3</SelectItem>
-                    <SelectItem key="type4">Type 4</SelectItem>
+                    <SelectItem key="type1">ประเภท 1</SelectItem>
+                    <SelectItem key="type2">ประเภท 2</SelectItem>
+                    <SelectItem key="type3">ประเภท 3</SelectItem>
+                    <SelectItem key="type4">ประเภท 4</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">

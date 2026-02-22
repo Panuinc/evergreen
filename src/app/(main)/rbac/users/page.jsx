@@ -19,10 +19,10 @@ import { useUsers } from "@/hooks/useUsers";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Email", uid: "userProfileEmail", sortable: true },
-  { name: "Roles", uid: "roles" },
-  { name: "Created", uid: "userProfileCreatedAt", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "อีเมล", uid: "userProfileEmail", sortable: true },
+  { name: "บทบาท", uid: "roles" },
+  { name: "สร้างเมื่อ", uid: "userProfileCreatedAt", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -75,7 +75,7 @@ export default function UsersPage() {
                   </Chip>
                 ))
               ) : (
-                <span className="text-default-400">No roles</span>
+                <span className="text-default-400">ไม่มีบทบาท</span>
               )}
             </div>
           );
@@ -93,7 +93,7 @@ export default function UsersPage() {
               radius="md"
               isIconOnly
               onPress={() => openRoleAssignment(user)}
-              title="Manage Roles"
+              title="จัดการบทบาท"
             >
               <Settings />
             </Button>
@@ -115,9 +115,9 @@ export default function UsersPage() {
         rowKey="userProfileId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by email..."
+        searchPlaceholder="ค้นหาตามอีเมล..."
         searchKeys={["userProfileEmail"]}
-        emptyContent="No users found"
+        emptyContent="ไม่พบผู้ใช้"
         topEndContent={
           <Button
             variant="bordered"
@@ -126,7 +126,7 @@ export default function UsersPage() {
             startContent={<Plus />}
             onPress={openCreateAccount}
           >
-            Create Account
+            สร้างบัญชี
           </Button>
         }
       />
@@ -135,7 +135,7 @@ export default function UsersPage() {
       <Modal isOpen={isOpen} onClose={handleCloseRoles}>
         <ModalContent>
           <ModalHeader>
-            Roles for &ldquo;{selectedUser?.userProfileEmail}&rdquo;
+            บทบาทของ &ldquo;{selectedUser?.userProfileEmail}&rdquo;
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-2">
@@ -170,7 +170,7 @@ export default function UsersPage() {
               radius="md"
               onPress={handleCloseRoles}
             >
-              Done
+              เสร็จ
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -179,12 +179,12 @@ export default function UsersPage() {
       {/* Create Account Modal */}
       <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)}>
         <ModalContent>
-          <ModalHeader>Create Account</ModalHeader>
+          <ModalHeader>สร้างบัญชี</ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Email"
+                  label="อีเมล"
                   labelPlacement="outside"
                   type="email"
                   placeholder="employee@company.com"
@@ -199,10 +199,10 @@ export default function UsersPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Password"
+                  label="รหัสผ่าน"
                   labelPlacement="outside"
                   type="password"
-                  placeholder="At least 6 characters"
+                  placeholder="อย่างน้อย 6 ตัวอักษร"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -214,9 +214,9 @@ export default function UsersPage() {
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Select
-                  label="Link to Employee (optional)"
+                  label="เชื่อมกับพนักงาน (ไม่บังคับ)"
                   labelPlacement="outside"
-                  placeholder="Select an employee"
+                  placeholder="เลือกพนักงาน"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -255,7 +255,7 @@ export default function UsersPage() {
               radius="md"
               onPress={() => setCreateOpen(false)}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="solid"
@@ -264,7 +264,7 @@ export default function UsersPage() {
               onPress={handleCreateAccount}
               isLoading={creating}
             >
-              Create
+              สร้าง
             </Button>
           </ModalFooter>
         </ModalContent>

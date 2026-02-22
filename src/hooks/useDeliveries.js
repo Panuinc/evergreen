@@ -47,7 +47,7 @@ export function useDeliveries() {
       setDeliveries(delData);
       setShipments(shipData);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,7 @@ export function useDeliveries() {
 
   const handleSave = async () => {
     if (!formData.deliveryShipmentId) {
-      toast.error("Shipment is required");
+      toast.error("กรุณาระบุการจัดส่ง");
       return;
     }
 
@@ -83,15 +83,15 @@ export function useDeliveries() {
       setSaving(true);
       if (editingDelivery) {
         await updateDelivery(editingDelivery.deliveryId, formData);
-        toast.success("Delivery updated");
+        toast.success("อัปเดตการส่งมอบสำเร็จ");
       } else {
         await createDelivery(formData);
-        toast.success("Delivery created");
+        toast.success("สร้างการส่งมอบสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save delivery");
+      toast.error(error.message || "บันทึกการส่งมอบล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -106,12 +106,12 @@ export function useDeliveries() {
     if (!deletingDelivery) return;
     try {
       await deleteDelivery(deletingDelivery.deliveryId);
-      toast.success("Delivery deleted");
+      toast.success("ลบการส่งมอบสำเร็จ");
       deleteModal.onClose();
       setDeletingDelivery(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete delivery");
+      toast.error(error.message || "ลบการส่งมอบล้มเหลว");
     }
   };
 

@@ -24,9 +24,9 @@ export default function PermissionsPage() {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">Permissions Matrix</h1>
+        <h1 className="text-lg font-semibold">ตารางสิทธิ์</h1>
         <p className="text-default-400">
-          Toggle to create/remove resource-action permissions
+          สลับเพื่อสร้าง/ลบสิทธิ์ทรัพยากร-การดำเนินการ
         </p>
       </div>
 
@@ -35,7 +35,7 @@ export default function PermissionsPage() {
           <thead>
             <tr>
               <th className="text-left p-2 border-b border-default font-semibold sticky left-0 bg-background">
-                Resource
+                ทรัพยากร
               </th>
               {actions.map((action) => (
                 <th

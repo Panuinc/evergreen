@@ -42,7 +42,7 @@ export function usePositions() {
       setPositions(posData);
       setDepartments(deptData);
     } catch {
-      toast.error("Failed to load positions");
+      toast.error("โหลดตำแหน่งล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export function usePositions() {
 
   const handleSave = async () => {
     if (!formData.positionTitle.trim()) {
-      toast.error("Position title is required");
+      toast.error("กรุณาระบุชื่อตำแหน่ง");
       return;
     }
 
@@ -73,15 +73,15 @@ export function usePositions() {
       setSaving(true);
       if (editingPos) {
         await updatePosition(editingPos.positionId, formData);
-        toast.success("Position updated");
+        toast.success("อัปเดตตำแหน่งสำเร็จ");
       } else {
         await createPosition(formData);
-        toast.success("Position created");
+        toast.success("สร้างตำแหน่งสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save position");
+      toast.error(error.message || "บันทึกตำแหน่งล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -96,12 +96,12 @@ export function usePositions() {
     if (!deletingPos) return;
     try {
       await deletePosition(deletingPos.positionId);
-      toast.success("Position deleted");
+      toast.success("ลบตำแหน่งสำเร็จ");
       deleteModal.onClose();
       setDeletingPos(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete position");
+      toast.error(error.message || "ลบตำแหน่งล้มเหลว");
     }
   };
 

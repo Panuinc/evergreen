@@ -33,7 +33,7 @@ export function usePermissions() {
       setActions(act);
       setPermissions(perms);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -58,17 +58,17 @@ export function usePermissions() {
         setPermissions((prev) =>
           prev.filter((p) => p.permissionId !== existing.permissionId),
         );
-        toast.success("Permission removed");
+        toast.success("ลบสิทธิ์สำเร็จ");
       } else {
         const newPerm = await createPermission({
           permissionResourceId: resourceId,
           permissionActionId: actionId,
         });
         setPermissions((prev) => [...prev, newPerm]);
-        toast.success("Permission created");
+        toast.success("สร้างสิทธิ์สำเร็จ");
       }
     } catch (error) {
-      toast.error("Failed to update permission");
+      toast.error("อัปเดตสิทธิ์ล้มเหลว");
     } finally {
       setToggling(null);
     }

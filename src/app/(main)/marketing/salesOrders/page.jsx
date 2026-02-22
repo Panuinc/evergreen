@@ -99,8 +99,8 @@ export default function MarketingSalesOrdersPage() {
     <div className="flex flex-col w-full gap-6 pb-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Sales Orders</h2>
-          <p className="text-xs text-default-400">Online Channel — Business Central</p>
+          <h2 className="text-lg font-semibold">คำสั่งขาย</h2>
+          <p className="text-xs text-default-400">ช่องทางออนไลน์ — Business Central</p>
         </div>
         <Button variant="bordered" size="sm" radius="md" startContent={<RefreshCw size={14} />} onPress={loadOrders}>
           รีเฟรช

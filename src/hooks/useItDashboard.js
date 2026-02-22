@@ -15,7 +15,7 @@ export function useItDashboard() {
         const data = await getItDashboardStats();
         setStats(data);
       } catch {
-        toast.error("Failed to load dashboard data");
+        toast.error("โหลดข้อมูลแดชบอร์ดล้มเหลว");
       } finally {
         setLoading(false);
       }

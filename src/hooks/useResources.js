@@ -31,7 +31,7 @@ export function useResources() {
       const data = await getResources();
       setResources(data);
     } catch (error) {
-      toast.error("Failed to load resources");
+      toast.error("โหลดทรัพยากรล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -58,32 +58,32 @@ export function useResources() {
 
   const handleSave = async () => {
     if (!formData.resourceName.trim()) {
-      toast.error("Resource name is required");
+      toast.error("กรุณาระบุชื่อทรัพยากร");
       return;
     }
 
     try {
       if (editingResource) {
         await updateResource(editingResource.resourceId, formData);
-        toast.success("Resource updated");
+        toast.success("อัปเดตทรัพยากรสำเร็จ");
       } else {
         await createResource(formData);
-        toast.success("Resource created");
+        toast.success("สร้างทรัพยากรสำเร็จ");
       }
       onClose();
       loadResources();
     } catch (error) {
-      toast.error(error.message || "Failed to save resource");
+      toast.error(error.message || "บันทึกทรัพยากรล้มเหลว");
     }
   };
 
   const handleDelete = async (resource) => {
     try {
       await deleteResource(resource.resourceId);
-      toast.success("Resource deleted");
+      toast.success("ลบทรัพยากรสำเร็จ");
       loadResources();
     } catch (error) {
-      toast.error(error.message || "Failed to delete resource");
+      toast.error(error.message || "ลบทรัพยากรล้มเหลว");
     }
   };
 

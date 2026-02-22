@@ -55,7 +55,7 @@ export function useEmployees() {
       setDepartments(deptData);
       setPositions(posData);
     } catch (error) {
-      toast.error("Failed to load data");
+      toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,7 @@ export function useEmployees() {
       !formData.employeeFirstName.trim() ||
       !formData.employeeLastName.trim()
     ) {
-      toast.error("First name and last name are required");
+      toast.error("กรุณาระบุชื่อและนามสกุล");
       return;
     }
 
@@ -94,15 +94,15 @@ export function useEmployees() {
       setSaving(true);
       if (editingEmployee) {
         await updateEmployee(editingEmployee.employeeId, formData);
-        toast.success("Employee updated");
+        toast.success("อัปเดตพนักงานสำเร็จ");
       } else {
         await createEmployee(formData);
-        toast.success("Employee created");
+        toast.success("สร้างพนักงานสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save employee");
+      toast.error(error.message || "บันทึกพนักงานล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -117,12 +117,12 @@ export function useEmployees() {
     if (!deletingEmployee) return;
     try {
       await deleteEmployee(deletingEmployee.employeeId);
-      toast.success("Employee deleted");
+      toast.success("ลบพนักงานสำเร็จ");
       deleteModal.onClose();
       setDeletingEmployee(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete employee");
+      toast.error(error.message || "ลบพนักงานล้มเหลว");
     }
   };
 

@@ -26,7 +26,7 @@ export async function GET() {
 
   if (sessionsRes.error || transfersRes.error || recentRes.error) {
     return Response.json(
-      { error: "Failed to fetch dashboard data" },
+      { error: "โหลดข้อมูลแดชบอร์ดล้มเหลว" },
       { status: 500 }
     );
   }

@@ -18,7 +18,7 @@ export function useBcCustomers() {
       const data = await getBcCustomers();
       setCustomers(data);
     } catch (error) {
-      toast.error("Failed to load customers from Business Central");
+      toast.error("โหลดลูกค้าจาก Business Central ล้มเหลว");
     } finally {
       setLoading(false);
     }

@@ -21,7 +21,7 @@ export function useTmsAlerts() {
       setAlerts(data.alerts);
       setAlertCount(data.totalCount);
     } catch {
-      toast.error("Failed to load alerts");
+      toast.error("โหลดการแจ้งเตือนล้มเหลว");
     } finally {
       setLoading(false);
     }

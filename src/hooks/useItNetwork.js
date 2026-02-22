@@ -44,7 +44,7 @@ export function useItNetwork() {
       const data = await getNetworkDevices();
       setDevices(data);
     } catch (error) {
-      toast.error("Failed to load network devices");
+      toast.error("โหลดอุปกรณ์เครือข่ายล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export function useItNetwork() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      deviceName: [(v) => !isRequired(v) && "Device name is required"],
+      deviceName: [(v) => !isRequired(v) && "กรุณาระบุชื่ออุปกรณ์"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -87,15 +87,15 @@ export function useItNetwork() {
       setSaving(true);
       if (editingDevice) {
         await updateNetworkDevice(editingDevice.deviceId, formData);
-        toast.success("Device updated");
+        toast.success("อัปเดตอุปกรณ์สำเร็จ");
       } else {
         await createNetworkDevice(formData);
-        toast.success("Device created");
+        toast.success("สร้างอุปกรณ์สำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save device");
+      toast.error(error.message || "บันทึกอุปกรณ์ล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -110,12 +110,12 @@ export function useItNetwork() {
     if (!deletingDevice) return;
     try {
       await deleteNetworkDevice(deletingDevice.deviceId);
-      toast.success("Device deleted");
+      toast.success("ลบอุปกรณ์สำเร็จ");
       deleteModal.onClose();
       setDeletingDevice(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete device");
+      toast.error(error.message || "ลบอุปกรณ์ล้มเหลว");
     }
   };
 

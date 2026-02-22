@@ -47,7 +47,7 @@ export function useItAssets() {
       const data = await getAssets();
       setAssets(data);
     } catch (error) {
-      toast.error("Failed to load assets");
+      toast.error("โหลดทรัพย์สินล้มเหลว");
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export function useItAssets() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      assetName: [(v) => !isRequired(v) && "Asset name is required"],
+      assetName: [(v) => !isRequired(v) && "กรุณาระบุชื่อทรัพย์สิน"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -93,15 +93,15 @@ export function useItAssets() {
       setSaving(true);
       if (editingAsset) {
         await updateAsset(editingAsset.assetId, formData);
-        toast.success("Asset updated");
+        toast.success("อัปเดตทรัพย์สินสำเร็จ");
       } else {
         await createAsset(formData);
-        toast.success("Asset created");
+        toast.success("สร้างทรัพย์สินสำเร็จ");
       }
       onClose();
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to save asset");
+      toast.error(error.message || "บันทึกทรัพย์สินล้มเหลว");
     } finally {
       setSaving(false);
     }
@@ -116,12 +116,12 @@ export function useItAssets() {
     if (!deletingAsset) return;
     try {
       await deleteAsset(deletingAsset.assetId);
-      toast.success("Asset deleted");
+      toast.success("ลบทรัพย์สินสำเร็จ");
       deleteModal.onClose();
       setDeletingAsset(null);
       loadData();
     } catch (error) {
-      toast.error(error.message || "Failed to delete asset");
+      toast.error(error.message || "ลบทรัพย์สินล้มเหลว");
     }
   };
 

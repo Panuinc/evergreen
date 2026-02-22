@@ -18,22 +18,22 @@ import { useItAssets } from "@/hooks/useItAssets";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Asset Name", uid: "assetName", sortable: true },
-  { name: "Asset Tag", uid: "assetTag", sortable: true },
-  { name: "Category", uid: "assetCategory", sortable: true },
-  { name: "Brand", uid: "assetBrand" },
-  { name: "Model", uid: "assetModel" },
-  { name: "Assigned To", uid: "assetAssignedTo" },
-  { name: "Location", uid: "assetLocation" },
-  { name: "Status", uid: "assetStatus", sortable: true },
-  { name: "Actions", uid: "actions" },
+  { name: "ชื่อทรัพย์สิน", uid: "assetName", sortable: true },
+  { name: "แท็กทรัพย์สิน", uid: "assetTag", sortable: true },
+  { name: "หมวดหมู่", uid: "assetCategory", sortable: true },
+  { name: "ยี่ห้อ", uid: "assetBrand" },
+  { name: "รุ่น", uid: "assetModel" },
+  { name: "ผู้รับผิดชอบ", uid: "assetAssignedTo" },
+  { name: "สถานที่", uid: "assetLocation" },
+  { name: "สถานะ", uid: "assetStatus", sortable: true },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Active", uid: "active" },
-  { name: "Maintenance", uid: "maintenance" },
-  { name: "Retired", uid: "retired" },
-  { name: "Disposed", uid: "disposed" },
+  { name: "เปิดใช้งาน", uid: "active" },
+  { name: "ซ่อมบำรุง", uid: "maintenance" },
+  { name: "ปลดระวาง", uid: "retired" },
+  { name: "จำหน่ายแล้ว", uid: "disposed" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -140,7 +140,7 @@ export default function AssetsPage() {
         rowKey="assetId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search by name, tag, brand, location..."
+        searchPlaceholder="ค้นหาตามชื่อ, แท็ก, ยี่ห้อ, สถานที่..."
         searchKeys={[
           "assetName",
           "assetTag",
@@ -151,7 +151,7 @@ export default function AssetsPage() {
         ]}
         statusField="assetStatus"
         statusOptions={statusOptions}
-        emptyContent="No assets found"
+        emptyContent="ไม่พบทรัพย์สิน"
         topEndContent={
           <Button
             variant="bordered"
@@ -160,7 +160,7 @@ export default function AssetsPage() {
             startContent={<Plus />}
             onPress={() => handleOpen()}
           >
-            Add Asset
+            เพิ่มทรัพย์สิน
           </Button>
         }
       />
@@ -174,16 +174,16 @@ export default function AssetsPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingAsset ? "Edit Asset" : "Add Asset"}
+            {editingAsset ? "แก้ไขทรัพย์สิน" : "เพิ่มทรัพย์สิน"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Asset Name"
+                    label="ชื่อทรัพย์สิน"
                     labelPlacement="outside"
-                    placeholder="Enter asset name"
+                    placeholder="ใส่ชื่อทรัพย์สิน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -196,9 +196,9 @@ export default function AssetsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Asset Tag"
+                    label="แท็กทรัพย์สิน"
                     labelPlacement="outside"
-                    placeholder="Enter asset tag"
+                    placeholder="ใส่แท็กทรัพย์สิน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -208,9 +208,9 @@ export default function AssetsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Category"
+                    label="หมวดหมู่"
                     labelPlacement="outside"
-                    placeholder="Select category"
+                    placeholder="เลือกหมวดหมู่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -220,18 +220,18 @@ export default function AssetsPage() {
                       updateField("assetCategory", val);
                     }}
                   >
-                    <SelectItem key="computer">Computer</SelectItem>
-                    <SelectItem key="server">Server</SelectItem>
-                    <SelectItem key="printer">Printer</SelectItem>
-                    <SelectItem key="network">Network</SelectItem>
-                    <SelectItem key="other">Other</SelectItem>
+                    <SelectItem key="computer">คอมพิวเตอร์</SelectItem>
+                    <SelectItem key="server">เซิร์ฟเวอร์</SelectItem>
+                    <SelectItem key="printer">เครื่องพิมพ์</SelectItem>
+                    <SelectItem key="network">เครือข่าย</SelectItem>
+                    <SelectItem key="other">อื่นๆ</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Brand"
+                    label="ยี่ห้อ"
                     labelPlacement="outside"
-                    placeholder="Enter brand"
+                    placeholder="ใส่ยี่ห้อ"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -241,9 +241,9 @@ export default function AssetsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Model"
+                    label="รุ่น"
                     labelPlacement="outside"
-                    placeholder="Enter model"
+                    placeholder="ใส่รุ่น"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -253,9 +253,9 @@ export default function AssetsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Serial Number"
+                    label="เลขซีเรียล"
                     labelPlacement="outside"
-                    placeholder="Enter serial number"
+                    placeholder="ใส่เลขซีเรียล"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -265,9 +265,9 @@ export default function AssetsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Assigned To"
+                    label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
-                    placeholder="Enter employee name"
+                    placeholder="ใส่ชื่อพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -277,9 +277,9 @@ export default function AssetsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
-                    label="Location"
+                    label="สถานที่"
                     labelPlacement="outside"
-                    placeholder="Enter location"
+                    placeholder="ใส่สถานที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -290,9 +290,9 @@ export default function AssetsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Purchase Date"
+                    label="วันที่ซื้อ"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -303,9 +303,9 @@ export default function AssetsPage() {
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="date"
-                    label="Warranty Expiry"
+                    label="วันหมดประกัน"
                     labelPlacement="outside"
-                    placeholder="Select date"
+                    placeholder="เลือกวันที่"
                     variant="bordered"
                     size="md"
                     radius="md"
@@ -315,7 +315,7 @@ export default function AssetsPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
-                    label="Status"
+                    label="สถานะ"
                     labelPlacement="outside"
                     variant="bordered"
                     size="md"
@@ -326,18 +326,18 @@ export default function AssetsPage() {
                       updateField("assetStatus", val);
                     }}
                   >
-                    <SelectItem key="active">Active</SelectItem>
-                    <SelectItem key="maintenance">Maintenance</SelectItem>
-                    <SelectItem key="retired">Retired</SelectItem>
-                    <SelectItem key="disposed">Disposed</SelectItem>
+                    <SelectItem key="active">เปิดใช้งาน</SelectItem>
+                    <SelectItem key="maintenance">ซ่อมบำรุง</SelectItem>
+                    <SelectItem key="retired">ปลดระวาง</SelectItem>
+                    <SelectItem key="disposed">จำหน่ายแล้ว</SelectItem>
                   </Select>
                 </div>
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
-                  label="Notes"
+                  label="หมายเหตุ"
                   labelPlacement="outside"
-                  placeholder="Enter notes"
+                  placeholder="ใส่หมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
@@ -349,7 +349,7 @@ export default function AssetsPage() {
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -358,7 +358,7 @@ export default function AssetsPage() {
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingAsset ? "Update" : "Create"}
+              {editingAsset ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -367,14 +367,14 @@ export default function AssetsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Asset</ModalHeader>
+          <ModalHeader>ลบทรัพย์สิน</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingAsset?.assetName}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -384,7 +384,7 @@ export default function AssetsPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -392,7 +392,7 @@ export default function AssetsPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>

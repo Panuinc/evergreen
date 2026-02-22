@@ -17,25 +17,25 @@ import { useCrmOrders } from "@/hooks/useCrmOrders";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Order No.", uid: "orderNo", sortable: true },
-  { name: "Contact", uid: "contact" },
-  { name: "Account", uid: "account" },
-  { name: "Quotation", uid: "quotation" },
-  { name: "Status", uid: "orderStatus" },
-  { name: "Total", uid: "orderTotal" },
-  { name: "Tracking No.", uid: "orderTrackingNumber" },
-  { name: "Delivery Date", uid: "orderDeliveryDate" },
-  { name: "Created At", uid: "orderCreatedAt" },
-  { name: "Actions", uid: "actions" },
+  { name: "เลขที่คำสั่ง", uid: "orderNo", sortable: true },
+  { name: "ผู้ติดต่อ", uid: "contact" },
+  { name: "บัญชี", uid: "account" },
+  { name: "ใบเสนอราคา", uid: "quotation" },
+  { name: "สถานะ", uid: "orderStatus" },
+  { name: "ยอดรวม", uid: "orderTotal" },
+  { name: "เลขติดตาม", uid: "orderTrackingNumber" },
+  { name: "วันส่ง", uid: "orderDeliveryDate" },
+  { name: "สร้างเมื่อ", uid: "orderCreatedAt" },
+  { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "Pending", uid: "pending" },
-  { name: "Confirmed", uid: "confirmed" },
-  { name: "Processing", uid: "processing" },
-  { name: "Shipped", uid: "shipped" },
-  { name: "Delivered", uid: "delivered" },
-  { name: "Cancelled", uid: "cancelled" },
+  { name: "รอดำเนินการ", uid: "pending" },
+  { name: "ยืนยันแล้ว", uid: "confirmed" },
+  { name: "กำลังดำเนินการ", uid: "processing" },
+  { name: "จัดส่งแล้ว", uid: "shipped" },
+  { name: "ส่งถึงแล้ว", uid: "delivered" },
+  { name: "ยกเลิก", uid: "cancelled" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -141,12 +141,12 @@ export default function OrdersPage() {
                   }
                 }}
               >
-                <SelectItem key="pending">Pending</SelectItem>
-                <SelectItem key="confirmed">Confirmed</SelectItem>
-                <SelectItem key="processing">Processing</SelectItem>
-                <SelectItem key="shipped">Shipped</SelectItem>
-                <SelectItem key="delivered">Delivered</SelectItem>
-                <SelectItem key="cancelled">Cancelled</SelectItem>
+                <SelectItem key="pending">รอดำเนินการ</SelectItem>
+                <SelectItem key="confirmed">ยืนยันแล้ว</SelectItem>
+                <SelectItem key="processing">กำลังดำเนินการ</SelectItem>
+                <SelectItem key="shipped">จัดส่งแล้ว</SelectItem>
+                <SelectItem key="delivered">ส่งถึงแล้ว</SelectItem>
+                <SelectItem key="cancelled">ยกเลิก</SelectItem>
               </Select>
               <Button
                 variant="bordered"
@@ -176,7 +176,7 @@ export default function OrdersPage() {
         rowKey="orderId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="Search orders..."
+        searchPlaceholder="ค้นหาคำสั่งซื้อ..."
         searchKeys={[
           "orderNo",
           "orderShippingAddress",
@@ -184,7 +184,7 @@ export default function OrdersPage() {
         ]}
         statusField="orderStatus"
         statusOptions={statusOptions}
-        emptyContent="No orders found"
+        emptyContent="ไม่พบคำสั่งซื้อ"
       />
 
       {/* Detail Modal */}
@@ -195,19 +195,19 @@ export default function OrdersPage() {
         scrollBehavior="inside"
       >
         <ModalContent>
-          <ModalHeader>Order Details</ModalHeader>
+          <ModalHeader>รายละเอียดคำสั่งซื้อ</ModalHeader>
           <ModalBody>
             {selectedOrder && (
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-default-500">Order No.</span>
+                    <span className="text-sm text-default-500">เลขที่คำสั่ง</span>
                     <span className="font-medium">
                       {selectedOrder.orderNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-default-500">Contact</span>
+                    <span className="text-sm text-default-500">ผู้ติดต่อ</span>
                     <span className="font-medium">
                       {selectedOrder.crmContacts
                         ? `${selectedOrder.crmContacts.contactFirstName} ${selectedOrder.crmContacts.contactLastName}`
@@ -215,19 +215,19 @@ export default function OrdersPage() {
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-default-500">Account</span>
+                    <span className="text-sm text-default-500">บัญชี</span>
                     <span className="font-medium">
                       {selectedOrder.crmAccounts?.accountName || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-default-500">Quotation</span>
+                    <span className="text-sm text-default-500">ใบเสนอราคา</span>
                     <span className="font-medium">
                       {selectedOrder.crmQuotations?.quotationNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-default-500">Status</span>
+                    <span className="text-sm text-default-500">สถานะ</span>
                     <div>
                       {(() => {
                         const colorMap = {
@@ -254,7 +254,7 @@ export default function OrdersPage() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-default-500">Total</span>
+                    <span className="text-sm text-default-500">ยอดรวม</span>
                     <span className="font-medium">
                       {selectedOrder.orderTotal
                         ? `฿${Number(selectedOrder.orderTotal).toLocaleString()}`
@@ -263,7 +263,7 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">
-                      Shipping Address
+                      ที่อยู่จัดส่ง
                     </span>
                     <span className="font-medium">
                       {selectedOrder.orderShippingAddress || "-"}
@@ -271,7 +271,7 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">
-                      Tracking Number
+                      เลขติดตาม
                     </span>
                     <span className="font-medium">
                       {selectedOrder.orderTrackingNumber || "-"}
@@ -279,14 +279,14 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">
-                      Delivery Date
+                      วันส่ง
                     </span>
                     <span className="font-medium">
                       {selectedOrder.orderDeliveryDate || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-default-500">Created At</span>
+                    <span className="text-sm text-default-500">สร้างเมื่อ</span>
                     <span className="font-medium">
                       {selectedOrder.orderCreatedAt
                         ? new Date(
@@ -298,7 +298,7 @@ export default function OrdersPage() {
                 </div>
                 {selectedOrder.orderNotes && (
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-default-500">Notes</span>
+                    <span className="text-sm text-default-500">หมายเหตุ</span>
                     <span className="font-medium">
                       {selectedOrder.orderNotes}
                     </span>
@@ -314,7 +314,7 @@ export default function OrdersPage() {
               radius="md"
               onPress={detailModal.onClose}
             >
-              Close
+              ปิด
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -323,14 +323,14 @@ export default function OrdersPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
-          <ModalHeader>Delete Order</ModalHeader>
+          <ModalHeader>ลบคำสั่งซื้อ</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete{" "}
+              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
                 {deletingOrder?.orderNo}
               </span>
-              ? This action cannot be undone.
+              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>
@@ -340,7 +340,7 @@ export default function OrdersPage() {
               radius="md"
               onPress={deleteModal.onClose}
             >
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               variant="bordered"
@@ -348,7 +348,7 @@ export default function OrdersPage() {
               radius="md"
               onPress={handleDelete}
             >
-              Delete
+              ลบ
             </Button>
           </ModalFooter>
         </ModalContent>
