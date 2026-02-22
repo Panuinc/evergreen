@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Download } from "lucide-react";
+import { Download, Upload } from "lucide-react";
+import { toast } from "sonner";
 import { useBciProjects } from "@/hooks/useBciProjects";
 import { exportToExcel } from "@/lib/exportExcel";
 import DataTable from "@/components/ui/DataTable";
@@ -56,7 +57,30 @@ function formatDate(val) {
 }
 
 export default function BciProjectsPage() {
-  const { projects, loading } = useBciProjects();
+  const { projects, loading, reload } = useBciProjects();
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleImport = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/bci/import", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Import failed");
+      toast.success(`นำเข้าสำเร็จ ${data.results.imported} โครงการ`);
+      reload();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setImporting(false);
+      e.target.value = "";
+    }
+  }, [reload]);
 
   const stageOptions = useMemo(() => {
     const unique = [
@@ -279,16 +303,36 @@ export default function BciProjectsPage() {
       ]}
       isLoading={loading}
       topEndContent={
-        <Button
-          variant="bordered"
-          size="md"
-          radius="md"
-          startContent={<Download size={16} />}
-          onPress={handleExport}
-          isDisabled={projects.length === 0}
-        >
-          ส่งออก Excel
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            as="label"
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Upload size={16} />}
+            isDisabled={importing}
+            className="cursor-pointer"
+          >
+            {importing ? "กำลังนำเข้า..." : "นำเข้า"}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={handleImport}
+            />
+          </Button>
+          <Button
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={<Download size={16} />}
+            onPress={handleExport}
+            isDisabled={projects.length === 0}
+          >
+            ส่งออก Excel
+          </Button>
+        </div>
       }
       filterColumns={[
         {
