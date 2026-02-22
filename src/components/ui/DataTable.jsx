@@ -38,6 +38,7 @@ export default function DataTable({
   statusField,
   statusOptions = [],
   filterLabel = "Status",
+  filterColumns = [],
   topEndContent,
   defaultRowsPerPage = 10,
   defaultSortDescriptor,
@@ -49,6 +50,7 @@ export default function DataTable({
     new Set(initialVisibleColumns || columns.map((c) => c.uid)),
   );
   const [statusFilter, setStatusFilter] = useState("all");
+  const [columnFilters, setColumnFilters] = useState({});
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
   const [sortDescriptor, setSortDescriptor] = useState(
     defaultSortDescriptor || {},
@@ -94,6 +96,16 @@ export default function DataTable({
       );
     }
 
+    // Apply filterColumns filters
+    for (const fc of filterColumns) {
+      const selected = columnFilters[fc.uid];
+      if (selected && selected !== "all" && Array.from(selected).length !== fc.options.length) {
+        filtered = filtered.filter((item) =>
+          Array.from(selected).includes(item[fc.uid]),
+        );
+      }
+    }
+
     return filtered;
   }, [
     data,
@@ -103,6 +115,8 @@ export default function DataTable({
     statusField,
     statusOptions,
     hasSearchFilter,
+    filterColumns,
+    columnFilters,
   ]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
@@ -223,6 +237,36 @@ export default function DataTable({
                 </DropdownMenu>
               </Dropdown>
             )}
+            {filterColumns.map((fc) => (
+              <Dropdown key={fc.uid}>
+                <DropdownTrigger className="hidden sm:flex">
+                  <Button
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    endContent={<ChevronDown />}
+                  >
+                    {fc.name}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label={`${fc.name} Filter`}
+                  closeOnSelect={false}
+                  selectedKeys={columnFilters[fc.uid] || "all"}
+                  selectionMode="multiple"
+                  onSelectionChange={(keys) =>
+                    setColumnFilters((prev) => ({ ...prev, [fc.uid]: keys }))
+                  }
+                >
+                  {fc.options.map((opt) => (
+                    <DropdownItem key={opt.uid} className="capitalize">
+                      {opt.name}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            ))}
             {view === "table" && (
               <Dropdown>
                 <DropdownTrigger className="hidden sm:flex">
@@ -291,6 +335,8 @@ export default function DataTable({
     statusField,
     statusOptions,
     filterLabel,
+    filterColumns,
+    columnFilters,
     topEndContent,
     view,
     viewToggle,
