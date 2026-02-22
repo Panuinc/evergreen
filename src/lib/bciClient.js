@@ -13,6 +13,7 @@ const CHROME_PATH =
 
 let cachedAuth = null;
 let authExpiry = 0;
+let authPromise = null;
 
 /**
  * Login via SSO and get JWT token + required headers.
@@ -169,36 +170,76 @@ async function loginViaPuppeteer() {
 /**
  * Get authenticated headers (login if needed).
  * Caches token for 30 minutes.
+ * Prevents concurrent logins — if a login is in progress, wait for it.
  */
 async function getAuth() {
   if (cachedAuth && Date.now() < authExpiry) return cachedAuth;
 
-  const { authToken, customHeaders } = await loginViaPuppeteer();
-  cachedAuth = {
-    Authorization: authToken,
-    "Content-Type": "application/json;charset=UTF-8",
-    Accept: "application/json",
-    ...customHeaders,
-  };
-  authExpiry = Date.now() + 30 * 60 * 1000; // 30 min
-  return cachedAuth;
+  // If another request is already logging in, wait for it
+  if (authPromise) return authPromise;
+
+  authPromise = (async () => {
+    try {
+      const { authToken, customHeaders } = await loginViaPuppeteer();
+      cachedAuth = {
+        Authorization: authToken,
+        "Content-Type": "application/json;charset=UTF-8",
+        Accept: "application/json",
+        ...customHeaders,
+      };
+      authExpiry = Date.now() + 30 * 60 * 1000; // 30 min
+      return cachedAuth;
+    } finally {
+      authPromise = null;
+    }
+  })();
+
+  return authPromise;
+}
+
+/**
+ * Invalidate cached auth (e.g. on 401 ForceLogout).
+ */
+let lastReauthTime = 0;
+const REAUTH_COOLDOWN = 60_000; // Don't re-login more than once per 60s
+
+function clearAuth() {
+  cachedAuth = null;
+  authExpiry = 0;
 }
 
 /**
  * Make authenticated API call to BCI internal API.
+ * Auto-retries once on 401 (ForceLogout) by re-authenticating.
+ * Respects cooldown to avoid Puppeteer login spam.
  */
 async function bciApi(method, path, body = null) {
-  const headers = await getAuth();
-  const url = `${BCI_API}${path}`;
-  const opts = { method, headers };
-  if (body) opts.body = JSON.stringify(body);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const headers = await getAuth();
+    const url = `${BCI_API}${path}`;
+    const opts = { method, headers };
+    if (body) opts.body = JSON.stringify(body);
 
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`BCI API ${method} ${path}: ${res.status} — ${text.substring(0, 200)}`);
+    const res = await fetch(url, opts);
+
+    if (res.status === 401 && attempt === 0) {
+      // Only re-auth if we haven't just done it (avoid Puppeteer spam)
+      if (Date.now() - lastReauthTime < REAUTH_COOLDOWN) {
+        const text = await res.text();
+        throw new Error(`BCI API ${method} ${path}: ${res.status} — ${text.substring(0, 200)}`);
+      }
+      console.log(`[BCI] 401 on ${method} ${path} — re-authenticating...`);
+      clearAuth();
+      lastReauthTime = Date.now();
+      continue;
+    }
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`BCI API ${method} ${path}: ${res.status} — ${text.substring(0, 200)}`);
+    }
+    return res.json();
   }
-  return res.json();
 }
 
 /* ── Public API ── */
@@ -220,7 +261,7 @@ export async function getProjectCount(searchBody = {}) {
       projectDocument: "",
     },
     companyIds: [],
-    lastUpdate: "2024-01-01",
+    lastUpdate: "2025-01-01",
     ...searchBody,
   };
   const data = await bciApi(
@@ -254,7 +295,7 @@ export async function searchProjects({
       projectDocument: "",
     },
     companyIds: [],
-    lastUpdate: lastUpdate || "2024-01-01",
+    lastUpdate: lastUpdate || "2025-01-01",
     outsideSubscription: 0,
   };
 
@@ -325,6 +366,18 @@ export async function getCategories() {
  */
 export async function getLocations() {
   return bciApi("GET", "/asia/api/v2/main/redis/locations");
+}
+
+/**
+ * Get project detail by projectId.
+ * Returns full project info including CONTACT array with roles.
+ */
+export async function getProjectDetail(projectId) {
+  const data = await bciApi(
+    "GET",
+    `/asia/api/v2/search/projects/detail?projectId=${projectId}`,
+  );
+  return data?.data?.attributes || data?.data || data;
 }
 
 /**

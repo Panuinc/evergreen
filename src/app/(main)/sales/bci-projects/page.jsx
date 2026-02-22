@@ -9,30 +9,32 @@ import DataTable from "@/components/ui/DataTable";
 
 const columns = [
   { name: "Project Name", uid: "projectName", sortable: true },
+  { name: "Description", uid: "projectDescription", sortable: false },
   { name: "Location", uid: "cityOrTown", sortable: true },
   { name: "Province", uid: "stateProvince", sortable: true },
+  { name: "Address", uid: "streetName", sortable: true },
+  { name: "Region", uid: "region", sortable: true },
   { name: "Value (M)", uid: "value", sortable: true },
   { name: "Stage", uid: "projectStage", sortable: true },
   { name: "Status", uid: "projectStageStatus", sortable: true },
   { name: "Category", uid: "category", sortable: true },
+  { name: "Sub Category", uid: "subCategory", sortable: true },
   { name: "Dev Type", uid: "developmentType", sortable: true },
-  { name: "Owner", uid: "ownershipType", sortable: true },
+  { name: "Ownership", uid: "ownershipType", sortable: true },
+  { name: "Owner", uid: "ownerCompany", sortable: true },
+  { name: "Architect", uid: "architectCompany", sortable: true },
+  { name: "Contractor", uid: "contractorCompany", sortable: true },
+  { name: "PM", uid: "pmCompany", sortable: true },
   { name: "Storeys", uid: "storeys", sortable: true },
+  { name: "Floor Area", uid: "floorArea", sortable: true },
+  { name: "Site Area", uid: "siteArea", sortable: true },
   { name: "Con. Start", uid: "constructionStartDate", sortable: true },
+  { name: "Con. End", uid: "constructionEndDate", sortable: true },
+  { name: "Remarks", uid: "remarks", sortable: false },
   { name: "Updated", uid: "modifiedDate", sortable: true },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
-  "projectName",
-  "cityOrTown",
-  "value",
-  "projectStage",
-  "projectStageStatus",
-  "category",
-  "developmentType",
-  "constructionStartDate",
-  "modifiedDate",
-];
+const INITIAL_VISIBLE_COLUMNS = columns.map((c) => c.uid);
 
 const stageColorMap = {
   "ก่อสร้าง": "success",
@@ -77,6 +79,20 @@ export default function BciProjectsPage() {
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
+  const devTypeOptions = useMemo(() => {
+    const unique = [
+      ...new Set(projects.map((p) => p.developmentType).filter(Boolean)),
+    ];
+    return unique.sort().map((v) => ({ uid: v, name: v }));
+  }, [projects]);
+
+  const regionOptions = useMemo(() => {
+    const unique = [
+      ...new Set(projects.map((p) => p.region).filter(Boolean)),
+    ];
+    return unique.sort().map((v) => ({ uid: v, name: v }));
+  }, [projects]);
+
   const handleExport = useCallback(() => {
     const excelColumns = [
       { header: "ชื่อโครงการ", key: "projectName", width: 40 },
@@ -89,7 +105,22 @@ export default function BciProjectsPage() {
       { header: "สถานะ", key: "projectStageStatus", width: 20 },
       { header: "หมวดหมู่", key: "category", width: 20 },
       { header: "ประเภทการพัฒนา", key: "developmentType", width: 20 },
-      { header: "ความเป็นเจ้าของ", key: "ownershipType", width: 15 },
+      { header: "บริษัทเจ้าของ", key: "ownerCompany", width: 30 },
+      { header: "ผู้ติดต่อ (เจ้าของ)", key: "ownerContact", width: 20 },
+      { header: "โทร (เจ้าของ)", key: "ownerPhone", width: 20 },
+      { header: "อีเมล (เจ้าของ)", key: "ownerEmail", width: 25 },
+      { header: "บริษัทสถาปนิก", key: "architectCompany", width: 30 },
+      { header: "ผู้ติดต่อ (สถาปนิก)", key: "architectContact", width: 20 },
+      { header: "โทร (สถาปนิก)", key: "architectPhone", width: 20 },
+      { header: "อีเมล (สถาปนิก)", key: "architectEmail", width: 25 },
+      { header: "บริษัทผู้รับเหมา", key: "contractorCompany", width: 30 },
+      { header: "ผู้ติดต่อ (ผู้รับเหมา)", key: "contractorContact", width: 20 },
+      { header: "โทร (ผู้รับเหมา)", key: "contractorPhone", width: 20 },
+      { header: "อีเมล (ผู้รับเหมา)", key: "contractorEmail", width: 25 },
+      { header: "บริษัท PM", key: "pmCompany", width: 30 },
+      { header: "ผู้ติดต่อ (PM)", key: "pmContact", width: 20 },
+      { header: "โทร (PM)", key: "pmPhone", width: 20 },
+      { header: "อีเมล (PM)", key: "pmEmail", width: 25 },
       { header: "จำนวนชั้น", key: "storeys", width: 10 },
       { header: "เริ่มก่อสร้าง", key: "constructionStartDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
       { header: "สิ้นสุดก่อสร้าง", key: "constructionEndDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
@@ -162,10 +193,54 @@ export default function BciProjectsPage() {
         ) : (
           "-"
         );
+      case "ownerCompany":
+      case "architectCompany":
+      case "contractorCompany":
+      case "pmCompany": {
+        const prefix = columnKey.replace("Company", "");
+        const company = item[`${prefix}Company`];
+        const contact = item[`${prefix}Contact`];
+        const phone = item[`${prefix}Phone`];
+        const email = item[`${prefix}Email`];
+        return company ? (
+          <div className="flex flex-col">
+            <span className="text-sm">{company}</span>
+            {contact && (
+              <span className="text-xs text-default-400">{contact}</span>
+            )}
+            {phone && (
+              <span className="text-xs text-default-400">{phone}</span>
+            )}
+            {email && (
+              <span className="text-xs text-default-400">{email}</span>
+            )}
+          </div>
+        ) : (
+          <span className="text-default-300">-</span>
+        );
+      }
+      case "projectDescription":
+      case "remarks":
+        return item[columnKey] ? (
+          <span className="text-sm line-clamp-2">{item[columnKey]}</span>
+        ) : (
+          <span className="text-default-300">-</span>
+        );
       case "storeys":
         return item.storeys || "-";
+      case "floorArea":
+      case "siteArea":
+        return item[columnKey] ? (
+          <span className="text-sm">
+            {Number(item[columnKey]).toLocaleString("th-TH")} m²
+          </span>
+        ) : (
+          <span className="text-default-300">-</span>
+        );
       case "constructionStartDate":
         return item.constructionStartString || formatDate(item.constructionStartDate);
+      case "constructionEndDate":
+        return item.constructionEndString || formatDate(item.constructionEndDate);
       case "modifiedDate":
         return formatDate(item.modifiedDate);
       default:
@@ -183,12 +258,24 @@ export default function BciProjectsPage() {
       renderCell={renderCell}
       searchKeys={[
         "projectName",
+        "projectDescription",
         "cityOrTown",
         "stateProvince",
         "streetName",
+        "region",
         "category",
+        "subCategory",
         "developmentType",
         "projectType",
+        "ownerCompany",
+        "ownerContact",
+        "architectCompany",
+        "architectContact",
+        "contractorCompany",
+        "contractorContact",
+        "pmCompany",
+        "pmContact",
+        "remarks",
       ]}
       isLoading={loading}
       topEndContent={
@@ -218,6 +305,16 @@ export default function BciProjectsPage() {
           uid: "category",
           name: "Category",
           options: categoryOptions,
+        },
+        {
+          uid: "developmentType",
+          name: "Dev Type",
+          options: devTypeOptions,
+        },
+        {
+          uid: "region",
+          name: "Region",
+          options: regionOptions,
         },
       ]}
     />

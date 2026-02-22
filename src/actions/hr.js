@@ -89,3 +89,25 @@ export async function updatePosition(id, positionData) {
 export async function deletePosition(id) {
   return del(`/api/hr/positions/${id}`);
 }
+
+// ==================== Evaluation ====================
+
+export async function submitEvaluation(data) {
+  return post("/api/hr/evaluation", data);
+}
+
+export async function getMyEvaluations(period) {
+  const params = new URLSearchParams({ myResults: "true" });
+  if (period) params.set("period", period);
+  return get(`/api/hr/evaluation?${params}`);
+}
+
+export async function getMySubmittedEvaluations(period) {
+  const params = new URLSearchParams();
+  if (period) params.set("period", period);
+  return get(`/api/hr/evaluation?${params}`);
+}
+
+export async function getEvaluationSummary(params) {
+  return get(`/api/hr/evaluation/summary?${new URLSearchParams(params)}`);
+}

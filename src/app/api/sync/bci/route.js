@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { searchProjects, getProjectCount } from "@/lib/bciClient";
+import { searchProjects, getProjectCount, getProjectDetail } from "@/lib/bciClient";
 
 function parseDate(val) {
   if (!val) return null;
@@ -15,6 +15,43 @@ function parseCategory(val) {
   } catch {
     return val;
   }
+}
+
+// Role group IDs from BCI: 5=Owner/Developer, 2=Architect, 1=Contractor, 6=Engineer/PM
+function extractContacts(contactArray) {
+  if (!Array.isArray(contactArray) || contactArray.length === 0) return {};
+
+  const findByRoleGroup = (groupId) =>
+    contactArray.find((c) => c.role_group_id === groupId);
+  const findByRoleId = (roleId) =>
+    contactArray.find((c) => c.role_id === roleId);
+
+  // Owner/Developer (role_group_id=5, role_id=4=Developer or 3=Owner)
+  const owner = findByRoleId(4) || findByRoleId(3) || findByRoleGroup(5);
+  // Architect (role_group_id=2, role_id=7=Architect)
+  const architect = findByRoleId(7) || findByRoleGroup(2);
+  // Main Contractor (role_group_id=1)
+  const contractor = findByRoleGroup(1);
+  // PM / Consultant (role_group_id=5, role_id=16111=PM Consultant)
+  const pm = findByRoleId(16111) || findByRoleGroup(6);
+
+  const map = (c, prefix) => {
+    if (!c) return {};
+    const name = [c.first_name, c.surname].filter(Boolean).join(" ").trim();
+    return {
+      [`${prefix}Company`]: c.company_name || null,
+      [`${prefix}Contact`]: name || null,
+      [`${prefix}Phone`]: c.landline || c.mobile || null,
+      [`${prefix}Email`]: c.email_address || null,
+    };
+  };
+
+  return {
+    ...map(owner, "owner"),
+    ...map(architect, "architect"),
+    ...map(contractor, "contractor"),
+    ...map(pm, "pm"),
+  };
 }
 
 function mapProject(p, now) {
@@ -57,6 +94,7 @@ function mapProject(p, now) {
     categoryId: p.CATEGORY_ID || null,
     developmentTypeId: p.DEVELOPMENT_TYPE_ID || null,
     mainContractorMethod: p.MAIN_CONTRACTOR_APPOINTMENT_METHOD || null,
+    ...extractContacts(p.CONTACT),
     syncedAt: now,
   };
 }
@@ -86,7 +124,7 @@ export async function GET(request) {
 
     // 2. Fetch projects (published since 2024)
     const projects = await searchProjects({
-      lastUpdate: "2024-01-01",
+      lastUpdate: "2025-01-01",
       maxResults: 10000,
       onPage: (page, count, total) => {
         console.log(`[BCI Sync] Page ${page}: +${count} items (${total} total)`);
@@ -125,6 +163,94 @@ export async function GET(request) {
   } catch (e) {
     results.error = e.message;
     console.error("[BCI Sync] Error:", e);
+  }
+
+  return Response.json({ success: !results.error, results });
+}
+
+/**
+ * POST: Sync contacts for projects that don't have contact data yet.
+ * Fetches project detail one by one (rate-limited).
+ */
+export async function POST(request) {
+  const isDev = process.env.NODE_ENV === "development";
+  if (!isDev) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  );
+
+  const body = await request.json().catch(() => ({}));
+  const limit = body.limit || 500; // Process N projects per call
+
+  const results = { updated: 0, errors: 0, skipped: 0 };
+
+  try {
+    // Get projects without contact data
+    const { data: projects, error: fetchErr } = await supabase
+      .from("bciProjects")
+      .select("projectId")
+      .is("ownerCompany", null)
+      .order("modifiedDate", { ascending: false })
+      .limit(limit);
+
+    if (fetchErr) throw fetchErr;
+    results.total = projects?.length || 0;
+
+    let consecutiveErrors = 0;
+    const MAX_CONSECUTIVE_ERRORS = 5;
+
+    for (const proj of projects || []) {
+      // Abort early if too many consecutive failures (likely auth issue)
+      if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+        results.aborted = true;
+        results.abortReason = `Stopped after ${MAX_CONSECUTIVE_ERRORS} consecutive errors (likely auth expired)`;
+        console.warn(`[BCI Contacts] Aborting: ${MAX_CONSECUTIVE_ERRORS} consecutive errors`);
+        break;
+      }
+
+      try {
+        const detail = await getProjectDetail(proj.projectId);
+        const contacts = extractContacts(detail?.CONTACT);
+        consecutiveErrors = 0; // Reset on success
+
+        if (Object.values(contacts).some(Boolean)) {
+          const { error } = await supabase
+            .from("bciProjects")
+            .update(contacts)
+            .eq("projectId", proj.projectId);
+
+          if (error) {
+            results.errors++;
+          } else {
+            results.updated++;
+          }
+        } else {
+          // Mark as checked (set empty string so we skip next time)
+          await supabase
+            .from("bciProjects")
+            .update({ ownerCompany: "" })
+            .eq("projectId", proj.projectId);
+          results.skipped++;
+        }
+
+        // Rate limit: 500ms between requests
+        await new Promise((r) => setTimeout(r, 500));
+      } catch (e) {
+        console.error(`[BCI Contacts] Error for ${proj.projectId}:`, e.message);
+        results.errors++;
+        consecutiveErrors++;
+      }
+    }
+  } catch (e) {
+    results.error = e.message;
+    console.error("[BCI Contacts Sync] Error:", e);
   }
 
   return Response.json({ success: !results.error, results });

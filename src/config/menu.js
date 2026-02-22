@@ -84,7 +84,7 @@ export const menuData = [
       { name: "Recruitment", icon: Briefcase },
       { name: "Attendance", icon: Calendar },
       { name: "Payroll", icon: Wallet },
-      { name: "Performance", icon: Target },
+      { name: "Performance", icon: Target, href: "/hr/evaluation" },
     ],
   },
   {
