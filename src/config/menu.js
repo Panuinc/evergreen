@@ -93,6 +93,9 @@ export const menuData = [
     href: "/performance/evaluation",
     subMenus: [
       { name: "ประเมินค่านิยม", icon: ClipboardList, href: "/performance/evaluation" },
+      { name: "OKR", icon: Target, href: "/performance/okr" },
+      { name: "KPI", icon: BarChart3, href: "/performance/kpi" },
+      { name: "ประเมิน 360 องศา", icon: RefreshCw, href: "/performance/360" },
     ],
   },
   {

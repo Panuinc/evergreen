@@ -1,0 +1,662 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Tabs,
+  Tab,
+  Card,
+  CardBody,
+  CardHeader,
+  Button,
+  Progress,
+  Chip,
+  Spinner,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
+  Textarea,
+  Select,
+  SelectItem,
+  Tooltip,
+  Divider,
+} from "@heroui/react";
+import {
+  Target,
+  Users,
+  Building2,
+  Plus,
+  Pencil,
+  Trash2,
+  Save,
+  TrendingUp,
+  CheckCircle,
+  XCircle,
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import { useOkr } from "@/hooks/useOkr";
+import {
+  OKR_STATUSES,
+  KR_STATUSES,
+  METRIC_TYPES,
+  VISIBILITY_OPTIONS,
+  QUARTER_OPTIONS,
+  getStatusConfig,
+  computeKrProgress,
+} from "@/lib/okrConstants";
+
+const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
+  const y = new Date().getFullYear() - 2 + i;
+  return { key: String(y), label: String(y) };
+});
+
+export default function OkrPage() {
+  const hook = useOkr();
+
+  if (hook.loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col w-full h-full gap-4 p-2">
+      <div>
+        <h1 className="text-2xl font-bold">OKR (Objectives & Key Results)</h1>
+        <p className="text-default-500 text-sm">
+          ตั้งเป้าหมายและติดตามความคืบหน้าด้วย Key Results
+        </p>
+      </div>
+
+      <Tabs
+        selectedKey={hook.activeTab}
+        onSelectionChange={hook.setActiveTab}
+        variant="solid"
+        color="primary"
+      >
+        <Tab
+          key="myOkr"
+          title={
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              <span>OKR ของฉัน</span>
+            </div>
+          }
+        >
+          <MyOkrTab hook={hook} />
+        </Tab>
+        <Tab
+          key="teamOkr"
+          title={
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              <span>OKR ทีม</span>
+            </div>
+          }
+        >
+          <TeamOkrTab hook={hook} />
+        </Tab>
+        <Tab
+          key="companyOkr"
+          title={
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4" />
+              <span>OKR บริษัท</span>
+            </div>
+          }
+        >
+          <CompanyOkrTab hook={hook} />
+        </Tab>
+      </Tabs>
+
+      {/* Objective Modal */}
+      <ObjectiveModal hook={hook} />
+      {/* Key Result Modal */}
+      <KrModal hook={hook} />
+      {/* Check-in Modal */}
+      <CheckinModal hook={hook} />
+    </div>
+  );
+}
+
+// ===================== Filters =====================
+
+function PeriodFilter({ hook }) {
+  return (
+    <div className="flex gap-2 items-center">
+      <Select
+        label="ปี"
+        selectedKeys={[hook.filterYear]}
+        onSelectionChange={(keys) => hook.setFilterYear([...keys][0])}
+        className="w-28"
+        size="sm"
+      >
+        {YEAR_OPTIONS.map((y) => (
+          <SelectItem key={y.key}>{y.label}</SelectItem>
+        ))}
+      </Select>
+      <Select
+        label="ไตรมาส"
+        selectedKeys={[hook.filterQuarter]}
+        onSelectionChange={(keys) => hook.setFilterQuarter([...keys][0])}
+        className="w-40"
+        size="sm"
+      >
+        {QUARTER_OPTIONS.map((q) => (
+          <SelectItem key={q.key}>{q.label}</SelectItem>
+        ))}
+      </Select>
+    </div>
+  );
+}
+
+// ===================== My OKR Tab =====================
+
+function MyOkrTab({ hook }) {
+  return (
+    <div className="flex flex-col gap-4 mt-4">
+      <div className="flex justify-between items-center">
+        <PeriodFilter hook={hook} />
+        <Button
+          color="primary"
+          startContent={<Plus className="w-4 h-4" />}
+          onPress={() => hook.handleOpenObjectiveForm()}
+        >
+          สร้าง Objective
+        </Button>
+      </div>
+
+      {hook.loadingObjectives ? (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      ) : hook.objectives.length === 0 ? (
+        <Card>
+          <CardBody className="text-center py-12 text-default-400">
+            ยังไม่มี OKR ในช่วงเวลานี้ — กดปุ่ม "สร้าง Objective" เพื่อเริ่มต้น
+          </CardBody>
+        </Card>
+      ) : (
+        hook.objectives.map((obj) => (
+          <ObjectiveCard key={obj.id} objective={obj} hook={hook} editable />
+        ))
+      )}
+    </div>
+  );
+}
+
+// ===================== Team OKR Tab =====================
+
+function TeamOkrTab({ hook }) {
+  return (
+    <div className="flex flex-col gap-4 mt-4">
+      <PeriodFilter hook={hook} />
+
+      {hook.loadingObjectives ? (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      ) : hook.teamObjectives.length === 0 ? (
+        <Card>
+          <CardBody className="text-center py-12 text-default-400">
+            ยังไม่มี OKR ระดับทีมในช่วงเวลานี้
+          </CardBody>
+        </Card>
+      ) : (
+        hook.teamObjectives.map((obj) => (
+          <ObjectiveCard key={obj.id} objective={obj} hook={hook} showOwner />
+        ))
+      )}
+    </div>
+  );
+}
+
+// ===================== Company OKR Tab =====================
+
+function CompanyOkrTab({ hook }) {
+  return (
+    <div className="flex flex-col gap-4 mt-4">
+      <PeriodFilter hook={hook} />
+
+      {hook.loadingObjectives ? (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      ) : hook.companyObjectives.length === 0 ? (
+        <Card>
+          <CardBody className="text-center py-12 text-default-400">
+            ยังไม่มี OKR ระดับบริษัทในช่วงเวลานี้
+          </CardBody>
+        </Card>
+      ) : (
+        hook.companyObjectives.map((obj) => (
+          <ObjectiveCard key={obj.id} objective={obj} hook={hook} showOwner />
+        ))
+      )}
+    </div>
+  );
+}
+
+// ===================== Objective Card =====================
+
+function ObjectiveCard({ objective, hook, editable = false, showOwner = false }) {
+  const [expanded, setExpanded] = useState(false);
+  const statusConfig = getStatusConfig(objective.status, OKR_STATUSES);
+  const krs = objective.keyResults || [];
+
+  const ownerName = objective.employee
+    ? `${objective.employee.employeeFirstName} ${objective.employee.employeeLastName}`
+    : "";
+
+  return (
+    <Card className="w-full">
+      <CardHeader className="flex flex-col gap-2 pb-0">
+        <div className="flex justify-between items-start w-full">
+          <div className="flex flex-col gap-1 flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">{objective.title}</h3>
+              <Chip size="sm" color={statusConfig.color} variant="flat">
+                {statusConfig.label}
+              </Chip>
+              <Chip size="sm" variant="bordered">
+                {objective.period}
+              </Chip>
+            </div>
+            {showOwner && ownerName && (
+              <p className="text-sm text-default-500">{ownerName} — {objective.employee?.employeeDepartment}</p>
+            )}
+            {objective.description && (
+              <p className="text-sm text-default-400">{objective.description}</p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {editable && (
+              <>
+                <Tooltip content="แก้ไข Objective">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    onPress={() => hook.handleOpenObjectiveForm(objective)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                </Tooltip>
+                {objective.status === "draft" && (
+                  <Tooltip content="เปิดใช้งาน">
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      color="primary"
+                      onPress={() => hook.handleUpdateObjectiveStatus(objective.id, "active")}
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                    </Button>
+                  </Tooltip>
+                )}
+                {objective.status === "active" && (
+                  <Tooltip content="ทำเครื่องหมายว่าสำเร็จ">
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      color="success"
+                      onPress={() => hook.handleUpdateObjectiveStatus(objective.id, "completed")}
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                    </Button>
+                  </Tooltip>
+                )}
+                <Tooltip content="ลบ Objective">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    color="danger"
+                    onPress={() => hook.handleDeleteObjective(objective.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </Tooltip>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="w-full flex items-center gap-3">
+          <Progress
+            value={objective.progress || 0}
+            className="flex-1"
+            color={objective.progress >= 70 ? "success" : objective.progress >= 40 ? "warning" : "danger"}
+            size="md"
+          />
+          <span className="text-sm font-semibold min-w-[50px] text-right">
+            {Math.round(objective.progress || 0)}%
+          </span>
+        </div>
+      </CardHeader>
+
+      <CardBody className="pt-2">
+        <Button
+          variant="light"
+          size="sm"
+          className="mb-2"
+          startContent={expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          onPress={() => setExpanded(!expanded)}
+        >
+          Key Results ({krs.length})
+        </Button>
+
+        {expanded && (
+          <div className="flex flex-col gap-2">
+            {krs.map((kr) => (
+              <KeyResultRow key={kr.id} kr={kr} hook={hook} editable={editable} />
+            ))}
+            {editable && (
+              <Button
+                size="sm"
+                variant="flat"
+                color="primary"
+                startContent={<Plus className="w-3 h-3" />}
+                className="self-start"
+                onPress={() => hook.handleOpenKrForm(objective.id)}
+              >
+                เพิ่ม Key Result
+              </Button>
+            )}
+          </div>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
+// ===================== Key Result Row =====================
+
+function KeyResultRow({ kr, hook, editable }) {
+  const progress = computeKrProgress(kr);
+  const statusConfig = getStatusConfig(kr.status, KR_STATUSES);
+  const displayValue = kr.metricType === "boolean"
+    ? (kr.currentValue >= 1 ? "สำเร็จ" : "ยังไม่สำเร็จ")
+    : `${kr.currentValue}${kr.unit ? ` ${kr.unit}` : ""} / ${kr.targetValue}${kr.unit ? ` ${kr.unit}` : ""}`;
+
+  return (
+    <div className="flex items-center gap-3 p-2 rounded-lg bg-default-50 hover:bg-default-100">
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{kr.title}</span>
+          <Chip size="sm" color={statusConfig.color} variant="flat" className="text-xs">
+            {statusConfig.label}
+          </Chip>
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <Progress
+            value={progress}
+            className="flex-1 max-w-xs"
+            size="sm"
+            color={progress >= 70 ? "success" : progress >= 40 ? "warning" : "danger"}
+          />
+          <span className="text-xs text-default-500">{displayValue}</span>
+        </div>
+      </div>
+      {editable && (
+        <div className="flex items-center gap-1">
+          <Tooltip content="Check-in">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              color="primary"
+              onPress={() => hook.handleOpenCheckin(kr)}
+            >
+              <TrendingUp className="w-4 h-4" />
+            </Button>
+          </Tooltip>
+          <Tooltip content="แก้ไข">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => hook.handleOpenKrForm(kr.objectiveId, kr)}
+            >
+              <Pencil className="w-3 h-3" />
+            </Button>
+          </Tooltip>
+          <Tooltip content="ลบ">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              color="danger"
+              onPress={() => hook.handleDeleteKr(kr.id)}
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </Tooltip>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===================== Objective Modal =====================
+
+function ObjectiveModal({ hook }) {
+  const { objectiveModal, editingObjective, objectiveForm, setObjectiveForm, savingObjective, handleSaveObjective } = hook;
+
+  return (
+    <Modal isOpen={objectiveModal.isOpen} onClose={objectiveModal.onClose} size="2xl">
+      <ModalContent>
+        <ModalHeader>
+          {editingObjective ? "แก้ไข Objective" : "สร้าง Objective ใหม่"}
+        </ModalHeader>
+        <ModalBody>
+          <div className="flex flex-col gap-4">
+            <Input
+              label="ชื่อ Objective"
+              placeholder="เช่น เพิ่มยอดขายไตรมาส 1"
+              value={objectiveForm.title}
+              onValueChange={(v) => setObjectiveForm((f) => ({ ...f, title: v }))}
+              isRequired
+            />
+            <Textarea
+              label="รายละเอียด"
+              placeholder="อธิบายเป้าหมาย..."
+              value={objectiveForm.description}
+              onValueChange={(v) => setObjectiveForm((f) => ({ ...f, description: v }))}
+            />
+            <div className="flex gap-4">
+              <Select
+                label="ปี"
+                selectedKeys={[objectiveForm.year]}
+                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, year: [...keys][0] }))}
+                className="flex-1"
+                isDisabled={!!editingObjective}
+              >
+                {YEAR_OPTIONS.map((y) => (
+                  <SelectItem key={y.key}>{y.label}</SelectItem>
+                ))}
+              </Select>
+              <Select
+                label="ไตรมาส"
+                selectedKeys={[objectiveForm.quarter]}
+                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, quarter: [...keys][0] }))}
+                className="flex-1"
+                isDisabled={!!editingObjective}
+              >
+                {QUARTER_OPTIONS.map((q) => (
+                  <SelectItem key={q.key}>{q.label}</SelectItem>
+                ))}
+              </Select>
+              <Select
+                label="การมองเห็น"
+                selectedKeys={[objectiveForm.visibility]}
+                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, visibility: [...keys][0] }))}
+                className="flex-1"
+              >
+                {VISIBILITY_OPTIONS.map((v) => (
+                  <SelectItem key={v.key}>{v.label}</SelectItem>
+                ))}
+              </Select>
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="light" onPress={objectiveModal.onClose}>
+            ยกเลิก
+          </Button>
+          <Button
+            color="primary"
+            onPress={handleSaveObjective}
+            isLoading={savingObjective}
+            startContent={<Save className="w-4 h-4" />}
+          >
+            {editingObjective ? "บันทึก" : "สร้าง"}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+// ===================== Key Result Modal =====================
+
+function KrModal({ hook }) {
+  const { krModal, editingKr, krForm, setKrForm, savingKr, handleSaveKr } = hook;
+
+  return (
+    <Modal isOpen={krModal.isOpen} onClose={krModal.onClose} size="xl">
+      <ModalContent>
+        <ModalHeader>
+          {editingKr ? "แก้ไข Key Result" : "เพิ่ม Key Result"}
+        </ModalHeader>
+        <ModalBody>
+          <div className="flex flex-col gap-4">
+            <Input
+              label="ชื่อ Key Result"
+              placeholder="เช่น ปิดการขายใหม่ 10 ราย"
+              value={krForm.title}
+              onValueChange={(v) => setKrForm((f) => ({ ...f, title: v }))}
+              isRequired
+            />
+            <div className="flex gap-4">
+              <Select
+                label="ประเภทตัวชี้วัด"
+                selectedKeys={[krForm.metricType]}
+                onSelectionChange={(keys) => setKrForm((f) => ({ ...f, metricType: [...keys][0] }))}
+                className="flex-1"
+              >
+                {METRIC_TYPES.map((m) => (
+                  <SelectItem key={m.key}>{m.label}</SelectItem>
+                ))}
+              </Select>
+              <Input
+                label="หน่วย"
+                placeholder="เช่น ราย, บาท"
+                value={krForm.unit}
+                onValueChange={(v) => setKrForm((f) => ({ ...f, unit: v }))}
+                className="flex-1"
+              />
+            </div>
+            <div className="flex gap-4">
+              <Input
+                label="ค่าเริ่มต้น"
+                type="number"
+                value={krForm.startValue}
+                onValueChange={(v) => setKrForm((f) => ({ ...f, startValue: v }))}
+                className="flex-1"
+              />
+              <Input
+                label="เป้าหมาย"
+                type="number"
+                value={krForm.targetValue}
+                onValueChange={(v) => setKrForm((f) => ({ ...f, targetValue: v }))}
+                className="flex-1"
+                isRequired
+              />
+              <Input
+                label="น้ำหนัก"
+                type="number"
+                value={krForm.weight}
+                onValueChange={(v) => setKrForm((f) => ({ ...f, weight: v }))}
+                className="flex-1"
+              />
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="light" onPress={krModal.onClose}>
+            ยกเลิก
+          </Button>
+          <Button
+            color="primary"
+            onPress={handleSaveKr}
+            isLoading={savingKr}
+            startContent={<Save className="w-4 h-4" />}
+          >
+            {editingKr ? "บันทึก" : "เพิ่ม"}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+// ===================== Check-in Modal =====================
+
+function CheckinModal({ hook }) {
+  const { checkinModal, checkinKr, checkinValue, setCheckinValue, checkinNote, setCheckinNote, savingCheckin, handleSaveCheckin } = hook;
+
+  if (!checkinKr) return null;
+
+  const displayTarget = `${checkinKr.targetValue}${checkinKr.unit ? ` ${checkinKr.unit}` : ""}`;
+
+  return (
+    <Modal isOpen={checkinModal.isOpen} onClose={checkinModal.onClose} size="lg">
+      <ModalContent>
+        <ModalHeader>Check-in: {checkinKr.title}</ModalHeader>
+        <ModalBody>
+          <div className="flex flex-col gap-4">
+            <div className="text-sm text-default-500">
+              เป้าหมาย: <span className="font-semibold">{displayTarget}</span>
+              {" | "}ค่าปัจจุบัน: <span className="font-semibold">{checkinKr.currentValue}{checkinKr.unit ? ` ${checkinKr.unit}` : ""}</span>
+            </div>
+            <Input
+              label="ค่าใหม่"
+              type="number"
+              value={checkinValue}
+              onValueChange={setCheckinValue}
+              isRequired
+            />
+            <Textarea
+              label="หมายเหตุ"
+              placeholder="อธิบายความคืบหน้า..."
+              value={checkinNote}
+              onValueChange={setCheckinNote}
+            />
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="light" onPress={checkinModal.onClose}>
+            ยกเลิก
+          </Button>
+          <Button
+            color="primary"
+            onPress={handleSaveCheckin}
+            isLoading={savingCheckin}
+            startContent={<TrendingUp className="w-4 h-4" />}
+          >
+            บันทึก Check-in
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}

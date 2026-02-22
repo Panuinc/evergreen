@@ -6,12 +6,12 @@ export async function withAuth() {
   // Try cookie-based session first (web app)
   const supabase = await createClient();
   const {
-    data: { session },
+    data: { user },
     error,
-  } = await supabase.auth.getSession();
+  } = await supabase.auth.getUser();
 
-  if (!error && session) {
-    return { supabase, session };
+  if (!error && user) {
+    return { supabase, session: { user } };
   }
 
   // Fall back to Bearer token (mobile app)
