@@ -8,6 +8,8 @@ import {
   getMyEvaluations,
   getMySubmittedEvaluations,
   getEvaluationSummary,
+  getEvaluationFeedback,
+  generateEvaluationFeedbackAction,
 } from "@/actions/hr";
 import {
   EVALUATION_CATEGORIES,
@@ -41,6 +43,11 @@ export function useEvaluation() {
   // Admin summary
   const [adminSummary, setAdminSummary] = useState([]);
   const [loadingAdmin, setLoadingAdmin] = useState(false);
+
+  // AI Feedback
+  const [aiFeedback, setAiFeedback] = useState(null);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [feedbackStale, setFeedbackStale] = useState(false);
 
   // Current user's employee info
   const [currentEmployee, setCurrentEmployee] = useState(null);
@@ -202,6 +209,35 @@ export function useEvaluation() {
     }
   }, []);
 
+  // Load AI feedback
+  const loadAiFeedback = useCallback(async (employeeId, feedbackPeriod, forceRegenerate = false) => {
+    setLoadingFeedback(true);
+    try {
+      if (!forceRegenerate) {
+        const cached = await getEvaluationFeedback(employeeId, feedbackPeriod);
+        if (cached?.feedback && !cached.isStale) {
+          setAiFeedback(cached.feedback);
+          setFeedbackStale(false);
+          setLoadingFeedback(false);
+          return;
+        }
+        if (cached?.isStale) setFeedbackStale(true);
+      }
+      const result = await generateEvaluationFeedbackAction(employeeId, feedbackPeriod);
+      setAiFeedback(result.feedback);
+      setFeedbackStale(false);
+    } catch {
+      toast.error("ไม่สามารถสร้าง AI Feedback ได้");
+    } finally {
+      setLoadingFeedback(false);
+    }
+  }, []);
+
+  const clearAiFeedback = useCallback(() => {
+    setAiFeedback(null);
+    setFeedbackStale(false);
+  }, []);
+
   // Load results when switching to results tab
   useEffect(() => {
     if (activeTab === "myResults") {
@@ -252,6 +288,13 @@ export function useEvaluation() {
     adminSummary,
     loadingAdmin,
     loadAdminSummary,
+
+    // AI Feedback
+    aiFeedback,
+    loadingFeedback,
+    feedbackStale,
+    loadAiFeedback,
+    clearAiFeedback,
 
     // Tab
     activeTab,

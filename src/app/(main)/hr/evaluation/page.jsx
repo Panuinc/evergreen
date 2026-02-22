@@ -18,9 +18,10 @@ import {
   Spinner,
   Textarea,
 } from "@heroui/react";
-import { ClipboardList, BarChart3, Shield, Trash2, Save } from "lucide-react";
+import { ClipboardList, BarChart3, Shield, Trash2, Save, Sparkles } from "lucide-react";
 import { useEvaluation } from "@/hooks/useEvaluation";
 import SpiderChart from "@/components/charts/SpiderChart";
+import AiFeedbackPanel from "@/components/hr/AiFeedbackPanel";
 import {
   EVALUATION_CATEGORIES,
   SCORE_LABELS,
@@ -347,7 +348,15 @@ function MyResultsTab({ hook }) {
     loadCompanyAverage,
     resultYear,
     setResultYear,
+    aiFeedback,
+    loadingFeedback,
+    feedbackStale,
+    loadAiFeedback,
+    clearAiFeedback,
+    currentEmployee,
   } = hook;
+
+  const [feedbackPeriod, setFeedbackPeriod] = useState(null);
 
   // Load company average when year changes
   const selectedPeriod = useMemo(() => {
@@ -475,6 +484,7 @@ function MyResultsTab({ hook }) {
                       <th className="text-center py-2 px-3">เฉลี่ย</th>
                       <th className="text-center py-2 px-3">เกรด</th>
                       <th className="text-center py-2 px-3">ผู้ประเมิน</th>
+                      <th className="text-center py-2 px-3">AI</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -507,6 +517,25 @@ function MyResultsTab({ hook }) {
                           <td className="text-center py-2 px-3 text-default-400">
                             {r.evaluatorCount} คน
                           </td>
+                          <td className="text-center py-2 px-3">
+                            <Button
+                              size="sm"
+                              variant={feedbackPeriod === r.period ? "solid" : "flat"}
+                              color="secondary"
+                              startContent={<Sparkles className="w-3 h-3" />}
+                              onPress={() => {
+                                if (feedbackPeriod === r.period) {
+                                  setFeedbackPeriod(null);
+                                  clearAiFeedback();
+                                } else {
+                                  setFeedbackPeriod(r.period);
+                                  clearAiFeedback();
+                                }
+                              }}
+                            >
+                              AI
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                   </tbody>
@@ -514,6 +543,20 @@ function MyResultsTab({ hook }) {
               </div>
             </CardBody>
           </Card>
+
+          {/* AI Feedback Panel */}
+          {feedbackPeriod && currentEmployee && (
+            <AiFeedbackPanel
+              employeeId={currentEmployee.employeeId}
+              period={feedbackPeriod}
+              feedback={aiFeedback}
+              isLoading={loadingFeedback}
+              isStale={feedbackStale}
+              onGenerate={(force) =>
+                loadAiFeedback(currentEmployee.employeeId, feedbackPeriod, force)
+              }
+            />
+          )}
         </>
       )}
     </div>
@@ -523,14 +566,17 @@ function MyResultsTab({ hook }) {
 // ==================== Tab 3: Admin Summary ====================
 
 function AdminTab({ hook }) {
-  const { adminSummary, loadingAdmin, loadAdminSummary } = hook;
+  const { adminSummary, loadingAdmin, loadAdminSummary, aiFeedback, loadingFeedback, feedbackStale, loadAiFeedback, clearAiFeedback } = hook;
   const [adminPeriod, setAdminPeriod] = useState(() => {
     const q = Math.ceil((new Date().getMonth() + 1) / 3);
     return `Q${q}-${new Date().getFullYear()}`;
   });
+  const [selectedAdminEmployee, setSelectedAdminEmployee] = useState(null);
 
   const handleLoadSummary = () => {
     loadAdminSummary(adminPeriod);
+    setSelectedAdminEmployee(null);
+    clearAiFeedback();
   };
 
   return (
@@ -592,6 +638,7 @@ function AdminTab({ hook }) {
           </CardBody>
         </Card>
       ) : (
+        <>
         <Card>
           <CardBody>
             <p className="font-semibold mb-4">
@@ -618,7 +665,16 @@ function AdminTab({ hook }) {
                   {adminSummary.map((row, idx) => (
                     <tr
                       key={row.employee?.employeeId || idx}
-                      className="border-b border-default-100 hover:bg-default-50"
+                      className={`border-b border-default-100 hover:bg-default-50 cursor-pointer ${selectedAdminEmployee === row.employee?.employeeId ? "bg-primary-50" : ""}`}
+                      onClick={() => {
+                        if (selectedAdminEmployee === row.employee?.employeeId) {
+                          setSelectedAdminEmployee(null);
+                          clearAiFeedback();
+                        } else {
+                          setSelectedAdminEmployee(row.employee?.employeeId);
+                          clearAiFeedback();
+                        }
+                      }}
                     >
                       <td className="py-2 px-3 text-default-400">
                         {idx + 1}
@@ -651,8 +707,28 @@ function AdminTab({ hook }) {
                 </tbody>
               </table>
             </div>
+            {selectedAdminEmployee && (
+              <p className="text-xs text-default-400 mt-2">
+                คลิกอีกครั้งเพื่อยกเลิกการเลือก
+              </p>
+            )}
           </CardBody>
         </Card>
+
+        {/* Admin AI Feedback for selected employee */}
+        {selectedAdminEmployee && (
+          <AiFeedbackPanel
+            employeeId={selectedAdminEmployee}
+            period={adminPeriod}
+            feedback={aiFeedback}
+            isLoading={loadingFeedback}
+            isStale={feedbackStale}
+            onGenerate={(force) =>
+              loadAiFeedback(selectedAdminEmployee, adminPeriod, force)
+            }
+          />
+        )}
+        </>
       )}
     </div>
   );

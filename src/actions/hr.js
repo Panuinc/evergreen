@@ -111,3 +111,13 @@ export async function getMySubmittedEvaluations(period) {
 export async function getEvaluationSummary(params) {
   return get(`/api/hr/evaluation/summary?${new URLSearchParams(params)}`);
 }
+
+// ==================== Evaluation AI Feedback ====================
+
+export async function getEvaluationFeedback(employeeId, period) {
+  return get(`/api/hr/evaluation/feedback?employeeId=${employeeId}&period=${period}`);
+}
+
+export async function generateEvaluationFeedbackAction(employeeId, period) {
+  return post("/api/hr/evaluation/feedback", { employeeId, period });
+}
