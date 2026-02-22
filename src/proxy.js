@@ -35,8 +35,8 @@ export async function proxy(request) {
       }
     );
 
-    const { data: { session } } = await supabase.auth.getSession();
-    const isAuthenticated = !!session;
+    const { data: { user } } = await supabase.auth.getUser();
+    const isAuthenticated = !!user;
     const isAuthPage = pathname.startsWith("/auth");
     const isPublicPage = pathname.startsWith("/quotation");
 

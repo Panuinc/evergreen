@@ -1,6 +1,32 @@
 import { createClient } from "@supabase/supabase-js";
 import QuotationDocument from "./QuotationDocument";
 
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+}
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const supabase = getSupabase();
+  const { data: quotation } = await supabase
+    .from("omQuotations")
+    .select("quotationNo, customerName")
+    .eq("quotationId", id)
+    .single();
+
+  if (!quotation) {
+    return { title: "ไม่พบใบเสนอราคา" };
+  }
+
+  return {
+    title: `ใบเสนอราคา ${quotation.quotationNo || id}`,
+    description: `ใบเสนอราคาสำหรับ ${quotation.customerName || ""}`,
+  };
+}
+
 export default async function QuotationPage({ params }) {
   const { id } = await params;
 
