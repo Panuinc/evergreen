@@ -27,6 +27,7 @@ export async function GET(request) {
 
   const now = new Date().toISOString();
   const results = {};
+  const syncSuccess = { customers: false, items: false, salesOrders: false, salesOrderLines: false };
 
   // 0. Fetch dimension values → map code → displayName (สำหรับชื่อโครงการ)
   let dimMap = {};
@@ -63,7 +64,12 @@ export async function GET(request) {
     const { error: cErr } = await supabase
       .from("bcCustomers")
       .upsert(customerRows, { onConflict: "id" });
-    results.customers = cErr ? `ERROR: ${cErr.message}` : customerRows.length;
+    if (cErr) {
+      results.customers = `ERROR: ${cErr.message}`;
+    } else {
+      results.customers = customerRows.length;
+      syncSuccess.customers = true;
+    }
   } catch (e) {
     results.customers = `ERROR: ${e.message}`;
   }
@@ -98,7 +104,12 @@ export async function GET(request) {
     const { error: iErr } = await supabase
       .from("bcItems")
       .upsert(itemRows, { onConflict: "id" });
-    results.items = iErr ? `ERROR: ${iErr.message}` : itemRows.length;
+    if (iErr) {
+      results.items = `ERROR: ${iErr.message}`;
+    } else {
+      results.items = itemRows.length;
+      syncSuccess.items = true;
+    }
   } catch (e) {
     results.items = `ERROR: ${e.message}`;
   }
@@ -150,7 +161,12 @@ export async function GET(request) {
     const { error: oErr } = await supabase
       .from("bcSalesOrders")
       .upsert(orderRows, { onConflict: "id" });
-    results.salesOrders = oErr ? `ERROR: ${oErr.message}` : orderRows.length;
+    if (oErr) {
+      results.salesOrders = `ERROR: ${oErr.message}`;
+    } else {
+      results.salesOrders = orderRows.length;
+      syncSuccess.salesOrders = true;
+    }
 
     // เก็บทุก line + map project จาก item number (No)
     const lineRows = allLines.map((l) => {
@@ -177,13 +193,52 @@ export async function GET(request) {
     const { error: lErr } = await supabase
       .from("bcSalesOrderLines")
       .upsert(lineRows, { onConflict: "id" });
-    results.salesOrderLines = lErr
-      ? `ERROR: ${lErr.message}`
-      : lineRows.length;
+    if (lErr) {
+      results.salesOrderLines = `ERROR: ${lErr.message}`;
+    } else {
+      results.salesOrderLines = lineRows.length;
+      syncSuccess.salesOrderLines = true;
+    }
   } catch (e) {
     results.salesOrders = `ERROR: ${e.message}`;
     results.salesOrderLines = `ERROR: ${e.message}`;
   }
 
-  return Response.json({ ok: true, syncedAt: now, results });
+  // --- Stale data cleanup: ลบ record ที่ไม่มีใน source แล้ว ---
+  const cleanup = {};
+
+  if (syncSuccess.customers) {
+    const { count, error } = await supabase
+      .from("bcCustomers")
+      .delete({ count: "exact" })
+      .lt("syncedAt", now);
+    cleanup.customers = error ? `ERROR: ${error.message}` : (count || 0);
+  }
+
+  if (syncSuccess.items) {
+    const { count, error } = await supabase
+      .from("bcItems")
+      .delete({ count: "exact" })
+      .lt("syncedAt", now);
+    cleanup.items = error ? `ERROR: ${error.message}` : (count || 0);
+  }
+
+  // ลบ lines ก่อน orders (child → parent)
+  if (syncSuccess.salesOrderLines) {
+    const { count, error } = await supabase
+      .from("bcSalesOrderLines")
+      .delete({ count: "exact" })
+      .lt("syncedAt", now);
+    cleanup.salesOrderLines = error ? `ERROR: ${error.message}` : (count || 0);
+  }
+
+  if (syncSuccess.salesOrders) {
+    const { count, error } = await supabase
+      .from("bcSalesOrders")
+      .delete({ count: "exact" })
+      .lt("syncedAt", now);
+    cleanup.salesOrders = error ? `ERROR: ${error.message}` : (count || 0);
+  }
+
+  return Response.json({ ok: true, syncedAt: now, results, cleanup });
 }

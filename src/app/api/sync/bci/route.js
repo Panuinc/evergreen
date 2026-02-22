@@ -17,7 +17,7 @@ function parseCategory(val) {
   }
 }
 
-function mapProject(p) {
+function mapProject(p, now) {
   return {
     projectId: p.PROJECT_ID,
     projectName: p.NAME || null,
@@ -57,7 +57,7 @@ function mapProject(p) {
     categoryId: p.CATEGORY_ID || null,
     developmentTypeId: p.DEVELOPMENT_TYPE_ID || null,
     mainContractorMethod: p.MAIN_CONTRACTOR_APPOINTMENT_METHOD || null,
-    syncedAt: new Date().toISOString(),
+    syncedAt: now,
   };
 }
 
@@ -75,6 +75,7 @@ export async function GET(request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
 
+  const now = new Date().toISOString();
   const results = {};
 
   try {
@@ -95,7 +96,7 @@ export async function GET(request) {
 
     // 3. Map and upsert to Supabase
     if (projects.length > 0) {
-      const mapped = projects.map(mapProject).filter((p) => p.projectId);
+      const mapped = projects.map((p) => mapProject(p, now)).filter((p) => p.projectId);
       let upserted = 0;
 
       // Upsert in batches of 500
@@ -108,6 +109,18 @@ export async function GET(request) {
         upserted += batch.length;
       }
       results.projectsUpserted = upserted;
+
+      // Cleanup stale projects ที่ไม่มีใน source แล้ว
+      const { count: cleanedUp, error: cleanupErr } = await supabase
+        .from("bciProjects")
+        .delete({ count: "exact" })
+        .lt("syncedAt", now);
+
+      if (cleanupErr) {
+        results.cleanupError = cleanupErr.message;
+      } else {
+        results.projectsCleaned = cleanedUp || 0;
+      }
     }
   } catch (e) {
     results.error = e.message;
