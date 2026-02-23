@@ -18,7 +18,7 @@ function renderPreview(item, quantity) {
   const previewH = Math.round(PREVIEW_WIDTH * ratio);
   const s = PREVIEW_WIDTH / 73;
 
-  const mx = Math.round(2 * s);
+  const mx = Math.round(4 * s);
   const my = Math.round(2 * s);
   const usableW = PREVIEW_WIDTH - mx * 2;
 
@@ -39,19 +39,19 @@ function renderPreview(item, quantity) {
 
   // Row 1: Short item number (left) + sequence (right) — matches ZPL row1
   const shortNumber = getShortItemNumber(item.number);
-  const fItem = Math.round(4.5 * s);
+  const fItem = Math.round(3.5 * s);
   ctx.font = `bold ${fItem}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
   ctx.fillText(shortNumber, mx, my);
 
   const seqText = `1/${quantity}`;
-  const fSeq = Math.round(3.2 * s);
+  const fSeq = Math.round(2.6 * s);
   ctx.font = `bold ${fSeq}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
   const seqW = ctx.measureText(seqText).width;
   ctx.fillText(seqText, PREVIEW_WIDTH - seqW - mx, my);
 
   // Row 2: Project name (bold, centered) — matches ZPL row2
   const row2Y = my + Math.round(8 * s);
-  const fProject = Math.round(3.6 * s);
+  const fProject = Math.round(2.8 * s);
   const projectText = item.projectName || "-";
   ctx.font = `bold ${fProject}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
   const projectW = ctx.measureText(projectText).width;
@@ -60,7 +60,7 @@ function renderPreview(item, quantity) {
 
   // Row 3: Display name in Thai (bold, centered) — matches ZPL row3
   const row3Y = my + Math.round(13 * s);
-  const fName = Math.round(3.2 * s);
+  const fName = Math.round(2.4 * s);
   if (item.displayName) {
     ctx.font = `bold ${fName}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
     const nameW = ctx.measureText(item.displayName).width;

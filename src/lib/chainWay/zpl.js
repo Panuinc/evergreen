@@ -4,7 +4,8 @@ import { generatePlainEPC } from "./epc.js";
 
 const PAD = {
   top: mmToDots(2),
-  left: mmToDots(2),
+  left: mmToDots(4),
+  right: mmToDots(4),
 };
 
 export async function textToGraphic(text, options = {}) {
@@ -103,7 +104,7 @@ export async function buildThaiRFIDLabel(options) {
   const w = mmToDots(labelSize.width);
   const h = mmToDots(labelSize.height);
 
-  const usableWidth = w - PAD.left * 2;
+  const usableWidth = w - PAD.left - PAD.right;
 
   const epcKey = rfidCode ?? itemNumber;
   const epc =
@@ -115,23 +116,23 @@ export async function buildThaiRFIDLabel(options) {
 
   const row1Y = PAD.top;
   const shortItemNumber = getShortItemNumber(itemNumber);
-  const itemFontSize = shortItemNumber.length > 12 ? 48 : 56;
+  const itemFontSize = shortItemNumber.length > 12 ? 36 : 44;
   const itemText = sanitizeText(shortItemNumber, 20);
 
   zpl += `^FO${PAD.left},${row1Y}^A0N,${itemFontSize},${itemFontSize}^FD${itemText}^FS`;
 
   const sequenceText = `${sequenceNumber}/${totalQuantity}`;
-  const seqFontSize = 40;
+  const seqFontSize = 32;
   const seqWidth = estimateTextWidth(sequenceText, seqFontSize);
-  const seqX = w - seqWidth - PAD.left;
+  const seqX = w - seqWidth - PAD.right;
   zpl += `^FO${seqX},${row1Y}^A0N,${seqFontSize},${seqFontSize}^FD${sequenceText}^FS`;
 
   // Row 2: Project name (bold, centered)
   const row2Y = PAD.top + mmToDots(8);
   const projectText = projectName || "-";
-  const projectFontSize = 44;
+  const projectFontSize = 36;
   const projectGraphic = await textToGraphic(projectText, {
-    fontSize: 40,
+    fontSize: 32,
     maxWidth: usableWidth,
     bold: true,
   });
@@ -147,7 +148,7 @@ export async function buildThaiRFIDLabel(options) {
   // Row 3: Display name (bold, centered)
   const row3Y = PAD.top + mmToDots(14);
   const nameGraphic = await textToGraphic(displayName, {
-    fontSize: 38,
+    fontSize: 30,
     maxWidth: usableWidth,
     bold: true,
   });
@@ -157,7 +158,7 @@ export async function buildThaiRFIDLabel(options) {
     zpl += `^FO${nameX},${row3Y}${nameGraphic.command}^FS`;
   } else {
     const fallbackText = sanitizeText(displayName, 24);
-    const fallbackFontSize = 44;
+    const fallbackFontSize = 36;
     const fallbackWidth = estimateTextWidth(fallbackText, fallbackFontSize);
     const fallbackX = Math.max(PAD.left, Math.floor((w - fallbackWidth) / 2));
     zpl += `^FO${fallbackX},${row3Y}^A0N,${fallbackFontSize},${fallbackFontSize}^FD${fallbackText}^FS`;
