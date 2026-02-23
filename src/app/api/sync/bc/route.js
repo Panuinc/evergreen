@@ -1,7 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { bcODataGet, bcApiGet } from "@/lib/bcClient";
 
-// Extract project code from item number (e.g. "FG-00003-001" → "00003")
 function extractProjectCode(itemNo) {
   if (!itemNo) return null;
   const parts = itemNo.split("-");
@@ -9,8 +8,18 @@ function extractProjectCode(itemNo) {
   return null;
 }
 
+// Upsert แบบแบ่ง batch เพื่อไม่ให้ Supabase timeout
+async function batchUpsert(supabase, table, rows, batchSize = 500) {
+  for (let i = 0; i < rows.length; i += batchSize) {
+    const batch = rows.slice(i, i + batchSize);
+    const { error } = await supabase
+      .from(table)
+      .upsert(batch, { onConflict: "id" });
+    if (error) throw error;
+  }
+}
+
 export async function GET(request) {
-  // Dev mode: skip auth check / Production: verify Vercel Cron secret
   const isDev = process.env.NODE_ENV === "development";
   if (!isDev) {
     const authHeader = request.headers.get("authorization");
@@ -19,7 +28,6 @@ export async function GET(request) {
     }
   }
 
-  // Service role client — bypasses RLS, ไม่ต้องการ user session
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -27,30 +35,60 @@ export async function GET(request) {
 
   const now = new Date().toISOString();
   const results = {};
-  const syncSuccess = { customers: false, items: false, salesOrders: false, salesOrderLines: false };
+  const syncSuccess = {
+    customers: false,
+    items: false,
+    salesOrders: false,
+    salesOrderLines: false,
+  };
 
-  // 0. Fetch dimension values → map code → displayName (สำหรับชื่อโครงการ)
+  // ═══ Phase 1: Fetch ข้อมูลทั้ง 5 ชุดจาก BC พร้อมกัน ═══
+  const [dimsResult, customersResult, itemsResult, ordersResult, linesResult] =
+    await Promise.allSettled([
+      bcApiGet("dimensionValues", {
+        $select: "code,displayName",
+      }),
+      bcODataGet("CustomerList", {
+        $select:
+          "No,Name,Phone_No,Contact,Balance_Due_LCY,Balance_LCY,Salesperson_Code",
+        $orderby: "No asc",
+      }),
+      bcODataGet("Item_Card_Excel", {
+        $filter: "Blocked eq false",
+        $select:
+          "No,Description,Type,Inventory,Unit_Price,Unit_Cost,Item_Category_Code,Gen_Prod_Posting_Group,Blocked,Base_Unit_of_Measure",
+        $orderby: "No asc",
+      }),
+      bcODataGet("Sales_Order_Excel", {
+        $filter: "startswith(No,'SO26')",
+        $orderby: "No desc",
+        $select:
+          "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No",
+      }),
+      bcODataGet("Sales_Order_Line_Excel", {
+        $filter: "startswith(Document_No,'SO26')",
+        $select:
+          "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code",
+      }),
+    ]);
+
+  // ═══ Phase 2: Build dimMap สำหรับ project mapping ═══
   let dimMap = {};
-  try {
-    const dims = await bcApiGet("dimensionValues", {
-      $select: "code,displayName",
-    });
-    for (const d of dims) {
+  if (dimsResult.status === "fulfilled") {
+    for (const d of dimsResult.value) {
       if (d.code) dimMap[d.code] = d.displayName || d.code;
     }
-    results.dimensionValues = dims.length;
-  } catch (e) {
-    results.dimensionValues = `ERROR: ${e.message}`;
+    results.dimensionValues = dimsResult.value.length;
+  } else {
+    results.dimensionValues = `ERROR: ${dimsResult.reason?.message}`;
   }
 
-  try {
-    // 1. Customers
-    const customers = await bcODataGet("CustomerList", {
-      $select:
-        "No,Name,Phone_No,Contact,Balance_Due_LCY,Balance_LCY,Salesperson_Code",
-      $orderby: "No asc",
-    });
-    const customerRows = customers.map((c) => ({
+  // ═══ Phase 3: Transform + Upsert ทุกตารางพร้อมกัน ═══
+  const upsertTasks = [];
+
+  // --- Customers ---
+  if (customersResult.status === "fulfilled") {
+    const customerRows = customersResult.value.map((c) => ({
       id: c.No,
       number: c.No,
       displayName: c.Name,
@@ -61,28 +99,23 @@ export async function GET(request) {
       salespersonCode: c.Salesperson_Code,
       syncedAt: now,
     }));
-    const { error: cErr } = await supabase
-      .from("bcCustomers")
-      .upsert(customerRows, { onConflict: "id" });
-    if (cErr) {
-      results.customers = `ERROR: ${cErr.message}`;
-    } else {
-      results.customers = customerRows.length;
-      syncSuccess.customers = true;
-    }
-  } catch (e) {
-    results.customers = `ERROR: ${e.message}`;
+    upsertTasks.push(
+      batchUpsert(supabase, "bcCustomers", customerRows)
+        .then(() => {
+          results.customers = customerRows.length;
+          syncSuccess.customers = true;
+        })
+        .catch((e) => {
+          results.customers = `ERROR: ${e.message}`;
+        }),
+    );
+  } else {
+    results.customers = `ERROR: ${customersResult.reason?.message}`;
   }
 
-  try {
-    // 2. Items + project mapping
-    const items = await bcODataGet("Item_Card_Excel", {
-      $filter: "Blocked eq false",
-      $select:
-        "No,Description,Type,Inventory,Unit_Price,Unit_Cost,Item_Category_Code,Gen_Prod_Posting_Group,Blocked,Base_Unit_of_Measure",
-      $orderby: "No asc",
-    });
-    const itemRows = items.map((i) => {
+  // --- Items ---
+  if (itemsResult.status === "fulfilled") {
+    const itemRows = itemsResult.value.map((i) => {
       const projectCode = extractProjectCode(i.No);
       return {
         id: i.No,
@@ -101,36 +134,29 @@ export async function GET(request) {
         syncedAt: now,
       };
     });
-    const { error: iErr } = await supabase
-      .from("bcItems")
-      .upsert(itemRows, { onConflict: "id" });
-    if (iErr) {
-      results.items = `ERROR: ${iErr.message}`;
-    } else {
-      results.items = itemRows.length;
-      syncSuccess.items = true;
-    }
-  } catch (e) {
-    results.items = `ERROR: ${e.message}`;
+    upsertTasks.push(
+      batchUpsert(supabase, "bcItems", itemRows)
+        .then(() => {
+          results.items = itemRows.length;
+          syncSuccess.items = true;
+        })
+        .catch((e) => {
+          results.items = `ERROR: ${e.message}`;
+        }),
+    );
+  } else {
+    results.items = `ERROR: ${itemsResult.reason?.message}`;
   }
 
-  try {
-    // 3. Sales Orders + Lines (SO26 = ปี 2026)
-    const [orders, allLines] = await Promise.all([
-      bcODataGet("Sales_Order_Excel", {
-        $filter: "startswith(No,'SO26')",
-        $orderby: "No desc",
-        $select:
-          "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No",
-      }),
-      bcODataGet("Sales_Order_Line_Excel", {
-        $filter: "startswith(Document_No,'SO26')",
-        $select:
-          "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code",
-      }),
-    ]);
+  // --- Sales Orders + Lines ---
+  if (
+    ordersResult.status === "fulfilled" &&
+    linesResult.status === "fulfilled"
+  ) {
+    const orders = ordersResult.value;
+    const allLines = linesResult.value;
 
-    // คำนวณ totalAmountIncludingTax per order จาก lines
+    // คำนวณ totalAmount per order จาก lines
     const amountByOrder = {};
     for (const l of allLines) {
       amountByOrder[l.Document_No] =
@@ -158,17 +184,7 @@ export async function GET(request) {
       totalAmountIncludingTax: amountByOrder[o.No] || 0,
       syncedAt: now,
     }));
-    const { error: oErr } = await supabase
-      .from("bcSalesOrders")
-      .upsert(orderRows, { onConflict: "id" });
-    if (oErr) {
-      results.salesOrders = `ERROR: ${oErr.message}`;
-    } else {
-      results.salesOrders = orderRows.length;
-      syncSuccess.salesOrders = true;
-    }
 
-    // เก็บทุก line + map project จาก item number (No)
     const lineRows = allLines.map((l) => {
       const projectCode = extractProjectCode(l.No);
       return {
@@ -190,38 +206,68 @@ export async function GET(request) {
         syncedAt: now,
       };
     });
-    const { error: lErr } = await supabase
-      .from("bcSalesOrderLines")
-      .upsert(lineRows, { onConflict: "id" });
-    if (lErr) {
-      results.salesOrderLines = `ERROR: ${lErr.message}`;
-    } else {
-      results.salesOrderLines = lineRows.length;
-      syncSuccess.salesOrderLines = true;
+
+    // Upsert orders + lines พร้อมกัน (คนละตาราง)
+    upsertTasks.push(
+      batchUpsert(supabase, "bcSalesOrders", orderRows)
+        .then(() => {
+          results.salesOrders = orderRows.length;
+          syncSuccess.salesOrders = true;
+        })
+        .catch((e) => {
+          results.salesOrders = `ERROR: ${e.message}`;
+        }),
+    );
+    upsertTasks.push(
+      batchUpsert(supabase, "bcSalesOrderLines", lineRows)
+        .then(() => {
+          results.salesOrderLines = lineRows.length;
+          syncSuccess.salesOrderLines = true;
+        })
+        .catch((e) => {
+          results.salesOrderLines = `ERROR: ${e.message}`;
+        }),
+    );
+  } else {
+    if (ordersResult.status === "rejected") {
+      results.salesOrders = `ERROR: ${ordersResult.reason?.message}`;
     }
-  } catch (e) {
-    results.salesOrders = `ERROR: ${e.message}`;
-    results.salesOrderLines = `ERROR: ${e.message}`;
+    if (linesResult.status === "rejected") {
+      results.salesOrderLines = `ERROR: ${linesResult.reason?.message}`;
+    }
   }
 
-  // --- Stale data cleanup: ลบ record ที่ไม่มีใน source แล้ว ---
+  // รอ upsert ทุกตารางเสร็จ
+  await Promise.all(upsertTasks);
+
+  // ═══ Phase 4: Stale data cleanup — ลบ record ที่ไม่มีใน BC แล้ว ═══
   const cleanup = {};
 
+  // Cleanup customers + items พร้อมกัน (ไม่มี dependency)
+  const cleanupParallel = [];
   if (syncSuccess.customers) {
-    const { count, error } = await supabase
-      .from("bcCustomers")
-      .delete({ count: "exact" })
-      .lt("syncedAt", now);
-    cleanup.customers = error ? `ERROR: ${error.message}` : (count || 0);
+    cleanupParallel.push(
+      supabase
+        .from("bcCustomers")
+        .delete({ count: "exact" })
+        .lt("syncedAt", now)
+        .then(({ count, error }) => {
+          cleanup.customers = error ? `ERROR: ${error.message}` : (count || 0);
+        }),
+    );
   }
-
   if (syncSuccess.items) {
-    const { count, error } = await supabase
-      .from("bcItems")
-      .delete({ count: "exact" })
-      .lt("syncedAt", now);
-    cleanup.items = error ? `ERROR: ${error.message}` : (count || 0);
+    cleanupParallel.push(
+      supabase
+        .from("bcItems")
+        .delete({ count: "exact" })
+        .lt("syncedAt", now)
+        .then(({ count, error }) => {
+          cleanup.items = error ? `ERROR: ${error.message}` : (count || 0);
+        }),
+    );
   }
+  await Promise.all(cleanupParallel);
 
   // ลบ lines ก่อน orders (child → parent)
   if (syncSuccess.salesOrderLines) {
@@ -229,9 +275,10 @@ export async function GET(request) {
       .from("bcSalesOrderLines")
       .delete({ count: "exact" })
       .lt("syncedAt", now);
-    cleanup.salesOrderLines = error ? `ERROR: ${error.message}` : (count || 0);
+    cleanup.salesOrderLines = error
+      ? `ERROR: ${error.message}`
+      : (count || 0);
   }
-
   if (syncSuccess.salesOrders) {
     const { count, error } = await supabase
       .from("bcSalesOrders")

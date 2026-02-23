@@ -15,6 +15,7 @@ async function getToken() {
       client_secret: process.env.BC_CLIENT_SECRET,
       scope: process.env.BC_SCOPE,
     }),
+    signal: AbortSignal.timeout(15_000),
   });
 
   if (!res.ok) {
@@ -54,6 +55,7 @@ export async function bcApiGet(endpoint, params = {}) {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
+      signal: AbortSignal.timeout(30_000),
     });
 
     if (!res.ok) {
@@ -86,6 +88,7 @@ export async function bcODataGet(entity, params = {}) {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
+      signal: AbortSignal.timeout(30_000),
     });
 
     if (!res.ok) {
