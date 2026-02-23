@@ -283,17 +283,6 @@ export default function ShippingLabelDocument({ orderNo }) {
                     <th
                       style={{
                         padding: "1mm 1.5mm",
-                        textAlign: "center",
-                        width: "8mm",
-                        borderRight: "1px solid #000",
-                        fontWeight: "600",
-                      }}
-                    >
-                      ลำดับ
-                    </th>
-                    <th
-                      style={{
-                        padding: "1mm 1.5mm",
                         textAlign: "left",
                         borderRight: "1px solid #000",
                         fontWeight: "600",
@@ -314,45 +303,26 @@ export default function ShippingLabelDocument({ orderNo }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.items.map((item, i) => {
-                    const isCurrentItem =
-                      item.description === label.item.description &&
-                      item.itemNo === label.item.itemNo;
-                    return (
-                      <tr key={i} style={{ borderBottom: "1px solid #e5e5e5" }}>
-                        <td
-                          style={{
-                            padding: "1mm 1.5mm",
-                            textAlign: "center",
-                            borderRight: "1px solid #ccc",
-                            fontWeight: isCurrentItem ? "bold" : "normal",
-                          }}
-                        >
-                          {i + 1}
-                        </td>
-                        <td
-                          style={{
-                            padding: "1mm 1.5mm",
-                            borderRight: "1px solid #ccc",
-                            fontWeight: isCurrentItem ? "bold" : "normal",
-                            color: isCurrentItem ? "#000" : "#555",
-                          }}
-                        >
-                          {item.description}
-                        </td>
-                        <td
-                          style={{
-                            padding: "1mm 1.5mm",
-                            textAlign: "center",
-                            fontWeight: isCurrentItem ? "bold" : "normal",
-                            color: isCurrentItem ? "#000" : "#555",
-                          }}
-                        >
-                          {item.qty}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  <tr style={{ borderBottom: "1px solid #e5e5e5" }}>
+                    <td
+                      style={{
+                        padding: "1mm 1.5mm",
+                        borderRight: "1px solid #ccc",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {label.item.description}
+                    </td>
+                    <td
+                      style={{
+                        padding: "1mm 1.5mm",
+                        textAlign: "center",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {label.item.qty}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
