@@ -1,5 +1,5 @@
 export const PRINTER_CONFIG = {
-  host: process.env.RFID_PRINTER_IP || "192.168.1.43",
+  host: process.env.RFID_PRINTER_IP || "192.168.1.110",
   port: parseInt(process.env.RFID_PRINTER_PORT || "9100", 10),
   timeout: 15000,
   retries: 3,

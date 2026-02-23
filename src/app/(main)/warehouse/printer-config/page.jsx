@@ -91,7 +91,7 @@ export default function PrinterConfigPage() {
         <CardBody className="gap-3">
           <div className="flex gap-2 items-center">
             <p className="text-sm text-default-500">
-              Chainway CP30 (Network — 192.168.1.43:9100)
+              Chainway CP30 (Network — 192.168.1.110:9100)
             </p>
             {connected === true && (
               <Chip size="sm" color="success" variant="flat">
