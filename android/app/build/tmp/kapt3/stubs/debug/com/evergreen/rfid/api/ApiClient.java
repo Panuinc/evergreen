@@ -5,11 +5,11 @@ public final class ApiClient {
     @org.jetbrains.annotations.NotNull()
     private final android.content.Context context = null;
     @org.jetbrains.annotations.NotNull()
-    private final okhttp3.OkHttpClient client = null;
-    @org.jetbrains.annotations.NotNull()
     private final com.google.gson.Gson gson = null;
     @org.jetbrains.annotations.NotNull()
     private final com.evergreen.rfid.api.SupabaseAuth auth = null;
+    @org.jetbrains.annotations.NotNull()
+    private final okhttp3.OkHttpClient client = null;
     @org.jetbrains.annotations.NotNull()
     private final java.text.SimpleDateFormat isoFormat = null;
     

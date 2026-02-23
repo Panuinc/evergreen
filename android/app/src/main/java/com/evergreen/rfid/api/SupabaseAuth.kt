@@ -28,6 +28,15 @@ data class AuthError(
     val message: String = ""
 )
 
+data class PinVerifyResponse(
+    val success: Boolean = false,
+    @SerializedName("token_hash") val tokenHash: String = "",
+    val email: String = "",
+    val error: String? = null,
+    val attemptsLeft: Int? = null,
+    val locked: Boolean? = null
+)
+
 class SupabaseAuth(private val context: Context) {
     companion object {
         private const val SUPABASE_URL = "https://nersjlyaqgjrjznbwuhq.supabase.co"
@@ -78,6 +87,154 @@ class SupabaseAuth(private val context: Context) {
                 }
             }
         })
+    }
+
+    fun loginWithPin(email: String, pin: String, baseUrl: String, callback: (Result<AuthResponse>) -> Unit) {
+        // Step 1: Verify PIN with Next.js backend
+        val pinJson = gson.toJson(mapOf("email" to email, "pin" to pin))
+        val pinBody = pinJson.toRequestBody("application/json".toMediaType())
+
+        val pinRequest = Request.Builder()
+            .url("$baseUrl/api/auth/pin/verify")
+            .addHeader("Content-Type", "application/json")
+            .post(pinBody)
+            .build()
+
+        client.newCall(pinRequest).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback(Result.failure(e))
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string() ?: ""
+
+                if (!response.isSuccessful) {
+                    val pinResponse = try {
+                        gson.fromJson(responseBody, PinVerifyResponse::class.java)
+                    } catch (e: Exception) {
+                        null
+                    }
+                    val errorMsg = when {
+                        pinResponse?.locked == true -> pinResponse.error ?: "บัญชีถูกล็อก"
+                        pinResponse?.attemptsLeft != null -> "${pinResponse.error ?: "PIN ไม่ถูกต้อง"} (เหลืออีก ${pinResponse.attemptsLeft} ครั้ง)"
+                        pinResponse?.error != null -> pinResponse.error
+                        else -> "PIN ไม่ถูกต้อง"
+                    }
+                    callback(Result.failure(Exception(errorMsg)))
+                    return
+                }
+
+                val pinResponse = try {
+                    gson.fromJson(responseBody, PinVerifyResponse::class.java)
+                } catch (e: Exception) {
+                    callback(Result.failure(Exception("ไม่สามารถอ่านข้อมูลจากเซิร์ฟเวอร์ได้")))
+                    return
+                }
+
+                if (!pinResponse.success || pinResponse.tokenHash.isEmpty()) {
+                    callback(Result.failure(Exception("การยืนยัน PIN ล้มเหลว")))
+                    return
+                }
+
+                // Step 2: Exchange token_hash for access/refresh tokens via Supabase
+                verifyOtp(pinResponse.tokenHash, email, callback)
+            }
+        })
+    }
+
+    private fun verifyOtp(tokenHash: String, userEmail: String, callback: (Result<AuthResponse>) -> Unit) {
+        val otpJson = gson.toJson(mapOf("token_hash" to tokenHash, "type" to "magiclink"))
+        val otpBody = otpJson.toRequestBody("application/json".toMediaType())
+
+        val otpRequest = Request.Builder()
+            .url("$SUPABASE_URL/auth/v1/verify")
+            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .addHeader("Content-Type", "application/json")
+            .post(otpBody)
+            .build()
+
+        client.newCall(otpRequest).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback(Result.failure(Exception("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้")))
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string() ?: ""
+                if (response.isSuccessful) {
+                    val auth = gson.fromJson(responseBody, AuthResponse::class.java)
+                    saveTokens(auth, userEmail)
+                    callback(Result.success(auth))
+                } else {
+                    callback(Result.failure(Exception("สร้างเซสชันล้มเหลว")))
+                }
+            }
+        })
+    }
+
+    fun refreshToken(callback: (Result<AuthResponse>) -> Unit) {
+        val storedRefreshToken = prefs.getString(KEY_REFRESH_TOKEN, null)
+        if (storedRefreshToken.isNullOrEmpty()) {
+            callback(Result.failure(Exception("No refresh token")))
+            return
+        }
+
+        val json = gson.toJson(mapOf("refresh_token" to storedRefreshToken))
+        val body = json.toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("$SUPABASE_URL/auth/v1/token?grant_type=refresh_token")
+            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .addHeader("Content-Type", "application/json")
+            .post(body)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback(Result.failure(e))
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string() ?: ""
+                if (response.isSuccessful) {
+                    val auth = gson.fromJson(responseBody, AuthResponse::class.java)
+                    val currentEmail = email ?: ""
+                    saveTokens(auth, currentEmail)
+                    callback(Result.success(auth))
+                } else {
+                    callback(Result.failure(Exception("Refresh failed: ${response.code}")))
+                }
+            }
+        })
+    }
+
+    fun refreshTokenSync(): Boolean {
+        val storedRefreshToken = prefs.getString(KEY_REFRESH_TOKEN, null)
+        if (storedRefreshToken.isNullOrEmpty()) return false
+
+        val json = gson.toJson(mapOf("refresh_token" to storedRefreshToken))
+        val body = json.toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("$SUPABASE_URL/auth/v1/token?grant_type=refresh_token")
+            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .addHeader("Content-Type", "application/json")
+            .post(body)
+            .build()
+
+        return try {
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                val responseBody = response.body?.string() ?: ""
+                val auth = gson.fromJson(responseBody, AuthResponse::class.java)
+                val currentEmail = email ?: ""
+                saveTokens(auth, currentEmail)
+                true
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun logout() {

@@ -16,13 +16,27 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class ApiClient(private val context: Context) {
+    private val gson = Gson()
+    private val auth = SupabaseAuth(context)
     private val client = OkHttpClient.Builder()
         .connectTimeout(5, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
         .writeTimeout(5, TimeUnit.SECONDS)
+        .authenticator { _, response ->
+            // Don't retry if we already tried refreshing
+            if (response.request.header("X-Retry-After-Refresh") != null) return@authenticator null
+
+            // Try to refresh the token
+            val refreshed = auth.refreshTokenSync()
+            if (!refreshed) return@authenticator null
+
+            // Retry the request with the new token
+            response.request.newBuilder()
+                .header("Authorization", "Bearer ${auth.accessToken ?: ""}")
+                .header("X-Retry-After-Refresh", "true")
+                .build()
+        }
         .build()
-    private val gson = Gson()
-    private val auth = SupabaseAuth(context)
     private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
         timeZone = TimeZone.getTimeZone("UTC")
     }

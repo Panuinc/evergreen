@@ -88,7 +88,7 @@ public final class SyncDao_Impl implements SyncDao {
   }
 
   @Override
-  public Object insert(final PendingRequest request, final Continuation<? super Unit> arg1) {
+  public Object insert(final PendingRequest request, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -102,11 +102,11 @@ public final class SyncDao_Impl implements SyncDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object delete(final long id, final Continuation<? super Unit> arg1) {
+  public Object delete(final long id, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -127,12 +127,12 @@ public final class SyncDao_Impl implements SyncDao {
           __preparedStmtOfDelete.release(_stmt);
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
   public Object updateStatus(final long id, final String status,
-      final Continuation<? super Unit> arg2) {
+      final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -159,11 +159,11 @@ public final class SyncDao_Impl implements SyncDao {
           __preparedStmtOfUpdateStatus.release(_stmt);
         }
       }
-    }, arg2);
+    }, $completion);
   }
 
   @Override
-  public Object getAllPending(final Continuation<? super List<PendingRequest>> arg0) {
+  public Object getAllPending(final Continuation<? super List<PendingRequest>> $completion) {
     final String _sql = "SELECT * FROM pending_requests WHERE status = 'pending' ORDER BY createdAt ASC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -212,11 +212,11 @@ public final class SyncDao_Impl implements SyncDao {
           _statement.release();
         }
       }
-    }, arg0);
+    }, $completion);
   }
 
   @Override
-  public Object getPendingCount(final Continuation<? super Integer> arg0) {
+  public Object getPendingCount(final Continuation<? super Integer> $completion) {
     final String _sql = "SELECT COUNT(*) FROM pending_requests WHERE status = 'pending'";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -244,7 +244,7 @@ public final class SyncDao_Impl implements SyncDao {
           _statement.release();
         }
       }
-    }, arg0);
+    }, $completion);
   }
 
   @NonNull

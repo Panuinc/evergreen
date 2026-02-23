@@ -197,7 +197,7 @@ public final class ScanDao_Impl implements ScanDao {
 
   @Override
   public Object insertSession(final ScanSessionEntity session,
-      final Continuation<? super Long> arg1) {
+      final Continuation<? super Long> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Long>() {
       @Override
       @NonNull
@@ -211,11 +211,12 @@ public final class ScanDao_Impl implements ScanDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object insertRecord(final ScanRecordEntity record, final Continuation<? super Unit> arg1) {
+  public Object insertRecord(final ScanRecordEntity record,
+      final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -229,12 +230,12 @@ public final class ScanDao_Impl implements ScanDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
   public Object insertRecords(final List<ScanRecordEntity> records,
-      final Continuation<? super Unit> arg1) {
+      final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -248,12 +249,12 @@ public final class ScanDao_Impl implements ScanDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
   public Object updateSession(final ScanSessionEntity session,
-      final Continuation<? super Unit> arg1) {
+      final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -267,11 +268,11 @@ public final class ScanDao_Impl implements ScanDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object deleteSession(final long sessionId, final Continuation<? super Unit> arg1) {
+  public Object deleteSession(final long sessionId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -292,11 +293,11 @@ public final class ScanDao_Impl implements ScanDao {
           __preparedStmtOfDeleteSession.release(_stmt);
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object getAllSessions(final Continuation<? super List<ScanSessionEntity>> arg0) {
+  public Object getAllSessions(final Continuation<? super List<ScanSessionEntity>> $completion) {
     final String _sql = "SELECT * FROM scan_sessions ORDER BY startTime DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -377,12 +378,12 @@ public final class ScanDao_Impl implements ScanDao {
           _statement.release();
         }
       }
-    }, arg0);
+    }, $completion);
   }
 
   @Override
   public Object getSession(final long sessionId,
-      final Continuation<? super ScanSessionEntity> arg1) {
+      final Continuation<? super ScanSessionEntity> $completion) {
     final String _sql = "SELECT * FROM scan_sessions WHERE id = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
@@ -465,12 +466,12 @@ public final class ScanDao_Impl implements ScanDao {
           _statement.release();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
   public Object getRecordsBySession(final long sessionId,
-      final Continuation<? super List<ScanRecordEntity>> arg1) {
+      final Continuation<? super List<ScanRecordEntity>> $completion) {
     final String _sql = "SELECT * FROM scan_records WHERE sessionId = ? ORDER BY scannedAt DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
@@ -541,11 +542,12 @@ public final class ScanDao_Impl implements ScanDao {
           _statement.release();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object getUnsyncedSessions(final Continuation<? super List<ScanSessionEntity>> arg0) {
+  public Object getUnsyncedSessions(
+      final Continuation<? super List<ScanSessionEntity>> $completion) {
     final String _sql = "SELECT * FROM scan_sessions WHERE synced = 0 ORDER BY startTime DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -626,11 +628,11 @@ public final class ScanDao_Impl implements ScanDao {
           _statement.release();
         }
       }
-    }, arg0);
+    }, $completion);
   }
 
   @Override
-  public Object getSessionCount(final Continuation<? super Integer> arg0) {
+  public Object getSessionCount(final Continuation<? super Integer> $completion) {
     final String _sql = "SELECT COUNT(*) FROM scan_sessions";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -658,7 +660,7 @@ public final class ScanDao_Impl implements ScanDao {
           _statement.release();
         }
       }
-    }, arg0);
+    }, $completion);
   }
 
   @NonNull

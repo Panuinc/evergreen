@@ -27,6 +27,7 @@ drawable bg_badge
 drawable bg_input
 drawable bg_login_gradient
 drawable bg_notice
+drawable bg_pin_box
 drawable bg_stats_bar
 drawable ic_back
 drawable ic_dashboard
@@ -38,6 +39,7 @@ drawable ic_nav_history
 drawable ic_nav_more
 drawable ic_nav_scanner
 drawable ic_order_match
+drawable ic_pin
 drawable ic_settings
 drawable ic_summary
 drawable ic_transfer
@@ -57,10 +59,13 @@ id btnLogin
 id btnModeAuto
 id btnModeCount
 id btnModeSingle
+id btnPinUnlock
 id btnSaveSession
 id btnScan
 id btnSubmit
 id btnSummary
+id btnSwitchToPassword
+id btnSwitchToPin
 id btnSyncItems
 id btnTestConnection
 id btnUploadAll
@@ -81,6 +86,8 @@ id etReprintQty
 id etServerUrl
 id etToLocation
 id fragment_container
+id groupPassword
+id groupPin
 id ivLogo
 id menuBatchUpload
 id menuDashboard
@@ -94,6 +101,13 @@ id nav_history
 id nav_more
 id nav_scanner
 id normalDisplay
+id pin1
+id pin2
+id pin3
+id pin4
+id pin5
+id pin6
+id pinContainer
 id progressBar
 id progressSignal
 id rowAndroid
@@ -144,6 +158,9 @@ id tvOrderInfo
 id tvOrderNumber
 id tvPendingTransfers
 id tvPiece
+id tvPinEmail
+id tvPinError
+id tvPinLabel
 id tvPowerValue
 id tvPrice
 id tvProjectName

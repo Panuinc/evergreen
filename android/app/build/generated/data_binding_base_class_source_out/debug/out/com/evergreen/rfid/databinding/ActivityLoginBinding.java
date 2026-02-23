@@ -4,7 +4,9 @@ package com.evergreen.rfid.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -28,13 +30,49 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final MaterialButton btnLogin;
 
   @NonNull
+  public final MaterialButton btnPinUnlock;
+
+  @NonNull
+  public final MaterialButton btnSwitchToPassword;
+
+  @NonNull
+  public final MaterialButton btnSwitchToPin;
+
+  @NonNull
   public final TextInputEditText etEmail;
 
   @NonNull
   public final TextInputEditText etPassword;
 
   @NonNull
+  public final LinearLayout groupPassword;
+
+  @NonNull
+  public final LinearLayout groupPin;
+
+  @NonNull
   public final ImageView ivLogo;
+
+  @NonNull
+  public final EditText pin1;
+
+  @NonNull
+  public final EditText pin2;
+
+  @NonNull
+  public final EditText pin3;
+
+  @NonNull
+  public final EditText pin4;
+
+  @NonNull
+  public final EditText pin5;
+
+  @NonNull
+  public final EditText pin6;
+
+  @NonNull
+  public final LinearLayout pinContainer;
 
   @NonNull
   public final ProgressBar progressBar;
@@ -46,21 +84,50 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final TextInputLayout tilPassword;
 
   @NonNull
+  public final TextView tvPinEmail;
+
+  @NonNull
+  public final TextView tvPinError;
+
+  @NonNull
+  public final TextView tvPinLabel;
+
+  @NonNull
   public final TextView tvTitle;
 
   private ActivityLoginBinding(@NonNull ConstraintLayout rootView, @NonNull MaterialButton btnLogin,
-      @NonNull TextInputEditText etEmail, @NonNull TextInputEditText etPassword,
-      @NonNull ImageView ivLogo, @NonNull ProgressBar progressBar,
-      @NonNull TextInputLayout tilEmail, @NonNull TextInputLayout tilPassword,
-      @NonNull TextView tvTitle) {
+      @NonNull MaterialButton btnPinUnlock, @NonNull MaterialButton btnSwitchToPassword,
+      @NonNull MaterialButton btnSwitchToPin, @NonNull TextInputEditText etEmail,
+      @NonNull TextInputEditText etPassword, @NonNull LinearLayout groupPassword,
+      @NonNull LinearLayout groupPin, @NonNull ImageView ivLogo, @NonNull EditText pin1,
+      @NonNull EditText pin2, @NonNull EditText pin3, @NonNull EditText pin4,
+      @NonNull EditText pin5, @NonNull EditText pin6, @NonNull LinearLayout pinContainer,
+      @NonNull ProgressBar progressBar, @NonNull TextInputLayout tilEmail,
+      @NonNull TextInputLayout tilPassword, @NonNull TextView tvPinEmail,
+      @NonNull TextView tvPinError, @NonNull TextView tvPinLabel, @NonNull TextView tvTitle) {
     this.rootView = rootView;
     this.btnLogin = btnLogin;
+    this.btnPinUnlock = btnPinUnlock;
+    this.btnSwitchToPassword = btnSwitchToPassword;
+    this.btnSwitchToPin = btnSwitchToPin;
     this.etEmail = etEmail;
     this.etPassword = etPassword;
+    this.groupPassword = groupPassword;
+    this.groupPin = groupPin;
     this.ivLogo = ivLogo;
+    this.pin1 = pin1;
+    this.pin2 = pin2;
+    this.pin3 = pin3;
+    this.pin4 = pin4;
+    this.pin5 = pin5;
+    this.pin6 = pin6;
+    this.pinContainer = pinContainer;
     this.progressBar = progressBar;
     this.tilEmail = tilEmail;
     this.tilPassword = tilPassword;
+    this.tvPinEmail = tvPinEmail;
+    this.tvPinError = tvPinError;
+    this.tvPinLabel = tvPinLabel;
     this.tvTitle = tvTitle;
   }
 
@@ -97,6 +164,24 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnPinUnlock;
+      MaterialButton btnPinUnlock = ViewBindings.findChildViewById(rootView, id);
+      if (btnPinUnlock == null) {
+        break missingId;
+      }
+
+      id = R.id.btnSwitchToPassword;
+      MaterialButton btnSwitchToPassword = ViewBindings.findChildViewById(rootView, id);
+      if (btnSwitchToPassword == null) {
+        break missingId;
+      }
+
+      id = R.id.btnSwitchToPin;
+      MaterialButton btnSwitchToPin = ViewBindings.findChildViewById(rootView, id);
+      if (btnSwitchToPin == null) {
+        break missingId;
+      }
+
       id = R.id.etEmail;
       TextInputEditText etEmail = ViewBindings.findChildViewById(rootView, id);
       if (etEmail == null) {
@@ -109,9 +194,63 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.groupPassword;
+      LinearLayout groupPassword = ViewBindings.findChildViewById(rootView, id);
+      if (groupPassword == null) {
+        break missingId;
+      }
+
+      id = R.id.groupPin;
+      LinearLayout groupPin = ViewBindings.findChildViewById(rootView, id);
+      if (groupPin == null) {
+        break missingId;
+      }
+
       id = R.id.ivLogo;
       ImageView ivLogo = ViewBindings.findChildViewById(rootView, id);
       if (ivLogo == null) {
+        break missingId;
+      }
+
+      id = R.id.pin1;
+      EditText pin1 = ViewBindings.findChildViewById(rootView, id);
+      if (pin1 == null) {
+        break missingId;
+      }
+
+      id = R.id.pin2;
+      EditText pin2 = ViewBindings.findChildViewById(rootView, id);
+      if (pin2 == null) {
+        break missingId;
+      }
+
+      id = R.id.pin3;
+      EditText pin3 = ViewBindings.findChildViewById(rootView, id);
+      if (pin3 == null) {
+        break missingId;
+      }
+
+      id = R.id.pin4;
+      EditText pin4 = ViewBindings.findChildViewById(rootView, id);
+      if (pin4 == null) {
+        break missingId;
+      }
+
+      id = R.id.pin5;
+      EditText pin5 = ViewBindings.findChildViewById(rootView, id);
+      if (pin5 == null) {
+        break missingId;
+      }
+
+      id = R.id.pin6;
+      EditText pin6 = ViewBindings.findChildViewById(rootView, id);
+      if (pin6 == null) {
+        break missingId;
+      }
+
+      id = R.id.pinContainer;
+      LinearLayout pinContainer = ViewBindings.findChildViewById(rootView, id);
+      if (pinContainer == null) {
         break missingId;
       }
 
@@ -133,14 +272,34 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvPinEmail;
+      TextView tvPinEmail = ViewBindings.findChildViewById(rootView, id);
+      if (tvPinEmail == null) {
+        break missingId;
+      }
+
+      id = R.id.tvPinError;
+      TextView tvPinError = ViewBindings.findChildViewById(rootView, id);
+      if (tvPinError == null) {
+        break missingId;
+      }
+
+      id = R.id.tvPinLabel;
+      TextView tvPinLabel = ViewBindings.findChildViewById(rootView, id);
+      if (tvPinLabel == null) {
+        break missingId;
+      }
+
       id = R.id.tvTitle;
       TextView tvTitle = ViewBindings.findChildViewById(rootView, id);
       if (tvTitle == null) {
         break missingId;
       }
 
-      return new ActivityLoginBinding((ConstraintLayout) rootView, btnLogin, etEmail, etPassword,
-          ivLogo, progressBar, tilEmail, tilPassword, tvTitle);
+      return new ActivityLoginBinding((ConstraintLayout) rootView, btnLogin, btnPinUnlock,
+          btnSwitchToPassword, btnSwitchToPin, etEmail, etPassword, groupPassword, groupPin, ivLogo,
+          pin1, pin2, pin3, pin4, pin5, pin6, pinContainer, progressBar, tilEmail, tilPassword,
+          tvPinEmail, tvPinError, tvPinLabel, tvTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

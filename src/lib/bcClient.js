@@ -32,13 +32,44 @@ async function getToken() {
   return tokenCache.accessToken;
 }
 
+async function fetchWithRetry(url, options, { maxRetries = 3, timeout = 60_000 } = {}) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(timeout),
+      });
+
+      if (res.status === 429) {
+        const retryAfter = parseInt(res.headers.get("Retry-After") || "5", 10);
+        await new Promise((r) => setTimeout(r, retryAfter * 1000));
+        continue;
+      }
+
+      if (res.status >= 500 && attempt < maxRetries) {
+        await new Promise((r) => setTimeout(r, 2000 * Math.pow(2, attempt)));
+        continue;
+      }
+
+      return res;
+    } catch (err) {
+      const isTimeout = err.name === "TimeoutError" || err.name === "AbortError";
+      if (isTimeout && attempt < maxRetries) {
+        await new Promise((r) => setTimeout(r, 2000 * Math.pow(2, attempt)));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
 const BC_ODATA_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/ODataV4/Company('C.H.H._Go-Live')`;
 
 // BC API v2.0 (standard REST API — for dimensionValues, etc.)
 const BC_COMPANY_ID = "a407ba9f-2151-ec11-9f09-000d3ac85269";
 const BC_API_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/api/v2.0/companies(${BC_COMPANY_ID})`;
 
-export async function bcApiGet(endpoint, params = {}, { timeout = 120_000 } = {}) {
+export async function bcApiGet(endpoint, params = {}, { timeout = 60_000 } = {}) {
   const token = await getToken();
 
   const url = new URL(`${BC_API_URL}/${endpoint}`);
@@ -50,13 +81,12 @@ export async function bcApiGet(endpoint, params = {}, { timeout = 120_000 } = {}
   let nextUrl = url.toString();
 
   while (nextUrl) {
-    const res = await fetch(nextUrl, {
+    const res = await fetchWithRetry(nextUrl, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
-      signal: AbortSignal.timeout(timeout),
-    });
+    }, { timeout });
 
     if (!res.ok) {
       const text = await res.text();
@@ -71,7 +101,7 @@ export async function bcApiGet(endpoint, params = {}, { timeout = 120_000 } = {}
   return allValues;
 }
 
-export async function bcODataGet(entity, params = {}, { timeout = 120_000 } = {}) {
+export async function bcODataGet(entity, params = {}, { timeout = 60_000 } = {}) {
   const token = await getToken();
 
   const url = new URL(`${BC_ODATA_URL}/${entity}`);
@@ -83,13 +113,12 @@ export async function bcODataGet(entity, params = {}, { timeout = 120_000 } = {}
   let nextUrl = url.toString();
 
   while (nextUrl) {
-    const res = await fetch(nextUrl, {
+    const res = await fetchWithRetry(nextUrl, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
-      signal: AbortSignal.timeout(timeout),
-    });
+    }, { timeout });
 
     if (!res.ok) {
       const text = await res.text();

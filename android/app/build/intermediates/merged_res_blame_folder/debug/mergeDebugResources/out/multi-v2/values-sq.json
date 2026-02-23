@@ -4,7 +4,7 @@
             "outputFile": "com.evergreen.rfid.app-mergeDebugResources-37:/values-sq/values-sq.xml",
             "map": [
                 {
-                    "source": "/Users/panuwatjangchudjai/.gradle/caches/8.9/transforms/b6c5e032a003934e4adfaba9fa53f2ca/transformed/appcompat-1.7.0/res/values-sq/values-sq.xml",
+                    "source": "C:\\Users\\inc10\\.gradle\\caches\\8.9\\transforms\\b6c5e032a003934e4adfaba9fa53f2ca\\transformed\\appcompat-1.7.0\\res\\values-sq\\values-sq.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "/Users/panuwatjangchudjai/.gradle/caches/8.9/transforms/cb80b58a1968ef567e82d67a1a4c417e/transformed/play-services-base-18.1.0/res/values-sq/values.xml",
+                    "source": "C:\\Users\\inc10\\.gradle\\caches\\8.9\\transforms\\cb80b58a1968ef567e82d67a1a4c417e\\transformed\\play-services-base-18.1.0\\res\\values-sq\\values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
                         "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -38,7 +38,24 @@
                     }
                 },
                 {
-                    "source": "/Users/panuwatjangchudjai/.gradle/caches/8.9/transforms/71cd2808239bde278ecaa4add28b95d8/transformed/material-1.12.0/res/values-sq/values-sq.xml",
+                    "source": "C:\\Users\\inc10\\.gradle\\caches\\8.9\\transforms\\9498fdc062d98f42ee9bcdabb51aa467\\transformed\\play-services-basement-18.1.0\\res\\values-sq\\values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "124",
+                        "endOffsets": "319"
+                    },
+                    "to": {
+                        "startLines": "56",
+                        "startColumns": "4",
+                        "startOffsets": "5556",
+                        "endColumns": "128",
+                        "endOffsets": "5680"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\inc10\\.gradle\\caches\\8.9\\transforms\\71cd2808239bde278ecaa4add28b95d8\\transformed\\material-1.12.0\\res\\values-sq\\values-sq.xml",
                     "from": {
                         "startLines": "2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -57,7 +74,7 @@
                     }
                 },
                 {
-                    "source": "/Users/panuwatjangchudjai/.gradle/caches/8.9/transforms/3e85dc3a27e7bbf172ac49206d18ddee/transformed/core-1.15.0/res/values-sq/values-sq.xml",
+                    "source": "C:\\Users\\inc10\\.gradle\\caches\\8.9\\transforms\\3e85dc3a27e7bbf172ac49206d18ddee\\transformed\\core-1.15.0\\res\\values-sq\\values-sq.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -71,23 +88,6 @@
                         "startOffsets": "3448,3547,3649,3747,3844,3952,4063,12293",
                         "endColumns": "98,101,97,96,107,110,121,100",
                         "endOffsets": "3542,3644,3742,3839,3947,4058,4180,12389"
-                    }
-                },
-                {
-                    "source": "/Users/panuwatjangchudjai/.gradle/caches/8.9/transforms/9498fdc062d98f42ee9bcdabb51aa467/transformed/play-services-basement-18.1.0/res/values-sq/values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "195",
-                        "endColumns": "124",
-                        "endOffsets": "319"
-                    },
-                    "to": {
-                        "startLines": "56",
-                        "startColumns": "4",
-                        "startOffsets": "5556",
-                        "endColumns": "128",
-                        "endOffsets": "5680"
                     }
                 }
             ]
