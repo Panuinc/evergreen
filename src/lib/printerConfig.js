@@ -10,7 +10,7 @@ const DEFAULT_CONFIG = {
   fontSize: 40,
   showBarcode: false,
   showPieceNumber: true,
-  encodeRfid: false,
+  encodeRfid: true,
 };
 
 export function getPrinterConfig() {
