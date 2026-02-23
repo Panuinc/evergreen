@@ -112,7 +112,8 @@
       "Bash(/usr/libexec/java_home:*)",
       "WebFetch(domain:app-leadmanager.bcicentral.com)",
       "WebFetch(domain:api.bciaustralia.com)",
-      "WebFetch(domain:help-leadmanager.bcicentral.com)"
+      "WebFetch(domain:help-leadmanager.bcicentral.com)",
+      "Bash(npm ls:*)"
     ]
   }
 }

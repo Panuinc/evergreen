@@ -12,7 +12,66 @@ import {
   Checkbox,
   Textarea,
 } from "@heroui/react";
-import { Printer } from "lucide-react";
+import { Printer, Send } from "lucide-react";
+import JsBarcode from "jsbarcode";
+
+const SENDER = {
+  name: "บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด",
+  address: "9/1 หมู่ 2 ถนนบางเลน-ลาดหลมแก้ว ต.ขนศรี อ.ไทรน้อย จ.นนทบุรี 11150",
+  phone: "02-921-9979, 062-539-9980",
+};
+
+function buildLabelHTML(data, label, barcodeValue) {
+  const phone = data.recipient.phone
+    ? `<div><span style="color:#555">โทร: </span><strong>${data.recipient.phone}</strong></div>`
+    : "";
+  return `<div style="width:100mm;height:150mm;padding:3mm;box-sizing:border-box;display:flex;flex-direction:column;font-family:'Sarabun','Noto Sans Thai',sans-serif;color:#000;background-color:#fff">
+  <div style="display:flex;border:1px solid #000;margin-bottom:2mm">
+    <div style="width:18mm;display:flex;align-items:center;justify-content:center;padding:2mm;border-right:1px solid #000;flex-shrink:0">
+      <img src="/logo/logo-03.png" crossorigin="anonymous" style="width:14mm;height:14mm;object-fit:contain">
+    </div>
+    <div style="flex:1;padding:2mm 2mm;font-size:6pt;line-height:1.5">
+      <div style="margin-bottom:0.5mm"><span style="color:#555">ผู้ส่ง: </span><strong style="font-size:6.5pt">${SENDER.name}</strong></div>
+      <div><span style="color:#555">ที่อยู่: </span>${SENDER.address}</div>
+      <div><span style="color:#555">โทร: </span>${SENDER.phone}</div>
+    </div>
+    <div style="width:16mm;display:flex;align-items:center;justify-content:center;border-left:1px solid #000;flex-shrink:0">
+      <div style="font-size:13pt;font-weight:bold;text-align:center;line-height:1.1">${label.runningNo}/${label.total}</div>
+    </div>
+  </div>
+  <div style="padding:1mm;margin-bottom:2mm;text-align:center;display:flex;align-items:center;justify-content:center;min-height:20mm">
+    <svg class="js-barcode" style="max-width:100%;max-height:20mm"></svg>
+  </div>
+  <div style="border:1px solid #000;padding:2mm 2.5mm;margin-bottom:2mm;font-size:7pt;line-height:1.6">
+    <div><span style="color:#555">ผู้รับ: </span><strong style="font-size:10pt">${data.recipient.name}</strong></div>
+    <div><span style="color:#555">ที่อยู่: </span>${data.recipient.address}</div>
+    ${phone}
+  </div>
+  <div style="border:1px solid #000;margin-bottom:2mm;flex:1;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:6.5pt">
+      <thead><tr style="border-bottom:1px solid #000">
+        <th style="padding:1mm 1.5mm;text-align:left;border-right:1px solid #000;font-weight:600">รายการสินค้า</th>
+        <th style="padding:1mm 1.5mm;text-align:center;width:12mm;font-weight:600">จำนวน</th>
+      </tr></thead>
+      <tbody><tr style="border-bottom:1px solid #e5e5e5">
+        <td style="padding:1mm 1.5mm;border-right:1px solid #ccc;font-weight:bold">${label.item.description}</td>
+        <td style="padding:1mm 1.5mm;text-align:center;font-weight:bold">${label.item.qty}</td>
+      </tr></tbody>
+    </table>
+  </div>
+  <div style="border:1px solid #000;padding:2mm 2.5mm;display:flex;align-items:center;gap:2mm">
+    <div style="flex:1;font-size:7pt;line-height:1.7">
+      <div style="font-weight:bold;font-size:7.5pt">! กรุณาถ่ายวิดีโอขณะแกะพัสดุ</div>
+      <div>เพื่อใช้เป็นหลักฐานการเคลมสินค้า</div>
+      <div>ไม่มีหลักฐานงดเคลมทุกกรณี</div>
+    </div>
+    <div style="flex-shrink:0;text-align:center">
+      <img src="/qrCode/lineEvergreen.png" crossorigin="anonymous" style="width:48px;height:48px;object-fit:contain">
+      <div style="font-size:5.5pt;margin-top:1mm;font-weight:bold">LINE</div>
+    </div>
+  </div>
+</div>`;
+}
 
 export default function ShippingLabelModal({ isOpen, onClose, order, customerPhone }) {
   const lines = order?.lines?.filter((l) => l.Type === "Item" && l.Quantity > 0) || [];
@@ -49,7 +108,10 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
     setQuantities((prev) => ({ ...prev, [lineNo]: num }));
   };
 
-  const handlePrint = () => {
+  const [networkPrinting, setNetworkPrinting] = useState(false);
+  const [networkResult, setNetworkResult] = useState(null);
+
+  const buildLabelData = () => {
     const items = lines
       .filter((l) => selectedLines[l.Line_No] && quantities[l.Line_No] > 0)
       .map((l) => ({
@@ -59,9 +121,9 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
         uom: l.Unit_of_Measure_Code || "PCS",
       }));
 
-    if (items.length === 0) return;
+    if (items.length === 0) return null;
 
-    const data = {
+    return {
       orderNo: order.No,
       externalDocNo: order.External_Document_No || "",
       recipient: {
@@ -72,11 +134,109 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
       items,
       totalLabels: items.reduce((s, i) => s + i.qty, 0),
     };
+  };
+
+  const handlePrint = () => {
+    const data = buildLabelData();
+    if (!data) return;
 
     const key = `shipping-label-${order.No}`;
     localStorage.setItem(key, JSON.stringify(data));
     window.open(`/marketing/shippingLabel/${encodeURIComponent(order.No)}`, "_blank");
     onClose();
+  };
+
+  const handleNetworkPrint = async () => {
+    const data = buildLabelData();
+    if (!data) return;
+
+    setNetworkPrinting(true);
+    setNetworkResult(null);
+
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+
+      // Build label list (same logic as ShippingLabelDocument)
+      const labels = [];
+      let runningNo = 0;
+      for (const item of data.items) {
+        for (let i = 0; i < item.qty; i++) {
+          runningNo++;
+          labels.push({ runningNo, total: data.totalLabels, item });
+        }
+      }
+
+      // Hidden container for rendering
+      const container = document.createElement("div");
+      container.style.cssText = "position:fixed;left:-9999px;top:0;z-index:-1;";
+      document.body.appendChild(container);
+
+      const images = [];
+
+      for (const label of labels) {
+        const barcodeValue = `${data.orderNo}-${String(label.runningNo).padStart(2, "0")}-${label.total}`;
+
+        container.innerHTML = buildLabelHTML(data, label, barcodeValue);
+        const labelEl = container.firstChild;
+
+        // Generate barcode (same settings as ShippingLabelDocument)
+        const svgEl = labelEl.querySelector(".js-barcode");
+        if (svgEl) {
+          JsBarcode(svgEl, barcodeValue, {
+            format: "CODE128",
+            width: 1.3,
+            height: 38,
+            displayValue: true,
+            fontSize: 7,
+            margin: 2,
+            background: "#ffffff",
+            lineColor: "#000000",
+          });
+        }
+
+        // Wait for images to load
+        const imgs = labelEl.querySelectorAll("img");
+        await Promise.all(
+          Array.from(imgs).map(
+            (img) =>
+              new Promise((resolve) => {
+                if (img.complete) resolve();
+                else {
+                  img.onload = resolve;
+                  img.onerror = resolve;
+                }
+              }),
+          ),
+        );
+
+        const canvas = await html2canvas(labelEl, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+        });
+
+        images.push(canvas.toDataURL("image/png").split(",")[1]);
+      }
+
+      document.body.removeChild(container);
+
+      // Send captured images to server for TSPL conversion + printing
+      const res = await fetch("/api/marketing/shippingLabel/print", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setNetworkResult({ type: "success", message: `ส่งพิมพ์สำเร็จ ${result.data.summary.success}/${result.data.summary.total} ใบ` });
+      } else {
+        setNetworkResult({ type: "error", message: result.error || "ส่งพิมพ์ไม่สำเร็จ" });
+      }
+    } catch (err) {
+      setNetworkResult({ type: "error", message: err.message });
+    } finally {
+      setNetworkPrinting(false);
+    }
   };
 
   return (
@@ -160,23 +320,46 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
             </div>
           </div>
         </ModalBody>
-        <ModalFooter className="flex items-center justify-between">
-          <p className="text-sm text-default-500">
-            จำนวนใบปะหน้า: <span className="font-bold text-foreground">{totalLabels}</span> ใบ
-          </p>
-          <div className="flex gap-2">
-            <Button variant="bordered" radius="md" onPress={onClose}>
-              ยกเลิก
-            </Button>
-            <Button
-              color="primary"
-              radius="md"
-              startContent={<Printer size={16} />}
-              onPress={handlePrint}
-              isDisabled={totalLabels === 0}
+        <ModalFooter className="flex flex-col gap-2">
+          {networkResult && (
+            <div
+              className={`w-full text-sm px-3 py-2 rounded-lg ${
+                networkResult.type === "success"
+                  ? "bg-success-50 text-success-700"
+                  : "bg-danger-50 text-danger-700"
+              }`}
             >
-              พิมพ์
-            </Button>
+              {networkResult.message}
+            </div>
+          )}
+          <div className="flex items-center justify-between w-full">
+            <p className="text-sm text-default-500">
+              จำนวนใบปะหน้า: <span className="font-bold text-foreground">{totalLabels}</span> ใบ
+            </p>
+            <div className="flex gap-2">
+              <Button variant="bordered" radius="md" onPress={onClose}>
+                ยกเลิก
+              </Button>
+              <Button
+                variant="bordered"
+                radius="md"
+                startContent={<Printer size={16} />}
+                onPress={handlePrint}
+                isDisabled={totalLabels === 0}
+              >
+                พิมพ์ (เบราว์เซอร์)
+              </Button>
+              <Button
+                color="primary"
+                radius="md"
+                startContent={<Send size={16} />}
+                onPress={handleNetworkPrint}
+                isDisabled={totalLabels === 0 || networkPrinting}
+                isLoading={networkPrinting}
+              >
+                ส่งพิมพ์
+              </Button>
+            </div>
           </div>
         </ModalFooter>
       </ModalContent>

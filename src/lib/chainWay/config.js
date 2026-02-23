@@ -6,6 +6,14 @@ export const PRINTER_CONFIG = {
   retryDelay: 1000,
 };
 
+export const SHIPPING_PRINTER_CONFIG = {
+  host: process.env.SHIPPING_PRINTER_IP || "192.168.1.117",
+  port: parseInt(process.env.SHIPPING_PRINTER_PORT || "9100", 10),
+  timeout: 15000,
+  retries: 3,
+  retryDelay: 1000,
+};
+
 export const COMPANY_INFO = {
   name: "บริษัท ชื้ออะฮวด อุตสาหกรรม จำกัด",
   address1: "9/1 หมู่ 2 ถนนบางเลน-ลาดหลุมแก้ว",

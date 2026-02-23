@@ -16,6 +16,7 @@
     "bcryptjs": "^3.0.3",
     "canvas": "^3.2.1",
     "framer-motion": "^12.34.0",
+    "html2canvas": "^1.4.1",
     "jsbarcode": "^3.12.3",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.563.0",
