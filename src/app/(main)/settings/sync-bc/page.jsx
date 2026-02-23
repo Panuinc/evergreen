@@ -305,25 +305,171 @@ function BciImportSection() {
   );
 }
 
+function TableSyncButton({ table, onResult }) {
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSync = useCallback(async () => {
+    setSyncing(true);
+    onResult(table.key, null);
+    try {
+      const res = await fetch(`/api/sync/bc?tables=${table.key}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Sync failed");
+      onResult(table.key, { ok: true, data });
+    } catch (e) {
+      onResult(table.key, { ok: false, error: e.message });
+    } finally {
+      setSyncing(false);
+    }
+  }, [table.key, onResult]);
+
+  const Icon = table.icon;
+  return (
+    <Button
+      size="sm"
+      variant="bordered"
+      radius="md"
+      startContent={syncing ? <Spinner size="sm" /> : <Icon size={14} />}
+      onPress={handleSync}
+      isDisabled={syncing}
+    >
+      {table.label}
+    </Button>
+  );
+}
+
+function BcSyncSection() {
+  const [syncingAll, setSyncingAll] = useState(false);
+  const [allResult, setAllResult] = useState(null);
+  const [allError, setAllError] = useState(null);
+  const [tableResults, setTableResults] = useState({});
+  const [lastSync, setLastSync] = useState(null);
+
+  const handleSyncAll = useCallback(async () => {
+    setSyncingAll(true);
+    setAllError(null);
+    setAllResult(null);
+    setTableResults({});
+    try {
+      const res = await fetch("/api/sync/bc");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Sync failed");
+      setAllResult(data);
+      setLastSync(new Date().toLocaleString("th-TH"));
+    } catch (e) {
+      setAllError(e.message);
+    } finally {
+      setSyncingAll(false);
+    }
+  }, []);
+
+  const handleTableResult = useCallback((key, result) => {
+    setTableResults((prev) => ({ ...prev, [key]: result }));
+    if (result?.ok) setLastSync(new Date().toLocaleString("th-TH"));
+  }, []);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold">Business Central (BC)</h2>
+          <p className="text-sm text-default-500">ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC</p>
+        </div>
+        <Button
+          color="primary"
+          startContent={syncingAll ? <Spinner size="sm" color="white" /> : <RefreshCw size={16} />}
+          onPress={handleSyncAll}
+          isDisabled={syncingAll}
+        >
+          {syncingAll ? "กำลังซิงค์..." : "ซิงค์ทั้งหมด"}
+        </Button>
+      </div>
+
+      {lastSync && (
+        <div className="flex items-center gap-2 text-sm text-default-500">
+          <Clock size={14} />
+          <span>ซิงค์ล่าสุด: {lastSync}</span>
+        </div>
+      )}
+
+      {/* ปุ่มซิงค์แยกแต่ละตาราง */}
+      <div className="flex flex-wrap gap-2">
+        {BC_TABLES.map((t) => (
+          <TableSyncButton key={t.key} table={t} onResult={handleTableResult} />
+        ))}
+      </div>
+
+      {/* ผลลัพธ์ซิงค์รายตาราง */}
+      {Object.keys(tableResults).length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {BC_TABLES.map((t) => {
+            const r = tableResults[t.key];
+            if (!r) return null;
+            const Icon = t.icon;
+            return (
+              <Card key={t.key} shadow="none" className={`border ${r.ok ? "border-success bg-success-50" : "border-danger bg-danger-50"}`}>
+                <CardBody className="flex-row items-center gap-2 py-2">
+                  {r.ok ? <CheckCircle2 size={16} className="text-success shrink-0" /> : <XCircle size={16} className="text-danger shrink-0" />}
+                  <Icon size={14} className="text-default-500 shrink-0" />
+                  <span className="text-sm font-medium">{t.label}</span>
+                  {r.ok ? (
+                    <span className="ml-auto text-sm font-bold">
+                      {typeof r.data.results?.[t.key] === "number"
+                        ? r.data.results[t.key].toLocaleString("th-TH") + " รายการ"
+                        : "สำเร็จ"}
+                    </span>
+                  ) : (
+                    <span className="ml-auto text-sm text-danger">{r.error}</span>
+                  )}
+                </CardBody>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {allError && (
+        <Card shadow="none" className="border-2 border-danger bg-danger-50">
+          <CardBody className="flex-row items-center gap-2">
+            <XCircle size={18} className="text-danger" />
+            <span className="text-danger font-medium">{allError}</span>
+          </CardBody>
+        </Card>
+      )}
+
+      {allResult && (
+        <Card shadow="none" className="border-2 border-success bg-success-50">
+          <CardHeader className="flex-row items-center gap-2 pb-0">
+            <CheckCircle2 size={18} className="text-success" />
+            <span className="font-semibold text-success">ซิงค์ทั้งหมดสำเร็จ!</span>
+          </CardHeader>
+          <CardBody>
+            <ResultCards tables={BC_TABLES} results={allResult.results} />
+          </CardBody>
+        </Card>
+      )}
+
+      <Card shadow="none" className="bg-default-50 border border-default">
+        <CardBody className="gap-1">
+          <ul className="text-sm text-default-500 list-disc pl-5 space-y-1">
+            <li>Dimensions — dimensionValues จาก BC API v2.0 (code → ชื่อโครงการ)</li>
+            <li>Customers — ข้อมูลลูกค้าจาก CustomerList</li>
+            <li>Items — สินค้าทั้งหมด + map projectCode/projectName</li>
+            <li>Sales Orders — คำสั่งซื้อ SO26*</li>
+            <li>SO Lines — รายการสินค้าในคำสั่งซื้อ</li>
+          </ul>
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
 export default function SyncPage() {
   return (
     <div className="flex flex-col w-full gap-6">
       <h1 className="text-xl font-bold">ซิงค์ข้อมูล</h1>
 
-      {/* BC Section */}
-      <SyncSection
-        title="Business Central (BC)"
-        desc="ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC"
-        endpoint="/api/sync/bc"
-        tables={BC_TABLES}
-        infoItems={[
-          "Dimensions — dimensionValues จาก BC API v2.0 (code → ชื่อโครงการ)",
-          "Customers — ข้อมูลลูกค้าจาก CustomerList",
-          "Items — สินค้าทั้งหมด + map projectCode/projectName",
-          "Sales Orders — คำสั่งซื้อ SO26*",
-          "SO Lines — รายการสินค้าในคำสั่งซื้อ",
-        ]}
-      />
+      <BcSyncSection />
 
       <Divider />
 

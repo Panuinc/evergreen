@@ -38,7 +38,7 @@ const BC_ODATA_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.en
 const BC_COMPANY_ID = "a407ba9f-2151-ec11-9f09-000d3ac85269";
 const BC_API_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/api/v2.0/companies(${BC_COMPANY_ID})`;
 
-export async function bcApiGet(endpoint, params = {}) {
+export async function bcApiGet(endpoint, params = {}, { timeout = 120_000 } = {}) {
   const token = await getToken();
 
   const url = new URL(`${BC_API_URL}/${endpoint}`);
@@ -55,7 +55,7 @@ export async function bcApiGet(endpoint, params = {}) {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(timeout),
     });
 
     if (!res.ok) {
@@ -71,7 +71,7 @@ export async function bcApiGet(endpoint, params = {}) {
   return allValues;
 }
 
-export async function bcODataGet(entity, params = {}) {
+export async function bcODataGet(entity, params = {}, { timeout = 120_000 } = {}) {
   const token = await getToken();
 
   const url = new URL(`${BC_ODATA_URL}/${entity}`);
@@ -88,7 +88,7 @@ export async function bcODataGet(entity, params = {}) {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(timeout),
     });
 
     if (!res.ok) {

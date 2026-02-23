@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { bcODataGet, bcApiGet } from "@/lib/bcClient";
 
+export const maxDuration = 300;
+
 function extractProjectCode(itemNo) {
   if (!itemNo) return null;
   const parts = itemNo.split("-");
@@ -19,6 +21,8 @@ async function batchUpsert(supabase, table, rows, batchSize = 500) {
   }
 }
 
+const ALL_TABLES = ["dimensionValues", "customers", "items", "salesOrders", "salesOrderLines"];
+
 export async function GET(request) {
   const isDev = process.env.NODE_ENV === "development";
   if (!isDev) {
@@ -33,217 +37,242 @@ export async function GET(request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
 
+  // รับ tables ที่ต้องการ sync จาก query param (ถ้าไม่ระบุ = sync ทั้งหมด)
+  const url = new URL(request.url);
+  const tablesParam = url.searchParams.get("tables");
+  const requestedTables = tablesParam
+    ? tablesParam.split(",").filter((t) => ALL_TABLES.includes(t))
+    : ALL_TABLES;
+
+  const shouldSync = (table) => requestedTables.includes(table);
+
+  // dimensionValues ต้อง fetch เสมอถ้า sync items หรือ salesOrderLines (ใช้ map project)
+  const needDims = shouldSync("dimensionValues") || shouldSync("items") || shouldSync("salesOrderLines");
+  // salesOrders กับ salesOrderLines ต้อง fetch คู่กัน (คำนวณ totalAmount)
+  const needOrders = shouldSync("salesOrders");
+  const needLines = shouldSync("salesOrderLines");
+
   const now = new Date().toISOString();
   const results = {};
-  const syncSuccess = {
-    customers: false,
-    items: false,
-    salesOrders: false,
-    salesOrderLines: false,
-  };
+  const syncSuccess = {};
 
-  // ═══ Phase 1: Fetch ข้อมูลทั้ง 5 ชุดจาก BC พร้อมกัน ═══
-  const [dimsResult, customersResult, itemsResult, ordersResult, linesResult] =
-    await Promise.allSettled([
-      bcApiGet("dimensionValues", {
-        $select: "code,displayName",
-      }),
-      bcODataGet("CustomerList", {
-        $select:
-          "No,Name,Phone_No,Contact,Balance_Due_LCY,Balance_LCY,Salesperson_Code",
-        $orderby: "No asc",
-      }),
-      bcODataGet("Item_Card_Excel", {
-        $filter: "Blocked eq false",
-        $select:
-          "No,Description,Type,Inventory,Unit_Price,Unit_Cost,Item_Category_Code,Gen_Prod_Posting_Group,Blocked,Base_Unit_of_Measure",
-        $orderby: "No asc",
-      }),
-      bcODataGet("Sales_Order_Excel", {
-        $filter: "startswith(No,'SO26')",
-        $orderby: "No desc",
-        $select:
-          "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No",
-      }),
-      bcODataGet("Sales_Order_Line_Excel", {
-        $filter: "startswith(Document_No,'SO26')",
-        $select:
-          "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code",
-      }),
-    ]);
+  // ═══ Phase 1: Fetch ข้อมูลจาก BC (เฉพาะที่ต้องการ) ═══
+  const fetchTasks = {};
+
+  if (needDims) {
+    fetchTasks.dims = bcApiGet("dimensionValues", { $select: "code,displayName" });
+  }
+  if (shouldSync("customers")) {
+    fetchTasks.customers = bcODataGet("CustomerList", {
+      $select: "No,Name,Phone_No,Contact,Balance_Due_LCY,Balance_LCY,Salesperson_Code",
+      $orderby: "No asc",
+    });
+  }
+  if (shouldSync("items")) {
+    fetchTasks.items = bcODataGet("Item_Card_Excel", {
+      $filter: "Blocked eq false and Inventory gt 0",
+      $select: "No,Description,Type,Inventory,Unit_Price,Unit_Cost,Item_Category_Code,Gen_Prod_Posting_Group,Blocked,Base_Unit_of_Measure",
+      $orderby: "No asc",
+    });
+  }
+  if (needOrders || needLines) {
+    fetchTasks.orders = bcODataGet("Sales_Order_Excel", {
+      $filter: "startswith(No,'SO26')",
+      $orderby: "No desc",
+      $select: "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No",
+    });
+    fetchTasks.lines = bcODataGet("Sales_Order_Line_Excel", {
+      $filter: "startswith(Document_No,'SO26')",
+      $select: "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code",
+    });
+  }
+
+  const keys = Object.keys(fetchTasks);
+  const fetchResults = await Promise.allSettled(Object.values(fetchTasks));
+  const fetched = {};
+  keys.forEach((key, i) => {
+    fetched[key] = fetchResults[i];
+  });
 
   // ═══ Phase 2: Build dimMap สำหรับ project mapping ═══
   let dimMap = {};
-  if (dimsResult.status === "fulfilled") {
-    for (const d of dimsResult.value) {
-      if (d.code) dimMap[d.code] = d.displayName || d.code;
+  if (fetched.dims) {
+    if (fetched.dims.status === "fulfilled") {
+      for (const d of fetched.dims.value) {
+        if (d.code) dimMap[d.code] = d.displayName || d.code;
+      }
+      if (shouldSync("dimensionValues")) {
+        results.dimensionValues = fetched.dims.value.length;
+      }
+    } else {
+      if (shouldSync("dimensionValues")) {
+        results.dimensionValues = `ERROR: ${fetched.dims.reason?.message}`;
+      }
     }
-    results.dimensionValues = dimsResult.value.length;
-  } else {
-    results.dimensionValues = `ERROR: ${dimsResult.reason?.message}`;
   }
 
-  // ═══ Phase 3: Transform + Upsert ทุกตารางพร้อมกัน ═══
+  // ═══ Phase 3: Transform + Upsert ═══
   const upsertTasks = [];
 
   // --- Customers ---
-  if (customersResult.status === "fulfilled") {
-    const customerRows = customersResult.value.map((c) => ({
-      id: c.No,
-      number: c.No,
-      displayName: c.Name,
-      phoneNumber: c.Phone_No,
-      contact: c.Contact,
-      balanceDue: c.Balance_Due_LCY,
-      balance: c.Balance_LCY,
-      salespersonCode: c.Salesperson_Code,
-      syncedAt: now,
-    }));
-    upsertTasks.push(
-      batchUpsert(supabase, "bcCustomers", customerRows)
-        .then(() => {
-          results.customers = customerRows.length;
-          syncSuccess.customers = true;
-        })
-        .catch((e) => {
-          results.customers = `ERROR: ${e.message}`;
-        }),
-    );
-  } else {
-    results.customers = `ERROR: ${customersResult.reason?.message}`;
+  if (shouldSync("customers") && fetched.customers) {
+    if (fetched.customers.status === "fulfilled") {
+      const customerRows = fetched.customers.value.map((c) => ({
+        id: c.No,
+        number: c.No,
+        displayName: c.Name,
+        phoneNumber: c.Phone_No,
+        contact: c.Contact,
+        balanceDue: c.Balance_Due_LCY,
+        balance: c.Balance_LCY,
+        salespersonCode: c.Salesperson_Code,
+        syncedAt: now,
+      }));
+      upsertTasks.push(
+        batchUpsert(supabase, "bcCustomers", customerRows)
+          .then(() => {
+            results.customers = customerRows.length;
+            syncSuccess.customers = true;
+          })
+          .catch((e) => {
+            results.customers = `ERROR: ${e.message}`;
+          }),
+      );
+    } else {
+      results.customers = `ERROR: ${fetched.customers.reason?.message}`;
+    }
   }
 
   // --- Items ---
-  if (itemsResult.status === "fulfilled") {
-    const itemRows = itemsResult.value.map((i) => {
-      const projectCode = extractProjectCode(i.No);
-      return {
-        id: i.No,
-        number: i.No,
-        displayName: i.Description,
-        type: i.Type,
-        inventory: i.Inventory,
-        unitPrice: i.Unit_Price,
-        unitCost: i.Unit_Cost,
-        itemCategoryCode: i.Item_Category_Code,
-        generalProductPostingGroupCode: i.Gen_Prod_Posting_Group,
-        blocked: i.Blocked,
-        baseUnitOfMeasure: i.Base_Unit_of_Measure,
-        projectCode: projectCode,
-        projectName: projectCode ? (dimMap[projectCode] || null) : null,
-        syncedAt: now,
-      };
-    });
-    upsertTasks.push(
-      batchUpsert(supabase, "bcItems", itemRows)
-        .then(() => {
-          results.items = itemRows.length;
-          syncSuccess.items = true;
-        })
-        .catch((e) => {
-          results.items = `ERROR: ${e.message}`;
-        }),
-    );
-  } else {
-    results.items = `ERROR: ${itemsResult.reason?.message}`;
+  if (shouldSync("items") && fetched.items) {
+    if (fetched.items.status === "fulfilled") {
+      const itemRows = fetched.items.value.map((i) => {
+        const projectCode = extractProjectCode(i.No);
+        return {
+          id: i.No,
+          number: i.No,
+          displayName: i.Description,
+          type: i.Type,
+          inventory: i.Inventory,
+          unitPrice: i.Unit_Price,
+          unitCost: i.Unit_Cost,
+          itemCategoryCode: i.Item_Category_Code,
+          generalProductPostingGroupCode: i.Gen_Prod_Posting_Group,
+          blocked: i.Blocked,
+          baseUnitOfMeasure: i.Base_Unit_of_Measure,
+          projectCode,
+          projectName: projectCode ? (dimMap[projectCode] || null) : null,
+          syncedAt: now,
+        };
+      });
+      upsertTasks.push(
+        batchUpsert(supabase, "bcItems", itemRows)
+          .then(() => {
+            results.items = itemRows.length;
+            syncSuccess.items = true;
+          })
+          .catch((e) => {
+            results.items = `ERROR: ${e.message}`;
+          }),
+      );
+    } else {
+      results.items = `ERROR: ${fetched.items.reason?.message}`;
+    }
   }
 
   // --- Sales Orders + Lines ---
-  if (
-    ordersResult.status === "fulfilled" &&
-    linesResult.status === "fulfilled"
-  ) {
-    const orders = ordersResult.value;
-    const allLines = linesResult.value;
+  if ((needOrders || needLines) && fetched.orders && fetched.lines) {
+    if (fetched.orders.status === "fulfilled" && fetched.lines.status === "fulfilled") {
+      const orders = fetched.orders.value;
+      const allLines = fetched.lines.value;
 
-    // คำนวณ totalAmount per order จาก lines
-    const amountByOrder = {};
-    for (const l of allLines) {
-      amountByOrder[l.Document_No] =
-        (amountByOrder[l.Document_No] || 0) + (l.Line_Amount || 0);
-    }
+      const amountByOrder = {};
+      for (const l of allLines) {
+        amountByOrder[l.Document_No] = (amountByOrder[l.Document_No] || 0) + (l.Line_Amount || 0);
+      }
 
-    const orderRows = orders.map((o) => ({
-      id: o.No,
-      number: o.No,
-      customerNumber: o.Sell_to_Customer_No,
-      customerName: o.Sell_to_Customer_Name,
-      sellToAddress: o.Sell_to_Address,
-      sellToCity: o.Sell_to_City,
-      sellToPostCode: o.Sell_to_Post_Code,
-      shipToName: o.Ship_to_Name,
-      shipToAddress: o.Ship_to_Address,
-      shipToCity: o.Ship_to_City,
-      shipToPostCode: o.Ship_to_Post_Code,
-      orderDate: o.Order_Date || null,
-      dueDate: o.Due_Date || null,
-      status: o.Status,
-      completelyShipped: o.Completely_Shipped,
-      salespersonCode: o.Salesperson_Code,
-      externalDocumentNumber: o.External_Document_No,
-      totalAmountIncludingTax: amountByOrder[o.No] || 0,
-      syncedAt: now,
-    }));
+      if (shouldSync("salesOrders")) {
+        const orderRows = orders.map((o) => ({
+          id: o.No,
+          number: o.No,
+          customerNumber: o.Sell_to_Customer_No,
+          customerName: o.Sell_to_Customer_Name,
+          sellToAddress: o.Sell_to_Address,
+          sellToCity: o.Sell_to_City,
+          sellToPostCode: o.Sell_to_Post_Code,
+          shipToName: o.Ship_to_Name,
+          shipToAddress: o.Ship_to_Address,
+          shipToCity: o.Ship_to_City,
+          shipToPostCode: o.Ship_to_Post_Code,
+          orderDate: o.Order_Date || null,
+          dueDate: o.Due_Date || null,
+          status: o.Status,
+          completelyShipped: o.Completely_Shipped,
+          salespersonCode: o.Salesperson_Code,
+          externalDocumentNumber: o.External_Document_No,
+          totalAmountIncludingTax: amountByOrder[o.No] || 0,
+          syncedAt: now,
+        }));
+        upsertTasks.push(
+          batchUpsert(supabase, "bcSalesOrders", orderRows)
+            .then(() => {
+              results.salesOrders = orderRows.length;
+              syncSuccess.salesOrders = true;
+            })
+            .catch((e) => {
+              results.salesOrders = `ERROR: ${e.message}`;
+            }),
+        );
+      }
 
-    const lineRows = allLines.map((l) => {
-      const projectCode = extractProjectCode(l.No);
-      return {
-        id: `${l.Document_No}-${l.Line_No}`,
-        documentNo: l.Document_No,
-        lineNo: l.Line_No,
-        type: l.Type?.trim() || null,
-        lineObjectNumber: l.No,
-        description: l.Description,
-        quantity: l.Quantity,
-        unitPrice: l.Unit_Price,
-        amountIncludingTax: l.Line_Amount,
-        quantityShipped: l.Quantity_Shipped,
-        bwkOutstandingQuantity: l.BWK_Outstanding_Quantity,
-        unitOfMeasureCode: l.Unit_of_Measure_Code,
-        locationCode: l.Location_Code?.trim() || null,
-        projectCode: projectCode,
-        projectName: projectCode ? (dimMap[projectCode] || null) : null,
-        syncedAt: now,
-      };
-    });
-
-    // Upsert orders + lines พร้อมกัน (คนละตาราง)
-    upsertTasks.push(
-      batchUpsert(supabase, "bcSalesOrders", orderRows)
-        .then(() => {
-          results.salesOrders = orderRows.length;
-          syncSuccess.salesOrders = true;
-        })
-        .catch((e) => {
-          results.salesOrders = `ERROR: ${e.message}`;
-        }),
-    );
-    upsertTasks.push(
-      batchUpsert(supabase, "bcSalesOrderLines", lineRows)
-        .then(() => {
-          results.salesOrderLines = lineRows.length;
-          syncSuccess.salesOrderLines = true;
-        })
-        .catch((e) => {
-          results.salesOrderLines = `ERROR: ${e.message}`;
-        }),
-    );
-  } else {
-    if (ordersResult.status === "rejected") {
-      results.salesOrders = `ERROR: ${ordersResult.reason?.message}`;
-    }
-    if (linesResult.status === "rejected") {
-      results.salesOrderLines = `ERROR: ${linesResult.reason?.message}`;
+      if (shouldSync("salesOrderLines")) {
+        const lineRows = allLines.map((l) => {
+          const projectCode = extractProjectCode(l.No);
+          return {
+            id: `${l.Document_No}-${l.Line_No}`,
+            documentNo: l.Document_No,
+            lineNo: l.Line_No,
+            type: l.Type?.trim() || null,
+            lineObjectNumber: l.No,
+            description: l.Description,
+            quantity: l.Quantity,
+            unitPrice: l.Unit_Price,
+            amountIncludingTax: l.Line_Amount,
+            quantityShipped: l.Quantity_Shipped,
+            bwkOutstandingQuantity: l.BWK_Outstanding_Quantity,
+            unitOfMeasureCode: l.Unit_of_Measure_Code,
+            locationCode: l.Location_Code?.trim() || null,
+            projectCode,
+            projectName: projectCode ? (dimMap[projectCode] || null) : null,
+            syncedAt: now,
+          };
+        });
+        upsertTasks.push(
+          batchUpsert(supabase, "bcSalesOrderLines", lineRows)
+            .then(() => {
+              results.salesOrderLines = lineRows.length;
+              syncSuccess.salesOrderLines = true;
+            })
+            .catch((e) => {
+              results.salesOrderLines = `ERROR: ${e.message}`;
+            }),
+        );
+      }
+    } else {
+      if (fetched.orders.status === "rejected" && shouldSync("salesOrders")) {
+        results.salesOrders = `ERROR: ${fetched.orders.reason?.message}`;
+      }
+      if (fetched.lines.status === "rejected" && shouldSync("salesOrderLines")) {
+        results.salesOrderLines = `ERROR: ${fetched.lines.reason?.message}`;
+      }
     }
   }
 
-  // รอ upsert ทุกตารางเสร็จ
   await Promise.all(upsertTasks);
 
-  // ═══ Phase 4: Stale data cleanup — ลบ record ที่ไม่มีใน BC แล้ว ═══
+  // ═══ Phase 4: Stale data cleanup ═══
   const cleanup = {};
 
-  // Cleanup customers + items พร้อมกัน (ไม่มี dependency)
   const cleanupParallel = [];
   if (syncSuccess.customers) {
     cleanupParallel.push(
@@ -269,15 +298,12 @@ export async function GET(request) {
   }
   await Promise.all(cleanupParallel);
 
-  // ลบ lines ก่อน orders (child → parent)
   if (syncSuccess.salesOrderLines) {
     const { count, error } = await supabase
       .from("bcSalesOrderLines")
       .delete({ count: "exact" })
       .lt("syncedAt", now);
-    cleanup.salesOrderLines = error
-      ? `ERROR: ${error.message}`
-      : (count || 0);
+    cleanup.salesOrderLines = error ? `ERROR: ${error.message}` : (count || 0);
   }
   if (syncSuccess.salesOrders) {
     const { count, error } = await supabase
