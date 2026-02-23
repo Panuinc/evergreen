@@ -15,7 +15,7 @@ public final class AppSettings {
     @org.jetbrains.annotations.NotNull()
     private static final java.lang.String KEY_LANGUAGE = "language";
     @org.jetbrains.annotations.NotNull()
-    private static final java.lang.String DEFAULT_BASE_URL = "http://192.168.1.54:3000";
+    private static final java.lang.String DEFAULT_BASE_URL = "http://192.168.1.37:3000";
     private static final int DEFAULT_RFID_POWER = 30;
     private static final boolean DEFAULT_SOUND_ENABLED = true;
     private static final boolean DEFAULT_AUTO_DECODE = true;
