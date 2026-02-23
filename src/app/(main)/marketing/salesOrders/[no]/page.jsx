@@ -87,7 +87,7 @@ export default function SalesOrderDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <p className="text-default-400">ไม่พบออเดอร์</p>
-        <Button variant="bordered" radius="md" onPress={() => router.push("/marketing/salesOrders")}>
+        <Button variant="bordered" size="md" radius="md" onPress={() => router.push("/marketing/salesOrders")}>
           กลับ
         </Button>
       </div>
@@ -101,7 +101,7 @@ export default function SalesOrderDetailPage() {
         <Button
           isIconOnly
           variant="light"
-          size="sm"
+          size="md"
           radius="md"
           onPress={() => router.push("/marketing/salesOrders")}
         >
@@ -119,7 +119,7 @@ export default function SalesOrderDetailPage() {
         <div className="flex-1" />
         <Button
           variant="bordered"
-          size="sm"
+          size="md"
           radius="md"
           startContent={<Printer size={14} />}
           onPress={labelModal.onOpen}

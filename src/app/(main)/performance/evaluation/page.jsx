@@ -125,7 +125,11 @@ function EvaluateTab({ hook }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Select
                 label="พนักงานที่ต้องการประเมิน"
+                labelPlacement="outside"
                 placeholder="เลือกพนักงาน"
+                variant="bordered"
+                size="md"
+                radius="md"
                 selectedKeys={hook.selectedEmployee ? [hook.selectedEmployee] : []}
                 onSelectionChange={(keys) => {
                   const val = Array.from(keys)[0];
@@ -141,6 +145,10 @@ function EvaluateTab({ hook }) {
 
               <Select
                 label="รอบประเมิน"
+                labelPlacement="outside"
+                variant="bordered"
+                size="md"
+                radius="md"
                 selectedKeys={[hook.quarter]}
                 onSelectionChange={(keys) => {
                   const val = Array.from(keys)[0];
@@ -154,6 +162,10 @@ function EvaluateTab({ hook }) {
 
               <Select
                 label="ปี"
+                labelPlacement="outside"
+                variant="bordered"
+                size="md"
+                radius="md"
                 selectedKeys={[hook.year]}
                 onSelectionChange={(keys) => {
                   const val = Array.from(keys)[0];
@@ -288,7 +300,11 @@ function EvaluateTab({ hook }) {
           <CardBody>
             <Textarea
               label="ความคิดเห็นเพิ่มเติม (ไม่บังคับ)"
+              labelPlacement="outside"
               placeholder="พิมพ์ความคิดเห็นเพิ่มเติม..."
+              variant="bordered"
+              size="md"
+              radius="md"
               value={hook.comment}
               onValueChange={hook.setComment}
               minRows={2}
@@ -300,7 +316,8 @@ function EvaluateTab({ hook }) {
         <div className="flex gap-3">
           <Button
             color="primary"
-            size="lg"
+            size="md"
+            radius="md"
             startContent={<Save className="w-4 h-4" />}
             onPress={hook.handleSubmit}
             isLoading={hook.saving}
@@ -310,7 +327,8 @@ function EvaluateTab({ hook }) {
           </Button>
           <Button
             variant="flat"
-            size="lg"
+            size="md"
+            radius="md"
             startContent={<Trash2 className="w-4 h-4" />}
             onPress={hook.clearScores}
           >
@@ -407,6 +425,10 @@ function MyResultsTab({ hook }) {
       <div className="flex items-center gap-4">
         <Select
           label="ปี"
+          labelPlacement="outside"
+          variant="bordered"
+          size="md"
+          radius="md"
           className="max-w-[150px]"
           selectedKeys={[resultYear]}
           onSelectionChange={(keys) => {
@@ -424,7 +446,8 @@ function MyResultsTab({ hook }) {
 
         <Button
           variant="flat"
-          size="sm"
+          size="md"
+          radius="md"
           onPress={() => loadCompanyAverage(selectedPeriod)}
         >
           โหลดค่าเฉลี่ยบริษัท
@@ -519,7 +542,8 @@ function MyResultsTab({ hook }) {
                           </td>
                           <td className="text-center py-2 px-3">
                             <Button
-                              size="sm"
+                              size="md"
+                              radius="md"
                               variant={feedbackPeriod === r.period ? "solid" : "flat"}
                               color="secondary"
                               startContent={<Sparkles className="w-3 h-3" />}
@@ -586,6 +610,10 @@ function AdminTab({ hook }) {
           <div className="flex items-center gap-4 flex-wrap">
             <Select
               label="รอบประเมิน"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               className="max-w-[200px]"
               selectedKeys={[adminPeriod.split("-")[0].replace("Q", "")]}
               onSelectionChange={(keys) => {
@@ -603,6 +631,10 @@ function AdminTab({ hook }) {
 
             <Select
               label="ปี"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               className="max-w-[120px]"
               selectedKeys={[adminPeriod.split("-")[1]]}
               onSelectionChange={(keys) => {
@@ -618,7 +650,7 @@ function AdminTab({ hook }) {
               ))}
             </Select>
 
-            <Button color="primary" onPress={handleLoadSummary}>
+            <Button color="primary" size="md" radius="md" onPress={handleLoadSummary}>
               โหลดสรุป
             </Button>
           </div>

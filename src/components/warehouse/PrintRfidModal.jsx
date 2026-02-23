@@ -107,8 +107,9 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
                 )}
               </div>
               <Button
-                size="sm"
+                size="md"
                 variant="flat"
+                radius="md"
                 onPress={loadPreview}
                 isLoading={loadingPreview}
                 startContent={!loadingPreview && <Eye size={14} />}
@@ -120,6 +121,10 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             <Input
               type="number"
               label="จำนวนที่พิมพ์"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               min={1}
               value={quantity}
               onValueChange={setQuantity}
@@ -132,11 +137,13 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="flat" onPress={onClose}>
+          <Button variant="flat" size="md" radius="md" onPress={onClose}>
             ยกเลิก
           </Button>
           <Button
             color="primary"
+            size="md"
+            radius="md"
             onPress={handlePrint}
             isLoading={printing}
             isDisabled={!quantity}

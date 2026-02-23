@@ -116,8 +116,7 @@ export default function ActivitiesPage() {
         case "opportunity":
           return item.crmOpportunities?.opportunityName || "-";
         case "activityPriority": {
-          const color =
-            PRIORITY_COLOR_MAP[item.activityPriority] || "default";
+          const color = PRIORITY_COLOR_MAP[item.activityPriority] || "default";
           return (
             <Chip variant="bordered" size="md" radius="md" color={color}>
               {item.activityPriority}
@@ -125,8 +124,7 @@ export default function ActivitiesPage() {
           );
         }
         case "activityStatus": {
-          const color =
-            STATUS_COLOR_MAP[item.activityStatus] || "default";
+          const color = STATUS_COLOR_MAP[item.activityStatus] || "default";
           return (
             <Chip variant="bordered" size="md" radius="md" color={color}>
               {item.activityStatus}
@@ -159,9 +157,7 @@ export default function ActivitiesPage() {
                 <CheckCircle
                   size={16}
                   className={
-                    item.activityStatus === "completed"
-                      ? "text-success"
-                      : ""
+                    item.activityStatus === "completed" ? "text-success" : ""
                   }
                 />
               </Button>
@@ -254,7 +250,9 @@ export default function ActivitiesPage() {
                     size="md"
                     radius="md"
                     selectedKeys={[formData.activityType]}
-                    onChange={(e) => updateField("activityType", e.target.value)}
+                    onChange={(e) =>
+                      updateField("activityType", e.target.value)
+                    }
                   >
                     <SelectItem key="task">งาน</SelectItem>
                     <SelectItem key="call">โทร</SelectItem>
@@ -330,9 +328,9 @@ export default function ActivitiesPage() {
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
+                    type="date"
                     label="วันครบกำหนด"
                     labelPlacement="outside"
-                    type="datetime-local"
                     variant="bordered"
                     size="md"
                     radius="md"

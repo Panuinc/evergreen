@@ -252,16 +252,18 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
             <p className="text-sm font-semibold">ข้อมูลผู้รับ</p>
             <Input
               label="ชื่อผู้รับ"
+              labelPlacement="outside"
               variant="bordered"
-              size="sm"
+              size="md"
               radius="md"
               value={recipientName}
               onValueChange={setRecipientName}
             />
             <Textarea
               label="ที่อยู่"
+              labelPlacement="outside"
               variant="bordered"
-              size="sm"
+              size="md"
               radius="md"
               minRows={2}
               value={recipientAddress}
@@ -269,8 +271,9 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
             />
             <Input
               label="เบอร์โทร"
+              labelPlacement="outside"
               variant="bordered"
-              size="sm"
+              size="md"
               radius="md"
               value={recipientPhone}
               onValueChange={setRecipientPhone}
@@ -303,7 +306,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                   <Input
                     type="number"
                     variant="bordered"
-                    size="sm"
+                    size="md"
                     radius="md"
                     className="w-20"
                     min={0}
@@ -337,11 +340,12 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
               จำนวนใบปะหน้า: <span className="font-bold text-foreground">{totalLabels}</span> ใบ
             </p>
             <div className="flex gap-2">
-              <Button variant="bordered" radius="md" onPress={onClose}>
+              <Button variant="bordered" size="md" radius="md" onPress={onClose}>
                 ยกเลิก
               </Button>
               <Button
                 variant="bordered"
+                size="md"
                 radius="md"
                 startContent={<Printer size={16} />}
                 onPress={handlePrint}
@@ -351,6 +355,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
               </Button>
               <Button
                 color="primary"
+                size="md"
                 radius="md"
                 startContent={<Send size={16} />}
                 onPress={handleNetworkPrint}

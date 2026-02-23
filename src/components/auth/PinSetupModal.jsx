@@ -79,12 +79,14 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
           />
         </ModalBody>
         <ModalFooter className="flex justify-between">
-          <Button variant="light" onPress={handleClose}>
+          <Button variant="light" size="md" radius="md" onPress={handleClose}>
             ข้าม
           </Button>
           {step === "enter" ? (
             <Button
               color="primary"
+              size="md"
+              radius="md"
               onPress={handleNext}
               isDisabled={pin.length !== 6}
             >
@@ -94,6 +96,8 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
             <div className="flex gap-2">
               <Button
                 variant="bordered"
+                size="md"
+                radius="md"
                 onPress={() => {
                   setStep("enter");
                   setConfirmPin("");
@@ -104,6 +108,8 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
               </Button>
               <Button
                 color="primary"
+                size="md"
+                radius="md"
                 onPress={handleConfirm}
                 isDisabled={confirmPin.length !== 6}
                 isLoading={loading}

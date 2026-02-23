@@ -97,7 +97,7 @@ export default function QuotationEditorPage() {
             <Input
               variant="bordered"
               radius="md"
-              size="sm"
+              size="md"
               value={item.lineProductName}
               onValueChange={(v) => updateLine(idx, "lineProductName", v)}
             />
@@ -109,7 +109,7 @@ export default function QuotationEditorPage() {
             <Input
               variant="bordered"
               radius="md"
-              size="sm"
+              size="md"
               value={item.lineVariant || ""}
               onValueChange={(v) => updateLine(idx, "lineVariant", v)}
             />
@@ -121,7 +121,7 @@ export default function QuotationEditorPage() {
             <Input
               variant="bordered"
               radius="md"
-              size="sm"
+              size="md"
               type="number"
               classNames={{ input: "text-right" }}
               value={String(item.lineQuantity)}
@@ -135,7 +135,7 @@ export default function QuotationEditorPage() {
             <Input
               variant="bordered"
               radius="md"
-              size="sm"
+              size="md"
               type="number"
               classNames={{ input: "text-right" }}
               value={String(item.lineUnitPrice)}
@@ -393,6 +393,7 @@ export default function QuotationEditorPage() {
           <ModalBody>
             <Textarea
               variant="bordered"
+              size="md"
               radius="md"
               placeholder="ระบุเหตุผล..."
               value={rejectNote}
@@ -401,11 +402,12 @@ export default function QuotationEditorPage() {
             />
           </ModalBody>
           <ModalFooter>
-            <Button variant="bordered" radius="md" onPress={rejectModal.onClose}>
+            <Button variant="bordered" size="md" radius="md" onPress={rejectModal.onClose}>
               ยกเลิก
             </Button>
             <Button
               color="danger"
+              size="md"
               radius="md"
               onPress={onReject}
               isLoading={saving}

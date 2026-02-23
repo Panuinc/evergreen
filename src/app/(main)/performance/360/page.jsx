@@ -168,7 +168,7 @@ function PendingTab({ hook }) {
                     {nom.cycle?.name} | กำหนดส่ง: {nom.cycle?.responseDeadline ? new Date(nom.cycle.responseDeadline).toLocaleDateString("th-TH") : "-"}
                   </p>
                 </div>
-                <Button color="primary" onPress={() => hook.handleOpenReview(nom)}>
+                <Button color="primary" size="md" radius="md" onPress={() => hook.handleOpenReview(nom)}>
                   ประเมิน
                 </Button>
               </CardBody>
@@ -192,6 +192,10 @@ function MyResultsTab({ hook }) {
     <div className="flex flex-col gap-4 mt-4">
       <Select
         label="เลือกรอบประเมิน"
+        variant="bordered"
+        size="md"
+        radius="md"
+        labelPlacement="outside"
         selectedKeys={hook.resultCycleId ? [hook.resultCycleId] : []}
         onSelectionChange={(keys) => {
           const id = [...keys][0];
@@ -353,6 +357,8 @@ function AdminTab({ hook }) {
         <h3 className="text-lg font-semibold">รอบประเมิน 360 องศา</h3>
         <Button
           color="primary"
+          size="md"
+          radius="md"
           startContent={<Plus className="w-4 h-4" />}
           onPress={() => hook.handleOpenCycleForm()}
         >
@@ -407,19 +413,19 @@ function CycleCard({ cycle, hook }) {
         </div>
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           {transitions.filter((t) => t !== "cancelled").map((t) => (
-            <Button key={t} size="sm" color="primary" variant="flat" onPress={() => hook.handleTransition(cycle.id, t)}>
+            <Button key={t} size="md" radius="md" color="primary" variant="flat" onPress={() => hook.handleTransition(cycle.id, t)}>
               {TRANSITION_LABELS[t]}
             </Button>
           ))}
           {cycle.status === "draft" && (
             <>
               <Tooltip content="แก้ไข">
-                <Button isIconOnly size="sm" variant="light" onPress={() => hook.handleOpenCycleForm(cycle)}>
+                <Button isIconOnly size="md" radius="md" variant="light" onPress={() => hook.handleOpenCycleForm(cycle)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
               </Tooltip>
               <Tooltip content="ลบ">
-                <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => hook.handleDeleteCycle(cycle.id)}>
+                <Button isIconOnly size="md" radius="md" variant="light" color="danger" onPress={() => hook.handleDeleteCycle(cycle.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </Tooltip>
@@ -485,21 +491,21 @@ function CompetenciesPanel({ hook }) {
         <div className="flex gap-2">
           {!editMode ? (
             <>
-              <Button size="sm" onPress={handleEdit} startContent={<Pencil className="w-3 h-3" />}>
+              <Button size="md" radius="md" onPress={handleEdit} startContent={<Pencil className="w-3 h-3" />}>
                 แก้ไข
               </Button>
               {hook.competencies.length === 0 && (
-                <Button size="sm" color="secondary" variant="flat" onPress={handleLoadTemplates}>
+                <Button size="md" radius="md" color="secondary" variant="flat" onPress={handleLoadTemplates}>
                   โหลดเทมเพลตเริ่มต้น
                 </Button>
               )}
             </>
           ) : (
             <>
-              <Button size="sm" color="primary" onPress={handleSave} isLoading={hook.savingCompetencies} startContent={<Save className="w-3 h-3" />}>
+              <Button size="md" radius="md" color="primary" onPress={handleSave} isLoading={hook.savingCompetencies} startContent={<Save className="w-3 h-3" />}>
                 บันทึก
               </Button>
-              <Button size="sm" variant="light" onPress={() => setEditMode(false)}>ยกเลิก</Button>
+              <Button size="md" radius="md" variant="light" onPress={() => setEditMode(false)}>ยกเลิก</Button>
             </>
           )}
         </div>
@@ -513,28 +519,35 @@ function CompetenciesPanel({ hook }) {
             <Card key={i} className="p-3">
               <Input
                 label="ชื่อสมรรถนะ"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
                 value={comp.name}
                 onValueChange={(v) => {
                   const updated = [...localComps];
                   updated[i] = { ...updated[i], name: v };
                   setLocalComps(updated);
                 }}
-                size="sm"
                 className="mb-2"
               />
               <Textarea
                 label="คำถาม (แต่ละข้อขึ้นบรรทัดใหม่)"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
                 value={(comp.questions || []).join("\n")}
                 onValueChange={(v) => {
                   const updated = [...localComps];
                   updated[i] = { ...updated[i], questions: v.split("\n").filter((q) => q.trim()) };
                   setLocalComps(updated);
                 }}
-                size="sm"
                 minRows={3}
               />
               <Button
-                size="sm"
+                size="md"
+                radius="md"
                 variant="light"
                 color="danger"
                 className="self-end mt-1"
@@ -545,7 +558,8 @@ function CompetenciesPanel({ hook }) {
             </Card>
           ))}
           <Button
-            size="sm"
+            size="md"
+            radius="md"
             variant="flat"
             startContent={<Plus className="w-3 h-3" />}
             onPress={() => setLocalComps([...localComps, { name: "", description: "", questions: [], weight: 1 }])}
@@ -595,7 +609,8 @@ function NominationsPanel({ hook }) {
     <div className="flex flex-col gap-3 mt-3">
       {canAddNominations && (
         <Button
-          size="sm"
+          size="md"
+          radius="md"
           color="primary"
           startContent={<Plus className="w-3 h-3" />}
           onPress={hook.handleOpenNominationForm}
@@ -694,6 +709,10 @@ function CycleModal({ hook }) {
           <div className="flex flex-col gap-4">
             <Input
               label="ชื่อรอบ"
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               placeholder="เช่น รอบประเมิน 360 องศา Q1/2026"
               value={cycleForm.name}
               onValueChange={(v) => setCycleForm((f) => ({ ...f, name: v }))}
@@ -701,12 +720,20 @@ function CycleModal({ hook }) {
             />
             <Textarea
               label="รายละเอียด"
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               value={cycleForm.description}
               onValueChange={(v) => setCycleForm((f) => ({ ...f, description: v }))}
             />
             <div className="flex gap-4">
               <Input
                 label="ปี"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
                 type="number"
                 value={cycleForm.year}
                 onValueChange={(v) => setCycleForm((f) => ({ ...f, year: v }))}
@@ -715,6 +742,10 @@ function CycleModal({ hook }) {
               />
               <Select
                 label="ไตรมาส"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
                 selectedKeys={cycleForm.quarter ? [cycleForm.quarter] : []}
                 onSelectionChange={(keys) => setCycleForm((f) => ({ ...f, quarter: [...keys][0] || "" }))}
                 className="flex-1"
@@ -725,6 +756,10 @@ function CycleModal({ hook }) {
               </Select>
               <Input
                 label="วันกำหนดส่ง"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
                 type="date"
                 value={cycleForm.responseDeadline}
                 onValueChange={(v) => setCycleForm((f) => ({ ...f, responseDeadline: v }))}
@@ -741,8 +776,8 @@ function CycleModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={cycleModal.onClose}>ยกเลิก</Button>
-          <Button color="primary" onPress={handleSaveCycle} isLoading={savingCycle} startContent={<Save className="w-4 h-4" />}>
+          <Button variant="light" size="md" radius="md" onPress={cycleModal.onClose}>ยกเลิก</Button>
+          <Button color="primary" size="md" radius="md" onPress={handleSaveCycle} isLoading={savingCycle} startContent={<Save className="w-4 h-4" />}>
             {editingCycle ? "บันทึก" : "สร้าง"}
           </Button>
         </ModalFooter>
@@ -763,6 +798,10 @@ function NominationModal({ hook }) {
           <div className="flex flex-col gap-4">
             <Select
               label="ผู้ถูกประเมิน"
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               selectedKeys={nominationForm.revieweeEmployeeId ? [nominationForm.revieweeEmployeeId] : []}
               onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, revieweeEmployeeId: [...keys][0] }))}
               isRequired
@@ -775,6 +814,10 @@ function NominationModal({ hook }) {
             </Select>
             <Select
               label="ผู้ประเมิน"
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               selectedKeys={nominationForm.reviewerEmployeeId ? [nominationForm.reviewerEmployeeId] : []}
               onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, reviewerEmployeeId: [...keys][0] }))}
               isRequired
@@ -787,6 +830,10 @@ function NominationModal({ hook }) {
             </Select>
             <Select
               label="ความสัมพันธ์"
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               selectedKeys={[nominationForm.relationshipType]}
               onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, relationshipType: [...keys][0] }))}
             >
@@ -797,8 +844,8 @@ function NominationModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={nominationModal.onClose}>ยกเลิก</Button>
-          <Button color="primary" onPress={handleSaveNomination} isLoading={savingNomination}>
+          <Button variant="light" size="md" radius="md" onPress={nominationModal.onClose}>ยกเลิก</Button>
+          <Button color="primary" size="md" radius="md" onPress={handleSaveNomination} isLoading={savingNomination}>
             เพิ่ม
           </Button>
         </ModalFooter>
@@ -882,18 +929,30 @@ function ReviewModal({ hook }) {
           <div className="flex flex-col gap-3">
             <Textarea
               label="จุดแข็ง"
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               placeholder="สิ่งที่ผู้ถูกประเมินทำได้ดี..."
               value={reviewComments.strengthComment}
               onValueChange={(v) => setReviewComments((c) => ({ ...c, strengthComment: v }))}
             />
             <Textarea
               label="จุดที่ควรพัฒนา"
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               placeholder="สิ่งที่ผู้ถูกประเมินควรปรับปรุง..."
               value={reviewComments.improvementComment}
               onValueChange={(v) => setReviewComments((c) => ({ ...c, improvementComment: v }))}
             />
             <Textarea
               label="ความคิดเห็นเพิ่มเติม"
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               placeholder="ความคิดเห็นอื่นๆ..."
               value={reviewComments.comment}
               onValueChange={(v) => setReviewComments((c) => ({ ...c, comment: v }))}
@@ -901,9 +960,11 @@ function ReviewModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={reviewModal.onClose}>ยกเลิก</Button>
+          <Button variant="light" size="md" radius="md" onPress={reviewModal.onClose}>ยกเลิก</Button>
           <Button
             color="primary"
+            size="md"
+            radius="md"
             onPress={handleSubmitReview}
             isLoading={submittingReview}
             isDisabled={answeredQ < totalQ}

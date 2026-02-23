@@ -102,7 +102,7 @@ export default function MarketingSalesOrdersPage() {
           <h2 className="text-lg font-semibold">คำสั่งขาย</h2>
           <p className="text-xs text-default-400">ช่องทางออนไลน์ — Business Central</p>
         </div>
-        <Button variant="bordered" size="sm" radius="md" startContent={<RefreshCw size={14} />} onPress={loadOrders}>
+        <Button variant="bordered" size="md" radius="md" startContent={<RefreshCw size={14} />} onPress={loadOrders}>
           รีเฟรช
         </Button>
       </div>

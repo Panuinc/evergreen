@@ -106,6 +106,8 @@ function SyncSection({ title, desc, endpoint, method = "GET", body, tables, info
         </div>
         <Button
           color="primary"
+          size="md"
+          radius="md"
           startContent={
             syncing ? <Spinner size="sm" color="white" /> : <RefreshCw size={16} />
           }
@@ -207,6 +209,8 @@ function BciImportSection() {
           as="label"
           color="primary"
           variant="bordered"
+          size="md"
+          radius="md"
           startContent={
             importing ? <Spinner size="sm" /> : <Upload size={16} />
           }
@@ -326,7 +330,7 @@ function TableSyncButton({ table, onResult }) {
   const Icon = table.icon;
   return (
     <Button
-      size="sm"
+      size="md"
       variant="bordered"
       radius="md"
       startContent={syncing ? <Spinner size="sm" /> : <Icon size={14} />}
@@ -377,6 +381,8 @@ function BcSyncSection() {
         </div>
         <Button
           color="primary"
+          size="md"
+          radius="md"
           startContent={syncingAll ? <Spinner size="sm" color="white" /> : <RefreshCw size={16} />}
           onPress={handleSyncAll}
           isDisabled={syncingAll}

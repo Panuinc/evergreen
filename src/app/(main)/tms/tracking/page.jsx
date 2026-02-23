@@ -135,7 +135,7 @@ export default function GpsTrackingPage() {
                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="bordered"
-                      size="sm"
+                      size="md"
                       radius="md"
                       onPress={() => handleOpenManualUpdate(vehicle)}
                       className="flex-1"
@@ -144,7 +144,7 @@ export default function GpsTrackingPage() {
                     </Button>
                     <Button
                       variant="bordered"
-                      size="sm"
+                      size="md"
                       radius="md"
                       startContent={<History size={12} />}
                       onPress={() => loadRouteHistory(vehicle.vehicleId)}

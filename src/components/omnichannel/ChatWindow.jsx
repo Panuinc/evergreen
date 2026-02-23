@@ -87,7 +87,7 @@ export default function ChatWindow({
       {/* Header */}
       <div className="flex items-center gap-3 p-3 border-b-2 border-default">
         {onBack && (
-          <Button isIconOnly variant="light" size="sm" radius="md" onPress={onBack}>
+          <Button isIconOnly variant="light" size="md" radius="md" onPress={onBack}>
             <ArrowLeft size={18} />
           </Button>
         )}
@@ -120,7 +120,7 @@ export default function ChatWindow({
           </Tooltip>
           {isClosed ? (
             <Button
-              size="sm"
+              size="md"
               variant="bordered"
               radius="md"
               startContent={<RotateCcw size={14} />}
@@ -130,7 +130,7 @@ export default function ChatWindow({
             </Button>
           ) : (
             <Button
-              size="sm"
+              size="md"
               variant="bordered"
               radius="md"
               color="danger"
@@ -143,14 +143,14 @@ export default function ChatWindow({
           <Button
             isIconOnly
             variant="light"
-            size="sm"
+            size="md"
             radius="md"
             color="danger"
             onPress={deleteModal.onOpen}
           >
             <Trash2 size={18} />
           </Button>
-          <Button isIconOnly variant="light" size="sm" radius="md" onPress={onToggleDetail}>
+          <Button isIconOnly variant="light" size="md" radius="md" onPress={onToggleDetail}>
             <Info size={18} />
           </Button>
         </div>
@@ -277,11 +277,12 @@ export default function ChatWindow({
             <p className="text-sm text-default-400">ข้อความทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้</p>
           </ModalBody>
           <ModalFooter>
-            <Button variant="bordered" radius="md" onPress={deleteModal.onClose}>
+            <Button variant="bordered" size="md" radius="md" onPress={deleteModal.onClose}>
               ยกเลิก
             </Button>
             <Button
               color="danger"
+              size="md"
               radius="md"
               onPress={() => {
                 onDelete(conversation.conversationId);

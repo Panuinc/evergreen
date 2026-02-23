@@ -111,7 +111,7 @@ export default function StockItemsPage() {
             <Input
               variant="bordered"
               radius="md"
-              size="sm"
+              size="md"
               type="number"
               placeholder="0.00"
               classNames={{ input: "text-right" }}

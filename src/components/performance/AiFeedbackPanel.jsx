@@ -45,7 +45,8 @@ export default function AiFeedbackPanel({
               </Chip>
             )}
             <Button
-              size="sm"
+              size="md"
+              radius="md"
               color={feedback ? "default" : "primary"}
               variant={feedback ? "flat" : "solid"}
               startContent={

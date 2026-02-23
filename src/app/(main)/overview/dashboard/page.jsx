@@ -270,8 +270,8 @@ export default function OverviewDashboardPage() {
               <Button
                 isIconOnly
                 color="primary"
-                size="sm"
-                radius="lg"
+                size="md"
+                radius="md"
                 onPress={handleSend}
                 isDisabled={!input.trim() || isLoading}
                 isLoading={isLoading}

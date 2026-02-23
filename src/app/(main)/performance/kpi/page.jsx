@@ -136,7 +136,10 @@ function MyKpiTab({ hook }) {
           selectedKeys={[hook.filterYear]}
           onSelectionChange={(keys) => hook.setFilterYear([...keys][0])}
           className="w-28"
-          size="sm"
+          variant="bordered"
+          size="md"
+          radius="md"
+          labelPlacement="outside"
         >
           {YEAR_OPTIONS.map((y) => (
             <SelectItem key={y.key}>{y.label}</SelectItem>
@@ -199,7 +202,7 @@ function MyKpiTab({ hook }) {
                   <h3 className="text-lg font-semibold">
                     แนวโน้ม: {selectedTrend.definition?.name}
                   </h3>
-                  <Button size="sm" variant="light" onPress={() => setSelectedTrend(null)}>
+                  <Button size="md" radius="md" variant="light" onPress={() => setSelectedTrend(null)}>
                     ปิด
                   </Button>
                 </div>
@@ -287,10 +290,10 @@ function KpiCard({ assignment, onRecord, onTrend }) {
         />
 
         <div className="flex gap-2">
-          <Button size="sm" color="primary" variant="flat" onPress={onRecord} startContent={<Plus className="w-3 h-3" />}>
+          <Button size="md" radius="md" color="primary" variant="flat" onPress={onRecord} startContent={<Plus className="w-3 h-3" />}>
             บันทึกค่า
           </Button>
-          <Button size="sm" variant="light" onPress={onTrend} startContent={<TrendingUp className="w-3 h-3" />}>
+          <Button size="md" radius="md" variant="light" onPress={onTrend} startContent={<TrendingUp className="w-3 h-3" />}>
             แนวโน้ม
           </Button>
         </div>
@@ -324,7 +327,10 @@ function DashboardTab({ hook }) {
         selectedKeys={[hook.filterYear]}
         onSelectionChange={(keys) => hook.setFilterYear([...keys][0])}
         className="w-28"
-        size="sm"
+        variant="bordered"
+        size="md"
+        radius="md"
+        labelPlacement="outside"
       >
         {YEAR_OPTIONS.map((y) => (
           <SelectItem key={y.key}>{y.label}</SelectItem>
@@ -403,6 +409,8 @@ function ManageTab({ hook }) {
         <h3 className="text-lg font-semibold">KPI Definitions</h3>
         <Button
           color="primary"
+          size="md"
+          radius="md"
           startContent={<Plus className="w-4 h-4" />}
           onPress={() => hook.handleOpenDefinitionForm()}
         >
@@ -438,17 +446,17 @@ function ManageTab({ hook }) {
                 </div>
                 <div className="flex gap-1">
                   <Tooltip content="Assign ให้พนักงาน">
-                    <Button isIconOnly size="sm" variant="light" color="primary" onPress={() => hook.handleOpenAssignForm(def.id)}>
+                    <Button isIconOnly size="md" radius="md" variant="light" color="primary" onPress={() => hook.handleOpenAssignForm(def.id)}>
                       <Users className="w-4 h-4" />
                     </Button>
                   </Tooltip>
                   <Tooltip content="แก้ไข">
-                    <Button isIconOnly size="sm" variant="light" onPress={() => hook.handleOpenDefinitionForm(def)}>
+                    <Button isIconOnly size="md" radius="md" variant="light" onPress={() => hook.handleOpenDefinitionForm(def)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
                   </Tooltip>
                   <Tooltip content="ลบ">
-                    <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => hook.handleDeleteDefinition(def.id)}>
+                    <Button isIconOnly size="md" radius="md" variant="light" color="danger" onPress={() => hook.handleDeleteDefinition(def.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </Tooltip>
@@ -478,6 +486,10 @@ function DefinitionModal({ hook }) {
               placeholder="เช่น อัตราความพึงพอใจลูกค้า"
               value={definitionForm.name}
               onValueChange={(v) => setDefinitionForm((f) => ({ ...f, name: v }))}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               isRequired
             />
             <Textarea
@@ -485,6 +497,10 @@ function DefinitionModal({ hook }) {
               placeholder="อธิบาย KPI..."
               value={definitionForm.description}
               onValueChange={(v) => setDefinitionForm((f) => ({ ...f, description: v }))}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
             />
             <div className="flex gap-4">
               <Select
@@ -492,6 +508,10 @@ function DefinitionModal({ hook }) {
                 selectedKeys={[definitionForm.category]}
                 onSelectionChange={(keys) => setDefinitionForm((f) => ({ ...f, category: [...keys][0] }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               >
                 {KPI_CATEGORIES.map((c) => (
                   <SelectItem key={c.key}>{c.label}</SelectItem>
@@ -503,6 +523,10 @@ function DefinitionModal({ hook }) {
                 value={definitionForm.unit}
                 onValueChange={(v) => setDefinitionForm((f) => ({ ...f, unit: v }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
                 isRequired
               />
               <Select
@@ -510,6 +534,10 @@ function DefinitionModal({ hook }) {
                 selectedKeys={[definitionForm.frequency]}
                 onSelectionChange={(keys) => setDefinitionForm((f) => ({ ...f, frequency: [...keys][0] }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               >
                 {KPI_FREQUENCIES.map((f) => (
                   <SelectItem key={f.key}>{f.label}</SelectItem>
@@ -523,6 +551,10 @@ function DefinitionModal({ hook }) {
                 value={definitionForm.targetValue}
                 onValueChange={(v) => setDefinitionForm((f) => ({ ...f, targetValue: v }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               />
               <Input
                 label="เกณฑ์เตือน"
@@ -530,6 +562,10 @@ function DefinitionModal({ hook }) {
                 value={definitionForm.warningThreshold}
                 onValueChange={(v) => setDefinitionForm((f) => ({ ...f, warningThreshold: v }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               />
             </div>
             <Switch
@@ -541,8 +577,8 @@ function DefinitionModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={definitionModal.onClose}>ยกเลิก</Button>
-          <Button color="primary" onPress={handleSaveDefinition} isLoading={savingDefinition} startContent={<Save className="w-4 h-4" />}>
+          <Button variant="light" size="md" radius="md" onPress={definitionModal.onClose}>ยกเลิก</Button>
+          <Button color="primary" size="md" radius="md" onPress={handleSaveDefinition} isLoading={savingDefinition} startContent={<Save className="w-4 h-4" />}>
             {editingDefinition ? "บันทึก" : "สร้าง"}
           </Button>
         </ModalFooter>
@@ -570,6 +606,10 @@ function AssignmentModal({ hook }) {
                 const def = definitions.find((d) => d.id === id);
                 if (def?.targetValue) setAssignForm((f) => ({ ...f, targetValue: String(def.targetValue) }));
               }}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               isRequired
             >
               {definitions.map((d) => (
@@ -580,6 +620,10 @@ function AssignmentModal({ hook }) {
               label="พนักงาน"
               selectedKeys={assignForm.employeeId ? [assignForm.employeeId] : []}
               onSelectionChange={(keys) => setAssignForm((f) => ({ ...f, employeeId: [...keys][0] }))}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               isRequired
             >
               {activeEmployees.map((e) => (
@@ -595,6 +639,10 @@ function AssignmentModal({ hook }) {
                 value={assignForm.targetValue}
                 onValueChange={(v) => setAssignForm((f) => ({ ...f, targetValue: v }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
                 isRequired
               />
               <Input
@@ -603,13 +651,17 @@ function AssignmentModal({ hook }) {
                 value={assignForm.weight}
                 onValueChange={(v) => setAssignForm((f) => ({ ...f, weight: v }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               />
             </div>
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={assignmentModal.onClose}>ยกเลิก</Button>
-          <Button color="primary" onPress={handleSaveAssignment} isLoading={savingAssignment}>
+          <Button variant="light" size="md" radius="md" onPress={assignmentModal.onClose}>ยกเลิก</Button>
+          <Button color="primary" size="md" radius="md" onPress={handleSaveAssignment} isLoading={savingAssignment}>
             Assign
           </Button>
         </ModalFooter>
@@ -641,6 +693,10 @@ function RecordModal({ hook }) {
               placeholder="เช่น 2026-01"
               value={recordForm.periodLabel}
               onValueChange={(v) => setRecordForm((f) => ({ ...f, periodLabel: v }))}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               isRequired
             />
             <Input
@@ -648,6 +704,10 @@ function RecordModal({ hook }) {
               type="number"
               value={recordForm.actualValue}
               onValueChange={(v) => setRecordForm((f) => ({ ...f, actualValue: v }))}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
               isRequired
             />
             <Textarea
@@ -655,12 +715,16 @@ function RecordModal({ hook }) {
               placeholder="หมายเหตุเพิ่มเติม..."
               value={recordForm.note}
               onValueChange={(v) => setRecordForm((f) => ({ ...f, note: v }))}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
             />
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={recordModal.onClose}>ยกเลิก</Button>
-          <Button color="primary" onPress={handleSaveRecord} isLoading={savingRecord} startContent={<Save className="w-4 h-4" />}>
+          <Button variant="light" size="md" radius="md" onPress={recordModal.onClose}>ยกเลิก</Button>
+          <Button color="primary" size="md" radius="md" onPress={handleSaveRecord} isLoading={savingRecord} startContent={<Save className="w-4 h-4" />}>
             บันทึก
           </Button>
         </ModalFooter>

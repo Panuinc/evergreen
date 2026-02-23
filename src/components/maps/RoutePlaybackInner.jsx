@@ -112,7 +112,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
         <Button
           isIconOnly
           variant="bordered"
-          size="sm"
+          size="md"
           radius="md"
           onPress={handleReset}
         >
@@ -121,7 +121,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
         <Button
           isIconOnly
           variant="bordered"
-          size="sm"
+          size="md"
           radius="md"
           onPress={() => setPlaying(!playing)}
         >
@@ -132,7 +132,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
             <Button
               key={s}
               variant={speed === s ? "solid" : "bordered"}
-              size="sm"
+              size="md"
               radius="md"
               onPress={() => setSpeed(s)}
               className="min-w-8"

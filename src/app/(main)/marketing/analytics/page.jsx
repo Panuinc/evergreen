@@ -131,7 +131,7 @@ export default function MarketingAnalyticsPage() {
             {PERIODS.map((p) => (
               <Button
                 key={p.key}
-                size="sm"
+                size="md"
                 radius="md"
                 variant={period === p.key ? "solid" : "bordered"}
                 color={period === p.key ? "primary" : "default"}
@@ -141,7 +141,7 @@ export default function MarketingAnalyticsPage() {
               </Button>
             ))}
           </div>
-          <Button variant="bordered" size="sm" radius="md" isIconOnly onPress={reload}>
+          <Button variant="bordered" size="md" radius="md" isIconOnly onPress={reload}>
             <RefreshCw size={14} />
           </Button>
         </div>

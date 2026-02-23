@@ -221,10 +221,10 @@ export default function ChannelSettings({ isOpen, onClose }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="bordered" radius="md" onPress={onClose}>
+          <Button variant="bordered" size="md" radius="md" onPress={onClose}>
             ยกเลิก
           </Button>
-          <Button color="primary" radius="md" onPress={handleSave} isLoading={saving}>
+          <Button color="primary" size="md" radius="md" onPress={handleSave} isLoading={saving}>
             บันทึกการตั้งค่า
           </Button>
         </ModalFooter>

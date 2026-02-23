@@ -97,7 +97,8 @@ export default function WarehouseGroupPage() {
         return (
           <Button
             isIconOnly
-            size="sm"
+            size="md"
+            radius="md"
             variant="light"
             onPress={() => setPrintItem(item)}
           >

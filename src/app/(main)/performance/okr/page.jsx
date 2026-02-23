@@ -135,7 +135,10 @@ function PeriodFilter({ hook }) {
         selectedKeys={[hook.filterYear]}
         onSelectionChange={(keys) => hook.setFilterYear([...keys][0])}
         className="w-28"
-        size="sm"
+        variant="bordered"
+        size="md"
+        radius="md"
+        labelPlacement="outside"
       >
         {YEAR_OPTIONS.map((y) => (
           <SelectItem key={y.key}>{y.label}</SelectItem>
@@ -146,7 +149,10 @@ function PeriodFilter({ hook }) {
         selectedKeys={[hook.filterQuarter]}
         onSelectionChange={(keys) => hook.setFilterQuarter([...keys][0])}
         className="w-40"
-        size="sm"
+        variant="bordered"
+        size="md"
+        radius="md"
+        labelPlacement="outside"
       >
         {QUARTER_OPTIONS.map((q) => (
           <SelectItem key={q.key}>{q.label}</SelectItem>
@@ -165,6 +171,8 @@ function MyOkrTab({ hook }) {
         <PeriodFilter hook={hook} />
         <Button
           color="primary"
+          size="md"
+          radius="md"
           startContent={<Plus className="w-4 h-4" />}
           onPress={() => hook.handleOpenObjectiveForm()}
         >
@@ -281,7 +289,8 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                 <Tooltip content="แก้ไข Objective">
                   <Button
                     isIconOnly
-                    size="sm"
+                    size="md"
+                    radius="md"
                     variant="light"
                     onPress={() => hook.handleOpenObjectiveForm(objective)}
                   >
@@ -292,7 +301,8 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                   <Tooltip content="เปิดใช้งาน">
                     <Button
                       isIconOnly
-                      size="sm"
+                      size="md"
+                      radius="md"
                       variant="light"
                       color="primary"
                       onPress={() => hook.handleUpdateObjectiveStatus(objective.id, "active")}
@@ -305,7 +315,8 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                   <Tooltip content="ทำเครื่องหมายว่าสำเร็จ">
                     <Button
                       isIconOnly
-                      size="sm"
+                      size="md"
+                      radius="md"
                       variant="light"
                       color="success"
                       onPress={() => hook.handleUpdateObjectiveStatus(objective.id, "completed")}
@@ -317,7 +328,8 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                 <Tooltip content="ลบ Objective">
                   <Button
                     isIconOnly
-                    size="sm"
+                    size="md"
+                    radius="md"
                     variant="light"
                     color="danger"
                     onPress={() => hook.handleDeleteObjective(objective.id)}
@@ -346,7 +358,8 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
       <CardBody className="pt-2">
         <Button
           variant="light"
-          size="sm"
+          size="md"
+          radius="md"
           className="mb-2"
           startContent={expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           onPress={() => setExpanded(!expanded)}
@@ -361,7 +374,8 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
             ))}
             {editable && (
               <Button
-                size="sm"
+                size="md"
+                radius="md"
                 variant="flat"
                 color="primary"
                 startContent={<Plus className="w-3 h-3" />}
@@ -411,7 +425,8 @@ function KeyResultRow({ kr, hook, editable }) {
           <Tooltip content="Check-in">
             <Button
               isIconOnly
-              size="sm"
+              size="md"
+              radius="md"
               variant="light"
               color="primary"
               onPress={() => hook.handleOpenCheckin(kr)}
@@ -422,7 +437,8 @@ function KeyResultRow({ kr, hook, editable }) {
           <Tooltip content="แก้ไข">
             <Button
               isIconOnly
-              size="sm"
+              size="md"
+              radius="md"
               variant="light"
               onPress={() => hook.handleOpenKrForm(kr.objectiveId, kr)}
             >
@@ -432,7 +448,8 @@ function KeyResultRow({ kr, hook, editable }) {
           <Tooltip content="ลบ">
             <Button
               isIconOnly
-              size="sm"
+              size="md"
+              radius="md"
               variant="light"
               color="danger"
               onPress={() => hook.handleDeleteKr(kr.id)}
@@ -465,12 +482,20 @@ function ObjectiveModal({ hook }) {
               value={objectiveForm.title}
               onValueChange={(v) => setObjectiveForm((f) => ({ ...f, title: v }))}
               isRequired
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
             />
             <Textarea
               label="รายละเอียด"
               placeholder="อธิบายเป้าหมาย..."
               value={objectiveForm.description}
               onValueChange={(v) => setObjectiveForm((f) => ({ ...f, description: v }))}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
             />
             <div className="flex gap-4">
               <Select
@@ -479,6 +504,10 @@ function ObjectiveModal({ hook }) {
                 onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, year: [...keys][0] }))}
                 className="flex-1"
                 isDisabled={!!editingObjective}
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               >
                 {YEAR_OPTIONS.map((y) => (
                   <SelectItem key={y.key}>{y.label}</SelectItem>
@@ -490,6 +519,10 @@ function ObjectiveModal({ hook }) {
                 onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, quarter: [...keys][0] }))}
                 className="flex-1"
                 isDisabled={!!editingObjective}
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               >
                 {QUARTER_OPTIONS.map((q) => (
                   <SelectItem key={q.key}>{q.label}</SelectItem>
@@ -500,6 +533,10 @@ function ObjectiveModal({ hook }) {
                 selectedKeys={[objectiveForm.visibility]}
                 onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, visibility: [...keys][0] }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               >
                 {VISIBILITY_OPTIONS.map((v) => (
                   <SelectItem key={v.key}>{v.label}</SelectItem>
@@ -509,11 +546,13 @@ function ObjectiveModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={objectiveModal.onClose}>
+          <Button variant="light" size="md" radius="md" onPress={objectiveModal.onClose}>
             ยกเลิก
           </Button>
           <Button
             color="primary"
+            size="md"
+            radius="md"
             onPress={handleSaveObjective}
             isLoading={savingObjective}
             startContent={<Save className="w-4 h-4" />}
@@ -545,6 +584,10 @@ function KrModal({ hook }) {
               value={krForm.title}
               onValueChange={(v) => setKrForm((f) => ({ ...f, title: v }))}
               isRequired
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
             />
             <div className="flex gap-4">
               <Select
@@ -552,6 +595,10 @@ function KrModal({ hook }) {
                 selectedKeys={[krForm.metricType]}
                 onSelectionChange={(keys) => setKrForm((f) => ({ ...f, metricType: [...keys][0] }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               >
                 {METRIC_TYPES.map((m) => (
                   <SelectItem key={m.key}>{m.label}</SelectItem>
@@ -563,6 +610,10 @@ function KrModal({ hook }) {
                 value={krForm.unit}
                 onValueChange={(v) => setKrForm((f) => ({ ...f, unit: v }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               />
             </div>
             <div className="flex gap-4">
@@ -572,6 +623,10 @@ function KrModal({ hook }) {
                 value={krForm.startValue}
                 onValueChange={(v) => setKrForm((f) => ({ ...f, startValue: v }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               />
               <Input
                 label="เป้าหมาย"
@@ -580,6 +635,10 @@ function KrModal({ hook }) {
                 onValueChange={(v) => setKrForm((f) => ({ ...f, targetValue: v }))}
                 className="flex-1"
                 isRequired
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               />
               <Input
                 label="น้ำหนัก"
@@ -587,16 +646,22 @@ function KrModal({ hook }) {
                 value={krForm.weight}
                 onValueChange={(v) => setKrForm((f) => ({ ...f, weight: v }))}
                 className="flex-1"
+                variant="bordered"
+                size="md"
+                radius="md"
+                labelPlacement="outside"
               />
             </div>
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={krModal.onClose}>
+          <Button variant="light" size="md" radius="md" onPress={krModal.onClose}>
             ยกเลิก
           </Button>
           <Button
             color="primary"
+            size="md"
+            radius="md"
             onPress={handleSaveKr}
             isLoading={savingKr}
             startContent={<Save className="w-4 h-4" />}
@@ -634,21 +699,31 @@ function CheckinModal({ hook }) {
               value={checkinValue}
               onValueChange={setCheckinValue}
               isRequired
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
             />
             <Textarea
               label="หมายเหตุ"
               placeholder="อธิบายความคืบหน้า..."
               value={checkinNote}
               onValueChange={setCheckinNote}
+              variant="bordered"
+              size="md"
+              radius="md"
+              labelPlacement="outside"
             />
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={checkinModal.onClose}>
+          <Button variant="light" size="md" radius="md" onPress={checkinModal.onClose}>
             ยกเลิก
           </Button>
           <Button
             color="primary"
+            size="md"
+            radius="md"
             onPress={handleSaveCheckin}
             isLoading={savingCheckin}
             startContent={<TrendingUp className="w-4 h-4" />}

@@ -128,7 +128,7 @@ export default function OrdersPage() {
                 <Eye />
               </Button>
               <Select
-                size="sm"
+                size="md"
                 variant="bordered"
                 radius="md"
                 aria-label="Change status"

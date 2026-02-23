@@ -19,7 +19,8 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
           <Button
             isIconOnly
             variant="light"
-            size="sm"
+            size="md"
+            radius="md"
             onPress={onClose}
             className="absolute top-2 right-2 z-10"
           >
@@ -39,7 +40,8 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
               <Button
                 isIconOnly
                 variant="flat"
-                size="sm"
+                size="md"
+                radius="md"
                 onPress={goPrev}
                 className="absolute left-2 top-1/2 -translate-y-1/2"
               >
@@ -48,7 +50,8 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
               <Button
                 isIconOnly
                 variant="flat"
-                size="sm"
+                size="md"
+                radius="md"
                 onPress={goNext}
                 className="absolute right-2 top-1/2 -translate-y-1/2"
               >

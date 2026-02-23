@@ -103,7 +103,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             </div>
             <div className="flex gap-1">
               <Input
-                size="sm"
+                size="md"
                 variant="bordered"
                 radius="md"
                 placeholder="เพิ่ม tag..."
@@ -111,7 +111,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 onValueChange={setNewTag}
                 onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               />
-              <Button isIconOnly size="sm" variant="bordered" radius="md" onPress={handleAddTag}>
+              <Button isIconOnly size="md" variant="bordered" radius="md" onPress={handleAddTag}>
                 <Plus size={14} />
               </Button>
             </div>
@@ -128,16 +128,16 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 <Textarea
                   variant="bordered"
                   radius="md"
-                  size="sm"
+                  size="md"
                   minRows={3}
                   value={notes}
                   onValueChange={setNotes}
                 />
                 <div className="flex gap-1 justify-end">
-                  <Button size="sm" variant="bordered" radius="md" onPress={() => setEditingNotes(false)}>
+                  <Button size="md" variant="bordered" radius="md" onPress={() => setEditingNotes(false)}>
                     ยกเลิก
                   </Button>
-                  <Button size="sm" color="primary" radius="md" onPress={handleSaveNotes}>
+                  <Button size="md" color="primary" radius="md" onPress={handleSaveNotes}>
                     บันทึก
                   </Button>
                 </div>

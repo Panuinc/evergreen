@@ -106,6 +106,8 @@ export default function PrinterConfigPage() {
           </div>
           <Button
             variant="flat"
+            size="md"
+            radius="md"
             onPress={handleTestConnection}
             isLoading={checking}
             startContent={!checking && <Wifi size={16} />}
@@ -124,6 +126,10 @@ export default function PrinterConfigPage() {
           <div className="grid grid-cols-2 gap-3">
             <Select
               label="DPI"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               selectedKeys={[String(config.dpi)]}
               onSelectionChange={(keys) => {
                 const val = Array.from(keys)[0];
@@ -137,6 +143,10 @@ export default function PrinterConfigPage() {
             <Input
               type="number"
               label="ขนาดตัวอักษร (dots)"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               min={10}
               max={100}
               value={String(config.fontSize)}
@@ -150,6 +160,10 @@ export default function PrinterConfigPage() {
             <Input
               type="number"
               label="ความกว้าง Label (mm)"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               min={10}
               max={118}
               value={String(config.labelWidth)}
@@ -158,6 +172,10 @@ export default function PrinterConfigPage() {
             <Input
               type="number"
               label="ความสูง Label (mm)"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               min={5}
               max={300}
               value={String(config.labelHeight)}
@@ -168,6 +186,10 @@ export default function PrinterConfigPage() {
           <Input
             type="number"
             label="เลื่อนแนวนอน (mm)"
+            labelPlacement="outside"
+            variant="bordered"
+            size="md"
+            radius="md"
             min={0}
             max={30}
             value={String(config.labelShift || 0)}
@@ -178,6 +200,10 @@ export default function PrinterConfigPage() {
             <Input
               type="number"
               label="ความเร็วพิมพ์ (ips)"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               min={1}
               max={8}
               value={String(config.printSpeed)}
@@ -186,6 +212,10 @@ export default function PrinterConfigPage() {
             <Input
               type="number"
               label="ความเข้ม (0-30)"
+              labelPlacement="outside"
+              variant="bordered"
+              size="md"
+              radius="md"
               min={0}
               max={30}
               value={String(config.darkness)}
@@ -226,6 +256,8 @@ export default function PrinterConfigPage() {
       <div className="flex gap-2">
         <Button
           color="primary"
+          size="md"
+          radius="md"
           onPress={handleSave}
           startContent={<Save size={16} />}
         >
@@ -234,13 +266,15 @@ export default function PrinterConfigPage() {
         <Button
           color="success"
           variant="flat"
+          size="md"
+          radius="md"
           onPress={handleTestPrint}
           isLoading={testing}
           startContent={!testing && <TestTube size={16} />}
         >
           พิมพ์ทดสอบ
         </Button>
-        <Button variant="flat" onPress={handleReset}>
+        <Button variant="flat" size="md" radius="md" onPress={handleReset}>
           รีเซ็ตค่าเริ่มต้น
         </Button>
       </div>
