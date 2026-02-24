@@ -48,6 +48,7 @@ const ALL_TABLES = [
   "items",
   "salesOrders",
   "salesOrderLines",
+  "itemLedgerEntries",
 ];
 
 let syncLock = null;
@@ -454,7 +455,99 @@ async function runSync(supabase, requestedTables, send) {
     }
   }
 
-  // ═══ Phase 5: Cleanup ═══
+  // ═══ Phase 5: Item Ledger Entries ═══
+  if (shouldSync("itemLedgerEntries")) {
+    send("progress", {
+      phase: "itemLedgerEntries",
+      step: "fetching",
+      label: "ดึงข้อมูลรายการเคลื่อนไหวสินค้า...",
+    });
+    try {
+      const entries = await bcODataGet(
+        "ItemLedgerEntries",
+        {
+          $filter: "Posting_Date ge 2026-01-01",
+          $select:
+            "Entry_No,Posting_Date,DocumentDate,Entry_Type,Document_Type,Document_No,Item_No,Description,CHH_Employee_Code,CHH_Employee_Name,BWK_Descriptin_2,Location_Code,Lot_No,Serial_No,Expiration_Date,Quantity,Unit_of_Measure_Code,Remaining_Quantity,Invoiced_Quantity,Completely_Invoiced,UnitCostExp,Cost_Amount_Expected,UnitCostActual,Cost_Amount_Actual,Sales_Amount_Expected,Sales_Amount_Actual,Open,Global_Dimension_1_Code,Global_Dimension_2_Code,Order_Type,Order_No,Order_Line_No,Document_Line_No,Item_Description,Variant_Code,Return_Reason_Code,Package_No,BWK_Bin_Code,BWK_Base_Unit_of_Measure,BWK_Total_Gross_Weight,BWK_Total_Net_Weight,RunningBalance,RunningBalanceLoc,Shipped_Qty_Not_Returned,Reserved_Quantity,Qty_per_Unit_of_Measure,Cost_Amount_Non_Invtbl,Cost_Amount_Expected_ACY,Cost_Amount_Actual_ACY,Cost_Amount_Non_Invtbl_ACY,Drop_Shipment,Assemble_to_Order,Applied_Entry_to_Adjust,VendCustCode,BWK_Vendor_Customer_Name,BWK_Create_By,Prod_Order_Comp_Line_No,Job_No,Job_Task_No,Dimension_Set_ID,Shortcut_Dimension_3_Code,Shortcut_Dimension_4_Code,Shortcut_Dimension_5_Code,Shortcut_Dimension_6_Code,Shortcut_Dimension_7_Code,Shortcut_Dimension_8_Code,Source_Type,Source_No,Source_Description,Source_Order_No",
+          $orderby: "Entry_No desc",
+        },
+        { timeout: 180_000 },
+      );
+      const entryRows = entries.map((e) => ({
+        id: String(e.Entry_No),
+        entryNo: e.Entry_No,
+        postingDate: e.Posting_Date || null,
+        documentDate: e.DocumentDate === "0001-01-01" ? null : e.DocumentDate || null,
+        entryType: e.Entry_Type?.trim() || null,
+        documentType: e.Document_Type?.trim() || null,
+        documentNo: e.Document_No,
+        itemNo: e.Item_No,
+        description: e.Description,
+        locationCode: e.Location_Code?.trim() || null,
+        lotNo: e.Lot_No?.trim() || null,
+        serialNo: e.Serial_No?.trim() || null,
+        expirationDate: e.Expiration_Date === "0001-01-01" ? null : e.Expiration_Date || null,
+        quantity: e.Quantity,
+        unitOfMeasureCode: e.Unit_of_Measure_Code,
+        remainingQuantity: e.Remaining_Quantity,
+        invoicedQuantity: e.Invoiced_Quantity,
+        completelyInvoiced: e.Completely_Invoiced,
+        costAmountExpected: e.Cost_Amount_Expected,
+        costAmountActual: e.Cost_Amount_Actual,
+        salesAmountExpected: e.Sales_Amount_Expected,
+        salesAmountActual: e.Sales_Amount_Actual,
+        open: e.Open,
+        globalDimension1Code: e.Global_Dimension_1_Code?.trim() || null,
+        globalDimension2Code: e.Global_Dimension_2_Code?.trim() || null,
+        orderType: e.Order_Type?.trim() || null,
+        orderNo: e.Order_No?.trim() || null,
+        orderLineNo: e.Order_Line_No,
+        itemDescription: e.Item_Description,
+        variantCode: e.Variant_Code?.trim() || null,
+        returnReasonCode: e.Return_Reason_Code?.trim() || null,
+        binCode: e.BWK_Bin_Code?.trim() || null,
+        baseUnitOfMeasure: e.BWK_Base_Unit_of_Measure,
+        sourceType: e.Source_Type?.trim() || null,
+        sourceNo: e.Source_No?.trim() || null,
+        sourceDescription: e.Source_Description,
+        createdBy: e.BWK_Create_By?.trim() || null,
+        syncedAt: now,
+      }));
+      send("progress", {
+        phase: "itemLedgerEntries",
+        step: "saving",
+        count: entryRows.length,
+        label: `บันทึกรายการเคลื่อนไหว ${entryRows.length.toLocaleString()} รายการ...`,
+      });
+      await batchUpsert(supabase, "bcItemLedgerEntries", entryRows, {
+        onProgress: (done, total) =>
+          send("progress", {
+            phase: "itemLedgerEntries",
+            step: "saving",
+            done,
+            total,
+            label: `บันทึกรายการ ${done.toLocaleString()}/${total.toLocaleString()}`,
+          }),
+      });
+      results.itemLedgerEntries = entryRows.length;
+      syncSuccess.itemLedgerEntries = true;
+      send("progress", {
+        phase: "itemLedgerEntries",
+        step: "done",
+        count: entryRows.length,
+        label: `รายการเคลื่อนไหว ${entryRows.length.toLocaleString()} รายการ`,
+      });
+    } catch (e) {
+      results.itemLedgerEntries = `ERROR: ${e.message}`;
+      send("progress", {
+        phase: "itemLedgerEntries",
+        step: "error",
+        error: e.message,
+      });
+    }
+  }
+
+  // ═══ Phase 6: Cleanup ═══
   send("progress", {
     phase: "cleanup",
     step: "cleaning",
@@ -565,6 +658,29 @@ async function runSync(supabase, requestedTables, send) {
         .delete({ count: "exact" })
         .lt("syncedAt", now);
       cleanup.salesOrders = error ? `ERROR: ${error.message}` : count || 0;
+    }
+  }
+
+  if (syncSuccess.itemLedgerEntries) {
+    const { count: staleCount } = await supabase
+      .from("bcItemLedgerEntries")
+      .select("*", { count: "exact", head: true })
+      .lt("syncedAt", now);
+    if (
+      !isSafeToCleanup(
+        results.itemLedgerEntries,
+        results.itemLedgerEntries + (staleCount || 0),
+      )
+    ) {
+      cleanup.itemLedgerEntries = `SKIPPED: sync got ${results.itemLedgerEntries} but ${staleCount} would be deleted`;
+    } else {
+      const { count, error } = await supabase
+        .from("bcItemLedgerEntries")
+        .delete({ count: "exact" })
+        .lt("syncedAt", now);
+      cleanup.itemLedgerEntries = error
+        ? `ERROR: ${error.message}`
+        : count || 0;
     }
   }
 

@@ -313,6 +313,7 @@ export const menuData = [
       { name: "ลูกค้า", icon: Users, href: "/bc/customers" },
       { name: "สินค้า", icon: Package, href: "/bc/items" },
       { name: "คำสั่งขาย", icon: ShoppingCart, href: "/bc/salesOrders" },
+      { name: "เคลื่อนไหวสินค้า", icon: ClipboardList, href: "/bc/itemLedgerEntries" },
     ],
   },
   {

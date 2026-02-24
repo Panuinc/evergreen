@@ -23,6 +23,7 @@ import {
   Upload,
   FileSpreadsheet,
   Loader2,
+  ArrowLeftRight,
 } from "lucide-react";
 
 /* ── BC Tables ── */
@@ -32,6 +33,7 @@ const BC_TABLES = [
   { key: "items", label: "สินค้า", icon: Package },
   { key: "salesOrders", label: "คำสั่งขาย", icon: ShoppingCart },
   { key: "salesOrderLines", label: "รายการคำสั่งขาย", icon: ClipboardList },
+  { key: "itemLedgerEntries", label: "เคลื่อนไหวสินค้า", icon: ArrowLeftRight },
 ];
 
 const PHASE_ORDER = [
@@ -40,6 +42,7 @@ const PHASE_ORDER = [
   "items",
   "salesOrders",
   "salesOrderLines",
+  "itemLedgerEntries",
   "cleanup",
 ];
 
@@ -111,7 +114,7 @@ function SyncProgressPanel({ phases }) {
 
 function ResultCards({ tables, results }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {tables.map((t) => {
         const val = results?.[t.key];
         const isError = typeof val === "string" && val.startsWith("ERROR");
@@ -422,6 +425,7 @@ function BcSyncSection() {
             <li>Items — สินค้าทั้งหมด + map projectCode/projectName</li>
             <li>Sales Orders — คำสั่งซื้อ SO26*</li>
             <li>SO Lines — รายการสินค้าในคำสั่งซื้อ</li>
+            <li>Item Ledger Entries — รายการเคลื่อนไหวสินค้า (รับ/จ่าย/โอน/ผลิต)</li>
           </ul>
         </CardBody>
       </Card>
