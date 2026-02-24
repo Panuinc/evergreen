@@ -30,7 +30,7 @@ export async function GET(request) {
       from += PAGE_SIZE;
     }
 
-    const filtered = allData.filter((item) => !item.blocked);
+    const filtered = allData.filter((item) => !item.blocked && item.inventory > 0);
     return Response.json(filtered);
   }
 
@@ -52,6 +52,6 @@ export async function GET(request) {
     from += PAGE_SIZE;
   }
 
-  const filtered = allData.filter((item) => !item.blocked);
+  const filtered = allData.filter((item) => !item.blocked && item.inventory > 0);
   return Response.json(filtered);
 }
