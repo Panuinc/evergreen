@@ -2,7 +2,7 @@
 
 import { Card, CardBody, Spinner } from "@heroui/react";
 import { Truck, Package, Fuel, Wrench, CheckCircle, Clock } from "lucide-react";
-import { useTmsDashboard } from "@/hooks/useTmsDashboard";
+import { useTmsDashboard } from "@/hooks/tms/useTmsDashboard";
 import ShipmentStatusChart from "@/components/charts/ShipmentStatusChart";
 import MonthlyShipmentChart from "@/components/charts/MonthlyShipmentChart";
 import FuelCostChart from "@/components/charts/FuelCostChart";

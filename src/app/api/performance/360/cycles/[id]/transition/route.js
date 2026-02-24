@@ -1,5 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
-import { VALID_TRANSITIONS } from "@/lib/feedback360Constants";
+import { VALID_TRANSITIONS } from "@/lib/performance/feedback360Constants";
 
 export async function POST(request, { params }) {
   const auth = await withAuth();

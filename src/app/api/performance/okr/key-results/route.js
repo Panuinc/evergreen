@@ -1,5 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
-import { computeObjectiveProgress } from "@/lib/okrConstants";
+import { computeObjectiveProgress } from "@/lib/performance/okrConstants";
 
 export async function POST(request) {
   const auth = await withAuth();

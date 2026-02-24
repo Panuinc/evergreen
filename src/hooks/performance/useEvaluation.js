@@ -18,7 +18,7 @@ import {
   computeOverallScore,
   computeGrade,
   createEmptyScores,
-} from "@/lib/evaluationCriteria";
+} from "@/lib/performance/evaluationCriteria";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function useEvaluation() {

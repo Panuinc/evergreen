@@ -13,7 +13,7 @@ import {
   Chip,
 } from "@heroui/react";
 import { Eye, Trash2 } from "lucide-react";
-import { useCrmOrders } from "@/hooks/useCrmOrders";
+import { useCrmOrders } from "@/hooks/sales/useCrmOrders";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

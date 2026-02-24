@@ -11,7 +11,7 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
-import { useCrmDashboard } from "@/hooks/useCrmDashboard";
+import { useCrmDashboard } from "@/hooks/sales/useCrmDashboard";
 
 export default function SalesReportsPage() {
   const { data, loading } = useCrmDashboard();

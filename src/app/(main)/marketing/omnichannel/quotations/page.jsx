@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Chip, Tabs, Tab } from "@heroui/react";
-import { useQuotations } from "@/hooks/useQuotations";
+import { useQuotations } from "@/hooks/marketing/useQuotations";
 import DataTable from "@/components/ui/DataTable";
 
 const STATUS_MAP = {

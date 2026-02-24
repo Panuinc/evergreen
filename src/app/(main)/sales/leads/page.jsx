@@ -14,7 +14,7 @@ import {
   Chip,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, ArrowRightLeft } from "lucide-react";
-import { useCrmLeads } from "@/hooks/useCrmLeads";
+import { useCrmLeads } from "@/hooks/sales/useCrmLeads";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

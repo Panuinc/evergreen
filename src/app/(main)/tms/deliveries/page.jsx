@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { useDeliveries } from "@/hooks/useDeliveries";
+import { useDeliveries } from "@/hooks/tms/useDeliveries";
 import DataTable from "@/components/ui/DataTable";
 import FileUpload from "@/components/ui/FileUpload";
 import ImagePreviewModal from "@/components/ui/ImagePreviewModal";

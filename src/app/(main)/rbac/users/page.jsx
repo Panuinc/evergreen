@@ -15,7 +15,7 @@ import {
   Checkbox,
 } from "@heroui/react";
 import { Plus, Settings } from "lucide-react";
-import { useUsers } from "@/hooks/useUsers";
+import { useUsers } from "@/hooks/rbac/useUsers";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

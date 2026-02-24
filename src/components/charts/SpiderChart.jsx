@@ -10,7 +10,7 @@ import {
   Legend,
   Tooltip,
 } from "recharts";
-import { EVALUATION_CATEGORIES } from "@/lib/evaluationCriteria";
+import { EVALUATION_CATEGORIES } from "@/lib/performance/evaluationCriteria";
 
 const DEFAULT_COLORS = [
   "#3b82f6",

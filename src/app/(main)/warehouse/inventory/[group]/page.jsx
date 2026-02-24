@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Chip, Card, CardBody, Button } from "@heroui/react";
 import { Printer } from "lucide-react";
-import { useWarehouseInventory } from "@/hooks/useWarehouseInventory";
+import { useWarehouseInventory } from "@/hooks/warehouse/useWarehouseInventory";
 import DataTable from "@/components/ui/DataTable";
 import PrintRfidModal from "@/components/warehouse/PrintRfidModal";
 

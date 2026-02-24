@@ -5,7 +5,7 @@ import { Button, ScrollShadow } from "@heroui/react";
 import { Send, Trash2, ArrowDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useChat } from "@/hooks/useChat";
+import { useChat } from "@/hooks/shared/useChat";
 
 const SUGGESTIONS = [
   "มีลูกค้าทั้งหมดกี่คน?",

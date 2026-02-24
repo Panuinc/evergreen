@@ -18,7 +18,7 @@ import {
   DropdownItem,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, ChevronDown, Download } from "lucide-react";
-import { useShipments } from "@/hooks/useShipments";
+import { useShipments } from "@/hooks/tms/useShipments";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 

@@ -14,7 +14,7 @@ import {
   SelectItem,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { useResources } from "@/hooks/useResources";
+import { useResources } from "@/hooks/rbac/useResources";
 import { menuData } from "@/config/menu";
 import DataTable from "@/components/ui/DataTable";
 

@@ -25,7 +25,7 @@ import {
   Mail,
   ClipboardList,
 } from "lucide-react";
-import { useCrmActivities } from "@/hooks/useCrmActivities";
+import { useCrmActivities } from "@/hooks/sales/useCrmActivities";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

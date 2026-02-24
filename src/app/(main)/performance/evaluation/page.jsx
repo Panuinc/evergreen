@@ -19,7 +19,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { ClipboardList, BarChart3, Shield, Trash2, Save, Sparkles } from "lucide-react";
-import { useEvaluation } from "@/hooks/useEvaluation";
+import { useEvaluation } from "@/hooks/performance/useEvaluation";
 import SpiderChart from "@/components/charts/SpiderChart";
 import AiFeedbackPanel from "@/components/performance/AiFeedbackPanel";
 import {
@@ -27,7 +27,7 @@ import {
   SCORE_LABELS,
   QUARTER_OPTIONS,
   getGradeColor,
-} from "@/lib/evaluationCriteria";
+} from "@/lib/performance/evaluationCriteria";
 
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
   const y = new Date().getFullYear() - 2 + i;

@@ -15,7 +15,7 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { Button } from "@heroui/react";
-import { useMarketingAnalytics } from "@/hooks/useMarketingAnalytics";
+import { useMarketingAnalytics } from "@/hooks/marketing/useMarketingAnalytics";
 import RevenueTrendChart from "@/components/charts/RevenueTrendChart";
 import MonthlySalesChart from "@/components/charts/MonthlySalesChart";
 import DailyTrendChart from "@/components/charts/DailyTrendChart";

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { Chip } from "@heroui/react";
-import { useBcItems } from "@/hooks/useBcItems";
+import { useBcItems } from "@/hooks/bc/useBcItems";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

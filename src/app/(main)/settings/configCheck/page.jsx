@@ -2,7 +2,7 @@
 
 import { Card, CardBody, Chip, Button, Spinner } from "@heroui/react";
 import { RefreshCw, Database, Building2, Bot, MessageCircle, Facebook } from "lucide-react";
-import { useConfigCheck } from "@/hooks/useConfigCheck";
+import { useConfigCheck } from "@/hooks/shared/useConfigCheck";
 
 const services = [
   {

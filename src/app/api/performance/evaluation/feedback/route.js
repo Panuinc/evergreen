@@ -4,7 +4,7 @@ import {
   EVALUATION_CATEGORIES,
   computeOverallScore,
   computeGrade,
-} from "@/lib/evaluationCriteria";
+} from "@/lib/performance/evaluationCriteria";
 import { generateEvaluationFeedback } from "@/lib/agents/evaluationFeedbackAgent";
 
 export async function GET(request) {

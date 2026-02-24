@@ -42,7 +42,7 @@ import {
   Users,
   FileText,
 } from "lucide-react";
-import { useFeedback360 } from "@/hooks/useFeedback360";
+import { useFeedback360 } from "@/hooks/performance/useFeedback360";
 import {
   RELATIONSHIP_TYPES,
   CYCLE_STATUSES,
@@ -54,7 +54,7 @@ import {
   getRelationshipType,
   computeGrade,
   getGradeColor,
-} from "@/lib/feedback360Constants";
+} from "@/lib/performance/feedback360Constants";
 
 const QUARTER_OPTIONS = [
   { key: "1", label: "Q1" },

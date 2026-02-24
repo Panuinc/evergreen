@@ -16,7 +16,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { MapPin, RefreshCw, Navigation, History } from "lucide-react";
-import { useGpsTracking } from "@/hooks/useGpsTracking";
+import { useGpsTracking } from "@/hooks/tms/useGpsTracking";
 import VehicleMap from "@/components/maps/VehicleMap";
 import RoutePlayback from "@/components/maps/RoutePlayback";
 

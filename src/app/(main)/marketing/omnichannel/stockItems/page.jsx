@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo } from "react";
 import { Button, Input } from "@heroui/react";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
-import { useStockItems } from "@/hooks/useStockItems";
+import { useStockItems } from "@/hooks/marketing/useStockItems";
 import { saveStockItemPrices } from "@/actions/omnichannel";
 import DataTable from "@/components/ui/DataTable";
 

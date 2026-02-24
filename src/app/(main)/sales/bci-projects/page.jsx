@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Button, Chip } from "@heroui/react";
 import { Download, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { useBciProjects } from "@/hooks/useBciProjects";
+import { useBciProjects } from "@/hooks/sales/useBciProjects";
 import { exportToExcel } from "@/lib/exportExcel";
 import DataTable from "@/components/ui/DataTable";
 

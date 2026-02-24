@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Input, Button, Chip, Spinner } from "@heroui/react";
 import { User, Lock, Briefcase, KeyRound } from "lucide-react";
 import { toast } from "sonner";
-import { useProfile } from "@/hooks/useProfile";
-import { usePin } from "@/hooks/usePin";
+import { useProfile } from "@/hooks/shared/useProfile";
+import { usePin } from "@/hooks/shared/usePin";
 import PinSetupModal from "@/components/auth/PinSetupModal";
 
 export default function ProfilePage() {

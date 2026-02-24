@@ -25,7 +25,7 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
-import { useCrmDashboard } from "@/hooks/useCrmDashboard";
+import { useCrmDashboard } from "@/hooks/sales/useCrmDashboard";
 
 const TYPE_ICON_MAP = {
   task: ClipboardList,

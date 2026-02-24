@@ -12,7 +12,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { useActions } from "@/hooks/useActions";
+import { useActions } from "@/hooks/rbac/useActions";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

@@ -1,5 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
-import { computeCompetencyAverage, computeWeightedOverall } from "@/lib/feedback360Constants";
+import { computeCompetencyAverage, computeWeightedOverall } from "@/lib/performance/feedback360Constants";
 
 export async function GET(request) {
   const auth = await withAuth();

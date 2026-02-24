@@ -14,7 +14,7 @@ import {
   Chip,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, LayoutList, Columns3 } from "lucide-react";
-import { useCrmOpportunities } from "@/hooks/useCrmOpportunities";
+import { useCrmOpportunities } from "@/hooks/sales/useCrmOpportunities";
 import DataTable from "@/components/ui/DataTable";
 
 const KANBAN_STAGES = [

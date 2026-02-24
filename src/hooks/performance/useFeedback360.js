@@ -20,7 +20,7 @@ import {
   submitFeedback360Response,
   getFeedback360Results,
 } from "@/actions/performance";
-import { DEFAULT_COMPETENCY_TEMPLATES } from "@/lib/feedback360Constants";
+import { DEFAULT_COMPETENCY_TEMPLATES } from "@/lib/performance/feedback360Constants";
 
 export function useFeedback360() {
   const { user } = useAuth();

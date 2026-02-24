@@ -25,7 +25,7 @@ import {
   Trash2,
   ShoppingCart,
 } from "lucide-react";
-import { useCrmQuotationEditor } from "@/hooks/useCrmQuotationEditor";
+import { useCrmQuotationEditor } from "@/hooks/sales/useCrmQuotationEditor";
 
 const STATUS_COLOR_MAP = {
   draft: "default",

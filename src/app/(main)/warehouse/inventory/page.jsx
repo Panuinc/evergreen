@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Card, CardBody, Spinner } from "@heroui/react";
 import { Package } from "lucide-react";
 import Link from "next/link";
-import { useWarehouseInventory } from "@/hooks/useWarehouseInventory";
+import { useWarehouseInventory } from "@/hooks/warehouse/useWarehouseInventory";
 
 const GROUP_ORDER = [
   "Ap", "Bp", "Fa", "Fg", "Is", "Pk", "Rm", "Sm",

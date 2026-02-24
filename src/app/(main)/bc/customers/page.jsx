@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useBcCustomers } from "@/hooks/useBcCustomers";
+import { useBcCustomers } from "@/hooks/bc/useBcCustomers";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

@@ -2,7 +2,7 @@
 
 import { Card, CardBody, Spinner } from "@heroui/react";
 import { Server, HeadphonesIcon, FileText, Globe, Shield, Clock } from "lucide-react";
-import { useItDashboard } from "@/hooks/useItDashboard";
+import { useItDashboard } from "@/hooks/it/useItDashboard";
 import TicketTrendChart from "@/components/charts/TicketTrendChart";
 import AssetByCategoryChart from "@/components/charts/AssetByCategoryChart";
 import LicenseExpiryChart from "@/components/charts/LicenseExpiryChart";

@@ -14,7 +14,7 @@ import {
   Chip,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Download } from "lucide-react";
-import { useVehicles } from "@/hooks/useVehicles";
+import { useVehicles } from "@/hooks/tms/useVehicles";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 

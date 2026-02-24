@@ -2,7 +2,7 @@
 
 import { Card, CardBody, Chip, Spinner, Button } from "@heroui/react";
 import { AlertTriangle, AlertCircle, RefreshCw, Truck, User, Wrench } from "lucide-react";
-import { useTmsAlerts } from "@/hooks/useTmsAlerts";
+import { useTmsAlerts } from "@/hooks/tms/useTmsAlerts";
 
 const TYPE_ICONS = {
   vehicle_registration: Truck,

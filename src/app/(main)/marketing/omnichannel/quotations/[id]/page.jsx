@@ -16,7 +16,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { ArrowLeft, ExternalLink, Send, Check, X, Banknote, Receipt } from "lucide-react";
-import { useQuotationEditor } from "@/hooks/useQuotationEditor";
+import { useQuotationEditor } from "@/hooks/marketing/useQuotationEditor";
 import DataTable from "@/components/ui/DataTable";
 
 const STATUS_MAP = {

@@ -14,7 +14,7 @@ import {
   Chip,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { useItSoftware } from "@/hooks/useItSoftware";
+import { useItSoftware } from "@/hooks/it/useItSoftware";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

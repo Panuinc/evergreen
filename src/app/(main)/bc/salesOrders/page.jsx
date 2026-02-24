@@ -17,7 +17,7 @@ import {
   TableCell,
 } from "@heroui/react";
 import { Eye } from "lucide-react";
-import { useBcSalesOrders } from "@/hooks/useBcSalesOrders";
+import { useBcSalesOrders } from "@/hooks/bc/useBcSalesOrders";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

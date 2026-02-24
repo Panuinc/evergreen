@@ -14,7 +14,7 @@ import {
   Chip,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Download } from "lucide-react";
-import { useFuelLogs } from "@/hooks/useFuelLogs";
+import { useFuelLogs } from "@/hooks/tms/useFuelLogs";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 import FileUpload from "@/components/ui/FileUpload";

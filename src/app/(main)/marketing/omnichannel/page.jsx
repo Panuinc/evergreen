@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button, useDisclosure } from "@heroui/react";
 import { Settings } from "lucide-react";
-import { useOmnichannelChat } from "@/hooks/useOmnichannelChat";
+import { useOmnichannelChat } from "@/hooks/marketing/useOmnichannelChat";
 import ConversationList from "@/components/omnichannel/ConversationList";
 import ChatWindow from "@/components/omnichannel/ChatWindow";
 import ConversationDetail from "@/components/omnichannel/ConversationDetail";

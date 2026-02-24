@@ -1,7 +1,7 @@
 "use client";
 
 import { Checkbox, Spinner } from "@heroui/react";
-import { usePermissions } from "@/hooks/usePermissions";
+import { usePermissions } from "@/hooks/rbac/usePermissions";
 
 export default function PermissionsPage() {
   const {

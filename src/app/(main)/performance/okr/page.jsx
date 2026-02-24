@@ -38,7 +38,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { useOkr } from "@/hooks/useOkr";
+import { useOkr } from "@/hooks/performance/useOkr";
 import {
   OKR_STATUSES,
   KR_STATUSES,
@@ -47,7 +47,7 @@ import {
   QUARTER_OPTIONS,
   getStatusConfig,
   computeKrProgress,
-} from "@/lib/okrConstants";
+} from "@/lib/performance/okrConstants";
 
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
   const y = new Date().getFullYear() - 2 + i;

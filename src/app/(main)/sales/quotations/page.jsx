@@ -15,7 +15,7 @@ import {
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useCrmQuotations } from "@/hooks/useCrmQuotations";
+import { useCrmQuotations } from "@/hooks/sales/useCrmQuotations";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

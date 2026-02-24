@@ -14,7 +14,7 @@ import {
   SelectItem,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
-import { useDepartments } from "@/hooks/useDepartments";
+import { useDepartments } from "@/hooks/hr/useDepartments";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

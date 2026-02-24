@@ -6,7 +6,7 @@ import Loading from "@/components/ui/Loading";
 import Image from "next/image";
 import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
-import { useSignIn } from "@/hooks/useSignin";
+import { useSignIn } from "@/hooks/shared/useSignin";
 import PinInput from "@/components/auth/PinInput";
 import { supabase } from "@/lib/supabase/client";
 

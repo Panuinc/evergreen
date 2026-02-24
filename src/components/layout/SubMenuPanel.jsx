@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Chip } from "@heroui/react";
-import { useMenuBadges } from "@/hooks/useMenuBadges";
+import { useMenuBadges } from "@/hooks/shared/useMenuBadges";
 
 export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }) {
   const pathname = usePathname();

@@ -1,4 +1,4 @@
-import { EVALUATION_CATEGORIES } from "@/lib/evaluationCriteria";
+import { EVALUATION_CATEGORIES } from "@/lib/performance/evaluationCriteria";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_MODEL = "google/gemini-2.5-flash-lite";

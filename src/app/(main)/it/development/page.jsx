@@ -18,7 +18,7 @@ import {
   Divider,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, GitBranch, Clock } from "lucide-react";
-import { useItDevRequests } from "@/hooks/useItDevRequests";
+import { useItDevRequests } from "@/hooks/it/useItDevRequests";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

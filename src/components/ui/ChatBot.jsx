@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button, Input, ScrollShadow } from "@heroui/react";
 import { MessageCircle, X, Trash2, Send, Users, ShoppingCart, Truck, Landmark, Bot } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useChat } from "@/hooks/useChat";
+import { useChat } from "@/hooks/shared/useChat";
 
 const AGENT_ICONS = {
   users: Users,

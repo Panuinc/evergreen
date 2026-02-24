@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { Chip } from "@heroui/react";
-import { useAccessLogs } from "@/hooks/useAccessLogs";
+import { useAccessLogs } from "@/hooks/rbac/useAccessLogs";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [

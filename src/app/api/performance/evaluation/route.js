@@ -4,7 +4,7 @@ import {
   computeCategoryAverages,
   computeOverallScore,
   computeGrade,
-} from "@/lib/evaluationCriteria";
+} from "@/lib/performance/evaluationCriteria";
 
 export async function GET(request) {
   const auth = await withAuth();

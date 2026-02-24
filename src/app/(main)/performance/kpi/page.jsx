@@ -36,7 +36,7 @@ import {
   Users,
   FileText,
 } from "lucide-react";
-import { useKpi } from "@/hooks/useKpi";
+import { useKpi } from "@/hooks/performance/useKpi";
 import LineChart from "@/components/charts/LineChart";
 import {
   KPI_CATEGORIES,
@@ -48,7 +48,7 @@ import {
   computeKpiProgress,
   getCategoryLabel,
   getFrequencyLabel,
-} from "@/lib/kpiConstants";
+} from "@/lib/performance/kpiConstants";
 
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
   const y = new Date().getFullYear() - 2 + i;

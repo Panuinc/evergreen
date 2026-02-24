@@ -14,7 +14,7 @@ import {
   Chip,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Download } from "lucide-react";
-import { useMaintenance } from "@/hooks/useMaintenance";
+import { useMaintenance } from "@/hooks/tms/useMaintenance";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 
