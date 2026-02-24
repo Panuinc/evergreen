@@ -466,12 +466,12 @@ async function runSync(supabase, requestedTables, send) {
       const entries = await bcODataGet(
         "ItemLedgerEntries",
         {
-          $filter: "Posting_Date ge 2026-01-01",
+          $filter: "Posting_Date ge 2026-01-01 and (Entry_Type eq 'Consumption' or Entry_Type eq 'Output')",
           $select:
-            "Entry_No,Posting_Date,DocumentDate,Entry_Type,Document_Type,Document_No,Item_No,Description,CHH_Employee_Code,CHH_Employee_Name,BWK_Descriptin_2,Location_Code,Lot_No,Serial_No,Expiration_Date,Quantity,Unit_of_Measure_Code,Remaining_Quantity,Invoiced_Quantity,Completely_Invoiced,UnitCostExp,Cost_Amount_Expected,UnitCostActual,Cost_Amount_Actual,Sales_Amount_Expected,Sales_Amount_Actual,Open,Global_Dimension_1_Code,Global_Dimension_2_Code,Order_Type,Order_No,Order_Line_No,Document_Line_No,Item_Description,Variant_Code,Return_Reason_Code,Package_No,BWK_Bin_Code,BWK_Base_Unit_of_Measure,BWK_Total_Gross_Weight,BWK_Total_Net_Weight,RunningBalance,RunningBalanceLoc,Shipped_Qty_Not_Returned,Reserved_Quantity,Qty_per_Unit_of_Measure,Cost_Amount_Non_Invtbl,Cost_Amount_Expected_ACY,Cost_Amount_Actual_ACY,Cost_Amount_Non_Invtbl_ACY,Drop_Shipment,Assemble_to_Order,Applied_Entry_to_Adjust,VendCustCode,BWK_Vendor_Customer_Name,BWK_Create_By,Prod_Order_Comp_Line_No,Job_No,Job_Task_No,Dimension_Set_ID,Shortcut_Dimension_3_Code,Shortcut_Dimension_4_Code,Shortcut_Dimension_5_Code,Shortcut_Dimension_6_Code,Shortcut_Dimension_7_Code,Shortcut_Dimension_8_Code,Source_Type,Source_No,Source_Description,Source_Order_No",
+            "Entry_No,Posting_Date,Entry_Type,Document_No,Item_No,Description,Location_Code,Quantity,Unit_of_Measure_Code,Remaining_Quantity,Invoiced_Quantity,Completely_Invoiced,Cost_Amount_Expected,Cost_Amount_Actual,Sales_Amount_Expected,Sales_Amount_Actual,Open,Global_Dimension_1_Code,Global_Dimension_2_Code,Order_Type,Order_No,Order_Line_No,Item_Description,Variant_Code,BWK_Bin_Code,BWK_Base_Unit_of_Measure,Source_Type,Source_No,Source_Description,BWK_Create_By",
           $orderby: "Entry_No desc",
         },
-        { timeout: 180_000 },
+        { timeout: 180_000, maxPageSize: 500 },
       );
       const entryRows = entries.map((e) => ({
         id: String(e.Entry_No),
