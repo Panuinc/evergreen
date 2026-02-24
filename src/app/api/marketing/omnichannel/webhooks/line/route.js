@@ -15,10 +15,17 @@ export async function POST(request) {
   }
 
   const body = JSON.parse(rawBody);
+  const events = body.events || [];
+
+  // LINE verification sends empty events — return 200 immediately
+  if (events.length === 0) {
+    return Response.json({ status: "ok" });
+  }
+
   const supabase = getServiceSupabase();
 
   // Process all events sequentially — LINE allows up to 30 seconds
-  for (const event of body.events || []) {
+  for (const event of events) {
     if (event.type === "message") {
       try {
         await handleMessage(supabase, event);
