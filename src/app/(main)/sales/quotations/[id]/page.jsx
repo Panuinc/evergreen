@@ -95,8 +95,8 @@ export default function QuotationEditorPage() {
         <div className="flex items-center gap-3">
           <Button
             isIconOnly
-            variant="light"
-            size="sm"
+            variant="bordered"
+            size="md"
             radius="md"
             onPress={() => router.push("/sales/quotations")}
           >
@@ -105,7 +105,7 @@ export default function QuotationEditorPage() {
           <h2 className="text-lg font-semibold">
             {quotation.quotationNo || "ใบเสนอราคาใหม่"}
           </h2>
-          <Chip size="sm" variant="flat" color={statusColor}>
+          <Chip variant="bordered" size="md" radius="md" color={statusColor}>
             {status}
           </Chip>
         </div>

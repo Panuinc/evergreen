@@ -53,7 +53,7 @@ export default function BcItemsPage() {
         return <span className="font-medium">{item.displayName}</span>;
       case "projectName":
         return item.projectName ? (
-          <Chip variant="flat" size="sm" color="secondary">
+          <Chip variant="bordered" size="md" radius="md" color="secondary">
             {item.projectName}
           </Chip>
         ) : (

@@ -160,7 +160,7 @@ export default function BcSalesOrdersPage() {
                     <TableCell>{line.description || "-"}</TableCell>
                     <TableCell>
                       {line.projectName ? (
-                        <Chip variant="flat" size="sm" color="secondary">
+                        <Chip variant="bordered" size="md" radius="md" color="secondary">
                           {line.projectName}
                         </Chip>
                       ) : (

@@ -186,7 +186,7 @@ export default function ResourcesPage() {
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
               ยกเลิก
             </Button>
-            <Button variant="solid" size="md" radius="md" onPress={handleSave}>
+            <Button variant="bordered" size="md" radius="md" onPress={handleSave}>
               {editingResource ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>

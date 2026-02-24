@@ -46,14 +46,14 @@ export default function AlertsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center w-full h-full">
         <Spinner />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full h-full gap-6">
+    <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">การแจ้งเตือน</h2>
         <Button variant="bordered" size="md" radius="md" startContent={<RefreshCw size={16} />} onPress={loadAlerts}>
@@ -127,8 +127,9 @@ export default function AlertsPage() {
                     <div className="flex items-center gap-2 mb-1">
                       <p className="font-semibold text-sm">{alert.title}</p>
                       <Chip
-                        size="sm"
-                        variant="flat"
+                        variant="bordered"
+                        size="md"
+                        radius="md"
                         color={alert.severity === "critical" ? "danger" : "warning"}
                       >
                         {alert.severity === "critical" ? "วิกฤต" : "เตือน"}
@@ -136,7 +137,7 @@ export default function AlertsPage() {
                     </div>
                     <p className="text-sm text-default-500">{alert.detail}</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Chip size="sm" variant="bordered" startContent={<Icon size={12} />}>
+                      <Chip variant="bordered" size="md" radius="md" startContent={<Icon size={12} />}>
                         {TYPE_LABELS[alert.type] || alert.type}
                       </Chip>
                       {alert.date && (

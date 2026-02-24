@@ -53,7 +53,7 @@ export default function SalesOrderDetailPage() {
     switch (columnKey) {
       case "projectName":
         return item.projectName ? (
-          <Chip variant="flat" size="sm" color="secondary">
+          <Chip variant="bordered" size="md" radius="md" color="secondary">
             {item.projectName}
           </Chip>
         ) : (
@@ -77,7 +77,7 @@ export default function SalesOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center w-full h-full">
         <Spinner />
       </div>
     );
@@ -85,7 +85,7 @@ export default function SalesOrderDetailPage() {
 
   if (!order) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div className="flex flex-col items-center justify-center w-full h-full gap-4">
         <p className="text-default-400">ไม่พบออเดอร์</p>
         <Button variant="bordered" size="md" radius="md" onPress={() => router.push("/marketing/salesOrders")}>
           กลับ
@@ -95,12 +95,12 @@ export default function SalesOrderDetailPage() {
   }
 
   return (
-    <div className="flex flex-col w-full gap-6 pb-6">
+    <div className="flex flex-col w-full h-full gap-4">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button
           isIconOnly
-          variant="light"
+          variant="bordered"
           size="md"
           radius="md"
           onPress={() => router.push("/marketing/salesOrders")}
@@ -108,13 +108,13 @@ export default function SalesOrderDetailPage() {
           <ArrowLeft size={18} />
         </Button>
         <h2 className="text-lg font-semibold">{order.No}</h2>
-        <Chip size="sm" variant="flat" color={STATUS_COLORS[order.Status] || "default"}>
+        <Chip variant="bordered" size="md" radius="md" color={STATUS_COLORS[order.Status] || "default"}>
           {order.Status}
         </Chip>
         {order.Completely_Shipped ? (
-          <Chip size="sm" variant="flat" color="success">จัดส่งแล้ว</Chip>
+          <Chip variant="bordered" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
-          <Chip size="sm" variant="flat" color="default">รอจัดส่ง</Chip>
+          <Chip variant="bordered" size="md" radius="md" color="default">รอจัดส่ง</Chip>
         )}
         <div className="flex-1" />
         <Button

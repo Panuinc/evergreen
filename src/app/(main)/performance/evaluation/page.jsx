@@ -46,9 +46,9 @@ export default function EvaluationPage() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full gap-4 p-2">
+    <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <h1 className="text-2xl font-bold">ประเมินค่านิยม CHH²</h1>
+        <h1 className="text-lg font-semibold">ประเมินค่านิยม CHH²</h1>
         <p className="text-default-500 text-sm">
           ประเมินพนักงาน 6 ด้าน พร้อม Spider Chart & ประวัติเปรียบเทียบรายรอบ
         </p>
@@ -57,8 +57,9 @@ export default function EvaluationPage() {
       <Tabs
         selectedKey={hook.activeTab}
         onSelectionChange={hook.setActiveTab}
-        variant="solid"
-        color="primary"
+        variant="bordered"
+        size="md"
+        radius="md"
       >
         <Tab
           key="evaluate"
@@ -195,8 +196,9 @@ function EvaluateTab({ hook }) {
               {[5, 4, 3, 2, 1].map((s) => (
                 <Chip
                   key={s}
-                  size="sm"
-                  variant="flat"
+                  size="md"
+                  radius="md"
+                  variant="bordered"
                   color={SCORE_LABELS[s].color}
                 >
                   {s} — {SCORE_LABELS[s].label} ({SCORE_LABELS[s].description})
@@ -226,7 +228,7 @@ function EvaluateTab({ hook }) {
                 <span className="text-lg font-bold">
                   {hook.overallScore.toFixed(2)}
                 </span>
-                <Chip size="sm" color={getGradeColor(hook.grade)}>
+                <Chip size="md" radius="md" color={getGradeColor(hook.grade)}>
                   {hook.grade}
                 </Chip>
               </div>
@@ -253,11 +255,11 @@ function EvaluateTab({ hook }) {
                     <span className="text-default-400 text-sm">
                       ({cat.nameTh})
                     </span>
-                    <Chip size="sm" variant="flat" color={answered === 5 ? "success" : "default"}>
+                    <Chip size="md" radius="md" variant="bordered" color={answered === 5 ? "success" : "default"}>
                       {answered}/5
                     </Chip>
                     {avg > 0 && (
-                      <Chip size="sm" variant="flat" color="primary">
+                      <Chip size="md" radius="md" variant="bordered" color="primary">
                         {avg.toFixed(1)}
                       </Chip>
                     )}
@@ -326,7 +328,7 @@ function EvaluateTab({ hook }) {
             บันทึกผลประเมิน
           </Button>
           <Button
-            variant="flat"
+            variant="bordered"
             size="md"
             radius="md"
             startContent={<Trash2 className="w-4 h-4" />}
@@ -445,7 +447,7 @@ function MyResultsTab({ hook }) {
         </Select>
 
         <Button
-          variant="flat"
+          variant="bordered"
           size="md"
           radius="md"
           onPress={() => loadCompanyAverage(selectedPeriod)}
@@ -533,7 +535,7 @@ function MyResultsTab({ hook }) {
                             {r.overallScore?.toFixed(2)}
                           </td>
                           <td className="text-center py-2 px-3">
-                            <Chip size="sm" color={getGradeColor(r.grade)}>
+                            <Chip size="md" radius="md" color={getGradeColor(r.grade)}>
                               {r.grade}
                             </Chip>
                           </td>
@@ -727,7 +729,7 @@ function AdminTab({ hook }) {
                         {row.overallScore?.toFixed(2)}
                       </td>
                       <td className="text-center py-2 px-3">
-                        <Chip size="sm" color={getGradeColor(row.grade)}>
+                        <Chip size="md" radius="md" color={getGradeColor(row.grade)}>
                           {row.grade}
                         </Chip>
                       </td>

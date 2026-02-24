@@ -55,7 +55,7 @@ export default function WarehouseGroupPage() {
         return <span className="font-medium">{item.displayName}</span>;
       case "projectName":
         return item.projectName ? (
-          <Chip variant="flat" size="sm" color="secondary">
+          <Chip variant="bordered" size="md" radius="md" color="secondary">
             {item.projectName}
           </Chip>
         ) : (
@@ -89,7 +89,7 @@ export default function WarehouseGroupPage() {
       }
       case "type":
         return (
-          <Chip variant="flat" size="sm" color="default">
+          <Chip variant="bordered" size="md" radius="md" color="default">
             {item.type || "-"}
           </Chip>
         );
@@ -99,7 +99,7 @@ export default function WarehouseGroupPage() {
             isIconOnly
             size="md"
             radius="md"
-            variant="light"
+            variant="bordered"
             onPress={() => setPrintItem(item)}
           >
             <Printer size={16} />
@@ -111,9 +111,9 @@ export default function WarehouseGroupPage() {
   }, []);
 
   return (
-    <div className="flex flex-col w-full gap-4">
+    <div className="flex flex-col w-full h-full gap-4">
       <div className="grid grid-cols-3 gap-3">
-        <Card shadow="none" className="bg-default-50">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="gap-1">
             <p className="text-xs text-default-500">รายการสินค้า</p>
             <p className="text-2xl font-bold">
@@ -121,7 +121,7 @@ export default function WarehouseGroupPage() {
             </p>
           </CardBody>
         </Card>
-        <Card shadow="none" className="bg-default-50">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="gap-1">
             <p className="text-xs text-default-500">จำนวนคงเหลือ</p>
             <p className="text-2xl font-bold text-success">
@@ -129,7 +129,7 @@ export default function WarehouseGroupPage() {
             </p>
           </CardBody>
         </Card>
-        <Card shadow="none" className="bg-default-50">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="gap-1">
             <p className="text-xs text-default-500">มูลค่า (ต้นทุน)</p>
             <p className="text-2xl font-bold text-primary">

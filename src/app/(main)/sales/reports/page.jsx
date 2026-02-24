@@ -18,7 +18,7 @@ export default function SalesReportsPage() {
 
   if (loading || !data) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center w-full h-full">
         <Spinner />
       </div>
     );
@@ -27,13 +27,13 @@ export default function SalesReportsPage() {
   const kpis = data.kpis || {};
 
   return (
-    <div className="flex flex-col w-full h-full gap-4 p-2">
+    <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">รายงานการขาย</h1>
+        <h1 className="text-lg font-semibold">รายงานการขาย</h1>
       </div>
 
       {/* Full-width Pipeline Chart */}
-      <Card className="p-4">
+      <Card shadow="none" className="border border-default-200 p-4">
         <p className="text-lg font-semibold mb-4">วิเคราะห์ไปป์ไลน์</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.pipelineByStage || []}>
@@ -51,7 +51,7 @@ export default function SalesReportsPage() {
       </Card>
 
       {/* Revenue Trend */}
-      <Card className="p-4">
+      <Card shadow="none" className="border border-default-200 p-4">
         <p className="text-lg font-semibold mb-4">แนวโน้มรายได้</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.revenueByMonth || []}>
@@ -70,7 +70,7 @@ export default function SalesReportsPage() {
 
       {/* Win/Loss and Salespeople side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4">
+        <Card shadow="none" className="border border-default-200 p-4">
           <p className="text-lg font-semibold mb-4">อัตราการชนะ</p>
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -84,7 +84,7 @@ export default function SalesReportsPage() {
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card shadow="none" className="border border-default-200 p-4">
           <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(data.topSalespeople || []).map((person, i) => (

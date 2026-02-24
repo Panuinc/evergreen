@@ -14,7 +14,7 @@ export default function TmsDashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center w-full h-full">
         <Spinner />
       </div>
     );
@@ -34,9 +34,7 @@ export default function TmsDashboardPage() {
   ];
 
   return (
-    <div className="flex flex-col w-full h-full gap-6">
-      <h2 className="text-lg font-semibold">แดชบอร์ดระบบขนส่ง</h2>
-
+    <div className="flex flex-col w-full h-full gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map((card) => (
           <Card key={card.title} shadow="none" className="border border-default-200">

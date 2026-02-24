@@ -160,7 +160,7 @@ export default function ActionsPage() {
             <Button variant="bordered" size="md" radius="md" onPress={onClose}>
               ยกเลิก
             </Button>
-            <Button variant="solid" size="md" radius="md" onPress={handleSave}>
+            <Button variant="bordered" size="md" radius="md" onPress={handleSave}>
               {editingAction ? "อัปเดต" : "สร้าง"}
             </Button>
           </ModalFooter>

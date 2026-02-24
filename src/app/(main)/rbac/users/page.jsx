@@ -258,7 +258,7 @@ export default function UsersPage() {
               ยกเลิก
             </Button>
             <Button
-              variant="solid"
+              variant="bordered"
               size="md"
               radius="md"
               onPress={handleCreateAccount}

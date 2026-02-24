@@ -91,7 +91,7 @@ function Cp30Settings() {
   return (
     <div className="flex flex-col gap-4">
       {/* Printer Connection */}
-      <Card shadow="none" className="bg-default-50 border-2 border-default">
+      <Card shadow="none" className="border border-default-200">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
           <p className="font-semibold text-lg">เครื่องพิมพ์</p>
@@ -102,18 +102,18 @@ function Cp30Settings() {
               Chainway CP30 (Network — 192.168.1.110:9100)
             </p>
             {connected === true && (
-              <Chip size="sm" color="success" variant="flat">
+              <Chip variant="bordered" size="md" radius="md" color="success">
                 เชื่อมต่อแล้ว
               </Chip>
             )}
             {connected === false && (
-              <Chip size="sm" color="danger" variant="flat">
+              <Chip variant="bordered" size="md" radius="md" color="danger">
                 ไม่พบเครื่องพิมพ์
               </Chip>
             )}
           </div>
           <Button
-            variant="flat"
+            variant="bordered"
             size="md"
             radius="md"
             onPress={handleTestConnection}
@@ -126,7 +126,7 @@ function Cp30Settings() {
       </Card>
 
       {/* Print Settings */}
-      <Card shadow="none" className="bg-default-50 border-2 border-default">
+      <Card shadow="none" className="border border-default-200">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">ตั้งค่าการพิมพ์</p>
         </CardHeader>
@@ -234,7 +234,7 @@ function Cp30Settings() {
       </Card>
 
       {/* Label Content */}
-      <Card shadow="none" className="bg-default-50 border-2 border-default">
+      <Card shadow="none" className="border border-default-200">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">เนื้อหา Label</p>
         </CardHeader>
@@ -263,7 +263,7 @@ function Cp30Settings() {
       {/* Actions */}
       <div className="flex gap-2">
         <Button
-          color="primary"
+          variant="bordered"
           size="md"
           radius="md"
           onPress={handleSave}
@@ -272,8 +272,7 @@ function Cp30Settings() {
           บันทึก
         </Button>
         <Button
-          color="success"
-          variant="flat"
+          variant="bordered"
           size="md"
           radius="md"
           onPress={handleTestPrint}
@@ -282,7 +281,7 @@ function Cp30Settings() {
         >
           พิมพ์ทดสอบ
         </Button>
-        <Button variant="flat" size="md" radius="md" onPress={handleReset}>
+        <Button variant="bordered" size="md" radius="md" onPress={handleReset}>
           รีเซ็ตค่าเริ่มต้น
         </Button>
       </div>
@@ -343,7 +342,7 @@ function TscTeSettings() {
   return (
     <div className="flex flex-col gap-4">
       {/* Printer Connection */}
-      <Card shadow="none" className="bg-default-50 border-2 border-default">
+      <Card shadow="none" className="border border-default-200">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
           <p className="font-semibold text-lg">เครื่องพิมพ์</p>
@@ -372,7 +371,7 @@ function TscTeSettings() {
           </div>
           <div className="flex gap-2 items-center">
             <Button
-              variant="flat"
+              variant="bordered"
               size="md"
               radius="md"
               onPress={handleTestConnection}
@@ -382,12 +381,12 @@ function TscTeSettings() {
               ทดสอบการเชื่อมต่อ
             </Button>
             {connected === true && (
-              <Chip size="sm" color="success" variant="flat">
+              <Chip variant="bordered" size="md" radius="md" color="success">
                 เชื่อมต่อแล้ว
               </Chip>
             )}
             {connected === false && (
-              <Chip size="sm" color="danger" variant="flat">
+              <Chip variant="bordered" size="md" radius="md" color="danger">
                 ไม่พบเครื่องพิมพ์
               </Chip>
             )}
@@ -396,7 +395,7 @@ function TscTeSettings() {
       </Card>
 
       {/* Print Settings */}
-      <Card shadow="none" className="bg-default-50 border-2 border-default">
+      <Card shadow="none" className="border border-default-200">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">ตั้งค่าการพิมพ์</p>
         </CardHeader>
@@ -493,7 +492,7 @@ function TscTeSettings() {
       {/* Actions */}
       <div className="flex gap-2">
         <Button
-          color="primary"
+          variant="bordered"
           size="md"
           radius="md"
           onPress={handleSave}
@@ -502,7 +501,7 @@ function TscTeSettings() {
           บันทึก
         </Button>
         <Button
-          variant="flat"
+          variant="bordered"
           size="md"
           radius="md"
           onPress={handleReset}
@@ -519,8 +518,8 @@ function TscTeSettings() {
 
 export default function PrinterConfigPage() {
   return (
-    <div className="flex flex-col w-full gap-4 max-w-2xl">
-      <Tabs aria-label="Printer" variant="underlined" color="primary" size="lg">
+    <div className="flex flex-col w-full h-full gap-4">
+      <Tabs aria-label="Printer" variant="bordered" size="md" radius="md">
         <Tab key="cp30" title="Chainway CP30 (RFID)">
           <Cp30Settings />
         </Tab>

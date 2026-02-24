@@ -43,7 +43,7 @@ export default function ConfigCheckPage() {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">ตรวจสอบการตั้งค่า</h1>
+        <h1 className="text-lg font-semibold">ตรวจสอบการตั้งค่า</h1>
         <Button
           variant="bordered"
           size="md"
@@ -57,7 +57,7 @@ export default function ConfigCheckPage() {
       </div>
 
       {loading && !status ? (
-        <div className="flex items-center justify-center py-12">
+        <div className="flex items-center justify-center w-full h-full">
           <Spinner />
         </div>
       ) : (
@@ -70,10 +70,8 @@ export default function ConfigCheckPage() {
             return (
               <Card
                 key={service.key}
-                variant="bordered"
-                radius="md"
                 shadow="none"
-                className="border-2 border-default"
+                className="border border-default-200"
               >
                 <CardBody className="gap-4">
                   <div className="flex items-center justify-between">

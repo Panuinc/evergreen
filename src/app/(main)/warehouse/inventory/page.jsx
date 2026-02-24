@@ -48,17 +48,17 @@ export default function WarehouseInventoryPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center w-full h-64">
-        <Spinner size="lg" label="กำลังโหลดข้อมูล..." />
+      <div className="flex items-center justify-center w-full h-full">
+        <Spinner />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full gap-4">
+    <div className="flex flex-col w-full h-full gap-4">
       {/* Total Summary */}
       <div className="grid grid-cols-3 gap-3">
-        <Card shadow="none" className="bg-default-50 border-2 border-default">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="gap-1">
             <p className="text-xs text-default-500">รายการสินค้าทั้งหมด</p>
             <p className="text-2xl font-bold">
@@ -66,7 +66,7 @@ export default function WarehouseInventoryPage() {
             </p>
           </CardBody>
         </Card>
-        <Card shadow="none" className="bg-default-50 border-2 border-default">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="gap-1">
             <p className="text-xs text-default-500">จำนวนคงเหลือรวม</p>
             <p className="text-2xl font-bold text-success">
@@ -74,7 +74,7 @@ export default function WarehouseInventoryPage() {
             </p>
           </CardBody>
         </Card>
-        <Card shadow="none" className="bg-default-50 border-2 border-default">
+        <Card shadow="none" className="border border-default-200">
           <CardBody className="gap-1">
             <p className="text-xs text-default-500">มูลค่าคลังสินค้า (ต้นทุน)</p>
             <p className="text-2xl font-bold text-primary">
@@ -90,7 +90,7 @@ export default function WarehouseInventoryPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {sortedGroups.map((group) => (
           <Link key={group} href={`/warehouse/inventory/${encodeURIComponent(group)}`}>
-            <Card shadow="none" className="bg-default-50 hover:bg-default-100 border-2 border-default transition-colors cursor-pointer h-full">
+            <Card shadow="none" className="border border-default-200 hover:bg-default-100 transition-colors cursor-pointer h-full">
               <CardBody className="gap-2">
                 <div className="flex items-center gap-2">
                   <Package size={16} className="text-default-500" />

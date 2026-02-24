@@ -83,7 +83,7 @@ export default function LeadsPage() {
           return item.leadPhone || "-";
         case "leadSource":
           return item.leadSource ? (
-            <Chip variant="flat" size="sm">
+            <Chip variant="bordered" size="md" radius="md">
               {item.leadSource}
             </Chip>
           ) : (

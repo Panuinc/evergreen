@@ -66,12 +66,12 @@ export default function OmnichannelPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-1 min-h-0 border-2 border-default rounded-xl overflow-hidden">
+      <div className="flex flex-1 min-h-0 border border-default-200 rounded-xl overflow-hidden">
         {/* Conversation List - always visible on desktop, conditional on mobile */}
         <div
           className={`${
             mobileView === "list" ? "flex" : "hidden"
-          } md:flex flex-col w-full md:w-4/12 border-r-2 border-default`}
+          } md:flex flex-col w-full md:w-4/12 border-r border-default-200`}
         >
           <ConversationList
             conversations={conversations}

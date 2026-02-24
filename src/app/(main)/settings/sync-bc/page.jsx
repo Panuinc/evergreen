@@ -183,7 +183,7 @@ function BciImportSection() {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold">นำเข้าจากไฟล์ (BCI Export)</h2>
+          <h2 className="text-lg font-semibold">นำเข้าจากไฟล์ (BCI Export)</h2>
           <p className="text-sm text-default-500">
             อัปโหลดไฟล์ Excel/CSV ที่ export จาก BCI LeadManager
           </p>
@@ -368,11 +368,11 @@ function BcSyncSection() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold">Business Central (BC)</h2>
+          <h2 className="text-lg font-semibold">Business Central (BC)</h2>
           <p className="text-sm text-default-500">ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC</p>
         </div>
         <Button
-          color="primary"
+          variant="bordered"
           size="md"
           radius="md"
           startContent={syncingAll ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
@@ -431,8 +431,8 @@ function BcSyncSection() {
 
 export default function SyncPage() {
   return (
-    <div className="flex flex-col w-full gap-6">
-      <h1 className="text-xl font-bold">ซิงค์ข้อมูล</h1>
+    <div className="flex flex-col w-full h-full gap-4">
+      <h1 className="text-lg font-semibold">ซิงค์ข้อมูล</h1>
 
       <BcSyncSection />
 

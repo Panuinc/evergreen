@@ -66,9 +66,9 @@ export default function OkrPage() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full gap-4 p-2">
+    <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <h1 className="text-2xl font-bold">OKR (Objectives & Key Results)</h1>
+        <h1 className="text-lg font-semibold">OKR (Objectives & Key Results)</h1>
         <p className="text-default-500 text-sm">
           ตั้งเป้าหมายและติดตามความคืบหน้าด้วย Key Results
         </p>
@@ -77,8 +77,9 @@ export default function OkrPage() {
       <Tabs
         selectedKey={hook.activeTab}
         onSelectionChange={hook.setActiveTab}
-        variant="solid"
-        color="primary"
+        variant="bordered"
+        size="md"
+        radius="md"
       >
         <Tab
           key="myOkr"
@@ -269,10 +270,10 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
           <div className="flex flex-col gap-1 flex-1">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold">{objective.title}</h3>
-              <Chip size="sm" color={statusConfig.color} variant="flat">
+              <Chip size="md" radius="md" color={statusConfig.color} variant="bordered">
                 {statusConfig.label}
               </Chip>
-              <Chip size="sm" variant="bordered">
+              <Chip size="md" radius="md" variant="bordered">
                 {objective.period}
               </Chip>
             </div>
@@ -291,7 +292,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                     isIconOnly
                     size="md"
                     radius="md"
-                    variant="light"
+                    variant="bordered"
                     onPress={() => hook.handleOpenObjectiveForm(objective)}
                   >
                     <Pencil className="w-4 h-4" />
@@ -303,7 +304,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                       isIconOnly
                       size="md"
                       radius="md"
-                      variant="light"
+                      variant="bordered"
                       color="primary"
                       onPress={() => hook.handleUpdateObjectiveStatus(objective.id, "active")}
                     >
@@ -317,7 +318,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                       isIconOnly
                       size="md"
                       radius="md"
-                      variant="light"
+                      variant="bordered"
                       color="success"
                       onPress={() => hook.handleUpdateObjectiveStatus(objective.id, "completed")}
                     >
@@ -330,7 +331,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                     isIconOnly
                     size="md"
                     radius="md"
-                    variant="light"
+                    variant="bordered"
                     color="danger"
                     onPress={() => hook.handleDeleteObjective(objective.id)}
                   >
@@ -357,7 +358,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
 
       <CardBody className="pt-2">
         <Button
-          variant="light"
+          variant="bordered"
           size="md"
           radius="md"
           className="mb-2"
@@ -376,7 +377,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
               <Button
                 size="md"
                 radius="md"
-                variant="flat"
+                variant="bordered"
                 color="primary"
                 startContent={<Plus className="w-3 h-3" />}
                 className="self-start"
@@ -406,7 +407,7 @@ function KeyResultRow({ kr, hook, editable }) {
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{kr.title}</span>
-          <Chip size="sm" color={statusConfig.color} variant="flat" className="text-xs">
+          <Chip size="md" radius="md" color={statusConfig.color} variant="bordered">
             {statusConfig.label}
           </Chip>
         </div>
@@ -427,7 +428,7 @@ function KeyResultRow({ kr, hook, editable }) {
               isIconOnly
               size="md"
               radius="md"
-              variant="light"
+              variant="bordered"
               color="primary"
               onPress={() => hook.handleOpenCheckin(kr)}
             >
@@ -439,7 +440,7 @@ function KeyResultRow({ kr, hook, editable }) {
               isIconOnly
               size="md"
               radius="md"
-              variant="light"
+              variant="bordered"
               onPress={() => hook.handleOpenKrForm(kr.objectiveId, kr)}
             >
               <Pencil className="w-3 h-3" />
@@ -450,7 +451,7 @@ function KeyResultRow({ kr, hook, editable }) {
               isIconOnly
               size="md"
               radius="md"
-              variant="light"
+              variant="bordered"
               color="danger"
               onPress={() => hook.handleDeleteKr(kr.id)}
             >
@@ -546,7 +547,7 @@ function ObjectiveModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={objectiveModal.onClose}>
+          <Button variant="bordered" size="md" radius="md" onPress={objectiveModal.onClose}>
             ยกเลิก
           </Button>
           <Button
@@ -655,7 +656,7 @@ function KrModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={krModal.onClose}>
+          <Button variant="bordered" size="md" radius="md" onPress={krModal.onClose}>
             ยกเลิก
           </Button>
           <Button
@@ -717,7 +718,7 @@ function CheckinModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={checkinModal.onClose}>
+          <Button variant="bordered" size="md" radius="md" onPress={checkinModal.onClose}>
             ยกเลิก
           </Button>
           <Button

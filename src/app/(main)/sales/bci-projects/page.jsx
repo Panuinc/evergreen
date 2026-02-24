@@ -194,7 +194,7 @@ export default function BciProjectsPage() {
       case "projectStage": {
         const color = stageColorMap[item.projectStage] || "default";
         return item.projectStage ? (
-          <Chip variant="flat" size="sm" color={color}>
+          <Chip variant="bordered" size="md" radius="md" color={color}>
             {item.projectStage}
           </Chip>
         ) : (
@@ -203,7 +203,7 @@ export default function BciProjectsPage() {
       }
       case "projectStageStatus":
         return item.projectStageStatus ? (
-          <Chip variant="dot" size="sm" color="primary">
+          <Chip variant="bordered" size="md" radius="md" color="primary">
             {item.projectStageStatus}
           </Chip>
         ) : (
@@ -211,7 +211,7 @@ export default function BciProjectsPage() {
         );
       case "category":
         return item.category ? (
-          <Chip variant="flat" size="sm" color="secondary">
+          <Chip variant="bordered" size="md" radius="md" color="secondary">
             {item.category}
           </Chip>
         ) : (

@@ -51,7 +51,7 @@ export default function QuotationEditorPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center w-full h-full">
         <Spinner />
       </div>
     );
@@ -59,7 +59,7 @@ export default function QuotationEditorPage() {
 
   if (!quotation) {
     return (
-      <div className="flex items-center justify-center h-full text-default-400">
+      <div className="flex items-center justify-center w-full h-full text-default-400">
         ไม่พบใบเสนอราคา
       </div>
     );
@@ -166,15 +166,15 @@ export default function QuotationEditorPage() {
         <div className="flex items-center gap-3">
           <Button
             isIconOnly
-            variant="light"
-            size="sm"
+            variant="bordered"
+            size="md"
             radius="md"
             onPress={() => router.push("/marketing/omnichannel/quotations")}
           >
             <ArrowLeft size={18} />
           </Button>
           <h2 className="text-lg font-semibold">{quotation.quotationNumber}</h2>
-          <Chip size="sm" variant="flat" color={status.color}>
+          <Chip variant="bordered" size="md" radius="md" color={status.color}>
             {status.label}
           </Chip>
         </div>
@@ -190,7 +190,7 @@ export default function QuotationEditorPage() {
           </Button>
           {canEdit && (
             <Button
-              color="primary"
+              variant="bordered"
               size="md"
               radius="md"
               onPress={handleSave}
@@ -337,7 +337,7 @@ export default function QuotationEditorPage() {
         <div className="flex gap-2 justify-end pb-4">
           {canSubmit && (
             <Button
-              color="primary"
+              variant="bordered"
               size="md"
               radius="md"
               startContent={<Send size={14} />}
@@ -360,6 +360,7 @@ export default function QuotationEditorPage() {
                 ไม่อนุมัติ
               </Button>
               <Button
+                variant="bordered"
                 color="success"
                 size="md"
                 radius="md"
@@ -373,7 +374,7 @@ export default function QuotationEditorPage() {
           )}
           {canConfirmPayment && (
             <Button
-              color="primary"
+              variant="bordered"
               size="md"
               radius="md"
               startContent={<Banknote size={14} />}

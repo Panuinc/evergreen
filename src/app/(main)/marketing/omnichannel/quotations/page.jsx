@@ -62,14 +62,14 @@ export default function QuotationListPage() {
         );
       case "channelType":
         return (
-          <Chip size="sm" variant="flat">
+          <Chip variant="bordered" size="md" radius="md">
             {item.channelType}
           </Chip>
         );
       case "quotationStatus": {
         const s = STATUS_MAP[item.quotationStatus] || STATUS_MAP.draft;
         return (
-          <Chip size="sm" variant="flat" color={s.color}>
+          <Chip variant="bordered" size="md" radius="md" color={s.color}>
             {s.label}
           </Chip>
         );

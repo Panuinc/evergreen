@@ -39,7 +39,7 @@ export default function SalesDashboardPage() {
 
   if (loading || !data) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center w-full h-full">
         <Spinner />
       </div>
     );
@@ -91,11 +91,11 @@ export default function SalesDashboardPage() {
   ];
 
   return (
-    <div className="flex flex-col w-full h-full gap-4 p-2">
+    <div className="flex flex-col w-full h-full gap-4">
       {/* KPI Cards Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {kpiCards.map((card) => (
-          <Card key={card.label} className="p-4">
+          <Card key={card.label} shadow="none" className="border border-default-200 p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
                 <card.icon className="w-5 h-5 text-primary" />
@@ -112,7 +112,7 @@ export default function SalesDashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Pipeline by Stage */}
-        <Card className="p-4">
+        <Card shadow="none" className="border border-default-200 p-4">
           <p className="text-lg font-semibold mb-4">ไปป์ไลน์ตามขั้นตอน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.pipelineByStage || []}>
@@ -132,7 +132,7 @@ export default function SalesDashboardPage() {
         </Card>
 
         {/* Revenue by Month */}
-        <Card className="p-4">
+        <Card shadow="none" className="border border-default-200 p-4">
           <p className="text-lg font-semibold mb-4">รายได้ตามเดือน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.revenueByMonth || []}>
@@ -155,7 +155,7 @@ export default function SalesDashboardPage() {
       {/* Bottom Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Top Salespeople */}
-        <Card className="p-4">
+        <Card shadow="none" className="border border-default-200 p-4">
           <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(data.topSalespeople || []).map((person, i) => (
@@ -188,7 +188,7 @@ export default function SalesDashboardPage() {
         </Card>
 
         {/* Recent Activities */}
-        <Card className="p-4">
+        <Card shadow="none" className="border border-default-200 p-4">
           <p className="text-lg font-semibold mb-4">กิจกรรมล่าสุด</p>
           <div className="flex flex-col gap-3">
             {(data.recentActivities || []).map((activity, i) => {

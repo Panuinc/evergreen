@@ -75,9 +75,9 @@ export default function Feedback360Page() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full gap-4 p-2">
+    <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <h1 className="text-2xl font-bold">ประเมิน 360 องศา</h1>
+        <h1 className="text-lg font-semibold">ประเมิน 360 องศา</h1>
         <p className="text-default-500 text-sm">
           ประเมินรอบด้านจากหัวหน้า เพื่อนร่วมงาน ลูกน้อง และตนเอง
         </p>
@@ -86,8 +86,9 @@ export default function Feedback360Page() {
       <Tabs
         selectedKey={hook.activeTab}
         onSelectionChange={hook.setActiveTab}
-        variant="solid"
-        color="primary"
+        variant="bordered"
+        size="md"
+        radius="md"
       >
         <Tab
           key="pending"
@@ -96,7 +97,7 @@ export default function Feedback360Page() {
               <ClipboardList className="w-4 h-4" />
               <span>รอดำเนินการ</span>
               {hook.pendingReviews.length > 0 && (
-                <Chip size="sm" color="danger" variant="solid">{hook.pendingReviews.length}</Chip>
+                <Chip size="md" radius="md" color="danger" variant="bordered">{hook.pendingReviews.length}</Chip>
               )}
             </div>
           }
@@ -160,7 +161,7 @@ function PendingTab({ hook }) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h4 className="font-semibold">{revieweeName}</h4>
-                    <Chip size="sm" variant="flat" style={{ backgroundColor: relType.color + "20", color: relType.color }}>
+                    <Chip size="md" radius="md" variant="bordered" style={{ backgroundColor: relType.color + "20", color: relType.color }}>
                       {relType.label}
                     </Chip>
                   </div>
@@ -238,7 +239,7 @@ function ResultsDisplay({ results }) {
             <p className="text-sm text-default-500">คะแนนรวม</p>
             <p className="text-4xl font-bold">{results.overallScore?.toFixed(2) || "0.00"}</p>
           </div>
-          <Chip color={gradeColor} variant="flat" size="lg" className="text-xl px-4 py-2">
+          <Chip color={gradeColor} variant="bordered" size="md" radius="md">
             {grade}
           </Chip>
           <div className="text-sm text-default-400">
@@ -403,7 +404,7 @@ function CycleCard({ cycle, hook }) {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h4 className="font-semibold">{cycle.name}</h4>
-            <Chip size="sm" color={statusConfig.color} variant="flat">
+            <Chip size="md" radius="md" color={statusConfig.color} variant="bordered">
               {statusConfig.label}
             </Chip>
           </div>
@@ -413,19 +414,19 @@ function CycleCard({ cycle, hook }) {
         </div>
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           {transitions.filter((t) => t !== "cancelled").map((t) => (
-            <Button key={t} size="md" radius="md" color="primary" variant="flat" onPress={() => hook.handleTransition(cycle.id, t)}>
+            <Button key={t} size="md" radius="md" color="primary" variant="bordered" onPress={() => hook.handleTransition(cycle.id, t)}>
               {TRANSITION_LABELS[t]}
             </Button>
           ))}
           {cycle.status === "draft" && (
             <>
               <Tooltip content="แก้ไข">
-                <Button isIconOnly size="md" radius="md" variant="light" onPress={() => hook.handleOpenCycleForm(cycle)}>
+                <Button isIconOnly size="md" radius="md" variant="bordered" onPress={() => hook.handleOpenCycleForm(cycle)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
               </Tooltip>
               <Tooltip content="ลบ">
-                <Button isIconOnly size="md" radius="md" variant="light" color="danger" onPress={() => hook.handleDeleteCycle(cycle.id)}>
+                <Button isIconOnly size="md" radius="md" variant="bordered" color="danger" onPress={() => hook.handleDeleteCycle(cycle.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </Tooltip>
@@ -447,7 +448,7 @@ function CycleDetails({ hook }) {
         <h3 className="font-semibold">รายละเอียด: {cycle.name}</h3>
       </CardHeader>
       <CardBody>
-        <Tabs selectedKey={detailTab} onSelectionChange={setDetailTab} variant="underlined" size="sm">
+        <Tabs selectedKey={detailTab} onSelectionChange={setDetailTab} variant="bordered" size="md" radius="md">
           <Tab key="competencies" title="สมรรถนะ">
             <CompetenciesPanel hook={hook} />
           </Tab>
@@ -495,7 +496,7 @@ function CompetenciesPanel({ hook }) {
                 แก้ไข
               </Button>
               {hook.competencies.length === 0 && (
-                <Button size="md" radius="md" color="secondary" variant="flat" onPress={handleLoadTemplates}>
+                <Button size="md" radius="md" color="secondary" variant="bordered" onPress={handleLoadTemplates}>
                   โหลดเทมเพลตเริ่มต้น
                 </Button>
               )}
@@ -505,7 +506,7 @@ function CompetenciesPanel({ hook }) {
               <Button size="md" radius="md" color="primary" onPress={handleSave} isLoading={hook.savingCompetencies} startContent={<Save className="w-3 h-3" />}>
                 บันทึก
               </Button>
-              <Button size="md" radius="md" variant="light" onPress={() => setEditMode(false)}>ยกเลิก</Button>
+              <Button size="md" radius="md" variant="bordered" onPress={() => setEditMode(false)}>ยกเลิก</Button>
             </>
           )}
         </div>
@@ -548,7 +549,7 @@ function CompetenciesPanel({ hook }) {
               <Button
                 size="md"
                 radius="md"
-                variant="light"
+                variant="bordered"
                 color="danger"
                 className="self-end mt-1"
                 onPress={() => setLocalComps(localComps.filter((_, j) => j !== i))}
@@ -560,7 +561,7 @@ function CompetenciesPanel({ hook }) {
           <Button
             size="md"
             radius="md"
-            variant="flat"
+            variant="bordered"
             startContent={<Plus className="w-3 h-3" />}
             onPress={() => setLocalComps([...localComps, { name: "", description: "", questions: [], weight: 1 }])}
           >
@@ -641,8 +642,9 @@ function NominationsPanel({ hook }) {
                   return (
                     <Chip
                       key={nom.id}
-                      variant="flat"
-                      size="sm"
+                      variant="bordered"
+                      size="md"
+                      radius="md"
                       style={{ backgroundColor: relType.color + "20", color: relType.color }}
                       onClose={canAddNominations ? () => hook.handleDeleteNomination(nom.id) : undefined}
                     >
@@ -776,7 +778,7 @@ function CycleModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={cycleModal.onClose}>ยกเลิก</Button>
+          <Button variant="bordered" size="md" radius="md" onPress={cycleModal.onClose}>ยกเลิก</Button>
           <Button color="primary" size="md" radius="md" onPress={handleSaveCycle} isLoading={savingCycle} startContent={<Save className="w-4 h-4" />}>
             {editingCycle ? "บันทึก" : "สร้าง"}
           </Button>
@@ -844,7 +846,7 @@ function NominationModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={nominationModal.onClose}>ยกเลิก</Button>
+          <Button variant="bordered" size="md" radius="md" onPress={nominationModal.onClose}>ยกเลิก</Button>
           <Button color="primary" size="md" radius="md" onPress={handleSaveNomination} isLoading={savingNomination}>
             เพิ่ม
           </Button>
@@ -885,7 +887,7 @@ function ReviewModal({ hook }) {
         <ModalHeader>
           <div className="flex items-center gap-2">
             <span>ประเมิน 360 องศา: {revieweeName}</span>
-            <Chip size="sm" style={{ backgroundColor: relType.color + "20", color: relType.color }}>
+            <Chip size="md" radius="md" style={{ backgroundColor: relType.color + "20", color: relType.color }}>
               {relType.label}
             </Chip>
           </div>
@@ -960,7 +962,7 @@ function ReviewModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={reviewModal.onClose}>ยกเลิก</Button>
+          <Button variant="bordered" size="md" radius="md" onPress={reviewModal.onClose}>ยกเลิก</Button>
           <Button
             color="primary"
             size="md"

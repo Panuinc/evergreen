@@ -108,7 +108,7 @@ export default function MarketingAnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center w-full h-full">
         <Spinner />
       </div>
     );
@@ -119,7 +119,7 @@ export default function MarketingAnalyticsPage() {
   }
 
   return (
-    <div className="flex flex-col w-full gap-6 pb-6">
+    <div className="flex flex-col w-full h-full gap-4">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -221,7 +221,7 @@ export default function MarketingAnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card shadow="none" className="border border-default-200 lg:col-span-2">
           <CardBody className="p-5">
-            <Tabs variant="underlined" size="sm" classNames={{ tabList: "mb-3" }}>
+            <Tabs variant="bordered" size="md" radius="md" classNames={{ tabList: "mb-3" }}>
               <Tab key="trend" title="แนวโน้มรายได้">
                 <RevenueTrendChart data={stats.monthlyTrend} />
               </Tab>
@@ -240,7 +240,7 @@ export default function MarketingAnalyticsPage() {
 
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
-            <Tabs variant="underlined" size="sm" classNames={{ tabList: "mb-3" }}>
+            <Tabs variant="bordered" size="md" radius="md" classNames={{ tabList: "mb-3" }}>
               <Tab key="status" title="สถานะ">
                 <OrderStatusChart data={stats.orderStatusDist} />
                 <div className="flex justify-center gap-6 mt-2">
@@ -287,7 +287,7 @@ export default function MarketingAnalyticsPage() {
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">ช่องทางลูกค้า</p>
-              <Chip size="sm" variant="flat">{stats.customerSegmentation?.totalCustomers || 0} ราย</Chip>
+              <Chip variant="bordered" size="md" radius="md">{stats.customerSegmentation?.totalCustomers || 0} ราย</Chip>
             </div>
             <ChannelDistChart data={stats.customerSegmentation?.byChannel} />
           </CardBody>
@@ -318,7 +318,7 @@ export default function MarketingAnalyticsPage() {
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Top 10 ลูกค้า</p>
-              <Chip size="sm" variant="flat">ตามยอดขาย</Chip>
+              <Chip variant="bordered" size="md" radius="md">ตามยอดขาย</Chip>
             </div>
             <TopCustomersChart data={stats.topCustomers} />
           </CardBody>
@@ -327,7 +327,7 @@ export default function MarketingAnalyticsPage() {
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Top 10 SKU</p>
-              <Chip size="sm" variant="flat">ตามยอดขาย</Chip>
+              <Chip variant="bordered" size="md" radius="md">ตามยอดขาย</Chip>
             </div>
             <TopSkuChart data={stats.topSkus} />
           </CardBody>

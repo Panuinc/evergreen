@@ -118,7 +118,7 @@ export default function ReportsPage() {
     }
     if (columnKey.includes("Status") || columnKey.includes("status")) {
       return (
-        <Chip variant="bordered" size="sm" radius="md">
+        <Chip variant="bordered" size="md" radius="md">
           {value || "-"}
         </Chip>
       );
@@ -127,7 +127,7 @@ export default function ReportsPage() {
   }, []);
 
   return (
-    <div className="flex flex-col w-full h-full gap-6">
+    <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">รายงานระบบขนส่ง</h2>
         <div className="flex gap-2">

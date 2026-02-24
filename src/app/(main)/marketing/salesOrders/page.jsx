@@ -64,7 +64,7 @@ export default function MarketingSalesOrdersPage() {
           : "-";
       case "Status":
         return (
-          <Chip size="sm" variant="flat" color={STATUS_COLORS[item.Status] || "default"}>
+          <Chip variant="bordered" size="md" radius="md" color={STATUS_COLORS[item.Status] || "default"}>
             {item.Status}
           </Chip>
         );
@@ -76,9 +76,9 @@ export default function MarketingSalesOrdersPage() {
         );
       case "shipStatus":
         return item.Completely_Shipped ? (
-          <Chip size="sm" variant="flat" color="success">จัดส่งแล้ว</Chip>
+          <Chip variant="bordered" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
-          <Chip size="sm" variant="flat" color="default">รอจัดส่ง</Chip>
+          <Chip variant="bordered" size="md" radius="md" color="default">รอจัดส่ง</Chip>
         );
       default:
         return item[columnKey] || "-";
@@ -89,14 +89,14 @@ export default function MarketingSalesOrdersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center w-full h-full">
         <Spinner />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full gap-6 pb-6">
+    <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">คำสั่งขาย</h2>

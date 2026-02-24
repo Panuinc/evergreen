@@ -67,9 +67,9 @@ export default function KpiPage() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full gap-4 p-2">
+    <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <h1 className="text-2xl font-bold">KPI (Key Performance Indicators)</h1>
+        <h1 className="text-lg font-semibold">KPI (Key Performance Indicators)</h1>
         <p className="text-default-500 text-sm">
           วัดผลงานด้วยตัวชี้วัด ติดตามแนวโน้ม และจัดการ KPI ทั้งองค์กร
         </p>
@@ -78,8 +78,9 @@ export default function KpiPage() {
       <Tabs
         selectedKey={hook.activeTab}
         onSelectionChange={hook.setActiveTab}
-        variant="solid"
-        color="primary"
+        variant="bordered"
+        size="md"
+        radius="md"
       >
         <Tab
           key="myKpi"
@@ -202,7 +203,7 @@ function MyKpiTab({ hook }) {
                   <h3 className="text-lg font-semibold">
                     แนวโน้ม: {selectedTrend.definition?.name}
                   </h3>
-                  <Button size="md" radius="md" variant="light" onPress={() => setSelectedTrend(null)}>
+                  <Button size="md" radius="md" variant="bordered" onPress={() => setSelectedTrend(null)}>
                     ปิด
                   </Button>
                 </div>
@@ -241,7 +242,7 @@ function SummaryCard({ label, count, total, color }) {
           <p className="text-sm text-default-500">{label}</p>
           <p className="text-2xl font-bold">{count}</p>
         </div>
-        <Chip color={color} variant="flat" size="lg">
+        <Chip color={color} variant="bordered" size="md" radius="md">
           {total > 0 ? Math.round((count / total) * 100) : 0}%
         </Chip>
       </CardBody>
@@ -268,7 +269,7 @@ function KpiCard({ assignment, onRecord, onTrend }) {
               {getCategoryLabel(def.category)} | {getFrequencyLabel(def.frequency)}
             </p>
           </div>
-          <Chip size="sm" color={statusColor} variant="flat">
+          <Chip size="md" radius="md" color={statusColor} variant="bordered">
             {statusLabel}
           </Chip>
         </div>
@@ -290,10 +291,10 @@ function KpiCard({ assignment, onRecord, onTrend }) {
         />
 
         <div className="flex gap-2">
-          <Button size="md" radius="md" color="primary" variant="flat" onPress={onRecord} startContent={<Plus className="w-3 h-3" />}>
+          <Button size="md" radius="md" color="primary" variant="bordered" onPress={onRecord} startContent={<Plus className="w-3 h-3" />}>
             บันทึกค่า
           </Button>
-          <Button size="md" radius="md" variant="light" onPress={onTrend} startContent={<TrendingUp className="w-3 h-3" />}>
+          <Button size="md" radius="md" variant="bordered" onPress={onTrend} startContent={<TrendingUp className="w-3 h-3" />}>
             แนวโน้ม
           </Button>
         </div>
@@ -361,7 +362,7 @@ function DashboardTab({ hook }) {
                       {getCategoryLabel(def.category)} | {def.unit} | {getFrequencyLabel(def.frequency)}
                     </p>
                   </div>
-                  <Chip color={successCount === total ? "success" : "warning"} variant="flat">
+                  <Chip size="md" radius="md" color={successCount === total ? "success" : "warning"} variant="bordered">
                     {successCount}/{total} ตามเป้า
                   </Chip>
                 </div>
@@ -384,7 +385,7 @@ function DashboardTab({ hook }) {
                         <span className="text-sm min-w-[80px] text-right">
                           {emp.latestValue != null ? `${emp.latestValue} / ${emp.targetValue}` : "-"}
                         </span>
-                        <Chip size="sm" color={getKpiStatusColor(emp.status)} variant="flat">
+                        <Chip size="md" radius="md" color={getKpiStatusColor(emp.status)} variant="bordered">
                           {getKpiStatusLabel(emp.status)}
                         </Chip>
                       </div>
@@ -434,10 +435,10 @@ function ManageTab({ hook }) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h4 className="font-semibold">{def.name}</h4>
-                    <Chip size="sm" variant="flat">{getCategoryLabel(def.category)}</Chip>
-                    <Chip size="sm" variant="bordered">{def.unit}</Chip>
-                    <Chip size="sm" variant="bordered">{getFrequencyLabel(def.frequency)}</Chip>
-                    {!def.isActive && <Chip size="sm" color="danger" variant="flat">ปิดใช้งาน</Chip>}
+                    <Chip size="md" radius="md" variant="bordered">{getCategoryLabel(def.category)}</Chip>
+                    <Chip size="md" radius="md" variant="bordered">{def.unit}</Chip>
+                    <Chip size="md" radius="md" variant="bordered">{getFrequencyLabel(def.frequency)}</Chip>
+                    {!def.isActive && <Chip size="md" radius="md" color="danger" variant="bordered">ปิดใช้งาน</Chip>}
                   </div>
                   {def.description && <p className="text-xs text-default-400 mt-1">{def.description}</p>}
                   <p className="text-xs text-default-500 mt-1">
@@ -446,17 +447,17 @@ function ManageTab({ hook }) {
                 </div>
                 <div className="flex gap-1">
                   <Tooltip content="Assign ให้พนักงาน">
-                    <Button isIconOnly size="md" radius="md" variant="light" color="primary" onPress={() => hook.handleOpenAssignForm(def.id)}>
+                    <Button isIconOnly size="md" radius="md" variant="bordered" color="primary" onPress={() => hook.handleOpenAssignForm(def.id)}>
                       <Users className="w-4 h-4" />
                     </Button>
                   </Tooltip>
                   <Tooltip content="แก้ไข">
-                    <Button isIconOnly size="md" radius="md" variant="light" onPress={() => hook.handleOpenDefinitionForm(def)}>
+                    <Button isIconOnly size="md" radius="md" variant="bordered" onPress={() => hook.handleOpenDefinitionForm(def)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
                   </Tooltip>
                   <Tooltip content="ลบ">
-                    <Button isIconOnly size="md" radius="md" variant="light" color="danger" onPress={() => hook.handleDeleteDefinition(def.id)}>
+                    <Button isIconOnly size="md" radius="md" variant="bordered" color="danger" onPress={() => hook.handleDeleteDefinition(def.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </Tooltip>
@@ -577,7 +578,7 @@ function DefinitionModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={definitionModal.onClose}>ยกเลิก</Button>
+          <Button variant="bordered" size="md" radius="md" onPress={definitionModal.onClose}>ยกเลิก</Button>
           <Button color="primary" size="md" radius="md" onPress={handleSaveDefinition} isLoading={savingDefinition} startContent={<Save className="w-4 h-4" />}>
             {editingDefinition ? "บันทึก" : "สร้าง"}
           </Button>
@@ -660,7 +661,7 @@ function AssignmentModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={assignmentModal.onClose}>ยกเลิก</Button>
+          <Button variant="bordered" size="md" radius="md" onPress={assignmentModal.onClose}>ยกเลิก</Button>
           <Button color="primary" size="md" radius="md" onPress={handleSaveAssignment} isLoading={savingAssignment}>
             Assign
           </Button>
@@ -723,7 +724,7 @@ function RecordModal({ hook }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" size="md" radius="md" onPress={recordModal.onClose}>ยกเลิก</Button>
+          <Button variant="bordered" size="md" radius="md" onPress={recordModal.onClose}>ยกเลิก</Button>
           <Button color="primary" size="md" radius="md" onPress={handleSaveRecord} isLoading={savingRecord} startContent={<Save className="w-4 h-4" />}>
             บันทึก
           </Button>
