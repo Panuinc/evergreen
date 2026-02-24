@@ -210,7 +210,9 @@ export const menuData = [
     id: "production",
     name: "การผลิต",
     icon: Factory,
+    href: "/production/dashboard",
     subMenus: [
+      { name: "แดชบอร์ด", icon: LayoutDashboard, href: "/production/dashboard" },
       { name: "แผนการผลิต", icon: Calendar },
       { name: "ใบสั่งงาน", icon: ClipboardList },
       { name: "BOM", icon: List },
