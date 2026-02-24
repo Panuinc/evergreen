@@ -174,6 +174,110 @@ export async function GET() {
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
 
+    // ═══ 12. Unit cost per output item ═══
+    const unitCostMap = {};
+    for (const e of output) {
+      const k = e.itemNo || "unknown";
+      if (!unitCostMap[k]) unitCostMap[k] = { itemNo: k, description: e.description || k, totalCost: 0, totalQty: 0 };
+      unitCostMap[k].totalCost += abs(e.costAmountActual);
+      unitCostMap[k].totalQty += abs(e.quantity);
+    }
+    const unitCostAnalysis = Object.values(unitCostMap)
+      .map((d) => ({ ...d, unitCost: d.totalQty > 0 ? Math.round(d.totalCost / d.totalQty) : 0 }))
+      .sort((a, b) => b.unitCost - a.unitCost)
+      .slice(0, 15);
+
+    // ═══ 13. Yield rate per order (output cost / consumption cost) ═══
+    const yieldMap = {};
+    for (const e of entries) {
+      const k = e.orderNo;
+      if (!k) continue;
+      if (!yieldMap[k]) yieldMap[k] = { orderNo: k, consumptionCost: 0, outputCost: 0 };
+      if (e.entryType === "Consumption") yieldMap[k].consumptionCost += abs(e.costAmountActual);
+      if (e.entryType === "Output") yieldMap[k].outputCost += abs(e.costAmountActual);
+    }
+    const yieldByOrder = Object.values(yieldMap)
+      .filter((d) => d.consumptionCost > 0)
+      .map((d) => ({ ...d, yieldRate: parseFloat(((d.outputCost / d.consumptionCost) * 100).toFixed(1)) }))
+      .sort((a, b) => b.consumptionCost - a.consumptionCost)
+      .slice(0, 15);
+
+    // ═══ 14. Expected vs Actual cost variance ═══
+    const varMap = {};
+    for (const e of consumption) {
+      const k = e.itemNo || "unknown";
+      if (!varMap[k]) varMap[k] = { itemNo: k, description: e.description || k, expected: 0, actual: 0 };
+      varMap[k].expected += abs(e.costAmountExpected);
+      varMap[k].actual += abs(e.costAmountActual);
+    }
+    const costVariance = Object.values(varMap)
+      .map((d) => ({ ...d, variance: d.actual - d.expected }))
+      .sort((a, b) => Math.abs(b.variance) - Math.abs(a.variance))
+      .slice(0, 15);
+
+    // ═══ 15. Production heatmap (by day of week) ═══
+    const dayNames = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
+    const heatCons = [0, 0, 0, 0, 0, 0, 0];
+    const heatOut = [0, 0, 0, 0, 0, 0, 0];
+    for (const e of entries) {
+      if (!e.postingDate) continue;
+      const day = new Date(e.postingDate).getDay();
+      if (e.entryType === "Consumption") heatCons[day]++;
+      if (e.entryType === "Output") heatOut[day]++;
+    }
+    const productionHeatmap = dayNames.map((name, i) => ({
+      day: name,
+      consumption: heatCons[i],
+      output: heatOut[i],
+      total: heatCons[i] + heatOut[i],
+    }));
+
+    // ═══ 16. Order breakdown (top 10 detail) ═══
+    const brkMap = {};
+    for (const e of entries) {
+      const k = e.orderNo;
+      if (!k) continue;
+      if (!brkMap[k]) brkMap[k] = { orderNo: k, consumptionCost: 0, outputCost: 0, consumptionCount: 0, outputCount: 0, materials: new Set(), outputs: new Set(), firstDate: e.postingDate, lastDate: e.postingDate };
+      if (e.entryType === "Consumption") {
+        brkMap[k].consumptionCost += abs(e.costAmountActual);
+        brkMap[k].consumptionCount++;
+        if (e.itemNo) brkMap[k].materials.add(e.itemNo);
+      }
+      if (e.entryType === "Output") {
+        brkMap[k].outputCost += abs(e.costAmountActual);
+        brkMap[k].outputCount++;
+        if (e.itemNo) brkMap[k].outputs.add(e.itemNo);
+      }
+      if (e.postingDate < brkMap[k].firstDate) brkMap[k].firstDate = e.postingDate;
+      if (e.postingDate > brkMap[k].lastDate) brkMap[k].lastDate = e.postingDate;
+    }
+    const orderBreakdown = Object.values(brkMap)
+      .sort((a, b) => b.consumptionCost - a.consumptionCost)
+      .slice(0, 10)
+      .map((d) => ({ orderNo: d.orderNo, consumptionCost: d.consumptionCost, outputCost: d.outputCost, consumptionCount: d.consumptionCount, outputCount: d.outputCount, materials: d.materials.size, outputs: d.outputs.size, firstDate: d.firstDate, lastDate: d.lastDate }));
+
+    // ═══ 17. WIP (open entries / remaining qty) ═══
+    const wipEntries = entries.filter((e) => e.open === true || (parseFloat(e.remainingQuantity) || 0) !== 0);
+    const wipMap = {};
+    for (const e of wipEntries) {
+      const k = e.itemNo || "unknown";
+      if (!wipMap[k]) wipMap[k] = { itemNo: k, description: e.description || k, remaining: 0, count: 0, cost: 0 };
+      wipMap[k].remaining += parseFloat(e.remainingQuantity) || 0;
+      wipMap[k].count++;
+      wipMap[k].cost += abs(e.costAmountActual);
+    }
+    const wipItems = Object.values(wipMap).sort((a, b) => b.cost - a.cost).slice(0, 15);
+
+    // ═══ 18. Bin analysis ═══
+    const binMap = {};
+    for (const e of entries) {
+      const k = e.bwkBinCode || "ไม่ระบุ";
+      if (!binMap[k]) binMap[k] = { bin: k, count: 0, cost: 0 };
+      binMap[k].count++;
+      binMap[k].cost += abs(e.costAmountActual);
+    }
+    const binAnalysis = Object.values(binMap).sort((a, b) => b.count - a.count);
+
     return Response.json({
       // KPI
       totalOrders: uniqueOrders.size,
@@ -184,6 +288,7 @@ export async function GET() {
       totalLocations: uniqueLocations.size,
       totalConsumptionCost,
       totalOutputCost,
+      wipCount: wipEntries.length,
       // Charts
       dailyTrend,
       monthlyComparison,
@@ -196,6 +301,13 @@ export async function GET() {
       byOperator,
       topSourceProducts,
       unitOfMeasure,
+      unitCostAnalysis,
+      yieldByOrder,
+      costVariance,
+      productionHeatmap,
+      orderBreakdown,
+      wipItems,
+      binAnalysis,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

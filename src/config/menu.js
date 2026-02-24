@@ -93,7 +93,11 @@ export const menuData = [
     icon: Target,
     href: "/performance/evaluation",
     subMenus: [
-      { name: "ประเมินค่านิยม", icon: ClipboardList, href: "/performance/evaluation" },
+      {
+        name: "ประเมินค่านิยม",
+        icon: ClipboardList,
+        href: "/performance/evaluation",
+      },
       { name: "OKR", icon: Target, href: "/performance/okr" },
       { name: "KPI", icon: BarChart3, href: "/performance/kpi" },
       { name: "ประเมิน 360 องศา", icon: RefreshCw, href: "/performance/360" },
@@ -212,9 +216,14 @@ export const menuData = [
     icon: Factory,
     href: "/production/dashboard",
     subMenus: [
-      { name: "แดชบอร์ด", icon: LayoutDashboard, href: "/production/dashboard" },
+      {
+        name: "แดชบอร์ด",
+        icon: LayoutDashboard,
+        href: "/production/dashboard",
+      },
+      { name: "ใบสั่งผลิต", icon: ClipboardList, href: "/production/orders" },
       { name: "แผนการผลิต", icon: Calendar },
-      { name: "ใบสั่งงาน", icon: ClipboardList },
+
       { name: "BOM", icon: List },
       { name: "สถานะเครื่องจักร", icon: Settings },
       { name: "ประสิทธิภาพ", icon: TrendingUp },
@@ -315,7 +324,11 @@ export const menuData = [
       { name: "ลูกค้า", icon: Users, href: "/bc/customers" },
       { name: "สินค้า", icon: Package, href: "/bc/items" },
       { name: "คำสั่งขาย", icon: ShoppingCart, href: "/bc/salesOrders" },
-      { name: "เคลื่อนไหวสินค้า", icon: ClipboardList, href: "/bc/itemLedgerEntries" },
+      {
+        name: "เคลื่อนไหวสินค้า",
+        icon: ClipboardList,
+        href: "/bc/itemLedgerEntries",
+      },
     ],
   },
   {
@@ -324,7 +337,11 @@ export const menuData = [
     icon: Settings,
     href: "/settings/configCheck",
     subMenus: [
-      { name: "ตรวจสอบการตั้งค่า", icon: Activity, href: "/settings/configCheck" },
+      {
+        name: "ตรวจสอบการตั้งค่า",
+        icon: Activity,
+        href: "/settings/configCheck",
+      },
       { name: "ซิงค์ BC", icon: RefreshCw, href: "/settings/sync-bc" },
       { name: "เครื่องพิมพ์", icon: Printer, href: "/settings/printer-config" },
     ],
