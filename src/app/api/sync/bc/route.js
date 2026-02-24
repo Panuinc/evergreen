@@ -104,7 +104,7 @@ export async function GET(request) {
   if (shouldSync("items")) {
     try {
       const items = await bcODataGet("Item_Card_Excel", {
-        $filter: "Blocked eq false",
+        $filter: "Blocked eq false and Inventory gt 0",
         $select: "No,Description,Type,Inventory,Unit_Price,Unit_Cost,Item_Category_Code,Gen_Prod_Posting_Group,Blocked,Base_Unit_of_Measure",
         $orderby: "No asc",
       });
