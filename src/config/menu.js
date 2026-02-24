@@ -53,6 +53,7 @@ import {
   AlertTriangle,
   RefreshCw,
   Landmark,
+  Printer,
 } from "lucide-react";
 
 export const menuData = [
@@ -288,7 +289,6 @@ export const menuData = [
     href: "/warehouse/inventory",
     subMenus: [
       { name: "ภาพรวมคลัง", icon: Boxes, href: "/warehouse/inventory" },
-      { name: "ตั้งค่าเครื่องพิมพ์", icon: Settings, href: "/warehouse/printer-config" },
     ],
   },
   {
@@ -323,6 +323,7 @@ export const menuData = [
     subMenus: [
       { name: "ตรวจสอบการตั้งค่า", icon: Activity, href: "/settings/configCheck" },
       { name: "ซิงค์ BC", icon: RefreshCw, href: "/settings/sync-bc" },
+      { name: "เครื่องพิมพ์", icon: Printer, href: "/settings/printer-config" },
     ],
   },
   {

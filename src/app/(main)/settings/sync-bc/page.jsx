@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   Card,
   CardBody,
@@ -8,6 +8,7 @@ import {
   Button,
   Divider,
   Spinner,
+  Progress,
 } from "@heroui/react";
 import {
   RefreshCw,
@@ -21,6 +22,7 @@ import {
   FolderKanban,
   Upload,
   FileSpreadsheet,
+  Loader2,
 } from "lucide-react";
 
 /* ── BC Tables ── */
@@ -32,14 +34,87 @@ const BC_TABLES = [
   { key: "salesOrderLines", label: "รายการคำสั่งขาย", icon: ClipboardList },
 ];
 
+const PHASE_ORDER = [
+  "dimensionValues",
+  "customers",
+  "items",
+  "salesOrders",
+  "salesOrderLines",
+  "cleanup",
+];
+
+function PhaseIcon({ phase, step }) {
+  const table = BC_TABLES.find((t) => t.key === phase);
+  const Icon = table?.icon || FolderKanban;
+  const size = 16;
+
+  if (step === "done") return <CheckCircle2 size={size} className="text-success shrink-0" />;
+  if (step === "error") return <XCircle size={size} className="text-danger shrink-0" />;
+  if (step === "fetching" || step === "saving" || step === "cleaning")
+    return <Loader2 size={size} className="text-primary shrink-0 animate-spin" />;
+  return <Icon size={size} className="text-default-400 shrink-0" />;
+}
+
+function SyncProgressPanel({ phases }) {
+  const entries = PHASE_ORDER
+    .filter((p) => phases[p])
+    .map((p) => ({ key: p, ...phases[p] }));
+
+  if (entries.length === 0) return null;
+
+  const totalPhases = PHASE_ORDER.length;
+  const donePhases = entries.filter((e) => e.step === "done" || e.step === "error").length;
+  const overallPct = Math.round((donePhases / totalPhases) * 100);
+
+  return (
+    <Card shadow="none" className="border-2 border-primary bg-primary-50/30">
+      <CardBody className="gap-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold">ความคืบหน้า</span>
+          <span className="text-sm text-default-500">{overallPct}%</span>
+        </div>
+        <Progress
+          aria-label="Sync progress"
+          value={overallPct}
+          color="primary"
+          size="md"
+          className="w-full"
+        />
+
+        <div className="flex flex-col gap-2 mt-1">
+          {entries.map((e) => (
+            <div key={e.key} className="flex items-center gap-2">
+              <PhaseIcon phase={e.key} step={e.step} />
+              <span className="text-sm flex-1">{e.label}</span>
+              {e.step === "saving" && e.done != null && e.total != null && (
+                <div className="w-32">
+                  <Progress
+                    aria-label={`${e.key} progress`}
+                    value={Math.round((e.done / e.total) * 100)}
+                    color="primary"
+                    size="sm"
+                  />
+                </div>
+              )}
+              {e.step === "done" && e.count != null && (
+                <span className="text-xs text-success font-medium">
+                  {e.count.toLocaleString("th-TH")}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
 
 function ResultCards({ tables, results }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
       {tables.map((t) => {
         const val = results?.[t.key];
-        const errorVal = results?.[t.key.replace("Upserted", "Error").replace("Fetched", "Error")];
-        const isError = !!errorVal;
+        const isError = typeof val === "string" && val.startsWith("ERROR");
         const Icon = t.icon;
         return (
           <Card
@@ -56,7 +131,7 @@ function ResultCards({ tables, results }) {
                 <p className="text-xs text-default-500">{t.label}</p>
               </div>
               {isError ? (
-                <p className="text-xs text-danger">{errorVal}</p>
+                <p className="text-xs text-danger">{val}</p>
               ) : (
                 <p className="text-2xl font-bold">
                   {typeof val === "number" ? val.toLocaleString("th-TH") : val ?? "-"}
@@ -66,97 +141,6 @@ function ResultCards({ tables, results }) {
           </Card>
         );
       })}
-    </div>
-  );
-}
-
-function SyncSection({ title, desc, endpoint, method = "GET", body, tables, infoItems }) {
-  const [syncing, setSyncing] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [lastSync, setLastSync] = useState(null);
-
-  const handleSync = useCallback(async () => {
-    setSyncing(true);
-    setError(null);
-    setResult(null);
-
-    try {
-      const opts = method === "POST"
-        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) }
-        : {};
-      const res = await fetch(endpoint, opts);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Sync failed");
-      setResult(data);
-      setLastSync(new Date().toLocaleString("th-TH"));
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setSyncing(false);
-    }
-  }, [endpoint, method, body]);
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold">{title}</h2>
-          <p className="text-sm text-default-500">{desc}</p>
-        </div>
-        <Button
-          color="primary"
-          size="md"
-          radius="md"
-          startContent={
-            syncing ? <Spinner size="sm" color="white" /> : <RefreshCw size={16} />
-          }
-          onPress={handleSync}
-          isDisabled={syncing}
-        >
-          {syncing ? "กำลังซิงค์..." : "ซิงค์เลย"}
-        </Button>
-      </div>
-
-      {lastSync && (
-        <div className="flex items-center gap-2 text-sm text-default-500">
-          <Clock size={14} />
-          <span>ซิงค์ล่าสุด: {lastSync}</span>
-        </div>
-      )}
-
-      {error && (
-        <Card shadow="none" className="border-2 border-danger bg-danger-50">
-          <CardBody className="flex-row items-center gap-2">
-            <XCircle size={18} className="text-danger" />
-            <span className="text-danger font-medium">{error}</span>
-          </CardBody>
-        </Card>
-      )}
-
-      {result && (
-        <Card shadow="none" className="border-2 border-success bg-success-50">
-          <CardHeader className="flex-row items-center gap-2 pb-0">
-            <CheckCircle2 size={18} className="text-success" />
-            <span className="font-semibold text-success">ซิงค์สำเร็จ!</span>
-          </CardHeader>
-          <CardBody>
-            <ResultCards tables={tables} results={result.results} />
-          </CardBody>
-        </Card>
-      )}
-
-      {infoItems && (
-        <Card shadow="none" className="bg-default-50 border border-default">
-          <CardBody className="gap-1">
-            <ul className="text-sm text-default-500 list-disc pl-5 space-y-1">
-              {infoItems.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ul>
-          </CardBody>
-        </Card>
-      )}
     </div>
   );
 }
@@ -191,7 +175,6 @@ function BciImportSection() {
       setError(e.message);
     } finally {
       setImporting(false);
-      // Reset input so same file can be selected again
       e.target.value = "";
     }
   }, []);
@@ -309,67 +292,76 @@ function BciImportSection() {
   );
 }
 
-function TableSyncButton({ table, onResult }) {
-  const [syncing, setSyncing] = useState(false);
-
-  const handleSync = useCallback(async () => {
-    setSyncing(true);
-    onResult(table.key, null);
-    try {
-      const res = await fetch(`/api/sync/bc?tables=${table.key}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Sync failed");
-      onResult(table.key, { ok: true, data });
-    } catch (e) {
-      onResult(table.key, { ok: false, error: e.message });
-    } finally {
-      setSyncing(false);
-    }
-  }, [table.key, onResult]);
-
-  const Icon = table.icon;
-  return (
-    <Button
-      size="md"
-      variant="bordered"
-      radius="md"
-      startContent={syncing ? <Spinner size="sm" /> : <Icon size={14} />}
-      onPress={handleSync}
-      isDisabled={syncing}
-    >
-      {table.label}
-    </Button>
-  );
-}
-
 function BcSyncSection() {
   const [syncingAll, setSyncingAll] = useState(false);
   const [allResult, setAllResult] = useState(null);
   const [allError, setAllError] = useState(null);
-  const [tableResults, setTableResults] = useState({});
+  const [phases, setPhases] = useState({});
   const [lastSync, setLastSync] = useState(null);
+  const abortRef = useRef(null);
 
   const handleSyncAll = useCallback(async () => {
     setSyncingAll(true);
     setAllError(null);
     setAllResult(null);
-    setTableResults({});
+    setPhases({});
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
-      const res = await fetch("/api/sync/bc");
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Sync failed");
-      setAllResult(data);
-      setLastSync(new Date().toLocaleString("th-TH"));
+      const res = await fetch("/api/sync/bc?stream=1", {
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Sync failed");
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        let currentEvent = null;
+        for (const line of lines) {
+          if (line.startsWith("event: ")) {
+            currentEvent = line.slice(7).trim();
+          } else if (line.startsWith("data: ") && currentEvent) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (currentEvent === "progress") {
+                setPhases((prev) => ({
+                  ...prev,
+                  [data.phase]: data,
+                }));
+              } else if (currentEvent === "done") {
+                setAllResult(data);
+                setLastSync(new Date().toLocaleString("th-TH"));
+              } else if (currentEvent === "error") {
+                setAllError(data.message);
+              }
+            } catch {}
+            currentEvent = null;
+          }
+        }
+      }
     } catch (e) {
-      setAllError(e.message);
+      if (e.name !== "AbortError") {
+        setAllError(e.message);
+      }
     } finally {
       setSyncingAll(false);
+      abortRef.current = null;
     }
-  }, []);
-
-  const handleTableResult = useCallback((key, result) => {
-    setTableResults((prev) => ({ ...prev, [key]: result }));
-    if (result?.ok) setLastSync(new Date().toLocaleString("th-TH"));
   }, []);
 
   return (
@@ -383,7 +375,7 @@ function BcSyncSection() {
           color="primary"
           size="md"
           radius="md"
-          startContent={syncingAll ? <Spinner size="sm" color="white" /> : <RefreshCw size={16} />}
+          startContent={syncingAll ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
           onPress={handleSyncAll}
           isDisabled={syncingAll}
         >
@@ -398,41 +390,8 @@ function BcSyncSection() {
         </div>
       )}
 
-      {/* ปุ่มซิงค์แยกแต่ละตาราง */}
-      <div className="flex flex-wrap gap-2">
-        {BC_TABLES.map((t) => (
-          <TableSyncButton key={t.key} table={t} onResult={handleTableResult} />
-        ))}
-      </div>
-
-      {/* ผลลัพธ์ซิงค์รายตาราง */}
-      {Object.keys(tableResults).length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {BC_TABLES.map((t) => {
-            const r = tableResults[t.key];
-            if (!r) return null;
-            const Icon = t.icon;
-            return (
-              <Card key={t.key} shadow="none" className={`border ${r.ok ? "border-success bg-success-50" : "border-danger bg-danger-50"}`}>
-                <CardBody className="flex-row items-center gap-2 py-2">
-                  {r.ok ? <CheckCircle2 size={16} className="text-success shrink-0" /> : <XCircle size={16} className="text-danger shrink-0" />}
-                  <Icon size={14} className="text-default-500 shrink-0" />
-                  <span className="text-sm font-medium">{t.label}</span>
-                  {r.ok ? (
-                    <span className="ml-auto text-sm font-bold">
-                      {typeof r.data.results?.[t.key] === "number"
-                        ? r.data.results[t.key].toLocaleString("th-TH") + " รายการ"
-                        : "สำเร็จ"}
-                    </span>
-                  ) : (
-                    <span className="ml-auto text-sm text-danger">{r.error}</span>
-                  )}
-                </CardBody>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+      {/* Progress panel */}
+      {syncingAll && <SyncProgressPanel phases={phases} />}
 
       {allError && (
         <Card shadow="none" className="border-2 border-danger bg-danger-50">

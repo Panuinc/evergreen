@@ -101,7 +101,7 @@ export async function bcApiGet(endpoint, params = {}, { timeout = 60_000 } = {})
   return allValues;
 }
 
-export async function bcODataGet(entity, params = {}, { timeout = 60_000 } = {}) {
+export async function bcODataGet(entity, params = {}, { timeout = 60_000, maxPageSize = 5000 } = {}) {
   const token = await getToken();
 
   const url = new URL(`${BC_ODATA_URL}/${entity}`);
@@ -117,6 +117,7 @@ export async function bcODataGet(entity, params = {}, { timeout = 60_000 } = {})
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
+        Prefer: `odata.maxpagesize=${maxPageSize}`,
       },
     }, { timeout });
 
