@@ -221,8 +221,9 @@ export const menuData = [
         icon: LayoutDashboard,
         href: "/production/dashboard",
       },
+      { name: "เบิก/ผลิตรายวัน", icon: Calendar, href: "/production/daily" },
       { name: "ใบสั่งผลิต", icon: ClipboardList, href: "/production/orders" },
-      { name: "แผนการผลิต", icon: Calendar },
+      { name: "แผนการผลิต", icon: FileText },
 
       { name: "BOM", icon: List },
       { name: "สถานะเครื่องจักร", icon: Settings },

@@ -7,3 +7,7 @@ export async function getProductionDashboard() {
 export async function getProductionOrders() {
   return get("/api/production/orders");
 }
+
+export async function getProductionDaily() {
+  return get("/api/production/daily");
+}
