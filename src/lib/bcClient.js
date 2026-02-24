@@ -6,14 +6,25 @@ async function getToken() {
     return tokenCache.accessToken;
   }
 
-  const res = await fetch(process.env.BC_AUTH_URL, {
+  const { BC_AUTH_URL, BC_CLIENT_ID, BC_CLIENT_SECRET, BC_SCOPE } = process.env;
+  const missing = [
+    !BC_AUTH_URL && "BC_AUTH_URL",
+    !BC_CLIENT_ID && "BC_CLIENT_ID",
+    !BC_CLIENT_SECRET && "BC_CLIENT_SECRET",
+    !BC_SCOPE && "BC_SCOPE",
+  ].filter(Boolean);
+  if (missing.length) {
+    throw new Error(`Missing BC env vars: ${missing.join(", ")}`);
+  }
+
+  const res = await fetch(BC_AUTH_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       grant_type: "client_credentials",
-      client_id: process.env.BC_CLIENT_ID,
-      client_secret: process.env.BC_CLIENT_SECRET,
-      scope: process.env.BC_SCOPE,
+      client_id: BC_CLIENT_ID,
+      client_secret: BC_CLIENT_SECRET,
+      scope: BC_SCOPE,
     }),
     signal: AbortSignal.timeout(15_000),
   });
@@ -63,16 +74,25 @@ async function fetchWithRetry(url, options, { maxRetries = 3, timeout = 60_000 }
   }
 }
 
-const BC_ODATA_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/ODataV4/Company('C.H.H._Go-Live')`;
-
-// BC API v2.0 (standard REST API — for dimensionValues, etc.)
 const BC_COMPANY_ID = "a407ba9f-2151-ec11-9f09-000d3ac85269";
-const BC_API_URL = `https://api.businesscentral.dynamics.com/v2.0/${process.env.BC_TENANT_ID}/${process.env.BC_ENVIRONMENT}/api/v2.0/companies(${BC_COMPANY_ID})`;
+
+function getBcUrls() {
+  const { BC_TENANT_ID, BC_ENVIRONMENT } = process.env;
+  if (!BC_TENANT_ID || !BC_ENVIRONMENT) {
+    throw new Error(`Missing BC env vars: ${!BC_TENANT_ID ? "BC_TENANT_ID" : ""}${!BC_TENANT_ID && !BC_ENVIRONMENT ? ", " : ""}${!BC_ENVIRONMENT ? "BC_ENVIRONMENT" : ""}`);
+  }
+  const base = `https://api.businesscentral.dynamics.com/v2.0/${BC_TENANT_ID}/${BC_ENVIRONMENT}`;
+  return {
+    odata: `${base}/ODataV4/Company('C.H.H._Go-Live')`,
+    api: `${base}/api/v2.0/companies(${BC_COMPANY_ID})`,
+  };
+}
 
 export async function bcApiGet(endpoint, params = {}, { timeout = 60_000 } = {}) {
   const token = await getToken();
+  const { api } = getBcUrls();
 
-  const url = new URL(`${BC_API_URL}/${endpoint}`);
+  const url = new URL(`${api}/${endpoint}`);
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
@@ -103,8 +123,9 @@ export async function bcApiGet(endpoint, params = {}, { timeout = 60_000 } = {})
 
 export async function bcODataGet(entity, params = {}, { timeout = 60_000, maxPageSize = 5000 } = {}) {
   const token = await getToken();
+  const { odata } = getBcUrls();
 
-  const url = new URL(`${BC_ODATA_URL}/${entity}`);
+  const url = new URL(`${odata}/${entity}`);
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
