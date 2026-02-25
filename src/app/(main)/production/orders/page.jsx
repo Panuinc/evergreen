@@ -5,6 +5,10 @@ import { Chip, Tabs, Tab } from "@heroui/react";
 import { useProductionOrders } from "@/hooks/production/useProductionOrders";
 import DataTable from "@/components/ui/DataTable";
 
+function fmtCurrency(v) {
+  return `฿${Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
+}
+
 const columns = [
   { name: "เลขที่ใบสั่งผลิต", uid: "id", sortable: true },
   { name: "สถานะ", uid: "status", sortable: true },
@@ -13,6 +17,12 @@ const columns = [
   { name: "สินค้าที่ผลิต", uid: "sourceNo", sortable: true },
   { name: "Routing", uid: "routingNo", sortable: true },
   { name: "จำนวน", uid: "quantity", sortable: true },
+  { name: "ผลิตได้", uid: "outputQty", sortable: true },
+  { name: "ต้นทุนผลิต", uid: "consumptionCost", sortable: true },
+  { name: "ราคาขาย/ชิ้น", uid: "unitPrice", sortable: true },
+  { name: "รายได้", uid: "revenue", sortable: true },
+  { name: "กำไร/ขาดทุน", uid: "profit", sortable: true },
+  { name: "Margin", uid: "profitMargin", sortable: true },
   { name: "รหัสแผนก", uid: "dimension1Code", sortable: true },
   { name: "ชื่อแผนก", uid: "dimension1Name", sortable: true },
   { name: "รหัสโครงการ", uid: "dimension2Code", sortable: true },
@@ -33,24 +43,19 @@ const INITIAL_VISIBLE_COLUMNS = [
   "id",
   "status",
   "description",
-  "description2",
   "sourceNo",
-  "routingNo",
   "quantity",
-  "dimension1Code",
+  "outputQty",
+  "consumptionCost",
+  "unitPrice",
+  "revenue",
+  "profit",
+  "profitMargin",
   "dimension1Name",
-  "dimension2Code",
   "dimension2Name",
-  "locationCode",
-  "startingDateTime",
-  "endingDateTime",
   "dueDate",
-  "remainingConsumption",
-  "assignedUserId",
   "finishedDate",
   "durationDays",
-  "searchDescription",
-  "syncedAt",
 ];
 
 const statusColorMap = {
@@ -104,6 +109,12 @@ export default function ProductionOrdersPage() {
     [enrichedData],
   );
 
+  const getRowClassName = useCallback((row) => {
+    if (!row.revenue || row.revenue <= 0) return "";
+    if (row.profit >= 0) return "bg-success-50/50";
+    return "bg-danger-50/50";
+  }, []);
+
   const renderCell = useCallback((row, columnKey) => {
     switch (columnKey) {
       case "status":
@@ -137,10 +148,42 @@ export default function ProductionOrdersPage() {
           ? `${row.durationDays} วัน`
           : "-";
       case "quantity":
+      case "outputQty":
       case "remainingConsumption":
         return row[columnKey] != null
           ? Number(row[columnKey]).toLocaleString("th-TH")
           : "-";
+      case "consumptionCost":
+      case "unitPrice":
+      case "revenue":
+        return row[columnKey] ? fmtCurrency(row[columnKey]) : "-";
+      case "profit":
+        return row[columnKey] != null && row.revenue > 0 ? (
+          <span
+            className={`font-semibold ${row[columnKey] >= 0 ? "text-success" : "text-danger"}`}
+          >
+            {fmtCurrency(row[columnKey])}
+          </span>
+        ) : (
+          "-"
+        );
+      case "profitMargin":
+        if (row.profitMargin == null) return "-";
+        return (
+          <Chip
+            size="sm"
+            variant="flat"
+            color={
+              row.profitMargin >= 20
+                ? "success"
+                : row.profitMargin >= 0
+                  ? "warning"
+                  : "danger"
+            }
+          >
+            {row.profitMargin}%
+          </Chip>
+        );
       case "description":
       case "description2":
       case "searchDescription":
@@ -173,6 +216,7 @@ export default function ProductionOrdersPage() {
             emptyContent="ไม่พบข้อมูลใบสั่งผลิต WPC"
             statusField="status"
             statusOptions={statusOptions}
+            getRowClassName={getRowClassName}
           />
         </Tab>
         <Tab
@@ -191,6 +235,7 @@ export default function ProductionOrdersPage() {
             emptyContent="ไม่พบข้อมูลใบสั่งผลิต"
             statusField="status"
             statusOptions={statusOptions}
+            getRowClassName={getRowClassName}
           />
         </Tab>
       </Tabs>

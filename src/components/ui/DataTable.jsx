@@ -44,6 +44,7 @@ export default function DataTable({
   defaultSortDescriptor,
   emptyContent = "ไม่พบข้อมูล",
   enableCardView = false,
+  getRowClassName,
 }) {
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState(
@@ -466,7 +467,7 @@ export default function DataTable({
         loadingContent={<Spinner />}
       >
         {(item) => (
-          <TableRow key={item[rowKey] ?? `row-${sortedItems.indexOf(item)}`}>
+          <TableRow key={item[rowKey] ?? `row-${sortedItems.indexOf(item)}`} className={getRowClassName ? getRowClassName(item) : undefined}>
             {(columnKey) => (
               <TableCell>
                 {columnKey === "_no"

@@ -8,29 +8,25 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  Cell,
 } from "recharts";
 
 function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function WipByOrderChart({ data = [] }) {
+export default function TopConsumedItemsChart({ data = [] }) {
   if (!data.length) {
     return (
-      <p className="text-sm text-default-400 text-center py-8">
-        ไม่มีข้อมูล WIP
-      </p>
+      <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>
     );
   }
 
   const chartData = data.map((d) => ({
     ...d,
-    label: d.orderNo,
-    shortDesc:
+    label:
       d.description?.length > 25
         ? d.description.slice(0, 25) + "..."
-        : d.description || d.orderNo,
+        : d.description || d.itemNo,
   }));
 
   return (
@@ -45,7 +41,7 @@ export default function WipByOrderChart({ data = [] }) {
           fontSize={12}
           tickFormatter={(v) => `฿${(v / 1000).toFixed(0)}k`}
         />
-        <YAxis type="category" dataKey="label" fontSize={10} width={120} />
+        <YAxis type="category" dataKey="label" fontSize={11} width={160} />
         <Tooltip
           content={({ active, payload }) => {
             if (!active || !payload?.length) return null;
@@ -53,27 +49,26 @@ export default function WipByOrderChart({ data = [] }) {
             if (!d) return null;
             return (
               <div className="bg-white dark:bg-zinc-800 border border-default-200 rounded-lg p-3 shadow-lg text-xs">
-                <p className="font-semibold mb-1">{d.orderNo}</p>
-                <p className="text-default-500 mb-1">{d.description}</p>
-                <p>ต้นทุนวัตถุดิบ: {formatCurrency(d.consumptionCost)}</p>
-                <p>มูลค่าผลผลิต: {formatCurrency(d.outputValue)}</p>
-                <hr className="my-1 border-default-200" />
-                <p className="font-semibold text-red-500">
-                  WIP: {formatCurrency(d.wipValue)}
+                <p className="font-semibold mb-1">
+                  {d.description || d.itemNo}
                 </p>
+                <p>รหัสสินค้า: {d.itemNo}</p>
+                <p>ต้นทุนรวม: {formatCurrency(d.cost)}</p>
+                <p>
+                  จำนวนเบิก:{" "}
+                  {Number(d.quantity).toLocaleString("th-TH")} ชิ้น
+                </p>
+                {d.quantity > 0 && (
+                  <p>
+                    ต้นทุนเฉลี่ย:{" "}
+                    {formatCurrency(Math.round(d.cost / d.quantity))}/ชิ้น
+                  </p>
+                )}
               </div>
             );
           }}
         />
-        <Bar dataKey="wipValue" radius={[0, 4, 4, 0]}>
-          {chartData.map((d, i) => (
-            <Cell
-              key={i}
-              fill={d.wipValue > 0 ? "#ef4444" : "#22c55e"}
-              fillOpacity={0.8}
-            />
-          ))}
-        </Bar>
+        <Bar dataKey="cost" fill="#f59e0b" radius={[0, 4, 4, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

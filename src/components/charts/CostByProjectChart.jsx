@@ -1,6 +1,15 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+} from "recharts";
 
 function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
@@ -8,19 +17,52 @@ function formatCurrency(value) {
 
 export default function CostByProjectChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>;
+    return (
+      <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>
+    );
   }
 
+  const chartData = data.map((d) => ({
+    ...d,
+    label:
+      d.project?.length > 20 ? d.project.slice(0, 20) + "..." : d.project,
+    profit: d.outputValue - d.consumptionCost,
+  }));
+
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <BarChart data={data}>
+    <ResponsiveContainer
+      width="100%"
+      height={Math.max(280, chartData.length * 32)}
+    >
+      <BarChart data={chartData} layout="vertical">
         <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-        <XAxis dataKey="project" fontSize={11} angle={-45} textAnchor="end" height={60} />
-        <YAxis fontSize={12} tickFormatter={(v) => `฿${(v / 1000).toFixed(0)}k`} />
-        <Tooltip formatter={(value, name) => [formatCurrency(value), name === "consumptionCost" ? "ต้นทุนวัตถุดิบ" : "มูลค่าผลผลิต"]} />
-        <Legend formatter={(value) => (value === "consumptionCost" ? "ต้นทุนวัตถุดิบ" : "มูลค่าผลผลิต")} />
-        <Bar dataKey="consumptionCost" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="outputValue" fill="#22c55e" radius={[4, 4, 0, 0]} />
+        <XAxis
+          type="number"
+          fontSize={12}
+          tickFormatter={(v) => `฿${(v / 1000).toFixed(0)}k`}
+        />
+        <YAxis type="category" dataKey="label" fontSize={11} width={140} />
+        <Tooltip
+          formatter={(value, name) => {
+            const labels = {
+              consumptionCost: "ต้นทุนวัตถุดิบ",
+              outputValue: "มูลค่าผลผลิต",
+            };
+            return [formatCurrency(value), labels[name] || name];
+          }}
+          labelFormatter={(label) => label}
+        />
+        <Legend
+          formatter={(value) =>
+            value === "consumptionCost" ? "ต้นทุนวัตถุดิบ" : "มูลค่าผลผลิต"
+          }
+        />
+        <Bar
+          dataKey="consumptionCost"
+          fill="#f59e0b"
+          radius={[0, 4, 4, 0]}
+        />
+        <Bar dataKey="outputValue" fill="#22c55e" radius={[0, 4, 4, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
