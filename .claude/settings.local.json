@@ -120,7 +120,10 @@
       "Bash(sshpass -p 'W@t10342' ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no Panuwat.Ja@192.168.1.120 \"echo ''SSH OK''\")",
       "Bash(powershell.exe -Command \"echo ''y'' | plink.exe -batch -pw ''W@t10342'' Panuwat.Ja@192.168.1.120 ''echo SSH_OK''\")",
       "Bash(rsync:*)",
-      "Bash(scp:*)"
+      "Bash(scp:*)",
+      "Bash(powershell.exe -File:*)",
+      "Bash(powershell.exe -Command \"Set-Content -Path ''C:\\\\Users\\\\inc10\\\\AppData\\\\Local\\\\Temp\\\\hosts_fix.txt'' -Value @\\(''# localhost name resolution is handled within DNS itself.'',''#  127.0.0.1       localhost'',''#  ::1             localhost'','''',''# Evergreen NAS'',''192.168.1.120    eis.evergreen''\\) -Encoding ASCII; Get-Content ''C:\\\\Users\\\\inc10\\\\AppData\\\\Local\\\\Temp\\\\hosts_fix.txt''\")",
+      "Bash(powershell.exe -Command:*)"
     ]
   }
 }
