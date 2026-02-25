@@ -1,26 +1,18 @@
 "use client";
 
 import {
-  PieChart,
-  Pie,
-  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
+  CartesianGrid,
 } from "recharts";
 
-const COLORS = [
-  "#3b82f6",
-  "#22c55e",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#06b6d4",
-  "#ec4899",
-  "#84cc16",
-  "#14b8a6",
-  "#f97316",
-];
+function formatCurrency(value) {
+  return `฿${Number(value).toLocaleString("th-TH")}`;
+}
 
 export default function FgOutputBreakdownChart({ data = [] }) {
   if (!data.length) {
@@ -29,36 +21,47 @@ export default function FgOutputBreakdownChart({ data = [] }) {
     );
   }
 
+  const chartData = data.map((d) => ({
+    ...d,
+    label:
+      d.category?.length > 20
+        ? d.category.slice(0, 20) + "..."
+        : d.category || "ไม่ระบุ",
+  }));
+
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <PieChart>
-        <Pie
-          data={data}
-          dataKey="quantity"
-          nameKey="category"
-          cx="50%"
-          cy="50%"
-          innerRadius={60}
-          outerRadius={100}
-          paddingAngle={2}
-          label={({ name, percent }) =>
-            `${name} ${(percent * 100).toFixed(0)}%`
-          }
-          labelLine={false}
-          fontSize={11}
-        >
-          {data.map((_, i) => (
-            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip
-          formatter={(value, name) => [
-            `${Number(value).toLocaleString("th-TH")} ชิ้น`,
-            name,
-          ]}
+    <ResponsiveContainer
+      width="100%"
+      height={Math.max(250, chartData.length * 45)}
+    >
+      <BarChart data={chartData} layout="vertical">
+        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+        <XAxis
+          type="number"
+          fontSize={12}
+          tickFormatter={(v) => v.toLocaleString("th-TH")}
         />
-        <Legend fontSize={12} />
-      </PieChart>
+        <YAxis type="category" dataKey="label" fontSize={12} width={120} />
+        <Tooltip
+          content={({ active, payload }) => {
+            if (!active || !payload?.length) return null;
+            const d = payload[0]?.payload;
+            if (!d) return null;
+            return (
+              <div className="bg-white dark:bg-zinc-800 border border-default-200 rounded-lg p-3 shadow-lg text-xs">
+                <p className="font-semibold mb-1">{d.category}</p>
+                <p>
+                  จำนวน:{" "}
+                  {Number(d.quantity).toLocaleString("th-TH")} ชิ้น
+                </p>
+                <p>รายได้: {formatCurrency(d.revenue)}</p>
+                <p>รายการ: {Number(d.count).toLocaleString("th-TH")} entries</p>
+              </div>
+            );
+          }}
+        />
+        <Bar dataKey="quantity" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+      </BarChart>
     </ResponsiveContainer>
   );
 }

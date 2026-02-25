@@ -56,7 +56,7 @@ export default function WipByOrderChart({ data = [] }) {
                 <p className="font-semibold mb-1">{d.orderNo}</p>
                 <p className="text-default-500 mb-1">{d.description}</p>
                 <p>ต้นทุนวัตถุดิบ: {formatCurrency(d.consumptionCost)}</p>
-                <p>มูลค่าผลผลิต: {formatCurrency(d.outputValue)}</p>
+                <p>รายได้จากการขาย: {formatCurrency(d.revenue)}</p>
                 <hr className="my-1 border-default-200" />
                 <p className="font-semibold text-red-500">
                   WIP: {formatCurrency(d.wipValue)}

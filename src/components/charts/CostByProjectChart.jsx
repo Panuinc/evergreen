@@ -26,7 +26,6 @@ export default function CostByProjectChart({ data = [] }) {
     ...d,
     label:
       d.project?.length > 20 ? d.project.slice(0, 20) + "..." : d.project,
-    profit: d.outputValue - d.consumptionCost,
   }));
 
   return (
@@ -46,7 +45,7 @@ export default function CostByProjectChart({ data = [] }) {
           formatter={(value, name) => {
             const labels = {
               consumptionCost: "ต้นทุนวัตถุดิบ",
-              outputValue: "มูลค่าผลผลิต",
+              revenue: "รายได้จากการขาย",
             };
             return [formatCurrency(value), labels[name] || name];
           }}
@@ -54,7 +53,7 @@ export default function CostByProjectChart({ data = [] }) {
         />
         <Legend
           formatter={(value) =>
-            value === "consumptionCost" ? "ต้นทุนวัตถุดิบ" : "มูลค่าผลผลิต"
+            value === "consumptionCost" ? "ต้นทุนวัตถุดิบ" : "รายได้จากการขาย"
           }
         />
         <Bar
@@ -62,7 +61,7 @@ export default function CostByProjectChart({ data = [] }) {
           fill="#f59e0b"
           radius={[0, 4, 4, 0]}
         />
-        <Bar dataKey="outputValue" fill="#22c55e" radius={[0, 4, 4, 0]} />
+        <Bar dataKey="revenue" fill="#22c55e" radius={[0, 4, 4, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

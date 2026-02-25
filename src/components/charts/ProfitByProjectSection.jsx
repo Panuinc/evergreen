@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
-  Card,
-  CardBody,
-  CardHeader,
   Chip,
   Accordion,
   AccordionItem,
+  Pagination,
+  Input,
 } from "@heroui/react";
+import { Search } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 
 function fmtCurrency(v) {
@@ -47,6 +47,8 @@ const initialVisibleColumns = [
   "margin",
 ];
 
+const PROJECTS_PER_PAGE = 5;
+
 function MarginChip({ margin }) {
   if (margin == null) return <span className="text-default-400">-</span>;
   const color = margin >= 20 ? "success" : margin >= 0 ? "warning" : "danger";
@@ -58,6 +60,9 @@ function MarginChip({ margin }) {
 }
 
 export default function ProfitByProjectSection({ data = [] }) {
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "itemNo":
@@ -99,6 +104,22 @@ export default function ProfitByProjectSection({ data = [] }) {
     }
   }, []);
 
+  const filtered = useMemo(() => {
+    if (!search.trim()) return data;
+    const q = search.toLowerCase();
+    return data.filter(
+      (p) =>
+        (p.projectName || "").toLowerCase().includes(q) ||
+        (p.projectCode || "").toLowerCase().includes(q),
+    );
+  }, [data, search]);
+
+  const totalPages = Math.ceil(filtered.length / PROJECTS_PER_PAGE);
+  const paged = filtered.slice(
+    (page - 1) * PROJECTS_PER_PAGE,
+    page * PROJECTS_PER_PAGE,
+  );
+
   if (!data.length) {
     return (
       <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>
@@ -106,50 +127,81 @@ export default function ProfitByProjectSection({ data = [] }) {
   }
 
   return (
-    <Accordion variant="splitted" selectionMode="multiple">
-      {data.map((proj) => (
-        <AccordionItem
-          key={proj.projectCode}
-          aria-label={proj.projectName}
-          title={
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="font-semibold text-sm">
-                {proj.projectName || proj.projectCode}
-              </span>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-default-400">
-                  รายได้ {fmtCurrency(proj.totalRevenue)}
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <Input
+          size="sm"
+          className="max-w-xs"
+          placeholder="ค้นหาโครงการ..."
+          startContent={<Search className="w-4 h-4 text-default-400" />}
+          value={search}
+          onValueChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
+        />
+        <span className="text-xs text-default-400">
+          {filtered.length} โครงการ
+        </span>
+      </div>
+
+      <Accordion variant="splitted" selectionMode="multiple">
+        {paged.map((proj) => (
+          <AccordionItem
+            key={proj.projectCode}
+            aria-label={proj.projectName}
+            title={
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="font-semibold text-sm">
+                  {proj.projectName || proj.projectCode}
                 </span>
-                <span className="text-default-400">|</span>
-                <span className="text-default-400">
-                  ต้นทุน {fmtCurrency(proj.totalCost)}
-                </span>
-                <span className="text-default-400">|</span>
-                <span
-                  className={
-                    proj.totalProfit >= 0 ? "text-success font-semibold" : "text-danger font-semibold"
-                  }
-                >
-                  กำไร {fmtCurrency(proj.totalProfit)}
-                </span>
-                <MarginChip margin={proj.margin} />
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-default-400">
+                    รายได้ {fmtCurrency(proj.totalRevenue)}
+                  </span>
+                  <span className="text-default-400">|</span>
+                  <span className="text-default-400">
+                    ต้นทุน {fmtCurrency(proj.totalCost)}
+                  </span>
+                  <span className="text-default-400">|</span>
+                  <span
+                    className={
+                      proj.totalProfit >= 0 ? "text-success font-semibold" : "text-danger font-semibold"
+                    }
+                  >
+                    กำไร {fmtCurrency(proj.totalProfit)}
+                  </span>
+                  <MarginChip margin={proj.margin} />
+                </div>
               </div>
-            </div>
-          }
-        >
-          <DataTable
-            columns={itemColumns}
-            data={proj.items}
-            renderCell={renderCell}
-            rowKey="itemNo"
-            searchKeys={["itemNo", "description", "category"]}
-            searchPlaceholder="ค้นหาสินค้า..."
-            initialVisibleColumns={initialVisibleColumns}
-            defaultSortDescriptor={{ column: "revenue", direction: "descending" }}
-            defaultRowsPerPage={10}
+            }
+          >
+            <DataTable
+              columns={itemColumns}
+              data={proj.items}
+              renderCell={renderCell}
+              rowKey="itemNo"
+              searchKeys={["itemNo", "description", "category"]}
+              searchPlaceholder="ค้นหาสินค้า..."
+              initialVisibleColumns={initialVisibleColumns}
+              defaultSortDescriptor={{ column: "revenue", direction: "descending" }}
+              defaultRowsPerPage={10}
+            />
+          </AccordionItem>
+        ))}
+      </Accordion>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center">
+          <Pagination
+            total={totalPages}
+            page={page}
+            onChange={setPage}
+            size="sm"
+            showControls
           />
-        </AccordionItem>
-      ))}
-    </Accordion>
+        </div>
+      )}
+    </div>
   );
 }

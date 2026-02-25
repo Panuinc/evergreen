@@ -54,13 +54,13 @@ export default function DailyProductionTrendChart({ data = [] }) {
         <Tooltip
           formatter={(value, name) => [
             formatCurrency(value),
-            name === "consumption" ? "ต้นทุนวัตถุดิบ" : "มูลค่าผลผลิต",
+            name === "consumption" ? "ต้นทุนวัตถุดิบ" : "รายได้จากการขาย",
           ]}
           labelFormatter={(label) => label}
         />
         <Legend
           formatter={(value) =>
-            value === "consumption" ? "ต้นทุนวัตถุดิบ" : "มูลค่าผลผลิต"
+            value === "consumption" ? "ต้นทุนวัตถุดิบ" : "รายได้จากการขาย"
           }
         />
         <Area
@@ -72,7 +72,7 @@ export default function DailyProductionTrendChart({ data = [] }) {
         />
         <Area
           type="monotone"
-          dataKey="output"
+          dataKey="revenue"
           stroke="#22c55e"
           strokeWidth={2}
           fill="url(#gradOutput)"

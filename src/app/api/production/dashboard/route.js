@@ -37,16 +37,14 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   }
 
   // ── KPI: Entry totals ──
+  // Cost = consumption (raw materials), Revenue = selling price × output qty
   let totalOutputQty = 0;
   let totalConsumptionCost = 0;
-  let totalOutputCost = 0;
   let totalRevenue = 0;
   for (const e of entries) {
     if (e.entryType === "Output") {
       const qty = Number(e.quantity) || 0;
       totalOutputQty += qty;
-      totalOutputCost += Number(e.costAmountActual) || 0;
-      // Revenue = selling price from sales order lines × output qty
       const unitPrice = salesPriceMap[e.itemNo] || 0;
       totalRevenue += unitPrice * qty;
     } else if (e.entryType === "Consumption") {
@@ -130,7 +128,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     ([status, count]) => ({ status, count }),
   );
 
-  // ── Chart: Cost by Project ──
+  // ── Chart: Cost vs Revenue by Project ──
   const projectMap = {};
   for (const e of entries) {
     const order = orderMap[e.documentNo];
@@ -143,30 +141,34 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       projectMap[key] = {
         project: projectName,
         consumptionCost: 0,
-        outputValue: 0,
+        revenue: 0,
       };
     if (e.entryType === "Consumption") {
       projectMap[key].consumptionCost += Math.abs(
         Number(e.costAmountActual) || 0,
       );
     } else if (e.entryType === "Output") {
-      projectMap[key].outputValue += Number(e.costAmountActual) || 0;
+      const qty = Number(e.quantity) || 0;
+      const unitPrice = salesPriceMap[e.itemNo] || 0;
+      projectMap[key].revenue += unitPrice * qty;
     }
   }
   const costByProject = Object.values(projectMap)
-    .sort((a, b) => b.consumptionCost - a.consumptionCost)
+    .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 15);
 
-  // ── Chart: Daily Trend ──
+  // ── Chart: Daily Trend (ต้นทุน vs รายได้) ──
   const dailyMap = {};
   for (const e of entries) {
     if (!e.postingDate) continue;
     const d = e.postingDate.slice(0, 10);
-    if (!dailyMap[d]) dailyMap[d] = { consumption: 0, output: 0 };
+    if (!dailyMap[d]) dailyMap[d] = { consumption: 0, revenue: 0 };
     if (e.entryType === "Consumption") {
       dailyMap[d].consumption += Math.abs(Number(e.costAmountActual) || 0);
     } else if (e.entryType === "Output") {
-      dailyMap[d].output += Number(e.costAmountActual) || 0;
+      const qty = Number(e.quantity) || 0;
+      const unitPrice = salesPriceMap[e.itemNo] || 0;
+      dailyMap[d].revenue += unitPrice * qty;
     }
   }
   const dailyTrend = Object.entries(dailyMap)
@@ -186,7 +188,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .sort((a, b) => b.quantity - a.quantity)
     .slice(0, 10);
 
-  // ── Chart: WIP by Order ──
+  // ── Chart & Table: WIP by Order (ต้นทุน vs รายได้ + ความคืบหน้า) ──
   const wipMap = {};
   for (const e of entries) {
     const order = orderMap[e.documentNo];
@@ -196,21 +198,42 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       wipMap[orderNo] = {
         orderNo,
         description: order.description,
+        sourceNo: order.sourceNo,
+        plannedQty: Number(order.quantity) || 0,
+        outputQty: 0,
         consumptionCost: 0,
-        outputValue: 0,
+        revenue: 0,
+        dueDate: order.dueDate,
+        startingDateTime: order.startingDateTime,
       };
     if (e.entryType === "Consumption") {
       wipMap[orderNo].consumptionCost += Math.abs(
         Number(e.costAmountActual) || 0,
       );
     } else if (e.entryType === "Output") {
-      wipMap[orderNo].outputValue += Number(e.costAmountActual) || 0;
+      const qty = Number(e.quantity) || 0;
+      wipMap[orderNo].outputQty += qty;
+      const unitPrice = salesPriceMap[e.itemNo] || 0;
+      wipMap[orderNo].revenue += unitPrice * qty;
     }
   }
-  const wipByOrder = Object.values(wipMap)
-    .map((w) => ({ ...w, wipValue: w.consumptionCost - w.outputValue }))
+  const wipDetailAll = Object.values(wipMap).map((w) => {
+    const remainQty = Math.max(0, w.plannedQty - w.outputQty);
+    const completionPct = w.plannedQty > 0
+      ? Math.round((w.outputQty / w.plannedQty) * 100)
+      : 0;
+    return {
+      ...w,
+      remainQty,
+      completionPct,
+      wipValue: w.consumptionCost - w.revenue,
+    };
+  });
+  const wipByOrder = wipDetailAll
     .sort((a, b) => b.wipValue - a.wipValue)
     .slice(0, 15);
+  const wipDetail = wipDetailAll
+    .sort((a, b) => a.completionPct - b.completionPct);
 
   // ── Chart: Top 10 Consumed Items ──
   const consumedMap = {};
@@ -345,15 +368,18 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     if (e.entryType !== "Output") continue;
     const cat = itemLookup[e.itemNo]?.itemCategoryCode || "ไม่ระบุ";
     if (!fgTypeMap[cat])
-      fgTypeMap[cat] = { category: cat, quantity: 0, value: 0, count: 0 };
-    fgTypeMap[cat].quantity += Number(e.quantity) || 0;
-    fgTypeMap[cat].value += Number(e.costAmountActual) || 0;
+      fgTypeMap[cat] = { category: cat, quantity: 0, revenue: 0, count: 0 };
+    const qty = Number(e.quantity) || 0;
+    const unitPrice = salesPriceMap[e.itemNo] || 0;
+    fgTypeMap[cat].quantity += qty;
+    fgTypeMap[cat].revenue += unitPrice * qty;
     fgTypeMap[cat].count++;
   }
   const fgByProductType = Object.values(fgTypeMap)
     .sort((a, b) => b.quantity - a.quantity);
 
   // ── Chart: Profit/Loss per Item ──
+  // Cost = consumption only (raw materials), Revenue = selling price × qty
   const profitMap = {};
   for (const e of entries) {
     if (e.entryType !== "Output") continue;
@@ -364,10 +390,9 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         description: e.itemDescription,
         category: itemLookup[e.itemNo]?.itemCategoryCode || "-",
         outputQty: 0,
-        productionCost: 0,
+        consumptionCost: 0,
       };
     profitMap[key].outputQty += Number(e.quantity) || 0;
-    profitMap[key].productionCost += Number(e.costAmountActual) || 0;
   }
   for (const e of entries) {
     if (e.entryType !== "Consumption") continue;
@@ -375,7 +400,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     if (!order) continue;
     const fgItem = order.sourceNo;
     if (fgItem && profitMap[fgItem]) {
-      profitMap[fgItem].productionCost += Math.abs(
+      profitMap[fgItem].consumptionCost += Math.abs(
         Number(e.costAmountActual) || 0,
       );
     }
@@ -384,7 +409,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .map((p) => {
       const sellingPrice = salesPriceMap[p.itemNo] || 0;
       const totalRevenue = sellingPrice * p.outputQty;
-      const profitAmount = totalRevenue - p.productionCost;
+      const profitAmount = totalRevenue - p.consumptionCost;
       const profitMargin =
         totalRevenue > 0
           ? Math.round((profitAmount / totalRevenue) * 100)
@@ -395,14 +420,14 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         totalRevenue,
         profitAmount,
         profitMargin,
-        costPerUnit: p.outputQty > 0 ? Math.round(p.productionCost / p.outputQty) : 0,
+        costPerUnit: p.outputQty > 0 ? Math.round(p.consumptionCost / p.outputQty) : 0,
       };
     })
     .sort((a, b) => b.totalRevenue - a.totalRevenue)
     .slice(0, 20);
 
   // ── Detail: Profit by Project (ละเอียด) ──
-  // Group production cost per project per item
+  // Cost = consumption only, Revenue = selling price × qty
   const projItemMap = {};
   for (const e of entries) {
     if (e.entryType !== "Output") continue;
@@ -419,11 +444,9 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         description: e.itemDescription,
         category: itemLookup[e.itemNo]?.itemCategoryCode || "-",
         outputQty: 0,
-        outputCost: 0,
         consumptionCost: 0,
       };
     projItemMap[key].outputQty += Number(e.quantity) || 0;
-    projItemMap[key].outputCost += Number(e.costAmountActual) || 0;
   }
   // Add consumption cost per project per FG item
   for (const e of entries) {
@@ -466,7 +489,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     const salesKey = `${pi.projectCode}::${pi.itemNo}`;
     const sales = salesByProjItem[salesKey] || {};
     const unitPrice = sales.unitPrice || salesPriceMap[pi.itemNo] || 0;
-    const totalCost = pi.consumptionCost + pi.outputCost;
+    const totalCost = pi.consumptionCost;
     const revenue = unitPrice * pi.outputQty;
     const profit = revenue - totalCost;
     const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : null;
@@ -514,7 +537,6 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     finishedOrders,
     totalOutputQty,
     totalConsumptionCost,
-    totalOutputCost,
     totalRevenue,
     totalProfit,
     profitMargin,
@@ -537,6 +559,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     fgByProductType,
     profitByItem,
     profitByProject,
+    wipDetail,
   };
 }
 

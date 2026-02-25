@@ -96,8 +96,35 @@ const overdueInitialColumns = [
   "dimension2Name",
 ];
 
+// ── WIP Detail DataTable config ──
+const wipColumns = [
+  { name: "เลขที่ใบสั่งผลิต", uid: "orderNo", sortable: true },
+  { name: "รายละเอียด", uid: "description", sortable: true },
+  { name: "สินค้า", uid: "sourceNo", sortable: true },
+  { name: "แผนผลิต", uid: "plannedQty", sortable: true },
+  { name: "ผลิตแล้ว", uid: "outputQty", sortable: true },
+  { name: "คงเหลือ", uid: "remainQty", sortable: true },
+  { name: "ความคืบหน้า", uid: "completionPct", sortable: true },
+  { name: "ต้นทุนวัตถุดิบ", uid: "consumptionCost", sortable: true },
+  { name: "รายได้", uid: "revenue", sortable: true },
+  { name: "WIP", uid: "wipValue", sortable: true },
+  { name: "กำหนดส่ง", uid: "dueDate", sortable: true },
+];
+
+const wipInitialColumns = [
+  "orderNo",
+  "description",
+  "sourceNo",
+  "plannedQty",
+  "outputQty",
+  "remainQty",
+  "completionPct",
+  "consumptionCost",
+  "wipValue",
+];
+
 // ── Dashboard content for a single tab ──
-function DashboardContent({ d, renderOverdueCell }) {
+function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
   if (!d) return null;
 
   return (
@@ -111,7 +138,7 @@ function DashboardContent({ d, renderOverdueCell }) {
           subtitle={`Released ${fmt(d.releasedOrders)} / Finished ${fmt(d.finishedOrders)}`}
         />
         <KpiCard
-          title="On-Time Rate"
+          title="อัตราส่งตรงเวลา"
           value={d.onTimeRate != null ? `${d.onTimeRate}%` : "-"}
           color={
             d.onTimeRate == null
@@ -125,7 +152,7 @@ function DashboardContent({ d, renderOverdueCell }) {
           subtitle="เสร็จตามกำหนด"
         />
         <KpiCard
-          title="Avg Lead Time"
+          title="ระยะเวลาผลิตเฉลี่ย"
           value={d.avgLeadTime != null ? d.avgLeadTime : "-"}
           unit="วัน"
           color="primary"
@@ -155,7 +182,7 @@ function DashboardContent({ d, renderOverdueCell }) {
           subtitle={`รายได้ - ต้นทุนวัตถุดิบ`}
         />
         <KpiCard
-          title="Profit Margin"
+          title="อัตรากำไร"
           value={d.profitMargin != null ? `${d.profitMargin}%` : "-"}
           color={
             d.profitMargin == null
@@ -166,13 +193,13 @@ function DashboardContent({ d, renderOverdueCell }) {
                   ? "warning"
                   : "danger"
           }
-          subtitle="กำไร / รายได้"
+          subtitle="กำไร ÷ รายได้"
         />
         <KpiCard
           title="WIP"
           value={fmtCurrency(d.wipValue)}
           color="danger"
-          subtitle="Released orders"
+          subtitle="ใบสั่งผลิตค้างอยู่"
         />
         <KpiCard
           title="ผลผลิต FG"
@@ -190,15 +217,15 @@ function DashboardContent({ d, renderOverdueCell }) {
       </div>
 
       {/* Section 1: แนวโน้มภาพรวม */}
-      <ChartCard title="แนวโน้มการผลิตรายวัน (ต้นทุนวัตถุดิบ vs มูลค่าผลผลิต)">
+      <ChartCard title="แนวโน้มการผลิตรายวัน (ต้นทุนวัตถุดิบ vs รายได้จากการขาย)">
         <DailyProductionTrendChart data={d.dailyTrend} />
       </ChartCard>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title="On-Time Delivery Rate (รายเดือน)">
+        <ChartCard title="อัตราส่งตรงเวลา (รายเดือน)">
           <OnTimeTrendChart data={d.onTimeTrend} />
         </ChartCard>
-        <ChartCard title="Avg Lead Time (รายเดือน)">
+        <ChartCard title="ระยะเวลาผลิตเฉลี่ย (รายเดือน)">
           <LeadTimeTrendChart data={d.leadTimeTrend} />
         </ChartCard>
       </div>
@@ -233,7 +260,7 @@ function DashboardContent({ d, renderOverdueCell }) {
         <ChartCard title="Top 10 วัตถุดิบต้นทุนสูงสุด">
           <TopConsumedItemsChart data={d.topConsumedItems} />
         </ChartCard>
-        <ChartCard title="ต้นทุนตามโครงการ (วัตถุดิบ vs ผลผลิต)">
+        <ChartCard title="ต้นทุน vs รายได้ ตามโครงการ">
           <CostByProjectChart data={d.costByProject} />
         </ChartCard>
       </div>
@@ -253,9 +280,38 @@ function DashboardContent({ d, renderOverdueCell }) {
       </ChartCard>
 
       {/* Section 6: WIP */}
-      <ChartCard title="WIP รายใบสั่งผลิต (Released — แดง: ยังค้าง / เขียว: ผลิตเกิน)">
+      <ChartCard title="WIP รายใบสั่งผลิต (Released — แดง: ต้นทุน>รายได้ / เขียว: กำไร)">
         <WipByOrderChart data={d.wipByOrder} />
       </ChartCard>
+
+      {/* Section 6.5: WIP Detail Table */}
+      {d.wipDetail?.length > 0 && (
+        <Card shadow="none" className="border border-default-200">
+          <CardHeader className="pb-0">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold">
+                ความคืบหน้าใบสั่งผลิต (Released)
+              </p>
+              <Chip size="sm" color="warning" variant="flat">
+                {d.wipDetail.length} ใบ
+              </Chip>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <DataTable
+              columns={wipColumns}
+              data={d.wipDetail}
+              renderCell={renderWipCell}
+              rowKey="orderNo"
+              searchKeys={["orderNo", "description", "sourceNo"]}
+              searchPlaceholder="ค้นหาใบสั่งผลิต..."
+              initialVisibleColumns={wipInitialColumns}
+              defaultSortDescriptor={{ column: "completionPct", direction: "ascending" }}
+              defaultRowsPerPage={10}
+            />
+          </CardBody>
+        </Card>
+      )}
 
       {/* Section 7: ใบสั่งผลิตเกินกำหนด */}
       {d.overdueOrders?.length > 0 && (
@@ -322,6 +378,70 @@ export default function ProductionDashboardPage() {
     }
   }, []);
 
+  const renderWipCell = useCallback((item, columnKey) => {
+    switch (columnKey) {
+      case "orderNo":
+        return <span className="font-medium text-xs">{item.orderNo}</span>;
+      case "description":
+        return (
+          <span className="max-w-48 truncate block text-xs">
+            {item.description || "-"}
+          </span>
+        );
+      case "sourceNo":
+        return <span className="text-xs">{item.sourceNo || "-"}</span>;
+      case "plannedQty":
+      case "outputQty":
+      case "remainQty":
+        return <span className="text-xs">{fmt(item[columnKey])}</span>;
+      case "completionPct":
+        return (
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-2 bg-default-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${
+                  item.completionPct >= 100
+                    ? "bg-success"
+                    : item.completionPct >= 50
+                      ? "bg-primary"
+                      : "bg-warning"
+                }`}
+                style={{ width: `${Math.min(100, item.completionPct)}%` }}
+              />
+            </div>
+            <Chip
+              size="sm"
+              variant="flat"
+              color={
+                item.completionPct >= 100
+                  ? "success"
+                  : item.completionPct >= 50
+                    ? "primary"
+                    : "warning"
+              }
+            >
+              {item.completionPct}%
+            </Chip>
+          </div>
+        );
+      case "consumptionCost":
+      case "revenue":
+        return <span className="text-xs">{fmtCurrency(item[columnKey])}</span>;
+      case "wipValue":
+        return (
+          <span className={`text-xs font-semibold ${item.wipValue > 0 ? "text-danger" : "text-success"}`}>
+            {fmtCurrency(item.wipValue)}
+          </span>
+        );
+      case "dueDate":
+        return item.dueDate
+          ? <span className="text-xs">{new Date(item.dueDate).toLocaleDateString("th-TH")}</span>
+          : "-";
+      default:
+        return <span className="text-xs">{item[columnKey] || "-"}</span>;
+    }
+  }, []);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -339,13 +459,13 @@ export default function ProductionDashboardPage() {
           key="wpc"
           title={`WPC (${fmt(data.wpc?.totalOrders || 0)})`}
         >
-          <DashboardContent d={data.wpc} renderOverdueCell={renderOverdueCell} />
+          <DashboardContent d={data.wpc} renderOverdueCell={renderOverdueCell} renderWipCell={renderWipCell} />
         </Tab>
         <Tab
           key="other"
           title={`อื่นๆ (${fmt(data.other?.totalOrders || 0)})`}
         >
-          <DashboardContent d={data.other} renderOverdueCell={renderOverdueCell} />
+          <DashboardContent d={data.other} renderOverdueCell={renderOverdueCell} renderWipCell={renderWipCell} />
         </Tab>
       </Tabs>
     </div>
