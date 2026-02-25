@@ -1,7 +1,7 @@
 "use client";
 
 import { Chip } from "@heroui/react";
-import { Crown, Medal, Trophy, Star, Flame, Zap } from "lucide-react";
+import { Crown, Medal, Trophy, Star, Flame, Zap, Clock, Timer } from "lucide-react";
 
 const COLORS = [
   "primary",
@@ -37,6 +37,14 @@ function getLevel(qty) {
   if (qty >= 100) return { label: "มือโปร", icon: Star, color: "text-blue-500" };
   if (qty >= 50) return { label: "ชำนาญ", icon: Star, color: "text-emerald-500" };
   return { label: "มือใหม่", icon: Star, color: "text-default-400" };
+}
+
+function getSpeedLabel(avgDays) {
+  if (avgDays == null) return null;
+  if (avgDays <= 3) return { label: "สายฟ้า", color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/30" };
+  if (avgDays <= 7) return { label: "เร็ว", color: "text-success", bg: "bg-success-50 dark:bg-success-950/30" };
+  if (avgDays <= 14) return { label: "ปกติ", color: "text-primary", bg: "bg-primary-50 dark:bg-primary-950/30" };
+  return { label: "ช้า", color: "text-default-400", bg: "" };
 }
 
 function RankBadge({ rank }) {
@@ -111,6 +119,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
         const barWidth = Math.max(10, (emp.totalQty / maxQty) * 100);
         const level = getLevel(emp.totalQty);
         const LevelIcon = level.icon;
+        const speed = getSpeedLabel(emp.avgLeadTime);
 
         return (
           <div
@@ -143,14 +152,32 @@ export default function EmployeeSpecializationChart({ data = [] }) {
               </div>
             </div>
 
-            {/* XP Bar */}
+            {/* XP Bar + Stats */}
             <div className="flex-1 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-default-400 font-medium">
-                  ผลงานรวม
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-default-400 font-medium">
+                    ผลงานรวม
+                  </span>
+                  {emp.avgLeadTime != null && (
+                    <span className="flex items-center gap-0.5 text-[10px] text-default-400">
+                      <Timer className="w-3 h-3" />
+                      เฉลี่ย {emp.avgLeadTime} วัน/ใบ
+                      {speed && (
+                        <span className={`font-semibold ${speed.color}`}>
+                          ({speed.label})
+                        </span>
+                      )}
+                    </span>
+                  )}
+                </div>
                 <span className={`text-xs font-bold ${isTop3 ? "text-foreground" : "text-default-500"}`}>
                   {fmtNum(emp.totalQty)} ชิ้น
+                  {emp.orderCount > 0 && (
+                    <span className="text-[10px] font-normal text-default-400 ml-1">
+                      ({emp.orderCount} ใบ)
+                    </span>
+                  )}
                 </span>
               </div>
               <div className="w-full h-5 bg-default-100 rounded-full overflow-hidden">
@@ -166,16 +193,34 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                         key={c.category}
                         className={`bg-linear-to-b ${BAR_GRADIENTS[colorIdx]} h-full`}
                         style={{ width: `${pct}%` }}
-                        title={`${c.category}: ${fmtNum(c.quantity)} ชิ้น`}
+                        title={`${c.category}: ${fmtNum(c.quantity)} ชิ้น${c.avgDays != null ? ` | เฉลี่ย ${c.avgDays} วัน/ใบ (${c.orders} ใบ)` : ""}`}
                       />
                     );
                   })}
                 </div>
               </div>
+              {/* Category breakdown with speed */}
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                {emp.categories.slice(0, 4).map((c) => {
+                  const colorIdx = catColorMap[c.category] ?? 0;
+                  const catSpeed = getSpeedLabel(c.avgDays);
+                  return (
+                    <span key={c.category} className="text-[10px] text-default-400">
+                      <span className={`font-medium text-${COLORS[colorIdx]}`}>{c.category}</span>
+                      {" "}{fmtNum(c.quantity)}
+                      {c.avgDays != null && (
+                        <span className={catSpeed?.color || ""}>
+                          {" "}({c.avgDays}วัน)
+                        </span>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Specialty Badge */}
-            <div className="shrink-0">
+            <div className="shrink-0 flex flex-col items-end gap-1">
               <Chip
                 size="sm"
                 variant={isTop3 ? "solid" : "flat"}
@@ -184,6 +229,12 @@ export default function EmployeeSpecializationChart({ data = [] }) {
               >
                 {emp.topCategory}
               </Chip>
+              {emp.avgLeadTime != null && speed && (
+                <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium ${speed.color} ${speed.bg}`}>
+                  <Clock className="w-3 h-3" />
+                  {emp.avgLeadTime}วัน
+                </div>
+              )}
             </div>
           </div>
         );

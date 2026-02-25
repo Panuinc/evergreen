@@ -194,11 +194,15 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     const order = orderMap[e.documentNo];
     if (!order || order.status !== "Released") continue;
     const orderNo = e.documentNo;
-    if (!wipMap[orderNo])
-      wipMap[orderNo] = {
+    // Group by orderNo + unitOfMeasureCode so different UOMs stay separate
+    const uom = e.unitOfMeasureCode || order.unitOfMeasureCode || "-";
+    const key = `${orderNo}::${uom}`;
+    if (!wipMap[key])
+      wipMap[key] = {
         orderNo,
         description: order.description,
         sourceNo: order.sourceNo,
+        uom,
         plannedQty: Number(order.quantity) || 0,
         outputQty: 0,
         consumptionCost: 0,
@@ -207,14 +211,14 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         startingDateTime: order.startingDateTime,
       };
     if (e.entryType === "Consumption") {
-      wipMap[orderNo].consumptionCost += Math.abs(
+      wipMap[key].consumptionCost += Math.abs(
         Number(e.costAmountActual) || 0,
       );
     } else if (e.entryType === "Output") {
       const qty = Number(e.quantity) || 0;
-      wipMap[orderNo].outputQty += qty;
+      wipMap[key].outputQty += qty;
       const unitPrice = salesPriceMap[e.itemNo] || 0;
-      wipMap[orderNo].revenue += unitPrice * qty;
+      wipMap[key].revenue += unitPrice * qty;
     }
   }
   const wipDetailAll = Object.values(wipMap).map((w) => {
@@ -224,6 +228,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       : 0;
     return {
       ...w,
+      _key: `${w.orderNo}::${w.uom}`,
       remainQty,
       completionPct,
       wipValue: w.consumptionCost - w.revenue,
@@ -330,6 +335,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   // entry.globalDimension1Code = worker names joined by "/" (e.g. "ป.เสริฐ/สีมาซู")
   // Split by "/" to credit each worker individually
   // itemCategoryCode = product type skill (ประตู, วงกบ, etc.)
+  // Include lead time from production order (startingDateTime → finishedDate)
   const empSpecMap = {};
   for (const e of entries) {
     if (e.entryType !== "Output") continue;
@@ -338,13 +344,29 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     if (!workers.length) workers.push("ไม่ระบุ");
     const cat = itemLookup[e.itemNo]?.itemCategoryCode || "ไม่ระบุ";
     const qty = Number(e.quantity) || 0;
+    const order = orderMap[e.documentNo];
+    // Calculate lead time in days for this order
+    let leadDays = null;
+    if (order?.startingDateTime && order?.finishedDate) {
+      const start = new Date(order.startingDateTime);
+      const end = new Date(order.finishedDate);
+      const d = Math.round((end - start) / (1000 * 60 * 60 * 24));
+      if (d >= 0) leadDays = d;
+    }
     for (const worker of workers) {
       if (!empSpecMap[worker])
-        empSpecMap[worker] = { employee: worker, categories: {}, totalQty: 0 };
+        empSpecMap[worker] = { employee: worker, categories: {}, totalQty: 0, totalLeadDays: 0, orderCount: 0 };
       if (!empSpecMap[worker].categories[cat])
-        empSpecMap[worker].categories[cat] = 0;
-      empSpecMap[worker].categories[cat] += qty;
+        empSpecMap[worker].categories[cat] = { quantity: 0, leadDays: [], orderNos: new Set() };
+      empSpecMap[worker].categories[cat].quantity += qty;
       empSpecMap[worker].totalQty += qty;
+      // Track lead time per order (avoid counting same order twice per worker+cat)
+      if (leadDays !== null && !empSpecMap[worker].categories[cat].orderNos.has(e.documentNo)) {
+        empSpecMap[worker].categories[cat].leadDays.push(leadDays);
+        empSpecMap[worker].categories[cat].orderNos.add(e.documentNo);
+        empSpecMap[worker].totalLeadDays += leadDays;
+        empSpecMap[worker].orderCount++;
+      }
     }
   }
   const employeeSpecialization = Object.values(empSpecMap)
@@ -352,11 +374,21 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .slice(0, 15)
     .map((emp) => {
       const cats = Object.entries(emp.categories)
-        .sort((a, b) => b[1] - a[1])
-        .map(([category, quantity]) => ({ category, quantity }));
+        .sort((a, b) => b[1].quantity - a[1].quantity)
+        .map(([category, data]) => {
+          const avgDays = data.leadDays.length > 0
+            ? Math.round(data.leadDays.reduce((a, b) => a + b, 0) / data.leadDays.length)
+            : null;
+          return { category, quantity: data.quantity, avgDays, orders: data.leadDays.length };
+        });
+      const avgLeadTime = emp.orderCount > 0
+        ? Math.round(emp.totalLeadDays / emp.orderCount)
+        : null;
       return {
         employee: emp.employee,
         totalQty: emp.totalQty,
+        avgLeadTime,
+        orderCount: emp.orderCount,
         topCategory: cats[0]?.category || "-",
         categories: cats,
       };

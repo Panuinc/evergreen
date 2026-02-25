@@ -101,6 +101,7 @@ const wipColumns = [
   { name: "เลขที่ใบสั่งผลิต", uid: "orderNo", sortable: true },
   { name: "รายละเอียด", uid: "description", sortable: true },
   { name: "สินค้า", uid: "sourceNo", sortable: true },
+  { name: "หน่วย", uid: "uom", sortable: true },
   { name: "แผนผลิต", uid: "plannedQty", sortable: true },
   { name: "ผลิตแล้ว", uid: "outputQty", sortable: true },
   { name: "คงเหลือ", uid: "remainQty", sortable: true },
@@ -115,6 +116,7 @@ const wipInitialColumns = [
   "orderNo",
   "description",
   "sourceNo",
+  "uom",
   "plannedQty",
   "outputQty",
   "remainQty",
@@ -302,8 +304,8 @@ function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
               columns={wipColumns}
               data={d.wipDetail}
               renderCell={renderWipCell}
-              rowKey="orderNo"
-              searchKeys={["orderNo", "description", "sourceNo"]}
+              rowKey="_key"
+              searchKeys={["orderNo", "description", "sourceNo", "uom"]}
               searchPlaceholder="ค้นหาใบสั่งผลิต..."
               initialVisibleColumns={wipInitialColumns}
               defaultSortDescriptor={{ column: "completionPct", direction: "ascending" }}
@@ -315,7 +317,7 @@ function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
 
       {/* Section 7: ใบสั่งผลิตเกินกำหนด */}
       {d.overdueOrders?.length > 0 && (
-        <Card shadow="none" className="border border-danger-200">
+        <Card shadow="none" className="border border-default">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold text-danger">
@@ -390,6 +392,12 @@ export default function ProductionDashboardPage() {
         );
       case "sourceNo":
         return <span className="text-xs">{item.sourceNo || "-"}</span>;
+      case "uom":
+        return (
+          <Chip size="sm" variant="flat" color="default">
+            {item.uom || "-"}
+          </Chip>
+        );
       case "plannedQty":
       case "outputQty":
         return <span className="text-xs">{fmt(item[columnKey])}</span>;
