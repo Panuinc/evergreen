@@ -20,10 +20,10 @@ import {
   ShoppingCart,
   ClipboardList,
   FolderKanban,
+  Factory,
   Upload,
   FileSpreadsheet,
   Loader2,
-  ArrowLeftRight,
 } from "lucide-react";
 
 /* ── BC Tables ── */
@@ -33,7 +33,7 @@ const BC_TABLES = [
   { key: "items", label: "สินค้า", icon: Package },
   { key: "salesOrders", label: "คำสั่งขาย", icon: ShoppingCart },
   { key: "salesOrderLines", label: "รายการคำสั่งขาย", icon: ClipboardList },
-  { key: "itemLedgerEntries", label: "เคลื่อนไหวสินค้า", icon: ArrowLeftRight },
+  { key: "production", label: "การผลิต", icon: Factory },
 ];
 
 const PHASE_ORDER = [
@@ -42,7 +42,7 @@ const PHASE_ORDER = [
   "items",
   "salesOrders",
   "salesOrderLines",
-  "itemLedgerEntries",
+  "production",
   "cleanup",
 ];
 
@@ -425,7 +425,7 @@ function BcSyncSection() {
             <li>Items — สินค้าทั้งหมด + map projectCode/projectName</li>
             <li>Sales Orders — คำสั่งซื้อ SO26*</li>
             <li>SO Lines — รายการสินค้าในคำสั่งซื้อ</li>
-            <li>Item Ledger Entries — รายการเคลื่อนไหวสินค้า (รับ/จ่าย/โอน/ผลิต)</li>
+            <li>Production — ใบสั่งผลิต + Item Ledger Entries (รวม 2 API เป็น 1 ตาราง)</li>
           </ul>
         </CardBody>
       </Card>

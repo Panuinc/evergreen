@@ -154,3 +154,42 @@ export async function bcODataGet(entity, params = {}, { timeout = 60_000, maxPag
 
   return allValues;
 }
+
+export async function bcProductionODataGet(entity, params = {}, { timeout = 60_000, maxPageSize = 5000 } = {}) {
+  const token = await getToken();
+  const { BC_TENANT_ID, BC_ENVIRONMENT } = process.env;
+  if (!BC_TENANT_ID || !BC_ENVIRONMENT) {
+    throw new Error("Missing BC_TENANT_ID or BC_ENVIRONMENT");
+  }
+  // Production OData ใช้ environment "Production" ตรงๆ (ไม่ต่อกับ BC_ENVIRONMENT)
+  const baseUrl = `https://api.businesscentral.dynamics.com/v2.0/${BC_TENANT_ID}/Production/ODataV4/Company('C.H.H._Go-Live')`;
+
+  const url = new URL(`${baseUrl}/${entity}`);
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
+
+  const allValues = [];
+  let nextUrl = url.toString();
+
+  while (nextUrl) {
+    const res = await fetchWithRetry(nextUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        Prefer: `odata.maxpagesize=${maxPageSize}`,
+      },
+    }, { timeout });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`BC Production OData error: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    allValues.push(...(data.value || []));
+    nextUrl = data["@odata.nextLink"] || null;
+  }
+
+  return allValues;
+}

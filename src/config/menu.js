@@ -216,15 +216,9 @@ export const menuData = [
     icon: Factory,
     href: "/production/dashboard",
     subMenus: [
-      {
-        name: "แดชบอร์ด",
-        icon: LayoutDashboard,
-        href: "/production/dashboard",
-      },
-      { name: "เบิก/ผลิตรายวัน", icon: Calendar, href: "/production/daily" },
-      { name: "ใบสั่งผลิต", icon: ClipboardList, href: "/production/orders" },
-      { name: "แผนการผลิต", icon: FileText },
-
+      { name: "แดชบอร์ด", icon: LayoutDashboard, href: "/production/dashboard" },
+      { name: "แผนการผลิต", icon: Calendar },
+      { name: "ใบสั่งงาน", icon: ClipboardList },
       { name: "BOM", icon: List },
       { name: "สถานะเครื่องจักร", icon: Settings },
       { name: "ประสิทธิภาพ", icon: TrendingUp },
@@ -325,11 +319,6 @@ export const menuData = [
       { name: "ลูกค้า", icon: Users, href: "/bc/customers" },
       { name: "สินค้า", icon: Package, href: "/bc/items" },
       { name: "คำสั่งขาย", icon: ShoppingCart, href: "/bc/salesOrders" },
-      {
-        name: "เคลื่อนไหวสินค้า",
-        icon: ClipboardList,
-        href: "/bc/itemLedgerEntries",
-      },
     ],
   },
   {

@@ -1,13 +1,5 @@
 import { get } from "@/lib/apiClient";
 
-export async function getProductionDashboard() {
-  return get("/api/production/dashboard");
-}
-
-export async function getProductionOrders() {
-  return get("/api/production/orders");
-}
-
-export async function getProductionDaily() {
-  return get("/api/production/daily");
+export async function getBcProduction() {
+  return get("/api/bc/production");
 }

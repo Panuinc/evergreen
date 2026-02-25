@@ -11,8 +11,3 @@ export async function getBcItems() {
 export async function getBcSalesOrders() {
   return get("/api/bc/salesOrders");
 }
-
-export async function getBcItemLedgerEntries(params = {}) {
-  const searchParams = new URLSearchParams(params).toString();
-  return get(`/api/bc/itemLedgerEntries${searchParams ? `?${searchParams}` : ""}`);
-}

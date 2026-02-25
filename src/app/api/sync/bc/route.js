@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { bcODataGet, bcApiGet } from "@/lib/bcClient";
+import { bcODataGet, bcApiGet, bcProductionODataGet } from "@/lib/bcClient";
 
 export const maxDuration = 300;
 
@@ -42,13 +42,23 @@ function isSafeToCleanup(newCount, totalCount) {
   return (newCount / totalCount) * 100 >= 50;
 }
 
+function bcDate(val) {
+  if (!val || val === "0001-01-01") return null;
+  return val;
+}
+
+function bcTimestamp(val) {
+  if (!val || val.startsWith("0001-01-01")) return null;
+  return val;
+}
+
 const ALL_TABLES = [
   "dimensionValues",
   "customers",
   "items",
   "salesOrders",
   "salesOrderLines",
-  "itemLedgerEntries",
+  "production",
 ];
 
 let syncLock = null;
@@ -455,92 +465,142 @@ async function runSync(supabase, requestedTables, send) {
     }
   }
 
-  // ═══ Phase 5: Item Ledger Entries ═══
-  if (shouldSync("itemLedgerEntries")) {
+
+  // ═══ Phase 5: Production (productionOrder + ItemLedgerEntries → bcProduction) ═══
+  if (shouldSync("production")) {
     send("progress", {
-      phase: "itemLedgerEntries",
+      phase: "production",
       step: "fetching",
-      label: "ดึงข้อมูลรายการเคลื่อนไหวสินค้า...",
+      label: "ดึงข้อมูลใบสั่งผลิต...",
     });
     try {
-      const entries = await bcODataGet(
-        "ItemLedgerEntries",
-        {
-          $filter: "Posting_Date ge 2026-01-01 and (Entry_Type eq 'Consumption' or Entry_Type eq 'Output')",
-          $select:
-            "Entry_No,Posting_Date,Entry_Type,Document_No,Item_No,Description,Location_Code,Quantity,Unit_of_Measure_Code,Remaining_Quantity,Invoiced_Quantity,Completely_Invoiced,Cost_Amount_Expected,Cost_Amount_Actual,Sales_Amount_Expected,Sales_Amount_Actual,Open,Global_Dimension_1_Code,Global_Dimension_2_Code,Order_Type,Order_No,Order_Line_No,Item_Description,Variant_Code,BWK_Bin_Code,BWK_Base_Unit_of_Measure,Source_Type,Source_No,Source_Description,BWK_Create_By",
-          $orderby: "Entry_No desc",
-        },
-        { timeout: 180_000, maxPageSize: 500 },
-      );
-      const entryRows = entries.map((e) => ({
-        id: String(e.Entry_No),
-        entryNo: e.Entry_No,
-        postingDate: e.Posting_Date || null,
-        documentDate: e.DocumentDate === "0001-01-01" ? null : e.DocumentDate || null,
-        entryType: e.Entry_Type?.trim() || null,
-        documentType: e.Document_Type?.trim() || null,
-        documentNo: e.Document_No,
-        itemNo: e.Item_No,
-        description: e.Description,
-        locationCode: e.Location_Code?.trim() || null,
-        lotNo: e.Lot_No?.trim() || null,
-        serialNo: e.Serial_No?.trim() || null,
-        expirationDate: e.Expiration_Date === "0001-01-01" ? null : e.Expiration_Date || null,
-        quantity: e.Quantity,
-        unitOfMeasureCode: e.Unit_of_Measure_Code,
-        remainingQuantity: e.Remaining_Quantity,
-        invoicedQuantity: e.Invoiced_Quantity,
-        completelyInvoiced: e.Completely_Invoiced,
-        costAmountExpected: e.Cost_Amount_Expected,
-        costAmountActual: e.Cost_Amount_Actual,
-        salesAmountExpected: e.Sales_Amount_Expected,
-        salesAmountActual: e.Sales_Amount_Actual,
-        open: e.Open,
-        globalDimension1Code: e.Global_Dimension_1_Code?.trim() || null,
-        globalDimension2Code: e.Global_Dimension_2_Code?.trim() || null,
-        orderType: e.Order_Type?.trim() || null,
-        orderNo: e.Order_No?.trim() || null,
-        orderLineNo: e.Order_Line_No,
-        itemDescription: e.Item_Description,
-        variantCode: e.Variant_Code?.trim() || null,
-        returnReasonCode: e.Return_Reason_Code?.trim() || null,
-        binCode: e.BWK_Bin_Code?.trim() || null,
-        baseUnitOfMeasure: e.BWK_Base_Unit_of_Measure,
-        sourceType: e.Source_Type?.trim() || null,
-        sourceNo: e.Source_No?.trim() || null,
-        sourceDescription: e.Source_Description,
-        createdBy: e.BWK_Create_By?.trim() || null,
-        syncedAt: now,
-      }));
+      const [prodOrders, ileEntries] = await Promise.all([
+        bcProductionODataGet(
+          "productionOrder",
+          { $filter: "No ge 'RPD2601-001'" },
+          { timeout: 120_000 },
+        ),
+        bcProductionODataGet(
+          "ItemLedgerEntries",
+          {
+            $filter:
+              "(Entry_Type eq 'Consumption' or Entry_Type eq 'Output') and Posting_Date ge 2026-01-01",
+          },
+          { timeout: 180_000 },
+        ),
+      ]);
+
       send("progress", {
-        phase: "itemLedgerEntries",
-        step: "saving",
-        count: entryRows.length,
-        label: `บันทึกรายการเคลื่อนไหว ${entryRows.length.toLocaleString()} รายการ...`,
+        phase: "production",
+        step: "fetching",
+        label: `ดึงข้อมูลเสร็จ: ใบสั่งผลิต ${prodOrders.length.toLocaleString()} / ILE ${ileEntries.length.toLocaleString()} รายการ`,
       });
-      await batchUpsert(supabase, "bcItemLedgerEntries", entryRows, {
+
+      // Build lookup map: orderNo → production order data
+      const orderMap = {};
+      for (const o of prodOrders) {
+        orderMap[o.No] = o;
+      }
+
+      // Merge: each ILE row enriched with PO header
+      const productionRows = ileEntries.map((e) => {
+        const po = orderMap[e.Document_No] || null;
+        return {
+          id: crypto.randomUUID(),
+          // Production Order Header
+          orderStatus: po?.Status || null,
+          orderNo: po?.No || null,
+          orderDescription: po?.Description || null,
+          orderDescription2: po?.Description_2 || null,
+          sourceNo: po?.Source_No || null,
+          routingNo: po?.Routing_No || null,
+          orderQuantity: po?.Quantity || 0,
+          dimension1Code: po?.Shortcut_Dimension_1_Code || null,
+          dimension2Code: po?.Shortcut_Dimension_2_Code || null,
+          orderLocationCode: po?.Location_Code || null,
+          startingDateTime: bcTimestamp(po?.Starting_Date_Time),
+          endingDateTime: bcTimestamp(po?.Ending_Date_Time),
+          dueDate: bcDate(po?.Due_Date),
+          remainingConsumption: po?.BWK_Remaining_Consumption || 0,
+          assignedUserId: po?.Assigned_User_ID || null,
+          finishedDate: bcDate(po?.Finished_Date),
+          searchDescription: po?.Search_Description || null,
+          // Item Ledger Entry Detail
+          entryNo: e.Entry_No,
+          postingDate: bcDate(e.Posting_Date),
+          documentDate: bcDate(e.DocumentDate),
+          entryType: e.Entry_Type?.trim() || null,
+          documentType: e.Document_Type?.trim() || null,
+          documentNo: e.Document_No || null,
+          itemNo: e.Item_No || null,
+          itemDescription: e.Description || e.Item_Description || null,
+          employeeCode: e.CHH_Employee_Code || null,
+          employeeName: e.CHH_Employee_Name || null,
+          description2: e.BWK_Descriptin_2 || null,
+          locationCode: e.Location_Code || null,
+          lotNo: e.Lot_No || null,
+          serialNo: e.Serial_No || null,
+          expirationDate: bcDate(e.Expiration_Date),
+          quantity: e.Quantity || 0,
+          unitOfMeasureCode: e.Unit_of_Measure_Code || null,
+          remainingQuantity: e.Remaining_Quantity || 0,
+          invoicedQuantity: e.Invoiced_Quantity || 0,
+          completelyInvoiced: e.Completely_Invoiced || false,
+          unitCostExpected: e.UnitCostExp || 0,
+          costAmountExpected: e.Cost_Amount_Expected || 0,
+          unitCostActual: e.UnitCostActual || 0,
+          costAmountActual: e.Cost_Amount_Actual || 0,
+          salesAmountExpected: e.Sales_Amount_Expected || 0,
+          salesAmountActual: e.Sales_Amount_Actual || 0,
+          open: e.Open || false,
+          globalDimension1Code: e.Global_Dimension_1_Code || null,
+          globalDimension2Code: e.Global_Dimension_2_Code || null,
+          orderType: e.Order_Type?.trim() || null,
+          orderLineNo: e.Order_Line_No || 0,
+          documentLineNo: e.Document_Line_No || 0,
+          variantCode: e.Variant_Code || null,
+          binCode: e.BWK_Bin_Code || null,
+          baseUnitOfMeasure: e.BWK_Base_Unit_of_Measure || null,
+          totalGrossWeight: e.BWK_Total_Gross_Weight || 0,
+          totalNetWeight: e.BWK_Total_Net_Weight || 0,
+          createdBy: e.BWK_Create_By || null,
+          syncedAt: now,
+        };
+      });
+
+      send("progress", {
+        phase: "production",
+        step: "saving",
+        count: productionRows.length,
+        label: `บันทึกข้อมูลการผลิต ${productionRows.length.toLocaleString()} รายการ...`,
+      });
+
+      // Delete all then insert (full replace strategy for production)
+      await supabase.from("bcProduction").delete().gte("entryNo", 0);
+
+      await batchUpsert(supabase, "bcProduction", productionRows, {
         onProgress: (done, total) =>
           send("progress", {
-            phase: "itemLedgerEntries",
+            phase: "production",
             step: "saving",
             done,
             total,
-            label: `บันทึกรายการ ${done.toLocaleString()}/${total.toLocaleString()}`,
+            label: `บันทึกการผลิต ${done.toLocaleString()}/${total.toLocaleString()}`,
           }),
       });
-      results.itemLedgerEntries = entryRows.length;
-      syncSuccess.itemLedgerEntries = true;
+
+      results.production = productionRows.length;
+      syncSuccess.production = true;
       send("progress", {
-        phase: "itemLedgerEntries",
+        phase: "production",
         step: "done",
-        count: entryRows.length,
-        label: `รายการเคลื่อนไหว ${entryRows.length.toLocaleString()} รายการ`,
+        count: productionRows.length,
+        label: `การผลิต ${productionRows.length.toLocaleString()} รายการ`,
       });
     } catch (e) {
-      results.itemLedgerEntries = `ERROR: ${e.message}`;
+      results.production = `ERROR: ${e.message}`;
       send("progress", {
-        phase: "itemLedgerEntries",
+        phase: "production",
         step: "error",
         error: e.message,
       });
@@ -661,28 +721,6 @@ async function runSync(supabase, requestedTables, send) {
     }
   }
 
-  if (syncSuccess.itemLedgerEntries) {
-    const { count: staleCount } = await supabase
-      .from("bcItemLedgerEntries")
-      .select("*", { count: "exact", head: true })
-      .lt("syncedAt", now);
-    if (
-      !isSafeToCleanup(
-        results.itemLedgerEntries,
-        results.itemLedgerEntries + (staleCount || 0),
-      )
-    ) {
-      cleanup.itemLedgerEntries = `SKIPPED: sync got ${results.itemLedgerEntries} but ${staleCount} would be deleted`;
-    } else {
-      const { count, error } = await supabase
-        .from("bcItemLedgerEntries")
-        .delete({ count: "exact" })
-        .lt("syncedAt", now);
-      cleanup.itemLedgerEntries = error
-        ? `ERROR: ${error.message}`
-        : count || 0;
-    }
-  }
 
   send("progress", {
     phase: "cleanup",
