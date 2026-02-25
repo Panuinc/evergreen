@@ -484,7 +484,7 @@ async function runSync(supabase, requestedTables, send) {
           "ItemLedgerEntries",
           {
             $filter:
-              "(Entry_Type eq 'Consumption' or Entry_Type eq 'Output') and Posting_Date ge 2026-01-01",
+              "(Entry_Type eq 'Consumption' or Entry_Type eq 'Output') and Posting_Date ge 2026-01-01 and Document_No ge 'RPD2601'",
           },
           { timeout: 180_000 },
         ),
