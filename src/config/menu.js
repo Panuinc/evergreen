@@ -217,6 +217,7 @@ export const menuData = [
     href: "/production/dashboard",
     subMenus: [
       { name: "แดชบอร์ด", icon: LayoutDashboard, href: "/production/dashboard" },
+      { name: "รายการผลิต", icon: ClipboardList, href: "/production/entries" },
       { name: "แผนการผลิต", icon: Calendar },
       { name: "ใบสั่งงาน", icon: ClipboardList },
       { name: "BOM", icon: List },

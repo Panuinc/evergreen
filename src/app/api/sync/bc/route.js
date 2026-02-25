@@ -496,106 +496,111 @@ async function runSync(supabase, requestedTables, send) {
         label: `ดึงข้อมูลเสร็จ: ใบสั่งผลิต ${prodOrders.length.toLocaleString()} / ILE ${ileEntries.length.toLocaleString()} รายการ`,
       });
 
-      // Build lookup map: orderNo → production order data
-      const orderMap = {};
-      for (const o of prodOrders) {
-        orderMap[o.No] = o;
-      }
+      // ── Map Production Orders ──
+      const poRows = prodOrders.map((o) => ({
+        id: o.No,
+        status: o.Status || null,
+        description: o.Description || null,
+        description2: o.Description_2 || null,
+        sourceNo: o.Source_No || null,
+        routingNo: o.Routing_No || null,
+        quantity: o.Quantity || 0,
+        dimension1Code: o.Shortcut_Dimension_1_Code || null,
+        dimension2Code: o.Shortcut_Dimension_2_Code || null,
+        locationCode: o.Location_Code || null,
+        startingDateTime: bcTimestamp(o.Starting_Date_Time),
+        endingDateTime: bcTimestamp(o.Ending_Date_Time),
+        dueDate: bcDate(o.Due_Date),
+        remainingConsumption: o.BWK_Remaining_Consumption || 0,
+        assignedUserId: o.Assigned_User_ID || null,
+        finishedDate: bcDate(o.Finished_Date),
+        searchDescription: o.Search_Description || null,
+        syncedAt: now,
+      }));
 
-      // Merge: each ILE row enriched with PO header
-      const productionRows = ileEntries.map((e) => {
-        const po = orderMap[e.Document_No] || null;
-        return {
-          id: crypto.randomUUID(),
-          // Production Order Header
-          orderStatus: po?.Status || null,
-          orderNo: po?.No || null,
-          orderDescription: po?.Description || null,
-          orderDescription2: po?.Description_2 || null,
-          sourceNo: po?.Source_No || null,
-          routingNo: po?.Routing_No || null,
-          orderQuantity: po?.Quantity || 0,
-          dimension1Code: po?.Shortcut_Dimension_1_Code || null,
-          dimension2Code: po?.Shortcut_Dimension_2_Code || null,
-          orderLocationCode: po?.Location_Code || null,
-          startingDateTime: bcTimestamp(po?.Starting_Date_Time),
-          endingDateTime: bcTimestamp(po?.Ending_Date_Time),
-          dueDate: bcDate(po?.Due_Date),
-          remainingConsumption: po?.BWK_Remaining_Consumption || 0,
-          assignedUserId: po?.Assigned_User_ID || null,
-          finishedDate: bcDate(po?.Finished_Date),
-          searchDescription: po?.Search_Description || null,
-          // Item Ledger Entry Detail
-          entryNo: e.Entry_No,
-          postingDate: bcDate(e.Posting_Date),
-          documentDate: bcDate(e.DocumentDate),
-          entryType: e.Entry_Type?.trim() || null,
-          documentType: e.Document_Type?.trim() || null,
-          documentNo: e.Document_No || null,
-          itemNo: e.Item_No || null,
-          itemDescription: e.Description || e.Item_Description || null,
-          employeeCode: e.CHH_Employee_Code || null,
-          employeeName: e.CHH_Employee_Name || null,
-          description2: e.BWK_Descriptin_2 || null,
-          locationCode: e.Location_Code || null,
-          lotNo: e.Lot_No || null,
-          serialNo: e.Serial_No || null,
-          expirationDate: bcDate(e.Expiration_Date),
-          quantity: e.Quantity || 0,
-          unitOfMeasureCode: e.Unit_of_Measure_Code || null,
-          remainingQuantity: e.Remaining_Quantity || 0,
-          invoicedQuantity: e.Invoiced_Quantity || 0,
-          completelyInvoiced: e.Completely_Invoiced || false,
-          unitCostExpected: e.UnitCostExp || 0,
-          costAmountExpected: e.Cost_Amount_Expected || 0,
-          unitCostActual: e.UnitCostActual || 0,
-          costAmountActual: e.Cost_Amount_Actual || 0,
-          salesAmountExpected: e.Sales_Amount_Expected || 0,
-          salesAmountActual: e.Sales_Amount_Actual || 0,
-          open: e.Open || false,
-          globalDimension1Code: e.Global_Dimension_1_Code || null,
-          globalDimension2Code: e.Global_Dimension_2_Code || null,
-          orderType: e.Order_Type?.trim() || null,
-          orderLineNo: e.Order_Line_No || 0,
-          documentLineNo: e.Document_Line_No || 0,
-          variantCode: e.Variant_Code || null,
-          binCode: e.BWK_Bin_Code || null,
-          baseUnitOfMeasure: e.BWK_Base_Unit_of_Measure || null,
-          totalGrossWeight: e.BWK_Total_Gross_Weight || 0,
-          totalNetWeight: e.BWK_Total_Net_Weight || 0,
-          createdBy: e.BWK_Create_By || null,
-          syncedAt: now,
-        };
-      });
+      // ── Map Item Ledger Entries ──
+      const ileRows = ileEntries.map((e) => ({
+        id: String(e.Entry_No),
+        entryNo: e.Entry_No,
+        postingDate: bcDate(e.Posting_Date),
+        documentDate: bcDate(e.DocumentDate),
+        entryType: e.Entry_Type?.trim() || null,
+        documentType: e.Document_Type?.trim() || null,
+        documentNo: e.Document_No || null,
+        itemNo: e.Item_No || null,
+        itemDescription: e.Description || e.Item_Description || null,
+        employeeCode: e.CHH_Employee_Code || null,
+        employeeName: e.CHH_Employee_Name || null,
+        description2: e.BWK_Descriptin_2 || null,
+        locationCode: e.Location_Code || null,
+        lotNo: e.Lot_No || null,
+        serialNo: e.Serial_No || null,
+        expirationDate: bcDate(e.Expiration_Date),
+        quantity: e.Quantity || 0,
+        unitOfMeasureCode: e.Unit_of_Measure_Code || null,
+        remainingQuantity: e.Remaining_Quantity || 0,
+        invoicedQuantity: e.Invoiced_Quantity || 0,
+        completelyInvoiced: e.Completely_Invoiced || false,
+        unitCostExpected: e.UnitCostExp || 0,
+        costAmountExpected: e.Cost_Amount_Expected || 0,
+        unitCostActual: e.UnitCostActual || 0,
+        costAmountActual: e.Cost_Amount_Actual || 0,
+        salesAmountExpected: e.Sales_Amount_Expected || 0,
+        salesAmountActual: e.Sales_Amount_Actual || 0,
+        open: e.Open || false,
+        globalDimension1Code: e.Global_Dimension_1_Code || null,
+        globalDimension2Code: e.Global_Dimension_2_Code || null,
+        orderType: e.Order_Type?.trim() || null,
+        orderLineNo: e.Order_Line_No || 0,
+        documentLineNo: e.Document_Line_No || 0,
+        variantCode: e.Variant_Code || null,
+        binCode: e.BWK_Bin_Code || null,
+        baseUnitOfMeasure: e.BWK_Base_Unit_of_Measure || null,
+        totalGrossWeight: e.BWK_Total_Gross_Weight || 0,
+        totalNetWeight: e.BWK_Total_Net_Weight || 0,
+        createdBy: e.BWK_Create_By || null,
+        syncedAt: now,
+      }));
 
       send("progress", {
         phase: "production",
         step: "saving",
-        count: productionRows.length,
-        label: `บันทึกข้อมูลการผลิต ${productionRows.length.toLocaleString()} รายการ...`,
+        label: `บันทึก PO ${poRows.length.toLocaleString()} / ILE ${ileRows.length.toLocaleString()} รายการ...`,
       });
 
-      // Delete all then insert (full replace strategy for production)
-      await supabase.from("bcProduction").delete().gte("entryNo", 0);
+      // Delete all then insert (full replace strategy)
+      await Promise.all([
+        supabase.from("bcProductionOrders").delete().neq("id", ""),
+        supabase.from("bcItemLedgerEntries").delete().gte("entryNo", 0),
+      ]);
 
-      await batchUpsert(supabase, "bcProduction", productionRows, {
-        onProgress: (done, total) =>
-          send("progress", {
-            phase: "production",
-            step: "saving",
-            done,
-            total,
-            label: `บันทึกการผลิต ${done.toLocaleString()}/${total.toLocaleString()}`,
-          }),
-      });
+      // Insert both tables in parallel
+      await Promise.all([
+        batchUpsert(supabase, "bcProductionOrders", poRows, {
+          onProgress: (done, total) =>
+            send("progress", {
+              phase: "production",
+              step: "saving",
+              label: `บันทึก PO ${done.toLocaleString()}/${total.toLocaleString()}`,
+            }),
+        }),
+        batchUpsert(supabase, "bcItemLedgerEntries", ileRows, {
+          onProgress: (done, total) =>
+            send("progress", {
+              phase: "production",
+              step: "saving",
+              label: `บันทึก ILE ${done.toLocaleString()}/${total.toLocaleString()}`,
+            }),
+        }),
+      ]);
 
-      results.production = productionRows.length;
+      results.production = { orders: poRows.length, entries: ileRows.length };
       syncSuccess.production = true;
       send("progress", {
         phase: "production",
         step: "done",
-        count: productionRows.length,
-        label: `การผลิต ${productionRows.length.toLocaleString()} รายการ`,
+        count: poRows.length + ileRows.length,
+        label: `การผลิต PO ${poRows.length.toLocaleString()} / ILE ${ileRows.length.toLocaleString()} รายการ`,
       });
     } catch (e) {
       results.production = `ERROR: ${e.message}`;

@@ -137,7 +137,11 @@ function ResultCards({ tables, results }) {
                 <p className="text-xs text-danger">{val}</p>
               ) : (
                 <p className="text-2xl font-bold">
-                  {typeof val === "number" ? val.toLocaleString("th-TH") : val ?? "-"}
+                  {typeof val === "number"
+                    ? val.toLocaleString("th-TH")
+                    : typeof val === "object" && val !== null
+                      ? Object.entries(val).map(([k, v]) => `${k}: ${Number(v).toLocaleString("th-TH")}`).join(" / ")
+                      : val ?? "-"}
                 </p>
               )}
             </CardBody>
@@ -425,7 +429,7 @@ function BcSyncSection() {
             <li>Items — สินค้าทั้งหมด + map projectCode/projectName</li>
             <li>Sales Orders — คำสั่งซื้อ SO26*</li>
             <li>SO Lines — รายการสินค้าในคำสั่งซื้อ</li>
-            <li>Production — ใบสั่งผลิต + Item Ledger Entries (รวม 2 API เป็น 1 ตาราง)</li>
+            <li>Production — ใบสั่งผลิต (bcProductionOrders) + Item Ledger Entries (bcItemLedgerEntries)</li>
           </ul>
         </CardBody>
       </Card>

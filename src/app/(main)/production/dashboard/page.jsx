@@ -1,154 +1,109 @@
 "use client";
 
-import { useCallback } from "react";
-import { Chip } from "@heroui/react";
-import { useProduction } from "@/hooks/production/useProduction";
-import DataTable from "@/components/ui/DataTable";
+import { Card, CardBody, CardHeader, Spinner } from "@heroui/react";
+import { useProductionDashboard } from "@/hooks/production/useProductionDashboard";
+import OrdersByStatusChart from "@/components/charts/OrdersByStatusChart";
+import OutputByProductGroupChart from "@/components/charts/OutputByProductGroupChart";
+import CostByProjectChart from "@/components/charts/CostByProjectChart";
+import DailyProductionTrendChart from "@/components/charts/DailyProductionTrendChart";
+import TopOutputItemsChart from "@/components/charts/TopOutputItemsChart";
+import WipByOrderChart from "@/components/charts/WipByOrderChart";
 
-const columns = [
-  { name: "Entry No", uid: "entryNo", sortable: true },
-  { name: "วันที่ลงบัญชี", uid: "postingDate", sortable: true },
-  { name: "ประเภท", uid: "entryType", sortable: true },
-  { name: "เลขที่เอกสาร", uid: "documentNo", sortable: true },
-  { name: "รหัสสินค้า", uid: "itemNo", sortable: true },
-  { name: "รายละเอียด", uid: "itemDescription", sortable: true },
-  { name: "จำนวน", uid: "quantity", sortable: true },
-  { name: "หน่วย", uid: "unitOfMeasureCode" },
-  { name: "ต้นทุนจริง", uid: "costAmountActual", sortable: true },
-  { name: "คลัง", uid: "locationCode", sortable: true },
-  { name: "Bin", uid: "binCode" },
-  { name: "สถานะใบสั่งผลิต", uid: "orderStatus", sortable: true },
-  { name: "เลขที่ใบสั่งผลิต", uid: "orderNo", sortable: true },
-  { name: "รายละเอียดใบสั่งผลิต", uid: "orderDescription" },
-  { name: "สินค้าที่ผลิต", uid: "sourceNo", sortable: true },
-  { name: "จำนวนสั่งผลิต", uid: "orderQuantity", sortable: true },
-  { name: "กำหนดส่ง", uid: "dueDate", sortable: true },
-  { name: "แผนก", uid: "dimension1Code", sortable: true },
-  { name: "โครงการ", uid: "dimension2Code", sortable: true },
-  { name: "ผู้รับผิดชอบ", uid: "assignedUserId", sortable: true },
-  { name: "ผู้สร้าง", uid: "createdBy" },
-];
+function fmt(v) {
+  return Number(v || 0).toLocaleString("th-TH");
+}
 
-const INITIAL_VISIBLE_COLUMNS = [
-  "entryNo",
-  "postingDate",
-  "entryType",
-  "documentNo",
-  "itemNo",
-  "itemDescription",
-  "quantity",
-  "costAmountActual",
-  "locationCode",
-  "orderStatus",
-  "orderNo",
-  "dueDate",
-];
+function fmtCurrency(v) {
+  return `฿${Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
+}
 
-const entryTypeColorMap = {
-  Consumption: "warning",
-  Output: "success",
-  "Positive Adjmt.": "primary",
-  "Negative Adjmt.": "danger",
-  Transfer: "secondary",
-  Sale: "default",
-  Purchase: "default",
-};
+function KpiCard({ title, value, unit, color = "default" }) {
+  const colorClass = {
+    primary: "text-primary",
+    success: "text-success",
+    warning: "text-warning",
+    danger: "text-danger",
+    default: "",
+  };
+  return (
+    <Card shadow="none" className="border border-default-200">
+      <CardBody className="gap-1">
+        <p className="text-xs text-default-500">{title}</p>
+        <div className="flex items-baseline gap-1">
+          <p className={`text-2xl font-bold ${colorClass[color] || ""}`}>{value}</p>
+          {unit && <span className="text-xs text-default-400">{unit}</span>}
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
 
-const statusColorMap = {
-  Released: "primary",
-  Finished: "success",
-  Planned: "default",
-  "Firm Planned": "warning",
-};
+function ChartCard({ title, children }) {
+  return (
+    <Card shadow="none" className="border border-default-200">
+      <CardHeader className="pb-0">
+        <p className="text-sm font-semibold">{title}</p>
+      </CardHeader>
+      <CardBody>{children}</CardBody>
+    </Card>
+  );
+}
 
 export default function ProductionDashboardPage() {
-  const { data, loading } = useProduction();
+  const { data, loading } = useProductionDashboard();
 
-  const renderCell = useCallback((row, columnKey) => {
-    switch (columnKey) {
-      case "postingDate":
-      case "dueDate":
-        return row[columnKey]
-          ? new Date(row[columnKey]).toLocaleDateString("th-TH")
-          : "-";
-      case "entryType":
-        return row.entryType ? (
-          <Chip
-            size="sm"
-            variant="flat"
-            color={entryTypeColorMap[row.entryType] || "default"}
-          >
-            {row.entryType}
-          </Chip>
-        ) : (
-          "-"
-        );
-      case "orderStatus":
-        return row.orderStatus ? (
-          <Chip
-            size="sm"
-            variant="flat"
-            color={statusColorMap[row.orderStatus] || "default"}
-          >
-            {row.orderStatus}
-          </Chip>
-        ) : (
-          "-"
-        );
-      case "quantity":
-      case "orderQuantity":
-        return row[columnKey] != null
-          ? Number(row[columnKey]).toLocaleString("th-TH")
-          : "-";
-      case "costAmountActual":
-        return row[columnKey] != null
-          ? Number(row[columnKey]).toLocaleString("th-TH", {
-              minimumFractionDigits: 2,
-            })
-          : "-";
-      case "itemDescription":
-      case "orderDescription":
-        return (
-          <span className="max-w-[300px] truncate block">
-            {row[columnKey] || "-"}
-          </span>
-        );
-      default:
-        return row[columnKey] || "-";
-    }
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!data) return null;
 
   return (
-    <div className="flex flex-col w-full h-full gap-4">
-      <DataTable
-        columns={columns}
-        data={data}
-        renderCell={renderCell}
-        rowKey="id"
-        isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="ค้นหาด้วย Entry No, เลขที่เอกสาร, รหัสสินค้า, รายละเอียด..."
-        searchKeys={[
-          "entryNo",
-          "documentNo",
-          "itemNo",
-          "itemDescription",
-          "orderNo",
-          "orderDescription",
-          "locationCode",
-          "assignedUserId",
-          "createdBy",
-        ]}
-        emptyContent="ไม่พบข้อมูลการผลิต"
-        statusField="entryType"
-        statusOptions={[
-          { uid: "Consumption", name: "Consumption" },
-          { uid: "Output", name: "Output" },
-          { uid: "Positive Adjmt.", name: "Positive Adjmt." },
-          { uid: "Negative Adjmt.", name: "Negative Adjmt." },
-          { uid: "Transfer", name: "Transfer" },
-        ]}
-      />
+    <div className="flex flex-col w-full gap-4">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <KpiCard title="ใบสั่งผลิตทั้งหมด" value={fmt(data.totalOrders)} unit="ใบ" />
+        <KpiCard title="Released" value={fmt(data.releasedOrders)} unit="ใบ" color="primary" />
+        <KpiCard title="Finished" value={fmt(data.finishedOrders)} unit="ใบ" color="success" />
+        <KpiCard title="ผลผลิต FG" value={fmt(data.totalOutputQty)} unit="ชิ้น" color="success" />
+        <KpiCard title="ต้นทุนวัตถุดิบ" value={fmtCurrency(data.totalConsumptionCost)} color="warning" />
+        <KpiCard title="มูลค่าผลผลิต" value={fmtCurrency(data.totalOutputValue)} color="success" />
+        <KpiCard title="WIP" value={fmtCurrency(data.wipValue)} color="danger" />
+      </div>
+
+      {/* Row 1: Daily Trend (full width) */}
+      <ChartCard title="แนวโน้มการผลิตรายวัน (ต้นทุนวัตถุดิบ vs มูลค่าผลผลิต)">
+        <DailyProductionTrendChart data={data.dailyTrend} />
+      </ChartCard>
+
+      {/* Row 2: Status + Product Group */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ChartCard title="สถานะใบสั่งผลิต">
+          <OrdersByStatusChart data={data.ordersByStatus} />
+        </ChartCard>
+        <ChartCard title="ผลผลิต FG ตามกลุ่มสินค้า">
+          <OutputByProductGroupChart data={data.outputByProductGroup} />
+        </ChartCard>
+      </div>
+
+      {/* Row 3: Top Output Items + Cost by Project */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ChartCard title="Top 10 สินค้าผลผลิต">
+          <TopOutputItemsChart data={data.topOutputItems} />
+        </ChartCard>
+        <ChartCard title="ต้นทุนตามโครงการ">
+          <CostByProjectChart data={data.costByProject} />
+        </ChartCard>
+      </div>
+
+      {/* Row 4: WIP */}
+      <ChartCard title="WIP รายใบสั่งผลิต (Released)">
+        <WipByOrderChart data={data.wipByOrder} />
+      </ChartCard>
     </div>
   );
 }
