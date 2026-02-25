@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
-import { Chip } from "@heroui/react";
+import { useCallback, useMemo } from "react";
+import { Chip, Tabs, Tab } from "@heroui/react";
 import { useProductionOrders } from "@/hooks/production/useProductionOrders";
 import DataTable from "@/components/ui/DataTable";
 
@@ -22,6 +22,7 @@ const columns = [
   { name: "Consumption คงเหลือ", uid: "remainingConsumption", sortable: true },
   { name: "ผู้รับผิดชอบ", uid: "assignedUserId", sortable: true },
   { name: "วันที่เสร็จ", uid: "finishedDate", sortable: true },
+  { name: "ระยะเวลา (วัน)", uid: "durationDays", sortable: true },
   { name: "Search Description", uid: "searchDescription" },
   { name: "Synced At", uid: "syncedAt", sortable: true },
 ];
@@ -30,13 +31,22 @@ const INITIAL_VISIBLE_COLUMNS = [
   "id",
   "status",
   "description",
+  "description2",
   "sourceNo",
+  "routingNo",
   "quantity",
   "dimension1Code",
   "dimension2Code",
   "locationCode",
+  "startingDateTime",
+  "endingDateTime",
   "dueDate",
+  "remainingConsumption",
   "assignedUserId",
+  "finishedDate",
+  "durationDays",
+  "searchDescription",
+  "syncedAt",
 ];
 
 const statusColorMap = {
@@ -46,8 +56,49 @@ const statusColorMap = {
   "Firm Planned": "warning",
 };
 
+const searchKeys = [
+  "id",
+  "description",
+  "sourceNo",
+  "routingNo",
+  "dimension1Code",
+  "dimension2Code",
+  "locationCode",
+  "assignedUserId",
+];
+
+const statusOptions = [
+  { uid: "Released", name: "Released" },
+  { uid: "Finished", name: "Finished" },
+  { uid: "Planned", name: "Planned" },
+  { uid: "Firm Planned", name: "Firm Planned" },
+];
+
 export default function ProductionOrdersPage() {
   const { data, loading } = useProductionOrders();
+
+  const enrichedData = useMemo(
+    () =>
+      data.map((r) => {
+        let durationDays = null;
+        if (r.startingDateTime && r.finishedDate) {
+          const start = new Date(r.startingDateTime);
+          const end = new Date(r.finishedDate);
+          durationDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+        }
+        return { ...r, durationDays };
+      }),
+    [data],
+  );
+
+  const wpcData = useMemo(
+    () => enrichedData.filter((r) => r.dimension1Code === "WPC"),
+    [enrichedData],
+  );
+  const otherData = useMemo(
+    () => enrichedData.filter((r) => r.dimension1Code !== "WPC"),
+    [enrichedData],
+  );
 
   const renderCell = useCallback((row, columnKey) => {
     switch (columnKey) {
@@ -77,6 +128,10 @@ export default function ProductionOrdersPage() {
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleDateString("th-TH")
           : "-";
+      case "durationDays":
+        return row.durationDays != null
+          ? `${row.durationDays} วัน`
+          : "-";
       case "quantity":
       case "remainingConsumption":
         return row[columnKey] != null
@@ -97,33 +152,44 @@ export default function ProductionOrdersPage() {
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <DataTable
-        columns={columns}
-        data={data}
-        renderCell={renderCell}
-        rowKey="id"
-        isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="ค้นหาด้วยเลขที่ใบสั่งผลิต, รายละเอียด, สินค้า..."
-        searchKeys={[
-          "id",
-          "description",
-          "sourceNo",
-          "routingNo",
-          "dimension1Code",
-          "dimension2Code",
-          "locationCode",
-          "assignedUserId",
-        ]}
-        emptyContent="ไม่พบข้อมูลใบสั่งผลิต"
-        statusField="status"
-        statusOptions={[
-          { uid: "Released", name: "Released" },
-          { uid: "Finished", name: "Finished" },
-          { uid: "Planned", name: "Planned" },
-          { uid: "Firm Planned", name: "Firm Planned" },
-        ]}
-      />
+      <Tabs aria-label="คลัง" variant="underlined">
+        <Tab
+          key="wpc"
+          title={`WPC (${wpcData.length.toLocaleString("th-TH")})`}
+        >
+          <DataTable
+            columns={columns}
+            data={wpcData}
+            renderCell={renderCell}
+            rowKey="id"
+            isLoading={loading}
+            initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+            searchPlaceholder="ค้นหาด้วยเลขที่ใบสั่งผลิต, รายละเอียด, สินค้า..."
+            searchKeys={searchKeys}
+            emptyContent="ไม่พบข้อมูลใบสั่งผลิต WPC"
+            statusField="status"
+            statusOptions={statusOptions}
+          />
+        </Tab>
+        <Tab
+          key="other"
+          title={`อื่นๆ (${otherData.length.toLocaleString("th-TH")})`}
+        >
+          <DataTable
+            columns={columns}
+            data={otherData}
+            renderCell={renderCell}
+            rowKey="id"
+            isLoading={loading}
+            initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+            searchPlaceholder="ค้นหาด้วยเลขที่ใบสั่งผลิต, รายละเอียด, สินค้า..."
+            searchKeys={searchKeys}
+            emptyContent="ไม่พบข้อมูลใบสั่งผลิต"
+            statusField="status"
+            statusOptions={statusOptions}
+          />
+        </Tab>
+      </Tabs>
     </div>
   );
 }

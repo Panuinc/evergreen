@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
-import { Chip } from "@heroui/react";
+import { useCallback, useMemo } from "react";
+import { Chip, Tabs, Tab } from "@heroui/react";
 import { useProduction } from "@/hooks/production/useProduction";
 import DataTable from "@/components/ui/DataTable";
 
@@ -50,13 +50,43 @@ const columns = [
 const INITIAL_VISIBLE_COLUMNS = [
   "entryNo",
   "postingDate",
+  "documentDate",
   "entryType",
+  "documentType",
   "documentNo",
   "itemNo",
   "itemDescription",
-  "quantity",
-  "costAmountActual",
+  "description2",
+  "employeeCode",
+  "employeeName",
   "locationCode",
+  "lotNo",
+  "serialNo",
+  "expirationDate",
+  "quantity",
+  "unitOfMeasureCode",
+  "remainingQuantity",
+  "invoicedQuantity",
+  "completelyInvoiced",
+  "unitCostExpected",
+  "costAmountExpected",
+  "unitCostActual",
+  "costAmountActual",
+  "salesAmountExpected",
+  "salesAmountActual",
+  "open",
+  "globalDimension1Code",
+  "globalDimension2Code",
+  "orderType",
+  "orderLineNo",
+  "documentLineNo",
+  "variantCode",
+  "binCode",
+  "baseUnitOfMeasure",
+  "totalGrossWeight",
+  "totalNetWeight",
+  "createdBy",
+  "syncedAt",
 ];
 
 const entryTypeColorMap = {
@@ -69,8 +99,33 @@ const entryTypeColorMap = {
   Purchase: "default",
 };
 
+const searchKeys = [
+  "entryNo",
+  "documentNo",
+  "itemNo",
+  "itemDescription",
+  "locationCode",
+  "employeeCode",
+  "employeeName",
+  "createdBy",
+];
+
+const statusOptions = [
+  { uid: "Consumption", name: "Consumption" },
+  { uid: "Output", name: "Output" },
+];
+
 export default function ProductionEntriesPage() {
   const { data, loading } = useProduction();
+
+  const wpcData = useMemo(
+    () => data.filter((r) => r.globalDimension1Code === "WPC"),
+    [data],
+  );
+  const otherData = useMemo(
+    () => data.filter((r) => r.globalDimension1Code !== "WPC"),
+    [data],
+  );
 
   const renderCell = useCallback((row, columnKey) => {
     switch (columnKey) {
@@ -137,31 +192,44 @@ export default function ProductionEntriesPage() {
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <DataTable
-        columns={columns}
-        data={data}
-        renderCell={renderCell}
-        rowKey="id"
-        isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="ค้นหาด้วย Entry No, เลขที่เอกสาร, รหัสสินค้า, รายละเอียด..."
-        searchKeys={[
-          "entryNo",
-          "documentNo",
-          "itemNo",
-          "itemDescription",
-          "locationCode",
-          "employeeCode",
-          "employeeName",
-          "createdBy",
-        ]}
-        emptyContent="ไม่พบข้อมูลรายการเคลื่อนไหว"
-        statusField="entryType"
-        statusOptions={[
-          { uid: "Consumption", name: "Consumption" },
-          { uid: "Output", name: "Output" },
-        ]}
-      />
+      <Tabs aria-label="คลัง" variant="underlined">
+        <Tab
+          key="wpc"
+          title={`WPC (${wpcData.length.toLocaleString("th-TH")})`}
+        >
+          <DataTable
+            columns={columns}
+            data={wpcData}
+            renderCell={renderCell}
+            rowKey="id"
+            isLoading={loading}
+            initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+            searchPlaceholder="ค้นหาด้วย Entry No, เลขที่เอกสาร, รหัสสินค้า, รายละเอียด..."
+            searchKeys={searchKeys}
+            emptyContent="ไม่พบข้อมูลรายการเคลื่อนไหว WPC"
+            statusField="entryType"
+            statusOptions={statusOptions}
+          />
+        </Tab>
+        <Tab
+          key="other"
+          title={`อื่นๆ (${otherData.length.toLocaleString("th-TH")})`}
+        >
+          <DataTable
+            columns={columns}
+            data={otherData}
+            renderCell={renderCell}
+            rowKey="id"
+            isLoading={loading}
+            initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+            searchPlaceholder="ค้นหาด้วย Entry No, เลขที่เอกสาร, รหัสสินค้า, รายละเอียด..."
+            searchKeys={searchKeys}
+            emptyContent="ไม่พบข้อมูลรายการเคลื่อนไหว"
+            statusField="entryType"
+            statusOptions={statusOptions}
+          />
+        </Tab>
+      </Tabs>
     </div>
   );
 }
