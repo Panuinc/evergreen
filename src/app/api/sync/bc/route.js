@@ -145,7 +145,8 @@ async function runSync(supabase, requestedTables, send) {
   const needDims =
     shouldSync("dimensionValues") ||
     shouldSync("items") ||
-    shouldSync("salesOrderLines");
+    shouldSync("salesOrderLines") ||
+    shouldSync("production");
   const needOrders = shouldSync("salesOrders");
   const needLines = shouldSync("salesOrderLines");
 
@@ -506,7 +507,9 @@ async function runSync(supabase, requestedTables, send) {
         routingNo: o.Routing_No || null,
         quantity: o.Quantity || 0,
         dimension1Code: o.Shortcut_Dimension_1_Code || null,
+        dimension1Name: dimMap[o.Shortcut_Dimension_1_Code] || null,
         dimension2Code: o.Shortcut_Dimension_2_Code || null,
+        dimension2Name: dimMap[o.Shortcut_Dimension_2_Code] || null,
         locationCode: o.Location_Code || null,
         startingDateTime: bcTimestamp(o.Starting_Date_Time),
         endingDateTime: bcTimestamp(o.Ending_Date_Time),
@@ -549,7 +552,9 @@ async function runSync(supabase, requestedTables, send) {
         salesAmountActual: e.Sales_Amount_Actual || 0,
         open: e.Open || false,
         globalDimension1Code: e.Global_Dimension_1_Code || null,
+        globalDimension1Name: dimMap[e.Global_Dimension_1_Code] || null,
         globalDimension2Code: e.Global_Dimension_2_Code || null,
+        globalDimension2Name: dimMap[e.Global_Dimension_2_Code] || null,
         orderType: e.Order_Type?.trim() || null,
         orderLineNo: e.Order_Line_No || 0,
         documentLineNo: e.Document_Line_No || 0,
