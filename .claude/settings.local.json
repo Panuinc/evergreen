@@ -113,7 +113,14 @@
       "WebFetch(domain:app-leadmanager.bcicentral.com)",
       "WebFetch(domain:api.bciaustralia.com)",
       "WebFetch(domain:help-leadmanager.bcicentral.com)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(docker --version:*)",
+      "Bash(ssh:*)",
+      "Bash(ping:*)",
+      "Bash(sshpass -p 'W@t10342' ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no Panuwat.Ja@192.168.1.120 \"echo ''SSH OK''\")",
+      "Bash(powershell.exe -Command \"echo ''y'' | plink.exe -batch -pw ''W@t10342'' Panuwat.Ja@192.168.1.120 ''echo SSH_OK''\")",
+      "Bash(rsync:*)",
+      "Bash(scp:*)"
     ]
   }
 }

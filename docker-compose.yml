@@ -1,0 +1,9 @@
+services:
+  evergreen:
+    build: .
+    container_name: evergreen
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
