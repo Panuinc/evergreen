@@ -218,7 +218,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     }
   }
   const wipDetailAll = Object.values(wipMap).map((w) => {
-    const remainQty = Math.max(0, w.plannedQty - w.outputQty);
+    const remainQty = w.plannedQty - w.outputQty;
     const completionPct = w.plannedQty > 0
       ? Math.round((w.outputQty / w.plannedQty) * 100)
       : 0;

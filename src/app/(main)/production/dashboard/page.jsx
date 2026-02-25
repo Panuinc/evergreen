@@ -392,38 +392,47 @@ export default function ProductionDashboardPage() {
         return <span className="text-xs">{item.sourceNo || "-"}</span>;
       case "plannedQty":
       case "outputQty":
-      case "remainQty":
         return <span className="text-xs">{fmt(item[columnKey])}</span>;
-      case "completionPct":
+      case "remainQty":
+        return (
+          <span className={`text-xs font-medium ${
+            item.remainQty < 0
+              ? "text-primary"
+              : item.remainQty === 0
+                ? "text-success"
+                : "text-default-600"
+          }`}>
+            {item.remainQty < 0
+              ? `เกิน ${fmt(Math.abs(item.remainQty))}`
+              : fmt(item.remainQty)}
+          </span>
+        );
+      case "completionPct": {
+        const isOver = item.completionPct > 100;
+        const color = isOver
+          ? "primary"
+          : item.completionPct >= 100
+            ? "success"
+            : item.completionPct >= 50
+              ? "primary"
+              : "warning";
         return (
           <div className="flex items-center gap-2">
             <div className="w-16 h-2 bg-default-100 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full ${
-                  item.completionPct >= 100
-                    ? "bg-success"
-                    : item.completionPct >= 50
-                      ? "bg-primary"
-                      : "bg-warning"
+                  isOver ? "bg-primary" : `bg-${color}`
                 }`}
                 style={{ width: `${Math.min(100, item.completionPct)}%` }}
               />
             </div>
-            <Chip
-              size="sm"
-              variant="flat"
-              color={
-                item.completionPct >= 100
-                  ? "success"
-                  : item.completionPct >= 50
-                    ? "primary"
-                    : "warning"
-              }
-            >
+            <Chip size="sm" variant="flat" color={color}>
               {item.completionPct}%
+              {isOver ? " เกิน" : ""}
             </Chip>
           </div>
         );
+      }
       case "consumptionCost":
       case "revenue":
         return <span className="text-xs">{fmtCurrency(item[columnKey])}</span>;
