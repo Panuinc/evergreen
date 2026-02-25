@@ -342,6 +342,74 @@ function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
           </CardBody>
         </Card>
       )}
+
+      {/* Section 8: คำอธิบาย Dashboard */}
+      <Card shadow="none" className="border border-default-200">
+        <CardHeader className="pb-0">
+          <p className="text-sm font-semibold">คำอธิบาย Dashboard</p>
+        </CardHeader>
+        <CardBody className="text-xs text-default-500 leading-relaxed">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* KPI */}
+            <div>
+              <p className="font-semibold text-default-700 mb-2">KPI Cards</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li><span className="font-medium text-default-600">ใบสั่งผลิตทั้งหมด</span> — จำนวนใบสั่งผลิตในระบบ แยก Released / Finished</li>
+                <li><span className="font-medium text-default-600">อัตราส่งตรงเวลา</span> — % ใบที่เสร็จก่อนหรือตรงกำหนด (finishedDate ≤ dueDate)</li>
+                <li><span className="font-medium text-default-600">ระยะเวลาผลิตเฉลี่ย</span> — เฉลี่ยกี่วันจากเริ่มผลิตจนเสร็จ</li>
+                <li><span className="font-medium text-default-600">ต้นทุนวัตถุดิบ</span> — มูลค่าวัตถุดิบที่เบิกใช้ทั้งหมด (Consumption entries)</li>
+                <li><span className="font-medium text-default-600">รายได้จากการขาย</span> — ราคาขาย/ชิ้น x จำนวนที่ผลิตได้ (ราคาขายจาก Sales Order)</li>
+                <li><span className="font-medium text-default-600">กำไร/ขาดทุน</span> — รายได้ - ต้นทุนวัตถุดิบ</li>
+                <li><span className="font-medium text-default-600">อัตรากำไร</span> — กำไร / รายได้ x 100</li>
+                <li><span className="font-medium text-default-600">WIP (Work In Progress)</span> — ต้นทุนวัตถุดิบที่เบิกไปแล้วในใบที่ยัง Released (เงินจมในงานที่ยังไม่เสร็จ)</li>
+                <li><span className="font-medium text-default-600">ผลผลิต FG</span> — จำนวนสินค้าสำเร็จรูปที่ผลิตได้ทั้งหมด</li>
+                <li><span className="font-medium text-default-600">เกินกำหนดส่ง</span> — ใบ Released ที่เลยกำหนดส่งแล้ว</li>
+              </ul>
+            </div>
+
+            {/* กราฟ */}
+            <div>
+              <p className="font-semibold text-default-700 mb-2">กราฟและตาราง</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li><span className="font-medium text-default-600">แนวโน้มรายวัน</span> — ต้นทุนวัตถุดิบ vs รายได้ รายวัน (เขียวสูงกว่าเหลือง = กำไร)</li>
+                <li><span className="font-medium text-default-600">อัตราส่งตรงเวลา/ระยะเวลาเฉลี่ย รายเดือน</span> — แนวโน้มประสิทธิภาพการผลิต</li>
+                <li><span className="font-medium text-default-600">ผลผลิต FG ตามประเภท</span> — จำนวนผลิตแยกตามประเภทสินค้า (ประตู, วงกบ, ...)</li>
+                <li><span className="font-medium text-default-600">กำไร/ขาดทุนต่อสินค้า</span> — เขียว = กำไร, แดง = ขาดทุน แต่ละรายการ</li>
+                <li><span className="font-medium text-default-600">วิเคราะห์กำไรตามโครงการ</span> — กดเปิดดูรายละเอียดสินค้าในแต่ละโครงการ</li>
+                <li><span className="font-medium text-default-600">Top 10 วัตถุดิบต้นทุนสูงสุด</span> — วัตถุดิบที่เปลืองเงินมากที่สุด</li>
+                <li><span className="font-medium text-default-600">ต้นทุน vs รายได้ ตามโครงการ</span> — เปรียบเทียบต้นทุนกับรายได้แต่ละโครงการ</li>
+                <li><span className="font-medium text-default-600">ช่างเก่งด้านไหน</span> — จัดอันดับช่างตามผลงาน + ความเร็วผลิต (วัน/ใบ) แยกตามประเภทสินค้า</li>
+                <li><span className="font-medium text-default-600">WIP รายใบสั่งผลิต</span> — แดง = ต้นทุนสูงกว่ารายได้, เขียว = มีกำไร</li>
+                <li><span className="font-medium text-default-600">ความคืบหน้าใบสั่งผลิต</span> — แผนผลิต vs ผลิตแล้ว vs คงเหลือ พร้อม % ความคืบหน้า</li>
+              </ul>
+            </div>
+
+            {/* แหล่งข้อมูล */}
+            <div>
+              <p className="font-semibold text-default-700 mb-2">แหล่งข้อมูล</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li><span className="font-medium text-default-600">bcProductionOrders</span> — ใบสั่งผลิต, สถานะ, วันกำหนดส่ง, วันเริ่ม/เสร็จ, แผนก, โครงการ</li>
+                <li><span className="font-medium text-default-600">bcItemLedgerEntries</span> — รายการเบิกวัตถุดิบ (Consumption) + ผลผลิต (Output), ชื่อช่าง</li>
+                <li><span className="font-medium text-default-600">bcSalesOrderLines</span> — ราคาขาย/ชิ้น สำหรับคำนวณรายได้</li>
+                <li><span className="font-medium text-default-600">bcItems</span> — ประเภทสินค้า (itemCategoryCode)</li>
+              </ul>
+            </div>
+
+            {/* หมายเหตุ */}
+            <div>
+              <p className="font-semibold text-default-700 mb-2">หมายเหตุ</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Dashboard แบ่งเป็น 2 Tab: <span className="font-medium">WPC</span> (แผนก WPC) และ <span className="font-medium">อื่นๆ</span></li>
+                <li>ทุก KPI และกราฟคำนวณแยกตาม Tab</li>
+                <li>ราคาขายดึงจาก Sales Order Lines ถ้าไม่มีจะเป็น 0</li>
+                <li>ช่างที่ชื่อคั่นด้วย / (เช่น ป.เสริฐ/สีมาซู) จะแยกเครดิตให้แต่ละคน</li>
+                <li>ระดับความเร็วช่าง: สายฟ้า (≤3 วัน), เร็ว (≤7 วัน), ปกติ (≤14 วัน), ช้า (&gt;14 วัน)</li>
+                <li>สีเขียว = ดี/กำไร, สีแดง = ต้องระวัง/ขาดทุน, สีเหลือง = ปานกลาง</li>
+              </ul>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }

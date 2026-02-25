@@ -3,7 +3,33 @@
 import { Chip } from "@heroui/react";
 import { Crown, Medal, Trophy, Star, Flame, Zap, Clock, Timer } from "lucide-react";
 
-const COLORS = [
+const BAR_GRADIENTS = [
+  "from-blue-500 to-blue-400",
+  "from-emerald-500 to-emerald-400",
+  "from-amber-500 to-amber-400",
+  "from-rose-500 to-rose-400",
+  "from-violet-500 to-violet-400",
+  "from-cyan-500 to-cyan-400",
+  "from-lime-500 to-lime-400",
+  "from-orange-500 to-orange-400",
+  "from-pink-500 to-pink-400",
+  "from-teal-500 to-teal-400",
+];
+
+const BG_COLORS = [
+  "bg-blue-500",
+  "bg-emerald-500",
+  "bg-amber-500",
+  "bg-rose-500",
+  "bg-violet-500",
+  "bg-cyan-500",
+  "bg-lime-500",
+  "bg-orange-500",
+  "bg-pink-500",
+  "bg-teal-500",
+];
+
+const CHIP_COLORS = [
   "primary",
   "success",
   "warning",
@@ -11,20 +37,17 @@ const COLORS = [
   "secondary",
 ];
 
-const BAR_GRADIENTS = [
-  "from-blue-500 to-blue-400",
-  "from-emerald-500 to-emerald-400",
-  "from-amber-500 to-amber-400",
-  "from-rose-500 to-rose-400",
-  "from-violet-500 to-violet-400",
-];
-
-const BG_COLORS = [
-  "bg-primary",
-  "bg-success",
-  "bg-warning",
-  "bg-danger",
-  "bg-secondary",
+const TEXT_COLORS = [
+  "text-blue-500",
+  "text-emerald-500",
+  "text-amber-500",
+  "text-rose-500",
+  "text-violet-500",
+  "text-cyan-500",
+  "text-lime-500",
+  "text-orange-500",
+  "text-pink-500",
+  "text-teal-500",
 ];
 
 function fmtNum(v) {
@@ -95,7 +118,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
   const categories = [...allCategories];
   const catColorMap = {};
   categories.forEach((cat, i) => {
-    catColorMap[cat] = i % COLORS.length;
+    catColorMap[cat] = i % BAR_GRADIENTS.length;
   });
 
   const maxQty = data[0]?.totalQty || 1;
@@ -206,7 +229,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                   const catSpeed = getSpeedLabel(c.avgDays);
                   return (
                     <span key={c.category} className="text-[10px] text-default-400">
-                      <span className={`font-medium text-${COLORS[colorIdx]}`}>{c.category}</span>
+                      <span className={`font-medium ${TEXT_COLORS[colorIdx]}`}>{c.category}</span>
                       {" "}{fmtNum(c.quantity)}
                       {c.avgDays != null && (
                         <span className={catSpeed?.color || ""}>
@@ -224,7 +247,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
               <Chip
                 size="sm"
                 variant={isTop3 ? "solid" : "flat"}
-                color={COLORS[catColorMap[emp.topCategory] ?? 0]}
+                color={CHIP_COLORS[(catColorMap[emp.topCategory] ?? 0) % CHIP_COLORS.length]}
                 className={isTop3 ? "shadow-sm" : ""}
               >
                 {emp.topCategory}
