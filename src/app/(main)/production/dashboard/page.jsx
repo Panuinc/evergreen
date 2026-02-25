@@ -3,12 +3,9 @@
 import { Card, CardBody, Spinner } from "@heroui/react";
 import {
   Factory,
-  ArrowDownToLine,
-  ArrowUpFromLine,
   DollarSign,
   Package,
   BoxSelect,
-  MapPin,
   Clock,
 } from "lucide-react";
 import { useProductionDashboard } from "@/hooks/production/useProductionDashboard";
@@ -62,23 +59,7 @@ export default function ProductionDashboardPage() {
       icon: Factory,
       color: "text-primary",
     },
-    {
-      title: "เบิกวัตถุดิบ",
-      value: stats.consumptionCount.toLocaleString("th-TH"),
-      unit: "รายการ",
-      sub: "Consumption",
-      icon: ArrowDownToLine,
-      color: "text-warning",
-    },
-    {
-      title: "ผลผลิต",
-      value: stats.outputCount.toLocaleString("th-TH"),
-      unit: "รายการ",
-      sub: "Output",
-      icon: ArrowUpFromLine,
-      color: "text-success",
-    },
-    {
+{
       title: "วัตถุดิบ",
       value: stats.uniqueMaterials.toLocaleString("th-TH"),
       unit: "รายการ",
@@ -110,15 +91,7 @@ export default function ProductionDashboardPage() {
       icon: DollarSign,
       color: "text-secondary",
     },
-    {
-      title: "คลังที่ใช้งาน",
-      value: stats.totalLocations,
-      unit: "แห่ง",
-      sub: "คลังสินค้า",
-      icon: MapPin,
-      color: "text-default-500",
-    },
-    {
+{
       title: "WIP ค้าง",
       value: (stats.wipCount || 0).toLocaleString("th-TH"),
       unit: "รายการ",
