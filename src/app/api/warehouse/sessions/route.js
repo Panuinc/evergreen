@@ -8,8 +8,8 @@ export async function GET() {
   const { data, error } = await supabase
     .from("whScanSession")
     .select("*")
-    .eq("user_id", session.user.id)
-    .order("started_at", { ascending: false });
+    .eq("whScanSessionUserId", session.user.id)
+    .order("whScanSessionStartedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -23,16 +23,16 @@ export async function POST(request) {
   const body = await request.json();
 
   const record = {
-    user_id: session.user.id,
-    name: body.name,
-    type: body.type,
-    started_at: body.started_at,
-    ended_at: body.ended_at,
-    gps_lat: body.gps_lat,
-    gps_lon: body.gps_lon,
-    tag_count: body.tag_count,
-    total_reads: body.total_reads,
-    metadata: body.metadata,
+    whScanSessionUserId: session.user.id,
+    whScanSessionName: body.name,
+    whScanSessionType: body.type,
+    whScanSessionStartedAt: body.started_at,
+    whScanSessionEndedAt: body.ended_at,
+    whScanSessionGpsLat: body.gps_lat,
+    whScanSessionGpsLon: body.gps_lon,
+    whScanSessionTagCount: body.tag_count,
+    whScanSessionTotalReads: body.total_reads,
+    whScanSessionMetadata: body.metadata,
   };
 
   const { data, error } = await supabase

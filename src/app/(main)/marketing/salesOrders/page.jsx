@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Chip, Spinner } from "@heroui/react";
+import { Chip, Spinner, Tabs, Tab } from "@heroui/react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@heroui/react";
 import { getSalesOrders } from "@/actions/marketing";
@@ -27,6 +27,7 @@ const INITIAL_VISIBLE = ["No", "Sell_to_Customer_Name", "Order_Date", "Status", 
 export default function MarketingSalesOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [shipFilter, setShipFilter] = useState("all");
   const router = useRouter();
 
   const loadOrders = async () => {
@@ -85,7 +86,11 @@ export default function MarketingSalesOrdersPage() {
     }
   }, [router]);
 
-  const tableData = orders;
+  const tableData = useMemo(() => {
+    if (shipFilter === "all") return orders;
+    if (shipFilter === "shipped") return orders.filter((o) => o.Completely_Shipped);
+    return orders.filter((o) => !o.Completely_Shipped);
+  }, [orders, shipFilter]);
 
   if (loading) {
     return (
@@ -106,6 +111,18 @@ export default function MarketingSalesOrdersPage() {
           รีเฟรช
         </Button>
       </div>
+
+      <Tabs
+        selectedKey={shipFilter}
+        onSelectionChange={setShipFilter}
+        variant="bordered"
+        size="md"
+        radius="md"
+      >
+        <Tab key="all" title="ทั้งหมด" />
+        <Tab key="pending" title="รอจัดส่ง" />
+        <Tab key="shipped" title="จัดส่งแล้ว" />
+      </Tabs>
 
       <DataTable
         columns={ORDER_COLUMNS}

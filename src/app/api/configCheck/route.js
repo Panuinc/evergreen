@@ -44,15 +44,15 @@ async function checkLine(supabase) {
   try {
     const { data, error } = await supabase
       .from("omChannel")
-      .select("channelAccessToken")
-      .eq("channelType", "line")
-      .eq("channelStatus", "active")
+      .select("omChannelAccessToken")
+      .eq("omChannelType", "line")
+      .eq("omChannelStatus", "active")
       .limit(1)
       .single();
     if (error || !data) throw new Error("No active LINE channel configured");
 
     const res = await fetch("https://api.line.me/v2/bot/info", {
-      headers: { Authorization: `Bearer ${data.channelAccessToken}` },
+      headers: { Authorization: `Bearer ${data.omChannelAccessToken}` },
       signal: AbortSignal.timeout(8000),
     });
     const latency = Date.now() - start;
@@ -69,15 +69,15 @@ async function checkFacebook(supabase) {
   try {
     const { data, error } = await supabase
       .from("omChannel")
-      .select("channelAccessToken")
-      .eq("channelType", "facebook")
-      .eq("channelStatus", "active")
+      .select("omChannelAccessToken")
+      .eq("omChannelType", "facebook")
+      .eq("omChannelStatus", "active")
       .limit(1)
       .single();
     if (error || !data) throw new Error("No active Facebook channel configured");
 
     const res = await fetch(
-      `https://graph.facebook.com/v21.0/me?access_token=${data.channelAccessToken}`,
+      `https://graph.facebook.com/v21.0/me?access_token=${data.omChannelAccessToken}`,
       { signal: AbortSignal.timeout(8000) },
     );
     const latency = Date.now() - start;

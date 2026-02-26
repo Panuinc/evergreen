@@ -103,40 +103,40 @@ export default function ConversationList({
           </div>
         ) : (
           conversations.map((conv) => {
-            const contact = conv.omContacts;
-            const isSelected = selectedConversation?.conversationId === conv.conversationId;
+            const contact = conv.omContact;
+            const isSelected = selectedConversation?.omConversationId === conv.omConversationId;
             return (
               <div
-                key={conv.conversationId}
+                key={conv.omConversationId}
                 onClick={() => onSelect(conv)}
                 className={`flex items-start gap-3 p-3 cursor-pointer transition-colors border-b border-default ${
                   isSelected ? "bg-default" : "hover:bg-default/50"
                 }`}
               >
                 <Avatar
-                  src={contact?.contactAvatarUrl}
-                  name={contact?.contactDisplayName?.charAt(0) || "?"}
+                  src={contact?.omContactAvatarUrl}
+                  name={contact?.omContactDisplayName?.charAt(0) || "?"}
                   size="sm"
                   className="flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium truncate">
-                      {contact?.contactDisplayName || "ไม่ทราบ"}
+                      {contact?.omContactDisplayName || "ไม่ทราบ"}
                     </span>
                     <span className="text-[10px] text-default-400 flex-shrink-0">
-                      {formatTime(conv.conversationLastMessageAt)}
+                      {formatTime(conv.omConversationLastMessageAt)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mt-0.5">
                     <span className="text-default-400 truncate text-[11px]">
-                      {conv.conversationLastMessagePreview || "..."}
+                      {conv.omConversationLastMessagePreview || "..."}
                     </span>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <ChannelBadge channelType={conv.conversationChannelType} />
-                      {conv.conversationUnreadCount > 0 && (
+                      <ChannelBadge channelType={conv.omConversationChannelType} />
+                      {conv.omConversationUnreadCount > 0 && (
                         <Chip size="sm" color="danger" variant="solid" className="min-w-5 h-5 text-[10px]">
-                          {conv.conversationUnreadCount}
+                          {conv.omConversationUnreadCount}
                         </Chip>
                       )}
                     </div>

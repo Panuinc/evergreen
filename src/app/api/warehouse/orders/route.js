@@ -15,7 +15,7 @@ export async function GET(request) {
   let query = supabase.from(tableName).select("*");
 
   if (type) {
-    query = query.eq("documentType", type);
+    query = query.eq("bcSalesOrderDocumentType", type);
   }
 
   let { data, error } = await query.order("bcSalesOrderDate", { ascending: false });
@@ -26,7 +26,7 @@ export async function GET(request) {
     query = supabase.from(tableName).select("*");
 
     if (type) {
-      query = query.eq("documentType", type);
+      query = query.eq("bcSalesOrderDocumentType", type);
     }
 
     const result = await query.order("bcSalesOrderDate", { ascending: false });

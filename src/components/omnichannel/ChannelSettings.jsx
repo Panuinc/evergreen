@@ -40,16 +40,16 @@ export default function ChannelSettings({ isOpen, onClose }) {
   const loadChannels = async () => {
     try {
       setLoading(true);
-      const { data } = await supabase.from("omChannels").select("*");
+      const { data } = await supabase.from("omChannel").select("*");
       setChannels(data || []);
-      const fb = data?.find((c) => c.channelType === "facebook");
-      const line = data?.find((c) => c.channelType === "line");
+      const fb = data?.find((c) => c.omChannelType === "facebook");
+      const line = data?.find((c) => c.omChannelType === "line");
       if (fb) {
-        setFbToken(fb.channelAccessToken || "");
-        setFbPageId(fb.channelPageId || "");
+        setFbToken(fb.omChannelAccessToken || "");
+        setFbPageId(fb.omChannelPageId || "");
       }
       if (line) {
-        setLineToken(line.channelAccessToken || "");
+        setLineToken(line.omChannelAccessToken || "");
       }
     } finally {
       setLoading(false);
@@ -60,9 +60,9 @@ export default function ChannelSettings({ isOpen, onClose }) {
     try {
       const data = await getAiSettings();
       if (data) {
-        setAiSystemPrompt(data.aiSystemPrompt || "");
-        setAiMaxHistory(String(data.aiMaxHistoryMessages || 20));
-        setAiBankAccountInfo(data.aiBankAccountInfo || "");
+        setAiSystemPrompt(data.omAiSettingSystemPrompt || "");
+        setAiMaxHistory(String(data.omAiSettingMaxHistoryMessages || 20));
+        setAiBankAccountInfo(data.omAiSettingBankAccountInfo || "");
       }
     } catch {
       // AI settings table may not exist yet
@@ -74,34 +74,34 @@ export default function ChannelSettings({ isOpen, onClose }) {
       setSaving(true);
 
       // Upsert Facebook channel
-      await supabase.from("omChannels").upsert(
+      await supabase.from("omChannel").upsert(
         {
-          channelType: "facebook",
-          channelName: "Facebook Page",
-          channelAccessToken: fbToken,
-          channelPageId: fbPageId,
-          channelStatus: fbToken ? "active" : "inactive",
+          omChannelType: "facebook",
+          omChannelName: "Facebook Page",
+          omChannelAccessToken: fbToken,
+          omChannelPageId: fbPageId,
+          omChannelStatus: fbToken ? "active" : "inactive",
         },
-        { onConflict: "channelType" }
+        { onConflict: "omChannelType" }
       );
 
       // Upsert LINE channel
-      await supabase.from("omChannels").upsert(
+      await supabase.from("omChannel").upsert(
         {
-          channelType: "line",
-          channelName: "LINE Official Account",
-          channelAccessToken: lineToken,
-          channelStatus: lineToken ? "active" : "inactive",
+          omChannelType: "line",
+          omChannelName: "LINE Official Account",
+          omChannelAccessToken: lineToken,
+          omChannelStatus: lineToken ? "active" : "inactive",
         },
-        { onConflict: "channelType" }
+        { onConflict: "omChannelType" }
       );
 
       // Save AI settings
       try {
         await updateAiSettings({
-          aiSystemPrompt,
-          aiMaxHistoryMessages: parseInt(aiMaxHistory) || 20,
-          aiBankAccountInfo,
+          omAiSettingSystemPrompt: aiSystemPrompt,
+          omAiSettingMaxHistoryMessages: parseInt(aiMaxHistory) || 20,
+          omAiSettingBankAccountInfo: aiBankAccountInfo,
         });
       } catch {
         // AI settings table may not exist yet

@@ -7,39 +7,39 @@ import { getQuotationsByConversation } from "@/actions/omnichannel";
 import ChannelBadge from "./ChannelBadge";
 
 export default function ConversationDetail({ conversation, onUpdateContact, onClose }) {
-  const contact = conversation?.omContacts;
+  const contact = conversation?.omContact;
   const [newTag, setNewTag] = useState("");
-  const [notes, setNotes] = useState(contact?.contactNotes || "");
+  const [notes, setNotes] = useState(contact?.omContactNotes || "");
   const [editingNotes, setEditingNotes] = useState(false);
   const [quotations, setQuotations] = useState([]);
 
   useEffect(() => {
-    if (!conversation?.conversationId) return;
-    getQuotationsByConversation(conversation.conversationId)
+    if (!conversation?.omConversationId) return;
+    getQuotationsByConversation(conversation.omConversationId)
       .then((data) => setQuotations(data || []))
       .catch(() => setQuotations([]));
-  }, [conversation?.conversationId]);
+  }, [conversation?.omConversationId]);
 
   if (!conversation || !contact) return null;
 
   const handleAddTag = () => {
     const tag = newTag.trim();
     if (!tag) return;
-    const currentTags = contact.contactTags || [];
+    const currentTags = contact.omContactTags || [];
     if (currentTags.includes(tag)) return;
-    onUpdateContact(contact.contactId, { contactTags: [...currentTags, tag] });
+    onUpdateContact(contact.omContactId, { omContactTags: [...currentTags, tag] });
     setNewTag("");
   };
 
   const handleRemoveTag = (tag) => {
-    const currentTags = contact.contactTags || [];
-    onUpdateContact(contact.contactId, {
-      contactTags: currentTags.filter((t) => t !== tag),
+    const currentTags = contact.omContactTags || [];
+    onUpdateContact(contact.omContactId, {
+      omContactTags: currentTags.filter((t) => t !== tag),
     });
   };
 
   const handleSaveNotes = () => {
-    onUpdateContact(contact.contactId, { contactNotes: notes });
+    onUpdateContact(contact.omContactId, { omContactNotes: notes });
     setEditingNotes(false);
   };
 
@@ -61,23 +61,23 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             <div className="flex flex-col gap-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-default-400">ชื่อ</span>
-                <span>{contact.contactDisplayName || "-"}</span>
+                <span>{contact.omContactDisplayName || "-"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-default-400">ช่องทาง</span>
-                <ChannelBadge channelType={contact.contactChannelType} />
+                <ChannelBadge channelType={contact.omContactChannelType} />
               </div>
               <div className="flex justify-between">
                 <span className="text-default-400">External ID</span>
-                <span className="text-[10px] truncate max-w-[150px]">{contact.contactExternalId}</span>
+                <span className="text-[10px] truncate max-w-[150px]">{contact.omContactExternalId}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-default-400">สถานะ</span>
                 <Chip size="sm" variant="flat" color={
-                  conversation.conversationStatus === "open" ? "success" :
-                  conversation.conversationStatus === "waiting" ? "warning" : "default"
+                  conversation.omConversationStatus === "open" ? "success" :
+                  conversation.omConversationStatus === "waiting" ? "warning" : "default"
                 }>
-                  {conversation.conversationStatus}
+                  {conversation.omConversationStatus}
                 </Chip>
               </div>
             </div>
@@ -90,7 +90,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
               <p className="font-semibold text-sm">แท็ก</p>
             </div>
             <div className="flex flex-wrap gap-1">
-              {(contact.contactTags || []).map((tag) => (
+              {(contact.omContactTags || []).map((tag) => (
                 <Chip
                   key={tag}
                   size="sm"
@@ -147,7 +147,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 onClick={() => setEditingNotes(true)}
                 className="text-sm text-default-400 cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
               >
-                {contact.contactNotes || "คลิกเพื่อเพิ่มหมายเหตุ..."}
+                {contact.omContactNotes || "คลิกเพื่อเพิ่มหมายเหตุ..."}
               </div>
             )}
           </div>
@@ -164,25 +164,25 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
               <div className="flex flex-col gap-2">
                 {quotations.map((q) => (
                   <div
-                    key={q.quotationId}
+                    key={q.omQuotationId}
                     className="flex items-center justify-between p-2 rounded-md bg-default/50"
                   >
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">{q.quotationNumber}</span>
+                      <span className="text-sm font-medium">{q.omQuotationNumber}</span>
                       <span className="text-[10px] text-default-400">
-                        {new Date(q.quotationCreatedAt).toLocaleDateString("th-TH")}
+                        {new Date(q.omQuotationCreatedAt).toLocaleDateString("th-TH")}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Chip size="sm" variant="flat" color={q.quotationStatus === "draft" ? "warning" : "success"}>
-                        {q.quotationStatus === "draft" ? "ร่าง" : q.quotationStatus}
+                      <Chip size="sm" variant="flat" color={q.omQuotationStatus === "draft" ? "warning" : "success"}>
+                        {q.omQuotationStatus === "draft" ? "ร่าง" : q.omQuotationStatus}
                       </Chip>
                       <Button
                         isIconOnly
                         size="sm"
                         variant="light"
                         radius="md"
-                        onPress={() => window.open(`/marketing/omnichannel/quotations/${q.quotationId}`, "_self")}
+                        onPress={() => window.open(`/marketing/omnichannel/quotations/${q.omQuotationId}`, "_self")}
                       >
                         <ExternalLink size={14} />
                       </Button>

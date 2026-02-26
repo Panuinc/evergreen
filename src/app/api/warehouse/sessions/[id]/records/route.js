@@ -10,8 +10,8 @@ export async function GET(request, { params }) {
   const { data, error } = await supabase
     .from("whScanRecord")
     .select("*")
-    .eq("session_id", id)
-    .order("scanned_at", { ascending: false });
+    .eq("whScanRecordSessionId", id)
+    .order("whScanRecordScannedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -33,14 +33,14 @@ export async function POST(request, { params }) {
   }
 
   const records = body.map((item) => ({
-    session_id: id,
-    epc: item.epc,
-    rssi: item.rssi,
-    item_number: item.item_number,
-    item_name: item.item_name,
-    photo_url: item.photo_url,
-    read_count: item.read_count,
-    scanned_at: item.scanned_at,
+    whScanRecordSessionId: id,
+    whScanRecordEpc: item.epc,
+    whScanRecordRssi: item.rssi,
+    whScanRecordItemNumber: item.item_number,
+    whScanRecordItemName: item.item_name,
+    whScanRecordPhotoUrl: item.photo_url,
+    whScanRecordReadCount: item.read_count,
+    whScanRecordScannedAt: item.scanned_at,
   }));
 
   const { data, error } = await supabase

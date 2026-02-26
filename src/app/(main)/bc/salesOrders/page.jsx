@@ -22,20 +22,20 @@ import DataTable from "@/components/ui/DataTable";
 
 const columns = [
   { name: "เลขที่", uid: "bcSalesOrderNumber", sortable: true },
-  { name: "วันที่สั่ง", uid: "bcSalesOrderOrderDate", sortable: true },
+  { name: "วันที่สั่ง", uid: "bcSalesOrderDate", sortable: true },
   { name: "ลูกค้า", uid: "bcSalesOrderCustomerName", sortable: true },
   { name: "สถานะ", uid: "bcSalesOrderStatus", sortable: true },
-  { name: "ยอดรวม (รวมภาษี)", uid: "bcSalesOrderTotalAmountIncludingTax", sortable: true },
+  { name: "ยอดรวม (รวมภาษี)", uid: "bcSalesOrderTotalAmountIncVat", sortable: true },
   { name: "รายการ", uid: "lineCount" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
   "bcSalesOrderNumber",
-  "bcSalesOrderOrderDate",
+  "bcSalesOrderDate",
   "bcSalesOrderCustomerName",
   "bcSalesOrderStatus",
-  "bcSalesOrderTotalAmountIncludingTax",
+  "bcSalesOrderTotalAmountIncVat",
   "lineCount",
   "actions",
 ];
@@ -71,9 +71,9 @@ export default function BcSalesOrdersPage() {
       switch (columnKey) {
         case "bcSalesOrderNumber":
           return <span className="font-medium">{order.bcSalesOrderNumber}</span>;
-        case "bcSalesOrderOrderDate":
-          return order.bcSalesOrderOrderDate
-            ? new Date(order.bcSalesOrderOrderDate).toLocaleDateString("th-TH")
+        case "bcSalesOrderDate":
+          return order.bcSalesOrderDate
+            ? new Date(order.bcSalesOrderDate).toLocaleDateString("th-TH")
             : "-";
         case "bcSalesOrderCustomerName":
           return order.bcSalesOrderCustomerName || "-";
@@ -88,8 +88,8 @@ export default function BcSalesOrdersPage() {
               {statusLabelMap[order.bcSalesOrderStatus] || order.bcSalesOrderStatus || "-"}
             </Chip>
           );
-        case "bcSalesOrderTotalAmountIncludingTax":
-          return formatNumber(order.bcSalesOrderTotalAmountIncludingTax);
+        case "bcSalesOrderTotalAmountIncVat":
+          return formatNumber(order.bcSalesOrderTotalAmountIncVat);
         case "lineCount":
           return order.salesOrderLines?.length ?? "-";
         case "actions":
@@ -177,8 +177,8 @@ export default function BcSalesOrdersPage() {
                         : "-"}
                     </TableCell>
                     <TableCell>
-                      {line.bcSalesOrderLineAmountIncludingTax != null
-                        ? Number(line.bcSalesOrderLineAmountIncludingTax).toLocaleString(
+                      {line.bcSalesOrderLineAmount != null
+                        ? Number(line.bcSalesOrderLineAmount).toLocaleString(
                             "th-TH",
                             { minimumFractionDigits: 2 },
                           )

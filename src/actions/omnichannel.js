@@ -41,5 +41,5 @@ export async function quotationAction(id, action, note) {
 
 // Conversation Detail - Quotations
 export async function getQuotationsByConversation(conversationId) {
-  return get(`/api/marketing/omnichannel/quotations?omConversationId=${conversationId}`);
+  return get(`/api/marketing/omnichannel/quotations?conversationId=${conversationId}`);
 }

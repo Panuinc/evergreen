@@ -26,13 +26,13 @@ export async function getMessages(conversationId) {
 }
 
 export async function sendMessage(conversationId, content) {
-  return post("/api/marketing/omnichannel/send", { omConversationId: conversationId, omMessageContent: content });
+  return post("/api/marketing/omnichannel/send", { conversationId, content });
 }
 
 // ==================== AI Agent ====================
 
 export async function suggestReply(conversationId) {
-  return post("/api/marketing/omnichannel/ai/suggest", { omConversationId: conversationId });
+  return post("/api/marketing/omnichannel/ai/suggest", { conversationId });
 }
 
 export async function getAiSettings() {

@@ -10,17 +10,17 @@ export async function GET() {
   const [sessionsRes, transfersRes, recentRes] = await Promise.all([
     supabase
       .from("whScanSession")
-      .select("id, tag_count")
-      .eq("user_id", userId),
+      .select("whScanSessionId, whScanSessionTagCount")
+      .eq("whScanSessionUserId", userId),
     supabase
       .from("whTransfer")
-      .select("id, status")
-      .eq("user_id", userId),
+      .select("whTransferId, whTransferStatus")
+      .eq("whTransferUserId", userId),
     supabase
       .from("whScanSession")
       .select("*")
-      .eq("user_id", userId)
-      .order("started_at", { ascending: false })
+      .eq("whScanSessionUserId", userId)
+      .order("whScanSessionStartedAt", { ascending: false })
       .limit(5),
   ]);
 
@@ -36,12 +36,12 @@ export async function GET() {
 
   const total_sessions = sessions.length;
   const total_tags = sessions.reduce(
-    (sum, s) => sum + (parseInt(s.tag_count) || 0),
+    (sum, s) => sum + (parseInt(s.whScanSessionTagCount) || 0),
     0
   );
   const total_transfers = transfers.length;
   const pending_transfers = transfers.filter(
-    (t) => t.status === "pending"
+    (t) => t.whTransferStatus === "pending"
   ).length;
 
   return Response.json({

@@ -12,12 +12,12 @@ async function fetchProductCatalog() {
         .eq("bcItemBlocked", false)
         .like("bcItemNumber", "FG-00003%")
         .order("bcItemNumber"),
-      supabase.from("omPriceList").select("priceItemNumber, priceUnitPrice"),
+      supabase.from("omPriceItem").select("omPriceItemNumber, omPriceItemUnitPrice"),
     ]);
 
     const priceMap = {};
     for (const p of priceResult.data || []) {
-      priceMap[p.priceItemNumber] = Number(p.priceUnitPrice) || 0;
+      priceMap[p.omPriceItemNumber] = Number(p.omPriceItemUnitPrice) || 0;
     }
 
     return (itemsResult.data || []).map((i) => ({
@@ -64,7 +64,7 @@ function buildSystemPrompt(basePrompt, products) {
 
 export async function getAiSettings(supabase) {
   const { data } = await supabase
-    .from("omAiSettings")
+    .from("omAiSetting")
     .select("*")
     .limit(1)
     .single();
@@ -73,10 +73,10 @@ export async function getAiSettings(supabase) {
 
 export async function getConversationContext(conversationId, supabase, limit = 20) {
   const { data: messages } = await supabase
-    .from("omMessages")
-    .select("messageSenderType, messageContent, messageCreatedAt")
-    .eq("messageConversationId", conversationId)
-    .order("messageCreatedAt", { ascending: false })
+    .from("omMessage")
+    .select("omMessageSenderType, omMessageContent, omMessageCreatedAt")
+    .eq("omMessageConversationId", conversationId)
+    .order("omMessageCreatedAt", { ascending: false })
     .limit(limit);
 
   return (messages || []).reverse();
@@ -90,10 +90,10 @@ export async function generateAiReply(conversationId, supabase) {
     fetchProductCatalog(),
   ]);
 
-  const model = settings?.aiModel || "google/gemini-2.5-flash-lite";
-  const temperature = Number(settings?.aiTemperature) || 0.3;
+  const model = settings?.omAiSettingModel || "google/gemini-2.5-flash-lite";
+  const temperature = Number(settings?.omAiSettingTemperature) || 0.3;
   const basePrompt =
-    settings?.aiSystemPrompt ||
+    settings?.omAiSettingSystemPrompt ||
     "คุณเป็นเจ้าหน้าที่บริการลูกค้า ตอบเป็นภาษาไทย";
 
   const systemPrompt = buildSystemPrompt(basePrompt, products);
@@ -101,8 +101,8 @@ export async function generateAiReply(conversationId, supabase) {
   const aiMessages = [
     { role: "system", content: systemPrompt },
     ...history.map((msg) => ({
-      role: msg.messageSenderType === "customer" ? "user" : "assistant",
-      content: msg.messageContent,
+      role: msg.omMessageSenderType === "customer" ? "user" : "assistant",
+      content: msg.omMessageContent,
     })),
   ];
 

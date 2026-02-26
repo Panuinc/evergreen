@@ -10,8 +10,8 @@ export async function GET(request, { params }) {
   const { data, error } = await supabase
     .from("whTransfer")
     .select("*")
-    .eq("id", id)
-    .eq("user_id", session.user.id)
+    .eq("whTransferId", id)
+    .eq("whTransferUserId", session.user.id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -28,17 +28,17 @@ export async function PUT(request, { params }) {
 
   const updates = {};
   if (body.status !== undefined) {
-    updates.status = body.status;
+    updates.whTransferStatus = body.status;
     if (body.status === "completed") {
-      updates.completed_at = new Date().toISOString();
+      updates.whTransferCompletedAt = new Date().toISOString();
     }
   }
 
   const { data, error } = await supabase
     .from("whTransfer")
     .update(updates)
-    .eq("id", id)
-    .eq("user_id", session.user.id)
+    .eq("whTransferId", id)
+    .eq("whTransferUserId", session.user.id)
     .select()
     .single();
 

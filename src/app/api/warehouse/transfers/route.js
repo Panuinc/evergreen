@@ -8,8 +8,8 @@ export async function GET() {
   const { data, error } = await supabase
     .from("whTransfer")
     .select("*")
-    .eq("user_id", session.user.id)
-    .order("created_at", { ascending: false });
+    .eq("whTransferUserId", session.user.id)
+    .order("whTransferCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -25,18 +25,18 @@ export async function POST(request) {
   const now = new Date();
   const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
   const randomPart = String(Math.floor(1000 + Math.random() * 9000));
-  const transfer_no = `TRF-${datePart}-${randomPart}`;
+  const transferNo = `TRF-${datePart}-${randomPart}`;
 
   const record = {
-    user_id: session.user.id,
-    transfer_no,
-    from_location: body.from_location,
-    to_location: body.to_location,
-    session_id: body.session_id,
-    notes: body.notes,
-    gps_lat: body.gps_lat,
-    gps_lon: body.gps_lon,
-    status: "pending",
+    whTransferUserId: session.user.id,
+    whTransferNo: transferNo,
+    whTransferFromLocation: body.from_location,
+    whTransferToLocation: body.to_location,
+    whTransferSessionId: body.session_id,
+    whTransferNotes: body.notes,
+    whTransferGpsLat: body.gps_lat,
+    whTransferGpsLon: body.gps_lon,
+    whTransferStatus: "pending",
   };
 
   const { data, error } = await supabase

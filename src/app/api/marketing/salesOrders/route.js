@@ -7,10 +7,10 @@ export async function GET() {
   const { data: orders, error } = await auth.supabase
     .from("bcSalesOrder")
     .select(
-      "bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderOrderDate,bcSalesOrderStatus,bcSalesOrderCompletelyShipped,bcSalesOrderExternalDocumentNumber,bcSalesOrderTotalAmountIncludingTax,bcSalesOrderSalespersonCode",
+      "bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,bcSalesOrderStatus,bcSalesOrderCompletelyShipped,bcSalesOrderExternalDocumentNumber,bcSalesOrderTotalAmountIncVat,bcSalesOrderSalespersonCode",
     )
     .eq("bcSalesOrderSalespersonCode", "ONLINE")
-    .order("bcSalesOrderOrderDate", { ascending: false });
+    .order("bcSalesOrderDate", { ascending: false });
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -21,11 +21,11 @@ export async function GET() {
     No: o.bcSalesOrderNumber,
     Sell_to_Customer_No: o.bcSalesOrderCustomerNumber,
     Sell_to_Customer_Name: o.bcSalesOrderCustomerName,
-    Order_Date: o.bcSalesOrderOrderDate,
+    Order_Date: o.bcSalesOrderDate,
     Status: o.bcSalesOrderStatus,
     Completely_Shipped: o.bcSalesOrderCompletelyShipped,
     External_Document_No: o.bcSalesOrderExternalDocumentNumber,
-    totalAmount: o.bcSalesOrderTotalAmountIncludingTax,
+    totalAmount: o.bcSalesOrderTotalAmountIncVat,
   }));
 
   return Response.json({ orders: result });

@@ -39,7 +39,7 @@ export async function GET(request) {
         .from("bcSalesOrder")
         .select("*")
         .eq("bcSalesOrderSalespersonCode", "ONLINE")
-        .order("bcSalesOrderOrderDate", { ascending: false }),
+        .order("bcSalesOrderDate", { ascending: false }),
       fetchAllLines(auth.supabase),
       auth.supabase
         .from("bcCustomer")
@@ -59,7 +59,7 @@ export async function GET(request) {
       Ship_to_Address: o.bcSalesOrderShipToAddress,
       Ship_to_City: o.bcSalesOrderShipToCity,
       Ship_to_Post_Code: o.bcSalesOrderShipToPostCode,
-      Order_Date: o.bcSalesOrderOrderDate,
+      Order_Date: o.bcSalesOrderDate,
       Due_Date: o.bcSalesOrderDueDate,
       Status: o.bcSalesOrderStatus,
       Completely_Shipped: o.bcSalesOrderCompletelyShipped,
@@ -71,13 +71,13 @@ export async function GET(request) {
     const allLines = (rawLines || []).filter((l) => orderNos.has(l.bcSalesOrderLineDocumentNo));
     const lines = allLines.map((l) => ({
       Document_No: l.bcSalesOrderLineDocumentNo,
-      Line_No: l.bcSalesOrderLineLineNo,
+      Line_No: l.bcSalesOrderLineNo,
       Type: l.bcSalesOrderLineType,
       No: l.bcSalesOrderLineObjectNumber,
       Description: l.bcSalesOrderLineDescription,
       Quantity: l.bcSalesOrderLineQuantity,
       Unit_Price: l.bcSalesOrderLineUnitPrice,
-      Line_Amount: l.bcSalesOrderLineAmountIncludingTax,
+      Line_Amount: l.bcSalesOrderLineAmount,
       Quantity_Shipped: l.bcSalesOrderLineQuantityShipped,
       BWK_Outstanding_Quantity: l.bcSalesOrderLineOutstandingQuantity,
       Unit_of_Measure_Code: l.bcSalesOrderLineUnitOfMeasureCode,

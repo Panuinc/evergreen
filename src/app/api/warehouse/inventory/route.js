@@ -17,7 +17,7 @@ export async function GET(request) {
       const { data, error } = await auth.supabase
         .from("bcItem")
         .select("*")
-        .ilike("generalProductPostingGroupCode", group)
+        .ilike("bcItemGeneralProductPostingGroupCode", group)
         .order("bcItemNumber")
         .range(from, from + PAGE_SIZE - 1);
 
@@ -30,7 +30,7 @@ export async function GET(request) {
       from += PAGE_SIZE;
     }
 
-    const filtered = allData.filter((item) => !item.blocked && item.bcItemInventory > 0);
+    const filtered = allData.filter((item) => !item.bcItemBlocked && item.bcItemInventory > 0);
     return Response.json(filtered);
   }
 
@@ -52,6 +52,6 @@ export async function GET(request) {
     from += PAGE_SIZE;
   }
 
-  const filtered = allData.filter((item) => !item.blocked && item.bcItemInventory > 0);
+  const filtered = allData.filter((item) => !item.bcItemBlocked && item.bcItemInventory > 0);
   return Response.json(filtered);
 }
