@@ -35,6 +35,12 @@ yarn-error.log*
 
 # deploy
 deploy.sh
+scripts/deploy-*.sh
+scripts/replace-secrets.sh
+
+# sensitive data
+*.xlsx
+*.xls
 
 # vercel
 .vercel
