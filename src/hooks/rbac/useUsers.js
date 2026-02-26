@@ -9,6 +9,7 @@ import {
   assignRoleToUser,
   removeRoleFromUser,
   createUser,
+  resetUserPassword,
 } from "@/actions/rbac";
 import { getUnlinkedEmployees } from "@/actions/hr";
 
@@ -24,6 +25,12 @@ export function useUsers() {
   const [userRoleIds, setUserRoleIds] = useState([]);
   const [saving, setSaving] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Reset password
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetTarget, setResetTarget] = useState(null);
+  const [resetPassword, setResetPassword] = useState(defaultPassword);
+  const [resetting, setResetting] = useState(false);
 
   // Create account
   const [createOpen, setCreateOpen] = useState(false);
@@ -134,6 +141,31 @@ export function useUsers() {
     }
   };
 
+  const openResetPassword = (user) => {
+    setResetTarget(user);
+    setResetPassword(defaultPassword);
+    setResetOpen(true);
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetTarget || !resetPassword) return;
+    if (resetPassword.length < 6) {
+      toast.error("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
+      return;
+    }
+
+    setResetting(true);
+    try {
+      await resetUserPassword(resetTarget.rbacUserProfileId, resetPassword);
+      toast.success("รีเซ็ตรหัสผ่านสำเร็จ");
+      setResetOpen(false);
+    } catch (error) {
+      toast.error("รีเซ็ตรหัสผ่านล้มเหลว");
+    } finally {
+      setResetting(false);
+    }
+  };
+
   return {
     users,
     allRoles,
@@ -153,5 +185,13 @@ export function useUsers() {
     unlinkedEmployees,
     openCreateAccount,
     handleCreateAccount,
+    resetOpen,
+    setResetOpen,
+    resetTarget,
+    resetPassword,
+    setResetPassword,
+    resetting,
+    openResetPassword,
+    handleResetPassword,
   };
 }

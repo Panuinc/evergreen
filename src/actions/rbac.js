@@ -118,6 +118,12 @@ export async function createUser(userData) {
   return post("/api/admin/createUser", userData);
 }
 
+// ==================== Reset Password ====================
+
+export async function resetUserPassword(userId, password) {
+  return post("/api/admin/resetPassword", { userId, password });
+}
+
 // ==================== Access Logs ====================
 
 export async function getAccessLogs() {

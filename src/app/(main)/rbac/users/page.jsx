@@ -14,7 +14,7 @@ import {
   Chip,
   Checkbox,
 } from "@heroui/react";
-import { Plus, Settings } from "lucide-react";
+import { Plus, Settings, KeyRound } from "lucide-react";
 import { useUsers } from "@/hooks/rbac/useUsers";
 import DataTable from "@/components/ui/DataTable";
 
@@ -52,6 +52,14 @@ export default function UsersPage() {
     unlinkedEmployees,
     openCreateAccount,
     handleCreateAccount,
+    resetOpen,
+    setResetOpen,
+    resetTarget,
+    resetPassword,
+    setResetPassword,
+    resetting,
+    openResetPassword,
+    handleResetPassword,
   } = useUsers();
 
   const renderCell = useCallback(
@@ -87,22 +95,34 @@ export default function UsersPage() {
           );
         case "actions":
           return (
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              isIconOnly
-              onPress={() => openRoleAssignment(user)}
-              title="จัดการบทบาท"
-            >
-              <Settings />
-            </Button>
+            <div className="flex gap-1">
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => openRoleAssignment(user)}
+                title="จัดการบทบาท"
+              >
+                <Settings />
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                radius="md"
+                isIconOnly
+                onPress={() => openResetPassword(user)}
+                title="รีเซ็ตรหัสผ่าน"
+              >
+                <KeyRound />
+              </Button>
+            </div>
           );
         default:
           return user[columnKey] || "-";
       }
     },
-    [openRoleAssignment],
+    [openRoleAssignment, openResetPassword],
   );
 
   return (
@@ -265,6 +285,48 @@ export default function UsersPage() {
               isLoading={creating}
             >
               สร้าง
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Reset Password Modal */}
+      <Modal isOpen={resetOpen} onClose={() => setResetOpen(false)}>
+        <ModalContent>
+          <ModalHeader>
+            รีเซ็ตรหัสผ่าน &ldquo;{resetTarget?.rbacUserProfileEmail}&rdquo;
+          </ModalHeader>
+          <ModalBody>
+            <Input
+              label="รหัสผ่านใหม่"
+              labelPlacement="outside"
+              type="password"
+              placeholder="อย่างน้อย 6 ตัวอักษร"
+              variant="bordered"
+              size="md"
+              radius="md"
+              value={resetPassword}
+              onChange={(e) => setResetPassword(e.target.value)}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={() => setResetOpen(false)}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              color="danger"
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={handleResetPassword}
+              isLoading={resetting}
+            >
+              รีเซ็ต
             </Button>
           </ModalFooter>
         </ModalContent>
