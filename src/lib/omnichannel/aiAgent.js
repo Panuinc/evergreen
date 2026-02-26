@@ -9,7 +9,7 @@ async function fetchProductCatalog() {
       supabase
         .from("bcItem")
         .select("bcItemNumber,bcItemDisplayName")
-        .eq("blocked", false)
+        .eq("bcItemBlocked", false)
         .like("bcItemNumber", "FG-00003%")
         .order("bcItemNumber"),
       supabase.from("omPriceList").select("priceItemNumber, priceUnitPrice"),

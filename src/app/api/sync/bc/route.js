@@ -277,12 +277,12 @@ async function runSync(supabase, requestedTables, send) {
           bcItemInventory: i.Inventory,
           bcItemUnitPrice: i.Unit_Price,
           bcItemUnitCost: i.Unit_Cost,
-          itemCategoryCode: i.Item_Category_Code,
-          generalProductPostingGroupCode: i.Gen_Prod_Posting_Group,
-          blocked: i.Blocked,
-          baseUnitOfMeasure: i.Base_Unit_of_Measure,
-          projectCode,
-          projectName: projectCode ? dimMap[projectCode] || null : null,
+          bcItemCategoryCode: i.Item_Category_Code,
+          bcItemGeneralProductPostingGroupCode: i.Gen_Prod_Posting_Group,
+          bcItemBlocked: i.Blocked,
+          bcItemBaseUnitOfMeasure: i.Base_Unit_of_Measure,
+          bcItemProjectCode: projectCode,
+          bcItemProjectName: projectCode ? dimMap[projectCode] || null : null,
           bcItemSyncedAt: now,
         };
       });
@@ -365,19 +365,19 @@ async function runSync(supabase, requestedTables, send) {
           bcSalesOrderNumber: o.No,
           bcSalesOrderCustomerNumber: o.Sell_to_Customer_No,
           bcSalesOrderCustomerName: o.Sell_to_Customer_Name,
-          sellToAddress: o.Sell_to_Address,
-          sellToCity: o.Sell_to_City,
-          sellToPostCode: o.Sell_to_Post_Code,
-          shipToName: o.Ship_to_Name,
-          shipToAddress: o.Ship_to_Address,
-          shipToCity: o.Ship_to_City,
-          shipToPostCode: o.Ship_to_Post_Code,
+          bcSalesOrderSellToAddress: o.Sell_to_Address,
+          bcSalesOrderSellToCity: o.Sell_to_City,
+          bcSalesOrderSellToPostCode: o.Sell_to_Post_Code,
+          bcSalesOrderShipToName: o.Ship_to_Name,
+          bcSalesOrderShipToAddress: o.Ship_to_Address,
+          bcSalesOrderShipToCity: o.Ship_to_City,
+          bcSalesOrderShipToPostCode: o.Ship_to_Post_Code,
           bcSalesOrderDate: o.Order_Date || null,
-          dueDate: o.Due_Date || null,
+          bcSalesOrderDueDate: o.Due_Date || null,
           bcSalesOrderStatus: o.Status,
-          completelyShipped: o.Completely_Shipped,
+          bcSalesOrderCompletelyShipped: o.Completely_Shipped,
           bcSalesOrderSalespersonCode: o.Salesperson_Code,
-          externalDocumentNumber: o.External_Document_No,
+          bcSalesOrderExternalDocumentNumber: o.External_Document_No,
           bcSalesOrderTotalAmountIncVat: amountByOrder[o.No] || 0,
           bcSalesOrderSyncedAt: now,
         }));
@@ -415,19 +415,19 @@ async function runSync(supabase, requestedTables, send) {
             bcSalesOrderLineExternalId: `${l.Document_No}-${l.Line_No}`,
             bcSalesOrderLineDocumentNo: l.Document_No,
             bcSalesOrderLineNo: l.Line_No,
-            type: l.Type?.trim() || null,
-            lineObjectNumber: l.No,
+            bcSalesOrderLineType: l.Type?.trim() || null,
+            bcSalesOrderLineObjectNumber: l.No,
             bcSalesOrderLineDescription: l.Description,
             bcSalesOrderLineQuantity: l.Quantity,
             bcSalesOrderLineUnitPrice: l.Unit_Price,
             bcSalesOrderLineAmount: l.Line_Amount,
-            quantityShipped: l.Quantity_Shipped,
-            bwkOutstandingQuantity: l.BWK_Outstanding_Quantity,
-            unitOfMeasureCode: l.Unit_of_Measure_Code,
-            locationCode: l.Location_Code?.trim() || null,
-            projectCode,
-            projectName: projectCode ? dimMap[projectCode] || null : null,
-            syncedAt: now,
+            bcSalesOrderLineQuantityShipped: l.Quantity_Shipped,
+            bcSalesOrderLineOutstandingQuantity: l.BWK_Outstanding_Quantity,
+            bcSalesOrderLineUnitOfMeasureCode: l.Unit_of_Measure_Code,
+            bcSalesOrderLineLocationCode: l.Location_Code?.trim() || null,
+            bcSalesOrderLineProjectCode: projectCode,
+            bcSalesOrderLineProjectName: projectCode ? dimMap[projectCode] || null : null,
+            bcSalesOrderLineSyncedAt: now,
           };
         });
         await batchUpsert(supabase, "bcSalesOrderLine", lineRows, {
@@ -506,22 +506,22 @@ async function runSync(supabase, requestedTables, send) {
         bcProductionOrderExternalId: o.No,
         bcProductionOrderStatus: o.Status || null,
         bcProductionOrderDescription: o.Description || null,
-        description2: o.Description_2 || null,
+        bcProductionOrderDescription2: o.Description_2 || null,
         bcProductionOrderSourceNo: o.Source_No || null,
-        routingNo: o.Routing_No || null,
+        bcProductionOrderRoutingNo: o.Routing_No || null,
         bcProductionOrderQuantity: o.Quantity || 0,
-        dimension1Code: o.Shortcut_Dimension_1_Code || null,
-        dimension1Name: dimMap[o.Shortcut_Dimension_1_Code] || null,
-        dimension2Code: o.Shortcut_Dimension_2_Code || null,
-        dimension2Name: dimMap[o.Shortcut_Dimension_2_Code] || null,
-        locationCode: o.Location_Code || null,
-        bcProductionOrderStartingDate: bcTimestamp(o.Starting_Date_Time),
-        bcProductionOrderEndingDate: bcTimestamp(o.Ending_Date_Time),
+        bcProductionOrderDimension1Code: o.Shortcut_Dimension_1_Code || null,
+        bcProductionOrderDimension1Name: dimMap[o.Shortcut_Dimension_1_Code] || null,
+        bcProductionOrderDimension2Code: o.Shortcut_Dimension_2_Code || null,
+        bcProductionOrderDimension2Name: dimMap[o.Shortcut_Dimension_2_Code] || null,
+        bcProductionOrderLocationCode: o.Location_Code || null,
+        bcProductionOrderStartingDateTime: bcTimestamp(o.Starting_Date_Time),
+        bcProductionOrderEndingDateTime: bcTimestamp(o.Ending_Date_Time),
         bcProductionOrderDueDate: bcDate(o.Due_Date),
-        remainingConsumption: o.BWK_Remaining_Consumption || 0,
-        assignedUserId: o.Assigned_User_ID || null,
-        finishedDate: bcDate(o.Finished_Date),
-        searchDescription: o.Search_Description || null,
+        bcProductionOrderRemainingConsumption: o.BWK_Remaining_Consumption || 0,
+        bcProductionOrderAssignedUserId: o.Assigned_User_ID || null,
+        bcProductionOrderFinishedDate: bcDate(o.Finished_Date),
+        bcProductionOrderSearchDescription: o.Search_Description || null,
         bcProductionOrderSyncedAt: now,
       }));
 
@@ -530,43 +530,43 @@ async function runSync(supabase, requestedTables, send) {
         bcItemLedgerEntryExternalNo: e.Entry_No,
         bcItemLedgerEntryItemNo: e.Item_No || null,
         bcItemLedgerEntryPostingDate: bcDate(e.Posting_Date),
-        documentDate: bcDate(e.DocumentDate),
-        bcItemLedgerEntryType: e.Entry_Type?.trim() || null,
-        documentType: e.Document_Type?.trim() || null,
+        bcItemLedgerEntryDocumentDate: bcDate(e.DocumentDate),
+        bcItemLedgerEntryEntryType: e.Entry_Type?.trim() || null,
+        bcItemLedgerEntryDocumentType: e.Document_Type?.trim() || null,
         bcItemLedgerEntryDocumentNo: e.Document_No || null,
-        itemDescription: e.Description || e.Item_Description || null,
-        employeeCode: e.CHH_Employee_Code || null,
-        employeeName: e.CHH_Employee_Name || null,
-        description2: e.BWK_Descriptin_2 || null,
+        bcItemLedgerEntryItemDescription: e.Description || e.Item_Description || null,
+        bcItemLedgerEntryEmployeeCode: e.CHH_Employee_Code || null,
+        bcItemLedgerEntryEmployeeName: e.CHH_Employee_Name || null,
+        bcItemLedgerEntryDescription2: e.BWK_Descriptin_2 || null,
         bcItemLedgerEntryLocationCode: e.Location_Code || null,
-        lotNo: e.Lot_No || null,
-        serialNo: e.Serial_No || null,
-        expirationDate: bcDate(e.Expiration_Date),
+        bcItemLedgerEntryLotNo: e.Lot_No || null,
+        bcItemLedgerEntrySerialNo: e.Serial_No || null,
+        bcItemLedgerEntryExpirationDate: bcDate(e.Expiration_Date),
         bcItemLedgerEntryQuantity: e.Quantity || 0,
-        unitOfMeasureCode: e.Unit_of_Measure_Code || null,
-        remainingQuantity: e.Remaining_Quantity || 0,
-        invoicedQuantity: e.Invoiced_Quantity || 0,
-        completelyInvoiced: e.Completely_Invoiced || false,
-        unitCostExpected: e.UnitCostExp || 0,
-        costAmountExpected: e.Cost_Amount_Expected || 0,
-        unitCostActual: e.UnitCostActual || 0,
-        costAmountActual: e.Cost_Amount_Actual || 0,
-        salesAmountExpected: e.Sales_Amount_Expected || 0,
-        salesAmountActual: e.Sales_Amount_Actual || 0,
-        open: e.Open || false,
-        globalDimension1Code: e.Global_Dimension_1_Code || null,
-        globalDimension1Name: dimMap[e.Global_Dimension_1_Code] || null,
-        globalDimension2Code: e.Global_Dimension_2_Code || null,
-        globalDimension2Name: dimMap[e.Global_Dimension_2_Code] || null,
-        orderType: e.Order_Type?.trim() || null,
-        orderLineNo: e.Order_Line_No || 0,
-        documentLineNo: e.Document_Line_No || 0,
-        variantCode: e.Variant_Code || null,
-        binCode: e.BWK_Bin_Code || null,
-        baseUnitOfMeasure: e.BWK_Base_Unit_of_Measure || null,
-        totalGrossWeight: e.BWK_Total_Gross_Weight || 0,
-        totalNetWeight: e.BWK_Total_Net_Weight || 0,
-        createdBy: e.BWK_Create_By || null,
+        bcItemLedgerEntryUnitOfMeasureCode: e.Unit_of_Measure_Code || null,
+        bcItemLedgerEntryRemainingQuantity: e.Remaining_Quantity || 0,
+        bcItemLedgerEntryInvoicedQuantity: e.Invoiced_Quantity || 0,
+        bcItemLedgerEntryCompletelyInvoiced: e.Completely_Invoiced || false,
+        bcItemLedgerEntryUnitCostExpected: e.UnitCostExp || 0,
+        bcItemLedgerEntryCostAmountExpected: e.Cost_Amount_Expected || 0,
+        bcItemLedgerEntryUnitCostActual: e.UnitCostActual || 0,
+        bcItemLedgerEntryCostAmountActual: e.Cost_Amount_Actual || 0,
+        bcItemLedgerEntrySalesAmountExpected: e.Sales_Amount_Expected || 0,
+        bcItemLedgerEntrySalesAmountActual: e.Sales_Amount_Actual || 0,
+        bcItemLedgerEntryOpen: e.Open || false,
+        bcItemLedgerEntryGlobalDimension1Code: e.Global_Dimension_1_Code || null,
+        bcItemLedgerEntryGlobalDimension1Name: dimMap[e.Global_Dimension_1_Code] || null,
+        bcItemLedgerEntryGlobalDimension2Code: e.Global_Dimension_2_Code || null,
+        bcItemLedgerEntryGlobalDimension2Name: dimMap[e.Global_Dimension_2_Code] || null,
+        bcItemLedgerEntryOrderType: e.Order_Type?.trim() || null,
+        bcItemLedgerEntryOrderLineNo: e.Order_Line_No || 0,
+        bcItemLedgerEntryDocumentLineNo: e.Document_Line_No || 0,
+        bcItemLedgerEntryVariantCode: e.Variant_Code || null,
+        bcItemLedgerEntryBinCode: e.BWK_Bin_Code || null,
+        bcItemLedgerEntryBaseUnitOfMeasure: e.BWK_Base_Unit_of_Measure || null,
+        bcItemLedgerEntryTotalGrossWeight: e.BWK_Total_Gross_Weight || 0,
+        bcItemLedgerEntryTotalNetWeight: e.BWK_Total_Net_Weight || 0,
+        bcItemLedgerEntryCreatedBy: e.BWK_Create_By || null,
         bcItemLedgerEntrySyncedAt: now,
       }));
 
@@ -673,12 +673,12 @@ async function runSync(supabase, requestedTables, send) {
           .from("bcItem")
           .delete({ count: "exact" })
           .lt("bcItemSyncedAt", now)
-          .is("rfidCode", null);
+          .is("bcItemRfidCode", null);
         const { count: markedBlocked, error: err2 } = await supabase
           .from("bcItem")
-          .update({ blocked: true, bcItemInventory: 0 })
+          .update({ bcItemBlocked: true, bcItemInventory: 0 })
           .lt("bcItemSyncedAt", now)
-          .not("rfidCode", "is", null);
+          .not("bcItemRfidCode", "is", null);
         cleanup.items =
           err1 || err2
             ? `ERROR: ${(err1 || err2).message}`
@@ -696,7 +696,7 @@ async function runSync(supabase, requestedTables, send) {
     const { count: staleCount } = await supabase
       .from("bcSalesOrderLine")
       .select("*", { count: "exact", head: true })
-      .lt("syncedAt", now);
+      .lt("bcSalesOrderLineSyncedAt", now);
     if (
       !isSafeToCleanup(
         results.salesOrderLines,
@@ -708,7 +708,7 @@ async function runSync(supabase, requestedTables, send) {
       const { count, error } = await supabase
         .from("bcSalesOrderLine")
         .delete({ count: "exact" })
-        .lt("syncedAt", now);
+        .lt("bcSalesOrderLineSyncedAt", now);
       cleanup.salesOrderLines = error
         ? `ERROR: ${error.message}`
         : count || 0;

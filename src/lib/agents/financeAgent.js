@@ -103,7 +103,7 @@ async function executeTool(name, args) {
     case "get_revenue_summary": {
       let q = supabase
         .from("bcSalesOrder")
-        .select("bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,bcSalesOrderStatus,completelyShipped,bcSalesOrderSalespersonCode,bcSalesOrderTotalAmountIncVat");
+        .select("bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,bcSalesOrderStatus,bcSalesOrderCompletelyShipped,bcSalesOrderSalespersonCode,bcSalesOrderTotalAmountIncVat");
       if (args.since) q = q.gte("bcSalesOrderDate", args.since);
       if (args.until) q = q.lte("bcSalesOrderDate", args.until);
       if (args.salespersonCode) q = q.eq("bcSalesOrderSalespersonCode", args.salespersonCode);
@@ -116,9 +116,9 @@ async function executeTool(name, args) {
         totalOrders: orders.length,
         totalRevenue,
         avgOrderValue: orders.length > 0 ? Math.round(totalRevenue / orders.length) : 0,
-        shippedOrders: orders.filter((o) => o.completelyShipped).length,
-        pendingOrders: orders.filter((o) => !o.completelyShipped).length,
-        pendingRevenue: orders.filter((o) => !o.completelyShipped).reduce((s, o) => s + (o.bcSalesOrderTotalAmountIncVat || 0), 0),
+        shippedOrders: orders.filter((o) => o.bcSalesOrderCompletelyShipped).length,
+        pendingOrders: orders.filter((o) => !o.bcSalesOrderCompletelyShipped).length,
+        pendingRevenue: orders.filter((o) => !o.bcSalesOrderCompletelyShipped).reduce((s, o) => s + (o.bcSalesOrderTotalAmountIncVat || 0), 0),
       };
 
       if (args.groupBy === "salesperson") {
@@ -185,10 +185,10 @@ async function executeTool(name, args) {
     case "get_outstanding_orders": {
       let q = supabase
         .from("bcSalesOrder")
-        .select("bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,dueDate,bcSalesOrderStatus,bcSalesOrderSalespersonCode,bcSalesOrderTotalAmountIncVat")
-        .eq("completelyShipped", false)
+        .select("bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,bcSalesOrderDueDate,bcSalesOrderStatus,bcSalesOrderSalespersonCode,bcSalesOrderTotalAmountIncVat")
+        .eq("bcSalesOrderCompletelyShipped", false)
         .neq("bcSalesOrderStatus", "Open")
-        .order("dueDate", { ascending: true })
+        .order("bcSalesOrderDueDate", { ascending: true })
         .limit(args.limit || 50);
       if (args.salespersonCode) q = q.eq("bcSalesOrderSalespersonCode", args.salespersonCode);
       if (args.since) q = q.gte("bcSalesOrderDate", args.since);

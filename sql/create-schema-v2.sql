@@ -855,13 +855,13 @@ CREATE TABLE "bcSalesOrder" (
   "bcSalesOrderShipToAddress" text,
   "bcSalesOrderShipToCity" text,
   "bcSalesOrderShipToPostCode" text,
-  "bcSalesOrderOrderDate" date,
+  "bcSalesOrderDate" date,
   "bcSalesOrderDueDate" date,
   "bcSalesOrderStatus" text,
   "bcSalesOrderCompletelyShipped" boolean DEFAULT false,
   "bcSalesOrderSalespersonCode" text,
   "bcSalesOrderExternalDocumentNumber" text,
-  "bcSalesOrderTotalAmountIncludingTax" numeric DEFAULT 0,
+  "bcSalesOrderTotalAmountIncVat" numeric DEFAULT 0,
   "bcSalesOrderSyncedAt" timestamptz DEFAULT now()
 );
 
@@ -869,13 +869,13 @@ CREATE TABLE "bcSalesOrderLine" (
   "bcSalesOrderLineId" uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
   "bcSalesOrderLineExternalId" text UNIQUE,
   "bcSalesOrderLineDocumentNo" text,
-  "bcSalesOrderLineLineNo" integer,
+  "bcSalesOrderLineNo" integer,
   "bcSalesOrderLineType" text,
   "bcSalesOrderLineObjectNumber" text,
   "bcSalesOrderLineDescription" text,
   "bcSalesOrderLineQuantity" numeric DEFAULT 0,
   "bcSalesOrderLineUnitPrice" numeric DEFAULT 0,
-  "bcSalesOrderLineAmountIncludingTax" numeric DEFAULT 0,
+  "bcSalesOrderLineAmount" numeric DEFAULT 0,
   "bcSalesOrderLineQuantityShipped" numeric DEFAULT 0,
   "bcSalesOrderLineOutstandingQuantity" numeric DEFAULT 0,
   "bcSalesOrderLineUnitOfMeasureCode" text,
@@ -887,8 +887,7 @@ CREATE TABLE "bcSalesOrderLine" (
 
 CREATE TABLE "bcItemLedgerEntry" (
   "bcItemLedgerEntryId" uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
-  "bcItemLedgerEntryExternalId" text UNIQUE,
-  "bcItemLedgerEntryEntryNo" integer,
+  "bcItemLedgerEntryExternalNo" integer UNIQUE,
   "bcItemLedgerEntryPostingDate" date,
   "bcItemLedgerEntryDocumentDate" date,
   "bcItemLedgerEntryEntryType" text,

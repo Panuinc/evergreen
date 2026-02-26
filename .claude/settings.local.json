@@ -126,7 +126,10 @@
       "Bash(powershell.exe -Command:*)",
       "WebFetch(domain:supabase.com)",
       "Bash(tar:*)",
-      "Bash(git -C /e/evergreen status --short)"
+      "Bash(git -C /e/evergreen status --short)",
+      "Bash(git add docker-compose.yml)",
+      "Bash(git commit:*)",
+      "Bash(git push origin main)"
     ]
   }
 }

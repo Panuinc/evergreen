@@ -51,12 +51,12 @@ function formatItem(item) {
     displayName: item.bcItemDisplayName,
     type: item.bcItemType,
     inventory: item.bcItemInventory,
-    baseUnitOfMeasure: item.baseUnitOfMeasure,
+    baseUnitOfMeasure: item.bcItemBaseUnitOfMeasure,
     unitPrice: item.bcItemUnitPrice,
     unitCost: item.bcItemUnitCost,
-    itemCategoryCode: item.itemCategoryCode,
-    projectCode: item.projectCode || null,
-    projectName: item.projectName || null,
+    itemCategoryCode: item.bcItemCategoryCode,
+    projectCode: item.bcItemProjectCode || null,
+    projectName: item.bcItemProjectName || null,
   };
 }
 
@@ -84,7 +84,7 @@ export async function POST(request) {
         const { data: items } = await auth.supabase
           .from("bcItem")
           .select("*")
-          .eq("rfidCode", decoded.rfidCode)
+          .eq("bcItemRfidCode", decoded.rfidCode)
           .limit(1);
         item = items?.[0] || null;
       } else if (decoded.itemCompact) {
