@@ -43,6 +43,11 @@ scripts/DEPLOY-GUIDE.md
 *.xlsx
 *.xls
 
+# claude code
+.agents/
+.claude/
+skills-lock.json
+
 # vercel
 .vercel
 
