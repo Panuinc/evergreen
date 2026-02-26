@@ -8,9 +8,9 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data, error } = await supabase
-    .from("omConversations")
-    .select("*, omContacts(*)")
-    .eq("conversationId", id)
+    .from("omConversation")
+    .select("*, omContact(*)")
+    .eq("omConversationId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -27,16 +27,16 @@ export async function PUT(request, { params }) {
 
   // Only allow updating specific fields
   const updateData = {};
-  if (body.conversationStatus !== undefined) updateData.conversationStatus = body.conversationStatus;
-  if (body.conversationAssignedTo !== undefined) updateData.conversationAssignedTo = body.conversationAssignedTo;
-  if (body.conversationUnreadCount !== undefined) updateData.conversationUnreadCount = body.conversationUnreadCount;
-  if (body.conversationAiAutoReply !== undefined) updateData.conversationAiAutoReply = body.conversationAiAutoReply;
+  if (body.omConversationStatus !== undefined) updateData.omConversationStatus = body.omConversationStatus;
+  if (body.omConversationAssignedTo !== undefined) updateData.omConversationAssignedTo = body.omConversationAssignedTo;
+  if (body.omConversationUnreadCount !== undefined) updateData.omConversationUnreadCount = body.omConversationUnreadCount;
+  if (body.omConversationAiAutoReply !== undefined) updateData.omConversationAiAutoReply = body.omConversationAiAutoReply;
 
   const { data, error } = await supabase
-    .from("omConversations")
+    .from("omConversation")
     .update(updateData)
-    .eq("conversationId", id)
-    .select("*, omContacts(*)")
+    .eq("omConversationId", id)
+    .select("*, omContact(*)")
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
@@ -51,13 +51,13 @@ export async function DELETE(request, { params }) {
   const { id } = await params;
 
   // Delete messages first (cascade should handle this, but be explicit)
-  await supabase.from("omMessages").delete().eq("messageConversationId", id);
+  await supabase.from("omMessage").delete().eq("omMessageConversationId", id);
 
   // Delete conversation
   const { error } = await supabase
-    .from("omConversations")
+    .from("omConversation")
     .delete()
-    .eq("conversationId", id);
+    .eq("omConversationId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

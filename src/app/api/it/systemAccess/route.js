@@ -12,11 +12,11 @@ export async function GET(request) {
 
   if (search) {
     query = query.or(
-      `accessSystem.ilike.%${search}%,accessRequestedFor.ilike.%${search}%,accessRequestedBy.ilike.%${search}%`
+      `itSystemAccessSystem.ilike.%${search}%,itSystemAccessRequestedFor.ilike.%${search}%,itSystemAccessRequestedBy.ilike.%${search}%`
     );
   }
 
-  const { data, error } = await query.order("accessCreatedAt", {
+  const { data, error } = await query.order("itSystemAccessCreatedAt", {
     ascending: false,
   });
 

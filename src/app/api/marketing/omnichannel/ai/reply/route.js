@@ -24,25 +24,25 @@ export async function POST(request) {
 
     // Re-check if auto-reply is still enabled
     const { data: conv } = await supabase
-      .from("omConversations")
-      .select("conversationAiAutoReply")
-      .eq("conversationId", conversationId)
+      .from("omConversation")
+      .select("omConversationAiAutoReply")
+      .eq("omConversationId", conversationId)
       .single();
 
-    if (!conv?.conversationAiAutoReply) {
+    if (!conv?.omConversationAiAutoReply) {
       return Response.json({ status: "skipped", reason: "auto-reply disabled" });
     }
 
     // Check if the latest message is still from a customer (agent may have replied)
     const { data: latestMsg } = await supabase
-      .from("omMessages")
-      .select("messageSenderType")
-      .eq("messageConversationId", conversationId)
-      .order("messageCreatedAt", { ascending: false })
+      .from("omMessage")
+      .select("omMessageSenderType")
+      .eq("omMessageConversationId", conversationId)
+      .order("omMessageCreatedAt", { ascending: false })
       .limit(1)
       .single();
 
-    if (latestMsg?.messageSenderType !== "customer") {
+    if (latestMsg?.omMessageSenderType !== "customer") {
       return Response.json({ status: "skipped", reason: "agent already replied" });
     }
 
@@ -63,32 +63,32 @@ export async function POST(request) {
     // Turn off auto-reply when payment slip received (staff takes over)
     if (replyContent.includes("ได้รับหลักฐานการชำระเงิน")) {
       await supabase
-        .from("omConversations")
-        .update({ conversationAiAutoReply: false })
-        .eq("conversationId", conversationId);
+        .from("omConversation")
+        .update({ omConversationAiAutoReply: false })
+        .eq("omConversationId", conversationId);
 
       // OCR the payment slip image
       const { data: imgMsg } = await supabase
-        .from("omMessages")
-        .select("messageId, messageImageUrl")
-        .eq("messageConversationId", conversationId)
-        .eq("messageType", "image")
-        .order("messageCreatedAt", { ascending: false })
+        .from("omMessage")
+        .select("omMessageId, omMessageImageUrl")
+        .eq("omMessageConversationId", conversationId)
+        .eq("omMessageType", "image")
+        .order("omMessageCreatedAt", { ascending: false })
         .limit(1)
         .single();
 
-      if (imgMsg?.messageImageUrl) {
-        const ocrData = await ocrPaymentSlip(imgMsg.messageImageUrl);
+      if (imgMsg?.omMessageImageUrl) {
+        const ocrData = await ocrPaymentSlip(imgMsg.omMessageImageUrl);
         if (ocrData) {
           await supabase
-            .from("omMessages")
-            .update({ messageOcrData: ocrData })
-            .eq("messageId", imgMsg.messageId);
+            .from("omMessage")
+            .update({ omMessageOcrData: ocrData })
+            .eq("omMessageId", imgMsg.omMessageId);
         }
       }
     }
 
-    return Response.json({ status: "sent", messageId: message.messageId });
+    return Response.json({ status: "sent", messageId: message.omMessageId });
   } catch (error) {
     console.error("[AI Reply] Error:", error.message);
     return Response.json({ error: error.message }, { status: 500 });

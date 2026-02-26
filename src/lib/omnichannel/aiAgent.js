@@ -7,11 +7,11 @@ async function fetchProductCatalog() {
     const supabase = getServiceSupabase();
     const [itemsResult, priceResult] = await Promise.all([
       supabase
-        .from("bcItems")
-        .select("number,displayName")
+        .from("bcItem")
+        .select("bcItemNumber,bcItemDisplayName")
         .eq("blocked", false)
-        .like("number", "FG-00003%")
-        .order("number"),
+        .like("bcItemNumber", "FG-00003%")
+        .order("bcItemNumber"),
       supabase.from("omPriceList").select("priceItemNumber, priceUnitPrice"),
     ]);
 
@@ -21,8 +21,8 @@ async function fetchProductCatalog() {
     }
 
     return (itemsResult.data || []).map((i) => ({
-      name: i.displayName,
-      price: priceMap[i.number] || 0,
+      name: i.bcItemDisplayName,
+      price: priceMap[i.bcItemNumber] || 0,
     }));
   } catch (err) {
     console.error("[AI] Failed to fetch products:", err.message);

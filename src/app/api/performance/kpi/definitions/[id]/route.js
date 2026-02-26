@@ -7,17 +7,28 @@ export async function PUT(request, { params }) {
   const { id } = await params;
 
   const body = await request.json();
-  const updates = { updatedAt: new Date().toISOString() };
+  const updates = { perfKpiDefinitionUpdatedAt: new Date().toISOString() };
 
-  const fields = ["name", "description", "category", "unit", "frequency", "targetValue", "warningThreshold", "criticalThreshold", "higherIsBetter", "isActive"];
-  for (const field of fields) {
-    if (body[field] !== undefined) updates[field] = body[field];
+  const fieldMap = {
+    name: "perfKpiDefinitionName",
+    description: "perfKpiDefinitionDescription",
+    category: "perfKpiDefinitionCategory",
+    unit: "perfKpiDefinitionUnit",
+    frequency: "perfKpiDefinitionFrequency",
+    targetValue: "perfKpiDefinitionTargetValue",
+    warningThreshold: "perfKpiDefinitionWarningThreshold",
+    criticalThreshold: "perfKpiDefinitionCriticalThreshold",
+    higherIsBetter: "perfKpiDefinitionHigherIsBetter",
+    isActive: "perfKpiDefinitionIsActive",
+  };
+  for (const [bodyField, dbField] of Object.entries(fieldMap)) {
+    if (body[bodyField] !== undefined) updates[dbField] = body[bodyField];
   }
 
   const { data, error } = await supabase
-    .from("kpi_definitions")
+    .from("perfKpiDefinition")
     .update(updates)
-    .eq("id", id)
+    .eq("perfKpiDefinitionId", id)
     .select()
     .single();
 
@@ -32,9 +43,9 @@ export async function DELETE(request, { params }) {
   const { id } = await params;
 
   const { error } = await supabase
-    .from("kpi_definitions")
+    .from("perfKpiDefinition")
     .delete()
-    .eq("id", id);
+    .eq("perfKpiDefinitionId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

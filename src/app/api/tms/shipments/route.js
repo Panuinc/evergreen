@@ -9,19 +9,19 @@ export async function GET(request) {
   const search = searchParams.get("search");
   const status = searchParams.get("status");
 
-  let query = supabase.from("shipments").select("*");
+  let query = supabase.from("tmsShipment").select("*");
 
   if (search) {
     query = query.or(
-      `shipmentNumber.ilike.%${search}%,shipmentCustomerName.ilike.%${search}%`
+      `tmsShipmentNumber.ilike.%${search}%,tmsShipmentCustomerName.ilike.%${search}%`
     );
   }
 
   if (status) {
-    query = query.eq("shipmentStatus", status);
+    query = query.eq("tmsShipmentStatus", status);
   }
 
-  const { data, error } = await query.order("shipmentCreatedAt", {
+  const { data, error } = await query.order("tmsShipmentCreatedAt", {
     ascending: false,
   });
 
@@ -35,10 +35,10 @@ export async function POST(request) {
   const { supabase, session } = auth;
 
   const body = await request.json();
-  body.shipmentCreatedBy = session.user.id;
+  body.tmsShipmentCreatedBy = session.user.id;
 
   const { data, error } = await supabase
-    .from("shipments")
+    .from("tmsShipment")
     .insert([body])
     .select()
     .single();

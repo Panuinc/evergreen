@@ -9,30 +9,30 @@ import { exportToExcel } from "@/lib/exportExcel";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อโปรเจค", uid: "projectName", sortable: true },
-  { name: "รายละเอียด", uid: "projectDescription", sortable: false },
-  { name: "สถานที่", uid: "cityOrTown", sortable: true },
-  { name: "จังหวัด", uid: "stateProvince", sortable: true },
-  { name: "ที่อยู่", uid: "streetName", sortable: true },
-  { name: "ภูมิภาค", uid: "region", sortable: true },
-  { name: "มูลค่า (ล้าน)", uid: "value", sortable: true },
-  { name: "ขั้นตอน", uid: "projectStage", sortable: true },
-  { name: "สถานะ", uid: "projectStageStatus", sortable: true },
-  { name: "หมวดหมู่", uid: "category", sortable: true },
-  { name: "หมวดหมู่ย่อย", uid: "subCategory", sortable: true },
-  { name: "ประเภทการพัฒนา", uid: "developmentType", sortable: true },
-  { name: "ประเภทกรรมสิทธิ์", uid: "ownershipType", sortable: true },
-  { name: "เจ้าของ", uid: "ownerCompany", sortable: true },
-  { name: "สถาปนิก", uid: "architectCompany", sortable: true },
-  { name: "ผู้รับเหมา", uid: "contractorCompany", sortable: true },
-  { name: "PM", uid: "pmCompany", sortable: true },
-  { name: "จำนวนชั้น", uid: "storeys", sortable: true },
-  { name: "พื้นที่อาคาร", uid: "floorArea", sortable: true },
-  { name: "พื้นที่ดิน", uid: "siteArea", sortable: true },
-  { name: "เริ่มก่อสร้าง", uid: "constructionStartDate", sortable: true },
-  { name: "สิ้นสุดก่อสร้าง", uid: "constructionEndDate", sortable: true },
-  { name: "หมายเหตุ", uid: "remarks", sortable: false },
-  { name: "อัปเดต", uid: "modifiedDate", sortable: true },
+  { name: "ชื่อโปรเจค", uid: "bciProjectName", sortable: true },
+  { name: "รายละเอียด", uid: "bciProjectDescription", sortable: false },
+  { name: "สถานที่", uid: "bciProjectCityOrTown", sortable: true },
+  { name: "จังหวัด", uid: "bciProjectStateProvince", sortable: true },
+  { name: "ที่อยู่", uid: "bciProjectStreetName", sortable: true },
+  { name: "ภูมิภาค", uid: "bciProjectRegion", sortable: true },
+  { name: "มูลค่า (ล้าน)", uid: "bciProjectValue", sortable: true },
+  { name: "ขั้นตอน", uid: "bciProjectStage", sortable: true },
+  { name: "สถานะ", uid: "bciProjectStatus", sortable: true },
+  { name: "หมวดหมู่", uid: "bciProjectCategory", sortable: true },
+  { name: "หมวดหมู่ย่อย", uid: "bciProjectSubCategory", sortable: true },
+  { name: "ประเภทการพัฒนา", uid: "bciProjectDevelopmentType", sortable: true },
+  { name: "ประเภทกรรมสิทธิ์", uid: "bciProjectOwnershipType", sortable: true },
+  { name: "เจ้าของ", uid: "bciProjectOwnerCompany", sortable: true },
+  { name: "สถาปนิก", uid: "bciProjectArchitectCompany", sortable: true },
+  { name: "ผู้รับเหมา", uid: "bciProjectContractorCompany", sortable: true },
+  { name: "PM", uid: "bciProjectPmCompany", sortable: true },
+  { name: "จำนวนชั้น", uid: "bciProjectStoreys", sortable: true },
+  { name: "พื้นที่อาคาร", uid: "bciProjectFloorArea", sortable: true },
+  { name: "พื้นที่ดิน", uid: "bciProjectSiteArea", sortable: true },
+  { name: "เริ่มก่อสร้าง", uid: "bciProjectConstructionStartDate", sortable: true },
+  { name: "สิ้นสุดก่อสร้าง", uid: "bciProjectConstructionEndDate", sortable: true },
+  { name: "หมายเหตุ", uid: "bciProjectRemarks", sortable: false },
+  { name: "อัปเดต", uid: "bciProjectModifiedDate", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = columns.map((c) => c.uid);
@@ -84,106 +84,106 @@ export default function BciProjectsPage() {
 
   const stageOptions = useMemo(() => {
     const unique = [
-      ...new Set(projects.map((p) => p.projectStage).filter(Boolean)),
+      ...new Set(projects.map((p) => p.bciProjectStage).filter(Boolean)),
     ];
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const statusOptions = useMemo(() => {
     const unique = [
-      ...new Set(projects.map((p) => p.projectStageStatus).filter(Boolean)),
+      ...new Set(projects.map((p) => p.bciProjectStatus).filter(Boolean)),
     ];
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const categoryOptions = useMemo(() => {
     const unique = [
-      ...new Set(projects.map((p) => p.category).filter(Boolean)),
+      ...new Set(projects.map((p) => p.bciProjectCategory).filter(Boolean)),
     ];
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const devTypeOptions = useMemo(() => {
     const unique = [
-      ...new Set(projects.map((p) => p.developmentType).filter(Boolean)),
+      ...new Set(projects.map((p) => p.bciProjectDevelopmentType).filter(Boolean)),
     ];
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const regionOptions = useMemo(() => {
     const unique = [
-      ...new Set(projects.map((p) => p.region).filter(Boolean)),
+      ...new Set(projects.map((p) => p.bciProjectRegion).filter(Boolean)),
     ];
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const handleExport = useCallback(() => {
     const excelColumns = [
-      { header: "ชื่อโครงการ", key: "projectName", width: 40 },
-      { header: "ประเภทโครงการ", key: "projectType", width: 20 },
-      { header: "เมือง", key: "cityOrTown", width: 20 },
-      { header: "จังหวัด", key: "stateProvince", width: 15 },
-      { header: "ที่อยู่", key: "streetName", width: 30 },
-      { header: "มูลค่า (บาท)", key: "value", width: 15 },
-      { header: "ขั้นตอน", key: "projectStage", width: 20 },
-      { header: "สถานะ", key: "projectStageStatus", width: 20 },
-      { header: "หมวดหมู่", key: "category", width: 20 },
-      { header: "ประเภทการพัฒนา", key: "developmentType", width: 20 },
-      { header: "บริษัทเจ้าของ", key: "ownerCompany", width: 30 },
-      { header: "ผู้ติดต่อ (เจ้าของ)", key: "ownerContact", width: 20 },
-      { header: "โทร (เจ้าของ)", key: "ownerPhone", width: 20 },
-      { header: "อีเมล (เจ้าของ)", key: "ownerEmail", width: 25 },
-      { header: "บริษัทสถาปนิก", key: "architectCompany", width: 30 },
-      { header: "ผู้ติดต่อ (สถาปนิก)", key: "architectContact", width: 20 },
-      { header: "โทร (สถาปนิก)", key: "architectPhone", width: 20 },
-      { header: "อีเมล (สถาปนิก)", key: "architectEmail", width: 25 },
-      { header: "บริษัทผู้รับเหมา", key: "contractorCompany", width: 30 },
-      { header: "ผู้ติดต่อ (ผู้รับเหมา)", key: "contractorContact", width: 20 },
-      { header: "โทร (ผู้รับเหมา)", key: "contractorPhone", width: 20 },
-      { header: "อีเมล (ผู้รับเหมา)", key: "contractorEmail", width: 25 },
-      { header: "บริษัท PM", key: "pmCompany", width: 30 },
-      { header: "ผู้ติดต่อ (PM)", key: "pmContact", width: 20 },
-      { header: "โทร (PM)", key: "pmPhone", width: 20 },
-      { header: "อีเมล (PM)", key: "pmEmail", width: 25 },
-      { header: "จำนวนชั้น", key: "storeys", width: 10 },
-      { header: "เริ่มก่อสร้าง", key: "constructionStartDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
-      { header: "สิ้นสุดก่อสร้าง", key: "constructionEndDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
-      { header: "อัปเดตล่าสุด", key: "modifiedDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
-      { header: "หมายเหตุ", key: "remarks", width: 30 },
+      { header: "ชื่อโครงการ", key: "bciProjectName", width: 40 },
+      { header: "ประเภทโครงการ", key: "bciProjectType", width: 20 },
+      { header: "เมือง", key: "bciProjectCityOrTown", width: 20 },
+      { header: "จังหวัด", key: "bciProjectStateProvince", width: 15 },
+      { header: "ที่อยู่", key: "bciProjectStreetName", width: 30 },
+      { header: "มูลค่า (บาท)", key: "bciProjectValue", width: 15 },
+      { header: "ขั้นตอน", key: "bciProjectStage", width: 20 },
+      { header: "สถานะ", key: "bciProjectStatus", width: 20 },
+      { header: "หมวดหมู่", key: "bciProjectCategory", width: 20 },
+      { header: "ประเภทการพัฒนา", key: "bciProjectDevelopmentType", width: 20 },
+      { header: "บริษัทเจ้าของ", key: "bciProjectOwnerCompany", width: 30 },
+      { header: "ผู้ติดต่อ (เจ้าของ)", key: "bciProjectOwnerContact", width: 20 },
+      { header: "โทร (เจ้าของ)", key: "bciProjectOwnerPhone", width: 20 },
+      { header: "อีเมล (เจ้าของ)", key: "bciProjectOwnerEmail", width: 25 },
+      { header: "บริษัทสถาปนิก", key: "bciProjectArchitectCompany", width: 30 },
+      { header: "ผู้ติดต่อ (สถาปนิก)", key: "bciProjectArchitectContact", width: 20 },
+      { header: "โทร (สถาปนิก)", key: "bciProjectArchitectPhone", width: 20 },
+      { header: "อีเมล (สถาปนิก)", key: "bciProjectArchitectEmail", width: 25 },
+      { header: "บริษัทผู้รับเหมา", key: "bciProjectContractorCompany", width: 30 },
+      { header: "ผู้ติดต่อ (ผู้รับเหมา)", key: "bciProjectContractorContact", width: 20 },
+      { header: "โทร (ผู้รับเหมา)", key: "bciProjectContractorPhone", width: 20 },
+      { header: "อีเมล (ผู้รับเหมา)", key: "bciProjectContractorEmail", width: 25 },
+      { header: "บริษัท PM", key: "bciProjectPmCompany", width: 30 },
+      { header: "ผู้ติดต่อ (PM)", key: "bciProjectPmContact", width: 20 },
+      { header: "โทร (PM)", key: "bciProjectPmPhone", width: 20 },
+      { header: "อีเมล (PM)", key: "bciProjectPmEmail", width: 25 },
+      { header: "จำนวนชั้น", key: "bciProjectStoreys", width: 10 },
+      { header: "เริ่มก่อสร้าง", key: "bciProjectConstructionStartDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
+      { header: "สิ้นสุดก่อสร้าง", key: "bciProjectConstructionEndDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
+      { header: "อัปเดตล่าสุด", key: "bciProjectModifiedDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
+      { header: "หมายเหตุ", key: "bciProjectRemarks", width: 30 },
     ];
     exportToExcel("bci-projects.xlsx", excelColumns, projects);
   }, [projects]);
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "projectName":
+      case "bciProjectName":
         return (
           <div className="flex flex-col">
             <span className="font-medium text-sm">
-              {item.projectName || "-"}
+              {item.bciProjectName || "-"}
             </span>
-            {item.projectType && (
+            {item.bciProjectType && (
               <span className="text-xs text-default-400">
-                {item.projectType}
+                {item.bciProjectType}
               </span>
             )}
           </div>
         );
-      case "cityOrTown":
+      case "bciProjectCityOrTown":
         return (
           <div className="flex flex-col">
-            <span className="text-sm">{item.cityOrTown || "-"}</span>
-            {item.stateProvince && (
+            <span className="text-sm">{item.bciProjectCityOrTown || "-"}</span>
+            {item.bciProjectStateProvince && (
               <span className="text-xs text-default-400">
-                {item.stateProvince}
+                {item.bciProjectStateProvince}
               </span>
             )}
           </div>
         );
-      case "value":
-        return item.value ? (
+      case "bciProjectValue":
+        return item.bciProjectValue ? (
           <span className="font-medium">
-            {(item.value / 1_000_000).toLocaleString("th-TH", {
+            {(item.bciProjectValue / 1_000_000).toLocaleString("th-TH", {
               maximumFractionDigits: 1,
             })}
             M
@@ -191,38 +191,38 @@ export default function BciProjectsPage() {
         ) : (
           <span className="text-default-300">-</span>
         );
-      case "projectStage": {
-        const color = stageColorMap[item.projectStage] || "default";
-        return item.projectStage ? (
+      case "bciProjectStage": {
+        const color = stageColorMap[item.bciProjectStage] || "default";
+        return item.bciProjectStage ? (
           <Chip variant="bordered" size="md" radius="md" color={color}>
-            {item.projectStage}
+            {item.bciProjectStage}
           </Chip>
         ) : (
           "-"
         );
       }
-      case "projectStageStatus":
-        return item.projectStageStatus ? (
+      case "bciProjectStatus":
+        return item.bciProjectStatus ? (
           <Chip variant="bordered" size="md" radius="md" color="primary">
-            {item.projectStageStatus}
+            {item.bciProjectStatus}
           </Chip>
         ) : (
           "-"
         );
-      case "category":
-        return item.category ? (
+      case "bciProjectCategory":
+        return item.bciProjectCategory ? (
           <Chip variant="bordered" size="md" radius="md" color="secondary">
-            {item.category}
+            {item.bciProjectCategory}
           </Chip>
         ) : (
           "-"
         );
-      case "ownerCompany":
-      case "architectCompany":
-      case "contractorCompany":
-      case "pmCompany": {
+      case "bciProjectOwnerCompany":
+      case "bciProjectArchitectCompany":
+      case "bciProjectContractorCompany":
+      case "bciProjectPmCompany": {
         const prefix = columnKey.replace("Company", "");
-        const company = item[`${prefix}Company`];
+        const company = item[columnKey];
         const contact = item[`${prefix}Contact`];
         const phone = item[`${prefix}Phone`];
         const email = item[`${prefix}Email`];
@@ -243,17 +243,17 @@ export default function BciProjectsPage() {
           <span className="text-default-300">-</span>
         );
       }
-      case "projectDescription":
-      case "remarks":
+      case "bciProjectDescription":
+      case "bciProjectRemarks":
         return item[columnKey] ? (
           <span className="text-sm line-clamp-2">{item[columnKey]}</span>
         ) : (
           <span className="text-default-300">-</span>
         );
-      case "storeys":
-        return item.storeys || "-";
-      case "floorArea":
-      case "siteArea":
+      case "bciProjectStoreys":
+        return item.bciProjectStoreys || "-";
+      case "bciProjectFloorArea":
+      case "bciProjectSiteArea":
         return item[columnKey] ? (
           <span className="text-sm">
             {Number(item[columnKey]).toLocaleString("th-TH")} m²
@@ -261,12 +261,12 @@ export default function BciProjectsPage() {
         ) : (
           <span className="text-default-300">-</span>
         );
-      case "constructionStartDate":
-        return item.constructionStartString || formatDate(item.constructionStartDate);
-      case "constructionEndDate":
-        return item.constructionEndString || formatDate(item.constructionEndDate);
-      case "modifiedDate":
-        return formatDate(item.modifiedDate);
+      case "bciProjectConstructionStartDate":
+        return item.bciProjectConstructionStartString || formatDate(item.bciProjectConstructionStartDate);
+      case "bciProjectConstructionEndDate":
+        return item.bciProjectConstructionEndString || formatDate(item.bciProjectConstructionEndDate);
+      case "bciProjectModifiedDate":
+        return formatDate(item.bciProjectModifiedDate);
       default:
         return item[columnKey] ?? "-";
     }
@@ -281,25 +281,25 @@ export default function BciProjectsPage() {
       initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
       renderCell={renderCell}
       searchKeys={[
-        "projectName",
-        "projectDescription",
-        "cityOrTown",
-        "stateProvince",
-        "streetName",
-        "region",
-        "category",
-        "subCategory",
-        "developmentType",
-        "projectType",
-        "ownerCompany",
+        "bciProjectName",
+        "bciProjectDescription",
+        "bciProjectCityOrTown",
+        "bciProjectStateProvince",
+        "bciProjectStreetName",
+        "bciProjectRegion",
+        "bciProjectCategory",
+        "bciProjectSubCategory",
+        "bciProjectDevelopmentType",
+        "bciProjectType",
+        "bciProjectOwnerCompany",
         "ownerContact",
-        "architectCompany",
+        "bciProjectArchitectCompany",
         "architectContact",
-        "contractorCompany",
+        "bciProjectContractorCompany",
         "contractorContact",
-        "pmCompany",
+        "bciProjectPmCompany",
         "pmContact",
-        "remarks",
+        "bciProjectRemarks",
       ]}
       isLoading={loading}
       topEndContent={
@@ -336,27 +336,27 @@ export default function BciProjectsPage() {
       }
       filterColumns={[
         {
-          uid: "projectStage",
+          uid: "bciProjectStage",
           name: "ขั้นตอน",
           options: stageOptions,
         },
         {
-          uid: "projectStageStatus",
+          uid: "bciProjectStatus",
           name: "สถานะ",
           options: statusOptions,
         },
         {
-          uid: "category",
+          uid: "bciProjectCategory",
           name: "หมวดหมู่",
           options: categoryOptions,
         },
         {
-          uid: "developmentType",
+          uid: "bciProjectDevelopmentType",
           name: "ประเภทการพัฒนา",
           options: devTypeOptions,
         },
         {
-          uid: "region",
+          uid: "bciProjectRegion",
           name: "ภูมิภาค",
           options: regionOptions,
         },

@@ -15,19 +15,19 @@ import {
 } from "@/actions/tms";
 
 const emptyForm = {
-  shipmentCustomerName: "",
-  shipmentCustomerPhone: "",
-  shipmentCustomerAddress: "",
-  shipmentDestination: "",
-  shipmentRouteId: "",
-  shipmentVehicleId: "",
-  shipmentDriverId: "",
-  shipmentAssistantId: "",
-  shipmentSalesOrderRef: "",
-  shipmentItemsSummary: "",
-  shipmentWeightKg: "",
-  shipmentNotes: "",
-  shipmentEstimatedArrival: "",
+  tmsShipmentCustomerName: "",
+  tmsShipmentCustomerPhone: "",
+  tmsShipmentCustomerAddress: "",
+  tmsShipmentDestination: "",
+  tmsShipmentRouteId: "",
+  tmsShipmentVehicleId: "",
+  tmsShipmentDriverId: "",
+  tmsShipmentAssistantId: "",
+  tmsShipmentSalesOrderRef: "",
+  tmsShipmentItemsSummary: "",
+  tmsShipmentWeightKg: "",
+  tmsShipmentNotes: "",
+  tmsShipmentEstimatedArrival: "",
 };
 
 export function useShipments() {
@@ -71,19 +71,19 @@ export function useShipments() {
     if (shipment) {
       setEditingShipment(shipment);
       setFormData({
-        shipmentCustomerName: shipment.shipmentCustomerName || "",
-        shipmentCustomerPhone: shipment.shipmentCustomerPhone || "",
-        shipmentCustomerAddress: shipment.shipmentCustomerAddress || "",
-        shipmentDestination: shipment.shipmentDestination || "",
-        shipmentRouteId: shipment.shipmentRouteId?.toString() || "",
-        shipmentVehicleId: shipment.shipmentVehicleId?.toString() || "",
-        shipmentDriverId: shipment.shipmentDriverId?.toString() || "",
-        shipmentAssistantId: shipment.shipmentAssistantId?.toString() || "",
-        shipmentSalesOrderRef: shipment.shipmentSalesOrderRef || "",
-        shipmentItemsSummary: shipment.shipmentItemsSummary || "",
-        shipmentWeightKg: shipment.shipmentWeightKg?.toString() || "",
-        shipmentNotes: shipment.shipmentNotes || "",
-        shipmentEstimatedArrival: shipment.shipmentEstimatedArrival || "",
+        tmsShipmentCustomerName: shipment.tmsShipmentCustomerName || "",
+        tmsShipmentCustomerPhone: shipment.tmsShipmentCustomerPhone || "",
+        tmsShipmentCustomerAddress: shipment.tmsShipmentCustomerAddress || "",
+        tmsShipmentDestination: shipment.tmsShipmentDestination || "",
+        tmsShipmentRouteId: shipment.tmsShipmentRouteId?.toString() || "",
+        tmsShipmentVehicleId: shipment.tmsShipmentVehicleId?.toString() || "",
+        tmsShipmentDriverId: shipment.tmsShipmentDriverId?.toString() || "",
+        tmsShipmentAssistantId: shipment.tmsShipmentAssistantId?.toString() || "",
+        tmsShipmentSalesOrderRef: shipment.tmsShipmentSalesOrderRef || "",
+        tmsShipmentItemsSummary: shipment.tmsShipmentItemsSummary || "",
+        tmsShipmentWeightKg: shipment.tmsShipmentWeightKg?.toString() || "",
+        tmsShipmentNotes: shipment.tmsShipmentNotes || "",
+        tmsShipmentEstimatedArrival: shipment.tmsShipmentEstimatedArrival || "",
       });
     } else {
       setEditingShipment(null);
@@ -94,8 +94,8 @@ export function useShipments() {
 
   const handleSave = async () => {
     if (
-      !formData.shipmentCustomerName.trim() ||
-      !formData.shipmentDestination.trim()
+      !formData.tmsShipmentCustomerName.trim() ||
+      !formData.tmsShipmentDestination.trim()
     ) {
       toast.error("กรุณาระบุชื่อลูกค้าและปลายทาง");
       return;
@@ -104,7 +104,7 @@ export function useShipments() {
     try {
       setSaving(true);
       if (editingShipment) {
-        await updateShipment(editingShipment.shipmentId, formData);
+        await updateShipment(editingShipment.tmsShipmentId, formData);
         toast.success("อัปเดตการจัดส่งสำเร็จ");
       } else {
         await createShipment(formData);
@@ -137,7 +137,7 @@ export function useShipments() {
   const handleDelete = async () => {
     if (!deletingShipment) return;
     try {
-      await deleteShipment(deletingShipment.shipmentId);
+      await deleteShipment(deletingShipment.tmsShipmentId);
       toast.success("ลบการจัดส่งสำเร็จ");
       deleteModal.onClose();
       setDeletingShipment(null);

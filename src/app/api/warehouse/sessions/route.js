@@ -6,7 +6,7 @@ export async function GET() {
   const { supabase, session } = auth;
 
   const { data, error } = await supabase
-    .from("scanSessions")
+    .from("whScanSession")
     .select("*")
     .eq("user_id", session.user.id)
     .order("started_at", { ascending: false });
@@ -36,7 +36,7 @@ export async function POST(request) {
   };
 
   const { data, error } = await supabase
-    .from("scanSessions")
+    .from("whScanSession")
     .insert([record])
     .select()
     .single();

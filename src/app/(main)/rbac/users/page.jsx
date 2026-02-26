@@ -19,16 +19,16 @@ import { useUsers } from "@/hooks/rbac/useUsers";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "อีเมล", uid: "userProfileEmail", sortable: true },
+  { name: "อีเมล", uid: "rbacUserProfileEmail", sortable: true },
   { name: "บทบาท", uid: "roles" },
-  { name: "สร้างเมื่อ", uid: "userProfileCreatedAt", sortable: true },
+  { name: "สร้างเมื่อ", uid: "rbacUserProfileCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "userProfileEmail",
+  "rbacUserProfileEmail",
   "roles",
-  "userProfileCreatedAt",
+  "rbacUserProfileCreatedAt",
   "actions",
 ];
 
@@ -57,21 +57,21 @@ export default function UsersPage() {
   const renderCell = useCallback(
     (user, columnKey) => {
       switch (columnKey) {
-        case "userProfileEmail":
-          return <span className="font-medium">{user.userProfileEmail}</span>;
+        case "rbacUserProfileEmail":
+          return <span className="font-medium">{user.rbacUserProfileEmail}</span>;
         case "roles":
           return (
             <div className="flex flex-wrap gap-1">
               {user.roles?.length > 0 ? (
                 user.roles.map((role) => (
                   <Chip
-                    key={role.roleId}
+                    key={role.rbacRoleId}
                     variant="bordered"
                     size="md"
                     radius="md"
-                    color={role.roleIsSuperadmin ? "danger" : "primary"}
+                    color={role.rbacRoleIsSuperadmin ? "danger" : "primary"}
                   >
-                    {role.roleName}
+                    {role.rbacRoleName}
                   </Chip>
                 ))
               ) : (
@@ -79,10 +79,10 @@ export default function UsersPage() {
               )}
             </div>
           );
-        case "userProfileCreatedAt":
+        case "rbacUserProfileCreatedAt":
           return (
             <span className="text-default-500">
-              {new Date(user.userProfileCreatedAt).toLocaleDateString()}
+              {new Date(user.rbacUserProfileCreatedAt).toLocaleDateString()}
             </span>
           );
         case "actions":
@@ -112,11 +112,11 @@ export default function UsersPage() {
         data={users}
         renderCell={renderCell}
         enableCardView
-        rowKey="userProfileId"
+        rowKey="rbacUserProfileId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามอีเมล..."
-        searchKeys={["userProfileEmail"]}
+        searchKeys={["rbacUserProfileEmail"]}
         emptyContent="ไม่พบผู้ใช้"
         topEndContent={
           <Button
@@ -135,29 +135,29 @@ export default function UsersPage() {
       <Modal isOpen={isOpen} onClose={handleCloseRoles}>
         <ModalContent>
           <ModalHeader>
-            บทบาทของ &ldquo;{selectedUser?.userProfileEmail}&rdquo;
+            บทบาทของ &ldquo;{selectedUser?.rbacUserProfileEmail}&rdquo;
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-2">
               {allRoles.map((role) => (
                 <Checkbox
-                  key={role.roleId}
+                  key={role.rbacRoleId}
                   size="md"
                   radius="md"
-                  isSelected={userRoleIds.includes(role.roleId)}
-                  onValueChange={() => toggleRole(role.roleId)}
+                  isSelected={userRoleIds.includes(role.rbacRoleId)}
+                  onValueChange={() => toggleRole(role.rbacRoleId)}
                   isDisabled={saving}
                 >
                   <div className="flex items-center gap-2">
-                    <span>{role.roleName}</span>
-                    {role.roleIsSuperadmin && (
+                    <span>{role.rbacRoleName}</span>
+                    {role.rbacRoleIsSuperadmin && (
                       <Chip variant="bordered" size="md" radius="md">
                         Superadmin
                       </Chip>
                     )}
                   </div>
-                  {role.roleDescription && (
-                    <p className="text-default-400">{role.roleDescription}</p>
+                  {role.rbacRoleDescription && (
+                    <p className="text-default-400">{role.rbacRoleDescription}</p>
                   )}
                 </Checkbox>
               ))}
@@ -226,22 +226,22 @@ export default function UsersPage() {
                   onSelectionChange={(keys) => {
                     const selectedId = Array.from(keys)[0] || "";
                     const emp = unlinkedEmployees.find(
-                      (e) => e.employeeId === selectedId,
+                      (e) => e.hrEmployeeId === selectedId,
                     );
                     setCreateForm({
                       ...createForm,
                       employeeId: selectedId,
-                      email: emp?.employeeEmail || createForm.email,
+                      email: emp?.hrEmployeeEmail || createForm.email,
                     });
                   }}
                 >
                   {unlinkedEmployees.map((emp) => (
                     <SelectItem
-                      key={emp.employeeId}
-                      textValue={`${emp.employeeFirstName} ${emp.employeeLastName}${emp.employeeEmail ? ` (${emp.employeeEmail})` : ""}`}
+                      key={emp.hrEmployeeId}
+                      textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}${emp.hrEmployeeEmail ? ` (${emp.hrEmployeeEmail})` : ""}`}
                     >
-                      {emp.employeeFirstName} {emp.employeeLastName}
-                      {emp.employeeEmail ? ` (${emp.employeeEmail})` : ""}
+                      {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      {emp.hrEmployeeEmail ? ` (${emp.hrEmployeeEmail})` : ""}
                     </SelectItem>
                   ))}
                 </Select>

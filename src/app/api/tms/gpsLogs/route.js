@@ -9,18 +9,18 @@ export async function GET(request) {
   const vehicleId = searchParams.get("vehicleId");
   const shipmentId = searchParams.get("shipmentId");
 
-  let query = supabase.from("gpsLogs").select("*");
+  let query = supabase.from("tmsGpsLog").select("*");
 
   if (vehicleId) {
-    query = query.eq("gpsLogVehicleId", vehicleId);
+    query = query.eq("tmsGpsLogVehicleId", vehicleId);
   }
 
   if (shipmentId) {
-    query = query.eq("gpsLogShipmentId", shipmentId);
+    query = query.eq("tmsGpsLogShipmentId", shipmentId);
   }
 
   const { data, error } = await query
-    .order("gpsLogRecordedAt", { ascending: false })
+    .order("tmsGpsLogRecordedAt", { ascending: false })
     .limit(100);
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -34,7 +34,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("gpsLogs")
+    .from("tmsGpsLog")
     .insert([body])
     .select()
     .single();

@@ -8,10 +8,10 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data, error } = await supabase
-    .from("omMessages")
+    .from("omMessage")
     .select("*")
-    .eq("messageConversationId", id)
-    .order("messageCreatedAt", { ascending: true });
+    .eq("omMessageConversationId", id)
+    .order("omMessageCreatedAt", { ascending: true });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);

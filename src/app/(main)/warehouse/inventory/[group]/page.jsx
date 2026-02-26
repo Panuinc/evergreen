@@ -9,28 +9,28 @@ import DataTable from "@/components/ui/DataTable";
 import PrintRfidModal from "@/components/warehouse/PrintRfidModal";
 
 const columns = [
-  { name: "รหัสสินค้า", uid: "number", sortable: true },
-  { name: "ชื่อสินค้า", uid: "displayName", sortable: true },
-  { name: "โครงการ", uid: "projectName", sortable: true },
-  { name: "ประเภท", uid: "type", sortable: true },
-  { name: "คงเหลือ", uid: "inventory", sortable: true },
-  { name: "หน่วย", uid: "baseUnitOfMeasure", sortable: true },
-  { name: "ราคาต่อหน่วย", uid: "unitPrice", sortable: true },
-  { name: "ต้นทุน", uid: "unitCost", sortable: true },
-  { name: "หมวดหมู่", uid: "itemCategoryCode", sortable: true },
+  { name: "รหัสสินค้า", uid: "bcItemNumber", sortable: true },
+  { name: "ชื่อสินค้า", uid: "bcItemDisplayName", sortable: true },
+  { name: "โครงการ", uid: "bcItemProjectName", sortable: true },
+  { name: "ประเภท", uid: "bcItemType", sortable: true },
+  { name: "คงเหลือ", uid: "bcItemInventory", sortable: true },
+  { name: "หน่วย", uid: "bcItemBaseUnitOfMeasure", sortable: true },
+  { name: "ราคาต่อหน่วย", uid: "bcItemUnitPrice", sortable: true },
+  { name: "ต้นทุน", uid: "bcItemUnitCost", sortable: true },
+  { name: "หมวดหมู่", uid: "bcItemCategoryCode", sortable: true },
   { name: "", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "number",
-  "displayName",
-  "projectName",
-  "type",
-  "inventory",
-  "baseUnitOfMeasure",
-  "unitPrice",
-  "unitCost",
-  "itemCategoryCode",
+  "bcItemNumber",
+  "bcItemDisplayName",
+  "bcItemProjectName",
+  "bcItemType",
+  "bcItemInventory",
+  "bcItemBaseUnitOfMeasure",
+  "bcItemUnitPrice",
+  "bcItemUnitCost",
+  "bcItemCategoryCode",
   "actions",
 ];
 
@@ -41,9 +41,9 @@ export default function WarehouseGroupPage() {
   const [printItem, setPrintItem] = useState(null);
 
   const summary = useMemo(() => {
-    const totalQty = items.reduce((s, i) => s + (Number(i.inventory) || 0), 0);
+    const totalQty = items.reduce((s, i) => s + (Number(i.bcItemInventory) || 0), 0);
     const totalValue = items.reduce(
-      (s, i) => s + (Number(i.inventory) || 0) * (Number(i.unitCost) || 0),
+      (s, i) => s + (Number(i.bcItemInventory) || 0) * (Number(i.bcItemUnitCost) || 0),
       0,
     );
     return { totalItems: items.length, totalQty, totalValue };
@@ -51,46 +51,46 @@ export default function WarehouseGroupPage() {
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "displayName":
-        return <span className="font-medium">{item.displayName}</span>;
-      case "projectName":
-        return item.projectName ? (
+      case "bcItemDisplayName":
+        return <span className="font-medium">{item.bcItemDisplayName}</span>;
+      case "bcItemProjectName":
+        return item.bcItemProjectName ? (
           <Chip variant="bordered" size="md" radius="md" color="secondary">
-            {item.projectName}
+            {item.bcItemProjectName}
           </Chip>
         ) : (
           <span className="text-default-300">-</span>
         );
-      case "inventory": {
-        const inv = Number(item.inventory);
+      case "bcItemInventory": {
+        const inv = Number(item.bcItemInventory);
         return (
           <span className={inv > 0 ? "text-success" : "text-danger"}>
-            {item.inventory != null ? inv.toLocaleString("th-TH") : "-"}
+            {item.bcItemInventory != null ? inv.toLocaleString("th-TH") : "-"}
           </span>
         );
       }
-      case "unitPrice":
-        return item.unitPrice != null
-          ? Number(item.unitPrice).toLocaleString("th-TH", {
+      case "bcItemUnitPrice":
+        return item.bcItemUnitPrice != null
+          ? Number(item.bcItemUnitPrice).toLocaleString("th-TH", {
               minimumFractionDigits: 2,
             })
           : "-";
-      case "unitCost": {
-        const hasCost = item.unitCost != null && Number(item.unitCost) > 0;
+      case "bcItemUnitCost": {
+        const hasCost = item.bcItemUnitCost != null && Number(item.bcItemUnitCost) > 0;
         return (
           <span className={hasCost ? "text-primary" : "text-danger"}>
-            {item.unitCost != null
-              ? Number(item.unitCost).toLocaleString("th-TH", {
+            {item.bcItemUnitCost != null
+              ? Number(item.bcItemUnitCost).toLocaleString("th-TH", {
                   minimumFractionDigits: 2,
                 })
               : "-"}
           </span>
         );
       }
-      case "type":
+      case "bcItemType":
         return (
           <Chip variant="bordered" size="md" radius="md" color="default">
-            {item.type || "-"}
+            {item.bcItemType || "-"}
           </Chip>
         );
       case "actions":
@@ -146,11 +146,11 @@ export default function WarehouseGroupPage() {
         data={items}
         renderCell={renderCell}
         enableCardView
-        rowKey="id"
+        rowKey="bcItemId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยรหัสหรือชื่อสินค้า..."
-        searchKeys={["number", "displayName", "projectName"]}
+        searchKeys={["bcItemNumber", "bcItemDisplayName", "bcItemProjectName"]}
         emptyContent="ไม่พบรายการสินค้า"
       />
 

@@ -18,12 +18,12 @@ import { useItSystemAccess } from "@/hooks/it/useItSystemAccess";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ระบบ", uid: "accessSystem", sortable: true },
-  { name: "ประเภท", uid: "accessType", sortable: true },
-  { name: "ร้องขอสำหรับ", uid: "accessRequestedFor" },
-  { name: "ร้องขอโดย", uid: "accessRequestedBy" },
-  { name: "สถานะ", uid: "accessStatus", sortable: true },
-  { name: "อนุมัติโดย", uid: "accessApprovedBy" },
+  { name: "ระบบ", uid: "itSystemAccessSystem", sortable: true },
+  { name: "ประเภท", uid: "itSystemAccessType", sortable: true },
+  { name: "ร้องขอสำหรับ", uid: "itSystemAccessRequestedFor" },
+  { name: "ร้องขอโดย", uid: "itSystemAccessRequestedBy" },
+  { name: "สถานะ", uid: "itSystemAccessStatus", sortable: true },
+  { name: "อนุมัติโดย", uid: "itSystemAccessApprovedBy" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -35,11 +35,11 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "accessSystem",
-  "accessType",
-  "accessRequestedFor",
-  "accessStatus",
-  "accessApprovedBy",
+  "itSystemAccessSystem",
+  "itSystemAccessType",
+  "itSystemAccessRequestedFor",
+  "itSystemAccessStatus",
+  "itSystemAccessApprovedBy",
   "actions",
 ];
 
@@ -65,9 +65,9 @@ export default function SystemAccessPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "accessSystem":
-          return <span className="font-medium">{item.accessSystem}</span>;
-        case "accessType": {
+        case "itSystemAccessSystem":
+          return <span className="font-medium">{item.itSystemAccessSystem}</span>;
+        case "itSystemAccessType": {
           const colorMap = {
             grant: "success",
             revoke: "danger",
@@ -78,17 +78,17 @@ export default function SystemAccessPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.accessType] || "default"}
+              color={colorMap[item.itSystemAccessType] || "default"}
             >
-              {item.accessType}
+              {item.itSystemAccessType}
             </Chip>
           );
         }
-        case "accessRequestedFor":
-          return item.accessRequestedFor || "-";
-        case "accessRequestedBy":
-          return item.accessRequestedBy || "-";
-        case "accessStatus": {
+        case "itSystemAccessRequestedFor":
+          return item.itSystemAccessRequestedFor || "-";
+        case "itSystemAccessRequestedBy":
+          return item.itSystemAccessRequestedBy || "-";
+        case "itSystemAccessStatus": {
           const colorMap = {
             pending: "warning",
             approved: "success",
@@ -100,14 +100,14 @@ export default function SystemAccessPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.accessStatus] || "default"}
+              color={colorMap[item.itSystemAccessStatus] || "default"}
             >
-              {item.accessStatus}
+              {item.itSystemAccessStatus}
             </Chip>
           );
         }
-        case "accessApprovedBy":
-          return item.accessApprovedBy || "-";
+        case "itSystemAccessApprovedBy":
+          return item.itSystemAccessApprovedBy || "-";
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -145,17 +145,17 @@ export default function SystemAccessPage() {
         data={accessRequests}
         renderCell={renderCell}
         enableCardView
-        rowKey="accessId"
+        rowKey="itSystemAccessId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามระบบ, ร้องขอสำหรับ, ร้องขอโดย..."
         searchKeys={[
-          "accessSystem",
-          "accessRequestedFor",
-          "accessRequestedBy",
-          "accessApprovedBy",
+          "itSystemAccessSystem",
+          "itSystemAccessRequestedFor",
+          "itSystemAccessRequestedBy",
+          "itSystemAccessApprovedBy",
         ]}
-        statusField="accessStatus"
+        statusField="itSystemAccessStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำขอเข้าถึง"
         topEndContent={
@@ -193,11 +193,11 @@ export default function SystemAccessPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accessSystem}
-                    onChange={(e) => updateField("accessSystem", e.target.value)}
+                    value={formData.itSystemAccessSystem}
+                    onChange={(e) => updateField("itSystemAccessSystem", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.accessSystem}
-                    errorMessage={validationErrors?.accessSystem}
+                    isInvalid={!!validationErrors?.itSystemAccessSystem}
+                    errorMessage={validationErrors?.itSystemAccessSystem}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -208,10 +208,10 @@ export default function SystemAccessPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.accessType ? [formData.accessType] : []}
+                    selectedKeys={formData.itSystemAccessType ? [formData.itSystemAccessType] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("accessType", val);
+                      updateField("itSystemAccessType", val);
                     }}
                   >
                     <SelectItem key="grant">ให้สิทธิ์</SelectItem>
@@ -227,8 +227,8 @@ export default function SystemAccessPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accessRequestedFor}
-                    onChange={(e) => updateField("accessRequestedFor", e.target.value)}
+                    value={formData.itSystemAccessRequestedFor}
+                    onChange={(e) => updateField("itSystemAccessRequestedFor", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -239,8 +239,8 @@ export default function SystemAccessPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accessRequestedBy}
-                    onChange={(e) => updateField("accessRequestedBy", e.target.value)}
+                    value={formData.itSystemAccessRequestedBy}
+                    onChange={(e) => updateField("itSystemAccessRequestedBy", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -250,10 +250,10 @@ export default function SystemAccessPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.accessStatus]}
+                    selectedKeys={[formData.itSystemAccessStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "pending";
-                      updateField("accessStatus", val);
+                      updateField("itSystemAccessStatus", val);
                     }}
                   >
                     <SelectItem key="pending">รอดำเนินการ</SelectItem>
@@ -270,8 +270,8 @@ export default function SystemAccessPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accessApprovedBy}
-                    onChange={(e) => updateField("accessApprovedBy", e.target.value)}
+                    value={formData.itSystemAccessApprovedBy}
+                    onChange={(e) => updateField("itSystemAccessApprovedBy", e.target.value)}
                   />
                 </div>
               </div>
@@ -283,8 +283,8 @@ export default function SystemAccessPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.accessNotes}
-                  onChange={(e) => updateField("accessNotes", e.target.value)}
+                  value={formData.itSystemAccessNotes}
+                  onChange={(e) => updateField("itSystemAccessNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function SystemAccessPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบคำขอเข้าถึงสำหรับ{" "}
               <span className="font-semibold">
-                {deletingAccess?.accessSystem} ({deletingAccess?.accessRequestedFor})
+                {deletingAccess?.itSystemAccessSystem} ({deletingAccess?.itSystemAccessRequestedFor})
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

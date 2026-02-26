@@ -12,9 +12,9 @@ import {
 } from "@/actions/hr";
 
 const emptyForm = {
-  positionTitle: "",
-  positionDescription: "",
-  positionDepartment: "",
+  hrPositionTitle: "",
+  hrPositionDescription: "",
+  hrPositionDepartment: "",
 };
 
 export function usePositions() {
@@ -52,9 +52,9 @@ export function usePositions() {
     if (pos) {
       setEditingPos(pos);
       setFormData({
-        positionTitle: pos.positionTitle || "",
-        positionDescription: pos.positionDescription || "",
-        positionDepartment: pos.positionDepartment || "",
+        hrPositionTitle: pos.hrPositionTitle || "",
+        hrPositionDescription: pos.hrPositionDescription || "",
+        hrPositionDepartment: pos.hrPositionDepartment || "",
       });
     } else {
       setEditingPos(null);
@@ -64,7 +64,7 @@ export function usePositions() {
   };
 
   const handleSave = async () => {
-    if (!formData.positionTitle.trim()) {
+    if (!formData.hrPositionTitle.trim()) {
       toast.error("กรุณาระบุชื่อตำแหน่ง");
       return;
     }
@@ -72,7 +72,7 @@ export function usePositions() {
     try {
       setSaving(true);
       if (editingPos) {
-        await updatePosition(editingPos.positionId, formData);
+        await updatePosition(editingPos.hrPositionId, formData);
         toast.success("อัปเดตตำแหน่งสำเร็จ");
       } else {
         await createPosition(formData);
@@ -95,7 +95,7 @@ export function usePositions() {
   const handleDelete = async () => {
     if (!deletingPos) return;
     try {
-      await deletePosition(deletingPos.positionId);
+      await deletePosition(deletingPos.hrPositionId);
       toast.success("ลบตำแหน่งสำเร็จ");
       deleteModal.onClose();
       setDeletingPos(null);

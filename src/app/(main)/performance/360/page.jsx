@@ -150,13 +150,13 @@ function PendingTab({ hook }) {
         </Card>
       ) : (
         hook.pendingReviews.map((nom) => {
-          const relType = getRelationshipType(nom.relationshipType);
+          const relType = getRelationshipType(nom.perf360NominationRelationshipType);
           const revieweeName = nom.reviewee
-            ? `${nom.reviewee.employeeFirstName} ${nom.reviewee.employeeLastName}`
-            : nom.revieweeEmployeeId;
+            ? `${nom.reviewee.hrEmployeeFirstName} ${nom.reviewee.hrEmployeeLastName}`
+            : nom.perf360NominationRevieweeEmployeeId;
 
           return (
-            <Card key={nom.id}>
+            <Card key={nom.perf360NominationId}>
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -166,7 +166,7 @@ function PendingTab({ hook }) {
                     </Chip>
                   </div>
                   <p className="text-sm text-default-400">
-                    {nom.cycle?.name} | กำหนดส่ง: {nom.cycle?.responseDeadline ? new Date(nom.cycle.responseDeadline).toLocaleDateString("th-TH") : "-"}
+                    {nom.cycle?.perf360CycleName} | กำหนดส่ง: {nom.cycle?.perf360CycleResponseDeadline ? new Date(nom.cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH") : "-"}
                   </p>
                 </div>
                 <Button color="primary" size="md" radius="md" onPress={() => hook.handleOpenReview(nom)}>
@@ -185,7 +185,7 @@ function PendingTab({ hook }) {
 
 function MyResultsTab({ hook }) {
   const completedCycles = useMemo(
-    () => hook.cycles.filter((c) => c.status === "completed"),
+    () => hook.cycles.filter((c) => c.perf360CycleStatus === "completed"),
     [hook.cycles],
   );
 
@@ -206,7 +206,7 @@ function MyResultsTab({ hook }) {
         className="max-w-sm"
       >
         {completedCycles.map((c) => (
-          <SelectItem key={c.id}>{c.name}</SelectItem>
+          <SelectItem key={c.perf360CycleId}>{c.perf360CycleName}</SelectItem>
         ))}
       </Select>
 
@@ -289,12 +289,12 @@ function ResultsDisplay({ results }) {
                 </thead>
                 <tbody>
                   {competencies.map((comp) => (
-                    <tr key={comp.id} className="border-b">
-                      <td className="py-2 px-3">{comp.name}</td>
+                    <tr key={comp.perf360CompetencyId} className="border-b">
+                      <td className="py-2 px-3">{comp.perf360CompetencyName}</td>
                       {RELATIONSHIP_TYPES.map((rt) => {
                         const typeData = results.typeAverages?.[rt.key];
                         if (!typeData) return null;
-                        const score = typeData.competencyAverages?.[comp.id];
+                        const score = typeData.competencyAverages?.[comp.perf360CompetencyId];
                         return (
                           <td key={rt.key} className="text-center py-2 px-3">
                             {score ? score.toFixed(2) : "-"}
@@ -378,7 +378,7 @@ function AdminTab({ hook }) {
       ) : (
         <div className="flex flex-col gap-3">
           {hook.cycles.map((cycle) => (
-            <CycleCard key={cycle.id} cycle={cycle} hook={hook} />
+            <CycleCard key={cycle.perf360CycleId} cycle={cycle} hook={hook} />
           ))}
         </div>
       )}
@@ -390,9 +390,9 @@ function AdminTab({ hook }) {
 }
 
 function CycleCard({ cycle, hook }) {
-  const statusConfig = getStatusConfig(cycle.status, CYCLE_STATUSES);
-  const isSelected = hook.selectedCycle?.id === cycle.id;
-  const transitions = VALID_TRANSITIONS[cycle.status] || [];
+  const statusConfig = getStatusConfig(cycle.perf360CycleStatus, CYCLE_STATUSES);
+  const isSelected = hook.selectedCycle?.perf360CycleId === cycle.perf360CycleId;
+  const transitions = VALID_TRANSITIONS[cycle.perf360CycleStatus] || [];
 
   return (
     <Card
@@ -403,22 +403,22 @@ function CycleCard({ cycle, hook }) {
       <CardBody className="flex flex-row items-center gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h4 className="font-semibold">{cycle.name}</h4>
+            <h4 className="font-semibold">{cycle.perf360CycleName}</h4>
             <Chip size="md" radius="md" color={statusConfig.color} variant="bordered">
               {statusConfig.label}
             </Chip>
           </div>
           <p className="text-xs text-default-400">
-            ปี {cycle.year} {cycle.quarter ? `Q${cycle.quarter}` : ""} | กำหนดส่ง: {cycle.responseDeadline ? new Date(cycle.responseDeadline).toLocaleDateString("th-TH") : "-"}
+            ปี {cycle.perf360CycleYear} {cycle.perf360CycleQuarter ? `Q${cycle.perf360CycleQuarter}` : ""} | กำหนดส่ง: {cycle.perf360CycleResponseDeadline ? new Date(cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH") : "-"}
           </p>
         </div>
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           {transitions.filter((t) => t !== "cancelled").map((t) => (
-            <Button key={t} size="md" radius="md" color="primary" variant="bordered" onPress={() => hook.handleTransition(cycle.id, t)}>
+            <Button key={t} size="md" radius="md" color="primary" variant="bordered" onPress={() => hook.handleTransition(cycle.perf360CycleId, t)}>
               {TRANSITION_LABELS[t]}
             </Button>
           ))}
-          {cycle.status === "draft" && (
+          {cycle.perf360CycleStatus === "draft" && (
             <>
               <Tooltip content="แก้ไข">
                 <Button isIconOnly size="md" radius="md" variant="bordered" onPress={() => hook.handleOpenCycleForm(cycle)}>
@@ -426,7 +426,7 @@ function CycleCard({ cycle, hook }) {
                 </Button>
               </Tooltip>
               <Tooltip content="ลบ">
-                <Button isIconOnly size="md" radius="md" variant="bordered" color="danger" onPress={() => hook.handleDeleteCycle(cycle.id)}>
+                <Button isIconOnly size="md" radius="md" variant="bordered" color="danger" onPress={() => hook.handleDeleteCycle(cycle.perf360CycleId)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </Tooltip>
@@ -445,7 +445,7 @@ function CycleDetails({ hook }) {
   return (
     <Card>
       <CardHeader>
-        <h3 className="font-semibold">รายละเอียด: {cycle.name}</h3>
+        <h3 className="font-semibold">รายละเอียด: {cycle.perf360CycleName}</h3>
       </CardHeader>
       <CardBody>
         <Tabs selectedKey={detailTab} onSelectionChange={setDetailTab} variant="bordered" size="md" radius="md">
@@ -467,15 +467,20 @@ function CycleDetails({ hook }) {
 function CompetenciesPanel({ hook }) {
   const [editMode, setEditMode] = useState(false);
   const [localComps, setLocalComps] = useState([]);
-  const isDraft = hook.selectedCycle?.status === "draft";
+  const isDraft = hook.selectedCycle?.perf360CycleStatus === "draft";
 
   const handleEdit = () => {
-    setLocalComps(hook.competencies.map((c) => ({ ...c })));
+    setLocalComps(hook.competencies.map((c) => ({
+      name: c.perf360CompetencyName || c.name || "",
+      description: c.perf360CompetencyDescription || c.description || "",
+      questions: c.perf360CompetencyQuestions || c.questions || [],
+      weight: c.perf360CompetencyWeight || c.weight || 1,
+    })));
     setEditMode(true);
   };
 
   const handleSave = () => {
-    hook.handleSaveCompetencies(hook.selectedCycle.id, localComps);
+    hook.handleSaveCompetencies(hook.selectedCycle.perf360CycleId, localComps);
     setEditMode(false);
   };
 
@@ -524,7 +529,7 @@ function CompetenciesPanel({ hook }) {
                 size="md"
                 radius="md"
                 labelPlacement="outside"
-                value={comp.name}
+                value={comp.name || comp.perf360CompetencyName || ""}
                 onValueChange={(v) => {
                   const updated = [...localComps];
                   updated[i] = { ...updated[i], name: v };
@@ -538,7 +543,7 @@ function CompetenciesPanel({ hook }) {
                 size="md"
                 radius="md"
                 labelPlacement="outside"
-                value={(comp.questions || []).join("\n")}
+                value={(comp.questions || comp.perf360CompetencyQuestions || []).join("\n")}
                 onValueChange={(v) => {
                   const updated = [...localComps];
                   updated[i] = { ...updated[i], questions: v.split("\n").filter((q) => q.trim()) };
@@ -572,11 +577,11 @@ function CompetenciesPanel({ hook }) {
         <p className="text-default-400 text-sm">ยังไม่มีสมรรถนะ</p>
       ) : (
         hook.competencies.map((comp) => (
-          <div key={comp.id} className="p-3 rounded-lg bg-default-50">
-            <h4 className="font-medium">{comp.name}</h4>
-            {comp.description && <p className="text-xs text-default-400">{comp.description}</p>}
+          <div key={comp.perf360CompetencyId} className="p-3 rounded-lg bg-default-50">
+            <h4 className="font-medium">{comp.perf360CompetencyName}</h4>
+            {comp.perf360CompetencyDescription && <p className="text-xs text-default-400">{comp.perf360CompetencyDescription}</p>}
             <ul className="mt-1 ml-4 list-disc text-sm text-default-600">
-              {(comp.questions || []).map((q, i) => (
+              {(comp.perf360CompetencyQuestions || []).map((q, i) => (
                 <li key={i}>{q}</li>
               ))}
             </ul>
@@ -588,13 +593,13 @@ function CompetenciesPanel({ hook }) {
 }
 
 function NominationsPanel({ hook }) {
-  const canAddNominations = ["nominating", "draft"].includes(hook.selectedCycle?.status);
+  const canAddNominations = ["nominating", "draft"].includes(hook.selectedCycle?.perf360CycleStatus);
 
   // Group by reviewee
   const grouped = useMemo(() => {
     const map = {};
     for (const nom of hook.nominations) {
-      const eid = nom.revieweeEmployeeId;
+      const eid = nom.perf360NominationRevieweeEmployeeId;
       if (!map[eid]) {
         map[eid] = {
           reviewee: nom.reviewee,
@@ -627,28 +632,28 @@ function NominationsPanel({ hook }) {
       ) : (
         grouped.map((group) => {
           const revieweeName = group.reviewee
-            ? `${group.reviewee.employeeFirstName} ${group.reviewee.employeeLastName}`
+            ? `${group.reviewee.hrEmployeeFirstName} ${group.reviewee.hrEmployeeLastName}`
             : "Unknown";
 
           return (
-            <div key={group.reviewee?.employeeId} className="p-3 rounded-lg bg-default-50">
+            <div key={group.reviewee?.hrEmployeeId} className="p-3 rounded-lg bg-default-50">
               <h4 className="font-medium mb-2">{revieweeName}</h4>
               <div className="flex flex-wrap gap-2">
                 {group.nominations.map((nom) => {
-                  const relType = getRelationshipType(nom.relationshipType);
+                  const relType = getRelationshipType(nom.perf360NominationRelationshipType);
                   const reviewerName = nom.reviewer
-                    ? `${nom.reviewer.employeeFirstName} ${nom.reviewer.employeeLastName}`
-                    : nom.reviewerEmployeeId;
+                    ? `${nom.reviewer.hrEmployeeFirstName} ${nom.reviewer.hrEmployeeLastName}`
+                    : nom.perf360NominationReviewerEmployeeId;
                   return (
                     <Chip
-                      key={nom.id}
+                      key={nom.perf360NominationId}
                       variant="bordered"
                       size="md"
                       radius="md"
                       style={{ backgroundColor: relType.color + "20", color: relType.color }}
-                      onClose={canAddNominations ? () => hook.handleDeleteNomination(nom.id) : undefined}
+                      onClose={canAddNominations ? () => hook.handleDeleteNomination(nom.perf360NominationId) : undefined}
                     >
-                      {reviewerName} ({relType.labelShort}) — {nom.status === "completed" ? "เสร็จ" : "รอ"}
+                      {reviewerName} ({relType.labelShort}) — {nom.perf360NominationStatus === "completed" ? "เสร็จ" : "รอ"}
                     </Chip>
                   );
                 })}
@@ -665,12 +670,12 @@ function ProgressPanel({ hook }) {
   const grouped = useMemo(() => {
     const map = {};
     for (const nom of hook.nominations) {
-      const eid = nom.revieweeEmployeeId;
+      const eid = nom.perf360NominationRevieweeEmployeeId;
       if (!map[eid]) {
         map[eid] = { reviewee: nom.reviewee, total: 0, completed: 0 };
       }
       map[eid].total++;
-      if (nom.status === "completed") map[eid].completed++;
+      if (nom.perf360NominationStatus === "completed") map[eid].completed++;
     }
     return Object.values(map);
   }, [hook.nominations]);
@@ -682,11 +687,11 @@ function ProgressPanel({ hook }) {
       ) : (
         grouped.map((item) => {
           const name = item.reviewee
-            ? `${item.reviewee.employeeFirstName} ${item.reviewee.employeeLastName}`
+            ? `${item.reviewee.hrEmployeeFirstName} ${item.reviewee.hrEmployeeLastName}`
             : "Unknown";
           const pct = item.total > 0 ? Math.round((item.completed / item.total) * 100) : 0;
           return (
-            <div key={item.reviewee?.employeeId} className="flex items-center gap-3">
+            <div key={item.reviewee?.hrEmployeeId} className="flex items-center gap-3">
               <span className="text-sm min-w-[150px]">{name}</span>
               <Progress value={pct} className="flex-1" color={pct === 100 ? "success" : "primary"} size="sm" />
               <span className="text-xs text-default-500 min-w-[60px] text-right">{item.completed}/{item.total}</span>
@@ -716,8 +721,8 @@ function CycleModal({ hook }) {
               radius="md"
               labelPlacement="outside"
               placeholder="เช่น รอบประเมิน 360 องศา Q1/2026"
-              value={cycleForm.name}
-              onValueChange={(v) => setCycleForm((f) => ({ ...f, name: v }))}
+              value={cycleForm.perf360CycleName}
+              onValueChange={(v) => setCycleForm((f) => ({ ...f, perf360CycleName: v }))}
               isRequired
             />
             <Textarea
@@ -726,8 +731,8 @@ function CycleModal({ hook }) {
               size="md"
               radius="md"
               labelPlacement="outside"
-              value={cycleForm.description}
-              onValueChange={(v) => setCycleForm((f) => ({ ...f, description: v }))}
+              value={cycleForm.perf360CycleDescription}
+              onValueChange={(v) => setCycleForm((f) => ({ ...f, perf360CycleDescription: v }))}
             />
             <div className="flex gap-4">
               <Input
@@ -737,8 +742,8 @@ function CycleModal({ hook }) {
                 radius="md"
                 labelPlacement="outside"
                 type="number"
-                value={cycleForm.year}
-                onValueChange={(v) => setCycleForm((f) => ({ ...f, year: v }))}
+                value={cycleForm.perf360CycleYear}
+                onValueChange={(v) => setCycleForm((f) => ({ ...f, perf360CycleYear: v }))}
                 className="flex-1"
                 isRequired
               />
@@ -748,8 +753,8 @@ function CycleModal({ hook }) {
                 size="md"
                 radius="md"
                 labelPlacement="outside"
-                selectedKeys={cycleForm.quarter ? [cycleForm.quarter] : []}
-                onSelectionChange={(keys) => setCycleForm((f) => ({ ...f, quarter: [...keys][0] || "" }))}
+                selectedKeys={cycleForm.perf360CycleQuarter ? [cycleForm.perf360CycleQuarter] : []}
+                onSelectionChange={(keys) => setCycleForm((f) => ({ ...f, perf360CycleQuarter: [...keys][0] || "" }))}
                 className="flex-1"
               >
                 {QUARTER_OPTIONS.map((q) => (
@@ -763,15 +768,15 @@ function CycleModal({ hook }) {
                 radius="md"
                 labelPlacement="outside"
                 type="date"
-                value={cycleForm.responseDeadline}
-                onValueChange={(v) => setCycleForm((f) => ({ ...f, responseDeadline: v }))}
+                value={cycleForm.perf360CycleResponseDeadline}
+                onValueChange={(v) => setCycleForm((f) => ({ ...f, perf360CycleResponseDeadline: v }))}
                 className="flex-1"
                 isRequired
               />
             </div>
             <Switch
-              isSelected={cycleForm.anonymousToReviewee}
-              onValueChange={(v) => setCycleForm((f) => ({ ...f, anonymousToReviewee: v }))}
+              isSelected={cycleForm.perf360CycleAnonymousToReviewee}
+              onValueChange={(v) => setCycleForm((f) => ({ ...f, perf360CycleAnonymousToReviewee: v }))}
             >
               ไม่เปิดเผยตัวตนผู้ประเมิน (Anonymous)
             </Switch>
@@ -790,7 +795,7 @@ function CycleModal({ hook }) {
 
 function NominationModal({ hook }) {
   const { nominationModal, nominationForm, setNominationForm, savingNomination, handleSaveNomination, employees } = hook;
-  const activeEmployees = employees.filter((e) => e.employeeStatus === "active");
+  const activeEmployees = employees.filter((e) => e.hrEmployeeStatus === "active");
 
   return (
     <Modal isOpen={nominationModal.isOpen} onClose={nominationModal.onClose} size="lg">
@@ -804,13 +809,13 @@ function NominationModal({ hook }) {
               size="md"
               radius="md"
               labelPlacement="outside"
-              selectedKeys={nominationForm.revieweeEmployeeId ? [nominationForm.revieweeEmployeeId] : []}
-              onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, revieweeEmployeeId: [...keys][0] }))}
+              selectedKeys={nominationForm.perf360NominationRevieweeEmployeeId ? [nominationForm.perf360NominationRevieweeEmployeeId] : []}
+              onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, perf360NominationRevieweeEmployeeId: [...keys][0] }))}
               isRequired
             >
               {activeEmployees.map((e) => (
-                <SelectItem key={e.employeeId}>
-                  {e.employeeFirstName} {e.employeeLastName}
+                <SelectItem key={e.hrEmployeeId}>
+                  {e.hrEmployeeFirstName} {e.hrEmployeeLastName}
                 </SelectItem>
               ))}
             </Select>
@@ -820,13 +825,13 @@ function NominationModal({ hook }) {
               size="md"
               radius="md"
               labelPlacement="outside"
-              selectedKeys={nominationForm.reviewerEmployeeId ? [nominationForm.reviewerEmployeeId] : []}
-              onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, reviewerEmployeeId: [...keys][0] }))}
+              selectedKeys={nominationForm.perf360NominationReviewerEmployeeId ? [nominationForm.perf360NominationReviewerEmployeeId] : []}
+              onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, perf360NominationReviewerEmployeeId: [...keys][0] }))}
               isRequired
             >
               {activeEmployees.map((e) => (
-                <SelectItem key={e.employeeId}>
-                  {e.employeeFirstName} {e.employeeLastName}
+                <SelectItem key={e.hrEmployeeId}>
+                  {e.hrEmployeeFirstName} {e.hrEmployeeLastName}
                 </SelectItem>
               ))}
             </Select>
@@ -836,8 +841,8 @@ function NominationModal({ hook }) {
               size="md"
               radius="md"
               labelPlacement="outside"
-              selectedKeys={[nominationForm.relationshipType]}
-              onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, relationshipType: [...keys][0] }))}
+              selectedKeys={[nominationForm.perf360NominationRelationshipType]}
+              onSelectionChange={(keys) => setNominationForm((f) => ({ ...f, perf360NominationRelationshipType: [...keys][0] }))}
             >
               {RELATIONSHIP_TYPES.map((r) => (
                 <SelectItem key={r.key}>{r.label}</SelectItem>
@@ -866,17 +871,17 @@ function ReviewModal({ hook }) {
   if (!activeReview) return null;
 
   const revieweeName = activeReview.reviewee
-    ? `${activeReview.reviewee.employeeFirstName} ${activeReview.reviewee.employeeLastName}`
+    ? `${activeReview.reviewee.hrEmployeeFirstName} ${activeReview.reviewee.hrEmployeeLastName}`
     : "";
 
-  const relType = getRelationshipType(activeReview.relationshipType);
+  const relType = getRelationshipType(activeReview.perf360NominationRelationshipType);
 
   // Count answered
   let totalQ = 0;
   let answeredQ = 0;
   for (const comp of reviewCompetencies) {
-    totalQ += (comp.questions || []).length;
-    const scores = reviewScores[comp.id] || [];
+    totalQ += (comp.perf360CompetencyQuestions || []).length;
+    const scores = reviewScores[comp.perf360CompetencyId] || [];
     answeredQ += scores.filter((s) => s > 0).length;
   }
   const progress = totalQ > 0 ? Math.round((answeredQ / totalQ) * 100) : 0;
@@ -896,12 +901,12 @@ function ReviewModal({ hook }) {
           <Progress value={progress} color="primary" size="sm" className="mb-4" />
           <p className="text-xs text-default-400 mb-4">{answeredQ}/{totalQ} ข้อ</p>
 
-          <Accordion selectionMode="multiple" defaultExpandedKeys={reviewCompetencies.map((c) => c.id)}>
+          <Accordion selectionMode="multiple" defaultExpandedKeys={reviewCompetencies.map((c) => c.perf360CompetencyId)}>
             {reviewCompetencies.map((comp) => (
-              <AccordionItem key={comp.id} title={comp.name} subtitle={comp.description}>
+              <AccordionItem key={comp.perf360CompetencyId} title={comp.perf360CompetencyName} subtitle={comp.perf360CompetencyDescription}>
                 <div className="flex flex-col gap-4">
-                  {(comp.questions || []).map((question, qIdx) => {
-                    const currentScore = (reviewScores[comp.id] || [])[qIdx] || 0;
+                  {(comp.perf360CompetencyQuestions || []).map((question, qIdx) => {
+                    const currentScore = (reviewScores[comp.perf360CompetencyId] || [])[qIdx] || 0;
                     return (
                       <div key={qIdx} className="p-2 rounded bg-default-50">
                         <p className="text-sm mb-2">
@@ -910,7 +915,7 @@ function ReviewModal({ hook }) {
                         <RadioGroup
                           orientation="horizontal"
                           value={String(currentScore)}
-                          onValueChange={(v) => setReviewScore(comp.id, qIdx, parseInt(v))}
+                          onValueChange={(v) => setReviewScore(comp.perf360CompetencyId, qIdx, parseInt(v))}
                         >
                           {[1, 2, 3, 4, 5].map((score) => (
                             <Radio key={score} value={String(score)}>
@@ -936,8 +941,8 @@ function ReviewModal({ hook }) {
               radius="md"
               labelPlacement="outside"
               placeholder="สิ่งที่ผู้ถูกประเมินทำได้ดี..."
-              value={reviewComments.strengthComment}
-              onValueChange={(v) => setReviewComments((c) => ({ ...c, strengthComment: v }))}
+              value={reviewComments.perf360ResponseStrengthComment}
+              onValueChange={(v) => setReviewComments((c) => ({ ...c, perf360ResponseStrengthComment: v }))}
             />
             <Textarea
               label="จุดที่ควรพัฒนา"
@@ -946,8 +951,8 @@ function ReviewModal({ hook }) {
               radius="md"
               labelPlacement="outside"
               placeholder="สิ่งที่ผู้ถูกประเมินควรปรับปรุง..."
-              value={reviewComments.improvementComment}
-              onValueChange={(v) => setReviewComments((c) => ({ ...c, improvementComment: v }))}
+              value={reviewComments.perf360ResponseImprovementComment}
+              onValueChange={(v) => setReviewComments((c) => ({ ...c, perf360ResponseImprovementComment: v }))}
             />
             <Textarea
               label="ความคิดเห็นเพิ่มเติม"
@@ -956,8 +961,8 @@ function ReviewModal({ hook }) {
               radius="md"
               labelPlacement="outside"
               placeholder="ความคิดเห็นอื่นๆ..."
-              value={reviewComments.comment}
-              onValueChange={(v) => setReviewComments((c) => ({ ...c, comment: v }))}
+              value={reviewComments.perf360ResponseComment}
+              onValueChange={(v) => setReviewComments((c) => ({ ...c, perf360ResponseComment: v }))}
             />
           </div>
         </ModalBody>

@@ -201,7 +201,7 @@ function MyKpiTab({ hook }) {
               <CardHeader>
                 <div className="flex justify-between items-center w-full">
                   <h3 className="text-lg font-semibold">
-                    แนวโน้ม: {selectedTrend.definition?.name}
+                    แนวโน้ม: {selectedTrend.definition?.perfKpiDefinitionName}
                   </h3>
                   <Button size="md" radius="md" variant="bordered" onPress={() => setSelectedTrend(null)}>
                     ปิด
@@ -214,8 +214,8 @@ function MyKpiTab({ hook }) {
                 ) : (
                   <LineChart
                     data={(selectedTrend.records || []).map((r) => ({
-                      period: r.periodLabel,
-                      actual: r.actualValue,
+                      period: r.perfKpiRecordPeriodLabel,
+                      actual: r.perfKpiRecordActualValue,
                       target: selectedTrend.targetValue,
                     }))}
                     lines={[
@@ -256,7 +256,7 @@ function KpiCard({ assignment, onRecord, onTrend }) {
   const statusLabel = getKpiStatusLabel(status);
   const statusColor = getKpiStatusColor(status);
   const progress = assignment.latestValue != null
-    ? computeKpiProgress(assignment.latestValue, assignment.targetValue, def.higherIsBetter !== false)
+    ? computeKpiProgress(assignment.latestValue, assignment.targetValue, def.perfKpiDefinitionHigherIsBetter !== false)
     : 0;
 
   return (
@@ -264,9 +264,9 @@ function KpiCard({ assignment, onRecord, onTrend }) {
       <CardBody className="flex flex-col gap-3">
         <div className="flex justify-between items-start">
           <div>
-            <h4 className="font-semibold">{def.name}</h4>
+            <h4 className="font-semibold">{def.perfKpiDefinitionName}</h4>
             <p className="text-xs text-default-400">
-              {getCategoryLabel(def.category)} | {getFrequencyLabel(def.frequency)}
+              {getCategoryLabel(def.perfKpiDefinitionCategory)} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
             </p>
           </div>
           <Chip size="md" radius="md" color={statusColor} variant="bordered">
@@ -279,7 +279,7 @@ function KpiCard({ assignment, onRecord, onTrend }) {
             {assignment.latestValue != null ? assignment.latestValue : "-"}
           </span>
           <span className="text-sm text-default-400">
-            / {assignment.targetValue} {def.unit}
+            / {assignment.targetValue} {def.perfKpiDefinitionUnit}
           </span>
         </div>
 
@@ -353,13 +353,13 @@ function DashboardTab({ hook }) {
           const total = group.employees.length;
 
           return (
-            <Card key={def.id}>
+            <Card key={def.perfKpiDefinitionId}>
               <CardHeader className="pb-1">
                 <div className="flex justify-between items-center w-full">
                   <div>
-                    <h3 className="font-semibold">{def.name}</h3>
+                    <h3 className="font-semibold">{def.perfKpiDefinitionName}</h3>
                     <p className="text-xs text-default-400">
-                      {getCategoryLabel(def.category)} | {def.unit} | {getFrequencyLabel(def.frequency)}
+                      {getCategoryLabel(def.perfKpiDefinitionCategory)} | {def.perfKpiDefinitionUnit} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
                     </p>
                   </div>
                   <Chip size="md" radius="md" color={successCount === total ? "success" : "warning"} variant="bordered">
@@ -371,13 +371,13 @@ function DashboardTab({ hook }) {
                 <div className="flex flex-col gap-2">
                   {group.employees.map((emp) => {
                     const empName = emp.employee
-                      ? `${emp.employee.employeeFirstName} ${emp.employee.employeeLastName}`
-                      : emp.employeeId;
+                      ? `${emp.employee.hrEmployeeFirstName} ${emp.employee.hrEmployeeLastName}`
+                      : emp.hrEmployeeId;
                     return (
                       <div key={emp.assignmentId} className="flex items-center gap-3 p-2 rounded-lg bg-default-50">
                         <span className="text-sm min-w-[150px]">{empName}</span>
                         <Progress
-                          value={emp.latestValue != null ? computeKpiProgress(emp.latestValue, emp.targetValue, def.higherIsBetter !== false) : 0}
+                          value={emp.latestValue != null ? computeKpiProgress(emp.latestValue, emp.targetValue, def.perfKpiDefinitionHigherIsBetter !== false) : 0}
                           color={getKpiStatusColor(emp.status)}
                           size="sm"
                           className="flex-1"
@@ -430,24 +430,24 @@ function ManageTab({ hook }) {
       ) : (
         <div className="flex flex-col gap-3">
           {hook.definitions.map((def) => (
-            <Card key={def.id}>
+            <Card key={def.perfKpiDefinitionId}>
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">{def.name}</h4>
-                    <Chip size="md" radius="md" variant="bordered">{getCategoryLabel(def.category)}</Chip>
-                    <Chip size="md" radius="md" variant="bordered">{def.unit}</Chip>
-                    <Chip size="md" radius="md" variant="bordered">{getFrequencyLabel(def.frequency)}</Chip>
-                    {!def.isActive && <Chip size="md" radius="md" color="danger" variant="bordered">ปิดใช้งาน</Chip>}
+                    <h4 className="font-semibold">{def.perfKpiDefinitionName}</h4>
+                    <Chip size="md" radius="md" variant="bordered">{getCategoryLabel(def.perfKpiDefinitionCategory)}</Chip>
+                    <Chip size="md" radius="md" variant="bordered">{def.perfKpiDefinitionUnit}</Chip>
+                    <Chip size="md" radius="md" variant="bordered">{getFrequencyLabel(def.perfKpiDefinitionFrequency)}</Chip>
+                    {!def.perfKpiDefinitionIsActive && <Chip size="md" radius="md" color="danger" variant="bordered">ปิดใช้งาน</Chip>}
                   </div>
-                  {def.description && <p className="text-xs text-default-400 mt-1">{def.description}</p>}
+                  {def.perfKpiDefinitionDescription && <p className="text-xs text-default-400 mt-1">{def.perfKpiDefinitionDescription}</p>}
                   <p className="text-xs text-default-500 mt-1">
-                    เป้าหมาย: {def.targetValue ?? "-"} | เตือน: {def.warningThreshold ?? "-"} | {def.higherIsBetter ? "ยิ่งสูงยิ่งดี" : "ยิ่งต่ำยิ่งดี"}
+                    เป้าหมาย: {def.perfKpiDefinitionTargetValue ?? "-"} | เตือน: {def.perfKpiDefinitionWarningThreshold ?? "-"} | {def.perfKpiDefinitionHigherIsBetter ? "ยิ่งสูงยิ่งดี" : "ยิ่งต่ำยิ่งดี"}
                   </p>
                 </div>
                 <div className="flex gap-1">
                   <Tooltip content="Assign ให้พนักงาน">
-                    <Button isIconOnly size="md" radius="md" variant="bordered" color="primary" onPress={() => hook.handleOpenAssignForm(def.id)}>
+                    <Button isIconOnly size="md" radius="md" variant="bordered" color="primary" onPress={() => hook.handleOpenAssignForm(def.perfKpiDefinitionId)}>
                       <Users className="w-4 h-4" />
                     </Button>
                   </Tooltip>
@@ -457,7 +457,7 @@ function ManageTab({ hook }) {
                     </Button>
                   </Tooltip>
                   <Tooltip content="ลบ">
-                    <Button isIconOnly size="md" radius="md" variant="bordered" color="danger" onPress={() => hook.handleDeleteDefinition(def.id)}>
+                    <Button isIconOnly size="md" radius="md" variant="bordered" color="danger" onPress={() => hook.handleDeleteDefinition(def.perfKpiDefinitionId)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </Tooltip>
@@ -485,8 +485,8 @@ function DefinitionModal({ hook }) {
             <Input
               label="ชื่อ KPI"
               placeholder="เช่น อัตราความพึงพอใจลูกค้า"
-              value={definitionForm.name}
-              onValueChange={(v) => setDefinitionForm((f) => ({ ...f, name: v }))}
+              value={definitionForm.perfKpiDefinitionName}
+              onValueChange={(v) => setDefinitionForm((f) => ({ ...f, perfKpiDefinitionName: v }))}
               variant="bordered"
               size="md"
               radius="md"
@@ -496,8 +496,8 @@ function DefinitionModal({ hook }) {
             <Textarea
               label="รายละเอียด"
               placeholder="อธิบาย KPI..."
-              value={definitionForm.description}
-              onValueChange={(v) => setDefinitionForm((f) => ({ ...f, description: v }))}
+              value={definitionForm.perfKpiDefinitionDescription}
+              onValueChange={(v) => setDefinitionForm((f) => ({ ...f, perfKpiDefinitionDescription: v }))}
               variant="bordered"
               size="md"
               radius="md"
@@ -506,8 +506,8 @@ function DefinitionModal({ hook }) {
             <div className="flex gap-4">
               <Select
                 label="หมวดหมู่"
-                selectedKeys={[definitionForm.category]}
-                onSelectionChange={(keys) => setDefinitionForm((f) => ({ ...f, category: [...keys][0] }))}
+                selectedKeys={[definitionForm.perfKpiDefinitionCategory]}
+                onSelectionChange={(keys) => setDefinitionForm((f) => ({ ...f, perfKpiDefinitionCategory: [...keys][0] }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -521,8 +521,8 @@ function DefinitionModal({ hook }) {
               <Input
                 label="หน่วย"
                 placeholder="%, บาท, ชิ้น"
-                value={definitionForm.unit}
-                onValueChange={(v) => setDefinitionForm((f) => ({ ...f, unit: v }))}
+                value={definitionForm.perfKpiDefinitionUnit}
+                onValueChange={(v) => setDefinitionForm((f) => ({ ...f, perfKpiDefinitionUnit: v }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -532,8 +532,8 @@ function DefinitionModal({ hook }) {
               />
               <Select
                 label="ความถี่"
-                selectedKeys={[definitionForm.frequency]}
-                onSelectionChange={(keys) => setDefinitionForm((f) => ({ ...f, frequency: [...keys][0] }))}
+                selectedKeys={[definitionForm.perfKpiDefinitionFrequency]}
+                onSelectionChange={(keys) => setDefinitionForm((f) => ({ ...f, perfKpiDefinitionFrequency: [...keys][0] }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -549,8 +549,8 @@ function DefinitionModal({ hook }) {
               <Input
                 label="เป้าหมาย"
                 type="number"
-                value={definitionForm.targetValue}
-                onValueChange={(v) => setDefinitionForm((f) => ({ ...f, targetValue: v }))}
+                value={definitionForm.perfKpiDefinitionTargetValue}
+                onValueChange={(v) => setDefinitionForm((f) => ({ ...f, perfKpiDefinitionTargetValue: v }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -560,8 +560,8 @@ function DefinitionModal({ hook }) {
               <Input
                 label="เกณฑ์เตือน"
                 type="number"
-                value={definitionForm.warningThreshold}
-                onValueChange={(v) => setDefinitionForm((f) => ({ ...f, warningThreshold: v }))}
+                value={definitionForm.perfKpiDefinitionWarningThreshold}
+                onValueChange={(v) => setDefinitionForm((f) => ({ ...f, perfKpiDefinitionWarningThreshold: v }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -570,10 +570,10 @@ function DefinitionModal({ hook }) {
               />
             </div>
             <Switch
-              isSelected={definitionForm.higherIsBetter}
-              onValueChange={(v) => setDefinitionForm((f) => ({ ...f, higherIsBetter: v }))}
+              isSelected={definitionForm.perfKpiDefinitionHigherIsBetter}
+              onValueChange={(v) => setDefinitionForm((f) => ({ ...f, perfKpiDefinitionHigherIsBetter: v }))}
             >
-              {definitionForm.higherIsBetter ? "ยิ่งสูงยิ่งดี" : "ยิ่งต่ำยิ่งดี"}
+              {definitionForm.perfKpiDefinitionHigherIsBetter ? "ยิ่งสูงยิ่งดี" : "ยิ่งต่ำยิ่งดี"}
             </Switch>
           </div>
         </ModalBody>
@@ -590,7 +590,7 @@ function DefinitionModal({ hook }) {
 
 function AssignmentModal({ hook }) {
   const { assignmentModal, assignForm, setAssignForm, savingAssignment, handleSaveAssignment, definitions, employees } = hook;
-  const activeEmployees = employees.filter((e) => e.employeeStatus === "active");
+  const activeEmployees = employees.filter((e) => e.hrEmployeeStatus === "active");
 
   return (
     <Modal isOpen={assignmentModal.isOpen} onClose={assignmentModal.onClose} size="lg">
@@ -600,12 +600,12 @@ function AssignmentModal({ hook }) {
           <div className="flex flex-col gap-4">
             <Select
               label="KPI"
-              selectedKeys={assignForm.definitionId ? [assignForm.definitionId] : []}
+              selectedKeys={assignForm.perfKpiAssignmentDefinitionId ? [assignForm.perfKpiAssignmentDefinitionId] : []}
               onSelectionChange={(keys) => {
                 const id = [...keys][0];
-                setAssignForm((f) => ({ ...f, definitionId: id }));
-                const def = definitions.find((d) => d.id === id);
-                if (def?.targetValue) setAssignForm((f) => ({ ...f, targetValue: String(def.targetValue) }));
+                setAssignForm((f) => ({ ...f, perfKpiAssignmentDefinitionId: id }));
+                const def = definitions.find((d) => d.perfKpiDefinitionId === id);
+                if (def?.perfKpiDefinitionTargetValue) setAssignForm((f) => ({ ...f, perfKpiAssignmentTargetValue: String(def.perfKpiDefinitionTargetValue) }));
               }}
               variant="bordered"
               size="md"
@@ -614,13 +614,13 @@ function AssignmentModal({ hook }) {
               isRequired
             >
               {definitions.map((d) => (
-                <SelectItem key={d.id}>{d.name} ({d.unit})</SelectItem>
+                <SelectItem key={d.perfKpiDefinitionId}>{d.perfKpiDefinitionName} ({d.perfKpiDefinitionUnit})</SelectItem>
               ))}
             </Select>
             <Select
               label="พนักงาน"
-              selectedKeys={assignForm.employeeId ? [assignForm.employeeId] : []}
-              onSelectionChange={(keys) => setAssignForm((f) => ({ ...f, employeeId: [...keys][0] }))}
+              selectedKeys={assignForm.perfKpiAssignmentEmployeeId ? [assignForm.perfKpiAssignmentEmployeeId] : []}
+              onSelectionChange={(keys) => setAssignForm((f) => ({ ...f, perfKpiAssignmentEmployeeId: [...keys][0] }))}
               variant="bordered"
               size="md"
               radius="md"
@@ -628,8 +628,8 @@ function AssignmentModal({ hook }) {
               isRequired
             >
               {activeEmployees.map((e) => (
-                <SelectItem key={e.employeeId}>
-                  {e.employeeFirstName} {e.employeeLastName} — {e.employeeDepartment}
+                <SelectItem key={e.hrEmployeeId}>
+                  {e.hrEmployeeFirstName} {e.hrEmployeeLastName} — {e.hrEmployeeDepartment}
                 </SelectItem>
               ))}
             </Select>
@@ -637,8 +637,8 @@ function AssignmentModal({ hook }) {
               <Input
                 label="เป้าหมาย"
                 type="number"
-                value={assignForm.targetValue}
-                onValueChange={(v) => setAssignForm((f) => ({ ...f, targetValue: v }))}
+                value={assignForm.perfKpiAssignmentTargetValue}
+                onValueChange={(v) => setAssignForm((f) => ({ ...f, perfKpiAssignmentTargetValue: v }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -649,8 +649,8 @@ function AssignmentModal({ hook }) {
               <Input
                 label="น้ำหนัก"
                 type="number"
-                value={assignForm.weight}
-                onValueChange={(v) => setAssignForm((f) => ({ ...f, weight: v }))}
+                value={assignForm.perfKpiAssignmentWeight}
+                onValueChange={(v) => setAssignForm((f) => ({ ...f, perfKpiAssignmentWeight: v }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -680,20 +680,20 @@ function RecordModal({ hook }) {
   return (
     <Modal isOpen={recordModal.isOpen} onClose={recordModal.onClose} size="lg">
       <ModalContent>
-        <ModalHeader>บันทึกค่า: {def.name}</ModalHeader>
+        <ModalHeader>บันทึกค่า: {def.perfKpiDefinitionName}</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
             <div className="text-sm text-default-500">
-              เป้าหมาย: <span className="font-semibold">{recordingAssignment.targetValue} {def.unit}</span>
+              เป้าหมาย: <span className="font-semibold">{recordingAssignment.targetValue} {def.perfKpiDefinitionUnit}</span>
               {recordingAssignment.latestValue != null && (
-                <> | ค่าล่าสุด: <span className="font-semibold">{recordingAssignment.latestValue} {def.unit}</span></>
+                <> | ค่าล่าสุด: <span className="font-semibold">{recordingAssignment.latestValue} {def.perfKpiDefinitionUnit}</span></>
               )}
             </div>
             <Input
               label="ช่วงเวลา"
               placeholder="เช่น 2026-01"
-              value={recordForm.periodLabel}
-              onValueChange={(v) => setRecordForm((f) => ({ ...f, periodLabel: v }))}
+              value={recordForm.perfKpiRecordPeriodLabel}
+              onValueChange={(v) => setRecordForm((f) => ({ ...f, perfKpiRecordPeriodLabel: v }))}
               variant="bordered"
               size="md"
               radius="md"
@@ -701,10 +701,10 @@ function RecordModal({ hook }) {
               isRequired
             />
             <Input
-              label={`ค่าจริง (${def.unit})`}
+              label={`ค่าจริง (${def.perfKpiDefinitionUnit})`}
               type="number"
-              value={recordForm.actualValue}
-              onValueChange={(v) => setRecordForm((f) => ({ ...f, actualValue: v }))}
+              value={recordForm.perfKpiRecordActualValue}
+              onValueChange={(v) => setRecordForm((f) => ({ ...f, perfKpiRecordActualValue: v }))}
               variant="bordered"
               size="md"
               radius="md"
@@ -714,8 +714,8 @@ function RecordModal({ hook }) {
             <Textarea
               label="หมายเหตุ"
               placeholder="หมายเหตุเพิ่มเติม..."
-              value={recordForm.note}
-              onValueChange={(v) => setRecordForm((f) => ({ ...f, note: v }))}
+              value={recordForm.perfKpiRecordNote}
+              onValueChange={(v) => setRecordForm((f) => ({ ...f, perfKpiRecordNote: v }))}
               variant="bordered"
               size="md"
               radius="md"

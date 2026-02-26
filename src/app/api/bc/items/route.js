@@ -11,9 +11,9 @@ export async function GET() {
 
   while (true) {
     const { data, error } = await auth.supabase
-      .from("bcItems")
+      .from("bcItem")
       .select("*")
-      .order("number")
+      .order("bcItemNumber")
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) return Response.json({ error: error.message }, { status: 500 });

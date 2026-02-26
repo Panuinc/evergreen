@@ -12,18 +12,18 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  assetName: "",
-  assetTag: "",
-  assetCategory: "computer",
-  assetBrand: "",
-  assetModel: "",
-  assetSerialNumber: "",
-  assetStatus: "active",
-  assetAssignedTo: "",
-  assetLocation: "",
-  assetPurchaseDate: "",
-  assetWarrantyExpiry: "",
-  assetNotes: "",
+  itAssetName: "",
+  itAssetTag: "",
+  itAssetCategory: "computer",
+  itAssetBrand: "",
+  itAssetModel: "",
+  itAssetSerialNumber: "",
+  itAssetStatus: "active",
+  itAssetAssignedTo: "",
+  itAssetLocation: "",
+  itAssetPurchaseDate: "",
+  itAssetWarrantyExpiry: "",
+  itAssetNotes: "",
 };
 
 export function useItAssets() {
@@ -57,18 +57,18 @@ export function useItAssets() {
     if (asset) {
       setEditingAsset(asset);
       setFormData({
-        assetName: asset.assetName || "",
-        assetTag: asset.assetTag || "",
-        assetCategory: asset.assetCategory || "computer",
-        assetBrand: asset.assetBrand || "",
-        assetModel: asset.assetModel || "",
-        assetSerialNumber: asset.assetSerialNumber || "",
-        assetStatus: asset.assetStatus || "active",
-        assetAssignedTo: asset.assetAssignedTo || "",
-        assetLocation: asset.assetLocation || "",
-        assetPurchaseDate: asset.assetPurchaseDate || "",
-        assetWarrantyExpiry: asset.assetWarrantyExpiry || "",
-        assetNotes: asset.assetNotes || "",
+        itAssetName: asset.itAssetName || "",
+        itAssetTag: asset.itAssetTag || "",
+        itAssetCategory: asset.itAssetCategory || "computer",
+        itAssetBrand: asset.itAssetBrand || "",
+        itAssetModel: asset.itAssetModel || "",
+        itAssetSerialNumber: asset.itAssetSerialNumber || "",
+        itAssetStatus: asset.itAssetStatus || "active",
+        itAssetAssignedTo: asset.itAssetAssignedTo || "",
+        itAssetLocation: asset.itAssetLocation || "",
+        itAssetPurchaseDate: asset.itAssetPurchaseDate || "",
+        itAssetWarrantyExpiry: asset.itAssetWarrantyExpiry || "",
+        itAssetNotes: asset.itAssetNotes || "",
       });
     } else {
       setEditingAsset(null);
@@ -80,7 +80,7 @@ export function useItAssets() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      assetName: [(v) => !isRequired(v) && "กรุณาระบุชื่อทรัพย์สิน"],
+      itAssetName: [(v) => !isRequired(v) && "กรุณาระบุชื่อทรัพย์สิน"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -92,7 +92,7 @@ export function useItAssets() {
     try {
       setSaving(true);
       if (editingAsset) {
-        await updateAsset(editingAsset.assetId, formData);
+        await updateAsset(editingAsset.itAssetId, formData);
         toast.success("อัปเดตทรัพย์สินสำเร็จ");
       } else {
         await createAsset(formData);
@@ -115,7 +115,7 @@ export function useItAssets() {
   const handleDelete = async () => {
     if (!deletingAsset) return;
     try {
-      await deleteAsset(deletingAsset.assetId);
+      await deleteAsset(deletingAsset.itAssetId);
       toast.success("ลบทรัพย์สินสำเร็จ");
       deleteModal.onClose();
       setDeletingAsset(null);

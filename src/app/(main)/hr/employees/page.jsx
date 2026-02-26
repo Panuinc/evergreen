@@ -19,12 +19,12 @@ import DataTable from "@/components/ui/DataTable";
 
 const columns = [
   { name: "ชื่อ", uid: "name", sortable: true },
-  { name: "อีเมล", uid: "employeeEmail", sortable: true },
-  { name: "โทรศัพท์", uid: "employeePhone" },
-  { name: "ฝ่าย", uid: "employeeDivision", sortable: true },
-  { name: "แผนก", uid: "employeeDepartment", sortable: true },
-  { name: "ตำแหน่ง", uid: "employeePosition", sortable: true },
-  { name: "สถานะ", uid: "employeeStatus", sortable: true },
+  { name: "อีเมล", uid: "hrEmployeeEmail", sortable: true },
+  { name: "โทรศัพท์", uid: "hrEmployeePhone" },
+  { name: "ฝ่าย", uid: "hrEmployeeDivision", sortable: true },
+  { name: "แผนก", uid: "hrEmployeeDepartment", sortable: true },
+  { name: "ตำแหน่ง", uid: "hrEmployeePosition", sortable: true },
+  { name: "สถานะ", uid: "hrEmployeeStatus", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -35,11 +35,11 @@ const statusOptions = [
 
 const INITIAL_VISIBLE_COLUMNS = [
   "name",
-  "employeeEmail",
-  "employeeDivision",
-  "employeeDepartment",
-  "employeePosition",
-  "employeeStatus",
+  "hrEmployeeEmail",
+  "hrEmployeeDivision",
+  "hrEmployeeDepartment",
+  "hrEmployeePosition",
+  "hrEmployeeStatus",
   "actions",
 ];
 
@@ -70,32 +70,32 @@ export default function EmployeesPage() {
         case "name":
           return (
             <span className="font-medium">
-              {emp.employeeFirstName} {emp.employeeLastName}
+              {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
             </span>
           );
-        case "employeeEmail":
+        case "hrEmployeeEmail":
           return (
-            <span className="text-default-500">{emp.employeeEmail || "-"}</span>
+            <span className="text-default-500">{emp.hrEmployeeEmail || "-"}</span>
           );
-        case "employeePhone":
+        case "hrEmployeePhone":
           return (
-            <span className="text-default-500">{emp.employeePhone || "-"}</span>
+            <span className="text-default-500">{emp.hrEmployeePhone || "-"}</span>
           );
-        case "employeeDivision":
-          return emp.employeeDivision || "-";
-        case "employeeDepartment":
-          return emp.employeeDepartment || "-";
-        case "employeePosition":
-          return emp.employeePosition || "-";
-        case "employeeStatus":
+        case "hrEmployeeDivision":
+          return emp.hrEmployeeDivision || "-";
+        case "hrEmployeeDepartment":
+          return emp.hrEmployeeDepartment || "-";
+        case "hrEmployeePosition":
+          return emp.hrEmployeePosition || "-";
+        case "hrEmployeeStatus":
           return (
             <Chip
               variant="bordered"
               size="md"
               radius="md"
-              color={emp.employeeStatus === "active" ? "success" : "default"}
+              color={emp.hrEmployeeStatus === "active" ? "success" : "default"}
             >
-              {emp.employeeStatus}
+              {emp.hrEmployeeStatus}
             </Chip>
           );
         case "actions":
@@ -135,20 +135,20 @@ export default function EmployeesPage() {
         data={employees}
         renderCell={renderCell}
         enableCardView
-        rowKey="employeeId"
+        rowKey="hrEmployeeId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อ, อีเมล, แผนก, ตำแหน่ง..."
         searchKeys={[
-          "employeeFirstName",
-          "employeeLastName",
-          "employeeEmail",
-          "employeePhone",
-          "employeeDivision",
-          "employeeDepartment",
-          "employeePosition",
+          "hrEmployeeFirstName",
+          "hrEmployeeLastName",
+          "hrEmployeeEmail",
+          "hrEmployeePhone",
+          "hrEmployeeDivision",
+          "hrEmployeeDepartment",
+          "hrEmployeePosition",
         ]}
-        statusField="employeeStatus"
+        statusField="hrEmployeeStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบพนักงาน"
         topEndContent={
@@ -186,9 +186,9 @@ export default function EmployeesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.employeeFirstName}
+                    value={formData.hrEmployeeFirstName}
                     onChange={(e) =>
-                      updateField("employeeFirstName", e.target.value)
+                      updateField("hrEmployeeFirstName", e.target.value)
                     }
                     isRequired
                   />
@@ -201,9 +201,9 @@ export default function EmployeesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.employeeLastName}
+                    value={formData.hrEmployeeLastName}
                     onChange={(e) =>
-                      updateField("employeeLastName", e.target.value)
+                      updateField("hrEmployeeLastName", e.target.value)
                     }
                     isRequired
                   />
@@ -217,9 +217,9 @@ export default function EmployeesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.employeeEmail}
+                    value={formData.hrEmployeeEmail}
                     onChange={(e) =>
-                      updateField("employeeEmail", e.target.value)
+                      updateField("hrEmployeeEmail", e.target.value)
                     }
                   />
                 </div>
@@ -231,9 +231,9 @@ export default function EmployeesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.employeePhone}
+                    value={formData.hrEmployeePhone}
                     onChange={(e) =>
-                      updateField("employeePhone", e.target.value)
+                      updateField("hrEmployeePhone", e.target.value)
                     }
                   />
                 </div>
@@ -246,20 +246,20 @@ export default function EmployeesPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.employeeDivision
-                        ? [formData.employeeDivision]
+                      formData.hrEmployeeDivision
+                        ? [formData.hrEmployeeDivision]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("employeeDivision", val);
-                      updateField("employeeDepartment", "");
-                      updateField("employeePosition", "");
+                      updateField("hrEmployeeDivision", val);
+                      updateField("hrEmployeeDepartment", "");
+                      updateField("hrEmployeePosition", "");
                     }}
                   >
                     {divisions.map((div) => (
-                      <SelectItem key={div.divisionName}>
-                        {div.divisionName}
+                      <SelectItem key={div.hrDivisionName}>
+                        {div.hrDivisionName}
                       </SelectItem>
                     ))}
                   </Select>
@@ -268,27 +268,27 @@ export default function EmployeesPage() {
                   <Select
                     label="แผนก"
                     labelPlacement="outside"
-                    placeholder={formData.employeeDivision ? "เลือกแผนก" : "เลือกฝ่ายก่อน"}
+                    placeholder={formData.hrEmployeeDivision ? "เลือกแผนก" : "เลือกฝ่ายก่อน"}
                     variant="bordered"
                     size="md"
                     radius="md"
-                    isDisabled={!formData.employeeDivision}
+                    isDisabled={!formData.hrEmployeeDivision}
                     selectedKeys={
-                      formData.employeeDepartment
-                        ? [formData.employeeDepartment]
+                      formData.hrEmployeeDepartment
+                        ? [formData.hrEmployeeDepartment]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("employeeDepartment", val);
-                      updateField("employeePosition", "");
+                      updateField("hrEmployeeDepartment", val);
+                      updateField("hrEmployeePosition", "");
                     }}
                   >
                     {departments
-                      .filter((dept) => dept.departmentDivision === formData.employeeDivision)
+                      .filter((dept) => dept.hrDepartmentDivision === formData.hrEmployeeDivision)
                       .map((dept) => (
-                        <SelectItem key={dept.departmentName}>
-                          {dept.departmentName}
+                        <SelectItem key={dept.hrDepartmentName}>
+                          {dept.hrDepartmentName}
                         </SelectItem>
                       ))}
                   </Select>
@@ -297,26 +297,26 @@ export default function EmployeesPage() {
                   <Select
                     label="ตำแหน่ง"
                     labelPlacement="outside"
-                    placeholder={formData.employeeDepartment ? "เลือกตำแหน่ง" : "เลือกแผนกก่อน"}
+                    placeholder={formData.hrEmployeeDepartment ? "เลือกตำแหน่ง" : "เลือกแผนกก่อน"}
                     variant="bordered"
                     size="md"
                     radius="md"
-                    isDisabled={!formData.employeeDepartment}
+                    isDisabled={!formData.hrEmployeeDepartment}
                     selectedKeys={
-                      formData.employeePosition
-                        ? [formData.employeePosition]
+                      formData.hrEmployeePosition
+                        ? [formData.hrEmployeePosition]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("employeePosition", val);
+                      updateField("hrEmployeePosition", val);
                     }}
                   >
                     {positions
-                      .filter((pos) => pos.positionDepartment === formData.employeeDepartment)
+                      .filter((pos) => pos.hrPositionDepartment === formData.hrEmployeeDepartment)
                       .map((pos) => (
-                        <SelectItem key={pos.positionTitle}>
-                          {pos.positionTitle}
+                        <SelectItem key={pos.hrPositionTitle}>
+                          {pos.hrPositionTitle}
                         </SelectItem>
                       ))}
                   </Select>
@@ -328,10 +328,10 @@ export default function EmployeesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.employeeStatus]}
+                    selectedKeys={[formData.hrEmployeeStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "active";
-                      updateField("employeeStatus", val);
+                      updateField("hrEmployeeStatus", val);
                     }}
                   >
                     <SelectItem key="active">เปิดใช้งาน</SelectItem>
@@ -366,8 +366,8 @@ export default function EmployeesPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingEmployee?.employeeFirstName}{" "}
-                {deletingEmployee?.employeeLastName}
+                {deletingEmployee?.hrEmployeeFirstName}{" "}
+                {deletingEmployee?.hrEmployeeLastName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

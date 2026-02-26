@@ -12,11 +12,11 @@ export async function GET(request) {
 
   if (search) {
     query = query.or(
-      `softwareName.ilike.%${search}%,softwareVendor.ilike.%${search}%,softwareLicenseKey.ilike.%${search}%`
+      `itSoftwareName.ilike.%${search}%,itSoftwareVendor.ilike.%${search}%,itSoftwareLicenseKey.ilike.%${search}%`
     );
   }
 
-  const { data, error } = await query.order("softwareCreatedAt", {
+  const { data, error } = await query.order("itSoftwareCreatedAt", {
     ascending: false,
   });
 

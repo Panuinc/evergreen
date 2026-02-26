@@ -25,15 +25,15 @@ const KANBAN_STAGES = [
 ];
 
 const columns = [
-  { name: "เลขที่", uid: "opportunityNo", sortable: true },
-  { name: "ชื่อ", uid: "opportunityName", sortable: true },
+  { name: "เลขที่", uid: "crmOpportunityNo", sortable: true },
+  { name: "ชื่อ", uid: "crmOpportunityName", sortable: true },
   { name: "ผู้ติดต่อ", uid: "contact" },
   { name: "บัญชี", uid: "account" },
-  { name: "ขั้นตอน", uid: "opportunityStage" },
-  { name: "มูลค่า", uid: "opportunityAmount" },
-  { name: "ความน่าจะเป็น", uid: "opportunityProbability" },
+  { name: "ขั้นตอน", uid: "crmOpportunityStage" },
+  { name: "มูลค่า", uid: "crmOpportunityAmount" },
+  { name: "ความน่าจะเป็น", uid: "crmOpportunityProbability" },
   { name: "มูลค่าถ่วงน้ำหนัก", uid: "weightedValue" },
-  { name: "คาดว่าปิดเมื่อ", uid: "opportunityExpectedCloseDate" },
+  { name: "คาดว่าปิดเมื่อ", uid: "crmOpportunityExpectedCloseDate" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -47,12 +47,12 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "opportunityNo",
-  "opportunityName",
+  "crmOpportunityNo",
+  "crmOpportunityName",
   "contact",
-  "opportunityStage",
-  "opportunityAmount",
-  "opportunityProbability",
+  "crmOpportunityStage",
+  "crmOpportunityAmount",
+  "crmOpportunityProbability",
   "actions",
 ];
 
@@ -85,23 +85,23 @@ export default function OpportunitiesPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "opportunityNo":
+        case "crmOpportunityNo":
           return (
             <span className="text-default-500">
-              {item.opportunityNo || "-"}
+              {item.crmOpportunityNo || "-"}
             </span>
           );
-        case "opportunityName":
+        case "crmOpportunityName":
           return (
-            <span className="font-medium">{item.opportunityName}</span>
+            <span className="font-medium">{item.crmOpportunityName}</span>
           );
         case "contact":
-          return item.crmContacts
-            ? `${item.crmContacts.contactFirstName} ${item.crmContacts.contactLastName}`
+          return item.crmContact
+            ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
             : "-";
         case "account":
-          return item.crmAccounts?.accountName || "-";
-        case "opportunityStage": {
+          return item.crmAccount?.crmAccountName || "-";
+        case "crmOpportunityStage": {
           const colorMap = {
             prospecting: "default",
             qualification: "primary",
@@ -115,28 +115,28 @@ export default function OpportunitiesPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.opportunityStage] || "default"}
+              color={colorMap[item.crmOpportunityStage] || "default"}
             >
-              {item.opportunityStage}
+              {item.crmOpportunityStage}
             </Chip>
           );
         }
-        case "opportunityAmount":
-          return item.opportunityAmount
-            ? `฿${Number(item.opportunityAmount).toLocaleString()}`
+        case "crmOpportunityAmount":
+          return item.crmOpportunityAmount
+            ? `฿${Number(item.crmOpportunityAmount).toLocaleString()}`
             : "-";
-        case "opportunityProbability":
-          return item.opportunityProbability != null
-            ? `${item.opportunityProbability}%`
+        case "crmOpportunityProbability":
+          return item.crmOpportunityProbability != null
+            ? `${item.crmOpportunityProbability}%`
             : "-";
         case "weightedValue": {
-          const amount = Number(item.opportunityAmount) || 0;
-          const probability = Number(item.opportunityProbability) || 0;
+          const amount = Number(item.crmOpportunityAmount) || 0;
+          const probability = Number(item.crmOpportunityProbability) || 0;
           const weighted = (amount * probability) / 100;
           return `฿${weighted.toLocaleString()}`;
         }
-        case "opportunityExpectedCloseDate":
-          return item.opportunityExpectedCloseDate || "-";
+        case "crmOpportunityExpectedCloseDate":
+          return item.crmOpportunityExpectedCloseDate || "-";
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -175,12 +175,12 @@ export default function OpportunitiesPage() {
           data={opportunities}
           renderCell={renderCell}
           enableCardView
-          rowKey="opportunityId"
+          rowKey="crmOpportunityId"
           isLoading={loading}
           initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
           searchPlaceholder="ค้นหาโอกาสขาย..."
-          searchKeys={["opportunityName", "opportunityAssignedTo"]}
-          statusField="opportunityStage"
+          searchKeys={["crmOpportunityName", "crmOpportunityAssignedTo"]}
+          statusField="crmOpportunityStage"
           statusOptions={statusOptions}
           emptyContent="ไม่พบโอกาสขาย"
           topEndContent={
@@ -251,10 +251,10 @@ export default function OpportunitiesPage() {
           <div className="flex gap-4 overflow-x-auto pb-4">
             {KANBAN_STAGES.map((stage) => {
               const stageOpps = opportunities.filter(
-                (opp) => opp.opportunityStage === stage.key,
+                (opp) => opp.crmOpportunityStage === stage.key,
               );
               const totalValue = stageOpps.reduce(
-                (sum, opp) => sum + (Number(opp.opportunityAmount) || 0),
+                (sum, opp) => sum + (Number(opp.crmOpportunityAmount) || 0),
                 0,
               );
               return (
@@ -279,28 +279,28 @@ export default function OpportunitiesPage() {
                   <div className="flex flex-col gap-2 p-2 overflow-y-auto max-h-[calc(100vh-240px)]">
                     {stageOpps.map((opp) => (
                       <div
-                        key={opp.opportunityId}
+                        key={opp.crmOpportunityId}
                         className="flex flex-col gap-1 p-3 bg-background rounded-md border border-default-200 cursor-pointer hover:border-default-400 transition-colors"
                         onClick={() => handleOpen(opp)}
                       >
                         <span className="font-medium text-sm">
-                          {opp.opportunityName}
+                          {opp.crmOpportunityName}
                         </span>
                         <span className="text-xs text-default-500">
-                          {opp.crmContacts
-                            ? `${opp.crmContacts.contactFirstName} ${opp.crmContacts.contactLastName}`
+                          {opp.crmContact
+                            ? `${opp.crmContact.crmContactFirstName} ${opp.crmContact.crmContactLastName}`
                             : "-"}
                         </span>
                         <div className="flex items-center justify-between mt-1">
                           <span className="text-sm font-medium">
                             ฿
                             {Number(
-                              opp.opportunityAmount || 0,
+                              opp.crmOpportunityAmount || 0,
                             ).toLocaleString()}
                           </span>
                           <span className="text-xs text-default-500">
-                            {opp.opportunityProbability != null
-                              ? `${opp.opportunityProbability}%`
+                            {opp.crmOpportunityProbability != null
+                              ? `${opp.crmOpportunityProbability}%`
                               : "-"}
                           </span>
                         </div>
@@ -341,13 +341,13 @@ export default function OpportunitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.opportunityName}
+                    value={formData.crmOpportunityName}
                     onChange={(e) =>
-                      updateField("opportunityName", e.target.value)
+                      updateField("crmOpportunityName", e.target.value)
                     }
                     isRequired
-                    isInvalid={!!validationErrors?.opportunityName}
-                    errorMessage={validationErrors?.opportunityName}
+                    isInvalid={!!validationErrors?.crmOpportunityName}
+                    errorMessage={validationErrors?.crmOpportunityName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -359,13 +359,13 @@ export default function OpportunitiesPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.opportunityStage
-                        ? [formData.opportunityStage]
+                      formData.crmOpportunityStage
+                        ? [formData.crmOpportunityStage]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("opportunityStage", val);
+                      updateField("crmOpportunityStage", val);
                     }}
                   >
                     <SelectItem key="prospecting">สำรวจ</SelectItem>
@@ -385,9 +385,9 @@ export default function OpportunitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.opportunityAmount}
+                    value={formData.crmOpportunityAmount}
                     onChange={(e) =>
-                      updateField("opportunityAmount", e.target.value)
+                      updateField("crmOpportunityAmount", e.target.value)
                     }
                   />
                 </div>
@@ -400,9 +400,9 @@ export default function OpportunitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.opportunityProbability}
+                    value={formData.crmOpportunityProbability}
                     onChange={(e) =>
-                      updateField("opportunityProbability", e.target.value)
+                      updateField("crmOpportunityProbability", e.target.value)
                     }
                   />
                 </div>
@@ -415,10 +415,10 @@ export default function OpportunitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.opportunityExpectedCloseDate}
+                    value={formData.crmOpportunityExpectedCloseDate}
                     onChange={(e) =>
                       updateField(
-                        "opportunityExpectedCloseDate",
+                        "crmOpportunityExpectedCloseDate",
                         e.target.value,
                       )
                     }
@@ -433,13 +433,13 @@ export default function OpportunitiesPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.opportunitySource
-                        ? [formData.opportunitySource]
+                      formData.crmOpportunitySource
+                        ? [formData.crmOpportunitySource]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("opportunitySource", val);
+                      updateField("crmOpportunitySource", val);
                     }}
                   >
                     <SelectItem key="website">เว็บไซต์</SelectItem>
@@ -461,9 +461,9 @@ export default function OpportunitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.opportunityContactId}
+                    value={formData.crmOpportunityContactId}
                     onChange={(e) =>
-                      updateField("opportunityContactId", e.target.value)
+                      updateField("crmOpportunityContactId", e.target.value)
                     }
                   />
                 </div>
@@ -475,9 +475,9 @@ export default function OpportunitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.opportunityAccountId}
+                    value={formData.crmOpportunityAccountId}
                     onChange={(e) =>
-                      updateField("opportunityAccountId", e.target.value)
+                      updateField("crmOpportunityAccountId", e.target.value)
                     }
                   />
                 </div>
@@ -489,9 +489,9 @@ export default function OpportunitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.opportunityAssignedTo}
+                    value={formData.crmOpportunityAssignedTo}
                     onChange={(e) =>
-                      updateField("opportunityAssignedTo", e.target.value)
+                      updateField("crmOpportunityAssignedTo", e.target.value)
                     }
                   />
                 </div>
@@ -504,9 +504,9 @@ export default function OpportunitiesPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.opportunityNotes}
+                  value={formData.crmOpportunityNotes}
                   onChange={(e) =>
-                    updateField("opportunityNotes", e.target.value)
+                    updateField("crmOpportunityNotes", e.target.value)
                   }
                 />
               </div>
@@ -537,7 +537,7 @@ export default function OpportunitiesPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingOpp?.opportunityName}
+                {deletingOpp?.crmOpportunityName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

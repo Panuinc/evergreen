@@ -29,24 +29,24 @@ import { useCrmActivities } from "@/hooks/sales/useCrmActivities";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ประเภท", uid: "activityType" },
-  { name: "หัวข้อ", uid: "activitySubject", sortable: true },
+  { name: "ประเภท", uid: "crmActivityType" },
+  { name: "หัวข้อ", uid: "crmActivitySubject", sortable: true },
   { name: "ผู้ติดต่อ", uid: "contact" },
   { name: "โอกาสขาย", uid: "opportunity" },
-  { name: "ความสำคัญ", uid: "activityPriority" },
-  { name: "สถานะ", uid: "activityStatus" },
-  { name: "วันครบกำหนด", uid: "activityDueDate" },
-  { name: "ผู้รับผิดชอบ", uid: "activityAssignedTo" },
+  { name: "ความสำคัญ", uid: "crmActivityPriority" },
+  { name: "สถานะ", uid: "crmActivityStatus" },
+  { name: "วันครบกำหนด", uid: "crmActivityDueDate" },
+  { name: "ผู้รับผิดชอบ", uid: "crmActivityAssignedTo" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "activityType",
-  "activitySubject",
+  "crmActivityType",
+  "crmActivitySubject",
   "contact",
-  "activityPriority",
-  "activityStatus",
-  "activityDueDate",
+  "crmActivityPriority",
+  "crmActivityStatus",
+  "crmActivityDueDate",
   "actions",
 ];
 
@@ -96,54 +96,54 @@ export default function ActivitiesPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "activityType": {
-          const Icon = TYPE_ICON_MAP[item.activityType] || ClipboardList;
+        case "crmActivityType": {
+          const Icon = TYPE_ICON_MAP[item.crmActivityType] || ClipboardList;
           return (
             <div className="flex items-center gap-2">
               <Icon size={16} />
-              <span className="capitalize">{item.activityType}</span>
+              <span className="capitalize">{item.crmActivityType}</span>
             </div>
           );
         }
-        case "activitySubject":
+        case "crmActivitySubject":
           return (
-            <span className="font-medium">{item.activitySubject || "-"}</span>
+            <span className="font-medium">{item.crmActivitySubject || "-"}</span>
           );
         case "contact":
-          return item.crmContacts
-            ? `${item.crmContacts.contactFirstName} ${item.crmContacts.contactLastName}`
+          return item.crmContact
+            ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
             : "-";
         case "opportunity":
-          return item.crmOpportunities?.opportunityName || "-";
-        case "activityPriority": {
-          const color = PRIORITY_COLOR_MAP[item.activityPriority] || "default";
+          return item.crmOpportunity?.crmOpportunityName || "-";
+        case "crmActivityPriority": {
+          const color = PRIORITY_COLOR_MAP[item.crmActivityPriority] || "default";
           return (
             <Chip variant="bordered" size="md" radius="md" color={color}>
-              {item.activityPriority}
+              {item.crmActivityPriority}
             </Chip>
           );
         }
-        case "activityStatus": {
-          const color = STATUS_COLOR_MAP[item.activityStatus] || "default";
+        case "crmActivityStatus": {
+          const color = STATUS_COLOR_MAP[item.crmActivityStatus] || "default";
           return (
             <Chip variant="bordered" size="md" radius="md" color={color}>
-              {item.activityStatus}
+              {item.crmActivityStatus}
             </Chip>
           );
         }
-        case "activityDueDate": {
-          if (!item.activityDueDate) return "-";
-          const dueDate = new Date(item.activityDueDate);
+        case "crmActivityDueDate": {
+          if (!item.crmActivityDueDate) return "-";
+          const dueDate = new Date(item.crmActivityDueDate);
           const isOverdue =
-            dueDate < new Date() && item.activityStatus !== "completed";
+            dueDate < new Date() && item.crmActivityStatus !== "completed";
           return (
             <span className={isOverdue ? "text-danger font-medium" : ""}>
               {dueDate.toLocaleString("th-TH")}
             </span>
           );
         }
-        case "activityAssignedTo":
-          return item.activityAssignedTo || "-";
+        case "crmActivityAssignedTo":
+          return item.crmActivityAssignedTo || "-";
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -157,7 +157,7 @@ export default function ActivitiesPage() {
                 <CheckCircle
                   size={16}
                   className={
-                    item.activityStatus === "completed" ? "text-success" : ""
+                    item.crmActivityStatus === "completed" ? "text-success" : ""
                   }
                 />
               </Button>
@@ -209,11 +209,11 @@ export default function ActivitiesPage() {
         data={activities}
         renderCell={renderCell}
         enableCardView
-        rowKey="activityId"
+        rowKey="crmActivityId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหากิจกรรม..."
-        searchKeys={["activitySubject", "activityAssignedTo"]}
+        searchKeys={["crmActivitySubject", "crmActivityAssignedTo"]}
         emptyContent="ไม่พบกิจกรรม"
         topEndContent={
           <Button
@@ -249,9 +249,9 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.activityType]}
+                    selectedKeys={[formData.crmActivityType]}
                     onChange={(e) =>
-                      updateField("activityType", e.target.value)
+                      updateField("crmActivityType", e.target.value)
                     }
                   >
                     <SelectItem key="task">งาน</SelectItem>
@@ -268,13 +268,13 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.activitySubject}
+                    value={formData.crmActivitySubject}
                     onChange={(e) =>
-                      updateField("activitySubject", e.target.value)
+                      updateField("crmActivitySubject", e.target.value)
                     }
                     isRequired
-                    isInvalid={!!validationErrors?.activitySubject}
-                    errorMessage={validationErrors?.activitySubject}
+                    isInvalid={!!validationErrors?.crmActivitySubject}
+                    errorMessage={validationErrors?.crmActivitySubject}
                   />
                 </div>
               </div>
@@ -286,9 +286,9 @@ export default function ActivitiesPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.activityDescription}
+                  value={formData.crmActivityDescription}
                   onChange={(e) =>
-                    updateField("activityDescription", e.target.value)
+                    updateField("crmActivityDescription", e.target.value)
                   }
                 />
               </div>
@@ -300,9 +300,9 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.activityPriority]}
+                    selectedKeys={[formData.crmActivityPriority]}
                     onChange={(e) =>
-                      updateField("activityPriority", e.target.value)
+                      updateField("crmActivityPriority", e.target.value)
                     }
                   >
                     <SelectItem key="low">ต่ำ</SelectItem>
@@ -317,9 +317,9 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.activityStatus]}
+                    selectedKeys={[formData.crmActivityStatus]}
                     onChange={(e) =>
-                      updateField("activityStatus", e.target.value)
+                      updateField("crmActivityStatus", e.target.value)
                     }
                   >
                     <SelectItem key="pending">รอดำเนินการ</SelectItem>
@@ -334,9 +334,9 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.activityDueDate}
+                    value={formData.crmActivityDueDate}
                     onChange={(e) =>
-                      updateField("activityDueDate", e.target.value)
+                      updateField("crmActivityDueDate", e.target.value)
                     }
                   />
                 </div>
@@ -348,9 +348,9 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.activityContactId}
+                    value={formData.crmActivityContactId}
                     onChange={(e) =>
-                      updateField("activityContactId", e.target.value)
+                      updateField("crmActivityContactId", e.target.value)
                     }
                   />
                 </div>
@@ -362,9 +362,9 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.activityOpportunityId}
+                    value={formData.crmActivityOpportunityId}
                     onChange={(e) =>
-                      updateField("activityOpportunityId", e.target.value)
+                      updateField("crmActivityOpportunityId", e.target.value)
                     }
                   />
                 </div>
@@ -376,9 +376,9 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.activityAccountId}
+                    value={formData.crmActivityAccountId}
                     onChange={(e) =>
-                      updateField("activityAccountId", e.target.value)
+                      updateField("crmActivityAccountId", e.target.value)
                     }
                   />
                 </div>
@@ -390,9 +390,9 @@ export default function ActivitiesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.activityAssignedTo}
+                    value={formData.crmActivityAssignedTo}
                     onChange={(e) =>
-                      updateField("activityAssignedTo", e.target.value)
+                      updateField("crmActivityAssignedTo", e.target.value)
                     }
                   />
                 </div>
@@ -424,7 +424,7 @@ export default function ActivitiesPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingActivity?.activitySubject}
+                {deletingActivity?.crmActivitySubject}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

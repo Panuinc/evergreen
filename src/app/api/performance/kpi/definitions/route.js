@@ -10,13 +10,13 @@ export async function GET(request) {
   const activeOnly = searchParams.get("activeOnly");
 
   let query = supabase
-    .from("kpi_definitions")
+    .from("perfKpiDefinition")
     .select("*")
-    .order("category")
-    .order("name");
+    .order("perfKpiDefinitionCategory")
+    .order("perfKpiDefinitionName");
 
-  if (category) query = query.eq("category", category);
-  if (activeOnly === "true") query = query.eq("isActive", true);
+  if (category) query = query.eq("perfKpiDefinitionCategory", category);
+  if (activeOnly === "true") query = query.eq("perfKpiDefinitionIsActive", true);
 
   const { data, error } = await query;
   if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -36,18 +36,18 @@ export async function POST(request) {
   }
 
   const { data, error } = await supabase
-    .from("kpi_definitions")
+    .from("perfKpiDefinition")
     .insert([{
-      name,
-      description: description || null,
-      category: category || "general",
-      unit,
-      frequency: frequency || "monthly",
-      targetValue: targetValue != null ? parseFloat(targetValue) : null,
-      warningThreshold: warningThreshold != null ? parseFloat(warningThreshold) : null,
-      criticalThreshold: criticalThreshold != null ? parseFloat(criticalThreshold) : null,
-      higherIsBetter: higherIsBetter !== false,
-      createdBy: session.user.id,
+      perfKpiDefinitionName: name,
+      perfKpiDefinitionDescription: description || null,
+      perfKpiDefinitionCategory: category || "general",
+      perfKpiDefinitionUnit: unit,
+      perfKpiDefinitionFrequency: frequency || "monthly",
+      perfKpiDefinitionTargetValue: targetValue != null ? parseFloat(targetValue) : null,
+      perfKpiDefinitionWarningThreshold: warningThreshold != null ? parseFloat(warningThreshold) : null,
+      perfKpiDefinitionCriticalThreshold: criticalThreshold != null ? parseFloat(criticalThreshold) : null,
+      perfKpiDefinitionHigherIsBetter: higherIsBetter !== false,
+      perfKpiDefinitionCreatedBy: session.user.id,
     }])
     .select()
     .single();

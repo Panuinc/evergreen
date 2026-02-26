@@ -9,15 +9,15 @@ export async function GET(request) {
   const status = searchParams.get("status");
 
   let query = auth.supabase
-    .from("omQuotations")
-    .select("*, omContacts(contactDisplayName, contactChannelType)")
-    .order("quotationCreatedAt", { ascending: false });
+    .from("omQuotation")
+    .select("*, omContact(omContactDisplayName, omContactChannelType)")
+    .order("omQuotationCreatedAt", { ascending: false });
 
   if (conversationId) {
-    query = query.eq("quotationConversationId", conversationId);
+    query = query.eq("omQuotationConversationId", conversationId);
   }
   if (status) {
-    query = query.eq("quotationStatus", status);
+    query = query.eq("omQuotationStatus", status);
   }
 
   const { data, error } = await query;

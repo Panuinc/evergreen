@@ -18,24 +18,24 @@ import { useCrmAccounts } from "@/hooks/sales/useCrmAccounts";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่บัญชี", uid: "accountNo", sortable: true },
-  { name: "ชื่อบัญชี", uid: "accountName", sortable: true },
-  { name: "อุตสาหกรรม", uid: "accountIndustry" },
-  { name: "โทรศัพท์", uid: "accountPhone" },
-  { name: "อีเมล", uid: "accountEmail" },
-  { name: "จำนวนพนักงาน", uid: "accountEmployees" },
-  { name: "รายได้ต่อปี", uid: "accountAnnualRevenue" },
+  { name: "เลขที่บัญชี", uid: "crmAccountNo", sortable: true },
+  { name: "ชื่อบัญชี", uid: "crmAccountName", sortable: true },
+  { name: "อุตสาหกรรม", uid: "crmAccountIndustry" },
+  { name: "โทรศัพท์", uid: "crmAccountPhone" },
+  { name: "อีเมล", uid: "crmAccountEmail" },
+  { name: "จำนวนพนักงาน", uid: "crmAccountEmployees" },
+  { name: "รายได้ต่อปี", uid: "crmAccountAnnualRevenue" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "accountNo",
-  "accountName",
-  "accountIndustry",
-  "accountPhone",
-  "accountAnnualRevenue",
+  "crmAccountNo",
+  "crmAccountName",
+  "crmAccountIndustry",
+  "crmAccountPhone",
+  "crmAccountAnnualRevenue",
   "actions",
 ];
 
@@ -61,23 +61,23 @@ export default function AccountsPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "accountNo":
-          return <span className="text-default-500">{item.accountNo || "-"}</span>;
-        case "accountName":
-          return <span className="font-medium">{item.accountName}</span>;
-        case "accountIndustry":
-          return item.accountIndustry || "-";
-        case "accountPhone":
-          return item.accountPhone || "-";
-        case "accountEmail":
-          return item.accountEmail || "-";
-        case "accountEmployees":
-          return item.accountEmployees
-            ? Number(item.accountEmployees).toLocaleString()
+        case "crmAccountNo":
+          return <span className="text-default-500">{item.crmAccountNo || "-"}</span>;
+        case "crmAccountName":
+          return <span className="font-medium">{item.crmAccountName}</span>;
+        case "crmAccountIndustry":
+          return item.crmAccountIndustry || "-";
+        case "crmAccountPhone":
+          return item.crmAccountPhone || "-";
+        case "crmAccountEmail":
+          return item.crmAccountEmail || "-";
+        case "crmAccountEmployees":
+          return item.crmAccountEmployees
+            ? Number(item.crmAccountEmployees).toLocaleString()
             : "-";
-        case "accountAnnualRevenue":
-          return item.accountAnnualRevenue
-            ? Number(item.accountAnnualRevenue).toLocaleString("th-TH")
+        case "crmAccountAnnualRevenue":
+          return item.crmAccountAnnualRevenue
+            ? Number(item.crmAccountAnnualRevenue).toLocaleString("th-TH")
             : "-";
         case "actions":
           return (
@@ -116,15 +116,15 @@ export default function AccountsPage() {
         data={accounts}
         renderCell={renderCell}
         enableCardView
-        rowKey="accountId"
+        rowKey="crmAccountId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาบัญชี..."
         searchKeys={[
-          "accountName",
-          "accountIndustry",
-          "accountEmail",
-          "accountPhone",
+          "crmAccountName",
+          "crmAccountIndustry",
+          "crmAccountEmail",
+          "crmAccountPhone",
         ]}
         emptyContent="ไม่พบบัญชี"
         topEndContent={
@@ -162,11 +162,11 @@ export default function AccountsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accountName}
-                    onChange={(e) => updateField("accountName", e.target.value)}
+                    value={formData.crmAccountName}
+                    onChange={(e) => updateField("crmAccountName", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.accountName}
-                    errorMessage={validationErrors?.accountName}
+                    isInvalid={!!validationErrors?.crmAccountName}
+                    errorMessage={validationErrors?.crmAccountName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -177,10 +177,10 @@ export default function AccountsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.accountIndustry ? [formData.accountIndustry] : []}
+                    selectedKeys={formData.crmAccountIndustry ? [formData.crmAccountIndustry] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("accountIndustry", val);
+                      updateField("crmAccountIndustry", val);
                     }}
                   >
                     <SelectItem key="technology">เทคโนโลยี</SelectItem>
@@ -201,8 +201,8 @@ export default function AccountsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accountWebsite}
-                    onChange={(e) => updateField("accountWebsite", e.target.value)}
+                    value={formData.crmAccountWebsite}
+                    onChange={(e) => updateField("crmAccountWebsite", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -213,8 +213,8 @@ export default function AccountsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accountPhone}
-                    onChange={(e) => updateField("accountPhone", e.target.value)}
+                    value={formData.crmAccountPhone}
+                    onChange={(e) => updateField("crmAccountPhone", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -225,8 +225,8 @@ export default function AccountsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accountEmail}
-                    onChange={(e) => updateField("accountEmail", e.target.value)}
+                    value={formData.crmAccountEmail}
+                    onChange={(e) => updateField("crmAccountEmail", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -238,8 +238,8 @@ export default function AccountsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accountEmployees}
-                    onChange={(e) => updateField("accountEmployees", e.target.value)}
+                    value={formData.crmAccountEmployees}
+                    onChange={(e) => updateField("crmAccountEmployees", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -251,8 +251,8 @@ export default function AccountsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.accountAnnualRevenue}
-                    onChange={(e) => updateField("accountAnnualRevenue", e.target.value)}
+                    value={formData.crmAccountAnnualRevenue}
+                    onChange={(e) => updateField("crmAccountAnnualRevenue", e.target.value)}
                   />
                 </div>
               </div>
@@ -264,8 +264,8 @@ export default function AccountsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.accountAddress}
-                  onChange={(e) => updateField("accountAddress", e.target.value)}
+                  value={formData.crmAccountAddress}
+                  onChange={(e) => updateField("crmAccountAddress", e.target.value)}
                 />
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -276,8 +276,8 @@ export default function AccountsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.accountNotes}
-                  onChange={(e) => updateField("accountNotes", e.target.value)}
+                  value={formData.crmAccountNotes}
+                  onChange={(e) => updateField("crmAccountNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -307,7 +307,7 @@ export default function AccountsPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingAccount?.accountName}
+                {deletingAccount?.crmAccountName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

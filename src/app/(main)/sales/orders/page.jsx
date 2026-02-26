@@ -17,15 +17,15 @@ import { useCrmOrders } from "@/hooks/sales/useCrmOrders";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่คำสั่ง", uid: "orderNo", sortable: true },
+  { name: "เลขที่คำสั่ง", uid: "crmOrderNo", sortable: true },
   { name: "ผู้ติดต่อ", uid: "contact" },
   { name: "บัญชี", uid: "account" },
   { name: "ใบเสนอราคา", uid: "quotation" },
-  { name: "สถานะ", uid: "orderStatus" },
-  { name: "ยอดรวม", uid: "orderTotal" },
-  { name: "เลขติดตาม", uid: "orderTrackingNumber" },
-  { name: "วันส่ง", uid: "orderDeliveryDate" },
-  { name: "สร้างเมื่อ", uid: "orderCreatedAt" },
+  { name: "สถานะ", uid: "crmOrderStatus" },
+  { name: "ยอดรวม", uid: "crmOrderTotal" },
+  { name: "เลขติดตาม", uid: "crmOrderTrackingNumber" },
+  { name: "วันส่ง", uid: "crmOrderDeliveryDate" },
+  { name: "สร้างเมื่อ", uid: "crmOrderCreatedAt" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -39,12 +39,12 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "orderNo",
+  "crmOrderNo",
   "contact",
-  "orderStatus",
-  "orderTotal",
-  "orderTrackingNumber",
-  "orderCreatedAt",
+  "crmOrderStatus",
+  "crmOrderTotal",
+  "crmOrderTrackingNumber",
+  "crmOrderCreatedAt",
   "actions",
 ];
 
@@ -69,17 +69,17 @@ export default function OrdersPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "orderNo":
-          return <span className="font-medium">{item.orderNo || "-"}</span>;
+        case "crmOrderNo":
+          return <span className="font-medium">{item.crmOrderNo || "-"}</span>;
         case "contact":
-          return item.crmContacts
-            ? `${item.crmContacts.contactFirstName} ${item.crmContacts.contactLastName}`
+          return item.crmContact
+            ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
             : "-";
         case "account":
-          return item.crmAccounts?.accountName || "-";
+          return item.crmAccount?.crmAccountName || "-";
         case "quotation":
-          return item.crmQuotations?.quotationNo || "-";
-        case "orderStatus": {
+          return item.crmQuotation?.crmQuotationNo || "-";
+        case "crmOrderStatus": {
           const colorMap = {
             pending: "default",
             confirmed: "primary",
@@ -93,27 +93,27 @@ export default function OrdersPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.orderStatus] || "default"}
+              color={colorMap[item.crmOrderStatus] || "default"}
             >
-              {item.orderStatus}
+              {item.crmOrderStatus}
             </Chip>
           );
         }
-        case "orderTotal":
-          return item.orderTotal
-            ? `฿${Number(item.orderTotal).toLocaleString()}`
+        case "crmOrderTotal":
+          return item.crmOrderTotal
+            ? `฿${Number(item.crmOrderTotal).toLocaleString()}`
             : "-";
-        case "orderTrackingNumber":
+        case "crmOrderTrackingNumber":
           return (
             <span className="text-default-500">
-              {item.orderTrackingNumber || "-"}
+              {item.crmOrderTrackingNumber || "-"}
             </span>
           );
-        case "orderDeliveryDate":
-          return item.orderDeliveryDate || "-";
-        case "orderCreatedAt":
-          return item.orderCreatedAt
-            ? new Date(item.orderCreatedAt).toLocaleDateString()
+        case "crmOrderDeliveryDate":
+          return item.crmOrderDeliveryDate || "-";
+        case "crmOrderCreatedAt":
+          return item.crmOrderCreatedAt
+            ? new Date(item.crmOrderCreatedAt).toLocaleDateString()
             : "-";
         case "actions":
           return (
@@ -132,11 +132,11 @@ export default function OrdersPage() {
                 variant="bordered"
                 radius="md"
                 aria-label="Change status"
-                selectedKeys={[item.orderStatus]}
+                selectedKeys={[item.crmOrderStatus]}
                 className="w-32"
                 onSelectionChange={(keys) => {
                   const newStatus = Array.from(keys)[0];
-                  if (newStatus && newStatus !== item.orderStatus) {
+                  if (newStatus && newStatus !== item.crmOrderStatus) {
                     handleStatusChange(item, newStatus);
                   }
                 }}
@@ -173,16 +173,16 @@ export default function OrdersPage() {
         data={orders}
         renderCell={renderCell}
         enableCardView
-        rowKey="orderId"
+        rowKey="crmOrderId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาคำสั่งซื้อ..."
         searchKeys={[
-          "orderNo",
-          "orderShippingAddress",
-          "orderTrackingNumber",
+          "crmOrderNo",
+          "crmOrderShippingAddress",
+          "crmOrderTrackingNumber",
         ]}
-        statusField="orderStatus"
+        statusField="crmOrderStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำสั่งซื้อ"
       />
@@ -203,27 +203,27 @@ export default function OrdersPage() {
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">เลขที่คำสั่ง</span>
                     <span className="font-medium">
-                      {selectedOrder.orderNo || "-"}
+                      {selectedOrder.crmOrderNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">ผู้ติดต่อ</span>
                     <span className="font-medium">
-                      {selectedOrder.crmContacts
-                        ? `${selectedOrder.crmContacts.contactFirstName} ${selectedOrder.crmContacts.contactLastName}`
+                      {selectedOrder.crmContact
+                        ? `${selectedOrder.crmContact.crmContactFirstName} ${selectedOrder.crmContact.crmContactLastName}`
                         : "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">บัญชี</span>
                     <span className="font-medium">
-                      {selectedOrder.crmAccounts?.accountName || "-"}
+                      {selectedOrder.crmAccount?.crmAccountName || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">ใบเสนอราคา</span>
                     <span className="font-medium">
-                      {selectedOrder.crmQuotations?.quotationNo || "-"}
+                      {selectedOrder.crmQuotation?.crmQuotationNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -244,10 +244,10 @@ export default function OrdersPage() {
                             size="md"
                             radius="md"
                             color={
-                              colorMap[selectedOrder.orderStatus] || "default"
+                              colorMap[selectedOrder.crmOrderStatus] || "default"
                             }
                           >
-                            {selectedOrder.orderStatus}
+                            {selectedOrder.crmOrderStatus}
                           </Chip>
                         );
                       })()}
@@ -256,8 +256,8 @@ export default function OrdersPage() {
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">ยอดรวม</span>
                     <span className="font-medium">
-                      {selectedOrder.orderTotal
-                        ? `฿${Number(selectedOrder.orderTotal).toLocaleString()}`
+                      {selectedOrder.crmOrderTotal
+                        ? `฿${Number(selectedOrder.crmOrderTotal).toLocaleString()}`
                         : "-"}
                     </span>
                   </div>
@@ -266,7 +266,7 @@ export default function OrdersPage() {
                       ที่อยู่จัดส่ง
                     </span>
                     <span className="font-medium">
-                      {selectedOrder.orderShippingAddress || "-"}
+                      {selectedOrder.crmOrderShippingAddress || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -274,7 +274,7 @@ export default function OrdersPage() {
                       เลขติดตาม
                     </span>
                     <span className="font-medium">
-                      {selectedOrder.orderTrackingNumber || "-"}
+                      {selectedOrder.crmOrderTrackingNumber || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -282,25 +282,25 @@ export default function OrdersPage() {
                       วันส่ง
                     </span>
                     <span className="font-medium">
-                      {selectedOrder.orderDeliveryDate || "-"}
+                      {selectedOrder.crmOrderDeliveryDate || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">สร้างเมื่อ</span>
                     <span className="font-medium">
-                      {selectedOrder.orderCreatedAt
+                      {selectedOrder.crmOrderCreatedAt
                         ? new Date(
-                            selectedOrder.orderCreatedAt,
+                            selectedOrder.crmOrderCreatedAt,
                           ).toLocaleDateString()
                         : "-"}
                     </span>
                   </div>
                 </div>
-                {selectedOrder.orderNotes && (
+                {selectedOrder.crmOrderNotes && (
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">หมายเหตุ</span>
                     <span className="font-medium">
-                      {selectedOrder.orderNotes}
+                      {selectedOrder.crmOrderNotes}
                     </span>
                   </div>
                 )}
@@ -328,7 +328,7 @@ export default function OrdersPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingOrder?.orderNo}
+                {deletingOrder?.crmOrderNo}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

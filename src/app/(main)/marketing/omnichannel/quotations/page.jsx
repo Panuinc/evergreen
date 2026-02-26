@@ -15,19 +15,19 @@ const STATUS_MAP = {
 };
 
 const columns = [
-  { name: "เลขที่", uid: "quotationNumber", sortable: true },
+  { name: "เลขที่", uid: "omQuotationNumber", sortable: true },
   { name: "ลูกค้า", uid: "customerName", sortable: true },
   { name: "ช่องทาง", uid: "channelType", sortable: true },
-  { name: "สถานะ", uid: "quotationStatus", sortable: true },
-  { name: "วันที่สร้าง", uid: "quotationCreatedAt", sortable: true },
+  { name: "สถานะ", uid: "omQuotationStatus", sortable: true },
+  { name: "วันที่สร้าง", uid: "omQuotationCreatedAt", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "quotationNumber",
+  "omQuotationNumber",
   "customerName",
   "channelType",
-  "quotationStatus",
-  "quotationCreatedAt",
+  "omQuotationStatus",
+  "omQuotationCreatedAt",
 ];
 
 export default function QuotationListPage() {
@@ -39,25 +39,25 @@ export default function QuotationListPage() {
       quotations.map((q) => ({
         ...q,
         customerName:
-          q.quotationCustomerName ||
-          q.omContacts?.contactDisplayName ||
+          q.omQuotationCustomerName ||
+          q.omContact?.omContactDisplayName ||
           "-",
-        channelType: q.omContacts?.contactChannelType || "-",
+        channelType: q.omContact?.omContactChannelType || "-",
       })),
     [quotations]
   );
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "quotationNumber":
+      case "omQuotationNumber":
         return (
           <span
             className="text-primary cursor-pointer"
             onClick={() =>
-              router.push(`/marketing/omnichannel/quotations/${item.quotationId}`)
+              router.push(`/marketing/omnichannel/quotations/${item.omQuotationId}`)
             }
           >
-            {item.quotationNumber}
+            {item.omQuotationNumber}
           </span>
         );
       case "channelType":
@@ -66,16 +66,16 @@ export default function QuotationListPage() {
             {item.channelType}
           </Chip>
         );
-      case "quotationStatus": {
-        const s = STATUS_MAP[item.quotationStatus] || STATUS_MAP.draft;
+      case "omQuotationStatus": {
+        const s = STATUS_MAP[item.omQuotationStatus] || STATUS_MAP.draft;
         return (
           <Chip variant="bordered" size="md" radius="md" color={s.color}>
             {s.label}
           </Chip>
         );
       }
-      case "quotationCreatedAt":
-        return new Date(item.quotationCreatedAt).toLocaleDateString("th-TH");
+      case "omQuotationCreatedAt":
+        return new Date(item.omQuotationCreatedAt).toLocaleDateString("th-TH");
       default:
         return item[columnKey] || "-";
     }
@@ -104,11 +104,11 @@ export default function QuotationListPage() {
         columns={columns}
         data={tableData}
         renderCell={renderCell}
-        rowKey="quotationId"
+        rowKey="omQuotationId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อลูกค้า..."
-        searchKeys={["quotationNumber", "customerName"]}
+        searchKeys={["omQuotationNumber", "customerName"]}
         emptyContent="ไม่มีใบเสนอราคา"
       />
     </div>

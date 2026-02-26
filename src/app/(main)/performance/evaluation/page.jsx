@@ -138,8 +138,8 @@ function EvaluateTab({ hook }) {
                 }}
               >
                 {hook.employees.map((emp) => (
-                  <SelectItem key={emp.employeeId}>
-                    {`${emp.employeeFirstName} ${emp.employeeLastName}`}
+                  <SelectItem key={emp.hrEmployeeId}>
+                    {`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}
                   </SelectItem>
                 ))}
               </Select>
@@ -181,8 +181,8 @@ function EvaluateTab({ hook }) {
 
             {hook.currentEmployee && (
               <p className="text-sm text-default-400">
-                ผู้ประเมิน: {hook.currentEmployee.employeeFirstName}{" "}
-                {hook.currentEmployee.employeeLastName} | รอบ: {hook.period}
+                ผู้ประเมิน: {hook.currentEmployee.hrEmployeeFirstName}{" "}
+                {hook.currentEmployee.hrEmployeeLastName} | รอบ: {hook.perfEvaluationPeriod}
               </p>
             )}
           </CardBody>
@@ -573,13 +573,13 @@ function MyResultsTab({ hook }) {
           {/* AI Feedback Panel */}
           {feedbackPeriod && currentEmployee && (
             <AiFeedbackPanel
-              employeeId={currentEmployee.employeeId}
+              employeeId={currentEmployee.hrEmployeeId}
               period={feedbackPeriod}
               feedback={aiFeedback}
               isLoading={loadingFeedback}
               isStale={feedbackStale}
               onGenerate={(force) =>
-                loadAiFeedback(currentEmployee.employeeId, feedbackPeriod, force)
+                loadAiFeedback(currentEmployee.hrEmployeeId, feedbackPeriod, force)
               }
             />
           )}
@@ -698,14 +698,14 @@ function AdminTab({ hook }) {
                 <tbody>
                   {adminSummary.map((row, idx) => (
                     <tr
-                      key={row.employee?.employeeId || idx}
-                      className={`border-b border-default-100 hover:bg-default-50 cursor-pointer ${selectedAdminEmployee === row.employee?.employeeId ? "bg-primary-50" : ""}`}
+                      key={row.employee?.hrEmployeeId || idx}
+                      className={`border-b border-default-100 hover:bg-default-50 cursor-pointer ${selectedAdminEmployee === row.employee?.hrEmployeeId ? "bg-primary-50" : ""}`}
                       onClick={() => {
-                        if (selectedAdminEmployee === row.employee?.employeeId) {
+                        if (selectedAdminEmployee === row.employee?.hrEmployeeId) {
                           setSelectedAdminEmployee(null);
                           clearAiFeedback();
                         } else {
-                          setSelectedAdminEmployee(row.employee?.employeeId);
+                          setSelectedAdminEmployee(row.employee?.hrEmployeeId);
                           clearAiFeedback();
                         }
                       }}
@@ -714,11 +714,11 @@ function AdminTab({ hook }) {
                         {idx + 1}
                       </td>
                       <td className="py-2 px-3 font-medium">
-                        {row.employee?.employeeFirstName}{" "}
-                        {row.employee?.employeeLastName}
+                        {row.employee?.hrEmployeeFirstName}{" "}
+                        {row.employee?.hrEmployeeLastName}
                       </td>
                       <td className="py-2 px-3 text-default-500">
-                        {row.employee?.employeeDepartment || "-"}
+                        {row.employee?.hrEmployeeDepartment || "-"}
                       </td>
                       {EVALUATION_CATEGORIES.map((cat) => (
                         <td key={cat.key} className="text-center py-2 px-2">

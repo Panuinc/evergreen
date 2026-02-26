@@ -24,10 +24,10 @@ export async function GET(request) {
 
   // Get cached feedback
   const { data: cached } = await sb
-    .from("evaluation_feedback")
+    .from("perfEvaluationFeedback")
     .select("*")
-    .eq("employeeId", employeeId)
-    .eq("period", period)
+    .eq("perfEvaluationFeedbackEmployeeId", employeeId)
+    .eq("perfEvaluationFeedbackPeriod", period)
     .maybeSingle();
 
   if (!cached) {
@@ -38,10 +38,10 @@ export async function GET(request) {
   const currentScores = await getAggregatedScores(sb, employeeId, period);
   let isStale = false;
   if (currentScores) {
-    isStale = JSON.stringify(cached.categoryAverages) !== JSON.stringify(currentScores.categoryAverages);
+    isStale = JSON.stringify(cached.perfEvaluationFeedbackCategoryAverages) !== JSON.stringify(currentScores.categoryAverages);
   }
 
-  return Response.json({ feedback: cached.feedback, isStale });
+  return Response.json({ feedback: cached.perfEvaluationFeedbackFeedback, isStale });
 }
 
 export async function POST(request) {
@@ -79,21 +79,21 @@ export async function POST(request) {
 
   // Upsert into cache
   const { error: upsertError } = await sb
-    .from("evaluation_feedback")
+    .from("perfEvaluationFeedback")
     .upsert(
       {
-        employeeId,
-        period,
-        categoryAverages: scores.categoryAverages,
-        overallScore: scores.overallScore,
-        grade: scores.grade,
-        companyAverages,
-        evaluatorCount: scores.evaluatorCount,
-        feedback,
-        generatedBy: session.user.id,
-        createdAt: new Date().toISOString(),
+        perfEvaluationFeedbackEmployeeId: employeeId,
+        perfEvaluationFeedbackPeriod: period,
+        perfEvaluationFeedbackCategoryAverages: scores.categoryAverages,
+        perfEvaluationFeedbackOverallScore: scores.overallScore,
+        perfEvaluationFeedbackGrade: scores.grade,
+        perfEvaluationFeedbackCompanyAverages: companyAverages,
+        perfEvaluationFeedbackEvaluatorCount: scores.evaluatorCount,
+        perfEvaluationFeedbackFeedback: feedback,
+        perfEvaluationFeedbackGeneratedBy: session.user.id,
+        perfEvaluationFeedbackCreatedAt: new Date().toISOString(),
       },
-      { onConflict: "employeeId,period" },
+      { onConflict: "perfEvaluationFeedbackEmployeeId,perfEvaluationFeedbackPeriod" },
     );
 
   if (upsertError) {
@@ -106,10 +106,10 @@ export async function POST(request) {
 
 async function getAggregatedScores(sb, employeeId, period) {
   const { data, error } = await sb
-    .from("evaluations")
-    .select("categoryAverages, overallScore, grade")
-    .eq("evaluateeEmployeeId", employeeId)
-    .eq("period", period);
+    .from("perfEvaluation")
+    .select("perfEvaluationCategoryAverages, perfEvaluationOverallScore, perfEvaluationGrade")
+    .eq("perfEvaluationEvaluateeEmployeeId", employeeId)
+    .eq("perfEvaluationPeriod", period);
 
   if (error || !data?.length) return null;
 
@@ -118,7 +118,7 @@ async function getAggregatedScores(sb, employeeId, period) {
 
   for (const cat of EVALUATION_CATEGORIES) {
     const sum = data.reduce(
-      (acc, ev) => acc + (ev.categoryAverages?.[cat.key] || 0),
+      (acc, ev) => acc + (ev.perfEvaluationCategoryAverages?.[cat.key] || 0),
       0,
     );
     avgCategories[cat.key] = parseFloat((sum / count).toFixed(2));
@@ -136,16 +136,16 @@ async function getAggregatedScores(sb, employeeId, period) {
 
 async function getCompanyAverage(sb, period) {
   const { data, error } = await sb
-    .from("evaluations")
-    .select("categoryAverages")
-    .eq("period", period);
+    .from("perfEvaluation")
+    .select("perfEvaluationCategoryAverages")
+    .eq("perfEvaluationPeriod", period);
 
   if (error || !data?.length) return null;
 
   const avgCategories = {};
   for (const cat of EVALUATION_CATEGORIES) {
     const sum = data.reduce(
-      (acc, ev) => acc + (ev.categoryAverages?.[cat.key] || 0),
+      (acc, ev) => acc + (ev.perfEvaluationCategoryAverages?.[cat.key] || 0),
       0,
     );
     avgCategories[cat.key] = parseFloat((sum / data.length).toFixed(2));

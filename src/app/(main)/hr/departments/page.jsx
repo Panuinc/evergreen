@@ -18,18 +18,18 @@ import { useDepartments } from "@/hooks/hr/useDepartments";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อ", uid: "departmentName", sortable: true },
-  { name: "ฝ่าย", uid: "departmentDivision", sortable: true },
-  { name: "รายละเอียด", uid: "departmentDescription" },
-  { name: "วันที่สร้าง", uid: "departmentCreatedAt", sortable: true },
+  { name: "ชื่อ", uid: "hrDepartmentName", sortable: true },
+  { name: "ฝ่าย", uid: "hrDepartmentDivision", sortable: true },
+  { name: "รายละเอียด", uid: "hrDepartmentDescription" },
+  { name: "วันที่สร้าง", uid: "hrDepartmentCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "departmentName",
-  "departmentDivision",
-  "departmentDescription",
-  "departmentCreatedAt",
+  "hrDepartmentName",
+  "hrDepartmentDivision",
+  "hrDepartmentDescription",
+  "hrDepartmentCreatedAt",
   "actions",
 ];
 
@@ -55,20 +55,20 @@ export default function DepartmentsPage() {
   const renderCell = useCallback(
     (dept, columnKey) => {
       switch (columnKey) {
-        case "departmentName":
-          return <span className="font-medium">{dept.departmentName}</span>;
-        case "departmentDivision":
-          return dept.departmentDivision || "-";
-        case "departmentDescription":
+        case "hrDepartmentName":
+          return <span className="font-medium">{dept.hrDepartmentName}</span>;
+        case "hrDepartmentDivision":
+          return dept.hrDepartmentDivision || "-";
+        case "hrDepartmentDescription":
           return (
             <span className="text-default-500">
-              {dept.departmentDescription || "-"}
+              {dept.hrDepartmentDescription || "-"}
             </span>
           );
-        case "departmentCreatedAt":
+        case "hrDepartmentCreatedAt":
           return (
             <span className="text-default-500">
-              {new Date(dept.departmentCreatedAt).toLocaleDateString("th-TH")}
+              {new Date(dept.hrDepartmentCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );
         case "actions":
@@ -108,11 +108,11 @@ export default function DepartmentsPage() {
         data={departments}
         renderCell={renderCell}
         enableCardView
-        rowKey="departmentId"
+        rowKey="hrDepartmentId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อ, ฝ่าย, รายละเอียด..."
-        searchKeys={["departmentName", "departmentDivision", "departmentDescription"]}
+        searchKeys={["hrDepartmentName", "hrDepartmentDivision", "hrDepartmentDescription"]}
         emptyContent="ไม่พบแผนก"
         topEndContent={
           <Button
@@ -144,18 +144,18 @@ export default function DepartmentsPage() {
                   size="md"
                   radius="md"
                   selectedKeys={
-                    formData.departmentDivision
-                      ? [formData.departmentDivision]
+                    formData.hrDepartmentDivision
+                      ? [formData.hrDepartmentDivision]
                       : []
                   }
                   onSelectionChange={(keys) => {
                     const val = Array.from(keys)[0] || "";
-                    setFormData({ ...formData, departmentDivision: val });
+                    setFormData({ ...formData, hrDepartmentDivision: val });
                   }}
                 >
                   {divisions.map((div) => (
-                    <SelectItem key={div.divisionName}>
-                      {div.divisionName}
+                    <SelectItem key={div.hrDivisionName}>
+                      {div.hrDivisionName}
                     </SelectItem>
                   ))}
                 </Select>
@@ -168,9 +168,9 @@ export default function DepartmentsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.departmentName}
+                  value={formData.hrDepartmentName}
                   onChange={(e) =>
-                    setFormData({ ...formData, departmentName: e.target.value })
+                    setFormData({ ...formData, hrDepartmentName: e.target.value })
                   }
                   isRequired
                 />
@@ -183,11 +183,11 @@ export default function DepartmentsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.departmentDescription}
+                  value={formData.hrDepartmentDescription}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      departmentDescription: e.target.value,
+                      hrDepartmentDescription: e.target.value,
                     })
                   }
                 />
@@ -219,7 +219,7 @@ export default function DepartmentsPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingDept?.departmentName}
+                {deletingDept?.hrDepartmentName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

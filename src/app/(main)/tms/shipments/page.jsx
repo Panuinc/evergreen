@@ -23,23 +23,23 @@ import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 
 const shipmentCsvColumns = [
-  { header: "เลขที่", key: "shipmentNumber" },
-  { header: "วันที่", key: "shipmentDate" },
-  { header: "ลูกค้า", key: "shipmentCustomerName" },
-  { header: "โทรศัพท์", key: "shipmentCustomerPhone" },
-  { header: "ปลายทาง", key: "shipmentDestination" },
-  { header: "น้ำหนัก (กก.)", key: "shipmentWeightKg" },
-  { header: "สถานะ", key: "shipmentStatus" },
+  { header: "เลขที่", key: "tmsShipmentNumber" },
+  { header: "วันที่", key: "tmsShipmentDate" },
+  { header: "ลูกค้า", key: "tmsShipmentCustomerName" },
+  { header: "โทรศัพท์", key: "tmsShipmentCustomerPhone" },
+  { header: "ปลายทาง", key: "tmsShipmentDestination" },
+  { header: "น้ำหนัก (กก.)", key: "tmsShipmentWeightKg" },
+  { header: "สถานะ", key: "tmsShipmentStatus" },
 ];
 
 const columns = [
-  { name: "เลขที่", uid: "shipmentNumber", sortable: true },
-  { name: "วันที่", uid: "shipmentDate", sortable: true },
-  { name: "ลูกค้า", uid: "shipmentCustomerName", sortable: true },
-  { name: "ปลายทาง", uid: "shipmentDestination", sortable: true },
+  { name: "เลขที่", uid: "tmsShipmentNumber", sortable: true },
+  { name: "วันที่", uid: "tmsShipmentDate", sortable: true },
+  { name: "ลูกค้า", uid: "tmsShipmentCustomerName", sortable: true },
+  { name: "ปลายทาง", uid: "tmsShipmentDestination", sortable: true },
   { name: "ยานพาหนะ", uid: "vehicle" },
   { name: "พนักงานขับรถ", uid: "driver" },
-  { name: "สถานะ", uid: "shipmentStatus", sortable: true },
+  { name: "สถานะ", uid: "tmsShipmentStatus", sortable: true },
   { name: "จัดการ", uid: "actions" },
 ];
 
@@ -86,12 +86,12 @@ const STATUS_LABELS = {
 };
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "shipmentNumber",
-  "shipmentDate",
-  "shipmentCustomerName",
-  "shipmentDestination",
+  "tmsShipmentNumber",
+  "tmsShipmentDate",
+  "tmsShipmentCustomerName",
+  "tmsShipmentDestination",
   "vehicle",
-  "shipmentStatus",
+  "tmsShipmentStatus",
   "actions",
 ];
 
@@ -120,37 +120,37 @@ export default function ShipmentsPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "shipmentNumber":
-          return <span className="font-medium">{item.shipmentNumber}</span>;
-        case "shipmentDate":
-          return item.shipmentDate
-            ? new Date(item.shipmentDate).toLocaleDateString("th-TH")
+        case "tmsShipmentNumber":
+          return <span className="font-medium">{item.tmsShipmentNumber}</span>;
+        case "tmsShipmentDate":
+          return item.tmsShipmentDate
+            ? new Date(item.tmsShipmentDate).toLocaleDateString("th-TH")
             : "-";
-        case "shipmentCustomerName":
-          return item.shipmentCustomerName || "-";
-        case "shipmentDestination":
-          return item.shipmentDestination || "-";
+        case "tmsShipmentCustomerName":
+          return item.tmsShipmentCustomerName || "-";
+        case "tmsShipmentDestination":
+          return item.tmsShipmentDestination || "-";
         case "vehicle": {
-          const v = vehicles.find((v) => v.vehicleId === item.shipmentVehicleId);
-          return v ? v.vehiclePlateNumber : "-";
+          const v = vehicles.find((v) => v.tmsVehicleId === item.tmsShipmentVehicleId);
+          return v ? v.tmsVehiclePlateNumber : "-";
         }
         case "driver": {
-          const d = drivers.find((d) => d.driverId === item.shipmentDriverId);
-          return d ? `${d.driverFirstName} ${d.driverLastName}` : "-";
+          const d = drivers.find((d) => d.tmsDriverId === item.tmsShipmentDriverId);
+          return d ? `${d.tmsDriverFirstName} ${d.tmsDriverLastName}` : "-";
         }
-        case "shipmentStatus":
+        case "tmsShipmentStatus":
           return (
             <Chip
               variant="bordered"
               size="md"
               radius="md"
-              color={STATUS_COLORS[item.shipmentStatus] || "default"}
+              color={STATUS_COLORS[item.tmsShipmentStatus] || "default"}
             >
-              {STATUS_LABELS[item.shipmentStatus] || item.shipmentStatus}
+              {STATUS_LABELS[item.tmsShipmentStatus] || item.tmsShipmentStatus}
             </Chip>
           );
         case "actions": {
-          const nextStatuses = NEXT_STATUS[item.shipmentStatus] || [];
+          const nextStatuses = NEXT_STATUS[item.tmsShipmentStatus] || [];
           return (
             <div className="flex items-center gap-1">
               {nextStatuses.length > 0 && (
@@ -161,7 +161,7 @@ export default function ShipmentsPage() {
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
-                    onAction={(key) => handleStatusChange(item.shipmentId, key)}
+                    onAction={(key) => handleStatusChange(item.tmsShipmentId, key)}
                   >
                     {nextStatuses.map((s) => (
                       <DropdownItem key={s}>
@@ -199,9 +199,9 @@ export default function ShipmentsPage() {
     [vehicles, drivers, handleOpen, confirmDelete, handleStatusChange],
   );
 
-  const availableVehicles = vehicles.filter((v) => v.vehicleStatus === "available");
-  const availableDrivers = drivers.filter((d) => d.driverStatus === "available" && d.driverRole === "driver");
-  const availableAssistants = drivers.filter((d) => d.driverStatus === "available" && d.driverRole === "assistant");
+  const availableVehicles = vehicles.filter((v) => v.tmsVehicleStatus === "available");
+  const availableDrivers = drivers.filter((d) => d.tmsDriverStatus === "available" && d.tmsDriverRole === "driver");
+  const availableAssistants = drivers.filter((d) => d.tmsDriverStatus === "available" && d.tmsDriverRole === "assistant");
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -210,12 +210,12 @@ export default function ShipmentsPage() {
         data={shipments}
         renderCell={renderCell}
         enableCardView
-        rowKey="shipmentId"
+        rowKey="tmsShipmentId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยเลขที่, ลูกค้า..."
-        searchKeys={["shipmentNumber", "shipmentCustomerName", "shipmentDestination"]}
-        statusField="shipmentStatus"
+        searchKeys={["tmsShipmentNumber", "tmsShipmentCustomerName", "tmsShipmentDestination"]}
+        statusField="tmsShipmentStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบการขนส่ง"
         topEndContent={
@@ -237,48 +237,48 @@ export default function ShipmentsPage() {
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerName} onChange={(e) => updateField("shipmentCustomerName", e.target.value)} isRequired />
+                  <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="เบอร์โทรลูกค้า" labelPlacement="outside" placeholder="กรอกเบอร์โทร" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerPhone} onChange={(e) => updateField("shipmentCustomerPhone", e.target.value)} />
+                  <Input label="เบอร์โทรลูกค้า" labelPlacement="outside" placeholder="กรอกเบอร์โทร" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerPhone} onChange={(e) => updateField("tmsShipmentCustomerPhone", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input label="ที่อยู่ลูกค้า" labelPlacement="outside" placeholder="กรอกที่อยู่" variant="bordered" size="md" radius="md" value={formData.shipmentCustomerAddress} onChange={(e) => updateField("shipmentCustomerAddress", e.target.value)} />
+                  <Input label="ที่อยู่ลูกค้า" labelPlacement="outside" placeholder="กรอกที่อยู่" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerAddress} onChange={(e) => updateField("tmsShipmentCustomerAddress", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="ปลายทาง" labelPlacement="outside" placeholder="กรอกปลายทาง" variant="bordered" size="md" radius="md" value={formData.shipmentDestination} onChange={(e) => updateField("shipmentDestination", e.target.value)} isRequired />
+                  <Input label="ปลายทาง" labelPlacement="outside" placeholder="กรอกปลายทาง" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDestination} onChange={(e) => updateField("tmsShipmentDestination", e.target.value)} isRequired />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="เส้นทาง" labelPlacement="outside" placeholder="เลือกเส้นทาง" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentRouteId ? [formData.shipmentRouteId] : []} onSelectionChange={(keys) => updateField("shipmentRouteId", Array.from(keys)[0] || "")}>
-                    {routes.map((r) => (<SelectItem key={r.routeId}>{r.routeName}</SelectItem>))}
+                  <Select label="เส้นทาง" labelPlacement="outside" placeholder="เลือกเส้นทาง" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentRouteId ? [formData.tmsShipmentRouteId] : []} onSelectionChange={(keys) => updateField("tmsShipmentRouteId", Array.from(keys)[0] || "")}>
+                    {routes.map((r) => (<SelectItem key={r.tmsRouteId}>{r.tmsRouteName}</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="ยานพาหนะ" labelPlacement="outside" placeholder="เลือกยานพาหนะ" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentVehicleId ? [formData.shipmentVehicleId] : []} onSelectionChange={(keys) => updateField("shipmentVehicleId", Array.from(keys)[0] || "")}>
-                    {(editingShipment ? vehicles : availableVehicles).map((v) => (<SelectItem key={v.vehicleId}>{v.vehicleName} ({v.vehiclePlateNumber})</SelectItem>))}
+                  <Select label="ยานพาหนะ" labelPlacement="outside" placeholder="เลือกยานพาหนะ" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentVehicleId ? [formData.tmsShipmentVehicleId] : []} onSelectionChange={(keys) => updateField("tmsShipmentVehicleId", Array.from(keys)[0] || "")}>
+                    {(editingShipment ? vehicles : availableVehicles).map((v) => (<SelectItem key={v.tmsVehicleId}>{v.tmsVehicleName} ({v.tmsVehiclePlateNumber})</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="พนักงานขับรถ" labelPlacement="outside" placeholder="เลือกพนักงานขับรถ" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentDriverId ? [formData.shipmentDriverId] : []} onSelectionChange={(keys) => updateField("shipmentDriverId", Array.from(keys)[0] || "")}>
-                    {(editingShipment ? drivers.filter(d => d.driverRole === "driver") : availableDrivers).map((d) => (<SelectItem key={d.driverId}>{d.driverFirstName} {d.driverLastName}</SelectItem>))}
+                  <Select label="พนักงานขับรถ" labelPlacement="outside" placeholder="เลือกพนักงานขับรถ" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentDriverId ? [formData.tmsShipmentDriverId] : []} onSelectionChange={(keys) => updateField("tmsShipmentDriverId", Array.from(keys)[0] || "")}>
+                    {(editingShipment ? drivers.filter(d => d.tmsDriverRole === "driver") : availableDrivers).map((d) => (<SelectItem key={d.tmsDriverId}>{d.tmsDriverFirstName} {d.tmsDriverLastName}</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="ผู้ช่วย" labelPlacement="outside" placeholder="เลือกผู้ช่วย" variant="bordered" size="md" radius="md" selectedKeys={formData.shipmentAssistantId ? [formData.shipmentAssistantId] : []} onSelectionChange={(keys) => updateField("shipmentAssistantId", Array.from(keys)[0] || "")}>
-                    {(editingShipment ? drivers.filter(d => d.driverRole === "assistant") : availableAssistants).map((d) => (<SelectItem key={d.driverId}>{d.driverFirstName} {d.driverLastName}</SelectItem>))}
+                  <Select label="ผู้ช่วย" labelPlacement="outside" placeholder="เลือกผู้ช่วย" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentAssistantId ? [formData.tmsShipmentAssistantId] : []} onSelectionChange={(keys) => updateField("tmsShipmentAssistantId", Array.from(keys)[0] || "")}>
+                    {(editingShipment ? drivers.filter(d => d.tmsDriverRole === "assistant") : availableAssistants).map((d) => (<SelectItem key={d.tmsDriverId}>{d.tmsDriverFirstName} {d.tmsDriverLastName}</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="อ้างอิงใบสั่งขาย" labelPlacement="outside" placeholder="เลขที่ใบสั่ง BC" variant="bordered" size="md" radius="md" value={formData.shipmentSalesOrderRef} onChange={(e) => updateField("shipmentSalesOrderRef", e.target.value)} />
+                  <Input label="อ้างอิงใบสั่งขาย" labelPlacement="outside" placeholder="เลขที่ใบสั่ง BC" variant="bordered" size="md" radius="md" value={formData.tmsShipmentSalesOrderRef} onChange={(e) => updateField("tmsShipmentSalesOrderRef", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input type="number" label="น้ำหนัก (กก.)" labelPlacement="outside" placeholder="กรอกน้ำหนัก" variant="bordered" size="md" radius="md" value={formData.shipmentWeightKg} onChange={(e) => updateField("shipmentWeightKg", e.target.value)} />
+                  <Input type="number" label="น้ำหนัก (กก.)" labelPlacement="outside" placeholder="กรอกน้ำหนัก" variant="bordered" size="md" radius="md" value={formData.tmsShipmentWeightKg} onChange={(e) => updateField("tmsShipmentWeightKg", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="bordered" size="md" radius="md" value={formData.shipmentItemsSummary} onChange={(e) => updateField("shipmentItemsSummary", e.target.value)} />
+                  <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentItemsSummary} onChange={(e) => updateField("tmsShipmentItemsSummary", e.target.value)} />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input label="หมายเหตุ" labelPlacement="outside" placeholder="หมายเหตุเพิ่มเติม" variant="bordered" size="md" radius="md" value={formData.shipmentNotes} onChange={(e) => updateField("shipmentNotes", e.target.value)} />
+                  <Input label="หมายเหตุ" labelPlacement="outside" placeholder="หมายเหตุเพิ่มเติม" variant="bordered" size="md" radius="md" value={formData.tmsShipmentNotes} onChange={(e) => updateField("tmsShipmentNotes", e.target.value)} />
                 </div>
               </div>
             </div>
@@ -294,7 +294,7 @@ export default function ShipmentsPage() {
         <ModalContent>
           <ModalHeader>ลบการขนส่ง</ModalHeader>
           <ModalBody>
-            <p>คุณต้องการลบการขนส่ง <span className="font-semibold">{deletingShipment?.shipmentNumber}</span> หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+            <p>คุณต้องการลบการขนส่ง <span className="font-semibold">{deletingShipment?.tmsShipmentNumber}</span> หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={deleteModal.onClose}>ยกเลิก</Button>

@@ -16,21 +16,21 @@ export async function GET(request, { params }) {
 
   // Fetch quotation with relations
   const { data: quotation, error } = await supabase
-    .from("crmQuotations")
+    .from("crmQuotation")
     .select(
-      "*, crmContacts(contactFirstName, contactLastName), crmAccounts(accountName), crmOpportunities(opportunityName)"
+      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmOpportunity(crmOpportunityName)"
     )
-    .eq("quotationId", id)
+    .eq("crmQuotationId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
 
   // Fetch lines
   const { data: lines } = await supabase
-    .from("crmQuotationLines")
+    .from("crmQuotationLine")
     .select("*")
-    .eq("lineQuotationId", id)
-    .order("lineOrder", { ascending: true });
+    .eq("crmQuotationLineQuotationId", id)
+    .order("crmQuotationLineOrder", { ascending: true });
 
   return Response.json({ ...quotation, lines: lines || [] });
 }
@@ -46,9 +46,9 @@ export async function PUT(request, { params }) {
 
   // Update quotation
   const { data: quotation, error } = await supabase
-    .from("crmQuotations")
+    .from("crmQuotation")
     .update(quotationData)
-    .eq("quotationId", id)
+    .eq("crmQuotationId", id)
     .select()
     .single();
 
@@ -57,21 +57,21 @@ export async function PUT(request, { params }) {
   // Update lines if provided
   if (lines) {
     // Delete existing lines
-    await supabase.from("crmQuotationLines").delete().eq("lineQuotationId", id);
+    await supabase.from("crmQuotationLine").delete().eq("crmQuotationLineQuotationId", id);
 
     // Insert new lines
     if (lines.length > 0) {
       const lineData = lines.map((line, idx) => ({
-        lineQuotationId: id,
-        lineOrder: idx,
-        lineProductName: line.lineProductName,
-        lineDescription: line.lineDescription || "",
-        lineQuantity: line.lineQuantity || 1,
-        lineUnitPrice: line.lineUnitPrice || 0,
-        lineDiscount: line.lineDiscount || 0,
-        lineAmount: line.lineAmount || 0,
+        crmQuotationLineQuotationId: id,
+        crmQuotationLineOrder: idx,
+        crmQuotationLineProductName: line.crmQuotationLineProductName,
+        crmQuotationLineDescription: line.crmQuotationLineDescription || "",
+        crmQuotationLineQuantity: line.crmQuotationLineQuantity || 1,
+        crmQuotationLineUnitPrice: line.crmQuotationLineUnitPrice || 0,
+        crmQuotationLineDiscount: line.crmQuotationLineDiscount || 0,
+        crmQuotationLineAmount: line.crmQuotationLineAmount || 0,
       }));
-      await supabase.from("crmQuotationLines").insert(lineData);
+      await supabase.from("crmQuotationLine").insert(lineData);
     }
   }
 
@@ -94,18 +94,18 @@ export async function POST(request, { params }) {
 
   // Get current quotation
   const { data: quotation, error: fetchError } = await supabase
-    .from("crmQuotations")
+    .from("crmQuotation")
     .select("*")
-    .eq("quotationId", id)
+    .eq("crmQuotationId", id)
     .single();
 
   if (fetchError)
     return Response.json({ error: fetchError.message }, { status: 404 });
 
-  if (!transition.from.includes(quotation.quotationStatus)) {
+  if (!transition.from.includes(quotation.crmQuotationStatus)) {
     return Response.json(
       {
-        error: `Cannot ${action} from status: ${quotation.quotationStatus}`,
+        error: `Cannot ${action} from status: ${quotation.crmQuotationStatus}`,
       },
       { status: 400 }
     );
@@ -114,19 +114,19 @@ export async function POST(request, { params }) {
   // Handle convert to order
   if (action === "convert_order") {
     const { data: order, error: orderError } = await supabase
-      .from("crmOrders")
+      .from("crmOrder")
       .insert([
         {
-          orderQuotationId: id,
-          orderOpportunityId: quotation.quotationOpportunityId,
-          orderContactId: quotation.quotationContactId,
-          orderAccountId: quotation.quotationAccountId,
-          orderSubtotal: quotation.quotationSubtotal,
-          orderDiscount: quotation.quotationDiscount,
-          orderTax: quotation.quotationTax,
-          orderTotal: quotation.quotationTotal,
-          orderNotes: `Created from quotation ${quotation.quotationNo}`,
-          orderCreatedBy: session.user?.email,
+          crmOrderQuotationId: id,
+          crmOrderOpportunityId: quotation.crmQuotationOpportunityId,
+          crmOrderContactId: quotation.crmQuotationContactId,
+          crmOrderAccountId: quotation.crmQuotationAccountId,
+          crmOrderSubtotal: quotation.crmQuotationSubtotal,
+          crmOrderDiscount: quotation.crmQuotationDiscount,
+          crmOrderTax: quotation.crmQuotationTax,
+          crmOrderTotal: quotation.crmQuotationTotal,
+          crmOrderNotes: `Created from quotation ${quotation.crmQuotationNo}`,
+          crmOrderCreatedBy: session.user?.email,
         },
       ])
       .select()
@@ -137,26 +137,26 @@ export async function POST(request, { params }) {
 
     // Update quotation status
     await supabase
-      .from("crmQuotations")
-      .update({ quotationStatus: "converted" })
-      .eq("quotationId", id);
+      .from("crmQuotation")
+      .update({ crmQuotationStatus: "converted" })
+      .eq("crmQuotationId", id);
 
     return Response.json(order, { status: 201 });
   }
 
   // Update status
-  const updateData = { quotationStatus: transition.to };
+  const updateData = { crmQuotationStatus: transition.to };
   if (action === "approve") {
-    updateData.quotationApprovedBy = session.user?.email;
+    updateData.crmQuotationApprovedBy = session.user?.email;
   }
   if (action === "reject" && note) {
-    updateData.quotationApprovalNote = note;
+    updateData.crmQuotationApprovalNote = note;
   }
 
   const { data, error } = await supabase
-    .from("crmQuotations")
+    .from("crmQuotation")
     .update(updateData)
-    .eq("quotationId", id)
+    .eq("crmQuotationId", id)
     .select()
     .single();
 
@@ -171,9 +171,9 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("crmQuotations")
+    .from("crmQuotation")
     .delete()
-    .eq("quotationId", id);
+    .eq("crmQuotationId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

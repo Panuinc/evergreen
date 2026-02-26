@@ -4,22 +4,22 @@ async function enrichNominations(supabase, nominations) {
   if (!nominations || nominations.length === 0) return [];
 
   const empIds = [...new Set([
-    ...nominations.map((n) => n.revieweeEmployeeId),
-    ...nominations.map((n) => n.reviewerEmployeeId),
+    ...nominations.map((n) => n.perf360NominationRevieweeEmployeeId),
+    ...nominations.map((n) => n.perf360NominationReviewerEmployeeId),
   ])];
 
   const { data: emps } = await supabase
-    .from("employees")
-    .select("employeeId, employeeFirstName, employeeLastName, employeeDepartment")
-    .in("employeeId", empIds);
+    .from("hrEmployee")
+    .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment")
+    .in("hrEmployeeId", empIds);
 
   const empMap = {};
-  for (const e of (emps || [])) empMap[e.employeeId] = e;
+  for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
 
   return nominations.map((n) => ({
     ...n,
-    reviewee: empMap[n.revieweeEmployeeId] || null,
-    reviewer: empMap[n.reviewerEmployeeId] || null,
+    reviewee: empMap[n.perf360NominationRevieweeEmployeeId] || null,
+    reviewer: empMap[n.perf360NominationReviewerEmployeeId] || null,
   }));
 }
 
@@ -36,10 +36,10 @@ export async function GET(request) {
   }
 
   const { data, error } = await supabase
-    .from("feedback_360_nominations")
+    .from("perf360Nomination")
     .select("*")
-    .eq("cycleId", cycleId)
-    .order("createdAt", { ascending: false });
+    .eq("perf360NominationCycleId", cycleId)
+    .order("perf360NominationCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
@@ -60,8 +60,13 @@ export async function POST(request) {
   }
 
   const { data, error } = await supabase
-    .from("feedback_360_nominations")
-    .insert([{ cycleId, revieweeEmployeeId, reviewerEmployeeId, relationshipType }])
+    .from("perf360Nomination")
+    .insert([{
+      perf360NominationCycleId: cycleId,
+      perf360NominationRevieweeEmployeeId: revieweeEmployeeId,
+      perf360NominationReviewerEmployeeId: reviewerEmployeeId,
+      perf360NominationRelationshipType: relationshipType,
+    }])
     .select()
     .single();
 
@@ -89,9 +94,9 @@ export async function DELETE(request) {
   }
 
   const { error } = await supabase
-    .from("feedback_360_nominations")
+    .from("perf360Nomination")
     .delete()
-    .eq("id", id);
+    .eq("perf360NominationId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

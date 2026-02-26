@@ -9,12 +9,12 @@ import {
 } from "@/actions/sales";
 
 const emptyLine = {
-  lineProductName: "",
-  lineDescription: "",
-  lineQuantity: 1,
-  lineUnitPrice: 0,
-  lineDiscount: 0,
-  lineAmount: 0,
+  crmQuotationLineProductName: "",
+  crmQuotationLineDescription: "",
+  crmQuotationLineQuantity: 1,
+  crmQuotationLineUnitPrice: 0,
+  crmQuotationLineDiscount: 0,
+  crmQuotationLineAmount: 0,
 };
 
 export function useCrmQuotationEditor(quotationId) {
@@ -35,8 +35,8 @@ export function useCrmQuotationEditor(quotationId) {
       const data = await getQuotation(quotationId);
       setQuotation(data);
       setLines(data.lines || []);
-      setDiscount(parseFloat(data.quotationDiscount) || 0);
-      setTax(parseFloat(data.quotationTax) || 0);
+      setDiscount(parseFloat(data.crmQuotationDiscount) || 0);
+      setTax(parseFloat(data.crmQuotationTax) || 0);
     } catch (error) {
       toast.error("โหลดใบเสนอราคาล้มเหลว");
     } finally {
@@ -57,16 +57,16 @@ export function useCrmQuotationEditor(quotationId) {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
       // Auto-calc amount
-      const qty = parseFloat(updated[index].lineQuantity) || 0;
-      const price = parseFloat(updated[index].lineUnitPrice) || 0;
-      const disc = parseFloat(updated[index].lineDiscount) || 0;
-      updated[index].lineAmount = qty * price - disc;
+      const qty = parseFloat(updated[index].crmQuotationLineQuantity) || 0;
+      const price = parseFloat(updated[index].crmQuotationLineUnitPrice) || 0;
+      const disc = parseFloat(updated[index].crmQuotationLineDiscount) || 0;
+      updated[index].crmQuotationLineAmount = qty * price - disc;
       return updated;
     });
   }, []);
 
   const calcSubtotal = useCallback(() => {
-    return lines.reduce((sum, l) => sum + (parseFloat(l.lineAmount) || 0), 0);
+    return lines.reduce((sum, l) => sum + (parseFloat(l.crmQuotationLineAmount) || 0), 0);
   }, [lines]);
 
   const calcTotal = useCallback(() => {
@@ -81,15 +81,15 @@ export function useCrmQuotationEditor(quotationId) {
       const total = calcTotal();
 
       await updateQuotation(quotationId, {
-        quotationSubtotal: subtotal,
-        quotationDiscount: discount,
-        quotationTax: tax,
-        quotationTotal: total,
-        quotationNotes: quotation.quotationNotes,
-        quotationTerms: quotation.quotationTerms,
-        quotationValidUntil: quotation.quotationValidUntil,
-        quotationContactId: quotation.quotationContactId,
-        quotationAccountId: quotation.quotationAccountId,
+        crmQuotationSubtotal: subtotal,
+        crmQuotationDiscount: discount,
+        crmQuotationTax: tax,
+        crmQuotationTotal: total,
+        crmQuotationNotes: quotation.crmQuotationNotes,
+        crmQuotationTerms: quotation.crmQuotationTerms,
+        crmQuotationValidUntil: quotation.crmQuotationValidUntil,
+        crmQuotationContactId: quotation.crmQuotationContactId,
+        crmQuotationAccountId: quotation.crmQuotationAccountId,
         lines,
       });
       toast.success("บันทึกใบเสนอราคาสำเร็จ");

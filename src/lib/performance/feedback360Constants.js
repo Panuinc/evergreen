@@ -56,10 +56,10 @@ export function computeWeightedOverall(competencyAverages, competencies) {
   let totalWeight = 0;
   let weightedSum = 0;
   for (const comp of competencies) {
-    const avg = competencyAverages[comp.id] || 0;
+    const avg = competencyAverages[comp.perf360CompetencyId] || 0;
     if (avg > 0) {
-      weightedSum += avg * (comp.weight || 1);
-      totalWeight += (comp.weight || 1);
+      weightedSum += avg * (comp.perf360CompetencyWeight || 1);
+      totalWeight += (comp.perf360CompetencyWeight || 1);
     }
   }
   return totalWeight > 0 ? weightedSum / totalWeight : 0;

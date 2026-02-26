@@ -11,5 +11,11 @@ export async function GET(request, { params }) {
   });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data);
+
+  const transformed = data.map((row) => ({
+    permission: `${row.resource_name}:${row.action_name}`,
+    isSuperadmin: row.is_superadmin,
+  }));
+
+  return Response.json(transformed);
 }

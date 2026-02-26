@@ -6,7 +6,7 @@ async function fetchAllLines(supabase) {
   let from = 0;
   while (true) {
     const { data, error } = await supabase
-      .from("bcSalesOrderLines")
+      .from("bcSalesOrderLine")
       .select("*")
       .range(from, from + PAGE - 1);
     if (error) throw new Error(error.message);
@@ -23,9 +23,9 @@ export async function GET() {
 
   const [{ data: orders, error: oErr }, lines] = await Promise.all([
     auth.supabase
-      .from("bcSalesOrders")
+      .from("bcSalesOrder")
       .select("*")
-      .order("number", { ascending: false }),
+      .order("bcSalesOrderNumber", { ascending: false }),
     fetchAllLines(auth.supabase).catch(() => null),
   ]);
 
@@ -34,13 +34,13 @@ export async function GET() {
 
   const linesByOrder = {};
   for (const line of lines) {
-    if (!linesByOrder[line.documentNo]) linesByOrder[line.documentNo] = [];
-    linesByOrder[line.documentNo].push(line);
+    if (!linesByOrder[line.bcSalesOrderLineDocumentNo]) linesByOrder[line.bcSalesOrderLineDocumentNo] = [];
+    linesByOrder[line.bcSalesOrderLineDocumentNo].push(line);
   }
 
   const result = (orders || []).map((o) => ({
     ...o,
-    salesOrderLines: linesByOrder[o.number] || [],
+    salesOrderLines: linesByOrder[o.bcSalesOrderNumber] || [],
   }));
 
   return Response.json(result);

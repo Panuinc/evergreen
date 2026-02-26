@@ -18,21 +18,21 @@ export async function GET(request) {
 
   // Get current user's linked employee
   const { data: currentEmployee } = await supabase
-    .from("employees")
-    .select("employeeId")
-    .eq("employeeUserId", session.user.id)
+    .from("hrEmployee")
+    .select("hrEmployeeId")
+    .eq("hrEmployeeUserId", session.user.id)
     .maybeSingle();
 
   if (myResults === "true" && currentEmployee) {
     // Get evaluations where current user is the evaluatee
     let query = supabase
-      .from("evaluations")
-      .select("period, year, quarter, categoryAverages, overallScore, grade, createdAt")
-      .eq("evaluateeEmployeeId", currentEmployee.employeeId);
+      .from("perfEvaluation")
+      .select("perfEvaluationPeriod, perfEvaluationYear, perfEvaluationQuarter, perfEvaluationCategoryAverages, perfEvaluationOverallScore, perfEvaluationGrade, perfEvaluationCreatedAt")
+      .eq("perfEvaluationEvaluateeEmployeeId", currentEmployee.hrEmployeeId);
 
-    if (period) query = query.eq("period", period);
+    if (period) query = query.eq("perfEvaluationPeriod", period);
 
-    const { data, error } = await query.order("createdAt", { ascending: true });
+    const { data, error } = await query.order("perfEvaluationCreatedAt", { ascending: true });
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
     // Aggregate: average across all evaluators per period
@@ -42,13 +42,13 @@ export async function GET(request) {
 
   if (evaluateeId) {
     let query = supabase
-      .from("evaluations")
-      .select("period, year, quarter, categoryAverages, overallScore, grade, createdAt")
-      .eq("evaluateeEmployeeId", evaluateeId);
+      .from("perfEvaluation")
+      .select("perfEvaluationPeriod, perfEvaluationYear, perfEvaluationQuarter, perfEvaluationCategoryAverages, perfEvaluationOverallScore, perfEvaluationGrade, perfEvaluationCreatedAt")
+      .eq("perfEvaluationEvaluateeEmployeeId", evaluateeId);
 
-    if (period) query = query.eq("period", period);
+    if (period) query = query.eq("perfEvaluationPeriod", period);
 
-    const { data, error } = await query.order("createdAt", { ascending: true });
+    const { data, error } = await query.order("perfEvaluationCreatedAt", { ascending: true });
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
     const aggregated = aggregateByPeriod(data);
@@ -57,13 +57,13 @@ export async function GET(request) {
 
   // Default: return evaluations submitted by current user
   let query = supabase
-    .from("evaluations")
-    .select("*, evaluateeEmployee:employees!evaluateeEmployeeId(employeeId, employeeFirstName, employeeLastName, employeeDepartment)")
-    .eq("evaluatorId", session.user.id);
+    .from("perfEvaluation")
+    .select("*, evaluateeEmployee:hrEmployee!perfEvaluationEvaluateeEmployeeId(hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment)")
+    .eq("perfEvaluationEvaluatorId", session.user.id);
 
-  if (period) query = query.eq("period", period);
+  if (period) query = query.eq("perfEvaluationPeriod", period);
 
-  const { data, error } = await query.order("createdAt", { ascending: false });
+  const { data, error } = await query.order("perfEvaluationCreatedAt", { ascending: false });
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
 }
@@ -83,12 +83,12 @@ export async function POST(request) {
 
   // Validate self-evaluation prevention
   const { data: currentEmployee } = await supabase
-    .from("employees")
-    .select("employeeId")
-    .eq("employeeUserId", session.user.id)
+    .from("hrEmployee")
+    .select("hrEmployeeId")
+    .eq("hrEmployeeUserId", session.user.id)
     .maybeSingle();
 
-  if (currentEmployee && currentEmployee.employeeId === evaluateeEmployeeId) {
+  if (currentEmployee && currentEmployee.hrEmployeeId === evaluateeEmployeeId) {
     return Response.json({ error: "ไม่สามารถประเมินตัวเองได้" }, { status: 400 });
   }
 
@@ -117,19 +117,19 @@ export async function POST(request) {
   const grade = computeGrade(overallScore);
 
   const { data, error } = await supabase
-    .from("evaluations")
+    .from("perfEvaluation")
     .insert([
       {
-        evaluatorId: session.user.id,
-        evaluateeEmployeeId,
-        period,
-        year,
-        quarter,
-        scores,
-        categoryAverages,
-        overallScore: parseFloat(overallScore.toFixed(2)),
-        grade,
-        comment: comment || null,
+        perfEvaluationEvaluatorId: session.user.id,
+        perfEvaluationEvaluateeEmployeeId: evaluateeEmployeeId,
+        perfEvaluationPeriod: period,
+        perfEvaluationYear: year,
+        perfEvaluationQuarter: quarter,
+        perfEvaluationScores: scores,
+        perfEvaluationCategoryAverages: categoryAverages,
+        perfEvaluationOverallScore: parseFloat(overallScore.toFixed(2)),
+        perfEvaluationGrade: grade,
+        perfEvaluationComment: comment || null,
       },
     ])
     .select()
@@ -151,15 +151,15 @@ export async function POST(request) {
 function aggregateByPeriod(evaluations) {
   const grouped = {};
   for (const ev of evaluations) {
-    if (!grouped[ev.period]) {
-      grouped[ev.period] = {
-        period: ev.period,
-        year: ev.year,
-        quarter: ev.quarter,
+    if (!grouped[ev.perfEvaluationPeriod]) {
+      grouped[ev.perfEvaluationPeriod] = {
+        period: ev.perfEvaluationPeriod,
+        year: ev.perfEvaluationYear,
+        quarter: ev.perfEvaluationQuarter,
         evaluations: [],
       };
     }
-    grouped[ev.period].evaluations.push(ev);
+    grouped[ev.perfEvaluationPeriod].evaluations.push(ev);
   }
 
   return Object.values(grouped).map((group) => {
@@ -168,7 +168,7 @@ function aggregateByPeriod(evaluations) {
 
     for (const cat of EVALUATION_CATEGORIES) {
       const sum = group.evaluations.reduce(
-        (acc, ev) => acc + (ev.categoryAverages?.[cat.key] || 0),
+        (acc, ev) => acc + (ev.perfEvaluationCategoryAverages?.[cat.key] || 0),
         0,
       );
       avgCategories[cat.key] = parseFloat((sum / count).toFixed(2));

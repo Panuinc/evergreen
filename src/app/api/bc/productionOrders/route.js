@@ -2,7 +2,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 
 const PAGE_SIZE = 1000;
 
-async function fetchAll(supabase, table, orderBy = "id", ascending = false) {
+async function fetchAll(supabase, table, orderBy = "bcProductionOrderExternalId", ascending = false) {
   let rows = [];
   let from = 0;
   while (true) {
@@ -26,48 +26,48 @@ export async function GET() {
 
   try {
     const [orders, entries, salesLines] = await Promise.all([
-      fetchAll(auth.supabase, "bcProductionOrders", "id", false),
-      fetchAll(auth.supabase, "bcItemLedgerEntries", "entryNo", true),
-      fetchAll(auth.supabase, "bcSalesOrderLines", "id", true),
+      fetchAll(auth.supabase, "bcProductionOrder", "bcProductionOrderExternalId", false),
+      fetchAll(auth.supabase, "bcItemLedgerEntry", "bcItemLedgerEntryExternalNo", true),
+      fetchAll(auth.supabase, "bcSalesOrderLine", "bcSalesOrderLineExternalId", true),
     ]);
 
     // Build sales price map: itemNo → latest unitPrice
     const salesPriceMap = {};
     for (const sl of salesLines) {
-      if (sl.lineObjectNumber && sl.unitPrice > 0) {
-        salesPriceMap[sl.lineObjectNumber] = Number(sl.unitPrice);
+      if (sl.lineObjectNumber && sl.bcSalesOrderLineUnitPrice > 0) {
+        salesPriceMap[sl.lineObjectNumber] = Number(sl.bcSalesOrderLineUnitPrice);
       }
     }
 
     // Aggregate cost & output per production order
     const orderCostMap = {};
     for (const e of entries) {
-      if (!e.documentNo) continue;
-      if (!orderCostMap[e.documentNo]) {
-        orderCostMap[e.documentNo] = {
+      if (!e.bcItemLedgerEntryDocumentNo) continue;
+      if (!orderCostMap[e.bcItemLedgerEntryDocumentNo]) {
+        orderCostMap[e.bcItemLedgerEntryDocumentNo] = {
           consumptionCost: 0,
           outputQty: 0,
           outputCost: 0,
         };
       }
-      if (e.entryType === "Consumption") {
-        orderCostMap[e.documentNo].consumptionCost += Math.abs(
+      if (e.bcItemLedgerEntryType === "Consumption") {
+        orderCostMap[e.bcItemLedgerEntryDocumentNo].consumptionCost += Math.abs(
           Number(e.costAmountActual) || 0,
         );
-      } else if (e.entryType === "Output") {
-        orderCostMap[e.documentNo].outputQty += Number(e.quantity) || 0;
-        orderCostMap[e.documentNo].outputCost += Number(e.costAmountActual) || 0;
+      } else if (e.bcItemLedgerEntryType === "Output") {
+        orderCostMap[e.bcItemLedgerEntryDocumentNo].outputQty += Number(e.bcItemLedgerEntryQuantity) || 0;
+        orderCostMap[e.bcItemLedgerEntryDocumentNo].outputCost += Number(e.costAmountActual) || 0;
       }
     }
 
     // Enrich orders with cost, revenue, profit
     const enriched = orders.map((o) => {
-      const c = orderCostMap[o.id] || {
+      const c = orderCostMap[o.bcProductionOrderExternalId] || {
         consumptionCost: 0,
         outputQty: 0,
         outputCost: 0,
       };
-      const unitPrice = salesPriceMap[o.sourceNo] || 0;
+      const unitPrice = salesPriceMap[o.bcProductionOrderSourceNo] || 0;
       const revenue = unitPrice * c.outputQty;
       const profit = revenue - c.consumptionCost;
       const profitMargin =

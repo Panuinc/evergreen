@@ -11,13 +11,13 @@ import {
 } from "@/actions/tms";
 
 const emptyForm = {
-  routeName: "",
-  routeOrigin: "CHH Factory",
-  routeDestination: "",
-  routeDistanceKm: "",
-  routeEstimatedMinutes: "",
-  routeNotes: "",
-  routeStatus: "active",
+  tmsRouteName: "",
+  tmsRouteOrigin: "CHH Factory",
+  tmsRouteDestination: "",
+  tmsRouteDistanceKm: "",
+  tmsRouteEstimatedMinutes: "",
+  tmsRouteNotes: "",
+  tmsRouteStatus: "active",
 };
 
 export function useRoutes() {
@@ -50,13 +50,13 @@ export function useRoutes() {
     if (route) {
       setEditingRoute(route);
       setFormData({
-        routeName: route.routeName || "",
-        routeOrigin: route.routeOrigin || "CHH Factory",
-        routeDestination: route.routeDestination || "",
-        routeDistanceKm: route.routeDistanceKm?.toString() || "",
-        routeEstimatedMinutes: route.routeEstimatedMinutes?.toString() || "",
-        routeNotes: route.routeNotes || "",
-        routeStatus: route.routeStatus || "active",
+        tmsRouteName: route.tmsRouteName || "",
+        tmsRouteOrigin: route.tmsRouteOrigin || "CHH Factory",
+        tmsRouteDestination: route.tmsRouteDestination || "",
+        tmsRouteDistanceKm: route.tmsRouteDistanceKm?.toString() || "",
+        tmsRouteEstimatedMinutes: route.tmsRouteEstimatedMinutes?.toString() || "",
+        tmsRouteNotes: route.tmsRouteNotes || "",
+        tmsRouteStatus: route.tmsRouteStatus || "active",
       });
     } else {
       setEditingRoute(null);
@@ -67,8 +67,8 @@ export function useRoutes() {
 
   const handleSave = async () => {
     if (
-      !formData.routeName.trim() ||
-      !formData.routeDestination.trim()
+      !formData.tmsRouteName.trim() ||
+      !formData.tmsRouteDestination.trim()
     ) {
       toast.error("กรุณาระบุชื่อเส้นทางและปลายทาง");
       return;
@@ -77,7 +77,7 @@ export function useRoutes() {
     try {
       setSaving(true);
       if (editingRoute) {
-        await updateRoute(editingRoute.routeId, formData);
+        await updateRoute(editingRoute.tmsRouteId, formData);
         toast.success("อัปเดตเส้นทางสำเร็จ");
       } else {
         await createRoute(formData);
@@ -100,7 +100,7 @@ export function useRoutes() {
   const handleDelete = async () => {
     if (!deletingRoute) return;
     try {
-      await deleteRoute(deletingRoute.routeId);
+      await deleteRoute(deletingRoute.tmsRouteId);
       toast.success("ลบเส้นทางสำเร็จ");
       deleteModal.onClose();
       setDeletingRoute(null);

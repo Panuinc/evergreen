@@ -2,28 +2,28 @@ import { withAuth } from "@/app/api/_lib/auth";
 
 const TYPE_CONFIG = {
   shipments: {
-    table: "shipments",
-    dateField: "shipmentDate",
+    table: "tmsShipment",
+    dateField: "tmsShipmentDate",
     select: "*",
-    order: "shipmentDate",
+    order: "tmsShipmentDate",
   },
   fuelLogs: {
-    table: "fuelLogs",
-    dateField: "fuelLogDate",
+    table: "tmsFuelLog",
+    dateField: "tmsFuelLogDate",
     select: "*",
-    order: "fuelLogDate",
+    order: "tmsFuelLogDate",
   },
   maintenances: {
-    table: "maintenances",
-    dateField: "maintenanceDate",
+    table: "tmsMaintenance",
+    dateField: "tmsMaintenanceDate",
     select: "*",
-    order: "maintenanceDate",
+    order: "tmsMaintenanceDate",
   },
   vehicles: {
-    table: "vehicles",
+    table: "tmsVehicle",
     dateField: null,
     select: "*",
-    order: "vehicleCreatedAt",
+    order: "tmsVehicleCreatedAt",
   },
 };
 

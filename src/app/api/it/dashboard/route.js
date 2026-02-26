@@ -6,12 +6,12 @@ export async function GET() {
   const { supabase } = auth;
 
   const [assetsRes, ticketsRes, softwareRes, devicesRes, incidentsRes, accessRes] = await Promise.all([
-    supabase.from("itAssets").select("assetId, assetCategory, assetStatus"),
-    supabase.from("itTickets").select("ticketId, ticketStatus, ticketPriority, ticketCategory, ticketCreatedAt"),
-    supabase.from("itSoftware").select("softwareId, softwareStatus, softwareLicenseType, softwareExpiryDate"),
-    supabase.from("itNetworkDevices").select("deviceId, deviceStatus, deviceType"),
-    supabase.from("itSecurityIncidents").select("incidentId, incidentStatus, incidentSeverity, incidentCreatedAt"),
-    supabase.from("itSystemAccess").select("accessId, accessStatus"),
+    supabase.from("itAsset").select("itAssetId, itAssetCategory, itAssetStatus"),
+    supabase.from("itTicket").select("itTicketId, itTicketStatus, itTicketPriority, itTicketCategory, itTicketCreatedAt"),
+    supabase.from("itSoftware").select("itSoftwareId, itSoftwareStatus, itSoftwareLicenseType, itSoftwareExpiryDate"),
+    supabase.from("itNetworkDevice").select("itNetworkDeviceId, itNetworkDeviceStatus, itNetworkDeviceType"),
+    supabase.from("itSecurityIncident").select("itSecurityIncidentId, itSecurityIncidentStatus, itSecurityIncidentSeverity, itSecurityIncidentCreatedAt"),
+    supabase.from("itSystemAccess").select("itSystemAccessId, itSystemAccessStatus"),
   ]);
 
   if (assetsRes.error || ticketsRes.error || softwareRes.error || devicesRes.error || incidentsRes.error || accessRes.error) {
@@ -31,20 +31,20 @@ export async function GET() {
   // KPI Stats
   const totalAssets = assets.length;
   const openTickets = tickets.filter(
-    (t) => t.ticketStatus === "open" || t.ticketStatus === "in_progress"
+    (t) => t.itTicketStatus === "open" || t.itTicketStatus === "in_progress"
   ).length;
   const activeLicenses = software.filter(
-    (s) => s.softwareStatus === "active"
+    (s) => s.itSoftwareStatus === "active"
   ).length;
   const totalNetworkDevices = devices.length;
   const onlineDevices = devices.filter(
-    (d) => d.deviceStatus === "online"
+    (d) => d.itNetworkDeviceStatus === "online"
   ).length;
   const openIncidents = incidents.filter(
-    (i) => i.incidentStatus === "open" || i.incidentStatus === "investigating"
+    (i) => i.itSecurityIncidentStatus === "open" || i.itSecurityIncidentStatus === "investigating"
   ).length;
   const pendingAccess = access.filter(
-    (a) => a.accessStatus === "pending"
+    (a) => a.itSystemAccessStatus === "pending"
   ).length;
 
   // Chart: Ticket Trend (last 6 months)
@@ -54,7 +54,7 @@ export async function GET() {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const count = tickets.filter(
-      (t) => t.ticketCreatedAt && t.ticketCreatedAt.startsWith(monthKey)
+      (t) => t.itTicketCreatedAt && t.itTicketCreatedAt.startsWith(monthKey)
     ).length;
     ticketTrend.push({ month: monthKey, count });
   }
@@ -62,7 +62,7 @@ export async function GET() {
   // Chart: Asset by Category
   const categoryCounts = {};
   assets.forEach((a) => {
-    const cat = a.assetCategory || "other";
+    const cat = a.itAssetCategory || "other";
     categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
   });
   const assetByCategory = Object.entries(categoryCounts).map(
@@ -82,32 +82,32 @@ export async function GET() {
     {
       bucket: "Expired",
       count: software.filter(
-        (s) => s.softwareExpiryDate && s.softwareExpiryDate < today
+        (s) => s.itSoftwareExpiryDate && s.itSoftwareExpiryDate < today
       ).length,
     },
     {
       bucket: "< 30 Days",
       count: software.filter(
         (s) =>
-          s.softwareExpiryDate &&
-          s.softwareExpiryDate >= today &&
-          s.softwareExpiryDate < thirtyDaysLater
+          s.itSoftwareExpiryDate &&
+          s.itSoftwareExpiryDate >= today &&
+          s.itSoftwareExpiryDate < thirtyDaysLater
       ).length,
     },
     {
       bucket: "< 90 Days",
       count: software.filter(
         (s) =>
-          s.softwareExpiryDate &&
-          s.softwareExpiryDate >= thirtyDaysLater &&
-          s.softwareExpiryDate < ninetyDaysLater
+          s.itSoftwareExpiryDate &&
+          s.itSoftwareExpiryDate >= thirtyDaysLater &&
+          s.itSoftwareExpiryDate < ninetyDaysLater
       ).length,
     },
     {
       bucket: "OK",
       count: software.filter(
         (s) =>
-          !s.softwareExpiryDate || s.softwareExpiryDate >= ninetyDaysLater
+          !s.itSoftwareExpiryDate || s.itSoftwareExpiryDate >= ninetyDaysLater
       ).length,
     },
   ];

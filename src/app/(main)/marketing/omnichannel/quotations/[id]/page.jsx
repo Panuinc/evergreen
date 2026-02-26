@@ -65,58 +65,58 @@ export default function QuotationEditorPage() {
     );
   }
 
-  const status = STATUS_MAP[quotation.quotationStatus] || STATUS_MAP.draft;
-  const canEdit = ["draft", "rejected"].includes(quotation.quotationStatus);
+  const status = STATUS_MAP[quotation.omQuotationStatus] || STATUS_MAP.draft;
+  const canEdit = ["draft", "rejected"].includes(quotation.omQuotationStatus);
   const canSubmit = canEdit;
-  const canApprove = quotation.quotationStatus === "pending_approval";
-  const canConfirmPayment = quotation.quotationStatus === "approved";
+  const canApprove = quotation.omQuotationStatus === "pending_approval";
+  const canConfirmPayment = quotation.omQuotationStatus === "approved";
 
   const lineColumns = [
-    { name: "สินค้า", uid: "lineProductName" },
-    { name: "รุ่น/สี/ขนาด", uid: "lineVariant" },
-    { name: "จำนวน", uid: "lineQuantity" },
-    { name: "ราคา/หน่วย", uid: "lineUnitPrice" },
-    { name: "รวม", uid: "lineTotal" },
+    { name: "สินค้า", uid: "omQuotationLineProductName" },
+    { name: "รุ่น/สี/ขนาด", uid: "omQuotationLineVariant" },
+    { name: "จำนวน", uid: "omQuotationLineQuantity" },
+    { name: "ราคา/หน่วย", uid: "omQuotationLineUnitPrice" },
+    { name: "รวม", uid: "omQuotationLineTotal" },
   ];
 
   const lineData = useMemo(
     () =>
       lines.map((line) => ({
         ...line,
-        lineTotal: (line.lineQuantity || 0) * (line.lineUnitPrice || 0),
+        omQuotationLineTotal: (line.omQuotationLineQuantity || 0) * (line.omQuotationLineUnitPrice || 0),
       })),
     [lines]
   );
 
   const renderLineCell = useCallback(
     (item, columnKey) => {
-      const idx = lines.findIndex((l) => l.lineId === item.lineId);
+      const idx = lines.findIndex((l) => l.omQuotationLineId === item.omQuotationLineId);
       switch (columnKey) {
-        case "lineProductName":
+        case "omQuotationLineProductName":
           return canEdit ? (
             <Input
               variant="bordered"
               radius="md"
               size="md"
-              value={item.lineProductName}
-              onValueChange={(v) => updateLine(idx, "lineProductName", v)}
+              value={item.omQuotationLineProductName}
+              onValueChange={(v) => updateLine(idx, "omQuotationLineProductName", v)}
             />
           ) : (
-            item.lineProductName
+            item.omQuotationLineProductName
           );
-        case "lineVariant":
+        case "omQuotationLineVariant":
           return canEdit ? (
             <Input
               variant="bordered"
               radius="md"
               size="md"
-              value={item.lineVariant || ""}
-              onValueChange={(v) => updateLine(idx, "lineVariant", v)}
+              value={item.omQuotationLineVariant || ""}
+              onValueChange={(v) => updateLine(idx, "omQuotationLineVariant", v)}
             />
           ) : (
-            item.lineVariant || "-"
+            item.omQuotationLineVariant || "-"
           );
-        case "lineQuantity":
+        case "omQuotationLineQuantity":
           return canEdit ? (
             <Input
               variant="bordered"
@@ -124,13 +124,13 @@ export default function QuotationEditorPage() {
               size="md"
               type="number"
               classNames={{ input: "text-right" }}
-              value={String(item.lineQuantity)}
-              onValueChange={(v) => updateLine(idx, "lineQuantity", Number(v) || 0)}
+              value={String(item.omQuotationLineQuantity)}
+              onValueChange={(v) => updateLine(idx, "omQuotationLineQuantity", Number(v) || 0)}
             />
           ) : (
-            <span className="block text-right">{item.lineQuantity}</span>
+            <span className="block text-right">{item.omQuotationLineQuantity}</span>
           );
-        case "lineUnitPrice":
+        case "omQuotationLineUnitPrice":
           return canEdit ? (
             <Input
               variant="bordered"
@@ -138,18 +138,18 @@ export default function QuotationEditorPage() {
               size="md"
               type="number"
               classNames={{ input: "text-right" }}
-              value={String(item.lineUnitPrice)}
-              onValueChange={(v) => updateLine(idx, "lineUnitPrice", Number(v) || 0)}
+              value={String(item.omQuotationLineUnitPrice)}
+              onValueChange={(v) => updateLine(idx, "omQuotationLineUnitPrice", Number(v) || 0)}
             />
           ) : (
             <span className="block text-right">
-              {(item.lineUnitPrice || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+              {(item.omQuotationLineUnitPrice || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </span>
           );
-        case "lineTotal":
+        case "omQuotationLineTotal":
           return (
             <span className="block text-right font-medium">
-              {item.lineTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+              {item.omQuotationLineTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </span>
           );
         default:
@@ -173,7 +173,7 @@ export default function QuotationEditorPage() {
           >
             <ArrowLeft size={18} />
           </Button>
-          <h2 className="text-lg font-semibold">{quotation.quotationNumber}</h2>
+          <h2 className="text-lg font-semibold">{quotation.omQuotationNumber}</h2>
           <Chip variant="bordered" size="md" radius="md" color={status.color}>
             {status.label}
           </Chip>
@@ -211,8 +211,8 @@ export default function QuotationEditorPage() {
             variant="bordered"
             radius="md"
             size="md"
-            value={quotation.quotationCustomerName || ""}
-            onValueChange={(v) => setQuotation((q) => ({ ...q, quotationCustomerName: v }))}
+            value={quotation.omQuotationCustomerName || ""}
+            onValueChange={(v) => setQuotation((q) => ({ ...q, omQuotationCustomerName: v }))}
             isReadOnly={!canEdit}
           />
           <Input
@@ -221,8 +221,8 @@ export default function QuotationEditorPage() {
             variant="bordered"
             radius="md"
             size="md"
-            value={quotation.quotationCustomerPhone || ""}
-            onValueChange={(v) => setQuotation((q) => ({ ...q, quotationCustomerPhone: v }))}
+            value={quotation.omQuotationCustomerPhone || ""}
+            onValueChange={(v) => setQuotation((q) => ({ ...q, omQuotationCustomerPhone: v }))}
             isReadOnly={!canEdit}
           />
           <Input
@@ -231,8 +231,8 @@ export default function QuotationEditorPage() {
             variant="bordered"
             radius="md"
             size="md"
-            value={quotation.quotationCustomerAddress || ""}
-            onValueChange={(v) => setQuotation((q) => ({ ...q, quotationCustomerAddress: v }))}
+            value={quotation.omQuotationCustomerAddress || ""}
+            onValueChange={(v) => setQuotation((q) => ({ ...q, omQuotationCustomerAddress: v }))}
             isReadOnly={!canEdit}
             className="col-span-2"
           />
@@ -245,8 +245,8 @@ export default function QuotationEditorPage() {
             columns={lineColumns}
             data={lineData}
             renderCell={renderLineCell}
-            rowKey="lineId"
-            initialVisibleColumns={["lineProductName", "lineVariant", "lineQuantity", "lineUnitPrice", "lineTotal"]}
+            rowKey="omQuotationLineId"
+            initialVisibleColumns={["omQuotationLineProductName", "omQuotationLineVariant", "omQuotationLineQuantity", "omQuotationLineUnitPrice", "omQuotationLineTotal"]}
             emptyContent="ไม่มีรายการสินค้า"
             defaultRowsPerPage={20}
           />
@@ -266,57 +266,57 @@ export default function QuotationEditorPage() {
           radius="md"
           size="md"
           minRows={2}
-          value={quotation.quotationNotes || ""}
-          onValueChange={(v) => setQuotation((q) => ({ ...q, quotationNotes: v }))}
+          value={quotation.omQuotationNotes || ""}
+          onValueChange={(v) => setQuotation((q) => ({ ...q, omQuotationNotes: v }))}
           isReadOnly={!canEdit}
         />
 
         {/* Payment Slip */}
-        {quotation.paymentSlip?.messageImageUrl && (
+        {quotation.paymentSlip?.omMessageImageUrl && (
           <div className="p-4 bg-default-50 rounded-lg border border-default-200">
             <p className="font-semibold mb-3 flex items-center gap-2">
               <Receipt size={16} />
               หลักฐานการชำระเงิน
             </p>
             <div className="flex gap-4">
-              <a href={quotation.paymentSlip.messageImageUrl} target="_blank" rel="noopener noreferrer">
+              <a href={quotation.paymentSlip.omMessageImageUrl} target="_blank" rel="noopener noreferrer">
                 <img
-                  src={quotation.paymentSlip.messageImageUrl}
+                  src={quotation.paymentSlip.omMessageImageUrl}
                   alt="สลิปการโอนเงิน"
                   className="rounded-lg border border-default-200 cursor-pointer hover:opacity-90 transition-opacity"
                   style={{ maxHeight: 300, maxWidth: 220 }}
                 />
               </a>
-              {quotation.paymentSlip.messageOcrData && (
+              {quotation.paymentSlip.omMessageOcrData && (
                 <div className="text-sm space-y-2 flex-1">
-                  {quotation.paymentSlip.messageOcrData.amount && (
+                  {quotation.paymentSlip.omMessageOcrData.amount && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-default-400">ยอดเงิน</span>
-                      <span className="font-semibold">{Number(quotation.paymentSlip.messageOcrData.amount).toLocaleString()} บาท</span>
+                      <span className="font-semibold">{Number(quotation.paymentSlip.omMessageOcrData.amount).toLocaleString()} บาท</span>
                     </div>
                   )}
-                  {quotation.paymentSlip.messageOcrData.fromBank && (
+                  {quotation.paymentSlip.omMessageOcrData.fromBank && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-default-400">ธนาคารผู้โอน</span>
-                      <span>{quotation.paymentSlip.messageOcrData.fromBank}</span>
+                      <span>{quotation.paymentSlip.omMessageOcrData.fromBank}</span>
                     </div>
                   )}
-                  {quotation.paymentSlip.messageOcrData.toBank && (
+                  {quotation.paymentSlip.omMessageOcrData.toBank && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-default-400">ธนาคารผู้รับ</span>
-                      <span>{quotation.paymentSlip.messageOcrData.toBank}</span>
+                      <span>{quotation.paymentSlip.omMessageOcrData.toBank}</span>
                     </div>
                   )}
-                  {quotation.paymentSlip.messageOcrData.datetime && (
+                  {quotation.paymentSlip.omMessageOcrData.datetime && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-default-400">วันเวลา</span>
-                      <span>{quotation.paymentSlip.messageOcrData.datetime}</span>
+                      <span>{quotation.paymentSlip.omMessageOcrData.datetime}</span>
                     </div>
                   )}
-                  {quotation.paymentSlip.messageOcrData.reference && (
+                  {quotation.paymentSlip.omMessageOcrData.reference && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-default-400">เลขอ้างอิง</span>
-                      <span>{quotation.paymentSlip.messageOcrData.reference}</span>
+                      <span>{quotation.paymentSlip.omMessageOcrData.reference}</span>
                     </div>
                   )}
                 </div>
@@ -326,10 +326,10 @@ export default function QuotationEditorPage() {
         )}
 
         {/* Approval Info */}
-        {quotation.quotationApprovalNote && (
+        {quotation.omQuotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
             <p className="text-sm font-semibold text-danger mb-1">เหตุผลที่ไม่อนุมัติ:</p>
-            <p className="text-sm">{quotation.quotationApprovalNote}</p>
+            <p className="text-sm">{quotation.omQuotationApprovalNote}</p>
           </div>
         )}
 

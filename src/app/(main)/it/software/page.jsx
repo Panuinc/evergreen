@@ -18,13 +18,13 @@ import { useItSoftware } from "@/hooks/it/useItSoftware";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อซอฟต์แวร์", uid: "softwareName", sortable: true },
-  { name: "ผู้จำหน่าย", uid: "softwareVendor", sortable: true },
-  { name: "เวอร์ชัน", uid: "softwareVersion" },
-  { name: "ประเภทไลเซนส์", uid: "softwareLicenseType" },
-  { name: "ไลเซนส์", uid: "licenseUsage" },
-  { name: "วันหมดอายุ", uid: "softwareExpiryDate", sortable: true },
-  { name: "สถานะ", uid: "softwareStatus", sortable: true },
+  { name: "ชื่อซอฟต์แวร์", uid: "itSoftwareName", sortable: true },
+  { name: "ผู้จำหน่าย", uid: "itSoftwareVendor", sortable: true },
+  { name: "เวอร์ชัน", uid: "itSoftwareVersion" },
+  { name: "ประเภทไลเซนส์", uid: "itSoftwareLicenseType" },
+  { name: "ไลเซนส์", uid: "itSoftwareLicenseUsage" },
+  { name: "วันหมดอายุ", uid: "itSoftwareExpiryDate", sortable: true },
+  { name: "สถานะ", uid: "itSoftwareStatus", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -35,12 +35,12 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "softwareName",
-  "softwareVendor",
-  "softwareLicenseType",
-  "licenseUsage",
-  "softwareExpiryDate",
-  "softwareStatus",
+  "itSoftwareName",
+  "itSoftwareVendor",
+  "itSoftwareLicenseType",
+  "itSoftwareLicenseUsage",
+  "itSoftwareExpiryDate",
+  "itSoftwareStatus",
   "actions",
 ];
 
@@ -66,19 +66,19 @@ export default function SoftwarePage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "softwareName":
-          return <span className="font-medium">{item.softwareName}</span>;
-        case "softwareVendor":
-          return item.softwareVendor || "-";
-        case "softwareVersion":
-          return item.softwareVersion || "-";
-        case "softwareLicenseType":
-          return item.softwareLicenseType || "-";
-        case "licenseUsage":
-          return `${item.softwareUsedCount || 0} / ${item.softwareLicenseCount || 0}`;
-        case "softwareExpiryDate":
-          return item.softwareExpiryDate || "-";
-        case "softwareStatus": {
+        case "itSoftwareName":
+          return <span className="font-medium">{item.itSoftwareName}</span>;
+        case "itSoftwareVendor":
+          return item.itSoftwareVendor || "-";
+        case "itSoftwareVersion":
+          return item.itSoftwareVersion || "-";
+        case "itSoftwareLicenseType":
+          return item.itSoftwareLicenseType || "-";
+        case "itSoftwareLicenseUsage":
+          return `${item.itSoftwareUsedCount || 0} / ${item.itSoftwareLicenseCount || 0}`;
+        case "itSoftwareExpiryDate":
+          return item.itSoftwareExpiryDate || "-";
+        case "itSoftwareStatus": {
           const colorMap = {
             active: "success",
             expired: "danger",
@@ -89,9 +89,9 @@ export default function SoftwarePage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.softwareStatus] || "default"}
+              color={colorMap[item.itSoftwareStatus] || "default"}
             >
-              {item.softwareStatus}
+              {item.itSoftwareStatus}
             </Chip>
           );
         }
@@ -132,17 +132,17 @@ export default function SoftwarePage() {
         data={software}
         renderCell={renderCell}
         enableCardView
-        rowKey="softwareId"
+        rowKey="itSoftwareId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อ, ผู้จำหน่าย, รหัสไลเซนส์..."
         searchKeys={[
-          "softwareName",
-          "softwareVendor",
-          "softwareLicenseKey",
-          "softwareVersion",
+          "itSoftwareName",
+          "itSoftwareVendor",
+          "itSoftwareLicenseKey",
+          "itSoftwareVersion",
         ]}
-        statusField="softwareStatus"
+        statusField="itSoftwareStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบซอฟต์แวร์"
         topEndContent={
@@ -180,11 +180,11 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.softwareName}
-                    onChange={(e) => updateField("softwareName", e.target.value)}
+                    value={formData.itSoftwareName}
+                    onChange={(e) => updateField("itSoftwareName", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.softwareName}
-                    errorMessage={validationErrors?.softwareName}
+                    isInvalid={!!validationErrors?.itSoftwareName}
+                    errorMessage={validationErrors?.itSoftwareName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -195,8 +195,8 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.softwareVendor}
-                    onChange={(e) => updateField("softwareVendor", e.target.value)}
+                    value={formData.itSoftwareVendor}
+                    onChange={(e) => updateField("itSoftwareVendor", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -207,8 +207,8 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.softwareVersion}
-                    onChange={(e) => updateField("softwareVersion", e.target.value)}
+                    value={formData.itSoftwareVersion}
+                    onChange={(e) => updateField("itSoftwareVersion", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -219,8 +219,8 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.softwareLicenseKey}
-                    onChange={(e) => updateField("softwareLicenseKey", e.target.value)}
+                    value={formData.itSoftwareLicenseKey}
+                    onChange={(e) => updateField("itSoftwareLicenseKey", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -231,10 +231,10 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.softwareLicenseType ? [formData.softwareLicenseType] : []}
+                    selectedKeys={formData.itSoftwareLicenseType ? [formData.itSoftwareLicenseType] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("softwareLicenseType", val);
+                      updateField("itSoftwareLicenseType", val);
                     }}
                   >
                     <SelectItem key="perpetual">ถาวร</SelectItem>
@@ -252,8 +252,8 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.softwareLicenseCount}
-                    onChange={(e) => updateField("softwareLicenseCount", e.target.value)}
+                    value={formData.itSoftwareLicenseCount}
+                    onChange={(e) => updateField("itSoftwareLicenseCount", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -265,8 +265,8 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.softwareUsedCount}
-                    onChange={(e) => updateField("softwareUsedCount", e.target.value)}
+                    value={formData.itSoftwareUsedCount}
+                    onChange={(e) => updateField("itSoftwareUsedCount", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -278,8 +278,8 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.softwareExpiryDate}
-                    onChange={(e) => updateField("softwareExpiryDate", e.target.value)}
+                    value={formData.itSoftwareExpiryDate}
+                    onChange={(e) => updateField("itSoftwareExpiryDate", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -289,10 +289,10 @@ export default function SoftwarePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.softwareStatus]}
+                    selectedKeys={[formData.itSoftwareStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "active";
-                      updateField("softwareStatus", val);
+                      updateField("itSoftwareStatus", val);
                     }}
                   >
                     <SelectItem key="active">เปิดใช้งาน</SelectItem>
@@ -309,8 +309,8 @@ export default function SoftwarePage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.softwareNotes}
-                  onChange={(e) => updateField("softwareNotes", e.target.value)}
+                  value={formData.itSoftwareNotes}
+                  onChange={(e) => updateField("itSoftwareNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -340,7 +340,7 @@ export default function SoftwarePage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingSoftware?.softwareName}
+                {deletingSoftware?.itSoftwareName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

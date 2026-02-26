@@ -16,9 +16,9 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data: quotation, error } = await auth.supabase
-    .from("omQuotations")
-    .select("*, omContacts(contactDisplayName, contactChannelType)")
-    .eq("quotationId", id)
+    .from("omQuotation")
+    .select("*, omContact(omContactDisplayName, omContactChannelType)")
+    .eq("omQuotationId", id)
     .single();
 
   if (error || !quotation) {
@@ -26,25 +26,25 @@ export async function GET(request, { params }) {
   }
 
   const { data: lines } = await auth.supabase
-    .from("omQuotationLines")
+    .from("omQuotationLine")
     .select("*")
-    .eq("lineQuotationId", id)
-    .order("lineOrder", { ascending: true });
+    .eq("omQuotationLineQuotationId", id)
+    .order("omQuotationLineOrder", { ascending: true });
 
   // Fetch payment slip from conversation (latest image with OCR data)
   let paymentSlip = null;
-  if (quotation.quotationConversationId && ["approved", "paid"].includes(quotation.quotationStatus)) {
+  if (quotation.omQuotationConversationId && ["approved", "paid"].includes(quotation.omQuotationStatus)) {
     const { data: slipMsg } = await auth.supabase
-      .from("omMessages")
-      .select("messageImageUrl, messageOcrData, messageCreatedAt")
-      .eq("messageConversationId", quotation.quotationConversationId)
-      .eq("messageType", "image")
-      .not("messageImageUrl", "is", null)
-      .order("messageCreatedAt", { ascending: false })
+      .from("omMessage")
+      .select("omMessageImageUrl, omMessageOcrData, omMessageCreatedAt")
+      .eq("omMessageConversationId", quotation.omQuotationConversationId)
+      .eq("omMessageType", "image")
+      .not("omMessageImageUrl", "is", null)
+      .order("omMessageCreatedAt", { ascending: false })
       .limit(1)
       .single();
 
-    if (slipMsg?.messageImageUrl) {
+    if (slipMsg?.omMessageImageUrl) {
       paymentSlip = slipMsg;
     }
   }
@@ -61,35 +61,35 @@ export async function PUT(request, { params }) {
 
   // Update quotation fields
   const updateData = {};
-  if (body.quotationCustomerName !== undefined) updateData.quotationCustomerName = body.quotationCustomerName;
-  if (body.quotationCustomerPhone !== undefined) updateData.quotationCustomerPhone = body.quotationCustomerPhone;
-  if (body.quotationCustomerAddress !== undefined) updateData.quotationCustomerAddress = body.quotationCustomerAddress;
-  if (body.quotationPaymentMethod !== undefined) updateData.quotationPaymentMethod = body.quotationPaymentMethod;
-  if (body.quotationNotes !== undefined) updateData.quotationNotes = body.quotationNotes;
+  if (body.omQuotationCustomerName !== undefined) updateData.omQuotationCustomerName = body.omQuotationCustomerName;
+  if (body.omQuotationCustomerPhone !== undefined) updateData.omQuotationCustomerPhone = body.omQuotationCustomerPhone;
+  if (body.omQuotationCustomerAddress !== undefined) updateData.omQuotationCustomerAddress = body.omQuotationCustomerAddress;
+  if (body.omQuotationPaymentMethod !== undefined) updateData.omQuotationPaymentMethod = body.omQuotationPaymentMethod;
+  if (body.omQuotationNotes !== undefined) updateData.omQuotationNotes = body.omQuotationNotes;
 
   if (Object.keys(updateData).length > 0) {
-    updateData.quotationUpdatedAt = new Date().toISOString();
+    updateData.omQuotationUpdatedAt = new Date().toISOString();
     const { error } = await auth.supabase
-      .from("omQuotations")
+      .from("omQuotation")
       .update(updateData)
-      .eq("quotationId", id);
+      .eq("omQuotationId", id);
     if (error) return Response.json({ error: error.message }, { status: 500 });
   }
 
   // Update lines if provided
   if (body.lines) {
     for (const line of body.lines) {
-      const amount = (line.lineQuantity || 0) * (line.lineUnitPrice || 0);
+      const amount = (line.omQuotationLineQuantity || 0) * (line.omQuotationLineUnitPrice || 0);
       await auth.supabase
-        .from("omQuotationLines")
+        .from("omQuotationLine")
         .update({
-          lineProductName: line.lineProductName,
-          lineVariant: line.lineVariant,
-          lineQuantity: line.lineQuantity,
-          lineUnitPrice: line.lineUnitPrice,
-          lineAmount: amount,
+          omQuotationLineProductName: line.omQuotationLineProductName,
+          omQuotationLineVariant: line.omQuotationLineVariant,
+          omQuotationLineQuantity: line.omQuotationLineQuantity,
+          omQuotationLineUnitPrice: line.omQuotationLineUnitPrice,
+          omQuotationLineAmount: amount,
         })
-        .eq("lineId", line.lineId);
+        .eq("omQuotationLineId", line.omQuotationLineId);
     }
   }
 
@@ -110,39 +110,39 @@ export async function PATCH(request, { params }) {
 
   // Get current quotation
   const { data: quotation } = await auth.supabase
-    .from("omQuotations")
-    .select("quotationStatus, quotationConversationId")
-    .eq("quotationId", id)
+    .from("omQuotation")
+    .select("omQuotationStatus, omQuotationConversationId")
+    .eq("omQuotationId", id)
     .single();
 
   if (!quotation) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
-  if (!transition.from.includes(quotation.quotationStatus)) {
+  if (!transition.from.includes(quotation.omQuotationStatus)) {
     return Response.json(
-      { error: `Cannot ${action} from status "${quotation.quotationStatus}"` },
+      { error: `Cannot ${action} from status "${quotation.omQuotationStatus}"` },
       { status: 400 }
     );
   }
 
   const updateData = {
-    quotationStatus: transition.to,
-    quotationUpdatedAt: new Date().toISOString(),
+    omQuotationStatus: transition.to,
+    omQuotationUpdatedAt: new Date().toISOString(),
   };
 
   if (action === "submit") {
-    updateData.quotationSubmittedBy = auth.session.user.id;
+    updateData.omQuotationSubmittedBy = auth.session.user.id;
   } else if (action === "approve") {
-    updateData.quotationApprovedBy = auth.session.user.id;
+    updateData.omQuotationApprovedBy = auth.session.user.id;
   } else if (action === "reject") {
-    updateData.quotationApprovalNote = note || "";
+    updateData.omQuotationApprovalNote = note || "";
   }
 
   const { error } = await auth.supabase
-    .from("omQuotations")
+    .from("omQuotation")
     .update(updateData)
-    .eq("quotationId", id);
+    .eq("omQuotationId", id);
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -158,22 +158,22 @@ export async function PATCH(request, { params }) {
       // Send quotation link
       await sendAiMessage(
         serviceSupabase,
-        quotation.quotationConversationId,
+        quotation.omQuotationConversationId,
         `ใบเสนอราคาของท่าน: ${quotationUrl}`
       );
 
       // Send bank account info if configured
       const { data: aiSettings } = await serviceSupabase
-        .from("omAiSettings")
-        .select("aiBankAccountInfo")
+        .from("omAiSetting")
+        .select("omAiSettingBankAccountInfo")
         .limit(1)
         .single();
 
-      if (aiSettings?.aiBankAccountInfo) {
+      if (aiSettings?.omAiSettingBankAccountInfo) {
         await sendAiMessage(
           serviceSupabase,
-          quotation.quotationConversationId,
-          `รายละเอียดการชำระเงิน:\n${aiSettings.aiBankAccountInfo}\n\nเมื่อชำระเงินแล้ว กรุณาส่งหลักฐานการโอนเงินมาทางแชทนี้ค่ะ`
+          quotation.omQuotationConversationId,
+          `รายละเอียดการชำระเงิน:\n${aiSettings.omAiSettingBankAccountInfo}\n\nเมื่อชำระเงินแล้ว กรุณาส่งหลักฐานการโอนเงินมาทางแชทนี้ค่ะ`
         );
       }
     } catch (err) {
@@ -187,7 +187,7 @@ export async function PATCH(request, { params }) {
       const serviceSupabase = getServiceSupabase();
       await sendAiMessage(
         serviceSupabase,
-        quotation.quotationConversationId,
+        quotation.omQuotationConversationId,
         `ได้รับการชำระเงินเรียบร้อยแล้วค่ะ ขอบคุณที่ใช้บริการค่ะ 🙏`
       );
     } catch (err) {

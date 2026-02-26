@@ -7,9 +7,9 @@ export async function GET(request, { params }) {
   const { roleId } = await params;
 
   const { data, error } = await supabase
-    .from("rolePermissions")
-    .select("*, permissions(*, resources(*), actions(*))")
-    .eq("rolePermissionRoleId", roleId);
+    .from("rbacRolePermission")
+    .select("*, rbacPermission(*, rbacResource(*), rbacAction(*))")
+    .eq("rbacRolePermissionRoleId", roleId);
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -23,11 +23,11 @@ export async function POST(request, { params }) {
   const { permissionId } = await request.json();
 
   const { data, error } = await supabase
-    .from("rolePermissions")
+    .from("rbacRolePermission")
     .insert([
       {
-        rolePermissionRoleId: roleId,
-        rolePermissionPermissionId: permissionId,
+        rbacRolePermissionRoleId: roleId,
+        rbacRolePermissionPermissionId: permissionId,
       },
     ])
     .select()
@@ -46,10 +46,10 @@ export async function DELETE(request, { params }) {
   const permissionId = searchParams.get("permissionId");
 
   const { error } = await supabase
-    .from("rolePermissions")
+    .from("rbacRolePermission")
     .delete()
-    .eq("rolePermissionRoleId", roleId)
-    .eq("rolePermissionPermissionId", permissionId);
+    .eq("rbacRolePermissionRoleId", roleId)
+    .eq("rbacRolePermissionPermissionId", permissionId);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

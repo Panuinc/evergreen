@@ -18,13 +18,13 @@ import { useItNetwork } from "@/hooks/it/useItNetwork";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่ออุปกรณ์", uid: "deviceName", sortable: true },
-  { name: "ประเภท", uid: "deviceType", sortable: true },
-  { name: "ที่อยู่ IP", uid: "deviceIpAddress" },
-  { name: "ที่อยู่ MAC", uid: "deviceMacAddress" },
-  { name: "สถานที่", uid: "deviceLocation" },
-  { name: "ผู้ผลิต", uid: "deviceManufacturer" },
-  { name: "สถานะ", uid: "deviceStatus", sortable: true },
+  { name: "ชื่ออุปกรณ์", uid: "itNetworkDeviceName", sortable: true },
+  { name: "ประเภท", uid: "itNetworkDeviceType", sortable: true },
+  { name: "ที่อยู่ IP", uid: "itNetworkDeviceIpAddress" },
+  { name: "ที่อยู่ MAC", uid: "itNetworkDeviceMacAddress" },
+  { name: "สถานที่", uid: "itNetworkDeviceLocation" },
+  { name: "ผู้ผลิต", uid: "itNetworkDeviceManufacturer" },
+  { name: "สถานะ", uid: "itNetworkDeviceStatus", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -35,11 +35,11 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "deviceName",
-  "deviceType",
-  "deviceIpAddress",
-  "deviceLocation",
-  "deviceStatus",
+  "itNetworkDeviceName",
+  "itNetworkDeviceType",
+  "itNetworkDeviceIpAddress",
+  "itNetworkDeviceLocation",
+  "itNetworkDeviceStatus",
   "actions",
 ];
 
@@ -65,19 +65,19 @@ export default function NetworkPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "deviceName":
-          return <span className="font-medium">{item.deviceName}</span>;
-        case "deviceType":
-          return item.deviceType || "-";
-        case "deviceIpAddress":
-          return <span className="text-default-500">{item.deviceIpAddress || "-"}</span>;
-        case "deviceMacAddress":
-          return <span className="text-default-500">{item.deviceMacAddress || "-"}</span>;
-        case "deviceLocation":
-          return item.deviceLocation || "-";
-        case "deviceManufacturer":
-          return item.deviceManufacturer || "-";
-        case "deviceStatus": {
+        case "itNetworkDeviceName":
+          return <span className="font-medium">{item.itNetworkDeviceName}</span>;
+        case "itNetworkDeviceType":
+          return item.itNetworkDeviceType || "-";
+        case "itNetworkDeviceIpAddress":
+          return <span className="text-default-500">{item.itNetworkDeviceIpAddress || "-"}</span>;
+        case "itNetworkDeviceMacAddress":
+          return <span className="text-default-500">{item.itNetworkDeviceMacAddress || "-"}</span>;
+        case "itNetworkDeviceLocation":
+          return item.itNetworkDeviceLocation || "-";
+        case "itNetworkDeviceManufacturer":
+          return item.itNetworkDeviceManufacturer || "-";
+        case "itNetworkDeviceStatus": {
           const colorMap = {
             online: "success",
             offline: "danger",
@@ -88,9 +88,9 @@ export default function NetworkPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.deviceStatus] || "default"}
+              color={colorMap[item.itNetworkDeviceStatus] || "default"}
             >
-              {item.deviceStatus}
+              {item.itNetworkDeviceStatus}
             </Chip>
           );
         }
@@ -131,18 +131,18 @@ export default function NetworkPage() {
         data={devices}
         renderCell={renderCell}
         enableCardView
-        rowKey="deviceId"
+        rowKey="itNetworkDeviceId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อ, IP, สถานที่..."
         searchKeys={[
-          "deviceName",
-          "deviceIpAddress",
-          "deviceMacAddress",
-          "deviceLocation",
-          "deviceManufacturer",
+          "itNetworkDeviceName",
+          "itNetworkDeviceIpAddress",
+          "itNetworkDeviceMacAddress",
+          "itNetworkDeviceLocation",
+          "itNetworkDeviceManufacturer",
         ]}
-        statusField="deviceStatus"
+        statusField="itNetworkDeviceStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบอุปกรณ์เครือข่าย"
         topEndContent={
@@ -180,11 +180,11 @@ export default function NetworkPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deviceName}
-                    onChange={(e) => updateField("deviceName", e.target.value)}
+                    value={formData.itNetworkDeviceName}
+                    onChange={(e) => updateField("itNetworkDeviceName", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.deviceName}
-                    errorMessage={validationErrors?.deviceName}
+                    isInvalid={!!validationErrors?.itNetworkDeviceName}
+                    errorMessage={validationErrors?.itNetworkDeviceName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -195,10 +195,10 @@ export default function NetworkPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.deviceType ? [formData.deviceType] : []}
+                    selectedKeys={formData.itNetworkDeviceType ? [formData.itNetworkDeviceType] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("deviceType", val);
+                      updateField("itNetworkDeviceType", val);
                     }}
                   >
                     <SelectItem key="router">เราเตอร์</SelectItem>
@@ -216,8 +216,8 @@ export default function NetworkPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deviceIpAddress}
-                    onChange={(e) => updateField("deviceIpAddress", e.target.value)}
+                    value={formData.itNetworkDeviceIpAddress}
+                    onChange={(e) => updateField("itNetworkDeviceIpAddress", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -228,8 +228,8 @@ export default function NetworkPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deviceMacAddress}
-                    onChange={(e) => updateField("deviceMacAddress", e.target.value)}
+                    value={formData.itNetworkDeviceMacAddress}
+                    onChange={(e) => updateField("itNetworkDeviceMacAddress", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -240,8 +240,8 @@ export default function NetworkPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deviceLocation}
-                    onChange={(e) => updateField("deviceLocation", e.target.value)}
+                    value={formData.itNetworkDeviceLocation}
+                    onChange={(e) => updateField("itNetworkDeviceLocation", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -252,8 +252,8 @@ export default function NetworkPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deviceManufacturer}
-                    onChange={(e) => updateField("deviceManufacturer", e.target.value)}
+                    value={formData.itNetworkDeviceManufacturer}
+                    onChange={(e) => updateField("itNetworkDeviceManufacturer", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -264,8 +264,8 @@ export default function NetworkPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deviceModel}
-                    onChange={(e) => updateField("deviceModel", e.target.value)}
+                    value={formData.itNetworkDeviceModel}
+                    onChange={(e) => updateField("itNetworkDeviceModel", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -275,10 +275,10 @@ export default function NetworkPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.deviceStatus]}
+                    selectedKeys={[formData.itNetworkDeviceStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "online";
-                      updateField("deviceStatus", val);
+                      updateField("itNetworkDeviceStatus", val);
                     }}
                   >
                     <SelectItem key="online">ออนไลน์</SelectItem>
@@ -295,8 +295,8 @@ export default function NetworkPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.deviceNotes}
-                  onChange={(e) => updateField("deviceNotes", e.target.value)}
+                  value={formData.itNetworkDeviceNotes}
+                  onChange={(e) => updateField("itNetworkDeviceNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function NetworkPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingDevice?.deviceName}
+                {deletingDevice?.itNetworkDeviceName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

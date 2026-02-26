@@ -18,17 +18,17 @@ import { usePositions } from "@/hooks/hr/usePositions";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อตำแหน่ง", uid: "positionTitle", sortable: true },
-  { name: "แผนก", uid: "positionDepartment", sortable: true },
-  { name: "รายละเอียด", uid: "positionDescription" },
-  { name: "วันที่สร้าง", uid: "positionCreatedAt", sortable: true },
+  { name: "ชื่อตำแหน่ง", uid: "hrPositionTitle", sortable: true },
+  { name: "แผนก", uid: "hrPositionDepartment", sortable: true },
+  { name: "รายละเอียด", uid: "hrPositionDescription" },
+  { name: "วันที่สร้าง", uid: "hrPositionCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "positionTitle",
-  "positionDepartment",
-  "positionDescription",
+  "hrPositionTitle",
+  "hrPositionDepartment",
+  "hrPositionDescription",
   "actions",
 ];
 
@@ -52,27 +52,27 @@ export default function PositionsPage() {
   } = usePositions();
 
   const deptOptions = departments.map((d) => ({
-    name: d.departmentName,
-    uid: d.departmentName,
+    name: d.hrDepartmentName,
+    uid: d.hrDepartmentName,
   }));
 
   const renderCell = useCallback(
     (pos, columnKey) => {
       switch (columnKey) {
-        case "positionTitle":
-          return <span className="font-medium">{pos.positionTitle}</span>;
-        case "positionDepartment":
-          return pos.positionDepartment || "-";
-        case "positionDescription":
+        case "hrPositionTitle":
+          return <span className="font-medium">{pos.hrPositionTitle}</span>;
+        case "hrPositionDepartment":
+          return pos.hrPositionDepartment || "-";
+        case "hrPositionDescription":
           return (
             <span className="text-default-500">
-              {pos.positionDescription || "-"}
+              {pos.hrPositionDescription || "-"}
             </span>
           );
-        case "positionCreatedAt":
+        case "hrPositionCreatedAt":
           return (
             <span className="text-default-500">
-              {new Date(pos.positionCreatedAt).toLocaleDateString("th-TH")}
+              {new Date(pos.hrPositionCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );
         case "actions":
@@ -112,16 +112,16 @@ export default function PositionsPage() {
         data={positions}
         renderCell={renderCell}
         enableCardView
-        rowKey="positionId"
+        rowKey="hrPositionId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อตำแหน่ง, แผนก, รายละเอียด..."
         searchKeys={[
-          "positionTitle",
-          "positionDepartment",
-          "positionDescription",
+          "hrPositionTitle",
+          "hrPositionDepartment",
+          "hrPositionDescription",
         ]}
-        statusField="positionDepartment"
+        statusField="hrPositionDepartment"
         statusOptions={deptOptions}
         filterLabel="แผนก"
         emptyContent="ไม่พบตำแหน่ง"
@@ -155,19 +155,19 @@ export default function PositionsPage() {
                   size="md"
                   radius="md"
                   selectedKeys={
-                    formData.positionDepartment
-                      ? [formData.positionDepartment]
+                    formData.hrPositionDepartment
+                      ? [formData.hrPositionDepartment]
                       : []
                   }
                   onSelectionChange={(keys) => {
                     const val = Array.from(keys)[0] || "";
-                    setFormData({ ...formData, positionDepartment: val });
+                    setFormData({ ...formData, hrPositionDepartment: val });
                   }}
                   isRequired
                 >
                   {departments.map((dept) => (
-                    <SelectItem key={dept.departmentName}>
-                      {dept.departmentName}
+                    <SelectItem key={dept.hrDepartmentName}>
+                      {dept.hrDepartmentName}
                     </SelectItem>
                   ))}
                 </Select>
@@ -180,9 +180,9 @@ export default function PositionsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.positionTitle}
+                  value={formData.hrPositionTitle}
                   onChange={(e) =>
-                    setFormData({ ...formData, positionTitle: e.target.value })
+                    setFormData({ ...formData, hrPositionTitle: e.target.value })
                   }
                   isRequired
                 />
@@ -195,11 +195,11 @@ export default function PositionsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.positionDescription}
+                  value={formData.hrPositionDescription}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      positionDescription: e.target.value,
+                      hrPositionDescription: e.target.value,
                     })
                   }
                 />
@@ -231,7 +231,7 @@ export default function PositionsPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingPos?.positionTitle}
+                {deletingPos?.hrPositionTitle}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

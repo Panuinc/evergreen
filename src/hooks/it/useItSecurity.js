@@ -12,14 +12,14 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  incidentTitle: "",
-  incidentType: "other",
-  incidentSeverity: "medium",
-  incidentStatus: "open",
-  incidentReportedBy: "",
-  incidentAssignedTo: "",
-  incidentDescription: "",
-  incidentResolution: "",
+  itSecurityIncidentTitle: "",
+  itSecurityIncidentType: "other",
+  itSecurityIncidentSeverity: "medium",
+  itSecurityIncidentStatus: "open",
+  itSecurityIncidentReportedBy: "",
+  itSecurityIncidentAssignedTo: "",
+  itSecurityIncidentDescription: "",
+  itSecurityIncidentResolution: "",
 };
 
 export function useItSecurity() {
@@ -53,14 +53,14 @@ export function useItSecurity() {
     if (incident) {
       setEditingIncident(incident);
       setFormData({
-        incidentTitle: incident.incidentTitle || "",
-        incidentType: incident.incidentType || "other",
-        incidentSeverity: incident.incidentSeverity || "medium",
-        incidentStatus: incident.incidentStatus || "open",
-        incidentReportedBy: incident.incidentReportedBy || "",
-        incidentAssignedTo: incident.incidentAssignedTo || "",
-        incidentDescription: incident.incidentDescription || "",
-        incidentResolution: incident.incidentResolution || "",
+        itSecurityIncidentTitle: incident.itSecurityIncidentTitle || "",
+        itSecurityIncidentType: incident.itSecurityIncidentType || "other",
+        itSecurityIncidentSeverity: incident.itSecurityIncidentSeverity || "medium",
+        itSecurityIncidentStatus: incident.itSecurityIncidentStatus || "open",
+        itSecurityIncidentReportedBy: incident.itSecurityIncidentReportedBy || "",
+        itSecurityIncidentAssignedTo: incident.itSecurityIncidentAssignedTo || "",
+        itSecurityIncidentDescription: incident.itSecurityIncidentDescription || "",
+        itSecurityIncidentResolution: incident.itSecurityIncidentResolution || "",
       });
     } else {
       setEditingIncident(null);
@@ -72,7 +72,7 @@ export function useItSecurity() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      incidentTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อเหตุการณ์"],
+      itSecurityIncidentTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อเหตุการณ์"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -84,7 +84,7 @@ export function useItSecurity() {
     try {
       setSaving(true);
       if (editingIncident) {
-        await updateSecurityIncident(editingIncident.incidentId, formData);
+        await updateSecurityIncident(editingIncident.itSecurityIncidentId, formData);
         toast.success("อัปเดตเหตุการณ์สำเร็จ");
       } else {
         await createSecurityIncident(formData);
@@ -107,7 +107,7 @@ export function useItSecurity() {
   const handleDelete = async () => {
     if (!deletingIncident) return;
     try {
-      await deleteSecurityIncident(deletingIncident.incidentId);
+      await deleteSecurityIncident(deletingIncident.itSecurityIncidentId);
       toast.success("ลบเหตุการณ์สำเร็จ");
       deleteModal.onClose();
       setDeletingIncident(null);

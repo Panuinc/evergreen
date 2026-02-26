@@ -3,23 +3,23 @@ import { withAuth } from "@/app/api/_lib/auth";
 async function enrichAssignments(supabase, assignments) {
   if (!assignments || assignments.length === 0) return [];
 
-  const defIds = [...new Set(assignments.map((a) => a.definitionId))];
-  const empIds = [...new Set(assignments.map((a) => a.employeeId))];
+  const defIds = [...new Set(assignments.map((a) => a.perfKpiAssignmentDefinitionId))];
+  const empIds = [...new Set(assignments.map((a) => a.perfKpiAssignmentEmployeeId))];
 
   const [{ data: definitions }, { data: emps }] = await Promise.all([
-    supabase.from("kpi_definitions").select("*").in("id", defIds),
-    supabase.from("employees").select("employeeId, employeeFirstName, employeeLastName, employeeDepartment").in("employeeId", empIds),
+    supabase.from("perfKpiDefinition").select("*").in("perfKpiDefinitionId", defIds),
+    supabase.from("hrEmployee").select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment").in("hrEmployeeId", empIds),
   ]);
 
   const defMap = {};
-  for (const d of (definitions || [])) defMap[d.id] = d;
+  for (const d of (definitions || [])) defMap[d.perfKpiDefinitionId] = d;
   const empMap = {};
-  for (const e of (emps || [])) empMap[e.employeeId] = e;
+  for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
 
   return assignments.map((a) => ({
     ...a,
-    definition: defMap[a.definitionId] || null,
-    employee: empMap[a.employeeId] || null,
+    definition: defMap[a.perfKpiAssignmentDefinitionId] || null,
+    employee: empMap[a.perfKpiAssignmentEmployeeId] || null,
   }));
 }
 
@@ -35,24 +35,24 @@ export async function GET(request) {
   const myAssignments = searchParams.get("myAssignments");
 
   let query = supabase
-    .from("kpi_assignments")
+    .from("perfKpiAssignment")
     .select("*")
-    .order("createdAt", { ascending: false });
+    .order("perfKpiAssignmentCreatedAt", { ascending: false });
 
-  if (year) query = query.eq("year", parseInt(year));
-  if (definitionId) query = query.eq("definitionId", definitionId);
+  if (year) query = query.eq("perfKpiAssignmentYear", parseInt(year));
+  if (definitionId) query = query.eq("perfKpiAssignmentDefinitionId", definitionId);
 
   if (myAssignments === "true") {
     const { data: currentEmployee } = await supabase
-      .from("employees")
-      .select("employeeId")
-      .eq("employeeUserId", session.user.id)
+      .from("hrEmployee")
+      .select("hrEmployeeId")
+      .eq("hrEmployeeUserId", session.user.id)
       .maybeSingle();
 
     if (!currentEmployee) return Response.json([]);
-    query = query.eq("employeeId", currentEmployee.employeeId);
+    query = query.eq("perfKpiAssignmentEmployeeId", currentEmployee.hrEmployeeId);
   } else if (employeeId) {
-    query = query.eq("employeeId", employeeId);
+    query = query.eq("perfKpiAssignmentEmployeeId", employeeId);
   }
 
   const { data, error } = await query;
@@ -75,13 +75,13 @@ export async function POST(request) {
   }
 
   const { data, error } = await supabase
-    .from("kpi_assignments")
+    .from("perfKpiAssignment")
     .insert([{
-      definitionId,
-      employeeId,
-      year: parseInt(year),
-      targetValue: parseFloat(targetValue),
-      weight: weight ? parseFloat(weight) : 1,
+      perfKpiAssignmentDefinitionId: definitionId,
+      perfKpiAssignmentEmployeeId: employeeId,
+      perfKpiAssignmentYear: parseInt(year),
+      perfKpiAssignmentTargetValue: parseFloat(targetValue),
+      perfKpiAssignmentWeight: weight ? parseFloat(weight) : 1,
     }])
     .select()
     .single();

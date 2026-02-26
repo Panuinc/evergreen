@@ -42,8 +42,8 @@ export function useFeedback360() {
   const cycleModal = useDisclosure();
   const [editingCycle, setEditingCycle] = useState(null);
   const [cycleForm, setCycleForm] = useState({
-    name: "", description: "", year: String(new Date().getFullYear()),
-    quarter: "", responseDeadline: "", anonymousToReviewee: true,
+    perf360CycleName: "", perf360CycleDescription: "", perf360CycleYear: String(new Date().getFullYear()),
+    perf360CycleQuarter: "", perf360CycleResponseDeadline: "", perf360CycleAnonymousToReviewee: true,
   });
   const [savingCycle, setSavingCycle] = useState(false);
 
@@ -57,7 +57,7 @@ export function useFeedback360() {
   const [loadingNominations, setLoadingNominations] = useState(false);
   const nominationModal = useDisclosure();
   const [nominationForm, setNominationForm] = useState({
-    revieweeEmployeeId: "", reviewerEmployeeId: "", relationshipType: "peer",
+    perf360NominationRevieweeEmployeeId: "", perf360NominationReviewerEmployeeId: "", perf360NominationRelationshipType: "peer",
   });
   const [savingNomination, setSavingNomination] = useState(false);
 
@@ -71,7 +71,7 @@ export function useFeedback360() {
   const [reviewCompetencies, setReviewCompetencies] = useState([]);
   const [reviewScores, setReviewScores] = useState({});
   const [reviewComments, setReviewComments] = useState({
-    strengthComment: "", improvementComment: "", comment: "",
+    perf360ResponseStrengthComment: "", perf360ResponseImprovementComment: "", perf360ResponseComment: "",
   });
   const [submittingReview, setSubmittingReview] = useState(false);
 
@@ -92,7 +92,7 @@ export function useFeedback360() {
       const data = await getEmployees();
       setEmployees(data || []);
       if (user?.id) {
-        const myEmp = (data || []).find((e) => e.employeeUserId === user.id);
+        const myEmp = (data || []).find((e) => e.hrEmployeeUserId === user.id);
         setCurrentEmployee(myEmp || null);
       }
     } catch {
@@ -140,33 +140,41 @@ export function useFeedback360() {
     if (cycle) {
       setEditingCycle(cycle);
       setCycleForm({
-        name: cycle.name, description: cycle.description || "",
-        year: String(cycle.year), quarter: cycle.quarter ? String(cycle.quarter) : "",
-        responseDeadline: cycle.responseDeadline ? cycle.responseDeadline.split("T")[0] : "",
-        anonymousToReviewee: cycle.anonymousToReviewee !== false,
+        perf360CycleName: cycle.perf360CycleName, perf360CycleDescription: cycle.perf360CycleDescription || "",
+        perf360CycleYear: String(cycle.perf360CycleYear), perf360CycleQuarter: cycle.perf360CycleQuarter ? String(cycle.perf360CycleQuarter) : "",
+        perf360CycleResponseDeadline: cycle.perf360CycleResponseDeadline ? cycle.perf360CycleResponseDeadline.split("T")[0] : "",
+        perf360CycleAnonymousToReviewee: cycle.perf360CycleAnonymousToReviewee !== false,
       });
     } else {
       setEditingCycle(null);
       setCycleForm({
-        name: "", description: "", year: String(new Date().getFullYear()),
-        quarter: "", responseDeadline: "", anonymousToReviewee: true,
+        perf360CycleName: "", perf360CycleDescription: "", perf360CycleYear: String(new Date().getFullYear()),
+        perf360CycleQuarter: "", perf360CycleResponseDeadline: "", perf360CycleAnonymousToReviewee: true,
       });
     }
     cycleModal.onOpen();
   }, [cycleModal]);
 
   const handleSaveCycle = useCallback(async () => {
-    if (!cycleForm.name.trim() || !cycleForm.responseDeadline) {
+    if (!cycleForm.perf360CycleName.trim() || !cycleForm.perf360CycleResponseDeadline) {
       toast.error("กรุณากรอกชื่อและวันสิ้นสุด");
       return;
     }
     setSavingCycle(true);
     try {
+      const payload = {
+        name: cycleForm.perf360CycleName,
+        description: cycleForm.perf360CycleDescription,
+        year: cycleForm.perf360CycleYear,
+        quarter: cycleForm.perf360CycleQuarter,
+        responseDeadline: cycleForm.perf360CycleResponseDeadline,
+        anonymousToReviewee: cycleForm.perf360CycleAnonymousToReviewee,
+      };
       if (editingCycle) {
-        await updateFeedback360Cycle(editingCycle.id, cycleForm);
+        await updateFeedback360Cycle(editingCycle.perf360CycleId, payload);
         toast.success("อัปเดตรอบประเมินสำเร็จ");
       } else {
-        await createFeedback360Cycle(cycleForm);
+        await createFeedback360Cycle(payload);
         toast.success("สร้างรอบประเมินสำเร็จ");
       }
       cycleModal.onClose();
@@ -178,20 +186,20 @@ export function useFeedback360() {
     }
   }, [editingCycle, cycleForm, cycleModal, loadCycles]);
 
-  const handleDeleteCycle = useCallback(async (id) => {
+  const handleDeleteCycle = useCallback(async (perf360CycleId) => {
     try {
-      await deleteFeedback360Cycle(id);
+      await deleteFeedback360Cycle(perf360CycleId);
       toast.success("ลบรอบประเมินสำเร็จ");
       loadCycles();
-      if (selectedCycle?.id === id) setSelectedCycle(null);
+      if (selectedCycle?.perf360CycleId === perf360CycleId) setSelectedCycle(null);
     } catch (error) {
       toast.error(error.message || "เกิดข้อผิดพลาด");
     }
   }, [loadCycles, selectedCycle]);
 
-  const handleTransition = useCallback(async (cycleId, toStatus) => {
+  const handleTransition = useCallback(async (perf360CycleId, toStatus) => {
     try {
-      await transitionFeedback360Cycle(cycleId, toStatus);
+      await transitionFeedback360Cycle(perf360CycleId, toStatus);
       toast.success("เปลี่ยนสถานะสำเร็จ");
       loadCycles();
     } catch (error) {
@@ -200,10 +208,10 @@ export function useFeedback360() {
   }, [loadCycles]);
 
   // ====== Competencies ======
-  const loadCompetencies = useCallback(async (cycleId) => {
+  const loadCompetencies = useCallback(async (perf360CycleId) => {
     setLoadingCompetencies(true);
     try {
-      const data = await getFeedback360Competencies(cycleId);
+      const data = await getFeedback360Competencies(perf360CycleId);
       setCompetencies(data || []);
     } catch {
       toast.error("ไม่สามารถโหลดสมรรถนะได้");
@@ -212,12 +220,12 @@ export function useFeedback360() {
     }
   }, []);
 
-  const handleSaveCompetencies = useCallback(async (cycleId, comps) => {
+  const handleSaveCompetencies = useCallback(async (perf360CycleId, comps) => {
     setSavingCompetencies(true);
     try {
-      await saveFeedback360Competencies(cycleId, comps);
+      await saveFeedback360Competencies(perf360CycleId, comps);
       toast.success("บันทึกสมรรถนะสำเร็จ");
-      loadCompetencies(cycleId);
+      loadCompetencies(perf360CycleId);
     } catch (error) {
       toast.error(error.message || "เกิดข้อผิดพลาด");
     } finally {
@@ -225,17 +233,17 @@ export function useFeedback360() {
     }
   }, [loadCompetencies]);
 
-  const handleLoadTemplates = useCallback((cycleId) => {
+  const handleLoadTemplates = useCallback((perf360CycleId) => {
     setCompetencies(DEFAULT_COMPETENCY_TEMPLATES.map((t, i) => ({
-      ...t, id: `template-${i}`, sortOrder: i, weight: 1, questions: t.questions,
+      ...t, perf360CompetencyId: `template-${i}`, perf360CompetencySortOrder: i, perf360CompetencyWeight: 1, perf360CompetencyQuestions: t.questions,
     })));
   }, []);
 
   // ====== Nominations ======
-  const loadNominations = useCallback(async (cycleId) => {
+  const loadNominations = useCallback(async (perf360CycleId) => {
     setLoadingNominations(true);
     try {
-      const data = await getFeedback360Nominations(cycleId);
+      const data = await getFeedback360Nominations(perf360CycleId);
       setNominations(data || []);
     } catch {
       toast.error("ไม่สามารถโหลดรายชื่อผู้ประเมินได้");
@@ -245,24 +253,26 @@ export function useFeedback360() {
   }, []);
 
   const handleOpenNominationForm = useCallback(() => {
-    setNominationForm({ revieweeEmployeeId: "", reviewerEmployeeId: "", relationshipType: "peer" });
+    setNominationForm({ perf360NominationRevieweeEmployeeId: "", perf360NominationReviewerEmployeeId: "", perf360NominationRelationshipType: "peer" });
     nominationModal.onOpen();
   }, [nominationModal]);
 
   const handleSaveNomination = useCallback(async () => {
-    if (!nominationForm.revieweeEmployeeId || !nominationForm.reviewerEmployeeId) {
+    if (!nominationForm.perf360NominationRevieweeEmployeeId || !nominationForm.perf360NominationReviewerEmployeeId) {
       toast.error("กรุณาเลือกผู้ถูกประเมินและผู้ประเมิน");
       return;
     }
     setSavingNomination(true);
     try {
       await createFeedback360Nomination({
-        cycleId: selectedCycle.id,
-        ...nominationForm,
+        cycleId: selectedCycle.perf360CycleId,
+        revieweeEmployeeId: nominationForm.perf360NominationRevieweeEmployeeId,
+        reviewerEmployeeId: nominationForm.perf360NominationReviewerEmployeeId,
+        relationshipType: nominationForm.perf360NominationRelationshipType,
       });
       toast.success("เพิ่มผู้ประเมินสำเร็จ");
       nominationModal.onClose();
-      loadNominations(selectedCycle.id);
+      loadNominations(selectedCycle.perf360CycleId);
     } catch (error) {
       toast.error(error.message || "เกิดข้อผิดพลาด");
     } finally {
@@ -270,11 +280,11 @@ export function useFeedback360() {
     }
   }, [nominationForm, selectedCycle, nominationModal, loadNominations]);
 
-  const handleDeleteNomination = useCallback(async (id) => {
+  const handleDeleteNomination = useCallback(async (perf360NominationId) => {
     try {
-      await deleteFeedback360Nomination(id);
+      await deleteFeedback360Nomination(perf360NominationId);
       toast.success("ลบผู้ประเมินสำเร็จ");
-      if (selectedCycle) loadNominations(selectedCycle.id);
+      if (selectedCycle) loadNominations(selectedCycle.perf360CycleId);
     } catch (error) {
       toast.error(error.message || "เกิดข้อผิดพลาด");
     }
@@ -283,16 +293,16 @@ export function useFeedback360() {
   // ====== Review ======
   const handleOpenReview = useCallback(async (nomination) => {
     setActiveReview(nomination);
-    setReviewComments({ strengthComment: "", improvementComment: "", comment: "" });
+    setReviewComments({ perf360ResponseStrengthComment: "", perf360ResponseImprovementComment: "", perf360ResponseComment: "" });
 
     // Load competencies for the cycle
     try {
-      const comps = await getFeedback360Competencies(nomination.cycleId);
+      const comps = await getFeedback360Competencies(nomination.perf360NominationCycleId);
       setReviewCompetencies(comps || []);
       // Initialize empty scores
       const initScores = {};
       for (const comp of (comps || [])) {
-        initScores[comp.id] = Array(comp.questions.length).fill(0);
+        initScores[comp.perf360CompetencyId] = Array(comp.perf360CompetencyQuestions.length).fill(0);
       }
       setReviewScores(initScores);
       reviewModal.onOpen();
@@ -301,11 +311,11 @@ export function useFeedback360() {
     }
   }, [reviewModal]);
 
-  const setReviewScore = useCallback((competencyId, questionIndex, value) => {
+  const setReviewScore = useCallback((perf360CompetencyId, questionIndex, value) => {
     setReviewScores((prev) => {
       const updated = { ...prev };
-      updated[competencyId] = [...(prev[competencyId] || [])];
-      updated[competencyId][questionIndex] = value;
+      updated[perf360CompetencyId] = [...(prev[perf360CompetencyId] || [])];
+      updated[perf360CompetencyId][questionIndex] = value;
       return updated;
     });
   }, []);
@@ -313,9 +323,9 @@ export function useFeedback360() {
   const handleSubmitReview = useCallback(async () => {
     // Validate all questions answered
     for (const comp of reviewCompetencies) {
-      const scores = reviewScores[comp.id] || [];
+      const scores = reviewScores[comp.perf360CompetencyId] || [];
       if (scores.some((s) => s === 0)) {
-        toast.error(`กรุณากรอกคะแนนครบทุกข้อในหมวด "${comp.name}"`);
+        toast.error(`กรุณากรอกคะแนนครบทุกข้อในหมวด "${comp.perf360CompetencyName}"`);
         return;
       }
     }
@@ -323,9 +333,11 @@ export function useFeedback360() {
     setSubmittingReview(true);
     try {
       await submitFeedback360Response({
-        nominationId: activeReview.id,
+        nominationId: activeReview.perf360NominationId,
         scores: reviewScores,
-        ...reviewComments,
+        strengthComment: reviewComments.perf360ResponseStrengthComment,
+        improvementComment: reviewComments.perf360ResponseImprovementComment,
+        comment: reviewComments.perf360ResponseComment,
       });
       toast.success("ส่งผลประเมินเรียบร้อย");
       reviewModal.onClose();
@@ -338,11 +350,11 @@ export function useFeedback360() {
   }, [activeReview, reviewScores, reviewComments, reviewCompetencies, reviewModal, loadPendingReviews]);
 
   // ====== Results ======
-  const loadMyResults = useCallback(async (cycleId) => {
+  const loadMyResults = useCallback(async (perf360CycleId) => {
     if (!currentEmployee) return;
     setLoadingResults(true);
     try {
-      const data = await getFeedback360Results(cycleId, currentEmployee.employeeId);
+      const data = await getFeedback360Results(perf360CycleId, currentEmployee.hrEmployeeId);
       setMyResults(data);
     } catch {
       toast.error("ไม่สามารถโหลดผลประเมินได้");
@@ -351,10 +363,10 @@ export function useFeedback360() {
     }
   }, [currentEmployee]);
 
-  const loadAllResults = useCallback(async (cycleId) => {
+  const loadAllResults = useCallback(async (perf360CycleId) => {
     setLoadingResults(true);
     try {
-      const data = await getFeedback360Results(cycleId);
+      const data = await getFeedback360Results(perf360CycleId);
       setAllResults(data);
     } catch {
       toast.error("ไม่สามารถโหลดผลประเมินได้");
@@ -366,8 +378,8 @@ export function useFeedback360() {
   // Load cycle details when selected
   useEffect(() => {
     if (selectedCycle) {
-      loadCompetencies(selectedCycle.id);
-      loadNominations(selectedCycle.id);
+      loadCompetencies(selectedCycle.perf360CycleId);
+      loadNominations(selectedCycle.perf360CycleId);
     }
   }, [selectedCycle, loadCompetencies, loadNominations]);
 

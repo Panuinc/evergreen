@@ -12,8 +12,8 @@ export const financeAgent = {
 const systemPrompt = `คุณเป็น Finance Specialist Agent ของระบบ ERP Evergreen มีความเชี่ยวชาญสูงสุดด้านการเงินและบัญชี
 
 ## ข้อมูลที่คุณเข้าถึงได้
-- **ยอดขาย (bcSalesOrders)**: ยอดรวม status วันที่ salesperson ลูกค้า สถานะจัดส่ง
-- **หนี้ลูกค้า (bcCustomers)**: balance = ยอดค้างชำระทั้งหมด, balanceDue = ยอดที่เกินกำหนดชำระ
+- **ยอดขาย (bcSalesOrder)**: ยอดรวม status วันที่ salesperson ลูกค้า สถานะจัดส่ง
+- **หนี้ลูกค้า (bcCustomer)**: balance = ยอดค้างชำระทั้งหมด, balanceDue = ยอดที่เกินกำหนดชำระ
 - **ออเดอร์ค้างส่ง**: ออเดอร์ที่ completelyShipped=false พร้อมมูลค่า
 
 ## ความรู้เฉพาะทาง
@@ -70,11 +70,11 @@ const tools = [
           search: { type: "string", description: "ค้นหาชื่อลูกค้า" },
           sortBy: {
             type: "string",
-            enum: ["balanceDue", "balance", "displayName"],
-            description: "เรียงตาม: balanceDue (เกินกำหนด), balance (ค้างทั้งหมด), displayName (ชื่อ) — default: balanceDue",
+            enum: ["bcCustomerBalanceDue", "bcCustomerBalance", "bcCustomerDisplayName"],
+            description: "เรียงตาม: bcCustomerBalanceDue (เกินกำหนด), bcCustomerBalance (ค้างทั้งหมด), bcCustomerDisplayName (ชื่อ) — default: bcCustomerBalanceDue",
           },
           limit: { type: "number", description: "จำนวนสูงสุด (default: 20)" },
-          hasDebt: { type: "boolean", description: "true = แสดงเฉพาะลูกค้าที่มียอดค้างชำระ (balanceDue > 0)" },
+          hasDebt: { type: "boolean", description: "true = แสดงเฉพาะลูกค้าที่มียอดค้างชำระ (bcCustomerBalanceDue > 0)" },
         },
       },
     },
@@ -102,59 +102,59 @@ async function executeTool(name, args) {
   switch (name) {
     case "get_revenue_summary": {
       let q = supabase
-        .from("bcSalesOrders")
-        .select("number,customerNumber,customerName,orderDate,status,completelyShipped,salespersonCode,totalAmountIncludingTax");
-      if (args.since) q = q.gte("orderDate", args.since);
-      if (args.until) q = q.lte("orderDate", args.until);
-      if (args.salespersonCode) q = q.eq("salespersonCode", args.salespersonCode);
+        .from("bcSalesOrder")
+        .select("bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,bcSalesOrderStatus,completelyShipped,bcSalesOrderSalespersonCode,bcSalesOrderTotalAmountIncVat");
+      if (args.since) q = q.gte("bcSalesOrderDate", args.since);
+      if (args.until) q = q.lte("bcSalesOrderDate", args.until);
+      if (args.salespersonCode) q = q.eq("bcSalesOrderSalespersonCode", args.salespersonCode);
       const { data: rows, error } = await q;
       if (error) throw new Error(error.message);
 
       const orders = rows || [];
-      const totalRevenue = orders.reduce((s, o) => s + (o.totalAmountIncludingTax || 0), 0);
+      const totalRevenue = orders.reduce((s, o) => s + (o.bcSalesOrderTotalAmountIncVat || 0), 0);
       const result = {
         totalOrders: orders.length,
         totalRevenue,
         avgOrderValue: orders.length > 0 ? Math.round(totalRevenue / orders.length) : 0,
         shippedOrders: orders.filter((o) => o.completelyShipped).length,
         pendingOrders: orders.filter((o) => !o.completelyShipped).length,
-        pendingRevenue: orders.filter((o) => !o.completelyShipped).reduce((s, o) => s + (o.totalAmountIncludingTax || 0), 0),
+        pendingRevenue: orders.filter((o) => !o.completelyShipped).reduce((s, o) => s + (o.bcSalesOrderTotalAmountIncVat || 0), 0),
       };
 
       if (args.groupBy === "salesperson") {
         const g = {};
         for (const o of orders) {
-          const k = o.salespersonCode || "ไม่ระบุ";
+          const k = o.bcSalesOrderSalespersonCode || "ไม่ระบุ";
           if (!g[k]) g[k] = { salespersonCode: k, orders: 0, revenue: 0 };
           g[k].orders++;
-          g[k].revenue += o.totalAmountIncludingTax || 0;
+          g[k].revenue += o.bcSalesOrderTotalAmountIncVat || 0;
         }
         result.byGroup = Object.values(g).sort((a, b) => b.revenue - a.revenue);
       } else if (args.groupBy === "customer") {
         const g = {};
         for (const o of orders) {
-          const k = o.customerNumber;
-          if (!g[k]) g[k] = { customerNumber: k, customerName: o.customerName, orders: 0, revenue: 0 };
+          const k = o.bcSalesOrderCustomerNumber;
+          if (!g[k]) g[k] = { customerNumber: k, customerName: o.bcSalesOrderCustomerName, orders: 0, revenue: 0 };
           g[k].orders++;
-          g[k].revenue += o.totalAmountIncludingTax || 0;
+          g[k].revenue += o.bcSalesOrderTotalAmountIncVat || 0;
         }
         result.byGroup = Object.values(g).sort((a, b) => b.revenue - a.revenue).slice(0, 20);
       } else if (args.groupBy === "status") {
         const g = {};
         for (const o of orders) {
-          const k = o.status || "ไม่ระบุ";
+          const k = o.bcSalesOrderStatus || "ไม่ระบุ";
           if (!g[k]) g[k] = { status: k, orders: 0, revenue: 0 };
           g[k].orders++;
-          g[k].revenue += o.totalAmountIncludingTax || 0;
+          g[k].revenue += o.bcSalesOrderTotalAmountIncVat || 0;
         }
         result.byGroup = Object.values(g);
       } else if (args.groupBy === "month") {
         const g = {};
         for (const o of orders) {
-          const k = o.orderDate ? o.orderDate.slice(0, 7) : "ไม่ระบุ";
+          const k = o.bcSalesOrderDate ? o.bcSalesOrderDate.slice(0, 7) : "ไม่ระบุ";
           if (!g[k]) g[k] = { month: k, orders: 0, revenue: 0 };
           g[k].orders++;
-          g[k].revenue += o.totalAmountIncludingTax || 0;
+          g[k].revenue += o.bcSalesOrderTotalAmountIncVat || 0;
         }
         result.byGroup = Object.values(g).sort((a, b) => a.month.localeCompare(b.month));
       }
@@ -163,41 +163,41 @@ async function executeTool(name, args) {
     }
 
     case "get_customer_balances": {
-      const sortCol = args.sortBy || "balanceDue";
+      const sortCol = args.sortBy || "bcCustomerBalanceDue";
       let q = supabase
-        .from("bcCustomers")
-        .select("number,displayName,phoneNumber,balance,balanceDue,salespersonCode")
+        .from("bcCustomer")
+        .select("bcCustomerNumber,bcCustomerDisplayName,bcCustomerPhoneNumber,bcCustomerBalance,bcCustomerBalanceDue,bcCustomerSalespersonCode")
         .order(sortCol, { ascending: false })
         .limit(args.limit || 20);
-      if (args.search) q = q.ilike("displayName", `%${args.search}%`);
-      if (args.hasDebt) q = q.gt("balanceDue", 0);
+      if (args.search) q = q.ilike("bcCustomerDisplayName", `%${args.search}%`);
+      if (args.hasDebt) q = q.gt("bcCustomerBalanceDue", 0);
       const { data, error } = await q;
       if (error) throw new Error(error.message);
       const rows = data || [];
       return {
         count: rows.length,
-        totalBalance: rows.reduce((s, c) => s + (c.balance || 0), 0),
-        totalBalanceDue: rows.reduce((s, c) => s + (c.balanceDue || 0), 0),
+        totalBalance: rows.reduce((s, c) => s + (c.bcCustomerBalance || 0), 0),
+        totalBalanceDue: rows.reduce((s, c) => s + (c.bcCustomerBalanceDue || 0), 0),
         customers: rows,
       };
     }
 
     case "get_outstanding_orders": {
       let q = supabase
-        .from("bcSalesOrders")
-        .select("number,customerNumber,customerName,orderDate,dueDate,status,salespersonCode,totalAmountIncludingTax")
+        .from("bcSalesOrder")
+        .select("bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,dueDate,bcSalesOrderStatus,bcSalesOrderSalespersonCode,bcSalesOrderTotalAmountIncVat")
         .eq("completelyShipped", false)
-        .neq("status", "Open")
+        .neq("bcSalesOrderStatus", "Open")
         .order("dueDate", { ascending: true })
         .limit(args.limit || 50);
-      if (args.salespersonCode) q = q.eq("salespersonCode", args.salespersonCode);
-      if (args.since) q = q.gte("orderDate", args.since);
+      if (args.salespersonCode) q = q.eq("bcSalesOrderSalespersonCode", args.salespersonCode);
+      if (args.since) q = q.gte("bcSalesOrderDate", args.since);
       const { data, error } = await q;
       if (error) throw new Error(error.message);
       const rows = data || [];
       return {
         count: rows.length,
-        totalValue: rows.reduce((s, o) => s + (o.totalAmountIncludingTax || 0), 0),
+        totalValue: rows.reduce((s, o) => s + (o.bcSalesOrderTotalAmountIncVat || 0), 0),
         orders: rows,
       };
     }

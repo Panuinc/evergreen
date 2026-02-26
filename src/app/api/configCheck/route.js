@@ -4,7 +4,7 @@ import { bcODataGet } from "@/lib/bcClient";
 async function checkSupabase(supabase) {
   const start = Date.now();
   try {
-    const { error } = await supabase.from("roles").select("count", { count: "exact", head: true });
+    const { error } = await supabase.from("rbacRole").select("count", { count: "exact", head: true });
     const latency = Date.now() - start;
     if (error) throw error;
     return { status: "connected", latency, error: null };
@@ -43,7 +43,7 @@ async function checkLine(supabase) {
   const start = Date.now();
   try {
     const { data, error } = await supabase
-      .from("omChannels")
+      .from("omChannel")
       .select("channelAccessToken")
       .eq("channelType", "line")
       .eq("channelStatus", "active")
@@ -68,7 +68,7 @@ async function checkFacebook(supabase) {
   const start = Date.now();
   try {
     const { data, error } = await supabase
-      .from("omChannels")
+      .from("omChannel")
       .select("channelAccessToken")
       .eq("channelType", "facebook")
       .eq("channelStatus", "active")

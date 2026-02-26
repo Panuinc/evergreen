@@ -13,16 +13,16 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  leadName: "",
-  leadEmail: "",
-  leadPhone: "",
-  leadCompany: "",
-  leadPosition: "",
-  leadSource: "website",
-  leadScore: "warm",
-  leadStatus: "new",
-  leadAssignedTo: "",
-  leadNotes: "",
+  crmLeadName: "",
+  crmLeadEmail: "",
+  crmLeadPhone: "",
+  crmLeadCompany: "",
+  crmLeadPosition: "",
+  crmLeadSource: "website",
+  crmLeadScore: "warm",
+  crmLeadStatus: "new",
+  crmLeadAssignedTo: "",
+  crmLeadNotes: "",
 };
 
 export function useCrmLeads() {
@@ -56,16 +56,16 @@ export function useCrmLeads() {
     if (lead) {
       setEditingLead(lead);
       setFormData({
-        leadName: lead.leadName || "",
-        leadEmail: lead.leadEmail || "",
-        leadPhone: lead.leadPhone || "",
-        leadCompany: lead.leadCompany || "",
-        leadPosition: lead.leadPosition || "",
-        leadSource: lead.leadSource || "website",
-        leadScore: lead.leadScore || "warm",
-        leadStatus: lead.leadStatus || "new",
-        leadAssignedTo: lead.leadAssignedTo || "",
-        leadNotes: lead.leadNotes || "",
+        crmLeadName: lead.crmLeadName || "",
+        crmLeadEmail: lead.crmLeadEmail || "",
+        crmLeadPhone: lead.crmLeadPhone || "",
+        crmLeadCompany: lead.crmLeadCompany || "",
+        crmLeadPosition: lead.crmLeadPosition || "",
+        crmLeadSource: lead.crmLeadSource || "website",
+        crmLeadScore: lead.crmLeadScore || "warm",
+        crmLeadStatus: lead.crmLeadStatus || "new",
+        crmLeadAssignedTo: lead.crmLeadAssignedTo || "",
+        crmLeadNotes: lead.crmLeadNotes || "",
       });
     } else {
       setEditingLead(null);
@@ -77,7 +77,7 @@ export function useCrmLeads() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      leadName: [(v) => !isRequired(v) && "กรุณาระบุชื่อลีด"],
+      crmLeadName: [(v) => !isRequired(v) && "กรุณาระบุชื่อลีด"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -89,7 +89,7 @@ export function useCrmLeads() {
     try {
       setSaving(true);
       if (editingLead) {
-        await updateLead(editingLead.leadId, formData);
+        await updateLead(editingLead.crmLeadId, formData);
         toast.success("อัปเดตลีดสำเร็จ");
       } else {
         await createLead(formData);
@@ -107,7 +107,7 @@ export function useCrmLeads() {
   const handleConvert = async (lead) => {
     try {
       setSaving(true);
-      const result = await convertLead(lead.leadId);
+      const result = await convertLead(lead.crmLeadId);
       toast.success("แปลงลีดเป็นโอกาสและผู้ติดต่อสำเร็จ");
       loadData();
       return result;
@@ -126,7 +126,7 @@ export function useCrmLeads() {
   const handleDelete = async () => {
     if (!deletingLead) return;
     try {
-      await deleteLead(deletingLead.leadId);
+      await deleteLead(deletingLead.crmLeadId);
       toast.success("ลบลีดสำเร็จ");
       deleteModal.onClose();
       setDeletingLead(null);

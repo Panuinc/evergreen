@@ -19,9 +19,9 @@ export function useRoles() {
   const [loading, setLoading] = useState(true);
   const [editingRole, setEditingRole] = useState(null);
   const [formData, setFormData] = useState({
-    roleName: "",
-    roleDescription: "",
-    roleIsSuperadmin: false,
+    rbacRoleName: "",
+    rbacRoleDescription: "",
+    rbacRoleIsSuperadmin: false,
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -52,30 +52,30 @@ export function useRoles() {
     if (role) {
       setEditingRole(role);
       setFormData({
-        roleName: role.roleName,
-        roleDescription: role.roleDescription || "",
-        roleIsSuperadmin: role.roleIsSuperadmin || false,
+        rbacRoleName: role.rbacRoleName,
+        rbacRoleDescription: role.rbacRoleDescription || "",
+        rbacRoleIsSuperadmin: role.rbacRoleIsSuperadmin || false,
       });
     } else {
       setEditingRole(null);
       setFormData({
-        roleName: "",
-        roleDescription: "",
-        roleIsSuperadmin: false,
+        rbacRoleName: "",
+        rbacRoleDescription: "",
+        rbacRoleIsSuperadmin: false,
       });
     }
     onOpen();
   };
 
   const handleSave = async () => {
-    if (!formData.roleName.trim()) {
+    if (!formData.rbacRoleName.trim()) {
       toast.error("กรุณาระบุชื่อบทบาท");
       return;
     }
 
     try {
       if (editingRole) {
-        await updateRole(editingRole.roleId, formData);
+        await updateRole(editingRole.rbacRoleId, formData);
         toast.success("อัปเดตบทบาทสำเร็จ");
       } else {
         await createRole(formData);
@@ -89,13 +89,13 @@ export function useRoles() {
   };
 
   const handleDelete = async (role) => {
-    if (role.roleIsSuperadmin) {
+    if (role.rbacRoleIsSuperadmin) {
       toast.error("ไม่สามารถลบบทบาท superadmin ได้");
       return;
     }
 
     try {
-      await deleteRole(role.roleId);
+      await deleteRole(role.rbacRoleId);
       toast.success("ลบบทบาทสำเร็จ");
       loadRoles();
     } catch (error) {
@@ -111,10 +111,10 @@ export function useRoles() {
     try {
       const [perms, rolePerm] = await Promise.all([
         getPermissions(),
-        getRolePermissions(role.roleId),
+        getRolePermissions(role.rbacRoleId),
       ]);
       setAllPermissions(perms);
-      setRolePermIds(rolePerm.map((rp) => rp.rolePermissionPermissionId));
+      setRolePermIds(rolePerm.map((rp) => rp.rbacRolePermissionPermissionId));
     } catch (error) {
       toast.error("โหลดสิทธิ์ล้มเหลว");
     } finally {
@@ -127,11 +127,11 @@ export function useRoles() {
 
     try {
       if (rolePermIds.includes(permissionId)) {
-        await removePermissionFromRole(selectedRole.roleId, permissionId);
+        await removePermissionFromRole(selectedRole.rbacRoleId, permissionId);
         setRolePermIds((prev) => prev.filter((id) => id !== permissionId));
         toast.success("ลบสิทธิ์สำเร็จ");
       } else {
-        await assignPermissionToRole(selectedRole.roleId, permissionId);
+        await assignPermissionToRole(selectedRole.rbacRoleId, permissionId);
         setRolePermIds((prev) => [...prev, permissionId]);
         toast.success("กำหนดสิทธิ์สำเร็จ");
       }
@@ -142,7 +142,7 @@ export function useRoles() {
 
   // Group permissions by resource for display
   const groupedPermissions = allPermissions.reduce((acc, perm) => {
-    const resourceName = perm.resources?.resourceName || "Unknown";
+    const resourceName = perm.resources?.rbacResourceName || "Unknown";
     if (!acc[resourceName]) acc[resourceName] = [];
     acc[resourceName].push(perm);
     return acc;

@@ -19,12 +19,12 @@ import { useItSecurity } from "@/hooks/it/useItSecurity";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "หัวข้อ", uid: "incidentTitle", sortable: true },
-  { name: "ประเภท", uid: "incidentType", sortable: true },
-  { name: "ความรุนแรง", uid: "incidentSeverity", sortable: true },
-  { name: "สถานะ", uid: "incidentStatus", sortable: true },
-  { name: "รายงานโดย", uid: "incidentReportedBy" },
-  { name: "ผู้รับผิดชอบ", uid: "incidentAssignedTo" },
+  { name: "หัวข้อ", uid: "itSecurityIncidentTitle", sortable: true },
+  { name: "ประเภท", uid: "itSecurityIncidentType", sortable: true },
+  { name: "ความรุนแรง", uid: "itSecurityIncidentSeverity", sortable: true },
+  { name: "สถานะ", uid: "itSecurityIncidentStatus", sortable: true },
+  { name: "รายงานโดย", uid: "itSecurityIncidentReportedBy" },
+  { name: "ผู้รับผิดชอบ", uid: "itSecurityIncidentAssignedTo" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -36,11 +36,11 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "incidentTitle",
-  "incidentType",
-  "incidentSeverity",
-  "incidentStatus",
-  "incidentAssignedTo",
+  "itSecurityIncidentTitle",
+  "itSecurityIncidentType",
+  "itSecurityIncidentSeverity",
+  "itSecurityIncidentStatus",
+  "itSecurityIncidentAssignedTo",
   "actions",
 ];
 
@@ -66,11 +66,11 @@ export default function SecurityPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "incidentTitle":
-          return <span className="font-medium">{item.incidentTitle}</span>;
-        case "incidentType":
-          return item.incidentType || "-";
-        case "incidentSeverity": {
+        case "itSecurityIncidentTitle":
+          return <span className="font-medium">{item.itSecurityIncidentTitle}</span>;
+        case "itSecurityIncidentType":
+          return item.itSecurityIncidentType || "-";
+        case "itSecurityIncidentSeverity": {
           const colorMap = {
             low: "default",
             medium: "primary",
@@ -82,13 +82,13 @@ export default function SecurityPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.incidentSeverity] || "default"}
+              color={colorMap[item.itSecurityIncidentSeverity] || "default"}
             >
-              {item.incidentSeverity}
+              {item.itSecurityIncidentSeverity}
             </Chip>
           );
         }
-        case "incidentStatus": {
+        case "itSecurityIncidentStatus": {
           const colorMap = {
             open: "warning",
             investigating: "primary",
@@ -100,16 +100,16 @@ export default function SecurityPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.incidentStatus] || "default"}
+              color={colorMap[item.itSecurityIncidentStatus] || "default"}
             >
-              {item.incidentStatus}
+              {item.itSecurityIncidentStatus}
             </Chip>
           );
         }
-        case "incidentReportedBy":
-          return item.incidentReportedBy || "-";
-        case "incidentAssignedTo":
-          return item.incidentAssignedTo || "-";
+        case "itSecurityIncidentReportedBy":
+          return item.itSecurityIncidentReportedBy || "-";
+        case "itSecurityIncidentAssignedTo":
+          return item.itSecurityIncidentAssignedTo || "-";
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -147,16 +147,16 @@ export default function SecurityPage() {
         data={incidents}
         renderCell={renderCell}
         enableCardView
-        rowKey="incidentId"
+        rowKey="itSecurityIncidentId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามหัวข้อ, รายงานโดย, ผู้รับผิดชอบ..."
         searchKeys={[
-          "incidentTitle",
-          "incidentReportedBy",
-          "incidentAssignedTo",
+          "itSecurityIncidentTitle",
+          "itSecurityIncidentReportedBy",
+          "itSecurityIncidentAssignedTo",
         ]}
-        statusField="incidentStatus"
+        statusField="itSecurityIncidentStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบเหตุการณ์ด้านความปลอดภัย"
         topEndContent={
@@ -194,11 +194,11 @@ export default function SecurityPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.incidentTitle}
-                    onChange={(e) => updateField("incidentTitle", e.target.value)}
+                    value={formData.itSecurityIncidentTitle}
+                    onChange={(e) => updateField("itSecurityIncidentTitle", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.incidentTitle}
-                    errorMessage={validationErrors?.incidentTitle}
+                    isInvalid={!!validationErrors?.itSecurityIncidentTitle}
+                    errorMessage={validationErrors?.itSecurityIncidentTitle}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -209,10 +209,10 @@ export default function SecurityPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.incidentType ? [formData.incidentType] : []}
+                    selectedKeys={formData.itSecurityIncidentType ? [formData.itSecurityIncidentType] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("incidentType", val);
+                      updateField("itSecurityIncidentType", val);
                     }}
                   >
                     <SelectItem key="malware">มัลแวร์</SelectItem>
@@ -230,10 +230,10 @@ export default function SecurityPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.incidentSeverity ? [formData.incidentSeverity] : []}
+                    selectedKeys={formData.itSecurityIncidentSeverity ? [formData.itSecurityIncidentSeverity] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("incidentSeverity", val);
+                      updateField("itSecurityIncidentSeverity", val);
                     }}
                   >
                     <SelectItem key="low">ต่ำ</SelectItem>
@@ -249,10 +249,10 @@ export default function SecurityPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.incidentStatus]}
+                    selectedKeys={[formData.itSecurityIncidentStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "open";
-                      updateField("incidentStatus", val);
+                      updateField("itSecurityIncidentStatus", val);
                     }}
                   >
                     <SelectItem key="open">เปิด</SelectItem>
@@ -269,8 +269,8 @@ export default function SecurityPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.incidentReportedBy}
-                    onChange={(e) => updateField("incidentReportedBy", e.target.value)}
+                    value={formData.itSecurityIncidentReportedBy}
+                    onChange={(e) => updateField("itSecurityIncidentReportedBy", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -281,8 +281,8 @@ export default function SecurityPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.incidentAssignedTo}
-                    onChange={(e) => updateField("incidentAssignedTo", e.target.value)}
+                    value={formData.itSecurityIncidentAssignedTo}
+                    onChange={(e) => updateField("itSecurityIncidentAssignedTo", e.target.value)}
                   />
                 </div>
               </div>
@@ -294,8 +294,8 @@ export default function SecurityPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.incidentDescription}
-                  onChange={(e) => updateField("incidentDescription", e.target.value)}
+                  value={formData.itSecurityIncidentDescription}
+                  onChange={(e) => updateField("itSecurityIncidentDescription", e.target.value)}
                 />
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -306,8 +306,8 @@ export default function SecurityPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.incidentResolution}
-                  onChange={(e) => updateField("incidentResolution", e.target.value)}
+                  value={formData.itSecurityIncidentResolution}
+                  onChange={(e) => updateField("itSecurityIncidentResolution", e.target.value)}
                 />
               </div>
             </div>
@@ -337,7 +337,7 @@ export default function SecurityPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingIncident?.incidentTitle}
+                {deletingIncident?.itSecurityIncidentTitle}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

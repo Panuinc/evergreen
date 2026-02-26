@@ -7,16 +7,16 @@ import { getActivities, createActivity, updateActivity, deleteActivity } from "@
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  activityType: "task",
-  activitySubject: "",
-  activityDescription: "",
-  activityStatus: "pending",
-  activityPriority: "medium",
-  activityDueDate: "",
-  activityContactId: "",
-  activityOpportunityId: "",
-  activityAccountId: "",
-  activityAssignedTo: "",
+  crmActivityType: "task",
+  crmActivitySubject: "",
+  crmActivityDescription: "",
+  crmActivityStatus: "pending",
+  crmActivityPriority: "medium",
+  crmActivityDueDate: "",
+  crmActivityContactId: "",
+  crmActivityOpportunityId: "",
+  crmActivityAccountId: "",
+  crmActivityAssignedTo: "",
 };
 
 export function useCrmActivities() {
@@ -55,18 +55,18 @@ export function useCrmActivities() {
     if (activity) {
       setEditingActivity(activity);
       setFormData({
-        activityType: activity.activityType || "task",
-        activitySubject: activity.activitySubject || "",
-        activityDescription: activity.activityDescription || "",
-        activityStatus: activity.activityStatus || "pending",
-        activityPriority: activity.activityPriority || "medium",
-        activityDueDate: activity.activityDueDate
-          ? new Date(activity.activityDueDate).toISOString().slice(0, 16)
+        crmActivityType: activity.crmActivityType || "task",
+        crmActivitySubject: activity.crmActivitySubject || "",
+        crmActivityDescription: activity.crmActivityDescription || "",
+        crmActivityStatus: activity.crmActivityStatus || "pending",
+        crmActivityPriority: activity.crmActivityPriority || "medium",
+        crmActivityDueDate: activity.crmActivityDueDate
+          ? new Date(activity.crmActivityDueDate).toISOString().slice(0, 16)
           : "",
-        activityContactId: activity.activityContactId || "",
-        activityOpportunityId: activity.activityOpportunityId || "",
-        activityAccountId: activity.activityAccountId || "",
-        activityAssignedTo: activity.activityAssignedTo || "",
+        crmActivityContactId: activity.crmActivityContactId || "",
+        crmActivityOpportunityId: activity.crmActivityOpportunityId || "",
+        crmActivityAccountId: activity.crmActivityAccountId || "",
+        crmActivityAssignedTo: activity.crmActivityAssignedTo || "",
       });
     } else {
       setEditingActivity(null);
@@ -78,7 +78,7 @@ export function useCrmActivities() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      activitySubject: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อ"],
+      crmActivitySubject: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -90,17 +90,17 @@ export function useCrmActivities() {
     try {
       setSaving(true);
       const payload = { ...formData };
-      if (!payload.activityContactId) delete payload.activityContactId;
-      if (!payload.activityOpportunityId) delete payload.activityOpportunityId;
-      if (!payload.activityAccountId) delete payload.activityAccountId;
-      if (!payload.activityDueDate) delete payload.activityDueDate;
+      if (!payload.crmActivityContactId) delete payload.crmActivityContactId;
+      if (!payload.crmActivityOpportunityId) delete payload.crmActivityOpportunityId;
+      if (!payload.crmActivityAccountId) delete payload.crmActivityAccountId;
+      if (!payload.crmActivityDueDate) delete payload.crmActivityDueDate;
 
-      if (payload.activityStatus === "completed" && !payload.activityCompletedAt) {
-        payload.activityCompletedAt = new Date().toISOString();
+      if (payload.crmActivityStatus === "completed" && !payload.crmActivityCompletedAt) {
+        payload.crmActivityCompletedAt = new Date().toISOString();
       }
 
       if (editingActivity) {
-        await updateActivity(editingActivity.activityId, payload);
+        await updateActivity(editingActivity.crmActivityId, payload);
         toast.success("อัปเดตกิจกรรมสำเร็จ");
       } else {
         await createActivity(payload);
@@ -118,10 +118,10 @@ export function useCrmActivities() {
   const handleToggleComplete = async (activity) => {
     try {
       const newStatus =
-        activity.activityStatus === "completed" ? "pending" : "completed";
-      await updateActivity(activity.activityId, {
-        activityStatus: newStatus,
-        activityCompletedAt:
+        activity.crmActivityStatus === "completed" ? "pending" : "completed";
+      await updateActivity(activity.crmActivityId, {
+        crmActivityStatus: newStatus,
+        crmActivityCompletedAt:
           newStatus === "completed" ? new Date().toISOString() : null,
       });
       toast.success(
@@ -141,7 +141,7 @@ export function useCrmActivities() {
   const handleDelete = async () => {
     if (!deletingActivity) return;
     try {
-      await deleteActivity(deletingActivity.activityId);
+      await deleteActivity(deletingActivity.crmActivityId);
       toast.success("ลบกิจกรรมสำเร็จ");
       deleteModal.onClose();
       setDeletingActivity(null);

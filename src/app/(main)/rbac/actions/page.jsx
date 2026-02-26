@@ -16,16 +16,16 @@ import { useActions } from "@/hooks/rbac/useActions";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อ", uid: "actionName", sortable: true },
-  { name: "รายละเอียด", uid: "actionDescription" },
-  { name: "สร้างเมื่อ", uid: "actionCreatedAt", sortable: true },
+  { name: "ชื่อ", uid: "rbacActionName", sortable: true },
+  { name: "รายละเอียด", uid: "rbacActionDescription" },
+  { name: "สร้างเมื่อ", uid: "rbacActionCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "actionName",
-  "actionDescription",
-  "actionCreatedAt",
+  "rbacActionName",
+  "rbacActionDescription",
+  "rbacActionCreatedAt",
   "actions",
 ];
 
@@ -46,18 +46,18 @@ export default function ActionsPage() {
   const renderCell = useCallback(
     (action, columnKey) => {
       switch (columnKey) {
-        case "actionName":
-          return <span className="font-medium">{action.actionName}</span>;
-        case "actionDescription":
+        case "rbacActionName":
+          return <span className="font-medium">{action.rbacActionName}</span>;
+        case "rbacActionDescription":
           return (
             <span className="text-default-500">
-              {action.actionDescription || "-"}
+              {action.rbacActionDescription || "-"}
             </span>
           );
-        case "actionCreatedAt":
+        case "rbacActionCreatedAt":
           return (
             <span className="text-default-500">
-              {new Date(action.actionCreatedAt).toLocaleDateString()}
+              {new Date(action.rbacActionCreatedAt).toLocaleDateString()}
             </span>
           );
         case "actions":
@@ -97,11 +97,11 @@ export default function ActionsPage() {
         data={actions}
         renderCell={renderCell}
         enableCardView
-        rowKey="actionId"
+        rowKey="rbacActionId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
-        searchKeys={["actionName", "actionDescription"]}
+        searchKeys={["rbacActionName", "rbacActionDescription"]}
         emptyContent="ไม่พบการดำเนินการ"
         topEndContent={
           <Button
@@ -131,9 +131,9 @@ export default function ActionsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.actionName}
+                  value={formData.rbacActionName}
                   onChange={(e) =>
-                    setFormData({ ...formData, actionName: e.target.value })
+                    setFormData({ ...formData, rbacActionName: e.target.value })
                   }
                 />
               </div>
@@ -145,11 +145,11 @@ export default function ActionsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.actionDescription}
+                  value={formData.rbacActionDescription}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      actionDescription: e.target.value,
+                      rbacActionDescription: e.target.value,
                     })
                   }
                 />

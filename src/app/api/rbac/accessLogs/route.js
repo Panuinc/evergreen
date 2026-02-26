@@ -6,9 +6,9 @@ export async function GET() {
   const { supabase } = auth;
 
   const { data, error } = await supabase
-    .from("accessLogs")
+    .from("rbacAccessLog")
     .select("*")
-    .order("accessLogCreatedAt", { ascending: false })
+    .order("rbacAccessLogCreatedAt", { ascending: false })
     .limit(200);
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -21,13 +21,13 @@ export async function POST(request) {
   const { supabase } = auth;
   const body = await request.json();
 
-  const { error } = await supabase.from("accessLogs").insert([
+  const { error } = await supabase.from("rbacAccessLog").insert([
     {
-      accessLogUserId: body.userId,
-      accessLogResource: body.resource,
-      accessLogAction: body.action,
-      accessLogGranted: body.granted,
-      accessLogMetadata: body.metadata || null,
+      rbacAccessLogUserId: body.userId,
+      rbacAccessLogResource: body.resource,
+      rbacAccessLogAction: body.action,
+      rbacAccessLogGranted: body.granted,
+      rbacAccessLogMetadata: body.metadata || null,
     },
   ]);
 

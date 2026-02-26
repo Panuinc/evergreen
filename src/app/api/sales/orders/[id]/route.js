@@ -7,11 +7,11 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   const { data, error } = await supabase
-    .from("crmOrders")
+    .from("crmOrder")
     .select(
-      "*, crmContacts(contactFirstName, contactLastName), crmAccounts(accountName), crmQuotations(quotationNo)"
+      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmQuotation(crmQuotationNo)"
     )
-    .eq("orderId", id)
+    .eq("crmOrderId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -26,9 +26,9 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmOrders")
+    .from("crmOrder")
     .update(body)
-    .eq("orderId", id)
+    .eq("crmOrderId", id)
     .select()
     .single();
 
@@ -43,9 +43,9 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("crmOrders")
+    .from("crmOrder")
     .delete()
-    .eq("orderId", id);
+    .eq("crmOrderId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

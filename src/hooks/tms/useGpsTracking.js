@@ -14,11 +14,11 @@ export function useGpsTracking() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [formData, setFormData] = useState({
-    gpsLogVehicleId: "",
-    gpsLogLatitude: "",
-    gpsLogLongitude: "",
-    gpsLogSpeed: "",
-    gpsLogSource: "manual",
+    tmsGpsLogVehicleId: "",
+    tmsGpsLogLatitude: "",
+    tmsGpsLogLongitude: "",
+    tmsGpsLogSpeed: "",
+    tmsGpsLogSource: "manual",
   });
 
   const loadData = useCallback(async () => {
@@ -54,11 +54,11 @@ export function useGpsTracking() {
   const handleOpenManualUpdate = (vehicle = null) => {
     setSelectedVehicle(vehicle);
     setFormData({
-      gpsLogVehicleId: vehicle?.vehicleId || "",
-      gpsLogLatitude: "",
-      gpsLogLongitude: "",
-      gpsLogSpeed: "",
-      gpsLogSource: "manual",
+      tmsGpsLogVehicleId: vehicle?.tmsVehicleId || "",
+      tmsGpsLogLatitude: "",
+      tmsGpsLogLongitude: "",
+      tmsGpsLogSpeed: "",
+      tmsGpsLogSource: "manual",
     });
     onOpen();
   };
@@ -67,12 +67,12 @@ export function useGpsTracking() {
 
   const handleSavePosition = async () => {
     const { isValid, errors } = validateForm(formData, {
-      gpsLogVehicleId: [(v) => !isRequired(v) && "กรุณาระบุยานพาหนะ"],
-      gpsLogLatitude: [
+      tmsGpsLogVehicleId: [(v) => !isRequired(v) && "กรุณาระบุยานพาหนะ"],
+      tmsGpsLogLatitude: [
         (v) => !isRequired(v) && "กรุณาระบุละติจูด",
         (v) => !isValidLatitude(v) && "ละติจูดต้องอยู่ระหว่าง -90 ถึง 90",
       ],
-      gpsLogLongitude: [
+      tmsGpsLogLongitude: [
         (v) => !isRequired(v) && "กรุณาระบุลองจิจูด",
         (v) => !isValidLongitude(v) && "ลองจิจูดต้องอยู่ระหว่าง -180 ถึง 180",
       ],
@@ -86,13 +86,13 @@ export function useGpsTracking() {
     try {
       setSaving(true);
       await createGpsLog({
-        gpsLogVehicleId: formData.gpsLogVehicleId,
-        gpsLogLatitude: parseFloat(formData.gpsLogLatitude),
-        gpsLogLongitude: parseFloat(formData.gpsLogLongitude),
-        gpsLogSpeed: formData.gpsLogSpeed
-          ? parseFloat(formData.gpsLogSpeed)
+        tmsGpsLogVehicleId: formData.tmsGpsLogVehicleId,
+        tmsGpsLogLatitude: parseFloat(formData.tmsGpsLogLatitude),
+        tmsGpsLogLongitude: parseFloat(formData.tmsGpsLogLongitude),
+        tmsGpsLogSpeed: formData.tmsGpsLogSpeed
+          ? parseFloat(formData.tmsGpsLogSpeed)
           : null,
-        gpsLogSource: formData.gpsLogSource,
+        tmsGpsLogSource: formData.tmsGpsLogSource,
       });
       toast.success("อัปเดตตำแหน่งสำเร็จ");
       onClose();
@@ -121,7 +121,7 @@ export function useGpsTracking() {
       const logs = await getGpsLogs(vehicleId);
       setRouteHistory(
         logs.sort(
-          (a, b) => new Date(a.gpsLogRecordedAt) - new Date(b.gpsLogRecordedAt)
+          (a, b) => new Date(a.tmsGpsLogRecordedAt) - new Date(b.tmsGpsLogRecordedAt)
         )
       );
       routeModal.onOpen();

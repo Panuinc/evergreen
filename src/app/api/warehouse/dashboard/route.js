@@ -9,15 +9,15 @@ export async function GET() {
 
   const [sessionsRes, transfersRes, recentRes] = await Promise.all([
     supabase
-      .from("scanSessions")
+      .from("whScanSession")
       .select("id, tag_count")
       .eq("user_id", userId),
     supabase
-      .from("warehouseTransfers")
+      .from("whTransfer")
       .select("id, status")
       .eq("user_id", userId),
     supabase
-      .from("scanSessions")
+      .from("whScanSession")
       .select("*")
       .eq("user_id", userId)
       .order("started_at", { ascending: false })

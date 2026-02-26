@@ -7,15 +7,15 @@ export async function GET() {
   const userId = session.user.id;
 
   const { data: employee } = await supabase
-    .from("employees")
+    .from("hrEmployee")
     .select("*")
-    .eq("employeeUserId", userId)
+    .eq("hrEmployeeUserId", userId)
     .maybeSingle();
 
   const { data: userRoles } = await supabase
-    .from("userRoles")
-    .select("*, roles(*)")
-    .eq("userRoleUserId", userId);
+    .from("rbacUserRole")
+    .select("*, rbacRole(*)")
+    .eq("rbacUserRoleUserId", userId);
 
   return Response.json({
     user: {
@@ -24,6 +24,6 @@ export async function GET() {
       createdAt: session.user.created_at,
     },
     employee: employee || null,
-    roles: (userRoles || []).map((ur) => ur.roles),
+    roles: (userRoles || []).map((ur) => ur.rbacRole),
   });
 }

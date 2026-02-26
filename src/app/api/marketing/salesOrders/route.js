@@ -5,12 +5,12 @@ export async function GET() {
   if (auth.error) return auth.error;
 
   const { data: orders, error } = await auth.supabase
-    .from("bcSalesOrders")
+    .from("bcSalesOrder")
     .select(
-      "number,customerNumber,customerName,orderDate,status,completelyShipped,externalDocumentNumber,totalAmountIncludingTax,salespersonCode",
+      "bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderOrderDate,bcSalesOrderStatus,bcSalesOrderCompletelyShipped,bcSalesOrderExternalDocumentNumber,bcSalesOrderTotalAmountIncludingTax,bcSalesOrderSalespersonCode",
     )
-    .eq("salespersonCode", "ONLINE")
-    .order("orderDate", { ascending: false });
+    .eq("bcSalesOrderSalespersonCode", "ONLINE")
+    .order("bcSalesOrderOrderDate", { ascending: false });
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -18,14 +18,14 @@ export async function GET() {
 
   // Map Supabase camelCase fields back to OData-style names expected by frontend
   const result = (orders || []).map((o) => ({
-    No: o.number,
-    Sell_to_Customer_No: o.customerNumber,
-    Sell_to_Customer_Name: o.customerName,
-    Order_Date: o.orderDate,
-    Status: o.status,
-    Completely_Shipped: o.completelyShipped,
-    External_Document_No: o.externalDocumentNumber,
-    totalAmount: o.totalAmountIncludingTax,
+    No: o.bcSalesOrderNumber,
+    Sell_to_Customer_No: o.bcSalesOrderCustomerNumber,
+    Sell_to_Customer_Name: o.bcSalesOrderCustomerName,
+    Order_Date: o.bcSalesOrderOrderDate,
+    Status: o.bcSalesOrderStatus,
+    Completely_Shipped: o.bcSalesOrderCompletelyShipped,
+    External_Document_No: o.bcSalesOrderExternalDocumentNumber,
+    totalAmount: o.bcSalesOrderTotalAmountIncludingTax,
   }));
 
   return Response.json({ orders: result });

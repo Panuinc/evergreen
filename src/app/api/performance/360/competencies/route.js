@@ -13,10 +13,10 @@ export async function GET(request) {
   }
 
   const { data, error } = await supabase
-    .from("feedback_360_competencies")
+    .from("perf360Competency")
     .select("*")
-    .eq("cycleId", cycleId)
-    .order("sortOrder");
+    .eq("perf360CompetencyCycleId", cycleId)
+    .order("perf360CompetencySortOrder");
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -36,22 +36,22 @@ export async function POST(request) {
 
   // Delete existing competencies for this cycle
   await supabase
-    .from("feedback_360_competencies")
+    .from("perf360Competency")
     .delete()
-    .eq("cycleId", cycleId);
+    .eq("perf360CompetencyCycleId", cycleId);
 
   // Insert new ones
   const rows = competencies.map((c, i) => ({
-    cycleId,
-    name: c.name,
-    description: c.description || null,
-    questions: c.questions || [],
-    weight: c.weight || 1,
-    sortOrder: i,
+    perf360CompetencyCycleId: cycleId,
+    perf360CompetencyName: c.name,
+    perf360CompetencyDescription: c.description || null,
+    perf360CompetencyQuestions: c.questions || [],
+    perf360CompetencyWeight: c.weight || 1,
+    perf360CompetencySortOrder: i,
   }));
 
   const { data, error } = await supabase
-    .from("feedback_360_competencies")
+    .from("perf360Competency")
     .insert(rows)
     .select();
 

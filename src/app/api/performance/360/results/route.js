@@ -15,9 +15,9 @@ export async function GET(request) {
 
   // Get cycle info
   const { data: cycle } = await supabase
-    .from("feedback_360_cycles")
+    .from("perf360Cycle")
     .select("*")
-    .eq("id", cycleId)
+    .eq("perf360CycleId", cycleId)
     .single();
 
   if (!cycle) {
@@ -26,44 +26,44 @@ export async function GET(request) {
 
   // Get competencies
   const { data: competencies } = await supabase
-    .from("feedback_360_competencies")
+    .from("perf360Competency")
     .select("*")
-    .eq("cycleId", cycleId)
-    .order("sortOrder");
+    .eq("perf360CompetencyCycleId", cycleId)
+    .order("perf360CompetencySortOrder");
 
   if (employeeId) {
     // Get results for specific employee
     const { data: responses } = await supabase
-      .from("feedback_360_responses")
+      .from("perf360Response")
       .select("*")
-      .eq("cycleId", cycleId)
-      .eq("revieweeEmployeeId", employeeId);
+      .eq("perf360ResponseCycleId", cycleId)
+      .eq("perf360ResponseRevieweeEmployeeId", employeeId);
 
-    const result = aggregateResults(responses || [], competencies || [], cycle.anonymousToReviewee);
+    const result = aggregateResults(responses || [], competencies || [], cycle.perf360CycleAnonymousToReviewee);
     return Response.json({ cycle, competencies, ...result });
   }
 
   // Get all results for the cycle (admin view)
   const { data: responses } = await supabase
-    .from("feedback_360_responses")
+    .from("perf360Response")
     .select("*")
-    .eq("cycleId", cycleId);
+    .eq("perf360ResponseCycleId", cycleId);
 
   // Fetch reviewee employees separately
-  const revieweeIds = [...new Set((responses || []).map((r) => r.revieweeEmployeeId))];
+  const revieweeIds = [...new Set((responses || []).map((r) => r.perf360ResponseRevieweeEmployeeId))];
   const empMap = {};
   if (revieweeIds.length > 0) {
     const { data: emps } = await supabase
-      .from("employees")
-      .select("employeeId, employeeFirstName, employeeLastName, employeeDepartment")
-      .in("employeeId", revieweeIds);
-    for (const e of (emps || [])) empMap[e.employeeId] = e;
+      .from("hrEmployee")
+      .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment")
+      .in("hrEmployeeId", revieweeIds);
+    for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
   }
 
   // Group by reviewee
   const byReviewee = {};
   for (const resp of (responses || [])) {
-    const eid = resp.revieweeEmployeeId;
+    const eid = resp.perf360ResponseRevieweeEmployeeId;
     if (!byReviewee[eid]) {
       byReviewee[eid] = {
         employeeId: eid,
@@ -89,7 +89,7 @@ export async function GET(request) {
 function aggregateResults(responses, competencies, anonymous) {
   const byType = {};
   for (const resp of responses) {
-    const type = resp.relationshipType;
+    const type = resp.perf360ResponseRelationshipType;
     if (!byType[type]) byType[type] = [];
     byType[type].push(resp);
   }
@@ -98,13 +98,13 @@ function aggregateResults(responses, competencies, anonymous) {
   for (const [type, resps] of Object.entries(byType)) {
     const compAverages = {};
     for (const comp of competencies) {
-      const values = resps.map((r) => r.competencyAverages?.[comp.id] || 0).filter((v) => v > 0);
-      compAverages[comp.id] = values.length > 0
+      const values = resps.map((r) => r.perf360ResponseCompetencyAverages?.[comp.perf360CompetencyId] || 0).filter((v) => v > 0);
+      compAverages[comp.perf360CompetencyId] = values.length > 0
         ? parseFloat((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2))
         : 0;
     }
 
-    const overallValues = resps.map((r) => r.overallScore).filter((v) => v > 0);
+    const overallValues = resps.map((r) => r.perf360ResponseOverallScore).filter((v) => v > 0);
     const overall = overallValues.length > 0
       ? parseFloat((overallValues.reduce((a, b) => a + b, 0) / overallValues.length).toFixed(2))
       : 0;
@@ -117,7 +117,7 @@ function aggregateResults(responses, competencies, anonymous) {
   }
 
   // Overall across all types
-  const allOverallScores = responses.map((r) => r.overallScore).filter((v) => v > 0);
+  const allOverallScores = responses.map((r) => r.perf360ResponseOverallScore).filter((v) => v > 0);
   const overallScore = allOverallScores.length > 0
     ? parseFloat((allOverallScores.reduce((a, b) => a + b, 0) / allOverallScores.length).toFixed(2))
     : 0;
@@ -126,9 +126,9 @@ function aggregateResults(responses, competencies, anonymous) {
   const feedback = {};
   for (const [type, resps] of Object.entries(byType)) {
     feedback[type] = {
-      strengths: resps.map((r) => r.strengthComment).filter(Boolean),
-      improvements: resps.map((r) => r.improvementComment).filter(Boolean),
-      comments: resps.map((r) => r.comment).filter(Boolean),
+      strengths: resps.map((r) => r.perf360ResponseStrengthComment).filter(Boolean),
+      improvements: resps.map((r) => r.perf360ResponseImprovementComment).filter(Boolean),
+      comments: resps.map((r) => r.perf360ResponseComment).filter(Boolean),
     };
   }
 

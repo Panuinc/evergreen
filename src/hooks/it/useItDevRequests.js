@@ -14,22 +14,22 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  requestTitle: "",
-  requestDescription: "",
-  requestedBy: "",
-  requestPriority: "medium",
-  requestStatus: "pending",
-  requestAssignedTo: "",
-  requestProgress: "0",
-  requestStartDate: "",
-  requestDueDate: "",
-  requestNotes: "",
+  itDevRequestTitle: "",
+  itDevRequestDescription: "",
+  itDevRequestRequestedBy: "",
+  itDevRequestPriority: "medium",
+  itDevRequestStatus: "pending",
+  itDevRequestAssignedTo: "",
+  itDevRequestProgress: "0",
+  itDevRequestStartDate: "",
+  itDevRequestDueDate: "",
+  itDevRequestNotes: "",
 };
 
 const emptyProgressForm = {
-  logDescription: "",
-  logProgress: "",
-  logCreatedBy: "",
+  itDevRequestLogDescription: "",
+  itDevRequestLogProgress: "",
+  itDevRequestLogCreatedBy: "",
 };
 
 export function useItDevRequests() {
@@ -71,16 +71,16 @@ export function useItDevRequests() {
     if (request) {
       setEditingRequest(request);
       setFormData({
-        requestTitle: request.requestTitle || "",
-        requestDescription: request.requestDescription || "",
-        requestedBy: request.requestedBy || "",
-        requestPriority: request.requestPriority || "medium",
-        requestStatus: request.requestStatus || "pending",
-        requestAssignedTo: request.requestAssignedTo || "",
-        requestProgress: request.requestProgress?.toString() || "0",
-        requestStartDate: request.requestStartDate || "",
-        requestDueDate: request.requestDueDate || "",
-        requestNotes: request.requestNotes || "",
+        itDevRequestTitle: request.itDevRequestTitle || "",
+        itDevRequestDescription: request.itDevRequestDescription || "",
+        itDevRequestRequestedBy: request.itDevRequestRequestedBy || "",
+        itDevRequestPriority: request.itDevRequestPriority || "medium",
+        itDevRequestStatus: request.itDevRequestStatus || "pending",
+        itDevRequestAssignedTo: request.itDevRequestAssignedTo || "",
+        itDevRequestProgress: request.itDevRequestProgress?.toString() || "0",
+        itDevRequestStartDate: request.itDevRequestStartDate || "",
+        itDevRequestDueDate: request.itDevRequestDueDate || "",
+        itDevRequestNotes: request.itDevRequestNotes || "",
       });
     } else {
       setEditingRequest(null);
@@ -92,7 +92,7 @@ export function useItDevRequests() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      requestTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อ"],
+      itDevRequestTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -105,10 +105,10 @@ export function useItDevRequests() {
       setSaving(true);
       const payload = {
         ...formData,
-        requestProgress: parseInt(formData.requestProgress) || 0,
+        itDevRequestProgress: parseInt(formData.itDevRequestProgress) || 0,
       };
       if (editingRequest) {
-        await updateDevRequest(editingRequest.requestId, payload);
+        await updateDevRequest(editingRequest.itDevRequestId, payload);
         toast.success("อัปเดตคำขอสำเร็จ");
       } else {
         await createDevRequest(payload);
@@ -131,7 +131,7 @@ export function useItDevRequests() {
   const handleDelete = async () => {
     if (!deletingRequest) return;
     try {
-      await deleteDevRequest(deletingRequest.requestId);
+      await deleteDevRequest(deletingRequest.itDevRequestId);
       toast.success("ลบคำขอสำเร็จ");
       deleteModal.onClose();
       setDeletingRequest(null);
@@ -150,12 +150,12 @@ export function useItDevRequests() {
     setSelectedRequest(request);
     setProgressForm({
       ...emptyProgressForm,
-      logProgress: request.requestProgress?.toString() || "0",
+      itDevRequestLogProgress: request.itDevRequestProgress?.toString() || "0",
     });
     progressModal.onOpen();
     try {
       setProgressLoading(true);
-      const logs = await getProgressLogs(request.requestId);
+      const logs = await getProgressLogs(request.itDevRequestId);
       setProgressLogs(logs);
     } catch {
       toast.error("โหลดบันทึกความคืบหน้าล้มเหลว");
@@ -165,37 +165,37 @@ export function useItDevRequests() {
   };
 
   const handleAddProgress = async () => {
-    if (!progressForm.logDescription.trim()) {
+    if (!progressForm.itDevRequestLogDescription.trim()) {
       toast.error("กรุณาระบุรายละเอียด");
       return;
     }
-    if (!progressForm.logProgress) {
+    if (!progressForm.itDevRequestLogProgress) {
       toast.error("กรุณาระบุเปอร์เซ็นต์ความคืบหน้า");
       return;
     }
 
     try {
       setProgressSaving(true);
-      await createProgressLog(selectedRequest.requestId, {
-        logDescription: progressForm.logDescription,
-        logProgress: parseInt(progressForm.logProgress) || 0,
-        logCreatedBy: progressForm.logCreatedBy,
+      await createProgressLog(selectedRequest.itDevRequestId, {
+        itDevRequestLogDescription: progressForm.itDevRequestLogDescription,
+        itDevRequestLogProgress: parseInt(progressForm.itDevRequestLogProgress) || 0,
+        itDevRequestLogCreatedBy: progressForm.itDevRequestLogCreatedBy,
       });
       toast.success("อัปเดตความคืบหน้าสำเร็จ");
 
       // Reload logs and request list
-      const logs = await getProgressLogs(selectedRequest.requestId);
+      const logs = await getProgressLogs(selectedRequest.itDevRequestId);
       setProgressLogs(logs);
       setProgressForm({
         ...emptyProgressForm,
-        logProgress: progressForm.logProgress,
+        itDevRequestLogProgress: progressForm.itDevRequestLogProgress,
       });
       loadData();
 
       // Update selected request locally
       setSelectedRequest((prev) => ({
         ...prev,
-        requestProgress: parseInt(progressForm.logProgress) || 0,
+        itDevRequestProgress: parseInt(progressForm.itDevRequestLogProgress) || 0,
       }));
     } catch (error) {
       toast.error(error.message || "เพิ่มความคืบหน้าล้มเหลว");

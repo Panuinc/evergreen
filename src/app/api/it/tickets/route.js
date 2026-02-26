@@ -8,15 +8,15 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
 
-  let query = supabase.from("itTickets").select("*");
+  let query = supabase.from("itTicket").select("*");
 
   if (search) {
     query = query.or(
-      `ticketNo.ilike.%${search}%,ticketTitle.ilike.%${search}%,ticketRequestedBy.ilike.%${search}%`
+      `itTicketNo.ilike.%${search}%,itTicketTitle.ilike.%${search}%,itTicketRequestedBy.ilike.%${search}%`
     );
   }
 
-  const { data, error } = await query.order("ticketCreatedAt", {
+  const { data, error } = await query.order("itTicketCreatedAt", {
     ascending: false,
   });
 
@@ -31,7 +31,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("itTickets")
+    .from("itTicket")
     .insert([body])
     .select()
     .single();

@@ -89,44 +89,44 @@ export default function GpsTrackingPage() {
         <div className="w-80 flex-shrink-0 overflow-y-auto flex flex-col gap-2">
           {vehicles.map((vehicle) => {
             const pos = positions.find(
-              (p) => p.gpsLogVehicleId === vehicle.vehicleId,
+              (p) => p.tmsGpsLogVehicleId === vehicle.tmsVehicleId,
             );
-            const isSelected = selectedVehicleId === vehicle.vehicleId;
+            const isSelected = selectedVehicleId === vehicle.tmsVehicleId;
             return (
               <Card
-                key={vehicle.vehicleId}
+                key={vehicle.tmsVehicleId}
                 shadow="none"
                 className={`cursor-pointer ${isSelected ? "border-2 border-primary" : "border border-default-200"}`}
-                onClick={() => setSelectedVehicleId(vehicle.vehicleId)}
+                onClick={() => setSelectedVehicleId(vehicle.tmsVehicleId)}
               >
                 <CardBody className="p-3 gap-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm">{vehicle.vehicleName}</h3>
+                    <h3 className="font-semibold text-sm">{vehicle.tmsVehicleName}</h3>
                     <Chip
                       variant="bordered"
                       size="sm"
-                      color={STATUS_COLORS[vehicle.vehicleStatus] || "default"}
+                      color={STATUS_COLORS[vehicle.tmsVehicleStatus] || "default"}
                     >
-                      {vehicle.vehicleStatus}
+                      {vehicle.tmsVehicleStatus}
                     </Chip>
                   </div>
                   <p className="text-xs text-default-500">
-                    {vehicle.vehiclePlateNumber}
+                    {vehicle.tmsVehiclePlateNumber}
                   </p>
                   {pos ? (
                     <div className="flex flex-col gap-1 text-xs">
                       <p className="flex items-center gap-1">
                         <MapPin size={12} className="text-primary" />
-                        {Number(pos.gpsLogLatitude).toFixed(5)},{" "}
-                        {Number(pos.gpsLogLongitude).toFixed(5)}
+                        {Number(pos.tmsGpsLogLatitude).toFixed(5)},{" "}
+                        {Number(pos.tmsGpsLogLongitude).toFixed(5)}
                       </p>
-                      {pos.gpsLogSpeed && (
+                      {pos.tmsGpsLogSpeed && (
                         <p className="text-default-400">
-                          ความเร็ว: {pos.gpsLogSpeed} km/h
+                          ความเร็ว: {pos.tmsGpsLogSpeed} km/h
                         </p>
                       )}
                       <p className="text-default-400">
-                        {new Date(pos.gpsLogRecordedAt).toLocaleString("th-TH")}
+                        {new Date(pos.tmsGpsLogRecordedAt).toLocaleString("th-TH")}
                       </p>
                     </div>
                   ) : (
@@ -147,8 +147,8 @@ export default function GpsTrackingPage() {
                       size="md"
                       radius="md"
                       startContent={<History size={12} />}
-                      onPress={() => loadRouteHistory(vehicle.vehicleId)}
-                      isLoading={loadingRoute && selectedVehicleId === vehicle.vehicleId}
+                      onPress={() => loadRouteHistory(vehicle.tmsVehicleId)}
+                      isLoading={loadingRoute && selectedVehicleId === vehicle.tmsVehicleId}
                       className="flex-1"
                     >
                       ประวัติ
@@ -180,7 +180,7 @@ export default function GpsTrackingPage() {
         <ModalContent>
           <ModalHeader>
             อัปเดตตำแหน่งยานพาหนะ
-            {selectedVehicle && ` - ${selectedVehicle.vehicleName}`}
+            {selectedVehicle && ` - ${selectedVehicle.tmsVehicleName}`}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-4">
@@ -193,16 +193,16 @@ export default function GpsTrackingPage() {
                   size="md"
                   radius="md"
                   selectedKeys={
-                    formData.gpsLogVehicleId ? [formData.gpsLogVehicleId] : []
+                    formData.tmsGpsLogVehicleId ? [formData.tmsGpsLogVehicleId] : []
                   }
                   onSelectionChange={(keys) =>
-                    updateField("gpsLogVehicleId", Array.from(keys)[0] || "")
+                    updateField("tmsGpsLogVehicleId", Array.from(keys)[0] || "")
                   }
                   isRequired
                 >
                   {vehicles.map((v) => (
-                    <SelectItem key={v.vehicleId}>
-                      {v.vehicleName} ({v.vehiclePlateNumber})
+                    <SelectItem key={v.tmsVehicleId}>
+                      {v.tmsVehicleName} ({v.tmsVehiclePlateNumber})
                     </SelectItem>
                   ))}
                 </Select>
@@ -215,11 +215,11 @@ export default function GpsTrackingPage() {
                 variant="bordered"
                 size="md"
                 radius="md"
-                value={formData.gpsLogLatitude}
-                onChange={(e) => updateField("gpsLogLatitude", e.target.value)}
+                value={formData.tmsGpsLogLatitude}
+                onChange={(e) => updateField("tmsGpsLogLatitude", e.target.value)}
                 isRequired
-                isInvalid={!!validationErrors?.gpsLogLatitude}
-                errorMessage={validationErrors?.gpsLogLatitude}
+                isInvalid={!!validationErrors?.tmsGpsLogLatitude}
+                errorMessage={validationErrors?.tmsGpsLogLatitude}
               />
               <Input
                 type="number"
@@ -229,11 +229,11 @@ export default function GpsTrackingPage() {
                 variant="bordered"
                 size="md"
                 radius="md"
-                value={formData.gpsLogLongitude}
-                onChange={(e) => updateField("gpsLogLongitude", e.target.value)}
+                value={formData.tmsGpsLogLongitude}
+                onChange={(e) => updateField("tmsGpsLogLongitude", e.target.value)}
                 isRequired
-                isInvalid={!!validationErrors?.gpsLogLongitude}
-                errorMessage={validationErrors?.gpsLogLongitude}
+                isInvalid={!!validationErrors?.tmsGpsLogLongitude}
+                errorMessage={validationErrors?.tmsGpsLogLongitude}
               />
               <Input
                 type="number"
@@ -243,8 +243,8 @@ export default function GpsTrackingPage() {
                 variant="bordered"
                 size="md"
                 radius="md"
-                value={formData.gpsLogSpeed}
-                onChange={(e) => updateField("gpsLogSpeed", e.target.value)}
+                value={formData.tmsGpsLogSpeed}
+                onChange={(e) => updateField("tmsGpsLogSpeed", e.target.value)}
               />
             </div>
           </ModalBody>
@@ -271,8 +271,8 @@ export default function GpsTrackingPage() {
           <ModalHeader>
             ประวัติเส้นทาง
             {selectedVehicleId && (() => {
-              const v = vehicles.find((v) => v.vehicleId === selectedVehicleId);
-              return v ? ` - ${v.vehicleName}` : "";
+              const v = vehicles.find((v) => v.tmsVehicleId === selectedVehicleId);
+              return v ? ` - ${v.tmsVehicleName}` : "";
             })()}
           </ModalHeader>
           <ModalBody>

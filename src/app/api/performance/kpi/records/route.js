@@ -13,10 +13,10 @@ export async function GET(request) {
   }
 
   const { data, error } = await supabase
-    .from("kpi_records")
+    .from("perfKpiRecord")
     .select("*")
-    .eq("assignmentId", assignmentId)
-    .order("periodLabel", { ascending: true });
+    .eq("perfKpiRecordAssignmentId", assignmentId)
+    .order("perfKpiRecordPeriodLabel", { ascending: true });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -35,14 +35,14 @@ export async function POST(request) {
   }
 
   const { data, error } = await supabase
-    .from("kpi_records")
+    .from("perfKpiRecord")
     .upsert([{
-      assignmentId,
-      periodLabel,
-      actualValue: parseFloat(actualValue),
-      note: note || null,
-      recordedBy: session.user.id,
-    }], { onConflict: "assignmentId,periodLabel" })
+      perfKpiRecordAssignmentId: assignmentId,
+      perfKpiRecordPeriodLabel: periodLabel,
+      perfKpiRecordActualValue: parseFloat(actualValue),
+      perfKpiRecordNote: note || null,
+      perfKpiRecordRecordedBy: session.user.id,
+    }], { onConflict: "perfKpiRecordAssignmentId,perfKpiRecordPeriodLabel" })
     .select()
     .single();
 

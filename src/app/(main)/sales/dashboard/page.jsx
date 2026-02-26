@@ -193,7 +193,7 @@ export default function SalesDashboardPage() {
           <div className="flex flex-col gap-3">
             {(data.recentActivities || []).map((activity, i) => {
               const Icon =
-                TYPE_ICON_MAP[activity.activityType] || ClipboardList;
+                TYPE_ICON_MAP[activity.crmActivityType] || ClipboardList;
               return (
                 <div
                   key={i}
@@ -202,12 +202,12 @@ export default function SalesDashboardPage() {
                   <div className="flex items-center gap-3">
                     <Icon size={16} className="text-default-500" />
                     <span className="font-medium">
-                      {activity.activitySubject}
+                      {activity.crmActivitySubject}
                     </span>
                   </div>
                   <span className="text-sm text-default-500">
-                    {activity.activityDueDate
-                      ? new Date(activity.activityDueDate).toLocaleDateString(
+                    {activity.crmActivityDueDate
+                      ? new Date(activity.crmActivityDueDate).toLocaleDateString(
                           "th-TH",
                         )
                       : "-"}

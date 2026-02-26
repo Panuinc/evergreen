@@ -6,9 +6,9 @@ export async function GET() {
   const { supabase } = auth;
 
   const { data, error } = await supabase
-    .from("permissions")
-    .select("*, resources(*), actions(*)")
-    .order("permissionCreatedAt", { ascending: false });
+    .from("rbacPermission")
+    .select("*, rbacResource(*), rbacAction(*)")
+    .order("rbacPermissionCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -21,9 +21,9 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("permissions")
+    .from("rbacPermission")
     .insert([body])
-    .select("*, resources(*), actions(*)")
+    .select("*, rbacResource(*), rbacAction(*)")
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 400 });

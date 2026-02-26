@@ -39,33 +39,33 @@ export default function PermissionsPage() {
               </th>
               {actions.map((action) => (
                 <th
-                  key={action.actionId}
+                  key={action.rbacActionId}
                   className="p-2 border-b border-default font-semibold text-center capitalize"
                 >
-                  {action.actionName}
+                  {action.rbacActionName}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {resources.map((resource) => (
-              <tr key={resource.resourceId} className="hover:bg-default/50">
+              <tr key={resource.rbacResourceId} className="hover:bg-default/50">
                 <td className="p-2 border-b border-default font-medium capitalize sticky left-0 bg-background">
-                  {resource.resourceName}
-                  {resource.resourceDescription && (
+                  {resource.rbacResourceName}
+                  {resource.rbacResourceDescription && (
                     <span className="text-default-400">
-                      ({resource.resourceDescription})
+                      ({resource.rbacResourceDescription})
                     </span>
                   )}
                 </td>
                 {actions.map((action) => {
-                  const key = `${resource.resourceId}:${action.actionId}`;
+                  const key = `${resource.rbacResourceId}:${action.rbacActionId}`;
                   const exists = !!permMap[key];
                   const isToggling = toggling === key;
 
                   return (
                     <td
-                      key={action.actionId}
+                      key={action.rbacActionId}
                       className="p-2 border-b border-default text-center"
                     >
                       {isToggling ? (
@@ -77,8 +77,8 @@ export default function PermissionsPage() {
                           isSelected={exists}
                           onValueChange={() =>
                             togglePermission(
-                              resource.resourceId,
-                              action.actionId,
+                              resource.rbacResourceId,
+                              action.rbacActionId,
                             )
                           }
                         />

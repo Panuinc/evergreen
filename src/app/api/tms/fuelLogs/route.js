@@ -8,13 +8,13 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const vehicleId = searchParams.get("vehicleId");
 
-  let query = supabase.from("fuelLogs").select("*");
+  let query = supabase.from("tmsFuelLog").select("*");
 
   if (vehicleId) {
-    query = query.eq("fuelLogVehicleId", vehicleId);
+    query = query.eq("tmsFuelLogVehicleId", vehicleId);
   }
 
-  const { data, error } = await query.order("fuelLogDate", {
+  const { data, error } = await query.order("tmsFuelLogDate", {
     ascending: false,
   });
 
@@ -29,7 +29,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("fuelLogs")
+    .from("tmsFuelLog")
     .insert([body])
     .select()
     .single();

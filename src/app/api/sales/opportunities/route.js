@@ -10,22 +10,22 @@ export async function GET(request) {
   const stage = searchParams.get("stage");
 
   let query = supabase
-    .from("crmOpportunities")
+    .from("crmOpportunity")
     .select(
-      "*, crmContacts(contactFirstName, contactLastName), crmAccounts(accountName)"
+      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName)"
     );
 
   if (search) {
     query = query.or(
-      `opportunityName.ilike.%${search}%,opportunityAssignedTo.ilike.%${search}%`
+      `crmOpportunityName.ilike.%${search}%,crmOpportunityAssignedTo.ilike.%${search}%`
     );
   }
 
   if (stage) {
-    query = query.eq("opportunityStage", stage);
+    query = query.eq("crmOpportunityStage", stage);
   }
 
-  const { data, error } = await query.order("opportunityCreatedAt", {
+  const { data, error } = await query.order("crmOpportunityCreatedAt", {
     ascending: false,
   });
 
@@ -40,7 +40,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmOpportunities")
+    .from("crmOpportunity")
     .insert([body])
     .select()
     .single();

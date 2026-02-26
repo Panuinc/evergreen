@@ -8,15 +8,15 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
 
-  let query = supabase.from("routes").select("*");
+  let query = supabase.from("tmsRoute").select("*");
 
   if (search) {
     query = query.or(
-      `routeName.ilike.%${search}%,routeDestination.ilike.%${search}%`
+      `tmsRouteName.ilike.%${search}%,tmsRouteDestination.ilike.%${search}%`
     );
   }
 
-  const { data, error } = await query.order("routeCreatedAt", {
+  const { data, error } = await query.order("tmsRouteCreatedAt", {
     ascending: false,
   });
 
@@ -31,7 +31,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("routes")
+    .from("tmsRoute")
     .insert([body])
     .select()
     .single();

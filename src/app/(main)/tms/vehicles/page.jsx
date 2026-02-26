@@ -19,23 +19,23 @@ import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 
 const vehicleCsvColumns = [
-  { header: "ทะเบียนรถ", key: "vehiclePlateNumber" },
-  { header: "ชื่อ", key: "vehicleName" },
-  { header: "ประเภท", key: "vehicleType" },
-  { header: "ยี่ห้อ", key: "vehicleBrand" },
-  { header: "รุ่น", key: "vehicleModel" },
-  { header: "ชนิดเชื้อเพลิง", key: "vehicleFuelType" },
-  { header: "น้ำหนักบรรทุก (กก.)", key: "vehicleCapacityKg" },
-  { header: "เลขไมล์", key: "vehicleCurrentMileage" },
-  { header: "สถานะ", key: "vehicleStatus" },
+  { header: "ทะเบียนรถ", key: "tmsVehiclePlateNumber" },
+  { header: "ชื่อ", key: "tmsVehicleName" },
+  { header: "ประเภท", key: "tmsVehicleType" },
+  { header: "ยี่ห้อ", key: "tmsVehicleBrand" },
+  { header: "รุ่น", key: "tmsVehicleModel" },
+  { header: "ชนิดเชื้อเพลิง", key: "tmsVehicleFuelType" },
+  { header: "น้ำหนักบรรทุก (กก.)", key: "tmsVehicleCapacityKg" },
+  { header: "เลขไมล์", key: "tmsVehicleCurrentMileage" },
+  { header: "สถานะ", key: "tmsVehicleStatus" },
 ];
 
 const columns = [
-  { name: "ชื่อ", uid: "vehicleName", sortable: true },
-  { name: "ทะเบียนรถ", uid: "vehiclePlateNumber", sortable: true },
-  { name: "ประเภท", uid: "vehicleType", sortable: true },
-  { name: "ยี่ห้อ", uid: "vehicleBrand", sortable: true },
-  { name: "สถานะ", uid: "vehicleStatus", sortable: true },
+  { name: "ชื่อ", uid: "tmsVehicleName", sortable: true },
+  { name: "ทะเบียนรถ", uid: "tmsVehiclePlateNumber", sortable: true },
+  { name: "ประเภท", uid: "tmsVehicleType", sortable: true },
+  { name: "ยี่ห้อ", uid: "tmsVehicleBrand", sortable: true },
+  { name: "สถานะ", uid: "tmsVehicleStatus", sortable: true },
   { name: "จัดการ", uid: "actions" },
 ];
 
@@ -47,11 +47,11 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "vehicleName",
-  "vehiclePlateNumber",
-  "vehicleType",
-  "vehicleBrand",
-  "vehicleStatus",
+  "tmsVehicleName",
+  "tmsVehiclePlateNumber",
+  "tmsVehicleType",
+  "tmsVehicleBrand",
+  "tmsVehicleStatus",
   "actions",
 ];
 
@@ -77,19 +77,19 @@ export default function VehiclesPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "vehicleName":
-          return <span className="font-medium">{item.vehicleName}</span>;
-        case "vehiclePlateNumber":
+        case "tmsVehicleName":
+          return <span className="font-medium">{item.tmsVehicleName}</span>;
+        case "tmsVehiclePlateNumber":
           return (
             <span className="text-default-500">
-              {item.vehiclePlateNumber || "-"}
+              {item.tmsVehiclePlateNumber || "-"}
             </span>
           );
-        case "vehicleType":
-          return item.vehicleType || "-";
-        case "vehicleBrand":
-          return item.vehicleBrand || "-";
-        case "vehicleStatus": {
+        case "tmsVehicleType":
+          return item.tmsVehicleType || "-";
+        case "tmsVehicleBrand":
+          return item.tmsVehicleBrand || "-";
+        case "tmsVehicleStatus": {
           const colorMap = {
             available: "success",
             in_use: "warning",
@@ -101,9 +101,9 @@ export default function VehiclesPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.vehicleStatus] || "default"}
+              color={colorMap[item.tmsVehicleStatus] || "default"}
             >
-              {item.vehicleStatus}
+              {item.tmsVehicleStatus}
             </Chip>
           );
         }
@@ -144,17 +144,17 @@ export default function VehiclesPage() {
         data={vehicles}
         renderCell={renderCell}
         enableCardView
-        rowKey="vehicleId"
+        rowKey="tmsVehicleId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยทะเบียน, ชื่อ, ยี่ห้อ, รุ่น..."
         searchKeys={[
-          "vehiclePlateNumber",
-          "vehicleName",
-          "vehicleBrand",
-          "vehicleModel",
+          "tmsVehiclePlateNumber",
+          "tmsVehicleName",
+          "tmsVehicleBrand",
+          "tmsVehicleModel",
         ]}
-        statusField="vehicleStatus"
+        statusField="tmsVehicleStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบยานพาหนะ"
         topEndContent={
@@ -191,13 +191,13 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehiclePlateNumber}
+                    value={formData.tmsVehiclePlateNumber}
                     onChange={(e) =>
-                      updateField("vehiclePlateNumber", e.target.value)
+                      updateField("tmsVehiclePlateNumber", e.target.value)
                     }
                     isRequired
-                    isInvalid={!!validationErrors?.vehiclePlateNumber}
-                    errorMessage={validationErrors?.vehiclePlateNumber}
+                    isInvalid={!!validationErrors?.tmsVehiclePlateNumber}
+                    errorMessage={validationErrors?.tmsVehiclePlateNumber}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -208,12 +208,12 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleName}
+                    value={formData.tmsVehicleName}
                     onChange={(e) =>
-                      updateField("vehicleName", e.target.value)
+                      updateField("tmsVehicleName", e.target.value)
                     }
-                    isInvalid={!!validationErrors?.vehicleName}
-                    errorMessage={validationErrors?.vehicleName}
+                    isInvalid={!!validationErrors?.tmsVehicleName}
+                    errorMessage={validationErrors?.tmsVehicleName}
                     isRequired
                   />
                 </div>
@@ -226,11 +226,11 @@ export default function VehiclesPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.vehicleType ? [formData.vehicleType] : []
+                      formData.tmsVehicleType ? [formData.tmsVehicleType] : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("vehicleType", val);
+                      updateField("tmsVehicleType", val);
                     }}
                   >
                     <SelectItem key="truck">รถบรรทุก</SelectItem>
@@ -247,9 +247,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleBrand}
+                    value={formData.tmsVehicleBrand}
                     onChange={(e) =>
-                      updateField("vehicleBrand", e.target.value)
+                      updateField("tmsVehicleBrand", e.target.value)
                     }
                   />
                 </div>
@@ -261,9 +261,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleModel}
+                    value={formData.tmsVehicleModel}
                     onChange={(e) =>
-                      updateField("vehicleModel", e.target.value)
+                      updateField("tmsVehicleModel", e.target.value)
                     }
                   />
                 </div>
@@ -275,9 +275,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleYear}
+                    value={formData.tmsVehicleYear}
                     onChange={(e) =>
-                      updateField("vehicleYear", e.target.value)
+                      updateField("tmsVehicleYear", e.target.value)
                     }
                   />
                 </div>
@@ -289,9 +289,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleColor}
+                    value={formData.tmsVehicleColor}
                     onChange={(e) =>
-                      updateField("vehicleColor", e.target.value)
+                      updateField("tmsVehicleColor", e.target.value)
                     }
                   />
                 </div>
@@ -303,9 +303,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleVin}
+                    value={formData.tmsVehicleVin}
                     onChange={(e) =>
-                      updateField("vehicleVin", e.target.value)
+                      updateField("tmsVehicleVin", e.target.value)
                     }
                   />
                 </div>
@@ -318,13 +318,13 @@ export default function VehiclesPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.vehicleFuelType
-                        ? [formData.vehicleFuelType]
+                      formData.tmsVehicleFuelType
+                        ? [formData.tmsVehicleFuelType]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("vehicleFuelType", val);
+                      updateField("tmsVehicleFuelType", val);
                     }}
                   >
                     <SelectItem key="diesel">ดีเซล</SelectItem>
@@ -342,9 +342,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleCapacity}
+                    value={formData.tmsVehicleCapacity}
                     onChange={(e) =>
-                      updateField("vehicleCapacity", e.target.value)
+                      updateField("tmsVehicleCapacity", e.target.value)
                     }
                   />
                 </div>
@@ -357,9 +357,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleMileage}
+                    value={formData.tmsVehicleMileage}
                     onChange={(e) =>
-                      updateField("vehicleMileage", e.target.value)
+                      updateField("tmsVehicleMileage", e.target.value)
                     }
                   />
                 </div>
@@ -372,9 +372,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleRegistrationExpiry}
+                    value={formData.tmsVehicleRegistrationExpiry}
                     onChange={(e) =>
-                      updateField("vehicleRegistrationExpiry", e.target.value)
+                      updateField("tmsVehicleRegistrationExpiry", e.target.value)
                     }
                   />
                 </div>
@@ -387,9 +387,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleInsuranceExpiry}
+                    value={formData.tmsVehicleInsuranceExpiry}
                     onChange={(e) =>
-                      updateField("vehicleInsuranceExpiry", e.target.value)
+                      updateField("tmsVehicleInsuranceExpiry", e.target.value)
                     }
                   />
                 </div>
@@ -402,9 +402,9 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.vehicleActExpiry}
+                    value={formData.tmsVehicleActExpiry}
                     onChange={(e) =>
-                      updateField("vehicleActExpiry", e.target.value)
+                      updateField("tmsVehicleActExpiry", e.target.value)
                     }
                   />
                 </div>
@@ -415,10 +415,10 @@ export default function VehiclesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.vehicleStatus]}
+                    selectedKeys={[formData.tmsVehicleStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "available";
-                      updateField("vehicleStatus", val);
+                      updateField("tmsVehicleStatus", val);
                     }}
                   >
                     <SelectItem key="available">พร้อมใช้งาน</SelectItem>
@@ -436,9 +436,9 @@ export default function VehiclesPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.vehicleNotes}
+                  value={formData.tmsVehicleNotes}
                   onChange={(e) =>
-                    updateField("vehicleNotes", e.target.value)
+                    updateField("tmsVehicleNotes", e.target.value)
                   }
                 />
               </div>
@@ -469,7 +469,7 @@ export default function VehiclesPage() {
             <p>
               คุณต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingVehicle?.vehicleName} ({deletingVehicle?.vehiclePlateNumber})
+                {deletingVehicle?.tmsVehicleName} ({deletingVehicle?.tmsVehiclePlateNumber})
               </span>
               หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

@@ -6,23 +6,23 @@ export async function GET() {
   const { supabase } = auth;
 
   const { data: allUsers, error: usersError } = await supabase
-    .from("userProfiles")
-    .select("userProfileId, userProfileEmail")
-    .order("userProfileEmail");
+    .from("rbacUserProfile")
+    .select("rbacUserProfileId, rbacUserProfileEmail")
+    .order("rbacUserProfileEmail");
 
   if (usersError)
     return Response.json({ error: usersError.message }, { status: 500 });
 
   const { data: linkedEmployees, error: empError } = await supabase
-    .from("employees")
-    .select("employeeUserId")
-    .not("employeeUserId", "is", null);
+    .from("hrEmployee")
+    .select("hrEmployeeUserId")
+    .not("hrEmployeeUserId", "is", null);
 
   if (empError)
     return Response.json({ error: empError.message }, { status: 500 });
 
-  const linkedIds = new Set(linkedEmployees.map((e) => e.employeeUserId));
-  const unlinked = allUsers.filter((u) => !linkedIds.has(u.userProfileId));
+  const linkedIds = new Set(linkedEmployees.map((e) => e.hrEmployeeUserId));
+  const unlinked = allUsers.filter((u) => !linkedIds.has(u.rbacUserProfileId));
 
   return Response.json(unlinked);
 }

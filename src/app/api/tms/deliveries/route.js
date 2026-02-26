@@ -9,14 +9,14 @@ export async function GET(request) {
   const shipmentId = searchParams.get("shipmentId");
 
   let query = supabase
-    .from("deliveries")
-    .select("*, shipments(shipmentNumber, shipmentCustomerName)");
+    .from("tmsDelivery")
+    .select("*, tmsShipment(tmsShipmentNumber, tmsShipmentCustomerName)");
 
   if (shipmentId) {
-    query = query.eq("deliveryShipmentId", shipmentId);
+    query = query.eq("tmsDeliveryShipmentId", shipmentId);
   }
 
-  const { data, error } = await query.order("deliveryCreatedAt", {
+  const { data, error } = await query.order("tmsDeliveryCreatedAt", {
     ascending: false,
   });
 
@@ -31,7 +31,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("deliveries")
+    .from("tmsDelivery")
     .insert([body])
     .select()
     .single();

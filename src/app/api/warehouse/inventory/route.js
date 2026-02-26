@@ -15,10 +15,10 @@ export async function GET(request) {
 
     while (true) {
       const { data, error } = await auth.supabase
-        .from("bcItems")
+        .from("bcItem")
         .select("*")
         .ilike("generalProductPostingGroupCode", group)
-        .order("number")
+        .order("bcItemNumber")
         .range(from, from + PAGE_SIZE - 1);
 
       if (error)
@@ -30,7 +30,7 @@ export async function GET(request) {
       from += PAGE_SIZE;
     }
 
-    const filtered = allData.filter((item) => !item.blocked && item.inventory > 0);
+    const filtered = allData.filter((item) => !item.blocked && item.bcItemInventory > 0);
     return Response.json(filtered);
   }
 
@@ -39,9 +39,9 @@ export async function GET(request) {
 
   while (true) {
     const { data, error } = await auth.supabase
-      .from("bcItems")
+      .from("bcItem")
       .select("*")
-      .order("number")
+      .order("bcItemNumber")
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -52,6 +52,6 @@ export async function GET(request) {
     from += PAGE_SIZE;
   }
 
-  const filtered = allData.filter((item) => !item.blocked && item.inventory > 0);
+  const filtered = allData.filter((item) => !item.blocked && item.bcItemInventory > 0);
   return Response.json(filtered);
 }

@@ -74,12 +74,12 @@ async function executeTool(name, args, supabase) {
   switch (name) {
     case "get_employees": {
       let q = supabase
-        .from("employees")
-        .select("employeeId, employeeFirstName, employeeLastName, employeeEmail")
-        .order("employeeFirstName");
+        .from("hrEmployee")
+        .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeEmail")
+        .order("hrEmployeeFirstName");
       if (args.search) {
         q = q.or(
-          `employeeFirstName.ilike.%${args.search}%,employeeLastName.ilike.%${args.search}%`,
+          `hrEmployeeFirstName.ilike.%${args.search}%,hrEmployeeLastName.ilike.%${args.search}%`,
         );
       }
       const { data } = await q;
@@ -87,18 +87,18 @@ async function executeTool(name, args, supabase) {
     }
     case "get_departments": {
       const { data } = await supabase
-        .from("departments")
-        .select("departmentId, departmentName")
-        .order("departmentName");
+        .from("hrDepartment")
+        .select("hrDepartmentId, hrDepartmentName")
+        .order("hrDepartmentName");
       return data ?? [];
     }
     case "get_positions": {
       let q = supabase
-        .from("positions")
-        .select("positionId, positionTitle, positionDepartment")
-        .order("positionTitle");
+        .from("hrPosition")
+        .select("hrPositionId, hrPositionTitle, hrPositionDepartment")
+        .order("hrPositionTitle");
       if (args.department) {
-        q = q.ilike("positionDepartment", `%${args.department}%`);
+        q = q.ilike("hrPositionDepartment", `%${args.department}%`);
       }
       const { data } = await q;
       return data ?? [];

@@ -11,8 +11,8 @@ import {
 } from "@/actions/hr";
 
 const emptyForm = {
-  divisionName: "",
-  divisionDescription: "",
+  hrDivisionName: "",
+  hrDivisionDescription: "",
 };
 
 export function useDivisions() {
@@ -45,8 +45,8 @@ export function useDivisions() {
     if (div) {
       setEditingDiv(div);
       setFormData({
-        divisionName: div.divisionName || "",
-        divisionDescription: div.divisionDescription || "",
+        hrDivisionName: div.hrDivisionName || "",
+        hrDivisionDescription: div.hrDivisionDescription || "",
       });
     } else {
       setEditingDiv(null);
@@ -56,7 +56,7 @@ export function useDivisions() {
   };
 
   const handleSave = async () => {
-    if (!formData.divisionName.trim()) {
+    if (!formData.hrDivisionName.trim()) {
       toast.error("กรุณาระบุชื่อฝ่าย");
       return;
     }
@@ -64,7 +64,7 @@ export function useDivisions() {
     try {
       setSaving(true);
       if (editingDiv) {
-        await updateDivision(editingDiv.divisionId, formData);
+        await updateDivision(editingDiv.hrDivisionId, formData);
         toast.success("อัปเดตฝ่ายสำเร็จ");
       } else {
         await createDivision(formData);
@@ -87,7 +87,7 @@ export function useDivisions() {
   const handleDelete = async () => {
     if (!deletingDiv) return;
     try {
-      await deleteDivision(deletingDiv.divisionId);
+      await deleteDivision(deletingDiv.hrDivisionId);
       toast.success("ลบฝ่ายสำเร็จ");
       deleteModal.onClose();
       setDeletingDiv(null);

@@ -20,8 +20,8 @@ import { useRoles } from "@/hooks/rbac/useRoles";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อ", uid: "roleName", sortable: true },
-  { name: "รายละเอียด", uid: "roleDescription" },
+  { name: "ชื่อ", uid: "rbacRoleName", sortable: true },
+  { name: "รายละเอียด", uid: "rbacRoleDescription" },
   { name: "ประเภท", uid: "roleType", sortable: true },
   { name: "ผู้ใช้", uid: "userCount", sortable: true },
   { name: "สิทธิ์", uid: "permCount", sortable: true },
@@ -29,8 +29,8 @@ const columns = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "roleName",
-  "roleDescription",
+  "rbacRoleName",
+  "rbacRoleDescription",
   "roleType",
   "userCount",
   "permCount",
@@ -62,16 +62,16 @@ export default function RolesPage() {
   const renderCell = useCallback(
     (role, columnKey) => {
       switch (columnKey) {
-        case "roleName":
-          return <span className="font-medium">{role.roleName}</span>;
-        case "roleDescription":
+        case "rbacRoleName":
+          return <span className="font-medium">{role.rbacRoleName}</span>;
+        case "rbacRoleDescription":
           return (
             <span className="text-default-500">
-              {role.roleDescription || "-"}
+              {role.rbacRoleDescription || "-"}
             </span>
           );
         case "roleType":
-          return role.roleIsSuperadmin ? (
+          return role.rbacRoleIsSuperadmin ? (
             <Chip variant="bordered" size="md" radius="md">
               Superadmin
             </Chip>
@@ -81,9 +81,9 @@ export default function RolesPage() {
             </Chip>
           );
         case "userCount":
-          return role.userRoles?.[0]?.count ?? 0;
+          return role.rbacUserRole?.[0]?.count ?? 0;
         case "permCount":
-          return role.rolePermissions?.[0]?.count ?? 0;
+          return role.rbacRolePermission?.[0]?.count ?? 0;
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -112,7 +112,7 @@ export default function RolesPage() {
                 radius="md"
                 isIconOnly
                 onPress={() => handleDelete(role)}
-                isDisabled={role.roleIsSuperadmin}
+                isDisabled={role.rbacRoleIsSuperadmin}
               >
                 <Trash2 />
               </Button>
@@ -132,11 +132,11 @@ export default function RolesPage() {
         data={roles}
         renderCell={renderCell}
         enableCardView
-        rowKey="roleId"
+        rowKey="rbacRoleId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
-        searchKeys={["roleName", "roleDescription"]}
+        searchKeys={["rbacRoleName", "rbacRoleDescription"]}
         emptyContent="ไม่พบบทบาท"
         topEndContent={
           <Button
@@ -165,9 +165,9 @@ export default function RolesPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.roleName}
+                  value={formData.rbacRoleName}
                   onChange={(e) =>
-                    setFormData({ ...formData, roleName: e.target.value })
+                    setFormData({ ...formData, rbacRoleName: e.target.value })
                   }
                 />
               </div>
@@ -179,11 +179,11 @@ export default function RolesPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.roleDescription}
+                  value={formData.rbacRoleDescription}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      roleDescription: e.target.value,
+                      rbacRoleDescription: e.target.value,
                     })
                   }
                 />
@@ -191,9 +191,9 @@ export default function RolesPage() {
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Switch
                   size="md"
-                  isSelected={formData.roleIsSuperadmin}
+                  isSelected={formData.rbacRoleIsSuperadmin}
                   onValueChange={(val) =>
-                    setFormData({ ...formData, roleIsSuperadmin: val })
+                    setFormData({ ...formData, rbacRoleIsSuperadmin: val })
                   }
                 >
                   Superadmin (ข้ามการตรวจสอบสิทธิ์ทั้งหมด)
@@ -221,7 +221,7 @@ export default function RolesPage() {
       >
         <ModalContent>
           <ModalHeader>
-            สิทธิ์ของ &ldquo;{selectedRole?.roleName}&rdquo;
+            สิทธิ์ของ &ldquo;{selectedRole?.rbacRoleName}&rdquo;
           </ModalHeader>
           <ModalBody>
             {permLoading ? (
@@ -236,15 +236,15 @@ export default function RolesPage() {
                     <div className="flex flex-wrap gap-2">
                       {perms.map((perm) => (
                         <Checkbox
-                          key={perm.permissionId}
+                          key={perm.rbacPermissionId}
                           size="md"
                           radius="md"
-                          isSelected={rolePermIds.includes(perm.permissionId)}
+                          isSelected={rolePermIds.includes(perm.rbacPermissionId)}
                           onValueChange={() =>
-                            togglePermission(perm.permissionId)
+                            togglePermission(perm.rbacPermissionId)
                           }
                         >
-                          {perm.actions?.actionName}
+                          {perm.rbacAction?.rbacActionName}
                         </Checkbox>
                       ))}
                     </div>

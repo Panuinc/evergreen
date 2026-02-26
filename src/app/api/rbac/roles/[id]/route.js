@@ -7,11 +7,11 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data, error } = await supabase
-    .from("roles")
+    .from("rbacRole")
     .select(
-      "*, rolePermissions:rolePermissions(*, permissions(*, resources(*), actions(*)))",
+      "*, rbacRolePermission:rbacRolePermission(*, rbacPermission(*, rbacResource(*), rbacAction(*)))",
     )
-    .eq("roleId", id)
+    .eq("rbacRoleId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -26,9 +26,9 @@ export async function PUT(request, { params }) {
   const body = await request.json();
 
   const { data, error } = await supabase
-    .from("roles")
+    .from("rbacRole")
     .update(body)
-    .eq("roleId", id)
+    .eq("rbacRoleId", id)
     .select()
     .single();
 
@@ -42,7 +42,7 @@ export async function DELETE(request, { params }) {
   const { supabase } = auth;
   const { id } = await params;
 
-  const { error } = await supabase.from("roles").delete().eq("roleId", id);
+  const { error } = await supabase.from("rbacRole").delete().eq("rbacRoleId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

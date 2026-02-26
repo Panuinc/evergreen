@@ -9,11 +9,11 @@ export async function GET(request, { params }) {
 
   const [{ data: orders, error: oErr }, { data: rawLines, error: lErr }] =
     await Promise.all([
-      auth.supabase.from("bcSalesOrders").select("*").eq("number", orderNo),
+      auth.supabase.from("bcSalesOrder").select("*").eq("bcSalesOrderNumber", orderNo),
       auth.supabase
-        .from("bcSalesOrderLines")
+        .from("bcSalesOrderLine")
         .select("*")
-        .eq("documentNo", orderNo),
+        .eq("bcSalesOrderLineDocumentNo", orderNo),
     ]);
 
   if (oErr || lErr)
@@ -22,54 +22,54 @@ export async function GET(request, { params }) {
   const order = orders?.[0];
   if (!order) return Response.json({ error: "Order not found" }, { status: 404 });
 
-  // Map Supabase camelCase → OData-style field names (frontend ใช้ OData names)
+  // Map Supabase camelCase → OData-style field names (frontend uses OData names)
   const mappedOrder = {
-    No: order.number,
-    Sell_to_Customer_No: order.customerNumber,
-    Sell_to_Customer_Name: order.customerName,
-    Sell_to_Address: order.sellToAddress,
-    Sell_to_City: order.sellToCity,
-    Sell_to_Post_Code: order.sellToPostCode,
-    Ship_to_Name: order.shipToName,
-    Ship_to_Address: order.shipToAddress,
-    Ship_to_City: order.shipToCity,
-    Ship_to_Post_Code: order.shipToPostCode,
-    Order_Date: order.orderDate,
-    Due_Date: order.dueDate,
-    Status: order.status,
-    Completely_Shipped: order.completelyShipped,
-    External_Document_No: order.externalDocumentNumber,
-    Salesperson_Code: order.salespersonCode,
+    No: order.bcSalesOrderNumber,
+    Sell_to_Customer_No: order.bcSalesOrderCustomerNumber,
+    Sell_to_Customer_Name: order.bcSalesOrderCustomerName,
+    Sell_to_Address: order.bcSalesOrderSellToAddress,
+    Sell_to_City: order.bcSalesOrderSellToCity,
+    Sell_to_Post_Code: order.bcSalesOrderSellToPostCode,
+    Ship_to_Name: order.bcSalesOrderShipToName,
+    Ship_to_Address: order.bcSalesOrderShipToAddress,
+    Ship_to_City: order.bcSalesOrderShipToCity,
+    Ship_to_Post_Code: order.bcSalesOrderShipToPostCode,
+    Order_Date: order.bcSalesOrderOrderDate,
+    Due_Date: order.bcSalesOrderDueDate,
+    Status: order.bcSalesOrderStatus,
+    Completely_Shipped: order.bcSalesOrderCompletelyShipped,
+    External_Document_No: order.bcSalesOrderExternalDocumentNumber,
+    Salesperson_Code: order.bcSalesOrderSalespersonCode,
   };
 
   const lines = (rawLines || []).map((l) => ({
-    Document_No: l.documentNo,
-    Line_No: l.lineNo,
-    Type: l.type,
-    No: l.lineObjectNumber,
-    Description: l.description,
-    Quantity: l.quantity,
-    Unit_Price: l.unitPrice,
-    Line_Amount: l.amountIncludingTax,
-    Quantity_Shipped: l.quantityShipped,
-    BWK_Outstanding_Quantity: l.bwkOutstandingQuantity,
-    Unit_of_Measure_Code: l.unitOfMeasureCode,
-    Location_Code: l.locationCode,
-    projectCode: l.projectCode,
-    projectName: l.projectName,
+    Document_No: l.bcSalesOrderLineDocumentNo,
+    Line_No: l.bcSalesOrderLineLineNo,
+    Type: l.bcSalesOrderLineType,
+    No: l.bcSalesOrderLineObjectNumber,
+    Description: l.bcSalesOrderLineDescription,
+    Quantity: l.bcSalesOrderLineQuantity,
+    Unit_Price: l.bcSalesOrderLineUnitPrice,
+    Line_Amount: l.bcSalesOrderLineAmountIncludingTax,
+    Quantity_Shipped: l.bcSalesOrderLineQuantityShipped,
+    BWK_Outstanding_Quantity: l.bcSalesOrderLineOutstandingQuantity,
+    Unit_of_Measure_Code: l.bcSalesOrderLineUnitOfMeasureCode,
+    Location_Code: l.bcSalesOrderLineLocationCode,
+    projectCode: l.bcSalesOrderLineProjectCode,
+    projectName: l.bcSalesOrderLineProjectName,
   }));
 
   const totalAmount = lines.reduce((s, l) => s + (l.Line_Amount || 0), 0);
   const totalQty = lines.reduce((s, l) => s + (l.Quantity || 0), 0);
   const shippedQty = lines.reduce((s, l) => s + (l.Quantity_Shipped || 0), 0);
 
-  // Customer phone จาก bcCustomers cache
+  // Customer phone from bcCustomer cache
   const { data: custRows } = await auth.supabase
-    .from("bcCustomers")
-    .select("phoneNumber")
-    .eq("number", order.customerNumber)
+    .from("bcCustomer")
+    .select("bcCustomerPhoneNumber")
+    .eq("bcCustomerNumber", order.bcSalesOrderCustomerNumber)
     .limit(1);
-  const customerPhone = custRows?.[0]?.phoneNumber || "";
+  const customerPhone = custRows?.[0]?.bcCustomerPhoneNumber || "";
 
   return Response.json({
     order: { ...mappedOrder, lines, totalAmount, totalQty, shippedQty },

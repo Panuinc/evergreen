@@ -12,15 +12,15 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  contactFirstName: "",
-  contactLastName: "",
-  contactEmail: "",
-  contactPhone: "",
-  contactPosition: "",
-  contactAccountId: "",
-  contactAddress: "",
-  contactTags: "",
-  contactNotes: "",
+  crmContactFirstName: "",
+  crmContactLastName: "",
+  crmContactEmail: "",
+  crmContactPhone: "",
+  crmContactPosition: "",
+  crmContactAccountId: "",
+  crmContactAddress: "",
+  crmContactTags: "",
+  crmContactNotes: "",
 };
 
 export function useCrmContacts() {
@@ -54,15 +54,15 @@ export function useCrmContacts() {
     if (contact) {
       setEditingContact(contact);
       setFormData({
-        contactFirstName: contact.contactFirstName || "",
-        contactLastName: contact.contactLastName || "",
-        contactEmail: contact.contactEmail || "",
-        contactPhone: contact.contactPhone || "",
-        contactPosition: contact.contactPosition || "",
-        contactAccountId: contact.contactAccountId || "",
-        contactAddress: contact.contactAddress || "",
-        contactTags: contact.contactTags || "",
-        contactNotes: contact.contactNotes || "",
+        crmContactFirstName: contact.crmContactFirstName || "",
+        crmContactLastName: contact.crmContactLastName || "",
+        crmContactEmail: contact.crmContactEmail || "",
+        crmContactPhone: contact.crmContactPhone || "",
+        crmContactPosition: contact.crmContactPosition || "",
+        crmContactAccountId: contact.crmContactAccountId || "",
+        crmContactAddress: contact.crmContactAddress || "",
+        crmContactTags: contact.crmContactTags || "",
+        crmContactNotes: contact.crmContactNotes || "",
       });
     } else {
       setEditingContact(null);
@@ -74,7 +74,7 @@ export function useCrmContacts() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      contactFirstName: [
+      crmContactFirstName: [
         (v) => !isRequired(v) && "กรุณาระบุชื่อ",
       ],
     });
@@ -88,10 +88,10 @@ export function useCrmContacts() {
     try {
       setSaving(true);
       const payload = { ...formData };
-      if (!payload.contactAccountId) delete payload.contactAccountId;
+      if (!payload.crmContactAccountId) delete payload.crmContactAccountId;
 
       if (editingContact) {
-        await updateContact(editingContact.contactId, payload);
+        await updateContact(editingContact.crmContactId, payload);
         toast.success("อัปเดตผู้ติดต่อสำเร็จ");
       } else {
         await createContact(payload);
@@ -114,7 +114,7 @@ export function useCrmContacts() {
   const handleDelete = async () => {
     if (!deletingContact) return;
     try {
-      await deleteContact(deletingContact.contactId);
+      await deleteContact(deletingContact.crmContactId);
       toast.success("ลบผู้ติดต่อสำเร็จ");
       deleteModal.onClose();
       setDeletingContact(null);

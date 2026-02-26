@@ -13,78 +13,78 @@ export async function GET() {
     { data: activities },
     { data: stages },
   ] = await Promise.all([
-    supabase.from("crmLeads").select("leadId, leadStatus, leadScore, leadCreatedAt"),
+    supabase.from("crmLead").select("crmLeadId, crmLeadStatus, crmLeadScore, crmLeadCreatedAt"),
     supabase
-      .from("crmOpportunities")
+      .from("crmOpportunity")
       .select(
-        "opportunityId, opportunityStage, opportunityAmount, opportunityProbability, opportunityAssignedTo, opportunityCreatedAt, opportunityActualCloseDate"
+        "crmOpportunityId, crmOpportunityStage, crmOpportunityAmount, crmOpportunityProbability, crmOpportunityAssignedTo, crmOpportunityCreatedAt, crmOpportunityActualCloseDate"
       ),
     supabase
-      .from("crmOrders")
-      .select("orderId, orderStatus, orderTotal, orderCreatedAt"),
+      .from("crmOrder")
+      .select("crmOrderId, crmOrderStatus, crmOrderTotal, crmOrderCreatedAt"),
     supabase
-      .from("crmActivities")
-      .select("activityId, activityType, activityStatus, activitySubject, activityDueDate, activityCreatedAt")
-      .order("activityCreatedAt", { ascending: false })
+      .from("crmActivity")
+      .select("crmActivityId, crmActivityType, crmActivityStatus, crmActivitySubject, crmActivityDueDate, crmActivityCreatedAt")
+      .order("crmActivityCreatedAt", { ascending: false })
       .limit(10),
     supabase
-      .from("crmPipelineStages")
+      .from("crmPipelineStage")
       .select("*")
-      .order("stageOrder", { ascending: true }),
+      .order("crmPipelineStageOrder", { ascending: true }),
   ]);
 
   // KPIs
   const totalLeads = leads?.length || 0;
-  const newLeads = leads?.filter((l) => l.leadStatus === "new").length || 0;
+  const newLeads = leads?.filter((l) => l.crmLeadStatus === "new").length || 0;
   const openOpportunities =
     opportunities?.filter(
       (o) =>
-        !["closed_won", "closed_lost"].includes(o.opportunityStage)
+        !["closed_won", "closed_lost"].includes(o.crmOpportunityStage)
     ).length || 0;
   const wonDeals =
-    opportunities?.filter((o) => o.opportunityStage === "closed_won").length ||
+    opportunities?.filter((o) => o.crmOpportunityStage === "closed_won").length ||
     0;
   const lostDeals =
-    opportunities?.filter((o) => o.opportunityStage === "closed_lost").length ||
+    opportunities?.filter((o) => o.crmOpportunityStage === "closed_lost").length ||
     0;
   const totalRevenue =
     opportunities
-      ?.filter((o) => o.opportunityStage === "closed_won")
-      .reduce((sum, o) => sum + (parseFloat(o.opportunityAmount) || 0), 0) || 0;
+      ?.filter((o) => o.crmOpportunityStage === "closed_won")
+      .reduce((sum, o) => sum + (parseFloat(o.crmOpportunityAmount) || 0), 0) || 0;
   const pipelineValue =
     opportunities
       ?.filter(
         (o) =>
-          !["closed_won", "closed_lost"].includes(o.opportunityStage)
+          !["closed_won", "closed_lost"].includes(o.crmOpportunityStage)
       )
-      .reduce((sum, o) => sum + (parseFloat(o.opportunityAmount) || 0), 0) || 0;
+      .reduce((sum, o) => sum + (parseFloat(o.crmOpportunityAmount) || 0), 0) || 0;
   const weightedPipeline =
     opportunities
       ?.filter(
         (o) =>
-          !["closed_won", "closed_lost"].includes(o.opportunityStage)
+          !["closed_won", "closed_lost"].includes(o.crmOpportunityStage)
       )
       .reduce(
         (sum, o) =>
           sum +
-          (parseFloat(o.opportunityAmount) || 0) *
-            ((o.opportunityProbability || 0) / 100),
+          (parseFloat(o.crmOpportunityAmount) || 0) *
+            ((o.crmOpportunityProbability || 0) / 100),
         0
       ) || 0;
 
   // Pipeline by stage
   const pipelineByStage = (stages || []).map((stage) => {
     const stageOpps = opportunities?.filter(
-      (o) => o.opportunityStage === stage.stageName.toLowerCase().replace(/ /g, "_")
+      (o) => o.crmOpportunityStage === stage.crmPipelineStageName.toLowerCase().replace(/ /g, "_")
     ) || [];
     return {
-      stage: stage.stageName,
+      stage: stage.crmPipelineStageName,
       count: stageOpps.length,
       value: stageOpps.reduce(
-        (sum, o) => sum + (parseFloat(o.opportunityAmount) || 0),
+        (sum, o) => sum + (parseFloat(o.crmOpportunityAmount) || 0),
         0
       ),
-      color: stage.stageColor,
+      color: stage.crmPipelineStageColor,
     };
   });
 
@@ -96,7 +96,7 @@ export async function GET() {
     const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const monthName = d.toLocaleString("th-TH", { month: "short", year: "2-digit" });
     const monthOrders = orders?.filter((o) => {
-      const od = new Date(o.orderCreatedAt);
+      const od = new Date(o.crmOrderCreatedAt);
       return (
         od.getFullYear() === d.getFullYear() &&
         od.getMonth() === d.getMonth()
@@ -106,7 +106,7 @@ export async function GET() {
       month: monthName,
       key: monthKey,
       revenue: monthOrders.reduce(
-        (sum, o) => sum + (parseFloat(o.orderTotal) || 0),
+        (sum, o) => sum + (parseFloat(o.crmOrderTotal) || 0),
         0
       ),
       count: monthOrders.length,
@@ -116,12 +116,12 @@ export async function GET() {
   // Top salespeople
   const salesByPerson = {};
   opportunities
-    ?.filter((o) => o.opportunityStage === "closed_won" && o.opportunityAssignedTo)
+    ?.filter((o) => o.crmOpportunityStage === "closed_won" && o.crmOpportunityAssignedTo)
     .forEach((o) => {
-      const name = o.opportunityAssignedTo;
+      const name = o.crmOpportunityAssignedTo;
       if (!salesByPerson[name]) salesByPerson[name] = { name, deals: 0, revenue: 0 };
       salesByPerson[name].deals++;
-      salesByPerson[name].revenue += parseFloat(o.opportunityAmount) || 0;
+      salesByPerson[name].revenue += parseFloat(o.crmOpportunityAmount) || 0;
     });
   const topSalespeople = Object.values(salesByPerson)
     .sort((a, b) => b.revenue - a.revenue)

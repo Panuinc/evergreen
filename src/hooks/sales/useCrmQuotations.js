@@ -22,7 +22,7 @@ export function useCrmQuotations() {
       const data = await getQuotationsList();
       setQuotations(
         statusFilter
-          ? data.filter((q) => q.quotationStatus === statusFilter)
+          ? data.filter((q) => q.crmQuotationStatus === statusFilter)
           : data
       );
     } catch (error) {
@@ -40,7 +40,7 @@ export function useCrmQuotations() {
   const handleDelete = async () => {
     if (!deletingQuotation) return;
     try {
-      await deleteQuotation(deletingQuotation.quotationId);
+      await deleteQuotation(deletingQuotation.crmQuotationId);
       toast.success("ลบใบเสนอราคาสำเร็จ");
       deleteModal.onClose();
       setDeletingQuotation(null);

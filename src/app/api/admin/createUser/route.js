@@ -65,9 +65,9 @@ export async function POST(request) {
   // ถ้ามี employeeId ให้ผูก user กับ employee
   if (employeeId && newUser.user) {
     const { error: linkError } = await supabaseAdmin
-      .from("employees")
-      .update({ employeeUserId: newUser.user.id })
-      .eq("employeeId", employeeId);
+      .from("hrEmployee")
+      .update({ hrEmployeeUserId: newUser.user.id })
+      .eq("hrEmployeeId", employeeId);
 
     if (linkError) {
       return Response.json(

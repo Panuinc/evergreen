@@ -14,7 +14,7 @@ async function batchUpsert(
   supabase,
   table,
   rows,
-  { batchSize = 1000, concurrency = 3, onProgress } = {},
+  { batchSize = 1000, concurrency = 3, onConflictCol = "bcCustomerExternalId", onProgress } = {},
 ) {
   const batches = [];
   for (let i = 0; i < rows.length; i += batchSize) {
@@ -26,7 +26,7 @@ async function batchUpsert(
     const chunk = batches.slice(i, i + concurrency);
     const results = await Promise.all(
       chunk.map((batch) =>
-        supabase.from(table).upsert(batch, { onConflict: "id" }),
+        supabase.from(table).upsert(batch, { onConflict: onConflictCol }),
       ),
     );
     for (const { error } of results) {
@@ -204,15 +204,15 @@ async function runSync(supabase, requestedTables, send) {
         $orderby: "No asc",
       });
       const customerRows = customers.map((c) => ({
-        id: c.No,
-        number: c.No,
-        displayName: c.Name,
-        phoneNumber: c.Phone_No,
-        contact: c.Contact,
-        balanceDue: c.Balance_Due_LCY,
-        balance: c.Balance_LCY,
-        salespersonCode: c.Salesperson_Code,
-        syncedAt: now,
+        bcCustomerExternalId: c.No,
+        bcCustomerNumber: c.No,
+        bcCustomerDisplayName: c.Name,
+        bcCustomerPhoneNumber: c.Phone_No,
+        bcCustomerContact: c.Contact,
+        bcCustomerBalanceDue: c.Balance_Due_LCY,
+        bcCustomerBalance: c.Balance_LCY,
+        bcCustomerSalespersonCode: c.Salesperson_Code,
+        bcCustomerSyncedAt: now,
       }));
       send("progress", {
         phase: "customers",
@@ -220,7 +220,8 @@ async function runSync(supabase, requestedTables, send) {
         count: customerRows.length,
         label: `บันทึกลูกค้า ${customerRows.length.toLocaleString()} รายการ...`,
       });
-      await batchUpsert(supabase, "bcCustomers", customerRows, {
+      await batchUpsert(supabase, "bcCustomer", customerRows, {
+        onConflictCol: "bcCustomerExternalId",
         onProgress: (done, total) =>
           send("progress", {
             phase: "customers",
@@ -269,20 +270,20 @@ async function runSync(supabase, requestedTables, send) {
       const itemRows = items.map((i) => {
         const projectCode = extractProjectCode(i.No);
         return {
-          id: i.No,
-          number: i.No,
-          displayName: i.Description,
-          type: i.Type,
-          inventory: i.Inventory,
-          unitPrice: i.Unit_Price,
-          unitCost: i.Unit_Cost,
+          bcItemExternalId: i.No,
+          bcItemNumber: i.No,
+          bcItemDisplayName: i.Description,
+          bcItemType: i.Type,
+          bcItemInventory: i.Inventory,
+          bcItemUnitPrice: i.Unit_Price,
+          bcItemUnitCost: i.Unit_Cost,
           itemCategoryCode: i.Item_Category_Code,
           generalProductPostingGroupCode: i.Gen_Prod_Posting_Group,
           blocked: i.Blocked,
           baseUnitOfMeasure: i.Base_Unit_of_Measure,
           projectCode,
           projectName: projectCode ? dimMap[projectCode] || null : null,
-          syncedAt: now,
+          bcItemSyncedAt: now,
         };
       });
       send("progress", {
@@ -291,7 +292,8 @@ async function runSync(supabase, requestedTables, send) {
         count: itemRows.length,
         label: `บันทึกสินค้า ${itemRows.length.toLocaleString()} รายการ...`,
       });
-      await batchUpsert(supabase, "bcItems", itemRows, {
+      await batchUpsert(supabase, "bcItem", itemRows, {
+        onConflictCol: "bcItemExternalId",
         onProgress: (done, total) =>
           send("progress", {
             phase: "items",
@@ -359,10 +361,10 @@ async function runSync(supabase, requestedTables, send) {
           label: `บันทึก SO ${orders.length.toLocaleString()} รายการ...`,
         });
         const orderRows = orders.map((o) => ({
-          id: o.No,
-          number: o.No,
-          customerNumber: o.Sell_to_Customer_No,
-          customerName: o.Sell_to_Customer_Name,
+          bcSalesOrderExternalId: o.No,
+          bcSalesOrderNumber: o.No,
+          bcSalesOrderCustomerNumber: o.Sell_to_Customer_No,
+          bcSalesOrderCustomerName: o.Sell_to_Customer_Name,
           sellToAddress: o.Sell_to_Address,
           sellToCity: o.Sell_to_City,
           sellToPostCode: o.Sell_to_Post_Code,
@@ -370,16 +372,17 @@ async function runSync(supabase, requestedTables, send) {
           shipToAddress: o.Ship_to_Address,
           shipToCity: o.Ship_to_City,
           shipToPostCode: o.Ship_to_Post_Code,
-          orderDate: o.Order_Date || null,
+          bcSalesOrderDate: o.Order_Date || null,
           dueDate: o.Due_Date || null,
-          status: o.Status,
+          bcSalesOrderStatus: o.Status,
           completelyShipped: o.Completely_Shipped,
-          salespersonCode: o.Salesperson_Code,
+          bcSalesOrderSalespersonCode: o.Salesperson_Code,
           externalDocumentNumber: o.External_Document_No,
-          totalAmountIncludingTax: amountByOrder[o.No] || 0,
-          syncedAt: now,
+          bcSalesOrderTotalAmountIncVat: amountByOrder[o.No] || 0,
+          bcSalesOrderSyncedAt: now,
         }));
-        await batchUpsert(supabase, "bcSalesOrders", orderRows, {
+        await batchUpsert(supabase, "bcSalesOrder", orderRows, {
+          onConflictCol: "bcSalesOrderExternalId",
           onProgress: (done, total) =>
             send("progress", {
               phase: "salesOrders",
@@ -409,15 +412,15 @@ async function runSync(supabase, requestedTables, send) {
         const lineRows = allLines.map((l) => {
           const projectCode = extractProjectCode(l.No);
           return {
-            id: `${l.Document_No}-${l.Line_No}`,
-            documentNo: l.Document_No,
-            lineNo: l.Line_No,
+            bcSalesOrderLineExternalId: `${l.Document_No}-${l.Line_No}`,
+            bcSalesOrderLineDocumentNo: l.Document_No,
+            bcSalesOrderLineNo: l.Line_No,
             type: l.Type?.trim() || null,
             lineObjectNumber: l.No,
-            description: l.Description,
-            quantity: l.Quantity,
-            unitPrice: l.Unit_Price,
-            amountIncludingTax: l.Line_Amount,
+            bcSalesOrderLineDescription: l.Description,
+            bcSalesOrderLineQuantity: l.Quantity,
+            bcSalesOrderLineUnitPrice: l.Unit_Price,
+            bcSalesOrderLineAmount: l.Line_Amount,
             quantityShipped: l.Quantity_Shipped,
             bwkOutstandingQuantity: l.BWK_Outstanding_Quantity,
             unitOfMeasureCode: l.Unit_of_Measure_Code,
@@ -427,7 +430,8 @@ async function runSync(supabase, requestedTables, send) {
             syncedAt: now,
           };
         });
-        await batchUpsert(supabase, "bcSalesOrderLines", lineRows, {
+        await batchUpsert(supabase, "bcSalesOrderLine", lineRows, {
+          onConflictCol: "bcSalesOrderLineExternalId",
           onProgress: (done, total) =>
             send("progress", {
               phase: "salesOrderLines",
@@ -499,47 +503,46 @@ async function runSync(supabase, requestedTables, send) {
 
       // ── Map Production Orders ──
       const poRows = prodOrders.map((o) => ({
-        id: o.No,
-        status: o.Status || null,
-        description: o.Description || null,
+        bcProductionOrderExternalId: o.No,
+        bcProductionOrderStatus: o.Status || null,
+        bcProductionOrderDescription: o.Description || null,
         description2: o.Description_2 || null,
-        sourceNo: o.Source_No || null,
+        bcProductionOrderSourceNo: o.Source_No || null,
         routingNo: o.Routing_No || null,
-        quantity: o.Quantity || 0,
+        bcProductionOrderQuantity: o.Quantity || 0,
         dimension1Code: o.Shortcut_Dimension_1_Code || null,
         dimension1Name: dimMap[o.Shortcut_Dimension_1_Code] || null,
         dimension2Code: o.Shortcut_Dimension_2_Code || null,
         dimension2Name: dimMap[o.Shortcut_Dimension_2_Code] || null,
         locationCode: o.Location_Code || null,
-        startingDateTime: bcTimestamp(o.Starting_Date_Time),
-        endingDateTime: bcTimestamp(o.Ending_Date_Time),
-        dueDate: bcDate(o.Due_Date),
+        bcProductionOrderStartingDate: bcTimestamp(o.Starting_Date_Time),
+        bcProductionOrderEndingDate: bcTimestamp(o.Ending_Date_Time),
+        bcProductionOrderDueDate: bcDate(o.Due_Date),
         remainingConsumption: o.BWK_Remaining_Consumption || 0,
         assignedUserId: o.Assigned_User_ID || null,
         finishedDate: bcDate(o.Finished_Date),
         searchDescription: o.Search_Description || null,
-        syncedAt: now,
+        bcProductionOrderSyncedAt: now,
       }));
 
       // ── Map Item Ledger Entries ──
       const ileRows = ileEntries.map((e) => ({
-        id: String(e.Entry_No),
-        entryNo: e.Entry_No,
-        postingDate: bcDate(e.Posting_Date),
+        bcItemLedgerEntryExternalNo: e.Entry_No,
+        bcItemLedgerEntryItemNo: e.Item_No || null,
+        bcItemLedgerEntryPostingDate: bcDate(e.Posting_Date),
         documentDate: bcDate(e.DocumentDate),
-        entryType: e.Entry_Type?.trim() || null,
+        bcItemLedgerEntryType: e.Entry_Type?.trim() || null,
         documentType: e.Document_Type?.trim() || null,
-        documentNo: e.Document_No || null,
-        itemNo: e.Item_No || null,
+        bcItemLedgerEntryDocumentNo: e.Document_No || null,
         itemDescription: e.Description || e.Item_Description || null,
         employeeCode: e.CHH_Employee_Code || null,
         employeeName: e.CHH_Employee_Name || null,
         description2: e.BWK_Descriptin_2 || null,
-        locationCode: e.Location_Code || null,
+        bcItemLedgerEntryLocationCode: e.Location_Code || null,
         lotNo: e.Lot_No || null,
         serialNo: e.Serial_No || null,
         expirationDate: bcDate(e.Expiration_Date),
-        quantity: e.Quantity || 0,
+        bcItemLedgerEntryQuantity: e.Quantity || 0,
         unitOfMeasureCode: e.Unit_of_Measure_Code || null,
         remainingQuantity: e.Remaining_Quantity || 0,
         invoicedQuantity: e.Invoiced_Quantity || 0,
@@ -564,7 +567,7 @@ async function runSync(supabase, requestedTables, send) {
         totalGrossWeight: e.BWK_Total_Gross_Weight || 0,
         totalNetWeight: e.BWK_Total_Net_Weight || 0,
         createdBy: e.BWK_Create_By || null,
-        syncedAt: now,
+        bcItemLedgerEntrySyncedAt: now,
       }));
 
       send("progress", {
@@ -575,13 +578,14 @@ async function runSync(supabase, requestedTables, send) {
 
       // Delete all then insert (full replace strategy)
       await Promise.all([
-        supabase.from("bcProductionOrders").delete().neq("id", ""),
-        supabase.from("bcItemLedgerEntries").delete().gte("entryNo", 0),
+        supabase.from("bcProductionOrder").delete().neq("bcProductionOrderExternalId", ""),
+        supabase.from("bcItemLedgerEntry").delete().gte("bcItemLedgerEntryExternalNo", 0),
       ]);
 
       // Insert both tables in parallel
       await Promise.all([
-        batchUpsert(supabase, "bcProductionOrders", poRows, {
+        batchUpsert(supabase, "bcProductionOrder", poRows, {
+          onConflictCol: "bcProductionOrderExternalId",
           onProgress: (done, total) =>
             send("progress", {
               phase: "production",
@@ -589,7 +593,8 @@ async function runSync(supabase, requestedTables, send) {
               label: `บันทึก PO ${done.toLocaleString()}/${total.toLocaleString()}`,
             }),
         }),
-        batchUpsert(supabase, "bcItemLedgerEntries", ileRows, {
+        batchUpsert(supabase, "bcItemLedgerEntry", ileRows, {
+          onConflictCol: "bcItemLedgerEntryExternalNo",
           onProgress: (done, total) =>
             send("progress", {
               phase: "production",
@@ -630,9 +635,9 @@ async function runSync(supabase, requestedTables, send) {
     cleanupParallel.push(
       (async () => {
         const { count: staleCount } = await supabase
-          .from("bcCustomers")
+          .from("bcCustomer")
           .select("*", { count: "exact", head: true })
-          .lt("syncedAt", now);
+          .lt("bcCustomerSyncedAt", now);
         if (
           !isSafeToCleanup(
             results.customers,
@@ -643,9 +648,9 @@ async function runSync(supabase, requestedTables, send) {
           return;
         }
         const { count, error } = await supabase
-          .from("bcCustomers")
+          .from("bcCustomer")
           .delete({ count: "exact" })
-          .lt("syncedAt", now);
+          .lt("bcCustomerSyncedAt", now);
         cleanup.customers = error ? `ERROR: ${error.message}` : count || 0;
       })(),
     );
@@ -655,9 +660,9 @@ async function runSync(supabase, requestedTables, send) {
     cleanupParallel.push(
       (async () => {
         const { count: staleCount } = await supabase
-          .from("bcItems")
+          .from("bcItem")
           .select("*", { count: "exact", head: true })
-          .lt("syncedAt", now);
+          .lt("bcItemSyncedAt", now);
         if (
           !isSafeToCleanup(results.items, results.items + (staleCount || 0))
         ) {
@@ -665,14 +670,14 @@ async function runSync(supabase, requestedTables, send) {
           return;
         }
         const { count: deletedNoRfid, error: err1 } = await supabase
-          .from("bcItems")
+          .from("bcItem")
           .delete({ count: "exact" })
-          .lt("syncedAt", now)
+          .lt("bcItemSyncedAt", now)
           .is("rfidCode", null);
         const { count: markedBlocked, error: err2 } = await supabase
-          .from("bcItems")
-          .update({ blocked: true, inventory: 0 })
-          .lt("syncedAt", now)
+          .from("bcItem")
+          .update({ blocked: true, bcItemInventory: 0 })
+          .lt("bcItemSyncedAt", now)
           .not("rfidCode", "is", null);
         cleanup.items =
           err1 || err2
@@ -689,7 +694,7 @@ async function runSync(supabase, requestedTables, send) {
 
   if (syncSuccess.salesOrderLines) {
     const { count: staleCount } = await supabase
-      .from("bcSalesOrderLines")
+      .from("bcSalesOrderLine")
       .select("*", { count: "exact", head: true })
       .lt("syncedAt", now);
     if (
@@ -701,7 +706,7 @@ async function runSync(supabase, requestedTables, send) {
       cleanup.salesOrderLines = `SKIPPED: sync got ${results.salesOrderLines} but ${staleCount} would be deleted`;
     } else {
       const { count, error } = await supabase
-        .from("bcSalesOrderLines")
+        .from("bcSalesOrderLine")
         .delete({ count: "exact" })
         .lt("syncedAt", now);
       cleanup.salesOrderLines = error
@@ -712,9 +717,9 @@ async function runSync(supabase, requestedTables, send) {
 
   if (syncSuccess.salesOrders) {
     const { count: staleCount } = await supabase
-      .from("bcSalesOrders")
+      .from("bcSalesOrder")
       .select("*", { count: "exact", head: true })
-      .lt("syncedAt", now);
+      .lt("bcSalesOrderSyncedAt", now);
     if (
       !isSafeToCleanup(
         results.salesOrders,
@@ -724,9 +729,9 @@ async function runSync(supabase, requestedTables, send) {
       cleanup.salesOrders = `SKIPPED: sync got ${results.salesOrders} but ${staleCount} would be deleted`;
     } else {
       const { count, error } = await supabase
-        .from("bcSalesOrders")
+        .from("bcSalesOrder")
         .delete({ count: "exact" })
-        .lt("syncedAt", now);
+        .lt("bcSalesOrderSyncedAt", now);
       cleanup.salesOrders = error ? `ERROR: ${error.message}` : count || 0;
     }
   }

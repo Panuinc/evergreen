@@ -14,14 +14,14 @@ import {
 } from "@/actions/hr";
 
 const emptyForm = {
-  employeeFirstName: "",
-  employeeLastName: "",
-  employeeEmail: "",
-  employeePhone: "",
-  employeeDivision: "",
-  employeeDepartment: "",
-  employeePosition: "",
-  employeeStatus: "active",
+  hrEmployeeFirstName: "",
+  hrEmployeeLastName: "",
+  hrEmployeeEmail: "",
+  hrEmployeePhone: "",
+  hrEmployeeDivision: "",
+  hrEmployeeDepartment: "",
+  hrEmployeePosition: "",
+  hrEmployeeStatus: "active",
 };
 
 export function useEmployees() {
@@ -65,14 +65,14 @@ export function useEmployees() {
     if (employee) {
       setEditingEmployee(employee);
       setFormData({
-        employeeFirstName: employee.employeeFirstName || "",
-        employeeLastName: employee.employeeLastName || "",
-        employeeEmail: employee.employeeEmail || "",
-        employeePhone: employee.employeePhone || "",
-        employeeDivision: employee.employeeDivision || "",
-        employeeDepartment: employee.employeeDepartment || "",
-        employeePosition: employee.employeePosition || "",
-        employeeStatus: employee.employeeStatus || "active",
+        hrEmployeeFirstName: employee.hrEmployeeFirstName || "",
+        hrEmployeeLastName: employee.hrEmployeeLastName || "",
+        hrEmployeeEmail: employee.hrEmployeeEmail || "",
+        hrEmployeePhone: employee.hrEmployeePhone || "",
+        hrEmployeeDivision: employee.hrEmployeeDivision || "",
+        hrEmployeeDepartment: employee.hrEmployeeDepartment || "",
+        hrEmployeePosition: employee.hrEmployeePosition || "",
+        hrEmployeeStatus: employee.hrEmployeeStatus || "active",
       });
     } else {
       setEditingEmployee(null);
@@ -83,8 +83,8 @@ export function useEmployees() {
 
   const handleSave = async () => {
     if (
-      !formData.employeeFirstName.trim() ||
-      !formData.employeeLastName.trim()
+      !formData.hrEmployeeFirstName.trim() ||
+      !formData.hrEmployeeLastName.trim()
     ) {
       toast.error("กรุณาระบุชื่อและนามสกุล");
       return;
@@ -93,7 +93,7 @@ export function useEmployees() {
     try {
       setSaving(true);
       if (editingEmployee) {
-        await updateEmployee(editingEmployee.employeeId, formData);
+        await updateEmployee(editingEmployee.hrEmployeeId, formData);
         toast.success("อัปเดตพนักงานสำเร็จ");
       } else {
         await createEmployee(formData);
@@ -116,7 +116,7 @@ export function useEmployees() {
   const handleDelete = async () => {
     if (!deletingEmployee) return;
     try {
-      await deleteEmployee(deletingEmployee.employeeId);
+      await deleteEmployee(deletingEmployee.hrEmployeeId);
       toast.success("ลบพนักงานสำเร็จ");
       deleteModal.onClose();
       setDeletingEmployee(null);

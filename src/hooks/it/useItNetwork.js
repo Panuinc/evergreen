@@ -12,15 +12,15 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  deviceName: "",
-  deviceType: "router",
-  deviceIpAddress: "",
-  deviceMacAddress: "",
-  deviceLocation: "",
-  deviceStatus: "online",
-  deviceManufacturer: "",
-  deviceModel: "",
-  deviceNotes: "",
+  itNetworkDeviceName: "",
+  itNetworkDeviceType: "router",
+  itNetworkDeviceIpAddress: "",
+  itNetworkDeviceMacAddress: "",
+  itNetworkDeviceLocation: "",
+  itNetworkDeviceStatus: "online",
+  itNetworkDeviceManufacturer: "",
+  itNetworkDeviceModel: "",
+  itNetworkDeviceNotes: "",
 };
 
 export function useItNetwork() {
@@ -54,15 +54,15 @@ export function useItNetwork() {
     if (device) {
       setEditingDevice(device);
       setFormData({
-        deviceName: device.deviceName || "",
-        deviceType: device.deviceType || "router",
-        deviceIpAddress: device.deviceIpAddress || "",
-        deviceMacAddress: device.deviceMacAddress || "",
-        deviceLocation: device.deviceLocation || "",
-        deviceStatus: device.deviceStatus || "online",
-        deviceManufacturer: device.deviceManufacturer || "",
-        deviceModel: device.deviceModel || "",
-        deviceNotes: device.deviceNotes || "",
+        itNetworkDeviceName: device.itNetworkDeviceName || "",
+        itNetworkDeviceType: device.itNetworkDeviceType || "router",
+        itNetworkDeviceIpAddress: device.itNetworkDeviceIpAddress || "",
+        itNetworkDeviceMacAddress: device.itNetworkDeviceMacAddress || "",
+        itNetworkDeviceLocation: device.itNetworkDeviceLocation || "",
+        itNetworkDeviceStatus: device.itNetworkDeviceStatus || "online",
+        itNetworkDeviceManufacturer: device.itNetworkDeviceManufacturer || "",
+        itNetworkDeviceModel: device.itNetworkDeviceModel || "",
+        itNetworkDeviceNotes: device.itNetworkDeviceNotes || "",
       });
     } else {
       setEditingDevice(null);
@@ -74,7 +74,7 @@ export function useItNetwork() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      deviceName: [(v) => !isRequired(v) && "กรุณาระบุชื่ออุปกรณ์"],
+      itNetworkDeviceName: [(v) => !isRequired(v) && "กรุณาระบุชื่ออุปกรณ์"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -86,7 +86,7 @@ export function useItNetwork() {
     try {
       setSaving(true);
       if (editingDevice) {
-        await updateNetworkDevice(editingDevice.deviceId, formData);
+        await updateNetworkDevice(editingDevice.itNetworkDeviceId, formData);
         toast.success("อัปเดตอุปกรณ์สำเร็จ");
       } else {
         await createNetworkDevice(formData);
@@ -109,7 +109,7 @@ export function useItNetwork() {
   const handleDelete = async () => {
     if (!deletingDevice) return;
     try {
-      await deleteNetworkDevice(deletingDevice.deviceId);
+      await deleteNetworkDevice(deletingDevice.itNetworkDeviceId);
       toast.success("ลบอุปกรณ์สำเร็จ");
       deleteModal.onClose();
       setDeletingDevice(null);

@@ -89,7 +89,7 @@ export async function deleteShipment(id) {
 }
 
 export async function updateShipmentStatus(id, status) {
-  return put(`/api/tms/shipments/${id}/status`, { status });
+  return put(`/api/tms/shipments/${id}/status`, { tmsShipmentStatus: status });
 }
 
 // ==================== Deliveries ====================

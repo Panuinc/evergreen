@@ -8,10 +8,10 @@ export async function GET() {
     // Fetch from Supabase cache and price list in parallel
     const [{ data: bcItems, error: itemErr }, priceResult] = await Promise.all([
       auth.supabase
-        .from("bcItems")
-        .select("number,displayName,unitPrice,unitCost,inventory,baseUnitOfMeasure")
-        .like("number", "FG-00003%"),
-      auth.supabase.from("omPriceList").select("*"),
+        .from("bcItem")
+        .select("bcItemNumber,bcItemDisplayName,bcItemUnitPrice,bcItemUnitCost,bcItemInventory,bcItemBaseUnitOfMeasure")
+        .like("bcItemNumber", "FG-00003%"),
+      auth.supabase.from("omPriceItem").select("*"),
     ]);
 
     if (itemErr) throw new Error(itemErr.message);
@@ -19,17 +19,17 @@ export async function GET() {
     // Build price lookup map
     const priceMap = {};
     for (const p of priceResult.data || []) {
-      priceMap[p.priceItemNumber] = p.priceUnitPrice;
+      priceMap[p.omPriceItemNumber] = p.omPriceItemUnitPrice;
     }
 
     const merged = (bcItems || []).map((item) => ({
-      number: item.number,
-      displayName: item.displayName,
-      unitPrice: item.unitPrice,
-      unitCost: item.unitCost,
-      inventory: item.inventory,
-      baseUnitOfMeasure: item.baseUnitOfMeasure,
-      customPrice: priceMap[item.number] ?? null,
+      number: item.bcItemNumber,
+      displayName: item.bcItemDisplayName,
+      unitPrice: item.bcItemUnitPrice,
+      unitCost: item.bcItemUnitCost,
+      inventory: item.bcItemInventory,
+      baseUnitOfMeasure: item.bcItemBaseUnitOfMeasure,
+      customPrice: priceMap[item.bcItemNumber] ?? null,
     }));
 
     return Response.json(merged);
@@ -46,15 +46,15 @@ export async function POST(request) {
     const { items } = await request.json();
 
     for (const item of items) {
-      await auth.supabase.from("omPriceList").upsert(
+      await auth.supabase.from("omPriceItem").upsert(
         {
-          priceItemNumber: item.number,
-          priceItemName: item.name,
-          priceUnitPrice: item.price,
-          priceUpdatedAt: new Date().toISOString(),
-          priceUpdatedBy: auth.session.user.id,
+          omPriceItemNumber: item.number,
+          omPriceItemName: item.name,
+          omPriceItemUnitPrice: item.price,
+          omPriceItemUpdatedAt: new Date().toISOString(),
+          omPriceItemUpdatedBy: auth.session.user.id,
         },
-        { onConflict: "priceItemNumber" },
+        { onConflict: "omPriceItemNumber" },
       );
     }
 

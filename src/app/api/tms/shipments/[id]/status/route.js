@@ -19,9 +19,9 @@ export async function PUT(request, { params }) {
 
   // Fetch current shipment
   const { data: shipment, error: fetchError } = await supabase
-    .from("shipments")
+    .from("tmsShipment")
     .select("*")
-    .eq("shipmentId", id)
+    .eq("tmsShipmentId", id)
     .single();
 
   if (fetchError) {
@@ -29,7 +29,7 @@ export async function PUT(request, { params }) {
   }
 
   // Validate transition
-  const currentStatus = shipment.shipmentStatus;
+  const currentStatus = shipment.tmsShipmentStatus;
   const allowedTransitions = VALID_TRANSITIONS[currentStatus];
 
   if (!allowedTransitions || !allowedTransitions.includes(status)) {
@@ -42,21 +42,21 @@ export async function PUT(request, { params }) {
   }
 
   // Build update object
-  const updateData = { shipmentStatus: status };
+  const updateData = { tmsShipmentStatus: status };
 
   // Set timestamps based on new status
   if (status === "dispatched") {
-    updateData.shipmentDispatchedAt = new Date().toISOString();
+    updateData.tmsShipmentDispatchedAt = new Date().toISOString();
   }
   if (status === "delivered") {
-    updateData.shipmentDeliveredAt = new Date().toISOString();
+    updateData.tmsShipmentDeliveredAt = new Date().toISOString();
   }
 
   // Update shipment status
   const { data, error } = await supabase
-    .from("shipments")
+    .from("tmsShipment")
     .update(updateData)
-    .eq("shipmentId", id)
+    .eq("tmsShipmentId", id)
     .select()
     .single();
 
@@ -68,67 +68,67 @@ export async function PUT(request, { params }) {
   try {
     if (status === "dispatched") {
       // Set vehicle to in_use, driver and assistant to on_duty
-      if (shipment.shipmentVehicleId) {
+      if (shipment.tmsShipmentVehicleId) {
         await supabase
-          .from("vehicles")
-          .update({ vehicleStatus: "in_use" })
-          .eq("vehicleId", shipment.shipmentVehicleId);
+          .from("tmsVehicle")
+          .update({ tmsVehicleStatus: "in_use" })
+          .eq("tmsVehicleId", shipment.tmsShipmentVehicleId);
       }
-      if (shipment.shipmentDriverId) {
+      if (shipment.tmsShipmentDriverId) {
         await supabase
-          .from("drivers")
-          .update({ driverStatus: "on_duty" })
-          .eq("driverId", shipment.shipmentDriverId);
+          .from("tmsDriver")
+          .update({ tmsDriverStatus: "on_duty" })
+          .eq("tmsDriverId", shipment.tmsShipmentDriverId);
       }
-      if (shipment.shipmentAssistantId) {
+      if (shipment.tmsShipmentAssistantId) {
         await supabase
-          .from("drivers")
-          .update({ driverStatus: "on_duty" })
-          .eq("driverId", shipment.shipmentAssistantId);
+          .from("tmsDriver")
+          .update({ tmsDriverStatus: "on_duty" })
+          .eq("tmsDriverId", shipment.tmsShipmentAssistantId);
       }
     }
 
     if (status === "pod_confirmed") {
       // Reset vehicle to available, driver and assistant to available
-      if (shipment.shipmentVehicleId) {
+      if (shipment.tmsShipmentVehicleId) {
         await supabase
-          .from("vehicles")
-          .update({ vehicleStatus: "available" })
-          .eq("vehicleId", shipment.shipmentVehicleId);
+          .from("tmsVehicle")
+          .update({ tmsVehicleStatus: "available" })
+          .eq("tmsVehicleId", shipment.tmsShipmentVehicleId);
       }
-      if (shipment.shipmentDriverId) {
+      if (shipment.tmsShipmentDriverId) {
         await supabase
-          .from("drivers")
-          .update({ driverStatus: "available" })
-          .eq("driverId", shipment.shipmentDriverId);
+          .from("tmsDriver")
+          .update({ tmsDriverStatus: "available" })
+          .eq("tmsDriverId", shipment.tmsShipmentDriverId);
       }
-      if (shipment.shipmentAssistantId) {
+      if (shipment.tmsShipmentAssistantId) {
         await supabase
-          .from("drivers")
-          .update({ driverStatus: "available" })
-          .eq("driverId", shipment.shipmentAssistantId);
+          .from("tmsDriver")
+          .update({ tmsDriverStatus: "available" })
+          .eq("tmsDriverId", shipment.tmsShipmentAssistantId);
       }
     }
 
     if (status === "cancelled") {
       // Reset vehicle and drivers to available if assigned
-      if (shipment.shipmentVehicleId) {
+      if (shipment.tmsShipmentVehicleId) {
         await supabase
-          .from("vehicles")
-          .update({ vehicleStatus: "available" })
-          .eq("vehicleId", shipment.shipmentVehicleId);
+          .from("tmsVehicle")
+          .update({ tmsVehicleStatus: "available" })
+          .eq("tmsVehicleId", shipment.tmsShipmentVehicleId);
       }
-      if (shipment.shipmentDriverId) {
+      if (shipment.tmsShipmentDriverId) {
         await supabase
-          .from("drivers")
-          .update({ driverStatus: "available" })
-          .eq("driverId", shipment.shipmentDriverId);
+          .from("tmsDriver")
+          .update({ tmsDriverStatus: "available" })
+          .eq("tmsDriverId", shipment.tmsShipmentDriverId);
       }
-      if (shipment.shipmentAssistantId) {
+      if (shipment.tmsShipmentAssistantId) {
         await supabase
-          .from("drivers")
-          .update({ driverStatus: "available" })
-          .eq("driverId", shipment.shipmentAssistantId);
+          .from("tmsDriver")
+          .update({ tmsDriverStatus: "available" })
+          .eq("tmsDriverId", shipment.tmsShipmentAssistantId);
       }
     }
   } catch (sideEffectError) {

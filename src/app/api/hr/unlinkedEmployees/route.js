@@ -6,10 +6,10 @@ export async function GET() {
   const { supabase } = auth;
 
   const { data, error } = await supabase
-    .from("employees")
-    .select("employeeId, employeeFirstName, employeeLastName, employeeEmail")
-    .is("employeeUserId", null)
-    .order("employeeFirstName");
+    .from("hrEmployee")
+    .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeEmail")
+    .is("hrEmployeeUserId", null)
+    .order("hrEmployeeFirstName");
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);

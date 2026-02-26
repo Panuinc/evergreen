@@ -8,15 +8,15 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
 
-  let query = supabase.from("itAssets").select("*");
+  let query = supabase.from("itAsset").select("*");
 
   if (search) {
     query = query.or(
-      `assetName.ilike.%${search}%,assetTag.ilike.%${search}%,assetBrand.ilike.%${search}%`
+      `itAssetName.ilike.%${search}%,itAssetTag.ilike.%${search}%,itAssetBrand.ilike.%${search}%`
     );
   }
 
-  const { data, error } = await query.order("assetCreatedAt", {
+  const { data, error } = await query.order("itAssetCreatedAt", {
     ascending: false,
   });
 
@@ -31,7 +31,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("itAssets")
+    .from("itAsset")
     .insert([body])
     .select()
     .single();

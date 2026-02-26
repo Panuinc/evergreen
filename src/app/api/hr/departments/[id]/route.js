@@ -8,9 +8,9 @@ export async function PUT(request, { params }) {
   const body = await request.json();
 
   const { data, error } = await supabase
-    .from("departments")
+    .from("hrDepartment")
     .update(body)
-    .eq("departmentId", id)
+    .eq("hrDepartmentId", id)
     .select()
     .single();
 
@@ -25,9 +25,9 @@ export async function DELETE(request, { params }) {
   const { id } = await params;
 
   const { error } = await supabase
-    .from("departments")
+    .from("hrDepartment")
     .delete()
-    .eq("departmentId", id);
+    .eq("hrDepartmentId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

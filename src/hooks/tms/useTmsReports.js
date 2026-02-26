@@ -53,7 +53,7 @@ function computeSummary(type, data) {
     case "shipments": {
       const byStatus = {};
       data.forEach((s) => {
-        byStatus[s.shipmentStatus] = (byStatus[s.shipmentStatus] || 0) + 1;
+        byStatus[s.tmsShipmentStatus] = (byStatus[s.tmsShipmentStatus] || 0) + 1;
       });
       return {
         total: data.length,
@@ -61,8 +61,8 @@ function computeSummary(type, data) {
       };
     }
     case "fuelLogs": {
-      const totalLiters = data.reduce((s, f) => s + (parseFloat(f.fuelLogLiters) || 0), 0);
-      const totalCost = data.reduce((s, f) => s + (parseFloat(f.fuelLogTotalCost) || 0), 0);
+      const totalLiters = data.reduce((s, f) => s + (parseFloat(f.tmsFuelLogLiters) || 0), 0);
+      const totalCost = data.reduce((s, f) => s + (parseFloat(f.tmsFuelLogTotalCost) || 0), 0);
       return {
         total: data.length,
         totalLiters: totalLiters.toFixed(2),
@@ -71,10 +71,10 @@ function computeSummary(type, data) {
       };
     }
     case "maintenances": {
-      const totalCost = data.reduce((s, m) => s + (parseFloat(m.maintenanceCost) || 0), 0);
+      const totalCost = data.reduce((s, m) => s + (parseFloat(m.tmsMaintenanceCost) || 0), 0);
       const byType = {};
       data.forEach((m) => {
-        byType[m.maintenanceType] = (byType[m.maintenanceType] || 0) + 1;
+        byType[m.tmsMaintenanceType] = (byType[m.tmsMaintenanceType] || 0) + 1;
       });
       return {
         total: data.length,
@@ -85,7 +85,7 @@ function computeSummary(type, data) {
     case "vehicles": {
       const byStatus = {};
       data.forEach((v) => {
-        byStatus[v.vehicleStatus] = (byStatus[v.vehicleStatus] || 0) + 1;
+        byStatus[v.tmsVehicleStatus] = (byStatus[v.tmsVehicleStatus] || 0) + 1;
       });
       return {
         total: data.length,

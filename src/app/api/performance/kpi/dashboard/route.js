@@ -12,12 +12,12 @@ export async function GET(request) {
   try {
     // Get assignments
     let query = supabase
-      .from("kpi_assignments")
+      .from("perfKpiAssignment")
       .select("*")
-      .eq("year", parseInt(year));
+      .eq("perfKpiAssignmentYear", parseInt(year));
 
     if (employeeId) {
-      query = query.eq("employeeId", employeeId);
+      query = query.eq("perfKpiAssignmentEmployeeId", employeeId);
     }
 
     const { data: assignments, error } = await query;
@@ -28,64 +28,64 @@ export async function GET(request) {
     }
 
     // Fetch definitions separately
-    const defIds = [...new Set(assignments.map((a) => a.definitionId))];
+    const defIds = [...new Set(assignments.map((a) => a.perfKpiAssignmentDefinitionId))];
     const { data: definitions } = await supabase
-      .from("kpi_definitions")
+      .from("perfKpiDefinition")
       .select("*")
-      .in("id", defIds);
+      .in("perfKpiDefinitionId", defIds);
     const defMap = {};
-    for (const d of (definitions || [])) defMap[d.id] = d;
+    for (const d of (definitions || [])) defMap[d.perfKpiDefinitionId] = d;
 
     // Fetch employees separately
-    const empIds = [...new Set(assignments.map((a) => a.employeeId))];
+    const empIds = [...new Set(assignments.map((a) => a.perfKpiAssignmentEmployeeId))];
     const { data: emps } = await supabase
-      .from("employees")
-      .select("employeeId, employeeFirstName, employeeLastName, employeeDepartment")
-      .in("employeeId", empIds);
+      .from("hrEmployee")
+      .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment")
+      .in("hrEmployeeId", empIds);
     const empMap = {};
-    for (const e of (emps || [])) empMap[e.employeeId] = e;
+    for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
 
     // Fetch records separately
-    const assignmentIds = assignments.map((a) => a.id);
+    const assignmentIds = assignments.map((a) => a.perfKpiAssignmentId);
     const { data: allRecords } = await supabase
-      .from("kpi_records")
+      .from("perfKpiRecord")
       .select("*")
-      .in("assignmentId", assignmentIds)
-      .order("periodLabel", { ascending: true });
+      .in("perfKpiRecordAssignmentId", assignmentIds)
+      .order("perfKpiRecordPeriodLabel", { ascending: true });
     const recordsMap = {};
     for (const r of (allRecords || [])) {
-      if (!recordsMap[r.assignmentId]) recordsMap[r.assignmentId] = [];
-      recordsMap[r.assignmentId].push(r);
+      if (!recordsMap[r.perfKpiRecordAssignmentId]) recordsMap[r.perfKpiRecordAssignmentId] = [];
+      recordsMap[r.perfKpiRecordAssignmentId].push(r);
     }
 
     // Process dashboard data
     const dashboard = assignments.map((a) => {
-      const records = recordsMap[a.id] || [];
+      const records = recordsMap[a.perfKpiAssignmentId] || [];
       const latestRecord = records.length > 0 ? records[records.length - 1] : null;
-      const latestValue = latestRecord ? latestRecord.actualValue : null;
+      const latestValue = latestRecord ? latestRecord.perfKpiRecordActualValue : null;
 
-      const def = defMap[a.definitionId] || {};
+      const def = defMap[a.perfKpiAssignmentDefinitionId] || {};
       let status = "none";
       if (latestValue != null) {
-        if (def.higherIsBetter !== false) {
-          if (latestValue >= a.targetValue) status = "success";
-          else if (def.warningThreshold != null && latestValue >= def.warningThreshold) status = "warning";
+        if (def.perfKpiDefinitionHigherIsBetter !== false) {
+          if (latestValue >= a.perfKpiAssignmentTargetValue) status = "success";
+          else if (def.perfKpiDefinitionWarningThreshold != null && latestValue >= def.perfKpiDefinitionWarningThreshold) status = "warning";
           else status = "danger";
         } else {
-          if (latestValue <= a.targetValue) status = "success";
-          else if (def.warningThreshold != null && latestValue <= def.warningThreshold) status = "warning";
+          if (latestValue <= a.perfKpiAssignmentTargetValue) status = "success";
+          else if (def.perfKpiDefinitionWarningThreshold != null && latestValue <= def.perfKpiDefinitionWarningThreshold) status = "warning";
           else status = "danger";
         }
       }
 
       return {
-        assignmentId: a.id,
-        definitionId: a.definitionId,
-        employeeId: a.employeeId,
-        employee: empMap[a.employeeId] || null,
+        assignmentId: a.perfKpiAssignmentId,
+        definitionId: a.perfKpiAssignmentDefinitionId,
+        employeeId: a.perfKpiAssignmentEmployeeId,
+        employee: empMap[a.perfKpiAssignmentEmployeeId] || null,
         definition: def,
-        targetValue: a.targetValue,
-        weight: a.weight,
+        targetValue: a.perfKpiAssignmentTargetValue,
+        weight: a.perfKpiAssignmentWeight,
         latestValue,
         status,
         records,

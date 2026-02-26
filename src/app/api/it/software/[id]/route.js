@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
   const { data, error } = await supabase
     .from("itSoftware")
     .select("*")
-    .eq("softwareId", id)
+    .eq("itSoftwareId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -26,7 +26,7 @@ export async function PUT(request, { params }) {
   const { data, error } = await supabase
     .from("itSoftware")
     .update(body)
-    .eq("softwareId", id)
+    .eq("itSoftwareId", id)
     .select()
     .single();
 
@@ -43,7 +43,7 @@ export async function DELETE(request, { params }) {
   const { error } = await supabase
     .from("itSoftware")
     .delete()
-    .eq("softwareId", id);
+    .eq("itSoftwareId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

@@ -37,12 +37,12 @@ export function getStatusConfig(statusKey, list) {
 }
 
 export function computeKrProgress(kr) {
-  if (kr.metricType === "boolean") {
-    return kr.currentValue >= 1 ? 100 : 0;
+  if (kr.perfOkrKeyResultMetricType === "boolean") {
+    return kr.perfOkrKeyResultCurrentValue >= 1 ? 100 : 0;
   }
-  const range = kr.targetValue - kr.startValue;
-  if (range === 0) return kr.currentValue >= kr.targetValue ? 100 : 0;
-  const progress = ((kr.currentValue - kr.startValue) / range) * 100;
+  const range = kr.perfOkrKeyResultTargetValue - kr.perfOkrKeyResultStartValue;
+  if (range === 0) return kr.perfOkrKeyResultCurrentValue >= kr.perfOkrKeyResultTargetValue ? 100 : 0;
+  const progress = ((kr.perfOkrKeyResultCurrentValue - kr.perfOkrKeyResultStartValue) / range) * 100;
   return Math.min(Math.max(Math.round(progress * 100) / 100, 0), 100);
 }
 
@@ -51,7 +51,7 @@ export function computeObjectiveProgress(keyResults) {
   let totalWeight = 0;
   let weightedSum = 0;
   for (const kr of keyResults) {
-    const w = kr.weight || 1;
+    const w = kr.perfOkrKeyResultWeight || 1;
     weightedSum += computeKrProgress(kr) * w;
     totalWeight += w;
   }

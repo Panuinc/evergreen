@@ -8,15 +8,15 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
 
-  let query = supabase.from("itNetworkDevices").select("*");
+  let query = supabase.from("itNetworkDevice").select("*");
 
   if (search) {
     query = query.or(
-      `deviceName.ilike.%${search}%,deviceIpAddress.ilike.%${search}%,deviceLocation.ilike.%${search}%`
+      `itNetworkDeviceName.ilike.%${search}%,itNetworkDeviceIpAddress.ilike.%${search}%,itNetworkDeviceLocation.ilike.%${search}%`
     );
   }
 
-  const { data, error } = await query.order("deviceCreatedAt", {
+  const { data, error } = await query.order("itNetworkDeviceCreatedAt", {
     ascending: false,
   });
 
@@ -31,7 +31,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("itNetworkDevices")
+    .from("itNetworkDevice")
     .insert([body])
     .select()
     .single();

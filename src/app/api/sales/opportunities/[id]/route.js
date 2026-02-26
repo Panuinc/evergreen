@@ -7,11 +7,11 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   const { data, error } = await supabase
-    .from("crmOpportunities")
+    .from("crmOpportunity")
     .select(
-      "*, crmContacts(contactFirstName, contactLastName), crmAccounts(accountName)"
+      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName)"
     )
-    .eq("opportunityId", id)
+    .eq("crmOpportunityId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -27,19 +27,19 @@ export async function PUT(request, { params }) {
   const body = await request.json();
 
   // If closing as won, set actual close date
-  if (body.opportunityStage === "closed_won" && !body.opportunityActualCloseDate) {
-    body.opportunityActualCloseDate = new Date().toISOString().split("T")[0];
-    body.opportunityProbability = 100;
+  if (body.crmOpportunityStage === "closed_won" && !body.crmOpportunityActualCloseDate) {
+    body.crmOpportunityActualCloseDate = new Date().toISOString().split("T")[0];
+    body.crmOpportunityProbability = 100;
   }
-  if (body.opportunityStage === "closed_lost" && !body.opportunityActualCloseDate) {
-    body.opportunityActualCloseDate = new Date().toISOString().split("T")[0];
-    body.opportunityProbability = 0;
+  if (body.crmOpportunityStage === "closed_lost" && !body.crmOpportunityActualCloseDate) {
+    body.crmOpportunityActualCloseDate = new Date().toISOString().split("T")[0];
+    body.crmOpportunityProbability = 0;
   }
 
   const { data, error } = await supabase
-    .from("crmOpportunities")
+    .from("crmOpportunity")
     .update(body)
-    .eq("opportunityId", id)
+    .eq("crmOpportunityId", id)
     .select()
     .single();
 
@@ -54,9 +54,9 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("crmOpportunities")
+    .from("crmOpportunity")
     .delete()
-    .eq("opportunityId", id);
+    .eq("crmOpportunityId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

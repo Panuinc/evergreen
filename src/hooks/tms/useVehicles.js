@@ -12,23 +12,23 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  vehiclePlateNumber: "",
-  vehicleName: "",
-  vehicleType: "truck",
-  vehicleBrand: "",
-  vehicleModel: "",
-  vehicleYear: "",
-  vehicleColor: "",
-  vehicleVinNumber: "",
-  vehicleRegistrationExpiry: "",
-  vehicleInsuranceExpiry: "",
-  vehicleInsurancePolicy: "",
-  vehicleActExpiry: "",
-  vehicleCapacityKg: "",
-  vehicleFuelType: "diesel",
-  vehicleCurrentMileage: "",
-  vehicleStatus: "available",
-  vehicleNotes: "",
+  tmsVehiclePlateNumber: "",
+  tmsVehicleName: "",
+  tmsVehicleType: "truck",
+  tmsVehicleBrand: "",
+  tmsVehicleModel: "",
+  tmsVehicleYear: "",
+  tmsVehicleColor: "",
+  tmsVehicleVinNumber: "",
+  tmsVehicleRegistrationExpiry: "",
+  tmsVehicleInsuranceExpiry: "",
+  tmsVehicleInsurancePolicy: "",
+  tmsVehicleActExpiry: "",
+  tmsVehicleCapacityKg: "",
+  tmsVehicleFuelType: "diesel",
+  tmsVehicleCurrentMileage: "",
+  tmsVehicleStatus: "available",
+  tmsVehicleNotes: "",
 };
 
 export function useVehicles() {
@@ -61,23 +61,23 @@ export function useVehicles() {
     if (vehicle) {
       setEditingVehicle(vehicle);
       setFormData({
-        vehiclePlateNumber: vehicle.vehiclePlateNumber || "",
-        vehicleName: vehicle.vehicleName || "",
-        vehicleType: vehicle.vehicleType || "truck",
-        vehicleBrand: vehicle.vehicleBrand || "",
-        vehicleModel: vehicle.vehicleModel || "",
-        vehicleYear: vehicle.vehicleYear?.toString() || "",
-        vehicleColor: vehicle.vehicleColor || "",
-        vehicleVinNumber: vehicle.vehicleVinNumber || "",
-        vehicleRegistrationExpiry: vehicle.vehicleRegistrationExpiry || "",
-        vehicleInsuranceExpiry: vehicle.vehicleInsuranceExpiry || "",
-        vehicleInsurancePolicy: vehicle.vehicleInsurancePolicy || "",
-        vehicleActExpiry: vehicle.vehicleActExpiry || "",
-        vehicleCapacityKg: vehicle.vehicleCapacityKg?.toString() || "",
-        vehicleFuelType: vehicle.vehicleFuelType || "diesel",
-        vehicleCurrentMileage: vehicle.vehicleCurrentMileage?.toString() || "",
-        vehicleStatus: vehicle.vehicleStatus || "available",
-        vehicleNotes: vehicle.vehicleNotes || "",
+        tmsVehiclePlateNumber: vehicle.tmsVehiclePlateNumber || "",
+        tmsVehicleName: vehicle.tmsVehicleName || "",
+        tmsVehicleType: vehicle.tmsVehicleType || "truck",
+        tmsVehicleBrand: vehicle.tmsVehicleBrand || "",
+        tmsVehicleModel: vehicle.tmsVehicleModel || "",
+        tmsVehicleYear: vehicle.tmsVehicleYear?.toString() || "",
+        tmsVehicleColor: vehicle.tmsVehicleColor || "",
+        tmsVehicleVinNumber: vehicle.tmsVehicleVinNumber || "",
+        tmsVehicleRegistrationExpiry: vehicle.tmsVehicleRegistrationExpiry || "",
+        tmsVehicleInsuranceExpiry: vehicle.tmsVehicleInsuranceExpiry || "",
+        tmsVehicleInsurancePolicy: vehicle.tmsVehicleInsurancePolicy || "",
+        tmsVehicleActExpiry: vehicle.tmsVehicleActExpiry || "",
+        tmsVehicleCapacityKg: vehicle.tmsVehicleCapacityKg?.toString() || "",
+        tmsVehicleFuelType: vehicle.tmsVehicleFuelType || "diesel",
+        tmsVehicleCurrentMileage: vehicle.tmsVehicleCurrentMileage?.toString() || "",
+        tmsVehicleStatus: vehicle.tmsVehicleStatus || "available",
+        tmsVehicleNotes: vehicle.tmsVehicleNotes || "",
       });
     } else {
       setEditingVehicle(null);
@@ -90,8 +90,8 @@ export function useVehicles() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      vehiclePlateNumber: [(v) => !isRequired(v) && "กรุณาระบุหมายเลขทะเบียน"],
-      vehicleName: [(v) => !isRequired(v) && "กรุณาระบุชื่อยานพาหนะ"],
+      tmsVehiclePlateNumber: [(v) => !isRequired(v) && "กรุณาระบุหมายเลขทะเบียน"],
+      tmsVehicleName: [(v) => !isRequired(v) && "กรุณาระบุชื่อยานพาหนะ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -103,7 +103,7 @@ export function useVehicles() {
     try {
       setSaving(true);
       if (editingVehicle) {
-        await updateVehicle(editingVehicle.vehicleId, formData);
+        await updateVehicle(editingVehicle.tmsVehicleId, formData);
         toast.success("อัปเดตยานพาหนะสำเร็จ");
       } else {
         await createVehicle(formData);
@@ -126,7 +126,7 @@ export function useVehicles() {
   const handleDelete = async () => {
     if (!deletingVehicle) return;
     try {
-      await deleteVehicle(deletingVehicle.vehicleId);
+      await deleteVehicle(deletingVehicle.tmsVehicleId);
       toast.success("ลบยานพาหนะสำเร็จ");
       deleteModal.onClose();
       setDeletingVehicle(null);

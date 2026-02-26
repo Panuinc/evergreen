@@ -13,29 +13,29 @@ export async function GET(request) {
 
   // Get current user's employee
   const { data: currentEmployee } = await supabase
-    .from("employees")
-    .select("employeeId, employeeDepartment")
-    .eq("employeeUserId", session.user.id)
+    .from("hrEmployee")
+    .select("hrEmployeeId, hrEmployeeDepartment")
+    .eq("hrEmployeeUserId", session.user.id)
     .maybeSingle();
 
   let query = supabase
-    .from("okr_objectives")
+    .from("perfOkrObjective")
     .select("*")
-    .order("createdAt", { ascending: false });
+    .order("perfOkrObjectiveCreatedAt", { ascending: false });
 
-  if (year) query = query.eq("year", parseInt(year));
-  if (quarter) query = query.eq("quarter", parseInt(quarter));
+  if (year) query = query.eq("perfOkrObjectiveYear", parseInt(year));
+  if (quarter) query = query.eq("perfOkrObjectiveQuarter", parseInt(quarter));
 
   if (employeeId) {
-    query = query.eq("employeeId", employeeId);
+    query = query.eq("perfOkrObjectiveEmployeeId", employeeId);
   } else if (visibility === "company") {
-    query = query.eq("visibility", "company");
+    query = query.eq("perfOkrObjectiveVisibility", "company");
   } else if (visibility === "team") {
-    query = query.in("visibility", ["team", "company"]);
+    query = query.in("perfOkrObjectiveVisibility", ["team", "company"]);
   } else {
     // Default: my own objectives
     if (currentEmployee) {
-      query = query.eq("employeeId", currentEmployee.employeeId);
+      query = query.eq("perfOkrObjectiveEmployeeId", currentEmployee.hrEmployeeId);
     } else {
       return Response.json([]);
     }
@@ -47,33 +47,33 @@ export async function GET(request) {
   if (!data || data.length === 0) return Response.json([]);
 
   // Fetch key results separately
-  const objIds = data.map((o) => o.id);
+  const objIds = data.map((o) => o.perfOkrObjectiveId);
   const { data: allKrs } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .select("*")
-    .in("objectiveId", objIds)
-    .order("sortOrder", { ascending: true });
+    .in("perfOkrKeyResultObjectiveId", objIds)
+    .order("perfOkrKeyResultSortOrder", { ascending: true });
 
   const krMap = {};
   for (const kr of (allKrs || [])) {
-    if (!krMap[kr.objectiveId]) krMap[kr.objectiveId] = [];
-    krMap[kr.objectiveId].push(kr);
+    if (!krMap[kr.perfOkrKeyResultObjectiveId]) krMap[kr.perfOkrKeyResultObjectiveId] = [];
+    krMap[kr.perfOkrKeyResultObjectiveId].push(kr);
   }
 
   // Fetch employees separately
-  const empIds = [...new Set(data.map((o) => o.employeeId))];
+  const empIds = [...new Set(data.map((o) => o.perfOkrObjectiveEmployeeId))];
   const { data: emps } = await supabase
-    .from("employees")
-    .select("employeeId, employeeFirstName, employeeLastName, employeeDepartment")
-    .in("employeeId", empIds);
+    .from("hrEmployee")
+    .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment")
+    .in("hrEmployeeId", empIds);
 
   const empMap = {};
-  for (const e of (emps || [])) empMap[e.employeeId] = e;
+  for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
 
   const sorted = data.map((obj) => ({
     ...obj,
-    keyResults: krMap[obj.id] || [],
-    employee: empMap[obj.employeeId] || null,
+    keyResults: krMap[obj.perfOkrObjectiveId] || [],
+    employee: empMap[obj.perfOkrObjectiveEmployeeId] || null,
   }));
 
   return Response.json(sorted);
@@ -93,9 +93,9 @@ export async function POST(request) {
 
   // Get current employee
   const { data: currentEmployee } = await supabase
-    .from("employees")
-    .select("employeeId")
-    .eq("employeeUserId", session.user.id)
+    .from("hrEmployee")
+    .select("hrEmployeeId")
+    .eq("hrEmployeeUserId", session.user.id)
     .maybeSingle();
 
   if (!currentEmployee) {
@@ -105,17 +105,17 @@ export async function POST(request) {
   const period = `Q${quarter}-${year}`;
 
   const { data: objective, error } = await supabase
-    .from("okr_objectives")
+    .from("perfOkrObjective")
     .insert([{
-      employeeId: currentEmployee.employeeId,
-      title,
-      description: description || null,
-      year: parseInt(year),
-      quarter: parseInt(quarter),
-      period,
-      visibility: visibility || "team",
-      parentObjectiveId: parentObjectiveId || null,
-      createdBy: session.user.id,
+      perfOkrObjectiveEmployeeId: currentEmployee.hrEmployeeId,
+      perfOkrObjectiveTitle: title,
+      perfOkrObjectiveDescription: description || null,
+      perfOkrObjectiveYear: parseInt(year),
+      perfOkrObjectiveQuarter: parseInt(quarter),
+      perfOkrObjectivePeriod: period,
+      perfOkrObjectiveVisibility: visibility || "team",
+      perfOkrObjectiveParentObjectiveId: parentObjectiveId || null,
+      perfOkrObjectiveCreatedBy: session.user.id,
     }])
     .select()
     .single();
@@ -125,27 +125,27 @@ export async function POST(request) {
   // Create key results if provided
   if (keyResults && keyResults.length > 0) {
     const krRows = keyResults.map((kr, i) => ({
-      objectiveId: objective.id,
-      title: kr.title,
-      metricType: kr.metricType || "number",
-      startValue: kr.startValue || 0,
-      targetValue: kr.targetValue,
-      currentValue: kr.currentValue || 0,
-      unit: kr.unit || null,
-      weight: kr.weight || 1,
-      sortOrder: i,
+      perfOkrKeyResultObjectiveId: objective.perfOkrObjectiveId,
+      perfOkrKeyResultTitle: kr.title,
+      perfOkrKeyResultMetricType: kr.metricType || "number",
+      perfOkrKeyResultStartValue: kr.startValue || 0,
+      perfOkrKeyResultTargetValue: kr.targetValue,
+      perfOkrKeyResultCurrentValue: kr.currentValue || 0,
+      perfOkrKeyResultUnit: kr.unit || null,
+      perfOkrKeyResultWeight: kr.weight || 1,
+      perfOkrKeyResultSortOrder: i,
     }));
 
-    const { error: krError } = await supabase.from("okr_key_results").insert(krRows);
+    const { error: krError } = await supabase.from("perfOkrKeyResult").insert(krRows);
     if (krError) return Response.json({ error: krError.message }, { status: 400 });
   }
 
   // Re-fetch with key results
   const { data: krs } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .select("*")
-    .eq("objectiveId", objective.id)
-    .order("sortOrder", { ascending: true });
+    .eq("perfOkrKeyResultObjectiveId", objective.perfOkrObjectiveId)
+    .order("perfOkrKeyResultSortOrder", { ascending: true });
 
   return Response.json({ ...objective, keyResults: krs || [] }, { status: 201 });
 }

@@ -7,9 +7,9 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   const { data, error } = await supabase
-    .from("maintenances")
+    .from("tmsMaintenance")
     .select("*")
-    .eq("maintenanceId", id)
+    .eq("tmsMaintenanceId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -24,9 +24,9 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
   const { data, error } = await supabase
-    .from("maintenances")
+    .from("tmsMaintenance")
     .update(body)
-    .eq("maintenanceId", id)
+    .eq("tmsMaintenanceId", id)
     .select()
     .single();
 
@@ -41,9 +41,9 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("maintenances")
+    .from("tmsMaintenance")
     .delete()
-    .eq("maintenanceId", id);
+    .eq("tmsMaintenanceId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

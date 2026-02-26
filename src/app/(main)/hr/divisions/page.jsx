@@ -16,16 +16,16 @@ import { useDivisions } from "@/hooks/hr/useDivisions";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อ", uid: "divisionName", sortable: true },
-  { name: "รายละเอียด", uid: "divisionDescription" },
-  { name: "วันที่สร้าง", uid: "divisionCreatedAt", sortable: true },
+  { name: "ชื่อ", uid: "hrDivisionName", sortable: true },
+  { name: "รายละเอียด", uid: "hrDivisionDescription" },
+  { name: "วันที่สร้าง", uid: "hrDivisionCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "divisionName",
-  "divisionDescription",
-  "divisionCreatedAt",
+  "hrDivisionName",
+  "hrDivisionDescription",
+  "hrDivisionCreatedAt",
   "actions",
 ];
 
@@ -50,18 +50,18 @@ export default function DivisionsPage() {
   const renderCell = useCallback(
     (div, columnKey) => {
       switch (columnKey) {
-        case "divisionName":
-          return <span className="font-medium">{div.divisionName}</span>;
-        case "divisionDescription":
+        case "hrDivisionName":
+          return <span className="font-medium">{div.hrDivisionName}</span>;
+        case "hrDivisionDescription":
           return (
             <span className="text-default-500">
-              {div.divisionDescription || "-"}
+              {div.hrDivisionDescription || "-"}
             </span>
           );
-        case "divisionCreatedAt":
+        case "hrDivisionCreatedAt":
           return (
             <span className="text-default-500">
-              {new Date(div.divisionCreatedAt).toLocaleDateString("th-TH")}
+              {new Date(div.hrDivisionCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );
         case "actions":
@@ -101,11 +101,11 @@ export default function DivisionsPage() {
         data={divisions}
         renderCell={renderCell}
         enableCardView
-        rowKey="divisionId"
+        rowKey="hrDivisionId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
-        searchKeys={["divisionName", "divisionDescription"]}
+        searchKeys={["hrDivisionName", "hrDivisionDescription"]}
         emptyContent="ไม่พบฝ่าย"
         topEndContent={
           <Button
@@ -136,9 +136,9 @@ export default function DivisionsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.divisionName}
+                  value={formData.hrDivisionName}
                   onChange={(e) =>
-                    setFormData({ ...formData, divisionName: e.target.value })
+                    setFormData({ ...formData, hrDivisionName: e.target.value })
                   }
                   isRequired
                 />
@@ -151,11 +151,11 @@ export default function DivisionsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.divisionDescription}
+                  value={formData.hrDivisionDescription}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      divisionDescription: e.target.value,
+                      hrDivisionDescription: e.target.value,
                     })
                   }
                 />
@@ -187,7 +187,7 @@ export default function DivisionsPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingDiv?.divisionName}
+                {deletingDiv?.hrDivisionName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

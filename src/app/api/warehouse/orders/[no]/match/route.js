@@ -18,7 +18,7 @@ export async function POST(request, { params }) {
   };
 
   const { data, error } = await supabase
-    .from("orderMatches")
+    .from("whOrderMatch")
     .insert([record])
     .select()
     .single();

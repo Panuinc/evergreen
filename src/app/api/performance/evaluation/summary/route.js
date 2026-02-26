@@ -18,9 +18,9 @@ export async function GET(request) {
   // Company-wide average for a period
   if (companyAverage === "true" && period) {
     const { data, error } = await supabase
-      .from("evaluations")
-      .select("categoryAverages")
-      .eq("period", period);
+      .from("perfEvaluation")
+      .select("perfEvaluationCategoryAverages")
+      .eq("perfEvaluationPeriod", period);
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
     if (!data.length) return Response.json({ categoryAverages: null, count: 0 });
@@ -28,7 +28,7 @@ export async function GET(request) {
     const avgCategories = {};
     for (const cat of EVALUATION_CATEGORIES) {
       const sum = data.reduce(
-        (acc, ev) => acc + (ev.categoryAverages?.[cat.key] || 0),
+        (acc, ev) => acc + (ev.perfEvaluationCategoryAverages?.[cat.key] || 0),
         0,
       );
       avgCategories[cat.key] = parseFloat((sum / data.length).toFixed(2));
@@ -47,18 +47,18 @@ export async function GET(request) {
   // All employees summary for a period (admin)
   if (period) {
     const { data, error } = await supabase
-      .from("evaluations")
+      .from("perfEvaluation")
       .select(
-        "evaluateeEmployeeId, categoryAverages, overallScore, grade, evaluatorId, evaluateeEmployee:employees!evaluateeEmployeeId(employeeId, employeeFirstName, employeeLastName, employeeDepartment, employeeDivision)",
+        "perfEvaluationEvaluateeEmployeeId, perfEvaluationCategoryAverages, perfEvaluationOverallScore, perfEvaluationGrade, perfEvaluationEvaluatorId, evaluateeEmployee:hrEmployee!perfEvaluationEvaluateeEmployeeId(hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment, hrEmployeeDivision)",
       )
-      .eq("period", period);
+      .eq("perfEvaluationPeriod", period);
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
     // Group by evaluatee and average
     const grouped = {};
     for (const ev of data) {
-      const eid = ev.evaluateeEmployeeId;
+      const eid = ev.perfEvaluationEvaluateeEmployeeId;
       if (!grouped[eid]) {
         grouped[eid] = {
           employee: ev.evaluateeEmployee,
@@ -74,7 +74,7 @@ export async function GET(request) {
 
       for (const cat of EVALUATION_CATEGORIES) {
         const sum = group.evaluations.reduce(
-          (acc, ev) => acc + (ev.categoryAverages?.[cat.key] || 0),
+          (acc, ev) => acc + (ev.perfEvaluationCategoryAverages?.[cat.key] || 0),
           0,
         );
         avgCategories[cat.key] = parseFloat((sum / count).toFixed(2));
@@ -98,21 +98,21 @@ export async function GET(request) {
   // Single employee's all periods
   if (employeeId) {
     const { data, error } = await supabase
-      .from("evaluations")
-      .select("period, year, quarter, categoryAverages, overallScore, grade")
-      .eq("evaluateeEmployeeId", employeeId)
-      .order("year", { ascending: true })
-      .order("quarter", { ascending: true });
+      .from("perfEvaluation")
+      .select("perfEvaluationPeriod, perfEvaluationYear, perfEvaluationQuarter, perfEvaluationCategoryAverages, perfEvaluationOverallScore, perfEvaluationGrade")
+      .eq("perfEvaluationEvaluateeEmployeeId", employeeId)
+      .order("perfEvaluationYear", { ascending: true })
+      .order("perfEvaluationQuarter", { ascending: true });
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
     // Group by period
     const grouped = {};
     for (const ev of data) {
-      if (!grouped[ev.period]) {
-        grouped[ev.period] = { period: ev.period, year: ev.year, quarter: ev.quarter, evaluations: [] };
+      if (!grouped[ev.perfEvaluationPeriod]) {
+        grouped[ev.perfEvaluationPeriod] = { period: ev.perfEvaluationPeriod, year: ev.perfEvaluationYear, quarter: ev.perfEvaluationQuarter, evaluations: [] };
       }
-      grouped[ev.period].evaluations.push(ev);
+      grouped[ev.perfEvaluationPeriod].evaluations.push(ev);
     }
 
     const result = Object.values(grouped).map((group) => {
@@ -121,7 +121,7 @@ export async function GET(request) {
 
       for (const cat of EVALUATION_CATEGORIES) {
         const sum = group.evaluations.reduce(
-          (acc, ev) => acc + (ev.categoryAverages?.[cat.key] || 0),
+          (acc, ev) => acc + (ev.perfEvaluationCategoryAverages?.[cat.key] || 0),
           0,
         );
         avgCategories[cat.key] = parseFloat((sum / count).toFixed(2));

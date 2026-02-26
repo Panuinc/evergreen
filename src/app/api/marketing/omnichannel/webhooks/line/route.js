@@ -45,17 +45,17 @@ async function getLineProfile(supabase, userId) {
   if (profileCache.has(userId)) return profileCache.get(userId);
 
   const { data: channel } = await supabase
-    .from("omChannels")
-    .select("channelAccessToken")
-    .eq("channelType", "line")
-    .eq("channelStatus", "active")
+    .from("omChannel")
+    .select("omChannelAccessToken")
+    .eq("omChannelType", "line")
+    .eq("omChannelStatus", "active")
     .single();
 
-  if (!channel?.channelAccessToken) return null;
+  if (!channel?.omChannelAccessToken) return null;
 
   try {
     const res = await fetch(`https://api.line.me/v2/bot/profile/${userId}`, {
-      headers: { Authorization: `Bearer ${channel.channelAccessToken}` },
+      headers: { Authorization: `Bearer ${channel.omChannelAccessToken}` },
     });
     if (res.ok) {
       const profile = await res.json();
@@ -78,9 +78,9 @@ async function handleMessage(supabase, event) {
 
   // Check for duplicate message (LINE may redeliver)
   const { data: existing } = await supabase
-    .from("omMessages")
-    .select("messageId")
-    .eq("messageExternalId", message.id)
+    .from("omMessage")
+    .select("omMessageId")
+    .eq("omMessageExternalId", message.id)
     .limit(1)
     .single();
 
@@ -91,15 +91,15 @@ async function handleMessage(supabase, event) {
 
   // Upsert contact
   const { data: contact } = await supabase
-    .from("omContacts")
+    .from("omContact")
     .upsert(
       {
-        contactChannelType: "line",
-        contactExternalId: userId,
-        contactDisplayName: profile?.displayName || userId,
-        contactAvatarUrl: profile?.pictureUrl || null,
+        omContactChannelType: "line",
+        omContactExternalId: userId,
+        omContactDisplayName: profile?.displayName || userId,
+        omContactAvatarUrl: profile?.pictureUrl || null,
       },
-      { onConflict: "contactChannelType,contactExternalId" }
+      { onConflict: "omContactChannelType,omContactExternalId" }
     )
     .select()
     .single();
@@ -108,40 +108,40 @@ async function handleMessage(supabase, event) {
 
   // Find or create conversation
   let { data: conversation } = await supabase
-    .from("omConversations")
+    .from("omConversation")
     .select()
-    .eq("conversationContactId", contact.contactId)
-    .eq("conversationChannelType", "line")
-    .neq("conversationStatus", "closed")
-    .order("conversationCreatedAt", { ascending: false })
+    .eq("omConversationContactId", contact.omContactId)
+    .eq("omConversationChannelType", "line")
+    .neq("omConversationStatus", "closed")
+    .order("omConversationCreatedAt", { ascending: false })
     .limit(1)
     .single();
 
   if (!conversation) {
     const { data: newConv } = await supabase
-      .from("omConversations")
+      .from("omConversation")
       .insert({
-        conversationContactId: contact.contactId,
-        conversationChannelType: "line",
-        conversationStatus: "open",
-        conversationLastMessageAt: new Date().toISOString(),
-        conversationLastMessagePreview: messageText.slice(0, 100),
-        conversationUnreadCount: 1,
-        conversationAiAutoReply: true,
+        omConversationContactId: contact.omContactId,
+        omConversationChannelType: "line",
+        omConversationStatus: "open",
+        omConversationLastMessageAt: new Date().toISOString(),
+        omConversationLastMessagePreview: messageText.slice(0, 100),
+        omConversationUnreadCount: 1,
+        omConversationAiAutoReply: true,
       })
       .select()
       .single();
     conversation = newConv;
   } else {
     await supabase
-      .from("omConversations")
+      .from("omConversation")
       .update({
-        conversationLastMessageAt: new Date().toISOString(),
-        conversationLastMessagePreview: messageText.slice(0, 100),
-        conversationUnreadCount: (conversation.conversationUnreadCount || 0) + 1,
-        conversationStatus: conversation.conversationStatus === "closed" ? "open" : conversation.conversationStatus,
+        omConversationLastMessageAt: new Date().toISOString(),
+        omConversationLastMessagePreview: messageText.slice(0, 100),
+        omConversationUnreadCount: (conversation.omConversationUnreadCount || 0) + 1,
+        omConversationStatus: conversation.omConversationStatus === "closed" ? "open" : conversation.omConversationStatus,
       })
-      .eq("conversationId", conversation.conversationId);
+      .eq("omConversationId", conversation.omConversationId);
   }
 
   if (!conversation) return;
@@ -151,13 +151,13 @@ async function handleMessage(supabase, event) {
   if (message.type === "image") {
     try {
       const { data: channel } = await supabase
-        .from("omChannels")
-        .select("channelAccessToken")
-        .eq("channelType", "line")
-        .eq("channelStatus", "active")
+        .from("omChannel")
+        .select("omChannelAccessToken")
+        .eq("omChannelType", "line")
+        .eq("omChannelStatus", "active")
         .single();
-      if (channel?.channelAccessToken) {
-        imageUrl = await downloadLineImage(supabase, message.id, channel.channelAccessToken);
+      if (channel?.omChannelAccessToken) {
+        imageUrl = await downloadLineImage(supabase, message.id, channel.omChannelAccessToken);
       }
     } catch (err) {
       console.error("[LINE Webhook] Failed to download image:", err.message);
@@ -165,20 +165,20 @@ async function handleMessage(supabase, event) {
   }
 
   // Insert message
-  await supabase.from("omMessages").insert({
-    messageConversationId: conversation.conversationId,
-    messageSenderType: "customer",
-    messageSenderId: userId,
-    messageContent: imageUrl || messageText,
-    messageType: messageType,
-    messageExternalId: message.id,
-    messageMetadata: message,
-    messageImageUrl: imageUrl,
+  await supabase.from("omMessage").insert({
+    omMessageConversationId: conversation.omConversationId,
+    omMessageSenderType: "customer",
+    omMessageSenderId: userId,
+    omMessageContent: imageUrl || messageText,
+    omMessageType: messageType,
+    omMessageExternalId: message.id,
+    omMessageMetadata: message,
+    omMessageImageUrl: imageUrl,
   });
 
   // Trigger AI auto-reply if enabled
-  if (conversation.conversationAiAutoReply) {
-    triggerAiReply(conversation.conversationId);
+  if (conversation.omConversationAiAutoReply) {
+    triggerAiReply(conversation.omConversationId);
   }
 }
 

@@ -20,33 +20,33 @@ import { exportToCsv } from "@/lib/exportCsv";
 import FileUpload from "@/components/ui/FileUpload";
 
 const fuelCsvColumns = [
-  { header: "วันที่", key: "fuelLogDate" },
-  { header: "ลิตร", key: "fuelLogLiters" },
-  { header: "ราคา/ลิตร", key: "fuelLogPricePerLiter" },
-  { header: "ค่าใช้จ่ายรวม", key: "fuelLogTotalCost" },
-  { header: "เลขไมล์", key: "fuelLogMileage" },
-  { header: "สถานี", key: "fuelLogStation" },
+  { header: "วันที่", key: "tmsFuelLogDate" },
+  { header: "ลิตร", key: "tmsFuelLogLiters" },
+  { header: "ราคา/ลิตร", key: "tmsFuelLogPricePerLiter" },
+  { header: "ค่าใช้จ่ายรวม", key: "tmsFuelLogTotalCost" },
+  { header: "เลขไมล์", key: "tmsFuelLogMileage" },
+  { header: "สถานี", key: "tmsFuelLogStation" },
 ];
 
 const columns = [
-  { name: "วันที่", uid: "fuelLogDate", sortable: true },
-  { name: "ยานพาหนะ", uid: "vehicleName", sortable: true },
-  { name: "ลิตร", uid: "fuelLogLiters", sortable: true },
-  { name: "ราคา/ลิตร", uid: "fuelLogPricePerLiter", sortable: true },
-  { name: "ค่าใช้จ่ายรวม", uid: "fuelLogTotalCost", sortable: true },
-  { name: "เลขไมล์", uid: "fuelLogMileage", sortable: true },
-  { name: "สถานี", uid: "fuelLogStation" },
+  { name: "วันที่", uid: "tmsFuelLogDate", sortable: true },
+  { name: "ยานพาหนะ", uid: "tmsVehicleName", sortable: true },
+  { name: "ลิตร", uid: "tmsFuelLogLiters", sortable: true },
+  { name: "ราคา/ลิตร", uid: "tmsFuelLogPricePerLiter", sortable: true },
+  { name: "ค่าใช้จ่ายรวม", uid: "tmsFuelLogTotalCost", sortable: true },
+  { name: "เลขไมล์", uid: "tmsFuelLogMileage", sortable: true },
+  { name: "สถานี", uid: "tmsFuelLogStation" },
   { name: "จัดการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "fuelLogDate",
-  "vehicleName",
-  "fuelLogLiters",
-  "fuelLogPricePerLiter",
-  "fuelLogTotalCost",
-  "fuelLogMileage",
-  "fuelLogStation",
+  "tmsFuelLogDate",
+  "tmsVehicleName",
+  "tmsFuelLogLiters",
+  "tmsFuelLogPricePerLiter",
+  "tmsFuelLogTotalCost",
+  "tmsFuelLogMileage",
+  "tmsFuelLogStation",
   "actions",
 ];
 
@@ -71,47 +71,47 @@ export default function FuelLogsPage() {
   } = useFuelLogs();
 
   const vehicleOptions = vehicles.map((v) => ({
-    name: `${v.vehicleName} (${v.vehiclePlateNumber})`,
-    uid: v.vehicleId,
+    name: `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})`,
+    uid: v.tmsVehicleId,
   }));
 
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "fuelLogDate":
+        case "tmsFuelLogDate":
           return (
             <span className="text-default-500">
-              {item.fuelLogDate
-                ? new Date(item.fuelLogDate).toLocaleDateString("th-TH")
+              {item.tmsFuelLogDate
+                ? new Date(item.tmsFuelLogDate).toLocaleDateString("th-TH")
                 : "-"}
             </span>
           );
-        case "vehicleName": {
+        case "tmsVehicleName": {
           const vehicle = vehicles.find(
-            (v) => v.vehicleId === item.fuelLogVehicleId,
+            (v) => v.tmsVehicleId === item.tmsFuelLogVehicleId,
           );
           return vehicle
-            ? `${vehicle.vehicleName} (${vehicle.vehiclePlateNumber})`
+            ? `${vehicle.tmsVehicleName} (${vehicle.tmsVehiclePlateNumber})`
             : "-";
         }
-        case "fuelLogLiters":
-          return item.fuelLogLiters
-            ? Number(item.fuelLogLiters).toLocaleString()
+        case "tmsFuelLogLiters":
+          return item.tmsFuelLogLiters
+            ? Number(item.tmsFuelLogLiters).toLocaleString()
             : "-";
-        case "fuelLogPricePerLiter":
-          return item.fuelLogPricePerLiter
-            ? Number(item.fuelLogPricePerLiter).toLocaleString()
+        case "tmsFuelLogPricePerLiter":
+          return item.tmsFuelLogPricePerLiter
+            ? Number(item.tmsFuelLogPricePerLiter).toLocaleString()
             : "-";
-        case "fuelLogTotalCost":
-          return item.fuelLogTotalCost
-            ? Number(item.fuelLogTotalCost).toLocaleString()
+        case "tmsFuelLogTotalCost":
+          return item.tmsFuelLogTotalCost
+            ? Number(item.tmsFuelLogTotalCost).toLocaleString()
             : "-";
-        case "fuelLogMileage":
-          return item.fuelLogMileage
-            ? Number(item.fuelLogMileage).toLocaleString()
+        case "tmsFuelLogMileage":
+          return item.tmsFuelLogMileage
+            ? Number(item.tmsFuelLogMileage).toLocaleString()
             : "-";
-        case "fuelLogStation":
-          return item.fuelLogStation || "-";
+        case "tmsFuelLogStation":
+          return item.tmsFuelLogStation || "-";
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -149,12 +149,12 @@ export default function FuelLogsPage() {
         data={fuelLogs}
         renderCell={renderCell}
         enableCardView
-        rowKey="fuelLogId"
+        rowKey="tmsFuelLogId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยชื่อสถานี..."
-        searchKeys={["fuelLogStation"]}
-        statusField="fuelLogVehicleId"
+        searchKeys={["tmsFuelLogStation"]}
+        statusField="tmsFuelLogVehicleId"
         statusOptions={vehicleOptions}
         filterLabel="ยานพาหนะ"
         emptyContent="ไม่พบบันทึกน้ำมัน"
@@ -193,19 +193,19 @@ export default function FuelLogsPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.fuelLogVehicleId
-                        ? [formData.fuelLogVehicleId]
+                      formData.tmsFuelLogVehicleId
+                        ? [formData.tmsFuelLogVehicleId]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("fuelLogVehicleId", val);
+                      updateField("tmsFuelLogVehicleId", val);
                     }}
                     isRequired
                   >
                     {vehicles.map((v) => (
-                      <SelectItem key={v.vehicleId}>
-                        {v.vehicleName} ({v.vehiclePlateNumber})
+                      <SelectItem key={v.tmsVehicleId}>
+                        {v.tmsVehicleName} ({v.tmsVehiclePlateNumber})
                       </SelectItem>
                     ))}
                   </Select>
@@ -219,18 +219,18 @@ export default function FuelLogsPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.fuelLogDriverId
-                        ? [formData.fuelLogDriverId]
+                      formData.tmsFuelLogDriverId
+                        ? [formData.tmsFuelLogDriverId]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("fuelLogDriverId", val);
+                      updateField("tmsFuelLogDriverId", val);
                     }}
                   >
                     {drivers.map((d) => (
-                      <SelectItem key={d.driverId}>
-                        {d.driverFirstName} {d.driverLastName}
+                      <SelectItem key={d.tmsDriverId}>
+                        {d.tmsDriverFirstName} {d.tmsDriverLastName}
                       </SelectItem>
                     ))}
                   </Select>
@@ -244,9 +244,9 @@ export default function FuelLogsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.fuelLogDate}
+                    value={formData.tmsFuelLogDate}
                     onChange={(e) =>
-                      updateField("fuelLogDate", e.target.value)
+                      updateField("tmsFuelLogDate", e.target.value)
                     }
                   />
                 </div>
@@ -259,13 +259,13 @@ export default function FuelLogsPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.fuelLogFuelType
-                        ? [formData.fuelLogFuelType]
+                      formData.tmsFuelLogFuelType
+                        ? [formData.tmsFuelLogFuelType]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("fuelLogFuelType", val);
+                      updateField("tmsFuelLogFuelType", val);
                     }}
                   >
                     <SelectItem key="diesel">ดีเซล</SelectItem>
@@ -283,9 +283,9 @@ export default function FuelLogsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.fuelLogLiters}
+                    value={formData.tmsFuelLogLiters}
                     onChange={(e) =>
-                      updateField("fuelLogLiters", e.target.value)
+                      updateField("tmsFuelLogLiters", e.target.value)
                     }
                     isRequired
                   />
@@ -299,9 +299,9 @@ export default function FuelLogsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.fuelLogPricePerLiter}
+                    value={formData.tmsFuelLogPricePerLiter}
                     onChange={(e) =>
-                      updateField("fuelLogPricePerLiter", e.target.value)
+                      updateField("tmsFuelLogPricePerLiter", e.target.value)
                     }
                     isRequired
                   />
@@ -315,9 +315,9 @@ export default function FuelLogsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.fuelLogTotalCost}
+                    value={formData.tmsFuelLogTotalCost}
                     onChange={(e) =>
-                      updateField("fuelLogTotalCost", e.target.value)
+                      updateField("tmsFuelLogTotalCost", e.target.value)
                     }
                     isRequired
                   />
@@ -331,9 +331,9 @@ export default function FuelLogsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.fuelLogMileage}
+                    value={formData.tmsFuelLogMileage}
                     onChange={(e) =>
-                      updateField("fuelLogMileage", e.target.value)
+                      updateField("tmsFuelLogMileage", e.target.value)
                     }
                   />
                 </div>
@@ -345,9 +345,9 @@ export default function FuelLogsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.fuelLogStation}
+                    value={formData.tmsFuelLogStation}
                     onChange={(e) =>
-                      updateField("fuelLogStation", e.target.value)
+                      updateField("tmsFuelLogStation", e.target.value)
                     }
                   />
                 </div>
@@ -359,9 +359,9 @@ export default function FuelLogsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.fuelLogNotes}
+                    value={formData.tmsFuelLogNotes}
                     onChange={(e) =>
-                      updateField("fuelLogNotes", e.target.value)
+                      updateField("tmsFuelLogNotes", e.target.value)
                     }
                   />
                 </div>
@@ -371,8 +371,8 @@ export default function FuelLogsPage() {
                   label="ใบเสร็จ"
                   accept="image/*,.pdf"
                   multiple={false}
-                  value={formData.fuelLogReceiptUrl}
-                  onChange={(url) => updateField("fuelLogReceiptUrl", url)}
+                  value={formData.tmsFuelLogReceiptUrl}
+                  onChange={(url) => updateField("tmsFuelLogReceiptUrl", url)}
                   folder="fuel-receipts"
                 />
               </div>
@@ -402,13 +402,13 @@ export default function FuelLogsPage() {
           <ModalBody>
             <p>
               คุณต้องการลบบันทึกน้ำมันนี้
-              {deletingFuelLog?.fuelLogDate && (
+              {deletingFuelLog?.tmsFuelLogDate && (
                 <>
                   {" "}
                   จากวันที่{" "}
                   <span className="font-semibold">
                     {new Date(
-                      deletingFuelLog.fuelLogDate,
+                      deletingFuelLog.tmsFuelLogDate,
                     ).toLocaleDateString("th-TH")}
                   </span>
                 </>

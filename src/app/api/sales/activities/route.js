@@ -12,18 +12,18 @@ export async function GET(request) {
   const opportunityId = searchParams.get("opportunityId");
 
   let query = supabase
-    .from("crmActivities")
+    .from("crmActivity")
     .select(
-      "*, crmContacts(contactFirstName, contactLastName), crmOpportunities(opportunityName), crmAccounts(accountName)"
+      "*, crmContact(crmContactFirstName, crmContactLastName), crmOpportunity(crmOpportunityName), crmAccount(crmAccountName)"
     );
 
-  if (type) query = query.eq("activityType", type);
-  if (status) query = query.eq("activityStatus", status);
-  if (contactId) query = query.eq("activityContactId", contactId);
+  if (type) query = query.eq("crmActivityType", type);
+  if (status) query = query.eq("crmActivityStatus", status);
+  if (contactId) query = query.eq("crmActivityContactId", contactId);
   if (opportunityId)
-    query = query.eq("activityOpportunityId", opportunityId);
+    query = query.eq("crmActivityOpportunityId", opportunityId);
 
-  const { data, error } = await query.order("activityDueDate", {
+  const { data, error } = await query.order("crmActivityDueDate", {
     ascending: true,
     nullsFirst: false,
   });
@@ -40,12 +40,12 @@ export async function POST(request) {
   const body = await request.json();
 
   // Handle update via POST with id
-  if (body.activityId) {
-    const { activityId, ...updateData } = body;
+  if (body.crmActivityId) {
+    const { crmActivityId, ...updateData } = body;
     const { data, error } = await supabase
-      .from("crmActivities")
+      .from("crmActivity")
       .update(updateData)
-      .eq("activityId", activityId)
+      .eq("crmActivityId", crmActivityId)
       .select()
       .single();
 
@@ -56,9 +56,9 @@ export async function POST(request) {
   // Handle delete via POST with deleteId
   if (body.deleteId) {
     const { error } = await supabase
-      .from("crmActivities")
+      .from("crmActivity")
       .delete()
-      .eq("activityId", body.deleteId);
+      .eq("crmActivityId", body.deleteId);
 
     if (error) return Response.json({ error: error.message }, { status: 400 });
     return Response.json({ success: true });
@@ -66,7 +66,7 @@ export async function POST(request) {
 
   // Create new activity
   const { data, error } = await supabase
-    .from("crmActivities")
+    .from("crmActivity")
     .insert([body])
     .select()
     .single();

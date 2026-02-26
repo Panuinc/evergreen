@@ -6,11 +6,11 @@ export async function GET() {
   const { supabase } = auth;
 
   const { data, error } = await supabase
-    .from("roles")
+    .from("rbacRole")
     .select(
-      "*, userRoles:userRoles(count), rolePermissions:rolePermissions(count)",
+      "*, rbacUserRole:rbacUserRole(count), rbacRolePermission:rbacRolePermission(count)",
     )
-    .order("roleCreatedAt", { ascending: false });
+    .order("rbacRoleCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -23,7 +23,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("roles")
+    .from("rbacRole")
     .insert([body])
     .select()
     .single();

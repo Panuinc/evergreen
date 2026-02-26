@@ -6,91 +6,91 @@ import { useProduction } from "@/hooks/production/useProduction";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "Entry No", uid: "entryNo", sortable: true },
-  { name: "วันที่ลงบัญชี", uid: "postingDate", sortable: true },
-  { name: "วันที่เอกสาร", uid: "documentDate", sortable: true },
-  { name: "ประเภท", uid: "entryType", sortable: true },
-  { name: "ประเภทเอกสาร", uid: "documentType" },
-  { name: "เลขที่เอกสาร", uid: "documentNo", sortable: true },
-  { name: "รหัสสินค้า", uid: "itemNo", sortable: true },
-  { name: "รายละเอียด", uid: "itemDescription", sortable: true },
-  { name: "รายละเอียด 2", uid: "description2" },
-  { name: "พนักงาน", uid: "employeeCode" },
-  { name: "ชื่อพนักงาน", uid: "employeeName" },
-  { name: "คลัง", uid: "locationCode", sortable: true },
-  { name: "Lot No", uid: "lotNo" },
-  { name: "Serial No", uid: "serialNo" },
-  { name: "วันหมดอายุ", uid: "expirationDate", sortable: true },
-  { name: "จำนวน", uid: "quantity", sortable: true },
-  { name: "หน่วย", uid: "unitOfMeasureCode" },
-  { name: "คงเหลือ", uid: "remainingQuantity", sortable: true },
-  { name: "จำนวนออกใบแจ้งหนี้", uid: "invoicedQuantity", sortable: true },
-  { name: "ออกใบแจ้งหนี้ครบ", uid: "completelyInvoiced" },
-  { name: "ต้นทุนต่อหน่วย (คาด)", uid: "unitCostExpected", sortable: true },
-  { name: "ต้นทุนรวม (คาด)", uid: "costAmountExpected", sortable: true },
-  { name: "ต้นทุนต่อหน่วย (จริง)", uid: "unitCostActual", sortable: true },
-  { name: "ต้นทุนจริง", uid: "costAmountActual", sortable: true },
-  { name: "ยอดขาย (คาด)", uid: "salesAmountExpected", sortable: true },
-  { name: "ยอดขาย (จริง)", uid: "salesAmountActual", sortable: true },
-  { name: "Open", uid: "open" },
-  { name: "รหัสแผนก", uid: "globalDimension1Code", sortable: true },
-  { name: "ชื่อแผนก", uid: "globalDimension1Name", sortable: true },
-  { name: "รหัสโครงการ", uid: "globalDimension2Code", sortable: true },
-  { name: "ชื่อโครงการ", uid: "globalDimension2Name", sortable: true },
-  { name: "Order Type", uid: "orderType" },
-  { name: "Order Line No", uid: "orderLineNo" },
-  { name: "Document Line No", uid: "documentLineNo" },
-  { name: "Variant Code", uid: "variantCode" },
-  { name: "Bin", uid: "binCode" },
-  { name: "หน่วยพื้นฐาน", uid: "baseUnitOfMeasure" },
-  { name: "น้ำหนักรวม (Gross)", uid: "totalGrossWeight", sortable: true },
-  { name: "น้ำหนักรวม (Net)", uid: "totalNetWeight", sortable: true },
-  { name: "ผู้สร้าง", uid: "createdBy" },
-  { name: "Synced At", uid: "syncedAt", sortable: true },
+  { name: "Entry No", uid: "bcItemLedgerEntryEntryNo", sortable: true },
+  { name: "วันที่ลงบัญชี", uid: "bcItemLedgerEntryPostingDate", sortable: true },
+  { name: "วันที่เอกสาร", uid: "bcItemLedgerEntryDocumentDate", sortable: true },
+  { name: "ประเภท", uid: "bcItemLedgerEntryEntryType", sortable: true },
+  { name: "ประเภทเอกสาร", uid: "bcItemLedgerEntryDocumentType" },
+  { name: "เลขที่เอกสาร", uid: "bcItemLedgerEntryDocumentNo", sortable: true },
+  { name: "รหัสสินค้า", uid: "bcItemLedgerEntryItemNo", sortable: true },
+  { name: "รายละเอียด", uid: "bcItemLedgerEntryItemDescription", sortable: true },
+  { name: "รายละเอียด 2", uid: "bcItemLedgerEntryDescription2" },
+  { name: "พนักงาน", uid: "bcItemLedgerEntryEmployeeCode" },
+  { name: "ชื่อพนักงาน", uid: "bcItemLedgerEntryEmployeeName" },
+  { name: "คลัง", uid: "bcItemLedgerEntryLocationCode", sortable: true },
+  { name: "Lot No", uid: "bcItemLedgerEntryLotNo" },
+  { name: "Serial No", uid: "bcItemLedgerEntrySerialNo" },
+  { name: "วันหมดอายุ", uid: "bcItemLedgerEntryExpirationDate", sortable: true },
+  { name: "จำนวน", uid: "bcItemLedgerEntryQuantity", sortable: true },
+  { name: "หน่วย", uid: "bcItemLedgerEntryUnitOfMeasureCode" },
+  { name: "คงเหลือ", uid: "bcItemLedgerEntryRemainingQuantity", sortable: true },
+  { name: "จำนวนออกใบแจ้งหนี้", uid: "bcItemLedgerEntryInvoicedQuantity", sortable: true },
+  { name: "ออกใบแจ้งหนี้ครบ", uid: "bcItemLedgerEntryCompletelyInvoiced" },
+  { name: "ต้นทุนต่อหน่วย (คาด)", uid: "bcItemLedgerEntryUnitCostExpected", sortable: true },
+  { name: "ต้นทุนรวม (คาด)", uid: "bcItemLedgerEntryCostAmountExpected", sortable: true },
+  { name: "ต้นทุนต่อหน่วย (จริง)", uid: "bcItemLedgerEntryUnitCostActual", sortable: true },
+  { name: "ต้นทุนจริง", uid: "bcItemLedgerEntryCostAmountActual", sortable: true },
+  { name: "ยอดขาย (คาด)", uid: "bcItemLedgerEntrySalesAmountExpected", sortable: true },
+  { name: "ยอดขาย (จริง)", uid: "bcItemLedgerEntrySalesAmountActual", sortable: true },
+  { name: "Open", uid: "bcItemLedgerEntryOpen" },
+  { name: "รหัสแผนก", uid: "bcItemLedgerEntryGlobalDimension1Code", sortable: true },
+  { name: "ชื่อแผนก", uid: "bcItemLedgerEntryGlobalDimension1Name", sortable: true },
+  { name: "รหัสโครงการ", uid: "bcItemLedgerEntryGlobalDimension2Code", sortable: true },
+  { name: "ชื่อโครงการ", uid: "bcItemLedgerEntryGlobalDimension2Name", sortable: true },
+  { name: "Order Type", uid: "bcItemLedgerEntryOrderType" },
+  { name: "Order Line No", uid: "bcItemLedgerEntryOrderLineNo" },
+  { name: "Document Line No", uid: "bcItemLedgerEntryDocumentLineNo" },
+  { name: "Variant Code", uid: "bcItemLedgerEntryVariantCode" },
+  { name: "Bin", uid: "bcItemLedgerEntryBinCode" },
+  { name: "หน่วยพื้นฐาน", uid: "bcItemLedgerEntryBaseUnitOfMeasure" },
+  { name: "น้ำหนักรวม (Gross)", uid: "bcItemLedgerEntryTotalGrossWeight", sortable: true },
+  { name: "น้ำหนักรวม (Net)", uid: "bcItemLedgerEntryTotalNetWeight", sortable: true },
+  { name: "ผู้สร้าง", uid: "bcItemLedgerEntryCreatedBy" },
+  { name: "Synced At", uid: "bcItemLedgerEntrySyncedAt", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "entryNo",
-  "postingDate",
-  "documentDate",
-  "entryType",
-  "documentType",
-  "documentNo",
-  "itemNo",
-  "itemDescription",
-  "description2",
-  "employeeCode",
-  "employeeName",
-  "locationCode",
-  "lotNo",
-  "serialNo",
-  "expirationDate",
-  "quantity",
-  "unitOfMeasureCode",
-  "remainingQuantity",
-  "invoicedQuantity",
-  "completelyInvoiced",
-  "unitCostExpected",
-  "costAmountExpected",
-  "unitCostActual",
-  "costAmountActual",
-  "salesAmountExpected",
-  "salesAmountActual",
-  "open",
-  "globalDimension1Code",
-  "globalDimension1Name",
-  "globalDimension2Code",
-  "globalDimension2Name",
-  "orderType",
-  "orderLineNo",
-  "documentLineNo",
-  "variantCode",
-  "binCode",
-  "baseUnitOfMeasure",
-  "totalGrossWeight",
-  "totalNetWeight",
-  "createdBy",
-  "syncedAt",
+  "bcItemLedgerEntryEntryNo",
+  "bcItemLedgerEntryPostingDate",
+  "bcItemLedgerEntryDocumentDate",
+  "bcItemLedgerEntryEntryType",
+  "bcItemLedgerEntryDocumentType",
+  "bcItemLedgerEntryDocumentNo",
+  "bcItemLedgerEntryItemNo",
+  "bcItemLedgerEntryItemDescription",
+  "bcItemLedgerEntryDescription2",
+  "bcItemLedgerEntryEmployeeCode",
+  "bcItemLedgerEntryEmployeeName",
+  "bcItemLedgerEntryLocationCode",
+  "bcItemLedgerEntryLotNo",
+  "bcItemLedgerEntrySerialNo",
+  "bcItemLedgerEntryExpirationDate",
+  "bcItemLedgerEntryQuantity",
+  "bcItemLedgerEntryUnitOfMeasureCode",
+  "bcItemLedgerEntryRemainingQuantity",
+  "bcItemLedgerEntryInvoicedQuantity",
+  "bcItemLedgerEntryCompletelyInvoiced",
+  "bcItemLedgerEntryUnitCostExpected",
+  "bcItemLedgerEntryCostAmountExpected",
+  "bcItemLedgerEntryUnitCostActual",
+  "bcItemLedgerEntryCostAmountActual",
+  "bcItemLedgerEntrySalesAmountExpected",
+  "bcItemLedgerEntrySalesAmountActual",
+  "bcItemLedgerEntryOpen",
+  "bcItemLedgerEntryGlobalDimension1Code",
+  "bcItemLedgerEntryGlobalDimension1Name",
+  "bcItemLedgerEntryGlobalDimension2Code",
+  "bcItemLedgerEntryGlobalDimension2Name",
+  "bcItemLedgerEntryOrderType",
+  "bcItemLedgerEntryOrderLineNo",
+  "bcItemLedgerEntryDocumentLineNo",
+  "bcItemLedgerEntryVariantCode",
+  "bcItemLedgerEntryBinCode",
+  "bcItemLedgerEntryBaseUnitOfMeasure",
+  "bcItemLedgerEntryTotalGrossWeight",
+  "bcItemLedgerEntryTotalNetWeight",
+  "bcItemLedgerEntryCreatedBy",
+  "bcItemLedgerEntrySyncedAt",
 ];
 
 const entryTypeColorMap = {
@@ -104,14 +104,14 @@ const entryTypeColorMap = {
 };
 
 const searchKeys = [
-  "entryNo",
-  "documentNo",
-  "itemNo",
-  "itemDescription",
-  "locationCode",
-  "employeeCode",
-  "employeeName",
-  "createdBy",
+  "bcItemLedgerEntryEntryNo",
+  "bcItemLedgerEntryDocumentNo",
+  "bcItemLedgerEntryItemNo",
+  "bcItemLedgerEntryItemDescription",
+  "bcItemLedgerEntryLocationCode",
+  "bcItemLedgerEntryEmployeeCode",
+  "bcItemLedgerEntryEmployeeName",
+  "bcItemLedgerEntryCreatedBy",
 ];
 
 const statusOptions = [
@@ -123,67 +123,67 @@ export default function ProductionEntriesPage() {
   const { data, loading } = useProduction();
 
   const wpcData = useMemo(
-    () => data.filter((r) => r.globalDimension1Code === "WPC"),
+    () => data.filter((r) => r.bcItemLedgerEntryGlobalDimension1Code === "WPC"),
     [data],
   );
   const otherData = useMemo(
-    () => data.filter((r) => r.globalDimension1Code !== "WPC"),
+    () => data.filter((r) => r.bcItemLedgerEntryGlobalDimension1Code !== "WPC"),
     [data],
   );
 
   const renderCell = useCallback((row, columnKey) => {
     switch (columnKey) {
-      case "postingDate":
-      case "documentDate":
-      case "expirationDate":
+      case "bcItemLedgerEntryPostingDate":
+      case "bcItemLedgerEntryDocumentDate":
+      case "bcItemLedgerEntryExpirationDate":
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleDateString("th-TH")
           : "-";
-      case "syncedAt":
+      case "bcItemLedgerEntrySyncedAt":
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleString("th-TH", {
               dateStyle: "short",
               timeStyle: "short",
             })
           : "-";
-      case "entryType":
-        return row.entryType ? (
+      case "bcItemLedgerEntryEntryType":
+        return row.bcItemLedgerEntryEntryType ? (
           <Chip
             size="sm"
             variant="flat"
-            color={entryTypeColorMap[row.entryType] || "default"}
+            color={entryTypeColorMap[row.bcItemLedgerEntryEntryType] || "default"}
           >
-            {row.entryType}
+            {row.bcItemLedgerEntryEntryType}
           </Chip>
         ) : (
           "-"
         );
-      case "quantity":
-      case "remainingQuantity":
-      case "invoicedQuantity":
-      case "orderLineNo":
-      case "documentLineNo":
+      case "bcItemLedgerEntryQuantity":
+      case "bcItemLedgerEntryRemainingQuantity":
+      case "bcItemLedgerEntryInvoicedQuantity":
+      case "bcItemLedgerEntryOrderLineNo":
+      case "bcItemLedgerEntryDocumentLineNo":
         return row[columnKey] != null
           ? Number(row[columnKey]).toLocaleString("th-TH")
           : "-";
-      case "unitCostExpected":
-      case "costAmountExpected":
-      case "unitCostActual":
-      case "costAmountActual":
-      case "salesAmountExpected":
-      case "salesAmountActual":
-      case "totalGrossWeight":
-      case "totalNetWeight":
+      case "bcItemLedgerEntryUnitCostExpected":
+      case "bcItemLedgerEntryCostAmountExpected":
+      case "bcItemLedgerEntryUnitCostActual":
+      case "bcItemLedgerEntryCostAmountActual":
+      case "bcItemLedgerEntrySalesAmountExpected":
+      case "bcItemLedgerEntrySalesAmountActual":
+      case "bcItemLedgerEntryTotalGrossWeight":
+      case "bcItemLedgerEntryTotalNetWeight":
         return row[columnKey] != null
           ? Number(row[columnKey]).toLocaleString("th-TH", {
               minimumFractionDigits: 2,
             })
           : "-";
-      case "completelyInvoiced":
-      case "open":
+      case "bcItemLedgerEntryCompletelyInvoiced":
+      case "bcItemLedgerEntryOpen":
         return row[columnKey] ? "Yes" : "No";
-      case "itemDescription":
-      case "description2":
+      case "bcItemLedgerEntryItemDescription":
+      case "bcItemLedgerEntryDescription2":
         return (
           <span className="max-w-75 truncate block">
             {row[columnKey] || "-"}
@@ -205,13 +205,13 @@ export default function ProductionEntriesPage() {
             columns={columns}
             data={wpcData}
             renderCell={renderCell}
-            rowKey="id"
+            rowKey="bcItemLedgerEntryId"
             isLoading={loading}
             initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
             searchPlaceholder="ค้นหาด้วย Entry No, เลขที่เอกสาร, รหัสสินค้า, รายละเอียด..."
             searchKeys={searchKeys}
             emptyContent="ไม่พบข้อมูลรายการเคลื่อนไหว WPC"
-            statusField="entryType"
+            statusField="bcItemLedgerEntryEntryType"
             statusOptions={statusOptions}
           />
         </Tab>
@@ -223,13 +223,13 @@ export default function ProductionEntriesPage() {
             columns={columns}
             data={otherData}
             renderCell={renderCell}
-            rowKey="id"
+            rowKey="bcItemLedgerEntryId"
             isLoading={loading}
             initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
             searchPlaceholder="ค้นหาด้วย Entry No, เลขที่เอกสาร, รหัสสินค้า, รายละเอียด..."
             searchKeys={searchKeys}
             emptyContent="ไม่พบข้อมูลรายการเคลื่อนไหว"
-            statusField="entryType"
+            statusField="bcItemLedgerEntryEntryType"
             statusOptions={statusOptions}
           />
         </Tab>

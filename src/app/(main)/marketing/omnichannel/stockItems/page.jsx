@@ -12,12 +12,12 @@ const FIXED_PACKET_COST = 25;
 const FIXED_SHIPPING_COST = 200;
 
 const columns = [
-  { name: "รหัสสินค้า", uid: "number", sortable: true },
-  { name: "ชื่อสินค้า", uid: "displayName", sortable: true },
-  { name: "คงคลัง", uid: "inventory", sortable: true },
-  { name: "ราคา BC", uid: "unitPrice", sortable: true },
+  { name: "รหัสสินค้า", uid: "bcItemNumber", sortable: true },
+  { name: "ชื่อสินค้า", uid: "bcItemDisplayName", sortable: true },
+  { name: "คงคลัง", uid: "bcItemInventory", sortable: true },
+  { name: "ราคา BC", uid: "bcItemUnitPrice", sortable: true },
   { name: "ราคาขาย", uid: "customPrice", sortable: true },
-  { name: "ต้นทุนสินค้า", uid: "unitCost", sortable: true },
+  { name: "ต้นทุนสินค้า", uid: "bcItemUnitCost", sortable: true },
   { name: "ค่าแพ็ค", uid: "packetCost" },
   { name: "ค่าขนส่ง", uid: "shippingCost" },
   { name: "ต้นทุนรวม", uid: "totalCost", sortable: true },
@@ -25,12 +25,12 @@ const columns = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "number",
-  "displayName",
-  "inventory",
-  "unitPrice",
+  "bcItemNumber",
+  "bcItemDisplayName",
+  "bcItemInventory",
+  "bcItemUnitPrice",
   "customPrice",
-  "unitCost",
+  "bcItemUnitCost",
   "packetCost",
   "shippingCost",
   "totalCost",
@@ -48,7 +48,7 @@ export default function StockItemsPage() {
         .filter(([, price]) => price !== "" && price != null)
         .map(([number, price]) => ({
           number,
-          name: items.find((i) => i.number === number)?.displayName || "",
+          name: items.find((i) => i.bcItemNumber === number)?.bcItemDisplayName || "",
           price: Number(price) || 0,
         }));
 
@@ -69,10 +69,10 @@ export default function StockItemsPage() {
   const tableData = useMemo(
     () =>
       items.map((item) => {
-        const customPrice = prices[item.number] != null ? prices[item.number] : "";
-        const cost = Number(item.unitCost) || 0;
+        const customPrice = prices[item.bcItemNumber] != null ? prices[item.bcItemNumber] : "";
+        const cost = Number(item.bcItemUnitCost) || 0;
         const totalCost = cost + FIXED_PACKET_COST + FIXED_SHIPPING_COST;
-        const sellingPrice = Number(customPrice) || Number(item.unitPrice) || 0;
+        const sellingPrice = Number(customPrice) || Number(item.bcItemUnitPrice) || 0;
         const profit = sellingPrice > 0 ? sellingPrice - totalCost : null;
         return { ...item, customPrice, totalCost, profit };
       }),
@@ -82,25 +82,25 @@ export default function StockItemsPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "displayName":
-          return <span className="font-medium">{item.displayName}</span>;
-        case "inventory":
+        case "bcItemDisplayName":
+          return <span className="font-medium">{item.bcItemDisplayName}</span>;
+        case "bcItemInventory":
           return (
             <span
               className={`block text-right ${
-                Number(item.inventory) > 0 ? "text-success" : "text-danger"
+                Number(item.bcItemInventory) > 0 ? "text-success" : "text-danger"
               }`}
             >
-              {item.inventory != null
-                ? Number(item.inventory).toLocaleString("th-TH")
+              {item.bcItemInventory != null
+                ? Number(item.bcItemInventory).toLocaleString("th-TH")
                 : "-"}
             </span>
           );
-        case "unitPrice":
+        case "bcItemUnitPrice":
           return (
             <span className="block text-right text-default-400">
-              {item.unitPrice != null
-                ? Number(item.unitPrice).toLocaleString("th-TH", {
+              {item.bcItemUnitPrice != null
+                ? Number(item.bcItemUnitPrice).toLocaleString("th-TH", {
                     minimumFractionDigits: 2,
                   })
                 : "-"}
@@ -112,22 +112,22 @@ export default function StockItemsPage() {
               variant="bordered"
               radius="md"
               size="md"
-              type="number"
+              type="bcItemNumber"
               placeholder="0.00"
               classNames={{ input: "text-right" }}
               value={
-                prices[item.number] != null
-                  ? String(prices[item.number])
+                prices[item.bcItemNumber] != null
+                  ? String(prices[item.bcItemNumber])
                   : ""
               }
-              onValueChange={(v) => updatePrice(item.number, v)}
+              onValueChange={(v) => updatePrice(item.bcItemNumber, v)}
             />
           );
-        case "unitCost":
+        case "bcItemUnitCost":
           return (
             <span className="block text-right text-default-400">
-              {item.unitCost != null
-                ? Number(item.unitCost).toLocaleString("th-TH", {
+              {item.bcItemUnitCost != null
+                ? Number(item.bcItemUnitCost).toLocaleString("th-TH", {
                     minimumFractionDigits: 2,
                   })
                 : "-"}
@@ -194,11 +194,11 @@ export default function StockItemsPage() {
         columns={columns}
         data={tableData}
         renderCell={renderCell}
-        rowKey="number"
+        rowKey="bcItemNumber"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยรหัส, ชื่อสินค้า..."
-        searchKeys={["number", "displayName"]}
+        searchKeys={["bcItemNumber", "bcItemDisplayName"]}
         topEndContent={saveButton}
         defaultRowsPerPage={20}
         emptyContent="ไม่พบสินค้า"

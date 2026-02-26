@@ -13,24 +13,24 @@ export async function POST(request) {
 
   // Get conversation + contact
   const { data: conversation, error: convError } = await supabase
-    .from("omConversations")
-    .select("*, omContacts(*)")
-    .eq("conversationId", conversationId)
+    .from("omConversation")
+    .select("*, omContact(*)")
+    .eq("omConversationId", conversationId)
     .single();
 
   if (convError || !conversation) {
     return Response.json({ error: "Conversation not found" }, { status: 404 });
   }
 
-  const contact = conversation.omContacts;
-  const channelType = conversation.conversationChannelType;
+  const contact = conversation.omContact;
+  const channelType = conversation.omConversationChannelType;
 
   // Get channel credentials
   const { data: channel } = await supabase
-    .from("omChannels")
+    .from("omChannel")
     .select()
-    .eq("channelType", channelType)
-    .eq("channelStatus", "active")
+    .eq("omChannelType", channelType)
+    .eq("omChannelStatus", "active")
     .single();
 
   if (!channel) {
@@ -43,12 +43,12 @@ export async function POST(request) {
 
   if (channelType === "facebook") {
     const res = await fetch(
-      `https://graph.facebook.com/v21.0/me/messages?access_token=${channel.channelAccessToken}`,
+      `https://graph.facebook.com/v21.0/me/messages?access_token=${channel.omChannelAccessToken}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          recipient: { id: contact.contactExternalId },
+          recipient: { id: contact.omContactExternalId },
           message: { text: content },
         }),
       }
@@ -61,10 +61,10 @@ export async function POST(request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${channel.channelAccessToken}`,
+        Authorization: `Bearer ${channel.omChannelAccessToken}`,
       },
       body: JSON.stringify({
-        to: contact.contactExternalId,
+        to: contact.omContactExternalId,
         messages: [{ type: "text", text: content }],
       }),
     });
@@ -77,14 +77,14 @@ export async function POST(request) {
 
   // Insert message to DB
   const { data: message, error: msgError } = await supabase
-    .from("omMessages")
+    .from("omMessage")
     .insert({
-      messageConversationId: conversationId,
-      messageSenderType: "agent",
-      messageSenderId: session.user.id,
-      messageContent: content,
-      messageType: "text",
-      messageExternalId: externalId,
+      omMessageConversationId: conversationId,
+      omMessageSenderType: "agent",
+      omMessageSenderId: session.user.id,
+      omMessageContent: content,
+      omMessageType: "text",
+      omMessageExternalId: externalId,
     })
     .select()
     .single();
@@ -95,13 +95,13 @@ export async function POST(request) {
 
   // Update conversation
   await supabase
-    .from("omConversations")
+    .from("omConversation")
     .update({
-      conversationLastMessageAt: new Date().toISOString(),
-      conversationLastMessagePreview: content.slice(0, 100),
-      conversationUnreadCount: 0,
+      omConversationLastMessageAt: new Date().toISOString(),
+      omConversationLastMessagePreview: content.slice(0, 100),
+      omConversationUnreadCount: 0,
     })
-    .eq("conversationId", conversationId);
+    .eq("omConversationId", conversationId);
 
   return Response.json(message, { status: 201 });
 }

@@ -12,16 +12,16 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  opportunityName: "",
-  opportunityStage: "prospecting",
-  opportunityAmount: "",
-  opportunityProbability: "10",
-  opportunityExpectedCloseDate: "",
-  opportunityContactId: "",
-  opportunityAccountId: "",
-  opportunityAssignedTo: "",
-  opportunitySource: "",
-  opportunityNotes: "",
+  crmOpportunityName: "",
+  crmOpportunityStage: "prospecting",
+  crmOpportunityAmount: "",
+  crmOpportunityProbability: "10",
+  crmOpportunityExpectedCloseDate: "",
+  crmOpportunityContactId: "",
+  crmOpportunityAccountId: "",
+  crmOpportunityAssignedTo: "",
+  crmOpportunitySource: "",
+  crmOpportunityNotes: "",
 };
 
 const STAGE_PROBABILITY = {
@@ -67,16 +67,16 @@ export function useCrmOpportunities() {
     if (opp) {
       setEditingOpp(opp);
       setFormData({
-        opportunityName: opp.opportunityName || "",
-        opportunityStage: opp.opportunityStage || "prospecting",
-        opportunityAmount: opp.opportunityAmount?.toString() || "",
-        opportunityProbability: opp.opportunityProbability?.toString() || "10",
-        opportunityExpectedCloseDate: opp.opportunityExpectedCloseDate || "",
-        opportunityContactId: opp.opportunityContactId || "",
-        opportunityAccountId: opp.opportunityAccountId || "",
-        opportunityAssignedTo: opp.opportunityAssignedTo || "",
-        opportunitySource: opp.opportunitySource || "",
-        opportunityNotes: opp.opportunityNotes || "",
+        crmOpportunityName: opp.crmOpportunityName || "",
+        crmOpportunityStage: opp.crmOpportunityStage || "prospecting",
+        crmOpportunityAmount: opp.crmOpportunityAmount?.toString() || "",
+        crmOpportunityProbability: opp.crmOpportunityProbability?.toString() || "10",
+        crmOpportunityExpectedCloseDate: opp.crmOpportunityExpectedCloseDate || "",
+        crmOpportunityContactId: opp.crmOpportunityContactId || "",
+        crmOpportunityAccountId: opp.crmOpportunityAccountId || "",
+        crmOpportunityAssignedTo: opp.crmOpportunityAssignedTo || "",
+        crmOpportunitySource: opp.crmOpportunitySource || "",
+        crmOpportunityNotes: opp.crmOpportunityNotes || "",
       });
     } else {
       setEditingOpp(null);
@@ -88,7 +88,7 @@ export function useCrmOpportunities() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      opportunityName: [
+      crmOpportunityName: [
         (v) => !isRequired(v) && "กรุณาระบุชื่อโอกาส",
       ],
     });
@@ -103,16 +103,16 @@ export function useCrmOpportunities() {
       setSaving(true);
       const payload = {
         ...formData,
-        opportunityAmount: formData.opportunityAmount
-          ? parseFloat(formData.opportunityAmount)
+        crmOpportunityAmount: formData.crmOpportunityAmount
+          ? parseFloat(formData.crmOpportunityAmount)
           : 0,
-        opportunityProbability: parseInt(formData.opportunityProbability) || 10,
+        crmOpportunityProbability: parseInt(formData.crmOpportunityProbability) || 10,
       };
-      if (!payload.opportunityContactId) delete payload.opportunityContactId;
-      if (!payload.opportunityAccountId) delete payload.opportunityAccountId;
+      if (!payload.crmOpportunityContactId) delete payload.crmOpportunityContactId;
+      if (!payload.crmOpportunityAccountId) delete payload.crmOpportunityAccountId;
 
       if (editingOpp) {
-        await updateOpportunity(editingOpp.opportunityId, payload);
+        await updateOpportunity(editingOpp.crmOpportunityId, payload);
         toast.success("อัปเดตโอกาสสำเร็จ");
       } else {
         await createOpportunity(payload);
@@ -136,9 +136,9 @@ export function useCrmOpportunities() {
     }
 
     try {
-      await updateOpportunity(opp.opportunityId, {
-        opportunityStage: newStage,
-        opportunityProbability: STAGE_PROBABILITY[newStage] || 10,
+      await updateOpportunity(opp.crmOpportunityId, {
+        crmOpportunityStage: newStage,
+        crmOpportunityProbability: STAGE_PROBABILITY[newStage] || 10,
       });
       toast.success(`ย้ายไปขั้นตอน ${newStage.replace(/_/g, " ")} สำเร็จ`);
       loadData();
@@ -150,10 +150,10 @@ export function useCrmOpportunities() {
   const handleCloseLost = async () => {
     if (!editingOpp) return;
     try {
-      await updateOpportunity(editingOpp.opportunityId, {
-        opportunityStage: "closed_lost",
-        opportunityProbability: 0,
-        opportunityLostReason: lostReason,
+      await updateOpportunity(editingOpp.crmOpportunityId, {
+        crmOpportunityStage: "closed_lost",
+        crmOpportunityProbability: 0,
+        crmOpportunityLostReason: lostReason,
       });
       toast.success("ปิดโอกาสเป็นแพ้สำเร็จ");
       lostReasonModal.onClose();
@@ -172,7 +172,7 @@ export function useCrmOpportunities() {
   const handleDelete = async () => {
     if (!deletingOpp) return;
     try {
-      await deleteOpportunity(deletingOpp.opportunityId);
+      await deleteOpportunity(deletingOpp.crmOpportunityId);
       toast.success("ลบโอกาสสำเร็จ");
       deleteModal.onClose();
       setDeletingOpp(null);
@@ -186,8 +186,8 @@ export function useCrmOpportunities() {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
       // Auto-update probability when stage changes
-      if (field === "opportunityStage" && STAGE_PROBABILITY[value] !== undefined) {
-        updated.opportunityProbability = STAGE_PROBABILITY[value].toString();
+      if (field === "crmOpportunityStage" && STAGE_PROBABILITY[value] !== undefined) {
+        updated.crmOpportunityProbability = STAGE_PROBABILITY[value].toString();
       }
       return updated;
     });

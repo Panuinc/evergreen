@@ -7,9 +7,9 @@ export async function DELETE(request, { params }) {
   const { id } = await params;
 
   const { error } = await supabase
-    .from("permissions")
+    .from("rbacPermission")
     .delete()
-    .eq("permissionId", id);
+    .eq("rbacPermissionId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

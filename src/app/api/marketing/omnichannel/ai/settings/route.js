@@ -5,7 +5,7 @@ export async function GET() {
   if (auth.error) return auth.error;
 
   const { data, error } = await auth.supabase
-    .from("omAiSettings")
+    .from("omAiSetting")
     .select("*")
     .limit(1)
     .single();
@@ -19,17 +19,17 @@ export async function PUT(request) {
   if (auth.error) return auth.error;
 
   const body = await request.json();
-  const updateData = { aiUpdatedAt: new Date().toISOString() };
+  const updateData = { omAiSettingUpdatedAt: new Date().toISOString() };
 
-  if (body.aiSystemPrompt !== undefined) updateData.aiSystemPrompt = body.aiSystemPrompt;
-  if (body.aiModel !== undefined) updateData.aiModel = body.aiModel;
-  if (body.aiTemperature !== undefined) updateData.aiTemperature = body.aiTemperature;
-  if (body.aiMaxHistoryMessages !== undefined) updateData.aiMaxHistoryMessages = body.aiMaxHistoryMessages;
-  if (body.aiBankAccountInfo !== undefined) updateData.aiBankAccountInfo = body.aiBankAccountInfo;
+  if (body.omAiSettingSystemPrompt !== undefined) updateData.omAiSettingSystemPrompt = body.omAiSettingSystemPrompt;
+  if (body.omAiSettingModel !== undefined) updateData.omAiSettingModel = body.omAiSettingModel;
+  if (body.omAiSettingTemperature !== undefined) updateData.omAiSettingTemperature = body.omAiSettingTemperature;
+  if (body.omAiSettingMaxHistoryMessages !== undefined) updateData.omAiSettingMaxHistoryMessages = body.omAiSettingMaxHistoryMessages;
+  if (body.omAiSettingBankAccountInfo !== undefined) updateData.omAiSettingBankAccountInfo = body.omAiSettingBankAccountInfo;
 
   const { data: existing } = await auth.supabase
-    .from("omAiSettings")
-    .select("aiSettingsId")
+    .from("omAiSetting")
+    .select("omAiSettingId")
     .limit(1)
     .single();
 
@@ -38,9 +38,9 @@ export async function PUT(request) {
   }
 
   const { data, error } = await auth.supabase
-    .from("omAiSettings")
+    .from("omAiSetting")
     .update(updateData)
-    .eq("aiSettingsId", existing.aiSettingsId)
+    .eq("omAiSettingId", existing.omAiSettingId)
     .select()
     .single();
 

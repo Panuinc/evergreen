@@ -7,9 +7,9 @@ export async function GET(request, { params }) {
   const { userId } = await params;
 
   const { data, error } = await supabase
-    .from("userRoles")
-    .select("*, roles(*)")
-    .eq("userRoleUserId", userId);
+    .from("rbacUserRole")
+    .select("*, rbacRole(*)")
+    .eq("rbacUserRoleUserId", userId);
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -23,8 +23,8 @@ export async function POST(request, { params }) {
   const { roleId } = await request.json();
 
   const { data, error } = await supabase
-    .from("userRoles")
-    .insert([{ userRoleUserId: userId, userRoleRoleId: roleId }])
+    .from("rbacUserRole")
+    .insert([{ rbacUserRoleUserId: userId, rbacUserRoleRoleId: roleId }])
     .select()
     .single();
 
@@ -41,10 +41,10 @@ export async function DELETE(request, { params }) {
   const roleId = searchParams.get("roleId");
 
   const { error } = await supabase
-    .from("userRoles")
+    .from("rbacUserRole")
     .delete()
-    .eq("userRoleUserId", userId)
-    .eq("userRoleRoleId", roleId);
+    .eq("rbacUserRoleUserId", userId)
+    .eq("rbacUserRoleRoleId", roleId);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

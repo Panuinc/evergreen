@@ -18,12 +18,12 @@ import { useRoutes } from "@/hooks/tms/useRoutes";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อเส้นทาง", uid: "routeName", sortable: true },
-  { name: "ต้นทาง", uid: "routeOrigin", sortable: true },
-  { name: "ปลายทาง", uid: "routeDestination", sortable: true },
-  { name: "ระยะทาง", uid: "routeDistanceKm", sortable: true },
-  { name: "เวลาโดยประมาณ", uid: "routeEstimatedMinutes", sortable: true },
-  { name: "สถานะ", uid: "routeStatus", sortable: true },
+  { name: "ชื่อเส้นทาง", uid: "tmsRouteName", sortable: true },
+  { name: "ต้นทาง", uid: "tmsRouteOrigin", sortable: true },
+  { name: "ปลายทาง", uid: "tmsRouteDestination", sortable: true },
+  { name: "ระยะทาง", uid: "tmsRouteDistanceKm", sortable: true },
+  { name: "เวลาโดยประมาณ", uid: "tmsRouteEstimatedMinutes", sortable: true },
+  { name: "สถานะ", uid: "tmsRouteStatus", sortable: true },
   { name: "จัดการ", uid: "actions" },
 ];
 
@@ -33,12 +33,12 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "routeName",
-  "routeOrigin",
-  "routeDestination",
-  "routeDistanceKm",
-  "routeEstimatedMinutes",
-  "routeStatus",
+  "tmsRouteName",
+  "tmsRouteOrigin",
+  "tmsRouteDestination",
+  "tmsRouteDistanceKm",
+  "tmsRouteEstimatedMinutes",
+  "tmsRouteStatus",
   "actions",
 ];
 
@@ -63,26 +63,26 @@ export default function RoutesPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "routeName":
-          return <span className="font-medium">{item.routeName}</span>;
-        case "routeOrigin":
-          return item.routeOrigin || "-";
-        case "routeDestination":
-          return item.routeDestination || "-";
-        case "routeDistanceKm":
-          return item.routeDistanceKm
-            ? `${Number(item.routeDistanceKm).toLocaleString()} กม.`
+        case "tmsRouteName":
+          return <span className="font-medium">{item.tmsRouteName}</span>;
+        case "tmsRouteOrigin":
+          return item.tmsRouteOrigin || "-";
+        case "tmsRouteDestination":
+          return item.tmsRouteDestination || "-";
+        case "tmsRouteDistanceKm":
+          return item.tmsRouteDistanceKm
+            ? `${Number(item.tmsRouteDistanceKm).toLocaleString()} กม.`
             : "-";
-        case "routeEstimatedMinutes": {
-          if (!item.routeEstimatedMinutes) return "-";
-          const mins = Number(item.routeEstimatedMinutes);
+        case "tmsRouteEstimatedMinutes": {
+          if (!item.tmsRouteEstimatedMinutes) return "-";
+          const mins = Number(item.tmsRouteEstimatedMinutes);
           const hours = Math.floor(mins / 60);
           const remaining = mins % 60;
           if (hours > 0 && remaining > 0) return `${hours} ชม. ${remaining} น.`;
           if (hours > 0) return `${hours} ชม.`;
           return `${remaining} น.`;
         }
-        case "routeStatus": {
+        case "tmsRouteStatus": {
           const colorMap = {
             active: "success",
             inactive: "default",
@@ -92,9 +92,9 @@ export default function RoutesPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.routeStatus] || "default"}
+              color={colorMap[item.tmsRouteStatus] || "default"}
             >
-              {item.routeStatus}
+              {item.tmsRouteStatus}
             </Chip>
           );
         }
@@ -135,15 +135,15 @@ export default function RoutesPage() {
         data={routes}
         renderCell={renderCell}
         enableCardView
-        rowKey="routeId"
+        rowKey="tmsRouteId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยชื่อเส้นทาง, ปลายทาง..."
         searchKeys={[
-          "routeName",
-          "routeDestination",
+          "tmsRouteName",
+          "tmsRouteDestination",
         ]}
-        statusField="routeStatus"
+        statusField="tmsRouteStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบเส้นทาง"
         topEndContent={
@@ -181,9 +181,9 @@ export default function RoutesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.routeName}
+                    value={formData.tmsRouteName}
                     onChange={(e) =>
-                      updateField("routeName", e.target.value)
+                      updateField("tmsRouteName", e.target.value)
                     }
                     isRequired
                   />
@@ -196,9 +196,9 @@ export default function RoutesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.routeOrigin}
+                    value={formData.tmsRouteOrigin}
                     onChange={(e) =>
-                      updateField("routeOrigin", e.target.value)
+                      updateField("tmsRouteOrigin", e.target.value)
                     }
                   />
                 </div>
@@ -210,9 +210,9 @@ export default function RoutesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.routeDestination}
+                    value={formData.tmsRouteDestination}
                     onChange={(e) =>
-                      updateField("routeDestination", e.target.value)
+                      updateField("tmsRouteDestination", e.target.value)
                     }
                     isRequired
                   />
@@ -226,9 +226,9 @@ export default function RoutesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.routeDistanceKm}
+                    value={formData.tmsRouteDistanceKm}
                     onChange={(e) =>
-                      updateField("routeDistanceKm", e.target.value)
+                      updateField("tmsRouteDistanceKm", e.target.value)
                     }
                   />
                 </div>
@@ -241,9 +241,9 @@ export default function RoutesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.routeEstimatedMinutes}
+                    value={formData.tmsRouteEstimatedMinutes}
                     onChange={(e) =>
-                      updateField("routeEstimatedMinutes", e.target.value)
+                      updateField("tmsRouteEstimatedMinutes", e.target.value)
                     }
                   />
                 </div>
@@ -254,10 +254,10 @@ export default function RoutesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.routeStatus]}
+                    selectedKeys={[formData.tmsRouteStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "active";
-                      updateField("routeStatus", val);
+                      updateField("tmsRouteStatus", val);
                     }}
                   >
                     <SelectItem key="active">ใช้งาน</SelectItem>
@@ -273,9 +273,9 @@ export default function RoutesPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.routeNotes}
+                  value={formData.tmsRouteNotes}
                   onChange={(e) =>
-                    updateField("routeNotes", e.target.value)
+                    updateField("tmsRouteNotes", e.target.value)
                   }
                 />
               </div>
@@ -306,7 +306,7 @@ export default function RoutesPage() {
             <p>
               คุณต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingRoute?.routeName}
+                {deletingRoute?.tmsRouteName}
               </span>
               หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

@@ -71,7 +71,7 @@ export function useEvaluation() {
 
       // Find current user's employee record
       if (user?.id) {
-        const myEmp = (data || []).find((e) => e.employeeUserId === user.id);
+        const myEmp = (data || []).find((e) => e.hrEmployeeUserId === user.id);
         setCurrentEmployee(myEmp || null);
       }
     } catch {
@@ -105,15 +105,15 @@ export function useEvaluation() {
     [answeredCount],
   );
 
-  const period = useMemo(() => `Q${quarter}-${year}`, [quarter, year]);
+  const perfEvaluationPeriod = useMemo(() => `Q${quarter}-${year}`, [quarter, year]);
 
   // Available employees for evaluation (exclude self)
   const availableEmployees = useMemo(() => {
-    if (!currentEmployee) return employees.filter((e) => e.employeeStatus === "active");
+    if (!currentEmployee) return employees.filter((e) => e.hrEmployeeStatus === "active");
     return employees.filter(
       (e) =>
-        e.employeeId !== currentEmployee.employeeId &&
-        e.employeeStatus === "active",
+        e.hrEmployeeId !== currentEmployee.hrEmployeeId &&
+        e.hrEmployeeStatus === "active",
     );
   }, [employees, currentEmployee]);
 
@@ -149,7 +149,7 @@ export function useEvaluation() {
     try {
       await submitEvaluation({
         evaluateeEmployeeId: selectedEmployee,
-        period,
+        period: perfEvaluationPeriod,
         year: parseInt(year),
         quarter: parseInt(quarter),
         scores,
@@ -210,11 +210,11 @@ export function useEvaluation() {
   }, []);
 
   // Load AI feedback
-  const loadAiFeedback = useCallback(async (employeeId, feedbackPeriod, forceRegenerate = false) => {
+  const loadAiFeedback = useCallback(async (perfEvaluationEmployeeId, feedbackPeriod, forceRegenerate = false) => {
     setLoadingFeedback(true);
     try {
       if (!forceRegenerate) {
-        const cached = await getEvaluationFeedback(employeeId, feedbackPeriod);
+        const cached = await getEvaluationFeedback(perfEvaluationEmployeeId, feedbackPeriod);
         if (cached?.feedback && !cached.isStale) {
           setAiFeedback(cached.feedback);
           setFeedbackStale(false);
@@ -223,7 +223,7 @@ export function useEvaluation() {
         }
         if (cached?.isStale) setFeedbackStale(true);
       }
-      const result = await generateEvaluationFeedbackAction(employeeId, feedbackPeriod);
+      const result = await generateEvaluationFeedbackAction(perfEvaluationEmployeeId, feedbackPeriod);
       setAiFeedback(result.feedback);
       setFeedbackStale(false);
     } catch {
@@ -255,7 +255,7 @@ export function useEvaluation() {
     setQuarter,
     year,
     setYear,
-    period,
+    perfEvaluationPeriod,
     scores,
     setScore,
     comment,

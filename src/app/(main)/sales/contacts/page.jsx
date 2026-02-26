@@ -18,24 +18,24 @@ import { useCrmContacts } from "@/hooks/sales/useCrmContacts";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่ผู้ติดต่อ", uid: "contactNo", sortable: true },
-  { name: "ชื่อ", uid: "contactName" },
-  { name: "อีเมล", uid: "contactEmail" },
-  { name: "โทรศัพท์", uid: "contactPhone" },
-  { name: "ตำแหน่ง", uid: "contactPosition" },
-  { name: "บัญชี", uid: "accountName" },
-  { name: "แท็ก", uid: "contactTags" },
+  { name: "เลขที่ผู้ติดต่อ", uid: "crmContactNo", sortable: true },
+  { name: "ชื่อ", uid: "crmContactName" },
+  { name: "อีเมล", uid: "crmContactEmail" },
+  { name: "โทรศัพท์", uid: "crmContactPhone" },
+  { name: "ตำแหน่ง", uid: "crmContactPosition" },
+  { name: "บัญชี", uid: "crmAccountName" },
+  { name: "แท็ก", uid: "crmContactTags" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "contactNo",
-  "contactName",
-  "contactEmail",
-  "contactPhone",
-  "accountName",
+  "crmContactNo",
+  "crmContactName",
+  "crmContactEmail",
+  "crmContactPhone",
+  "crmAccountName",
   "actions",
 ];
 
@@ -61,26 +61,26 @@ export default function ContactsPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "contactNo":
-          return <span className="text-default-500">{item.contactNo || "-"}</span>;
-        case "contactName":
+        case "crmContactNo":
+          return <span className="text-default-500">{item.crmContactNo || "-"}</span>;
+        case "crmContactName":
           return (
             <span className="font-medium">
-              {item.contactFirstName} {item.contactLastName}
+              {item.crmContactFirstName} {item.crmContactLastName}
             </span>
           );
-        case "contactEmail":
-          return item.contactEmail || "-";
-        case "contactPhone":
-          return item.contactPhone || "-";
-        case "contactPosition":
-          return item.contactPosition || "-";
-        case "accountName":
-          return item.crmAccounts?.accountName || "-";
-        case "contactTags":
-          return item.contactTags ? (
+        case "crmContactEmail":
+          return item.crmContactEmail || "-";
+        case "crmContactPhone":
+          return item.crmContactPhone || "-";
+        case "crmContactPosition":
+          return item.crmContactPosition || "-";
+        case "crmAccountName":
+          return item.crmAccount?.crmAccountName || "-";
+        case "crmContactTags":
+          return item.crmContactTags ? (
             <Chip variant="bordered" size="md" radius="md" color="primary">
-              {item.contactTags}
+              {item.crmContactTags}
             </Chip>
           ) : (
             "-"
@@ -122,15 +122,15 @@ export default function ContactsPage() {
         data={contacts}
         renderCell={renderCell}
         enableCardView
-        rowKey="contactId"
+        rowKey="crmContactId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาผู้ติดต่อ..."
         searchKeys={[
-          "contactFirstName",
-          "contactLastName",
-          "contactEmail",
-          "contactPhone",
+          "crmContactFirstName",
+          "crmContactLastName",
+          "crmContactEmail",
+          "crmContactPhone",
         ]}
         emptyContent="ไม่พบผู้ติดต่อ"
         topEndContent={
@@ -168,11 +168,11 @@ export default function ContactsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.contactFirstName}
-                    onChange={(e) => updateField("contactFirstName", e.target.value)}
+                    value={formData.crmContactFirstName}
+                    onChange={(e) => updateField("crmContactFirstName", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.contactFirstName}
-                    errorMessage={validationErrors?.contactFirstName}
+                    isInvalid={!!validationErrors?.crmContactFirstName}
+                    errorMessage={validationErrors?.crmContactFirstName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -183,8 +183,8 @@ export default function ContactsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.contactLastName}
-                    onChange={(e) => updateField("contactLastName", e.target.value)}
+                    value={formData.crmContactLastName}
+                    onChange={(e) => updateField("crmContactLastName", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -195,8 +195,8 @@ export default function ContactsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.contactEmail}
-                    onChange={(e) => updateField("contactEmail", e.target.value)}
+                    value={formData.crmContactEmail}
+                    onChange={(e) => updateField("crmContactEmail", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -207,8 +207,8 @@ export default function ContactsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.contactPhone}
-                    onChange={(e) => updateField("contactPhone", e.target.value)}
+                    value={formData.crmContactPhone}
+                    onChange={(e) => updateField("crmContactPhone", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -219,8 +219,8 @@ export default function ContactsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.contactPosition}
-                    onChange={(e) => updateField("contactPosition", e.target.value)}
+                    value={formData.crmContactPosition}
+                    onChange={(e) => updateField("crmContactPosition", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -231,8 +231,8 @@ export default function ContactsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.contactAccountId}
-                    onChange={(e) => updateField("contactAccountId", e.target.value)}
+                    value={formData.crmContactAccountId}
+                    onChange={(e) => updateField("crmContactAccountId", e.target.value)}
                   />
                 </div>
               </div>
@@ -244,8 +244,8 @@ export default function ContactsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.contactAddress}
-                  onChange={(e) => updateField("contactAddress", e.target.value)}
+                  value={formData.crmContactAddress}
+                  onChange={(e) => updateField("crmContactAddress", e.target.value)}
                 />
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -256,8 +256,8 @@ export default function ContactsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.contactTags}
-                  onChange={(e) => updateField("contactTags", e.target.value)}
+                  value={formData.crmContactTags}
+                  onChange={(e) => updateField("crmContactTags", e.target.value)}
                 />
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -268,8 +268,8 @@ export default function ContactsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.contactNotes}
-                  onChange={(e) => updateField("contactNotes", e.target.value)}
+                  value={formData.crmContactNotes}
+                  onChange={(e) => updateField("crmContactNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -299,7 +299,7 @@ export default function ContactsPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingContact?.contactFirstName} {deletingContact?.contactLastName}
+                {deletingContact?.crmContactFirstName} {deletingContact?.crmContactLastName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

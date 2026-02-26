@@ -12,16 +12,16 @@ import {
 import { getEmployees } from "@/actions/hr";
 
 const emptyForm = {
-  driverFirstName: "",
-  driverLastName: "",
-  driverPhone: "",
-  driverLicenseNumber: "",
-  driverLicenseType: "type2",
-  driverLicenseExpiry: "",
-  driverRole: "driver",
-  driverStatus: "available",
-  driverEmployeeId: "",
-  driverNotes: "",
+  tmsDriverFirstName: "",
+  tmsDriverLastName: "",
+  tmsDriverPhone: "",
+  tmsDriverLicenseNumber: "",
+  tmsDriverLicenseType: "type2",
+  tmsDriverLicenseExpiry: "",
+  tmsDriverRole: "driver",
+  tmsDriverStatus: "available",
+  tmsDriverEmployeeId: "",
+  tmsDriverNotes: "",
 };
 
 export function useDrivers() {
@@ -59,16 +59,16 @@ export function useDrivers() {
     if (driver) {
       setEditingDriver(driver);
       setFormData({
-        driverFirstName: driver.driverFirstName || "",
-        driverLastName: driver.driverLastName || "",
-        driverPhone: driver.driverPhone || "",
-        driverLicenseNumber: driver.driverLicenseNumber || "",
-        driverLicenseType: driver.driverLicenseType || "type2",
-        driverLicenseExpiry: driver.driverLicenseExpiry || "",
-        driverRole: driver.driverRole || "driver",
-        driverStatus: driver.driverStatus || "available",
-        driverEmployeeId: driver.driverEmployeeId?.toString() || "",
-        driverNotes: driver.driverNotes || "",
+        tmsDriverFirstName: driver.tmsDriverFirstName || "",
+        tmsDriverLastName: driver.tmsDriverLastName || "",
+        tmsDriverPhone: driver.tmsDriverPhone || "",
+        tmsDriverLicenseNumber: driver.tmsDriverLicenseNumber || "",
+        tmsDriverLicenseType: driver.tmsDriverLicenseType || "type2",
+        tmsDriverLicenseExpiry: driver.tmsDriverLicenseExpiry || "",
+        tmsDriverRole: driver.tmsDriverRole || "driver",
+        tmsDriverStatus: driver.tmsDriverStatus || "available",
+        tmsDriverEmployeeId: driver.tmsDriverEmployeeId?.toString() || "",
+        tmsDriverNotes: driver.tmsDriverNotes || "",
       });
     } else {
       setEditingDriver(null);
@@ -79,8 +79,8 @@ export function useDrivers() {
 
   const handleSave = async () => {
     if (
-      !formData.driverFirstName.trim() ||
-      !formData.driverLastName.trim()
+      !formData.tmsDriverFirstName.trim() ||
+      !formData.tmsDriverLastName.trim()
     ) {
       toast.error("กรุณาระบุชื่อและนามสกุล");
       return;
@@ -89,7 +89,7 @@ export function useDrivers() {
     try {
       setSaving(true);
       if (editingDriver) {
-        await updateDriver(editingDriver.driverId, formData);
+        await updateDriver(editingDriver.tmsDriverId, formData);
         toast.success("อัปเดตพนักงานขับรถสำเร็จ");
       } else {
         await createDriver(formData);
@@ -112,7 +112,7 @@ export function useDrivers() {
   const handleDelete = async () => {
     if (!deletingDriver) return;
     try {
-      await deleteDriver(deletingDriver.driverId);
+      await deleteDriver(deletingDriver.tmsDriverId);
       toast.success("ลบพนักงานขับรถสำเร็จ");
       deleteModal.onClose();
       setDeletingDriver(null);

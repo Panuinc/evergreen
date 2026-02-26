@@ -14,18 +14,18 @@ import {
 const today = new Date().toISOString().split("T")[0];
 
 const emptyForm = {
-  maintenanceVehicleId: "",
-  maintenanceType: "repair",
-  maintenanceDescription: "",
-  maintenanceDate: today,
-  maintenanceCompletedDate: "",
-  maintenanceMileage: "",
-  maintenanceCost: "",
-  maintenanceVendor: "",
-  maintenanceStatus: "scheduled",
-  maintenanceNextDueDate: "",
-  maintenanceNextDueMileage: "",
-  maintenanceNotes: "",
+  tmsMaintenanceVehicleId: "",
+  tmsMaintenanceType: "repair",
+  tmsMaintenanceDescription: "",
+  tmsMaintenanceDate: today,
+  tmsMaintenanceCompletedDate: "",
+  tmsMaintenanceMileage: "",
+  tmsMaintenanceCost: "",
+  tmsMaintenanceVendor: "",
+  tmsMaintenanceStatus: "scheduled",
+  tmsMaintenanceNextDueDate: "",
+  tmsMaintenanceNextDueMileage: "",
+  tmsMaintenanceNotes: "",
 };
 
 export function useMaintenance() {
@@ -63,19 +63,19 @@ export function useMaintenance() {
     if (maintenance) {
       setEditingMaintenance(maintenance);
       setFormData({
-        maintenanceVehicleId: maintenance.maintenanceVehicleId?.toString() || "",
-        maintenanceType: maintenance.maintenanceType || "repair",
-        maintenanceDescription: maintenance.maintenanceDescription || "",
-        maintenanceDate: maintenance.maintenanceDate || today,
-        maintenanceCompletedDate: maintenance.maintenanceCompletedDate || "",
-        maintenanceMileage: maintenance.maintenanceMileage?.toString() || "",
-        maintenanceCost: maintenance.maintenanceCost?.toString() || "",
-        maintenanceVendor: maintenance.maintenanceVendor || "",
-        maintenanceStatus: maintenance.maintenanceStatus || "scheduled",
-        maintenanceNextDueDate: maintenance.maintenanceNextDueDate || "",
-        maintenanceNextDueMileage:
-          maintenance.maintenanceNextDueMileage?.toString() || "",
-        maintenanceNotes: maintenance.maintenanceNotes || "",
+        tmsMaintenanceVehicleId: maintenance.tmsMaintenanceVehicleId?.toString() || "",
+        tmsMaintenanceType: maintenance.tmsMaintenanceType || "repair",
+        tmsMaintenanceDescription: maintenance.tmsMaintenanceDescription || "",
+        tmsMaintenanceDate: maintenance.tmsMaintenanceDate || today,
+        tmsMaintenanceCompletedDate: maintenance.tmsMaintenanceCompletedDate || "",
+        tmsMaintenanceMileage: maintenance.tmsMaintenanceMileage?.toString() || "",
+        tmsMaintenanceCost: maintenance.tmsMaintenanceCost?.toString() || "",
+        tmsMaintenanceVendor: maintenance.tmsMaintenanceVendor || "",
+        tmsMaintenanceStatus: maintenance.tmsMaintenanceStatus || "scheduled",
+        tmsMaintenanceNextDueDate: maintenance.tmsMaintenanceNextDueDate || "",
+        tmsMaintenanceNextDueMileage:
+          maintenance.tmsMaintenanceNextDueMileage?.toString() || "",
+        tmsMaintenanceNotes: maintenance.tmsMaintenanceNotes || "",
       });
     } else {
       setEditingMaintenance(null);
@@ -86,8 +86,8 @@ export function useMaintenance() {
 
   const handleSave = async () => {
     if (
-      !formData.maintenanceVehicleId ||
-      !formData.maintenanceDescription.trim()
+      !formData.tmsMaintenanceVehicleId ||
+      !formData.tmsMaintenanceDescription.trim()
     ) {
       toast.error("กรุณาระบุยานพาหนะและรายละเอียด");
       return;
@@ -95,21 +95,21 @@ export function useMaintenance() {
 
     const payload = {
       ...formData,
-      maintenanceMileage: formData.maintenanceMileage
-        ? parseFloat(formData.maintenanceMileage)
+      tmsMaintenanceMileage: formData.tmsMaintenanceMileage
+        ? parseFloat(formData.tmsMaintenanceMileage)
         : null,
-      maintenanceCost: formData.maintenanceCost
-        ? parseFloat(formData.maintenanceCost)
+      tmsMaintenanceCost: formData.tmsMaintenanceCost
+        ? parseFloat(formData.tmsMaintenanceCost)
         : null,
-      maintenanceNextDueMileage: formData.maintenanceNextDueMileage
-        ? parseFloat(formData.maintenanceNextDueMileage)
+      tmsMaintenanceNextDueMileage: formData.tmsMaintenanceNextDueMileage
+        ? parseFloat(formData.tmsMaintenanceNextDueMileage)
         : null,
     };
 
     try {
       setSaving(true);
       if (editingMaintenance) {
-        await updateMaintenance(editingMaintenance.maintenanceId, payload);
+        await updateMaintenance(editingMaintenance.tmsMaintenanceId, payload);
         toast.success("อัปเดตบันทึกการบำรุงรักษาสำเร็จ");
       } else {
         await createMaintenance(payload);
@@ -132,7 +132,7 @@ export function useMaintenance() {
   const handleDelete = async () => {
     if (!deletingMaintenance) return;
     try {
-      await deleteMaintenance(deletingMaintenance.maintenanceId);
+      await deleteMaintenance(deletingMaintenance.tmsMaintenanceId);
       toast.success("ลบบันทึกการบำรุงรักษาสำเร็จ");
       deleteModal.onClose();
       setDeletingMaintenance(null);

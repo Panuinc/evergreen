@@ -14,10 +14,10 @@ export async function GET(request) {
   }
 
   const { data, error } = await supabase
-    .from("okr_checkins")
+    .from("perfOkrCheckin")
     .select("*")
-    .eq("keyResultId", keyResultId)
-    .order("createdAt", { ascending: false });
+    .eq("perfOkrCheckinKeyResultId", keyResultId)
+    .order("perfOkrCheckinCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -37,9 +37,9 @@ export async function POST(request) {
 
   // Get current key result
   const { data: kr, error: krError } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .select("*")
-    .eq("id", keyResultId)
+    .eq("perfOkrKeyResultId", keyResultId)
     .single();
 
   if (krError || !kr) {
@@ -48,13 +48,13 @@ export async function POST(request) {
 
   // Create check-in record
   const { data: checkin, error: checkinError } = await supabase
-    .from("okr_checkins")
+    .from("perfOkrCheckin")
     .insert([{
-      keyResultId,
-      previousValue: kr.currentValue,
-      newValue: parseFloat(newValue),
-      note: note || null,
-      createdBy: session.user.id,
+      perfOkrCheckinKeyResultId: keyResultId,
+      perfOkrCheckinPreviousValue: kr.perfOkrKeyResultCurrentValue,
+      perfOkrCheckinNewValue: parseFloat(newValue),
+      perfOkrCheckinNote: note || null,
+      perfOkrCheckinCreatedBy: session.user.id,
     }])
     .select()
     .single();
@@ -62,34 +62,34 @@ export async function POST(request) {
   if (checkinError) return Response.json({ error: checkinError.message }, { status: 400 });
 
   // Update key result currentValue and status
-  const updatedKr = { ...kr, currentValue: parseFloat(newValue) };
+  const updatedKr = { ...kr, perfOkrKeyResultCurrentValue: parseFloat(newValue) };
   const newStatus = autoKrStatus(updatedKr);
 
   await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .update({
-      currentValue: parseFloat(newValue),
-      status: newStatus,
-      updatedAt: new Date().toISOString(),
+      perfOkrKeyResultCurrentValue: parseFloat(newValue),
+      perfOkrKeyResultStatus: newStatus,
+      perfOkrKeyResultUpdatedAt: new Date().toISOString(),
     })
-    .eq("id", keyResultId);
+    .eq("perfOkrKeyResultId", keyResultId);
 
   // Update objective progress
   const { data: allKrs } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .select("*")
-    .eq("objectiveId", kr.objectiveId);
+    .eq("perfOkrKeyResultObjectiveId", kr.perfOkrKeyResultObjectiveId);
 
   // Replace the updated KR in the list for accurate calculation
   const krsForCalc = (allKrs || []).map((k) =>
-    k.id === keyResultId ? { ...k, currentValue: parseFloat(newValue) } : k,
+    k.perfOkrKeyResultId === keyResultId ? { ...k, perfOkrKeyResultCurrentValue: parseFloat(newValue) } : k,
   );
   const progress = computeObjectiveProgress(krsForCalc);
 
   await supabase
-    .from("okr_objectives")
-    .update({ progress, updatedAt: new Date().toISOString() })
-    .eq("id", kr.objectiveId);
+    .from("perfOkrObjective")
+    .update({ perfOkrObjectiveProgress: progress, perfOkrObjectiveUpdatedAt: new Date().toISOString() })
+    .eq("perfOkrObjectiveId", kr.perfOkrKeyResultObjectiveId);
 
   return Response.json(checkin, { status: 201 });
 }

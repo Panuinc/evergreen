@@ -193,7 +193,7 @@ function MyOkrTab({ hook }) {
         </Card>
       ) : (
         hook.objectives.map((obj) => (
-          <ObjectiveCard key={obj.id} objective={obj} hook={hook} editable />
+          <ObjectiveCard key={obj.perfOkrObjectiveId} objective={obj} hook={hook} editable />
         ))
       )}
     </div>
@@ -219,7 +219,7 @@ function TeamOkrTab({ hook }) {
         </Card>
       ) : (
         hook.teamObjectives.map((obj) => (
-          <ObjectiveCard key={obj.id} objective={obj} hook={hook} showOwner />
+          <ObjectiveCard key={obj.perfOkrObjectiveId} objective={obj} hook={hook} showOwner />
         ))
       )}
     </div>
@@ -245,7 +245,7 @@ function CompanyOkrTab({ hook }) {
         </Card>
       ) : (
         hook.companyObjectives.map((obj) => (
-          <ObjectiveCard key={obj.id} objective={obj} hook={hook} showOwner />
+          <ObjectiveCard key={obj.perfOkrObjectiveId} objective={obj} hook={hook} showOwner />
         ))
       )}
     </div>
@@ -256,11 +256,11 @@ function CompanyOkrTab({ hook }) {
 
 function ObjectiveCard({ objective, hook, editable = false, showOwner = false }) {
   const [expanded, setExpanded] = useState(false);
-  const statusConfig = getStatusConfig(objective.status, OKR_STATUSES);
+  const statusConfig = getStatusConfig(objective.perfOkrObjectiveStatus, OKR_STATUSES);
   const krs = objective.keyResults || [];
 
   const ownerName = objective.employee
-    ? `${objective.employee.employeeFirstName} ${objective.employee.employeeLastName}`
+    ? `${objective.employee.hrEmployeeFirstName} ${objective.employee.hrEmployeeLastName}`
     : "";
 
   return (
@@ -269,19 +269,19 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
         <div className="flex justify-between items-start w-full">
           <div className="flex flex-col gap-1 flex-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">{objective.title}</h3>
+              <h3 className="text-lg font-semibold">{objective.perfOkrObjectiveTitle}</h3>
               <Chip size="md" radius="md" color={statusConfig.color} variant="bordered">
                 {statusConfig.label}
               </Chip>
               <Chip size="md" radius="md" variant="bordered">
-                {objective.period}
+                {objective.perfOkrObjectivePeriod}
               </Chip>
             </div>
             {showOwner && ownerName && (
-              <p className="text-sm text-default-500">{ownerName} — {objective.employee?.employeeDepartment}</p>
+              <p className="text-sm text-default-500">{ownerName} — {objective.employee?.hrEmployeeDepartment}</p>
             )}
-            {objective.description && (
-              <p className="text-sm text-default-400">{objective.description}</p>
+            {objective.perfOkrObjectiveDescription && (
+              <p className="text-sm text-default-400">{objective.perfOkrObjectiveDescription}</p>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -298,7 +298,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                     <Pencil className="w-4 h-4" />
                   </Button>
                 </Tooltip>
-                {objective.status === "draft" && (
+                {objective.perfOkrObjectiveStatus === "draft" && (
                   <Tooltip content="เปิดใช้งาน">
                     <Button
                       isIconOnly
@@ -306,13 +306,13 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                       radius="md"
                       variant="bordered"
                       color="primary"
-                      onPress={() => hook.handleUpdateObjectiveStatus(objective.id, "active")}
+                      onPress={() => hook.handleUpdateObjectiveStatus(objective.perfOkrObjectiveId, "active")}
                     >
                       <CheckCircle className="w-4 h-4" />
                     </Button>
                   </Tooltip>
                 )}
-                {objective.status === "active" && (
+                {objective.perfOkrObjectiveStatus === "active" && (
                   <Tooltip content="ทำเครื่องหมายว่าสำเร็จ">
                     <Button
                       isIconOnly
@@ -320,7 +320,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                       radius="md"
                       variant="bordered"
                       color="success"
-                      onPress={() => hook.handleUpdateObjectiveStatus(objective.id, "completed")}
+                      onPress={() => hook.handleUpdateObjectiveStatus(objective.perfOkrObjectiveId, "completed")}
                     >
                       <CheckCircle className="w-4 h-4" />
                     </Button>
@@ -333,7 +333,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                     radius="md"
                     variant="bordered"
                     color="danger"
-                    onPress={() => hook.handleDeleteObjective(objective.id)}
+                    onPress={() => hook.handleDeleteObjective(objective.perfOkrObjectiveId)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -345,13 +345,13 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
 
         <div className="w-full flex items-center gap-3">
           <Progress
-            value={objective.progress || 0}
+            value={objective.perfOkrObjectiveProgress || 0}
             className="flex-1"
-            color={objective.progress >= 70 ? "success" : objective.progress >= 40 ? "warning" : "danger"}
+            color={objective.perfOkrObjectiveProgress >= 70 ? "success" : objective.perfOkrObjectiveProgress >= 40 ? "warning" : "danger"}
             size="md"
           />
           <span className="text-sm font-semibold min-w-[50px] text-right">
-            {Math.round(objective.progress || 0)}%
+            {Math.round(objective.perfOkrObjectiveProgress || 0)}%
           </span>
         </div>
       </CardHeader>
@@ -371,7 +371,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
         {expanded && (
           <div className="flex flex-col gap-2">
             {krs.map((kr) => (
-              <KeyResultRow key={kr.id} kr={kr} hook={hook} editable={editable} />
+              <KeyResultRow key={kr.perfOkrKeyResultId} kr={kr} hook={hook} editable={editable} />
             ))}
             {editable && (
               <Button
@@ -381,7 +381,7 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
                 color="primary"
                 startContent={<Plus className="w-3 h-3" />}
                 className="self-start"
-                onPress={() => hook.handleOpenKrForm(objective.id)}
+                onPress={() => hook.handleOpenKrForm(objective.perfOkrObjectiveId)}
               >
                 เพิ่ม Key Result
               </Button>
@@ -397,16 +397,16 @@ function ObjectiveCard({ objective, hook, editable = false, showOwner = false })
 
 function KeyResultRow({ kr, hook, editable }) {
   const progress = computeKrProgress(kr);
-  const statusConfig = getStatusConfig(kr.status, KR_STATUSES);
-  const displayValue = kr.metricType === "boolean"
-    ? (kr.currentValue >= 1 ? "สำเร็จ" : "ยังไม่สำเร็จ")
-    : `${kr.currentValue}${kr.unit ? ` ${kr.unit}` : ""} / ${kr.targetValue}${kr.unit ? ` ${kr.unit}` : ""}`;
+  const statusConfig = getStatusConfig(kr.perfOkrKeyResultStatus, KR_STATUSES);
+  const displayValue = kr.perfOkrKeyResultMetricType === "boolean"
+    ? (kr.perfOkrKeyResultCurrentValue >= 1 ? "สำเร็จ" : "ยังไม่สำเร็จ")
+    : `${kr.perfOkrKeyResultCurrentValue}${kr.perfOkrKeyResultUnit ? ` ${kr.perfOkrKeyResultUnit}` : ""} / ${kr.perfOkrKeyResultTargetValue}${kr.perfOkrKeyResultUnit ? ` ${kr.perfOkrKeyResultUnit}` : ""}`;
 
   return (
     <div className="flex items-center gap-3 p-2 rounded-lg bg-default-50 hover:bg-default-100">
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{kr.title}</span>
+          <span className="text-sm font-medium">{kr.perfOkrKeyResultTitle}</span>
           <Chip size="md" radius="md" color={statusConfig.color} variant="bordered">
             {statusConfig.label}
           </Chip>
@@ -441,7 +441,7 @@ function KeyResultRow({ kr, hook, editable }) {
               size="md"
               radius="md"
               variant="bordered"
-              onPress={() => hook.handleOpenKrForm(kr.objectiveId, kr)}
+              onPress={() => hook.handleOpenKrForm(kr.perfOkrKeyResultObjectiveId, kr)}
             >
               <Pencil className="w-3 h-3" />
             </Button>
@@ -453,7 +453,7 @@ function KeyResultRow({ kr, hook, editable }) {
               radius="md"
               variant="bordered"
               color="danger"
-              onPress={() => hook.handleDeleteKr(kr.id)}
+              onPress={() => hook.handleDeleteKr(kr.perfOkrKeyResultId)}
             >
               <Trash2 className="w-3 h-3" />
             </Button>
@@ -480,8 +480,8 @@ function ObjectiveModal({ hook }) {
             <Input
               label="ชื่อ Objective"
               placeholder="เช่น เพิ่มยอดขายไตรมาส 1"
-              value={objectiveForm.title}
-              onValueChange={(v) => setObjectiveForm((f) => ({ ...f, title: v }))}
+              value={objectiveForm.perfOkrObjectiveTitle}
+              onValueChange={(v) => setObjectiveForm((f) => ({ ...f, perfOkrObjectiveTitle: v }))}
               isRequired
               variant="bordered"
               size="md"
@@ -491,8 +491,8 @@ function ObjectiveModal({ hook }) {
             <Textarea
               label="รายละเอียด"
               placeholder="อธิบายเป้าหมาย..."
-              value={objectiveForm.description}
-              onValueChange={(v) => setObjectiveForm((f) => ({ ...f, description: v }))}
+              value={objectiveForm.perfOkrObjectiveDescription}
+              onValueChange={(v) => setObjectiveForm((f) => ({ ...f, perfOkrObjectiveDescription: v }))}
               variant="bordered"
               size="md"
               radius="md"
@@ -501,8 +501,8 @@ function ObjectiveModal({ hook }) {
             <div className="flex gap-4">
               <Select
                 label="ปี"
-                selectedKeys={[objectiveForm.year]}
-                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, year: [...keys][0] }))}
+                selectedKeys={[objectiveForm.perfOkrObjectiveYear]}
+                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, perfOkrObjectiveYear: [...keys][0] }))}
                 className="flex-1"
                 isDisabled={!!editingObjective}
                 variant="bordered"
@@ -516,8 +516,8 @@ function ObjectiveModal({ hook }) {
               </Select>
               <Select
                 label="ไตรมาส"
-                selectedKeys={[objectiveForm.quarter]}
-                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, quarter: [...keys][0] }))}
+                selectedKeys={[objectiveForm.perfOkrObjectiveQuarter]}
+                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, perfOkrObjectiveQuarter: [...keys][0] }))}
                 className="flex-1"
                 isDisabled={!!editingObjective}
                 variant="bordered"
@@ -531,8 +531,8 @@ function ObjectiveModal({ hook }) {
               </Select>
               <Select
                 label="การมองเห็น"
-                selectedKeys={[objectiveForm.visibility]}
-                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, visibility: [...keys][0] }))}
+                selectedKeys={[objectiveForm.perfOkrObjectiveVisibility]}
+                onSelectionChange={(keys) => setObjectiveForm((f) => ({ ...f, perfOkrObjectiveVisibility: [...keys][0] }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -582,8 +582,8 @@ function KrModal({ hook }) {
             <Input
               label="ชื่อ Key Result"
               placeholder="เช่น ปิดการขายใหม่ 10 ราย"
-              value={krForm.title}
-              onValueChange={(v) => setKrForm((f) => ({ ...f, title: v }))}
+              value={krForm.perfOkrKeyResultTitle}
+              onValueChange={(v) => setKrForm((f) => ({ ...f, perfOkrKeyResultTitle: v }))}
               isRequired
               variant="bordered"
               size="md"
@@ -593,8 +593,8 @@ function KrModal({ hook }) {
             <div className="flex gap-4">
               <Select
                 label="ประเภทตัวชี้วัด"
-                selectedKeys={[krForm.metricType]}
-                onSelectionChange={(keys) => setKrForm((f) => ({ ...f, metricType: [...keys][0] }))}
+                selectedKeys={[krForm.perfOkrKeyResultMetricType]}
+                onSelectionChange={(keys) => setKrForm((f) => ({ ...f, perfOkrKeyResultMetricType: [...keys][0] }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -608,8 +608,8 @@ function KrModal({ hook }) {
               <Input
                 label="หน่วย"
                 placeholder="เช่น ราย, บาท"
-                value={krForm.unit}
-                onValueChange={(v) => setKrForm((f) => ({ ...f, unit: v }))}
+                value={krForm.perfOkrKeyResultUnit}
+                onValueChange={(v) => setKrForm((f) => ({ ...f, perfOkrKeyResultUnit: v }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -621,8 +621,8 @@ function KrModal({ hook }) {
               <Input
                 label="ค่าเริ่มต้น"
                 type="number"
-                value={krForm.startValue}
-                onValueChange={(v) => setKrForm((f) => ({ ...f, startValue: v }))}
+                value={krForm.perfOkrKeyResultStartValue}
+                onValueChange={(v) => setKrForm((f) => ({ ...f, perfOkrKeyResultStartValue: v }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -632,8 +632,8 @@ function KrModal({ hook }) {
               <Input
                 label="เป้าหมาย"
                 type="number"
-                value={krForm.targetValue}
-                onValueChange={(v) => setKrForm((f) => ({ ...f, targetValue: v }))}
+                value={krForm.perfOkrKeyResultTargetValue}
+                onValueChange={(v) => setKrForm((f) => ({ ...f, perfOkrKeyResultTargetValue: v }))}
                 className="flex-1"
                 isRequired
                 variant="bordered"
@@ -644,8 +644,8 @@ function KrModal({ hook }) {
               <Input
                 label="น้ำหนัก"
                 type="number"
-                value={krForm.weight}
-                onValueChange={(v) => setKrForm((f) => ({ ...f, weight: v }))}
+                value={krForm.perfOkrKeyResultWeight}
+                onValueChange={(v) => setKrForm((f) => ({ ...f, perfOkrKeyResultWeight: v }))}
                 className="flex-1"
                 variant="bordered"
                 size="md"
@@ -682,17 +682,17 @@ function CheckinModal({ hook }) {
 
   if (!checkinKr) return null;
 
-  const displayTarget = `${checkinKr.targetValue}${checkinKr.unit ? ` ${checkinKr.unit}` : ""}`;
+  const displayTarget = `${checkinKr.perfOkrKeyResultTargetValue}${checkinKr.perfOkrKeyResultUnit ? ` ${checkinKr.perfOkrKeyResultUnit}` : ""}`;
 
   return (
     <Modal isOpen={checkinModal.isOpen} onClose={checkinModal.onClose} size="lg">
       <ModalContent>
-        <ModalHeader>Check-in: {checkinKr.title}</ModalHeader>
+        <ModalHeader>Check-in: {checkinKr.perfOkrKeyResultTitle}</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
             <div className="text-sm text-default-500">
               เป้าหมาย: <span className="font-semibold">{displayTarget}</span>
-              {" | "}ค่าปัจจุบัน: <span className="font-semibold">{checkinKr.currentValue}{checkinKr.unit ? ` ${checkinKr.unit}` : ""}</span>
+              {" | "}ค่าปัจจุบัน: <span className="font-semibold">{checkinKr.perfOkrKeyResultCurrentValue}{checkinKr.perfOkrKeyResultUnit ? ` ${checkinKr.perfOkrKeyResultUnit}` : ""}</span>
             </div>
             <Input
               label="ค่าใหม่"

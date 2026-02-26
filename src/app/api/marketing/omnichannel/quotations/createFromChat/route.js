@@ -28,10 +28,10 @@ export async function POST(request) {
   try {
     // Check for existing quotation (prevent duplicates)
     const { data: existing } = await supabase
-      .from("omQuotations")
-      .select("quotationId")
-      .eq("quotationConversationId", conversationId)
-      .neq("quotationStatus", "cancelled")
+      .from("omQuotation")
+      .select("omQuotationId")
+      .eq("omQuotationConversationId", conversationId)
+      .neq("omQuotationStatus", "cancelled")
       .limit(1)
       .maybeSingle();
 
@@ -42,9 +42,9 @@ export async function POST(request) {
 
     // Get conversation to find contactId
     const { data: conversation } = await supabase
-      .from("omConversations")
-      .select("conversationContactId")
-      .eq("conversationId", conversationId)
+      .from("omConversation")
+      .select("omConversationContactId")
+      .eq("omConversationId", conversationId)
       .single();
 
     if (!conversation) {
@@ -53,10 +53,10 @@ export async function POST(request) {
 
     // Get messages for extraction
     const { data: messages } = await supabase
-      .from("omMessages")
-      .select("messageSenderType, messageContent")
-      .eq("messageConversationId", conversationId)
-      .order("messageCreatedAt", { ascending: true });
+      .from("omMessage")
+      .select("omMessageSenderType, omMessageContent")
+      .eq("omMessageConversationId", conversationId)
+      .order("omMessageCreatedAt", { ascending: true });
 
     if (!messages?.length) {
       return Response.json({ error: "No messages found" }, { status: 400 });
@@ -69,16 +69,16 @@ export async function POST(request) {
 
     // Create quotation
     const { data: quotation, error: qError } = await supabase
-      .from("omQuotations")
+      .from("omQuotation")
       .insert({
-        quotationConversationId: conversationId,
-        quotationContactId: conversation.conversationContactId,
-        quotationNumber: generateQuotationNumber(),
-        quotationStatus: "draft",
-        quotationCustomerName: orderData.customerName || null,
-        quotationCustomerPhone: orderData.customerPhone || null,
-        quotationCustomerAddress: orderData.customerAddress || null,
-        quotationPaymentMethod: orderData.paymentMethod || null,
+        omQuotationConversationId: conversationId,
+        omQuotationContactId: conversation.omConversationContactId,
+        omQuotationNumber: generateQuotationNumber(),
+        omQuotationStatus: "draft",
+        omQuotationCustomerName: orderData.customerName || null,
+        omQuotationCustomerPhone: orderData.customerPhone || null,
+        omQuotationCustomerAddress: orderData.customerAddress || null,
+        omQuotationPaymentMethod: orderData.paymentMethod || null,
       })
       .select()
       .single();
@@ -89,8 +89,8 @@ export async function POST(request) {
     if (orderData.items?.length > 0) {
       // Fetch price list for auto-pricing
       const { data: priceList } = await supabase
-        .from("omPriceList")
-        .select("priceItemName, priceUnitPrice");
+        .from("omPriceItem")
+        .select("omPriceItemName, omPriceItemUnitPrice");
 
       const lines = orderData.items.map((item, i) => {
         // Try to match product name with price list
@@ -98,34 +98,34 @@ export async function POST(request) {
         const itemName = (item.productName || "").toLowerCase();
         if (priceList?.length && itemName) {
           const match = priceList.find(
-            (p) => p.priceItemName && p.priceItemName.toLowerCase().includes(itemName) ||
-              itemName.includes((p.priceItemName || "").toLowerCase())
+            (p) => p.omPriceItemName && p.omPriceItemName.toLowerCase().includes(itemName) ||
+              itemName.includes((p.omPriceItemName || "").toLowerCase())
           );
-          if (match && Number(match.priceUnitPrice) > 0) {
-            unitPrice = Number(match.priceUnitPrice);
+          if (match && Number(match.omPriceItemUnitPrice) > 0) {
+            unitPrice = Number(match.omPriceItemUnitPrice);
           }
         }
 
         const qty = item.quantity || 1;
         return {
-          lineQuotationId: quotation.quotationId,
-          lineOrder: i + 1,
-          lineProductName: item.productName || "สินค้า",
-          lineVariant: item.variant || null,
-          lineQuantity: qty,
-          lineUnitPrice: unitPrice,
-          lineAmount: qty * unitPrice,
+          omQuotationLineQuotationId: quotation.omQuotationId,
+          omQuotationLineOrder: i + 1,
+          omQuotationLineProductName: item.productName || "สินค้า",
+          omQuotationLineVariant: item.variant || null,
+          omQuotationLineQuantity: qty,
+          omQuotationLineUnitPrice: unitPrice,
+          omQuotationLineAmount: qty * unitPrice,
         };
       });
 
-      await supabase.from("omQuotationLines").insert(lines);
+      await supabase.from("omQuotationLine").insert(lines);
     }
 
-    console.log("[Quotation] Created:", quotation.quotationNumber);
+    console.log("[Quotation] Created:", quotation.omQuotationNumber);
     return Response.json({
       status: "created",
-      quotationId: quotation.quotationId,
-      quotationNumber: quotation.quotationNumber,
+      quotationId: quotation.omQuotationId,
+      quotationNumber: quotation.omQuotationNumber,
     });
   } catch (error) {
     console.error("[Quotation] Error:", error.message);

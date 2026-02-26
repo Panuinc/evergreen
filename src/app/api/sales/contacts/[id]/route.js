@@ -7,9 +7,9 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   const { data, error } = await supabase
-    .from("crmContacts")
-    .select("*, crmAccounts(accountName)")
-    .eq("contactId", id)
+    .from("crmContact")
+    .select("*, crmAccount(crmAccountName)")
+    .eq("crmContactId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -24,9 +24,9 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmContacts")
+    .from("crmContact")
     .update(body)
-    .eq("contactId", id)
+    .eq("crmContactId", id)
     .select()
     .single();
 
@@ -41,9 +41,9 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("crmContacts")
+    .from("crmContact")
     .delete()
-    .eq("contactId", id);
+    .eq("crmContactId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

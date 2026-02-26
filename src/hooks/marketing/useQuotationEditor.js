@@ -34,23 +34,23 @@ export function useQuotationEditor(id) {
   };
 
   const calcTotal = () =>
-    lines.reduce((sum, l) => sum + (l.lineQuantity || 0) * (l.lineUnitPrice || 0), 0);
+    lines.reduce((sum, l) => sum + (l.omQuotationLineQuantity || 0) * (l.omQuotationLineUnitPrice || 0), 0);
 
   const handleSave = async () => {
     try {
       setSaving(true);
       await updateQuotation(id, {
-        quotationCustomerName: quotation.quotationCustomerName,
-        quotationCustomerPhone: quotation.quotationCustomerPhone,
-        quotationCustomerAddress: quotation.quotationCustomerAddress,
-        quotationPaymentMethod: quotation.quotationPaymentMethod,
-        quotationNotes: quotation.quotationNotes,
+        omQuotationCustomerName: quotation.omQuotationCustomerName,
+        omQuotationCustomerPhone: quotation.omQuotationCustomerPhone,
+        omQuotationCustomerAddress: quotation.omQuotationCustomerAddress,
+        omQuotationPaymentMethod: quotation.omQuotationPaymentMethod,
+        omQuotationNotes: quotation.omQuotationNotes,
         lines: lines.map((l) => ({
-          lineId: l.lineId,
-          lineProductName: l.lineProductName,
-          lineVariant: l.lineVariant,
-          lineQuantity: l.lineQuantity,
-          lineUnitPrice: l.lineUnitPrice,
+          omQuotationLineId: l.omQuotationLineId,
+          omQuotationLineProductName: l.omQuotationLineProductName,
+          omQuotationLineVariant: l.omQuotationLineVariant,
+          omQuotationLineQuantity: l.omQuotationLineQuantity,
+          omQuotationLineUnitPrice: l.omQuotationLineUnitPrice,
         })),
       });
       toast.success("บันทึกเรียบร้อย");
@@ -68,17 +68,17 @@ export function useQuotationEditor(id) {
       // Auto-save before submit
       if (action === "submit") {
         await updateQuotation(id, {
-          quotationCustomerName: quotation.quotationCustomerName,
-          quotationCustomerPhone: quotation.quotationCustomerPhone,
-          quotationCustomerAddress: quotation.quotationCustomerAddress,
-          quotationPaymentMethod: quotation.quotationPaymentMethod,
-          quotationNotes: quotation.quotationNotes,
+          omQuotationCustomerName: quotation.omQuotationCustomerName,
+          omQuotationCustomerPhone: quotation.omQuotationCustomerPhone,
+          omQuotationCustomerAddress: quotation.omQuotationCustomerAddress,
+          omQuotationPaymentMethod: quotation.omQuotationPaymentMethod,
+          omQuotationNotes: quotation.omQuotationNotes,
           lines: lines.map((l) => ({
-            lineId: l.lineId,
-            lineProductName: l.lineProductName,
-            lineVariant: l.lineVariant,
-            lineQuantity: l.lineQuantity,
-            lineUnitPrice: l.lineUnitPrice,
+            omQuotationLineId: l.omQuotationLineId,
+            omQuotationLineProductName: l.omQuotationLineProductName,
+            omQuotationLineVariant: l.omQuotationLineVariant,
+            omQuotationLineQuantity: l.omQuotationLineQuantity,
+            omQuotationLineUnitPrice: l.omQuotationLineUnitPrice,
           })),
         });
       }

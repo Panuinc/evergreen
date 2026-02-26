@@ -15,8 +15,8 @@ export function useActions() {
   const [loading, setLoading] = useState(true);
   const [editingAction, setEditingAction] = useState(null);
   const [formData, setFormData] = useState({
-    actionName: "",
-    actionDescription: "",
+    rbacActionName: "",
+    rbacActionDescription: "",
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -40,25 +40,25 @@ export function useActions() {
     if (action) {
       setEditingAction(action);
       setFormData({
-        actionName: action.actionName,
-        actionDescription: action.actionDescription || "",
+        rbacActionName: action.rbacActionName,
+        rbacActionDescription: action.rbacActionDescription || "",
       });
     } else {
       setEditingAction(null);
-      setFormData({ actionName: "", actionDescription: "" });
+      setFormData({ rbacActionName: "", rbacActionDescription: "" });
     }
     onOpen();
   };
 
   const handleSave = async () => {
-    if (!formData.actionName.trim()) {
+    if (!formData.rbacActionName.trim()) {
       toast.error("กรุณาระบุชื่อแอคชัน");
       return;
     }
 
     try {
       if (editingAction) {
-        await updateAction(editingAction.actionId, formData);
+        await updateAction(editingAction.rbacActionId, formData);
         toast.success("อัปเดตแอคชันสำเร็จ");
       } else {
         await createAction(formData);
@@ -73,7 +73,7 @@ export function useActions() {
 
   const handleDelete = async (action) => {
     try {
-      await deleteAction(action.actionId);
+      await deleteAction(action.rbacActionId);
       toast.success("ลบแอคชันสำเร็จ");
       loadActions();
     } catch (error) {

@@ -10,51 +10,51 @@ function fmtCurrency(v) {
 }
 
 const columns = [
-  { name: "เลขที่ใบสั่งผลิต", uid: "id", sortable: true },
-  { name: "สถานะ", uid: "status", sortable: true },
-  { name: "รายละเอียด", uid: "description", sortable: true },
-  { name: "รายละเอียด 2", uid: "description2" },
-  { name: "สินค้าที่ผลิต", uid: "sourceNo", sortable: true },
-  { name: "Routing", uid: "routingNo", sortable: true },
-  { name: "จำนวน", uid: "quantity", sortable: true },
+  { name: "เลขที่ใบสั่งผลิต", uid: "bcProductionOrderExternalId", sortable: true },
+  { name: "สถานะ", uid: "bcProductionOrderStatus", sortable: true },
+  { name: "รายละเอียด", uid: "bcProductionOrderDescription", sortable: true },
+  { name: "รายละเอียด 2", uid: "bcProductionOrderDescription2" },
+  { name: "สินค้าที่ผลิต", uid: "bcProductionOrderSourceNo", sortable: true },
+  { name: "Routing", uid: "bcProductionOrderRoutingNo", sortable: true },
+  { name: "จำนวน", uid: "bcProductionOrderQuantity", sortable: true },
   { name: "ผลิตได้", uid: "outputQty", sortable: true },
   { name: "ต้นทุนผลิต", uid: "consumptionCost", sortable: true },
   { name: "ราคาขาย/ชิ้น", uid: "unitPrice", sortable: true },
   { name: "รายได้", uid: "revenue", sortable: true },
   { name: "กำไร/ขาดทุน", uid: "profit", sortable: true },
   { name: "Margin", uid: "profitMargin", sortable: true },
-  { name: "รหัสแผนก", uid: "dimension1Code", sortable: true },
-  { name: "ชื่อแผนก", uid: "dimension1Name", sortable: true },
-  { name: "รหัสโครงการ", uid: "dimension2Code", sortable: true },
-  { name: "ชื่อโครงการ", uid: "dimension2Name", sortable: true },
-  { name: "คลัง", uid: "locationCode", sortable: true },
-  { name: "วันเริ่ม", uid: "startingDateTime", sortable: true },
-  { name: "วันสิ้นสุด", uid: "endingDateTime", sortable: true },
-  { name: "กำหนดส่ง", uid: "dueDate", sortable: true },
-  { name: "Consumption คงเหลือ", uid: "remainingConsumption", sortable: true },
-  { name: "ผู้รับผิดชอบ", uid: "assignedUserId", sortable: true },
-  { name: "วันที่เสร็จ", uid: "finishedDate", sortable: true },
+  { name: "รหัสแผนก", uid: "bcProductionOrderDimension1Code", sortable: true },
+  { name: "ชื่อแผนก", uid: "bcProductionOrderDimension1Name", sortable: true },
+  { name: "รหัสโครงการ", uid: "bcProductionOrderDimension2Code", sortable: true },
+  { name: "ชื่อโครงการ", uid: "bcProductionOrderDimension2Name", sortable: true },
+  { name: "คลัง", uid: "bcProductionOrderLocationCode", sortable: true },
+  { name: "วันเริ่ม", uid: "bcProductionOrderStartingDateTime", sortable: true },
+  { name: "วันสิ้นสุด", uid: "bcProductionOrderEndingDateTime", sortable: true },
+  { name: "กำหนดส่ง", uid: "bcProductionOrderDueDate", sortable: true },
+  { name: "Consumption คงเหลือ", uid: "bcProductionOrderRemainingConsumption", sortable: true },
+  { name: "ผู้รับผิดชอบ", uid: "bcProductionOrderAssignedUserId", sortable: true },
+  { name: "วันที่เสร็จ", uid: "bcProductionOrderFinishedDate", sortable: true },
   { name: "ระยะเวลา (วัน)", uid: "durationDays", sortable: true },
-  { name: "Search Description", uid: "searchDescription" },
-  { name: "Synced At", uid: "syncedAt", sortable: true },
+  { name: "Search Description", uid: "bcProductionOrderSearchDescription" },
+  { name: "Synced At", uid: "bcProductionOrderSyncedAt", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "id",
-  "status",
-  "description",
-  "sourceNo",
-  "quantity",
+  "bcProductionOrderExternalId",
+  "bcProductionOrderStatus",
+  "bcProductionOrderDescription",
+  "bcProductionOrderSourceNo",
+  "bcProductionOrderQuantity",
   "outputQty",
   "consumptionCost",
   "unitPrice",
   "revenue",
   "profit",
   "profitMargin",
-  "dimension1Name",
-  "dimension2Name",
-  "dueDate",
-  "finishedDate",
+  "bcProductionOrderDimension1Name",
+  "bcProductionOrderDimension2Name",
+  "bcProductionOrderDueDate",
+  "bcProductionOrderFinishedDate",
   "durationDays",
 ];
 
@@ -66,14 +66,14 @@ const statusColorMap = {
 };
 
 const searchKeys = [
-  "id",
-  "description",
-  "sourceNo",
-  "routingNo",
-  "dimension1Code",
-  "dimension2Code",
-  "locationCode",
-  "assignedUserId",
+  "bcProductionOrderExternalId",
+  "bcProductionOrderDescription",
+  "bcProductionOrderSourceNo",
+  "bcProductionOrderRoutingNo",
+  "bcProductionOrderDimension1Code",
+  "bcProductionOrderDimension2Code",
+  "bcProductionOrderLocationCode",
+  "bcProductionOrderAssignedUserId",
 ];
 
 const statusOptions = [
@@ -90,9 +90,9 @@ export default function ProductionOrdersPage() {
     () =>
       data.map((r) => {
         let durationDays = null;
-        if (r.startingDateTime && r.finishedDate) {
-          const start = new Date(r.startingDateTime);
-          const end = new Date(r.finishedDate);
+        if (r.bcProductionOrderStartingDateTime && r.bcProductionOrderFinishedDate) {
+          const start = new Date(r.bcProductionOrderStartingDateTime);
+          const end = new Date(r.bcProductionOrderFinishedDate);
           durationDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
         }
         return { ...r, durationDays };
@@ -101,11 +101,11 @@ export default function ProductionOrdersPage() {
   );
 
   const wpcData = useMemo(
-    () => enrichedData.filter((r) => r.dimension1Code === "WPC"),
+    () => enrichedData.filter((r) => r.bcProductionOrderDimension1Code === "WPC"),
     [enrichedData],
   );
   const otherData = useMemo(
-    () => enrichedData.filter((r) => r.dimension1Code !== "WPC"),
+    () => enrichedData.filter((r) => r.bcProductionOrderDimension1Code !== "WPC"),
     [enrichedData],
   );
 
@@ -117,29 +117,29 @@ export default function ProductionOrdersPage() {
 
   const renderCell = useCallback((row, columnKey) => {
     switch (columnKey) {
-      case "status":
-        return row.status ? (
+      case "bcProductionOrderStatus":
+        return row.bcProductionOrderStatus ? (
           <Chip
             size="sm"
             variant="flat"
-            color={statusColorMap[row.status] || "default"}
+            color={statusColorMap[row.bcProductionOrderStatus] || "default"}
           >
-            {row.status}
+            {row.bcProductionOrderStatus}
           </Chip>
         ) : (
           "-"
         );
-      case "startingDateTime":
-      case "endingDateTime":
-      case "syncedAt":
+      case "bcProductionOrderStartingDateTime":
+      case "bcProductionOrderEndingDateTime":
+      case "bcProductionOrderSyncedAt":
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleString("th-TH", {
               dateStyle: "short",
               timeStyle: "short",
             })
           : "-";
-      case "dueDate":
-      case "finishedDate":
+      case "bcProductionOrderDueDate":
+      case "bcProductionOrderFinishedDate":
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleDateString("th-TH")
           : "-";
@@ -147,9 +147,9 @@ export default function ProductionOrdersPage() {
         return row.durationDays != null
           ? `${row.durationDays} วัน`
           : "-";
-      case "quantity":
+      case "bcProductionOrderQuantity":
       case "outputQty":
-      case "remainingConsumption":
+      case "bcProductionOrderRemainingConsumption":
         return row[columnKey] != null
           ? Number(row[columnKey]).toLocaleString("th-TH")
           : "-";
@@ -184,9 +184,9 @@ export default function ProductionOrdersPage() {
             {row.profitMargin}%
           </Chip>
         );
-      case "description":
-      case "description2":
-      case "searchDescription":
+      case "bcProductionOrderDescription":
+      case "bcProductionOrderDescription2":
+      case "bcProductionOrderSearchDescription":
         return (
           <span className="max-w-75 truncate block">
             {row[columnKey] || "-"}
@@ -208,13 +208,13 @@ export default function ProductionOrdersPage() {
             columns={columns}
             data={wpcData}
             renderCell={renderCell}
-            rowKey="id"
+            rowKey="bcProductionOrderId"
             isLoading={loading}
             initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
             searchPlaceholder="ค้นหาด้วยเลขที่ใบสั่งผลิต, รายละเอียด, สินค้า..."
             searchKeys={searchKeys}
             emptyContent="ไม่พบข้อมูลใบสั่งผลิต WPC"
-            statusField="status"
+            statusField="bcProductionOrderStatus"
             statusOptions={statusOptions}
             getRowClassName={getRowClassName}
           />
@@ -227,13 +227,13 @@ export default function ProductionOrdersPage() {
             columns={columns}
             data={otherData}
             renderCell={renderCell}
-            rowKey="id"
+            rowKey="bcProductionOrderId"
             isLoading={loading}
             initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
             searchPlaceholder="ค้นหาด้วยเลขที่ใบสั่งผลิต, รายละเอียด, สินค้า..."
             searchKeys={searchKeys}
             emptyContent="ไม่พบข้อมูลใบสั่งผลิต"
-            statusField="status"
+            statusField="bcProductionOrderStatus"
             statusOptions={statusOptions}
             getRowClassName={getRowClassName}
           />

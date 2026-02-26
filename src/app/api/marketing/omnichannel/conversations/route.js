@@ -11,18 +11,18 @@ export async function GET(request) {
   const search = searchParams.get("search");
 
   let query = supabase
-    .from("omConversations")
-    .select("*, omContacts(*)");
+    .from("omConversation")
+    .select("*, omContact(*)");
 
   if (status && status !== "all") {
-    query = query.eq("conversationStatus", status);
+    query = query.eq("omConversationStatus", status);
   }
 
   if (channel && channel !== "all") {
-    query = query.eq("conversationChannelType", channel);
+    query = query.eq("omConversationChannelType", channel);
   }
 
-  const { data, error } = await query.order("conversationLastMessageAt", {
+  const { data, error } = await query.order("omConversationLastMessageAt", {
     ascending: false,
     nullsFirst: false,
   });
@@ -34,8 +34,8 @@ export async function GET(request) {
   if (search) {
     const term = search.toLowerCase();
     result = result.filter((c) =>
-      c.omContacts?.contactDisplayName?.toLowerCase().includes(term) ||
-      c.conversationLastMessagePreview?.toLowerCase().includes(term)
+      c.omContact?.omContactDisplayName?.toLowerCase().includes(term) ||
+      c.omConversationLastMessagePreview?.toLowerCase().includes(term)
     );
   }
 

@@ -9,16 +9,16 @@ export async function GET(request) {
   const search = searchParams.get("search");
 
   let query = supabase
-    .from("crmContacts")
-    .select("*, crmAccounts(accountName)");
+    .from("crmContact")
+    .select("*, crmAccount(crmAccountName)");
 
   if (search) {
     query = query.or(
-      `contactFirstName.ilike.%${search}%,contactLastName.ilike.%${search}%,contactEmail.ilike.%${search}%,contactPhone.ilike.%${search}%`
+      `crmContactFirstName.ilike.%${search}%,crmContactLastName.ilike.%${search}%,crmContactEmail.ilike.%${search}%,crmContactPhone.ilike.%${search}%`
     );
   }
 
-  const { data, error } = await query.order("contactCreatedAt", {
+  const { data, error } = await query.order("crmContactCreatedAt", {
     ascending: false,
   });
 
@@ -33,7 +33,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmContacts")
+    .from("crmContact")
     .insert([body])
     .select()
     .single();

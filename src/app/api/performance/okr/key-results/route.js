@@ -15,26 +15,26 @@ export async function POST(request) {
 
   // Get current max sortOrder
   const { data: existing } = await supabase
-    .from("okr_key_results")
-    .select("sortOrder")
-    .eq("objectiveId", objectiveId)
-    .order("sortOrder", { ascending: false })
+    .from("perfOkrKeyResult")
+    .select("perfOkrKeyResultSortOrder")
+    .eq("perfOkrKeyResultObjectiveId", objectiveId)
+    .order("perfOkrKeyResultSortOrder", { ascending: false })
     .limit(1);
 
-  const nextSort = existing && existing.length > 0 ? existing[0].sortOrder + 1 : 0;
+  const nextSort = existing && existing.length > 0 ? existing[0].perfOkrKeyResultSortOrder + 1 : 0;
 
   const { data, error } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .insert([{
-      objectiveId,
-      title,
-      metricType: metricType || "number",
-      startValue: startValue || 0,
-      targetValue,
-      currentValue: startValue || 0,
-      unit: unit || null,
-      weight: weight || 1,
-      sortOrder: nextSort,
+      perfOkrKeyResultObjectiveId: objectiveId,
+      perfOkrKeyResultTitle: title,
+      perfOkrKeyResultMetricType: metricType || "number",
+      perfOkrKeyResultStartValue: startValue || 0,
+      perfOkrKeyResultTargetValue: targetValue,
+      perfOkrKeyResultCurrentValue: startValue || 0,
+      perfOkrKeyResultUnit: unit || null,
+      perfOkrKeyResultWeight: weight || 1,
+      perfOkrKeyResultSortOrder: nextSort,
     }])
     .select()
     .single();
@@ -49,13 +49,13 @@ export async function POST(request) {
 
 async function updateObjectiveProgress(supabase, objectiveId) {
   const { data: krs } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .select("*")
-    .eq("objectiveId", objectiveId);
+    .eq("perfOkrKeyResultObjectiveId", objectiveId);
 
   const progress = computeObjectiveProgress(krs || []);
   await supabase
-    .from("okr_objectives")
-    .update({ progress, updatedAt: new Date().toISOString() })
-    .eq("id", objectiveId);
+    .from("perfOkrObjective")
+    .update({ perfOkrObjectiveProgress: progress, perfOkrObjectiveUpdatedAt: new Date().toISOString() })
+    .eq("perfOkrObjectiveId", objectiveId);
 }

@@ -8,15 +8,15 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
 
-  let query = supabase.from("drivers").select("*");
+  let query = supabase.from("tmsDriver").select("*");
 
   if (search) {
     query = query.or(
-      `driverFirstName.ilike.%${search}%,driverLastName.ilike.%${search}%,driverPhone.ilike.%${search}%`
+      `tmsDriverFirstName.ilike.%${search}%,tmsDriverLastName.ilike.%${search}%,tmsDriverPhone.ilike.%${search}%`
     );
   }
 
-  const { data, error } = await query.order("driverCreatedAt", {
+  const { data, error } = await query.order("tmsDriverCreatedAt", {
     ascending: false,
   });
 
@@ -31,7 +31,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("drivers")
+    .from("tmsDriver")
     .insert([body])
     .select()
     .single();

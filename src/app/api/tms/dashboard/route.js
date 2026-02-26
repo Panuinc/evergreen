@@ -6,10 +6,10 @@ export async function GET() {
   const { supabase } = auth;
 
   const [vehiclesRes, shipmentsRes, fuelRes, mainRes] = await Promise.all([
-    supabase.from("vehicles").select("vehicleId, vehicleName, vehicleStatus"),
-    supabase.from("shipments").select("shipmentStatus, shipmentDate, shipmentVehicleId"),
-    supabase.from("fuelLogs").select("fuelLogTotalCost, fuelLogDate"),
-    supabase.from("maintenances").select("maintenanceCost, maintenanceStatus, maintenanceDate"),
+    supabase.from("tmsVehicle").select("tmsVehicleId, tmsVehicleName, tmsVehicleStatus"),
+    supabase.from("tmsShipment").select("tmsShipmentStatus, tmsShipmentDate, tmsShipmentVehicleId"),
+    supabase.from("tmsFuelLog").select("tmsFuelLogTotalCost, tmsFuelLogDate"),
+    supabase.from("tmsMaintenance").select("tmsMaintenanceCost, tmsMaintenanceStatus, tmsMaintenanceDate"),
   ]);
 
   if (vehiclesRes.error || shipmentsRes.error || fuelRes.error || mainRes.error) {
@@ -27,17 +27,17 @@ export async function GET() {
   // Vehicle stats
   const totalVehicles = vehicles.length;
   const availableVehicles = vehicles.filter(
-    (v) => v.vehicleStatus === "available"
+    (v) => v.tmsVehicleStatus === "available"
   ).length;
   const inUseVehicles = vehicles.filter(
-    (v) => v.vehicleStatus === "in_use"
+    (v) => v.tmsVehicleStatus === "in_use"
   ).length;
 
   // Shipment stats
   const totalShipments = shipments.length;
   const activeStatuses = ["confirmed", "dispatched", "in_transit", "arrived", "delivered"];
   const activeShipments = shipments.filter((s) =>
-    activeStatuses.includes(s.shipmentStatus)
+    activeStatuses.includes(s.tmsShipmentStatus)
   ).length;
 
   const now = new Date();
@@ -46,20 +46,20 @@ export async function GET() {
     .split("T")[0];
   const completedThisMonth = shipments.filter(
     (s) =>
-      s.shipmentStatus === "pod_confirmed" &&
-      s.shipmentDate >= startOfMonth
+      s.tmsShipmentStatus === "pod_confirmed" &&
+      s.tmsShipmentDate >= startOfMonth
   ).length;
 
   // Fuel cost this month
   const totalFuelCostThisMonth = fuelLogs
-    .filter((f) => f.fuelLogDate >= startOfMonth)
-    .reduce((sum, f) => sum + (parseFloat(f.fuelLogTotalCost) || 0), 0);
+    .filter((f) => f.tmsFuelLogDate >= startOfMonth)
+    .reduce((sum, f) => sum + (parseFloat(f.tmsFuelLogTotalCost) || 0), 0);
 
   // Pending maintenance
   const pendingMaintenance = maintenances.filter(
     (m) =>
-      m.maintenanceStatus === "scheduled" ||
-      m.maintenanceStatus === "in_progress"
+      m.tmsMaintenanceStatus === "scheduled" ||
+      m.tmsMaintenanceStatus === "in_progress"
   ).length;
 
   // --- Chart Data ---
@@ -67,7 +67,7 @@ export async function GET() {
   // Shipment status distribution
   const statusCounts = {};
   shipments.forEach((s) => {
-    statusCounts[s.shipmentStatus] = (statusCounts[s.shipmentStatus] || 0) + 1;
+    statusCounts[s.tmsShipmentStatus] = (statusCounts[s.tmsShipmentStatus] || 0) + 1;
   });
   const shipmentStatusDistribution = Object.entries(statusCounts).map(
     ([status, count]) => ({ status, count })
@@ -78,7 +78,7 @@ export async function GET() {
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const count = shipments.filter((s) => s.shipmentDate && s.shipmentDate.startsWith(monthKey)).length;
+    const count = shipments.filter((s) => s.tmsShipmentDate && s.tmsShipmentDate.startsWith(monthKey)).length;
     monthlyShipmentTrend.push({ month: monthKey, count });
   }
 
@@ -88,8 +88,8 @@ export async function GET() {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const totalCost = fuelLogs
-      .filter((f) => f.fuelLogDate && f.fuelLogDate.startsWith(monthKey))
-      .reduce((sum, f) => sum + (parseFloat(f.fuelLogTotalCost) || 0), 0);
+      .filter((f) => f.tmsFuelLogDate && f.tmsFuelLogDate.startsWith(monthKey))
+      .reduce((sum, f) => sum + (parseFloat(f.tmsFuelLogTotalCost) || 0), 0);
     fuelCostTrend.push({ month: monthKey, totalCost });
   }
 
@@ -99,12 +99,12 @@ export async function GET() {
     .split("T")[0];
   const vehicleMap = {};
   vehicles.forEach((v) => {
-    vehicleMap[v.vehicleId] = v.vehicleName;
+    vehicleMap[v.tmsVehicleId] = v.tmsVehicleName;
   });
   const vehicleUtilization = vehicles.map((v) => ({
-    vehicleName: v.vehicleName,
+    vehicleName: v.tmsVehicleName,
     shipmentCount: shipments.filter(
-      (s) => s.shipmentVehicleId === v.vehicleId && s.shipmentDate >= thirtyDaysAgo
+      (s) => s.tmsShipmentVehicleId === v.tmsVehicleId && s.tmsShipmentDate >= thirtyDaysAgo
     ).length,
   }));
 
@@ -114,8 +114,8 @@ export async function GET() {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const totalCost = maintenances
-      .filter((m) => m.maintenanceDate && m.maintenanceDate.startsWith(monthKey))
-      .reduce((sum, m) => sum + (parseFloat(m.maintenanceCost) || 0), 0);
+      .filter((m) => m.tmsMaintenanceDate && m.tmsMaintenanceDate.startsWith(monthKey))
+      .reduce((sum, m) => sum + (parseFloat(m.tmsMaintenanceCost) || 0), 0);
     maintenanceCostTrend.push({ month: monthKey, totalCost });
   }
 

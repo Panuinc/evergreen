@@ -10,7 +10,7 @@ async function fetchAllLines(supabase) {
   let from = 0;
   while (true) {
     const { data, error } = await supabase
-      .from("bcSalesOrderLines")
+      .from("bcSalesOrderLine")
       .select("*")
       .range(from, from + PAGE - 1);
     if (error) throw new Error(error.message);
@@ -36,59 +36,59 @@ export async function GET(request) {
   try {
     const [rawOrders, rawLines, rawCustomers] = await Promise.all([
       auth.supabase
-        .from("bcSalesOrders")
+        .from("bcSalesOrder")
         .select("*")
-        .eq("salespersonCode", "ONLINE")
-        .order("orderDate", { ascending: false }),
+        .eq("bcSalesOrderSalespersonCode", "ONLINE")
+        .order("bcSalesOrderOrderDate", { ascending: false }),
       fetchAllLines(auth.supabase),
       auth.supabase
-        .from("bcCustomers")
-        .select("number,displayName,contact,phoneNumber")
-        .eq("salespersonCode", "ONLINE"),
+        .from("bcCustomer")
+        .select("bcCustomerNumber,bcCustomerDisplayName,bcCustomerContact,bcCustomerPhoneNumber")
+        .eq("bcCustomerSalespersonCode", "ONLINE"),
     ]);
 
-    // Map Supabase camelCase → OData-style field names (ให้ logic เดิมทำงานได้เลย)
+    // Map Supabase camelCase → OData-style field names
     const orders = (rawOrders.data || []).map((o) => ({
-      No: o.number,
-      Sell_to_Customer_No: o.customerNumber,
-      Sell_to_Customer_Name: o.customerName,
-      Sell_to_Address: o.sellToAddress,
-      Sell_to_City: o.sellToCity,
-      Sell_to_Post_Code: o.sellToPostCode,
-      Ship_to_Name: o.shipToName,
-      Ship_to_Address: o.shipToAddress,
-      Ship_to_City: o.shipToCity,
-      Ship_to_Post_Code: o.shipToPostCode,
-      Order_Date: o.orderDate,
-      Due_Date: o.dueDate,
-      Status: o.status,
-      Completely_Shipped: o.completelyShipped,
-      External_Document_No: o.externalDocumentNumber,
-      Salesperson_Code: o.salespersonCode,
+      No: o.bcSalesOrderNumber,
+      Sell_to_Customer_No: o.bcSalesOrderCustomerNumber,
+      Sell_to_Customer_Name: o.bcSalesOrderCustomerName,
+      Sell_to_Address: o.bcSalesOrderSellToAddress,
+      Sell_to_City: o.bcSalesOrderSellToCity,
+      Sell_to_Post_Code: o.bcSalesOrderSellToPostCode,
+      Ship_to_Name: o.bcSalesOrderShipToName,
+      Ship_to_Address: o.bcSalesOrderShipToAddress,
+      Ship_to_City: o.bcSalesOrderShipToCity,
+      Ship_to_Post_Code: o.bcSalesOrderShipToPostCode,
+      Order_Date: o.bcSalesOrderOrderDate,
+      Due_Date: o.bcSalesOrderDueDate,
+      Status: o.bcSalesOrderStatus,
+      Completely_Shipped: o.bcSalesOrderCompletelyShipped,
+      External_Document_No: o.bcSalesOrderExternalDocumentNumber,
+      Salesperson_Code: o.bcSalesOrderSalespersonCode,
     }));
 
     const orderNos = new Set(orders.map((o) => o.No));
-    const allLines = (rawLines || []).filter((l) => orderNos.has(l.documentNo));
+    const allLines = (rawLines || []).filter((l) => orderNos.has(l.bcSalesOrderLineDocumentNo));
     const lines = allLines.map((l) => ({
-      Document_No: l.documentNo,
-      Line_No: l.lineNo,
-      Type: l.type,
-      No: l.lineObjectNumber,
-      Description: l.description,
-      Quantity: l.quantity,
-      Unit_Price: l.unitPrice,
-      Line_Amount: l.amountIncludingTax,
-      Quantity_Shipped: l.quantityShipped,
-      BWK_Outstanding_Quantity: l.bwkOutstandingQuantity,
-      Unit_of_Measure_Code: l.unitOfMeasureCode,
-      Location_Code: l.locationCode,
+      Document_No: l.bcSalesOrderLineDocumentNo,
+      Line_No: l.bcSalesOrderLineLineNo,
+      Type: l.bcSalesOrderLineType,
+      No: l.bcSalesOrderLineObjectNumber,
+      Description: l.bcSalesOrderLineDescription,
+      Quantity: l.bcSalesOrderLineQuantity,
+      Unit_Price: l.bcSalesOrderLineUnitPrice,
+      Line_Amount: l.bcSalesOrderLineAmountIncludingTax,
+      Quantity_Shipped: l.bcSalesOrderLineQuantityShipped,
+      BWK_Outstanding_Quantity: l.bcSalesOrderLineOutstandingQuantity,
+      Unit_of_Measure_Code: l.bcSalesOrderLineUnitOfMeasureCode,
+      Location_Code: l.bcSalesOrderLineLocationCode,
     }));
 
     const customers = (rawCustomers.data || []).map((c) => ({
-      No: c.number,
-      Name: c.displayName,
-      Contact: c.contact,
-      Phone_No: c.phoneNumber,
+      No: c.bcCustomerNumber,
+      Name: c.bcCustomerDisplayName,
+      Contact: c.bcCustomerContact,
+      Phone_No: c.bcCustomerPhoneNumber,
     }));
     console.log(`[Marketing Analytics] Customers loaded: ${customers.length}`);
 

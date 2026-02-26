@@ -12,16 +12,16 @@ export const salesAgent = {
 const systemPrompt = `คุณเป็น Sales Specialist Agent ของระบบ ERP Evergreen มีความเชี่ยวชาญสูงสุดด้านการขายและ Business Central
 
 ## ข้อมูลที่คุณเข้าถึงได้
-- **ลูกค้า (bcCustomers)**: number, displayName, phoneNumber, contact, balance, balanceDue, salespersonCode
-- **สินค้า (bcItems)**: number, displayName, type, inventory, unitPrice, unitCost, itemCategoryCode, baseUnitOfMeasure, blocked
-- **ใบสั่งขาย (bcSalesOrders)**: number, customerName, orderDate, dueDate, status, completelyShipped, salespersonCode, externalDocumentNumber, totalAmountIncludingTax
-- **รายการสินค้าในใบสั่งขาย (bcSalesOrderLines)**: description, quantity, unitPrice, amountIncludingTax, quantityShipped, unitOfMeasureCode
+- **ลูกค้า (bcCustomer)**: bcCustomerNumber, bcCustomerDisplayName, bcCustomerPhoneNumber, bcCustomerContact, bcCustomerBalance, bcCustomerBalanceDue, bcCustomerSalespersonCode
+- **สินค้า (bcItem)**: bcItemNumber, bcItemDisplayName, bcItemType, bcItemInventory, bcItemUnitPrice, bcItemUnitCost, itemCategoryCode, baseUnitOfMeasure, blocked
+- **ใบสั่งขาย (bcSalesOrder)**: bcSalesOrderNumber, bcSalesOrderCustomerName, bcSalesOrderDate, dueDate, bcSalesOrderStatus, completelyShipped, bcSalesOrderSalespersonCode, externalDocumentNumber, bcSalesOrderTotalAmountIncVat
+- **รายการสินค้าในใบสั่งขาย (bcSalesOrderLine)**: bcSalesOrderLineDescription, bcSalesOrderLineQuantity, bcSalesOrderLineUnitPrice, bcSalesOrderLineAmount, quantityShipped, unitOfMeasureCode
 
 ## ความรู้เฉพาะทาง
 - **status ของ order**: "Open" = ร่าง, "Released" = ยืนยันแล้ว รอจัดส่ง, "Pending Approval" = รอ approve
 - **completelyShipped**: true = จัดส่งครบแล้ว, false = ยังค้างส่ง
 - **salespersonCode "ONLINE"** = ช่องทางออนไลน์ (LINE/Facebook)
-- **balance** = ยอดค้างชำระทั้งหมด, **balanceDue** = ยอดที่เกินกำหนด
+- **bcCustomerBalance** = ยอดค้างชำระทั้งหมด, **bcCustomerBalanceDue** = ยอดที่เกินกำหนด
 - **externalDocumentNumber** = เลข PO หรือเลขอ้างอิงของลูกค้า
 
 ## กฎเหล็ก
@@ -64,7 +64,7 @@ const tools = [
         properties: {
           search: { type: "string", description: "ค้นหาชื่อหรือรหัสสินค้า" },
           category: { type: "string", description: "กรองตาม itemCategoryCode" },
-          inStockOnly: { type: "boolean", description: "true = เฉพาะสินค้าที่มีสต๊อก (inventory > 0)" },
+          inStockOnly: { type: "boolean", description: "true = เฉพาะสินค้าที่มีสต๊อก (bcItemInventory > 0)" },
           limit: { type: "number", description: "จำนวนสูงสุด (default: 100)" },
         },
       },
@@ -114,12 +114,12 @@ async function executeTool(name, args) {
   switch (name) {
     case "get_customers": {
       let q = supabase
-        .from("bcCustomers")
-        .select("number,displayName,phoneNumber,contact,balance,balanceDue,salespersonCode")
-        .order("displayName")
+        .from("bcCustomer")
+        .select("bcCustomerNumber,bcCustomerDisplayName,bcCustomerPhoneNumber,bcCustomerContact,bcCustomerBalance,bcCustomerBalanceDue,bcCustomerSalespersonCode")
+        .order("bcCustomerDisplayName")
         .limit(args.limit || 100);
-      if (args.search) q = q.ilike("displayName", `%${args.search}%`);
-      if (args.salespersonCode) q = q.eq("salespersonCode", args.salespersonCode);
+      if (args.search) q = q.ilike("bcCustomerDisplayName", `%${args.search}%`);
+      if (args.salespersonCode) q = q.eq("bcCustomerSalespersonCode", args.salespersonCode);
       const { data, error } = await q;
       if (error) throw new Error(error.message);
       return data || [];
@@ -127,16 +127,16 @@ async function executeTool(name, args) {
 
     case "get_items": {
       let q = supabase
-        .from("bcItems")
-        .select("number,displayName,type,inventory,unitPrice,unitCost,itemCategoryCode,baseUnitOfMeasure,blocked")
+        .from("bcItem")
+        .select("bcItemNumber,bcItemDisplayName,bcItemType,bcItemInventory,bcItemUnitPrice,bcItemUnitCost,itemCategoryCode,baseUnitOfMeasure,blocked")
         .eq("blocked", false)
-        .order("number")
+        .order("bcItemNumber")
         .limit(args.limit || 100);
       if (args.search) {
-        q = q.or(`number.ilike.%${args.search}%,displayName.ilike.%${args.search}%`);
+        q = q.or(`bcItemNumber.ilike.%${args.search}%,bcItemDisplayName.ilike.%${args.search}%`);
       }
       if (args.category) q = q.eq("itemCategoryCode", args.category);
-      if (args.inStockOnly) q = q.gt("inventory", 0);
+      if (args.inStockOnly) q = q.gt("bcItemInventory", 0);
       const { data, error } = await q;
       if (error) throw new Error(error.message);
       return data || [];
@@ -144,54 +144,54 @@ async function executeTool(name, args) {
 
     case "get_sales_orders": {
       let q = supabase
-        .from("bcSalesOrders")
-        .select("number,customerNumber,customerName,orderDate,dueDate,status,completelyShipped,salespersonCode,externalDocumentNumber,totalAmountIncludingTax")
-        .order("orderDate", { ascending: false })
+        .from("bcSalesOrder")
+        .select("bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,dueDate,bcSalesOrderStatus,completelyShipped,bcSalesOrderSalespersonCode,externalDocumentNumber,bcSalesOrderTotalAmountIncVat")
+        .order("bcSalesOrderDate", { ascending: false })
         .limit(args.limit || 30);
-      if (args.status) q = q.eq("status", args.status);
-      if (args.salespersonCode) q = q.eq("salespersonCode", args.salespersonCode);
-      if (args.customerNumber) q = q.eq("customerNumber", args.customerNumber);
-      if (args.since) q = q.gte("orderDate", args.since);
+      if (args.status) q = q.eq("bcSalesOrderStatus", args.status);
+      if (args.salespersonCode) q = q.eq("bcSalesOrderSalespersonCode", args.salespersonCode);
+      if (args.customerNumber) q = q.eq("bcSalesOrderCustomerNumber", args.customerNumber);
+      if (args.since) q = q.gte("bcSalesOrderDate", args.since);
       const { data: orders, error: oErr } = await q;
       if (oErr) throw new Error(oErr.message);
 
       if (!orders?.length) return [];
 
-      const orderNos = orders.map((o) => o.number);
+      const orderNos = orders.map((o) => o.bcSalesOrderNumber);
       const { data: lines, error: lErr } = await supabase
-        .from("bcSalesOrderLines")
-        .select("documentNo,lineObjectNumber,description,quantity,unitPrice,amountIncludingTax,quantityShipped,unitOfMeasureCode")
-        .in("documentNo", orderNos);
+        .from("bcSalesOrderLine")
+        .select("bcSalesOrderLineDocumentNo,lineObjectNumber,bcSalesOrderLineDescription,bcSalesOrderLineQuantity,bcSalesOrderLineUnitPrice,bcSalesOrderLineAmount,quantityShipped,unitOfMeasureCode")
+        .in("bcSalesOrderLineDocumentNo", orderNos);
       if (lErr) throw new Error(lErr.message);
 
       const linesByOrder = {};
       for (const l of lines || []) {
-        if (!linesByOrder[l.documentNo]) linesByOrder[l.documentNo] = [];
-        linesByOrder[l.documentNo].push({
+        if (!linesByOrder[l.bcSalesOrderLineDocumentNo]) linesByOrder[l.bcSalesOrderLineDocumentNo] = [];
+        linesByOrder[l.bcSalesOrderLineDocumentNo].push({
           no: l.lineObjectNumber,
-          description: l.description,
-          quantity: l.quantity,
-          unitPrice: l.unitPrice,
-          lineAmount: l.amountIncludingTax,
+          description: l.bcSalesOrderLineDescription,
+          quantity: l.bcSalesOrderLineQuantity,
+          unitPrice: l.bcSalesOrderLineUnitPrice,
+          lineAmount: l.bcSalesOrderLineAmount,
           quantityShipped: l.quantityShipped,
           uom: l.unitOfMeasureCode,
         });
       }
-      return orders.map((o) => ({ ...o, lines: linesByOrder[o.number] || [] }));
+      return orders.map((o) => ({ ...o, lines: linesByOrder[o.bcSalesOrderNumber] || [] }));
     }
 
     case "get_sales_summary": {
       let q = supabase
-        .from("bcSalesOrders")
-        .select("number,customerNumber,customerName,orderDate,status,completelyShipped,salespersonCode,totalAmountIncludingTax");
-      if (args.since) q = q.gte("orderDate", args.since);
-      if (args.until) q = q.lte("orderDate", args.until);
-      if (args.salespersonCode) q = q.eq("salespersonCode", args.salespersonCode);
+        .from("bcSalesOrder")
+        .select("bcSalesOrderNumber,bcSalesOrderCustomerNumber,bcSalesOrderCustomerName,bcSalesOrderDate,bcSalesOrderStatus,completelyShipped,bcSalesOrderSalespersonCode,bcSalesOrderTotalAmountIncVat");
+      if (args.since) q = q.gte("bcSalesOrderDate", args.since);
+      if (args.until) q = q.lte("bcSalesOrderDate", args.until);
+      if (args.salespersonCode) q = q.eq("bcSalesOrderSalespersonCode", args.salespersonCode);
       const { data: orders, error } = await q;
       if (error) throw new Error(error.message);
 
       const rows = orders || [];
-      const totalRevenue = rows.reduce((s, o) => s + (o.totalAmountIncludingTax || 0), 0);
+      const totalRevenue = rows.reduce((s, o) => s + (o.bcSalesOrderTotalAmountIncVat || 0), 0);
       const result = {
         totalOrders: rows.length,
         totalRevenue,
@@ -203,37 +203,37 @@ async function executeTool(name, args) {
       if (args.groupBy === "salesperson") {
         const groups = {};
         for (const o of rows) {
-          const key = o.salespersonCode || "ไม่ระบุ";
+          const key = o.bcSalesOrderSalespersonCode || "ไม่ระบุ";
           if (!groups[key]) groups[key] = { salespersonCode: key, orders: 0, revenue: 0 };
           groups[key].orders++;
-          groups[key].revenue += o.totalAmountIncludingTax || 0;
+          groups[key].revenue += o.bcSalesOrderTotalAmountIncVat || 0;
         }
         result.byGroup = Object.values(groups).sort((a, b) => b.revenue - a.revenue);
       } else if (args.groupBy === "customer") {
         const groups = {};
         for (const o of rows) {
-          const key = o.customerNumber;
-          if (!groups[key]) groups[key] = { customerNumber: key, customerName: o.customerName, orders: 0, revenue: 0 };
+          const key = o.bcSalesOrderCustomerNumber;
+          if (!groups[key]) groups[key] = { customerNumber: key, customerName: o.bcSalesOrderCustomerName, orders: 0, revenue: 0 };
           groups[key].orders++;
-          groups[key].revenue += o.totalAmountIncludingTax || 0;
+          groups[key].revenue += o.bcSalesOrderTotalAmountIncVat || 0;
         }
         result.byGroup = Object.values(groups).sort((a, b) => b.revenue - a.revenue).slice(0, 20);
       } else if (args.groupBy === "status") {
         const groups = {};
         for (const o of rows) {
-          const key = o.status || "ไม่ระบุ";
+          const key = o.bcSalesOrderStatus || "ไม่ระบุ";
           if (!groups[key]) groups[key] = { status: key, orders: 0, revenue: 0 };
           groups[key].orders++;
-          groups[key].revenue += o.totalAmountIncludingTax || 0;
+          groups[key].revenue += o.bcSalesOrderTotalAmountIncVat || 0;
         }
         result.byGroup = Object.values(groups);
       } else if (args.groupBy === "month") {
         const groups = {};
         for (const o of rows) {
-          const month = o.orderDate ? o.orderDate.slice(0, 7) : "ไม่ระบุ";
+          const month = o.bcSalesOrderDate ? o.bcSalesOrderDate.slice(0, 7) : "ไม่ระบุ";
           if (!groups[month]) groups[month] = { month, orders: 0, revenue: 0 };
           groups[month].orders++;
-          groups[month].revenue += o.totalAmountIncludingTax || 0;
+          groups[month].revenue += o.bcSalesOrderTotalAmountIncVat || 0;
         }
         result.byGroup = Object.values(groups).sort((a, b) => a.month.localeCompare(b.month));
       }

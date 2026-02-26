@@ -61,18 +61,18 @@ export function useOmnichannelChat() {
 
     try {
       setMessagesLoading(true);
-      const data = await getMessages(conversation.conversationId);
+      const data = await getMessages(conversation.omConversationId);
       setMessages(data);
 
       // Mark as read
-      if (conversation.conversationUnreadCount > 0) {
-        await updateConversation(conversation.conversationId, {
-          conversationUnreadCount: 0,
+      if (conversation.omConversationUnreadCount > 0) {
+        await updateConversation(conversation.omConversationId, {
+          omConversationUnreadCount: 0,
         });
         setConversations((prev) =>
           prev.map((c) =>
-            c.conversationId === conversation.conversationId
-              ? { ...c, conversationUnreadCount: 0 }
+            c.omConversationId === conversation.omConversationId
+              ? { ...c, omConversationUnreadCount: 0 }
               : c
           )
         );
@@ -92,26 +92,26 @@ export function useOmnichannelChat() {
       // Optimistic: add message to UI immediately
       const tempId = `temp-${Date.now()}`;
       const optimisticMsg = {
-        messageId: tempId,
-        messageConversationId: selectedConversation.conversationId,
-        messageSenderType: "agent",
-        messageContent: content,
-        messageType: "text",
-        messageCreatedAt: new Date().toISOString(),
+        omMessageId: tempId,
+        omMessageConversationId: selectedConversation.omConversationId,
+        omMessageSenderType: "agent",
+        omMessageContent: content,
+        omMessageType: "text",
+        omMessageCreatedAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, optimisticMsg]);
 
       try {
         setSending(true);
         setSuggestedText("");
-        const savedMsg = await sendMessageAction(selectedConversation.conversationId, content);
+        const savedMsg = await sendMessageAction(selectedConversation.omConversationId, content);
         // Replace temp message with real one
         setMessages((prev) =>
-          prev.map((m) => (m.messageId === tempId ? savedMsg : m))
+          prev.map((m) => (m.omMessageId === tempId ? savedMsg : m))
         );
       } catch (error) {
         // Remove optimistic message on error
-        setMessages((prev) => prev.filter((m) => m.messageId !== tempId));
+        setMessages((prev) => prev.filter((m) => m.omMessageId !== tempId));
         toast.error(error.message || "ส่งข้อความล้มเหลว");
       } finally {
         setSending(false);
@@ -125,12 +125,12 @@ export function useOmnichannelChat() {
     async (conversationId, status) => {
       try {
         const updated = await updateConversation(conversationId, {
-          conversationStatus: status,
+          omConversationStatus: status,
         });
         setConversations((prev) =>
-          prev.map((c) => (c.conversationId === conversationId ? updated : c))
+          prev.map((c) => (c.omConversationId === conversationId ? updated : c))
         );
-        if (selectedConversation?.conversationId === conversationId) {
+        if (selectedConversation?.omConversationId === conversationId) {
           setSelectedConversation(updated);
         }
         toast.success(`อัปเดตสถานะการสนทนาเป็น ${status} สำเร็จ`);
@@ -146,16 +146,16 @@ export function useOmnichannelChat() {
     async (contactId, updates) => {
       try {
         const { error } = await supabase
-          .from("omContacts")
+          .from("omContact")
           .update(updates)
-          .eq("contactId", contactId);
+          .eq("omContactId", contactId);
         if (error) throw error;
 
         // Refresh selected conversation
         if (selectedConversation) {
           setSelectedConversation((prev) => ({
             ...prev,
-            omContacts: { ...prev.omContacts, ...updates },
+            omContact: { ...prev.omContact, ...updates },
           }));
         }
         toast.success("อัปเดตผู้ติดต่อสำเร็จ");
@@ -172,9 +172,9 @@ export function useOmnichannelChat() {
       try {
         await deleteConversationAction(conversationId);
         setConversations((prev) =>
-          prev.filter((c) => c.conversationId !== conversationId)
+          prev.filter((c) => c.omConversationId !== conversationId)
         );
-        if (selectedConversation?.conversationId === conversationId) {
+        if (selectedConversation?.omConversationId === conversationId) {
           setSelectedConversation(null);
           setMessages([]);
         }
@@ -191,12 +191,12 @@ export function useOmnichannelChat() {
     async (conversationId, enabled) => {
       try {
         const updated = await updateConversation(conversationId, {
-          conversationAiAutoReply: enabled,
+          omConversationAiAutoReply: enabled,
         });
         setConversations((prev) =>
-          prev.map((c) => (c.conversationId === conversationId ? updated : c))
+          prev.map((c) => (c.omConversationId === conversationId ? updated : c))
         );
-        if (selectedConversation?.conversationId === conversationId) {
+        if (selectedConversation?.omConversationId === conversationId) {
           setSelectedConversation(updated);
         }
         toast.success(enabled ? "เปิด AI Auto-Reply แล้ว" : "ปิด AI Auto-Reply แล้ว");
@@ -213,7 +213,7 @@ export function useOmnichannelChat() {
     try {
       setSuggestLoading(true);
       setSuggestedText("");
-      const result = await suggestReplyAction(selectedConversation.conversationId);
+      const result = await suggestReplyAction(selectedConversation.omConversationId);
       setSuggestedText(result.suggestion);
     } catch (error) {
       toast.error("AI ไม่สามารถแนะนำคำตอบได้");
@@ -235,15 +235,15 @@ export function useOmnichannelChat() {
       // Poll messages for selected conversation
       if (currentConv) {
         try {
-          const freshMessages = await getMessages(currentConv.conversationId);
+          const freshMessages = await getMessages(currentConv.omConversationId);
           setMessages((prev) => {
             // Only update if there are new messages
             if (freshMessages.length !== prev.length ||
                 (freshMessages.length > 0 && prev.length > 0 &&
-                 freshMessages[freshMessages.length - 1]?.messageId !== prev[prev.length - 1]?.messageId &&
-                 !prev[prev.length - 1]?.messageId?.startsWith?.("temp-"))) {
+                 freshMessages[freshMessages.length - 1]?.omMessageId !== prev[prev.length - 1]?.omMessageId &&
+                 !prev[prev.length - 1]?.omMessageId?.startsWith?.("temp-"))) {
               // Preserve any optimistic temp messages
-              const tempMsgs = prev.filter((m) => m.messageId?.startsWith?.("temp-"));
+              const tempMsgs = prev.filter((m) => m.omMessageId?.startsWith?.("temp-"));
               return [...freshMessages, ...tempMsgs];
             }
             return prev;
@@ -282,20 +282,20 @@ export function useOmnichannelChat() {
       .channel(channelName)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "omMessages" },
+        { event: "INSERT", schema: "public", table: "omMessage" },
         (payload) => {
           const newMessage = payload.new;
           const currentConv = selectedConvRef.current;
 
           if (
             currentConv &&
-            newMessage.messageConversationId === currentConv.conversationId
+            newMessage.omMessageConversationId === currentConv.omConversationId
           ) {
             setMessages((prev) => {
-              if (prev.some((m) => m.messageId === newMessage.messageId)) return prev;
-              if (newMessage.messageSenderType === "agent") {
+              if (prev.some((m) => m.omMessageId === newMessage.omMessageId)) return prev;
+              if (newMessage.omMessageSenderType === "agent") {
                 const tempIdx = prev.findIndex(
-                  (m) => m.messageId?.startsWith?.("temp-") && m.messageContent === newMessage.messageContent
+                  (m) => m.omMessageId?.startsWith?.("temp-") && m.omMessageContent === newMessage.omMessageContent
                 );
                 if (tempIdx !== -1) {
                   const updated = [...prev];
@@ -309,15 +309,15 @@ export function useOmnichannelChat() {
 
           setConversations((prev) =>
             prev.map((c) => {
-              if (c.conversationId === newMessage.messageConversationId) {
+              if (c.omConversationId === newMessage.omMessageConversationId) {
                 return {
                   ...c,
-                  conversationLastMessageAt: newMessage.messageCreatedAt,
-                  conversationLastMessagePreview: newMessage.messageContent?.slice(0, 100),
-                  conversationUnreadCount:
-                    currentConv?.conversationId === c.conversationId
+                  omConversationLastMessageAt: newMessage.omMessageCreatedAt,
+                  omConversationLastMessagePreview: newMessage.omMessageContent?.slice(0, 100),
+                  omConversationUnreadCount:
+                    currentConv?.omConversationId === c.omConversationId
                       ? 0
-                      : (c.conversationUnreadCount || 0) + (newMessage.messageSenderType === "customer" ? 1 : 0),
+                      : (c.omConversationUnreadCount || 0) + (newMessage.omMessageSenderType === "customer" ? 1 : 0),
                 };
               }
               return c;
@@ -327,26 +327,26 @@ export function useOmnichannelChat() {
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "omConversations" },
+        { event: "UPDATE", schema: "public", table: "omConversation" },
         (payload) => {
           const updated = payload.new;
           const currentConv = selectedConvRef.current;
 
           setConversations((prev) =>
             prev.map((c) =>
-              c.conversationId === updated.conversationId
+              c.omConversationId === updated.omConversationId
                 ? { ...c, ...updated }
                 : c
             )
           );
-          if (currentConv?.conversationId === updated.conversationId) {
+          if (currentConv?.omConversationId === updated.omConversationId) {
             setSelectedConversation((prev) => ({ ...prev, ...updated }));
           }
         }
       )
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "omConversations" },
+        { event: "INSERT", schema: "public", table: "omConversation" },
         () => {
           loadConversations();
         }

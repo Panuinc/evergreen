@@ -6,11 +6,11 @@ import { useAccessLogs } from "@/hooks/rbac/useAccessLogs";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เวลา", uid: "accessLogCreatedAt", sortable: true },
-  { name: "รหัสผู้ใช้", uid: "accessLogUserId", sortable: true },
-  { name: "ทรัพยากร", uid: "accessLogResource", sortable: true },
-  { name: "การดำเนินการ", uid: "accessLogAction", sortable: true },
-  { name: "สถานะ", uid: "accessLogGranted", sortable: true },
+  { name: "เวลา", uid: "rbacAccessLogCreatedAt", sortable: true },
+  { name: "รหัสผู้ใช้", uid: "rbacAccessLogUserId", sortable: true },
+  { name: "ทรัพยากร", uid: "rbacAccessLogResource", sortable: true },
+  { name: "การดำเนินการ", uid: "rbacAccessLogAction", sortable: true },
+  { name: "สถานะ", uid: "rbacAccessLogGranted", sortable: true },
 ];
 
 const STATUS_OPTIONS = [
@@ -23,31 +23,31 @@ export default function AccessLogsPage() {
 
   const renderCell = useCallback((log, columnKey) => {
     switch (columnKey) {
-      case "accessLogCreatedAt":
+      case "rbacAccessLogCreatedAt":
         return (
           <span className="text-default-500">
-            {new Date(log.accessLogCreatedAt).toLocaleString()}
+            {new Date(log.rbacAccessLogCreatedAt).toLocaleString()}
           </span>
         );
-      case "accessLogUserId":
+      case "rbacAccessLogUserId":
         return (
           <span className="font-mono">
-            {log.accessLogUserId?.slice(0, 8) || "-"}
+            {log.rbacAccessLogUserId?.slice(0, 8) || "-"}
           </span>
         );
-      case "accessLogResource":
-        return <span className="font-medium">{log.accessLogResource}</span>;
-      case "accessLogAction":
-        return log.accessLogAction;
-      case "accessLogGranted":
+      case "rbacAccessLogResource":
+        return <span className="font-medium">{log.rbacAccessLogResource}</span>;
+      case "rbacAccessLogAction":
+        return log.rbacAccessLogAction;
+      case "rbacAccessLogGranted":
         return (
           <Chip
             variant="bordered"
             size="md"
             radius="md"
-            color={log.accessLogGranted ? "success" : "danger"}
+            color={log.rbacAccessLogGranted ? "success" : "danger"}
           >
-            {log.accessLogGranted ? "อนุญาต" : "ปฏิเสธ"}
+            {log.rbacAccessLogGranted ? "อนุญาต" : "ปฏิเสธ"}
           </Chip>
         );
       default:
@@ -66,11 +66,11 @@ export default function AccessLogsPage() {
         columns={columns}
         data={logs}
         renderCell={renderCell}
-        rowKey="accessLogId"
+        rowKey="rbacAccessLogId"
         isLoading={loading}
-        initialVisibleColumns={["accessLogCreatedAt", "accessLogUserId", "accessLogResource", "accessLogAction", "accessLogGranted"]}
+        initialVisibleColumns={["rbacAccessLogCreatedAt", "rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction", "rbacAccessLogGranted"]}
         searchPlaceholder="ค้นหาบันทึก..."
-        searchKeys={["accessLogUserId", "accessLogResource", "accessLogAction"]}
+        searchKeys={["rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction"]}
         emptyContent="ไม่พบบันทึกการเข้าถึง"
         defaultRowsPerPage={20}
       />

@@ -8,7 +8,7 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data, error } = await supabase
-    .from("scanSessions")
+    .from("whScanSession")
     .select("*")
     .eq("id", id)
     .eq("user_id", session.user.id)
@@ -33,7 +33,7 @@ export async function PUT(request, { params }) {
   if (body.metadata !== undefined) updates.metadata = body.metadata;
 
   const { data, error } = await supabase
-    .from("scanSessions")
+    .from("whScanSession")
     .update(updates)
     .eq("id", id)
     .eq("user_id", session.user.id)

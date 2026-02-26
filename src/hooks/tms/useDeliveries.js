@@ -12,14 +12,14 @@ import {
 } from "@/actions/tms";
 
 const emptyForm = {
-  deliveryShipmentId: "",
-  deliveryReceiverName: "",
-  deliveryReceiverPhone: "",
-  deliveryStatus: "pending",
-  deliveryDamageNotes: "",
-  deliveryNotes: "",
-  deliverySignatureUrl: "",
-  deliveryPhotoUrls: [],
+  tmsDeliveryShipmentId: "",
+  tmsDeliveryReceiverName: "",
+  tmsDeliveryReceiverPhone: "",
+  tmsDeliveryStatus: "pending",
+  tmsDeliveryDamageNotes: "",
+  tmsDeliveryNotes: "",
+  tmsDeliverySignatureUrl: "",
+  tmsDeliveryPhotoUrls: [],
 };
 
 export function useDeliveries() {
@@ -57,14 +57,14 @@ export function useDeliveries() {
     if (delivery) {
       setEditingDelivery(delivery);
       setFormData({
-        deliveryShipmentId: delivery.deliveryShipmentId?.toString() || "",
-        deliveryReceiverName: delivery.deliveryReceiverName || "",
-        deliveryReceiverPhone: delivery.deliveryReceiverPhone || "",
-        deliveryStatus: delivery.deliveryStatus || "pending",
-        deliveryDamageNotes: delivery.deliveryDamageNotes || "",
-        deliveryNotes: delivery.deliveryNotes || "",
-        deliverySignatureUrl: delivery.deliverySignatureUrl || "",
-        deliveryPhotoUrls: delivery.deliveryPhotoUrls || [],
+        tmsDeliveryShipmentId: delivery.tmsDeliveryShipmentId?.toString() || "",
+        tmsDeliveryReceiverName: delivery.tmsDeliveryReceiverName || "",
+        tmsDeliveryReceiverPhone: delivery.tmsDeliveryReceiverPhone || "",
+        tmsDeliveryStatus: delivery.tmsDeliveryStatus || "pending",
+        tmsDeliveryDamageNotes: delivery.tmsDeliveryDamageNotes || "",
+        tmsDeliveryNotes: delivery.tmsDeliveryNotes || "",
+        tmsDeliverySignatureUrl: delivery.tmsDeliverySignatureUrl || "",
+        tmsDeliveryPhotoUrls: delivery.tmsDeliveryPhotoUrls || [],
       });
     } else {
       setEditingDelivery(null);
@@ -74,7 +74,7 @@ export function useDeliveries() {
   };
 
   const handleSave = async () => {
-    if (!formData.deliveryShipmentId) {
+    if (!formData.tmsDeliveryShipmentId) {
       toast.error("กรุณาระบุการจัดส่ง");
       return;
     }
@@ -82,7 +82,7 @@ export function useDeliveries() {
     try {
       setSaving(true);
       if (editingDelivery) {
-        await updateDelivery(editingDelivery.deliveryId, formData);
+        await updateDelivery(editingDelivery.tmsDeliveryId, formData);
         toast.success("อัปเดตการส่งมอบสำเร็จ");
       } else {
         await createDelivery(formData);
@@ -105,7 +105,7 @@ export function useDeliveries() {
   const handleDelete = async () => {
     if (!deletingDelivery) return;
     try {
-      await deleteDelivery(deletingDelivery.deliveryId);
+      await deleteDelivery(deletingDelivery.tmsDeliveryId);
       toast.success("ลบการส่งมอบสำเร็จ");
       deleteModal.onClose();
       setDeletingDelivery(null);

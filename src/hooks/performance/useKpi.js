@@ -48,17 +48,17 @@ export function useKpi() {
   const definitionModal = useDisclosure();
   const [editingDefinition, setEditingDefinition] = useState(null);
   const [definitionForm, setDefinitionForm] = useState({
-    name: "", description: "", category: "general", unit: "",
-    frequency: "monthly", targetValue: "", warningThreshold: "",
-    criticalThreshold: "", higherIsBetter: true,
+    perfKpiDefinitionName: "", perfKpiDefinitionDescription: "", perfKpiDefinitionCategory: "general", perfKpiDefinitionUnit: "",
+    perfKpiDefinitionFrequency: "monthly", perfKpiDefinitionTargetValue: "", perfKpiDefinitionWarningThreshold: "",
+    perfKpiDefinitionCriticalThreshold: "", perfKpiDefinitionHigherIsBetter: true,
   });
   const [savingDefinition, setSavingDefinition] = useState(false);
 
   // Assignment modal
   const assignmentModal = useDisclosure();
   const [assignForm, setAssignForm] = useState({
-    definitionId: "", employeeId: "", year: String(new Date().getFullYear()),
-    targetValue: "", weight: "1",
+    perfKpiAssignmentDefinitionId: "", perfKpiAssignmentEmployeeId: "", perfKpiAssignmentYear: String(new Date().getFullYear()),
+    perfKpiAssignmentTargetValue: "", perfKpiAssignmentWeight: "1",
   });
   const [savingAssignment, setSavingAssignment] = useState(false);
 
@@ -66,7 +66,7 @@ export function useKpi() {
   const recordModal = useDisclosure();
   const [recordingAssignment, setRecordingAssignment] = useState(null);
   const [recordForm, setRecordForm] = useState({
-    periodLabel: "", actualValue: "", note: "",
+    perfKpiRecordPeriodLabel: "", perfKpiRecordActualValue: "", perfKpiRecordNote: "",
   });
   const [savingRecord, setSavingRecord] = useState(false);
 
@@ -85,7 +85,7 @@ export function useKpi() {
       const data = await getEmployees();
       setEmployees(data || []);
       if (user?.id) {
-        const myEmp = (data || []).find((e) => e.employeeUserId === user.id);
+        const myEmp = (data || []).find((e) => e.hrEmployeeUserId === user.id);
         setCurrentEmployee(myEmp || null);
       }
     } catch {
@@ -114,7 +114,7 @@ export function useKpi() {
     try {
       const data = await getKpiDashboard({
         year: filterYear,
-        employeeId: currentEmployee?.employeeId || "",
+        employeeId: currentEmployee?.hrEmployeeId || "",
       });
       setMyAssignments(data || []);
     } catch {
@@ -149,39 +149,44 @@ export function useKpi() {
     if (def) {
       setEditingDefinition(def);
       setDefinitionForm({
-        name: def.name, description: def.description || "",
-        category: def.category, unit: def.unit,
-        frequency: def.frequency, targetValue: def.targetValue != null ? String(def.targetValue) : "",
-        warningThreshold: def.warningThreshold != null ? String(def.warningThreshold) : "",
-        criticalThreshold: def.criticalThreshold != null ? String(def.criticalThreshold) : "",
-        higherIsBetter: def.higherIsBetter !== false,
+        perfKpiDefinitionName: def.perfKpiDefinitionName, perfKpiDefinitionDescription: def.perfKpiDefinitionDescription || "",
+        perfKpiDefinitionCategory: def.perfKpiDefinitionCategory, perfKpiDefinitionUnit: def.perfKpiDefinitionUnit,
+        perfKpiDefinitionFrequency: def.perfKpiDefinitionFrequency, perfKpiDefinitionTargetValue: def.perfKpiDefinitionTargetValue != null ? String(def.perfKpiDefinitionTargetValue) : "",
+        perfKpiDefinitionWarningThreshold: def.perfKpiDefinitionWarningThreshold != null ? String(def.perfKpiDefinitionWarningThreshold) : "",
+        perfKpiDefinitionCriticalThreshold: def.perfKpiDefinitionCriticalThreshold != null ? String(def.perfKpiDefinitionCriticalThreshold) : "",
+        perfKpiDefinitionHigherIsBetter: def.perfKpiDefinitionHigherIsBetter !== false,
       });
     } else {
       setEditingDefinition(null);
       setDefinitionForm({
-        name: "", description: "", category: "general", unit: "",
-        frequency: "monthly", targetValue: "", warningThreshold: "",
-        criticalThreshold: "", higherIsBetter: true,
+        perfKpiDefinitionName: "", perfKpiDefinitionDescription: "", perfKpiDefinitionCategory: "general", perfKpiDefinitionUnit: "",
+        perfKpiDefinitionFrequency: "monthly", perfKpiDefinitionTargetValue: "", perfKpiDefinitionWarningThreshold: "",
+        perfKpiDefinitionCriticalThreshold: "", perfKpiDefinitionHigherIsBetter: true,
       });
     }
     definitionModal.onOpen();
   }, [definitionModal]);
 
   const handleSaveDefinition = useCallback(async () => {
-    if (!definitionForm.name.trim() || !definitionForm.unit.trim()) {
+    if (!definitionForm.perfKpiDefinitionName.trim() || !definitionForm.perfKpiDefinitionUnit.trim()) {
       toast.error("กรุณากรอกชื่อและหน่วย");
       return;
     }
     setSavingDefinition(true);
     try {
       const payload = {
-        ...definitionForm,
-        targetValue: definitionForm.targetValue ? parseFloat(definitionForm.targetValue) : null,
-        warningThreshold: definitionForm.warningThreshold ? parseFloat(definitionForm.warningThreshold) : null,
-        criticalThreshold: definitionForm.criticalThreshold ? parseFloat(definitionForm.criticalThreshold) : null,
+        name: definitionForm.perfKpiDefinitionName,
+        description: definitionForm.perfKpiDefinitionDescription,
+        category: definitionForm.perfKpiDefinitionCategory,
+        unit: definitionForm.perfKpiDefinitionUnit,
+        frequency: definitionForm.perfKpiDefinitionFrequency,
+        targetValue: definitionForm.perfKpiDefinitionTargetValue ? parseFloat(definitionForm.perfKpiDefinitionTargetValue) : null,
+        warningThreshold: definitionForm.perfKpiDefinitionWarningThreshold ? parseFloat(definitionForm.perfKpiDefinitionWarningThreshold) : null,
+        criticalThreshold: definitionForm.perfKpiDefinitionCriticalThreshold ? parseFloat(definitionForm.perfKpiDefinitionCriticalThreshold) : null,
+        higherIsBetter: definitionForm.perfKpiDefinitionHigherIsBetter,
       };
       if (editingDefinition) {
-        await updateKpiDefinition(editingDefinition.id, payload);
+        await updateKpiDefinition(editingDefinition.perfKpiDefinitionId, payload);
         toast.success("อัปเดต KPI สำเร็จ");
       } else {
         await createKpiDefinition(payload);
@@ -196,9 +201,9 @@ export function useKpi() {
     }
   }, [editingDefinition, definitionForm, definitionModal, loadDefinitions]);
 
-  const handleDeleteDefinition = useCallback(async (id) => {
+  const handleDeleteDefinition = useCallback(async (perfKpiDefinitionId) => {
     try {
-      await deleteKpiDefinition(id);
+      await deleteKpiDefinition(perfKpiDefinitionId);
       toast.success("ลบ KPI สำเร็จ");
       loadDefinitions();
     } catch (error) {
@@ -207,27 +212,33 @@ export function useKpi() {
   }, [loadDefinitions]);
 
   // Assignment
-  const handleOpenAssignForm = useCallback((definitionId = "") => {
+  const handleOpenAssignForm = useCallback((perfKpiAssignmentDefinitionId = "") => {
     setAssignForm({
-      definitionId, employeeId: "", year: filterYear,
-      targetValue: "", weight: "1",
+      perfKpiAssignmentDefinitionId, perfKpiAssignmentEmployeeId: "", perfKpiAssignmentYear: filterYear,
+      perfKpiAssignmentTargetValue: "", perfKpiAssignmentWeight: "1",
     });
     // Pre-fill target from definition
-    if (definitionId) {
-      const def = definitions.find((d) => d.id === definitionId);
-      if (def?.targetValue) setAssignForm((f) => ({ ...f, targetValue: String(def.targetValue) }));
+    if (perfKpiAssignmentDefinitionId) {
+      const def = definitions.find((d) => d.perfKpiDefinitionId === perfKpiAssignmentDefinitionId);
+      if (def?.perfKpiDefinitionTargetValue) setAssignForm((f) => ({ ...f, perfKpiAssignmentTargetValue: String(def.perfKpiDefinitionTargetValue) }));
     }
     assignmentModal.onOpen();
   }, [assignmentModal, filterYear, definitions]);
 
   const handleSaveAssignment = useCallback(async () => {
-    if (!assignForm.definitionId || !assignForm.employeeId || !assignForm.targetValue) {
+    if (!assignForm.perfKpiAssignmentDefinitionId || !assignForm.perfKpiAssignmentEmployeeId || !assignForm.perfKpiAssignmentTargetValue) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
     setSavingAssignment(true);
     try {
-      await createKpiAssignment(assignForm);
+      await createKpiAssignment({
+        definitionId: assignForm.perfKpiAssignmentDefinitionId,
+        employeeId: assignForm.perfKpiAssignmentEmployeeId,
+        year: assignForm.perfKpiAssignmentYear,
+        targetValue: assignForm.perfKpiAssignmentTargetValue,
+        weight: assignForm.perfKpiAssignmentWeight,
+      });
       toast.success("Assign KPI สำเร็จ");
       assignmentModal.onClose();
       loadDefinitions();
@@ -238,9 +249,9 @@ export function useKpi() {
     }
   }, [assignForm, assignmentModal, loadDefinitions]);
 
-  const handleDeleteAssignment = useCallback(async (id) => {
+  const handleDeleteAssignment = useCallback(async (perfKpiAssignmentId) => {
     try {
-      await deleteKpiAssignment(id);
+      await deleteKpiAssignment(perfKpiAssignmentId);
       toast.success("ยกเลิก KPI assignment สำเร็จ");
       loadMyAssignments();
     } catch (error) {
@@ -254,12 +265,12 @@ export function useKpi() {
     // Default period label: current month
     const now = new Date();
     const defaultPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    setRecordForm({ periodLabel: defaultPeriod, actualValue: "", note: "" });
+    setRecordForm({ perfKpiRecordPeriodLabel: defaultPeriod, perfKpiRecordActualValue: "", perfKpiRecordNote: "" });
     recordModal.onOpen();
   }, [recordModal]);
 
   const handleSaveRecord = useCallback(async () => {
-    if (!recordForm.periodLabel || recordForm.actualValue === "") {
+    if (!recordForm.perfKpiRecordPeriodLabel || recordForm.perfKpiRecordActualValue === "") {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
@@ -267,9 +278,9 @@ export function useKpi() {
     try {
       await recordKpiValue({
         assignmentId: recordingAssignment.assignmentId,
-        periodLabel: recordForm.periodLabel,
-        actualValue: parseFloat(recordForm.actualValue),
-        note: recordForm.note || null,
+        periodLabel: recordForm.perfKpiRecordPeriodLabel,
+        actualValue: parseFloat(recordForm.perfKpiRecordActualValue),
+        note: recordForm.perfKpiRecordNote || null,
       });
       toast.success("บันทึกค่า KPI สำเร็จ");
       recordModal.onClose();
@@ -282,10 +293,10 @@ export function useKpi() {
   }, [recordingAssignment, recordForm, recordModal, loadMyAssignments]);
 
   // Load records for trend
-  const loadRecords = useCallback(async (assignmentId) => {
+  const loadRecords = useCallback(async (perfKpiAssignmentId) => {
     setLoadingRecords(true);
     try {
-      const data = await getKpiRecords(assignmentId);
+      const data = await getKpiRecords(perfKpiAssignmentId);
       setSelectedRecords(data || []);
     } catch {
       toast.error("ไม่สามารถโหลดข้อมูลได้");

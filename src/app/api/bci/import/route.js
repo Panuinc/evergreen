@@ -3,18 +3,18 @@ import { withAuth } from "@/app/api/_lib/auth";
 import * as XLSX from "xlsx";
 
 /**
- * Column mapping: BCI LeadManager export headers → Supabase bciProjects columns.
+ * Column mapping: BCI LeadManager export headers → Supabase bciProject columns.
  * Keys are lowercased + trimmed for flexible matching.
  */
 const COLUMN_MAP = {
   // Project ID (required)
-  "project id": "projectId",
-  "project_id": "projectId",
-  "projectid": "projectId",
-  "id": "projectId",
+  "project id": "bciProjectExternalId",
+  "project_id": "bciProjectExternalId",
+  "projectid": "bciProjectExternalId",
+  "id": "bciProjectExternalId",
   // Project info
-  "project name": "projectName",
-  "name": "projectName",
+  "project name": "bciProjectName",
+  "name": "bciProjectName",
   "project type": "projectType",
   "type": "projectType",
   "description": "projectDescription",
@@ -39,7 +39,7 @@ const COLUMN_MAP = {
   // Stage & Status
   "stage": "projectStage",
   "project stage": "projectStage",
-  "status": "projectStageStatus",
+  "status": "bciProjectStatus",
   "stage status": "projectStageStatus",
   "project stage status": "projectStageStatus",
   // Type & Category
@@ -184,8 +184,8 @@ export async function POST(request) {
       }
     }
 
-    // Check if projectId is mapped
-    const hasProjectId = Object.values(mapping).includes("projectId");
+    // Check if bciProjectExternalId is mapped
+    const hasProjectId = Object.values(mapping).includes("bciProjectExternalId");
     if (!hasProjectId) {
       return Response.json({
         error: "Cannot find Project ID column. Available columns: " + fileHeaders.join(", "),
@@ -201,7 +201,7 @@ export async function POST(request) {
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      const record = { syncedAt: now };
+      const record = { bciProjectSyncedAt: now };
 
       for (const [header, dbCol] of Object.entries(mapping)) {
         let val = row[header];
@@ -218,17 +218,17 @@ export async function POST(request) {
         }
       }
 
-      // projectId must be a number for BCI
-      if (record.projectId) {
-        const pid = parseNumber(record.projectId);
+      // bciProjectExternalId must be a number for BCI
+      if (record.bciProjectExternalId) {
+        const pid = parseNumber(record.bciProjectExternalId);
         if (pid) {
-          record.projectId = pid;
+          record.bciProjectExternalId = pid;
           mapped.push(record);
         } else {
-          errors.push(`Row ${i + 2}: Invalid projectId "${record.projectId}"`);
+          errors.push(`Row ${i + 2}: Invalid bciProjectExternalId "${record.bciProjectExternalId}"`);
         }
       } else {
-        errors.push(`Row ${i + 2}: Missing projectId`);
+        errors.push(`Row ${i + 2}: Missing bciProjectExternalId`);
       }
     }
 
@@ -244,8 +244,8 @@ export async function POST(request) {
     for (let i = 0; i < mapped.length; i += 500) {
       const batch = mapped.slice(i, i + 500);
       const { error: upsertErr } = await supabase
-        .from("bciProjects")
-        .upsert(batch, { onConflict: "projectId" });
+        .from("bciProject")
+        .upsert(batch, { onConflict: "bciProjectExternalId" });
       if (upsertErr) throw upsertErr;
       upserted += batch.length;
     }

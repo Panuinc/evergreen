@@ -12,16 +12,16 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  softwareName: "",
-  softwareVendor: "",
-  softwareVersion: "",
-  softwareLicenseKey: "",
-  softwareLicenseType: "perpetual",
-  softwareLicenseCount: "",
-  softwareUsedCount: "",
-  softwareExpiryDate: "",
-  softwareStatus: "active",
-  softwareNotes: "",
+  itSoftwareName: "",
+  itSoftwareVendor: "",
+  itSoftwareVersion: "",
+  itSoftwareLicenseKey: "",
+  itSoftwareLicenseType: "perpetual",
+  itSoftwareLicenseCount: "",
+  itSoftwareUsedCount: "",
+  itSoftwareExpiryDate: "",
+  itSoftwareStatus: "active",
+  itSoftwareNotes: "",
 };
 
 export function useItSoftware() {
@@ -55,16 +55,16 @@ export function useItSoftware() {
     if (item) {
       setEditingSoftware(item);
       setFormData({
-        softwareName: item.softwareName || "",
-        softwareVendor: item.softwareVendor || "",
-        softwareVersion: item.softwareVersion || "",
-        softwareLicenseKey: item.softwareLicenseKey || "",
-        softwareLicenseType: item.softwareLicenseType || "perpetual",
-        softwareLicenseCount: item.softwareLicenseCount?.toString() || "",
-        softwareUsedCount: item.softwareUsedCount?.toString() || "",
-        softwareExpiryDate: item.softwareExpiryDate || "",
-        softwareStatus: item.softwareStatus || "active",
-        softwareNotes: item.softwareNotes || "",
+        itSoftwareName: item.itSoftwareName || "",
+        itSoftwareVendor: item.itSoftwareVendor || "",
+        itSoftwareVersion: item.itSoftwareVersion || "",
+        itSoftwareLicenseKey: item.itSoftwareLicenseKey || "",
+        itSoftwareLicenseType: item.itSoftwareLicenseType || "perpetual",
+        itSoftwareLicenseCount: item.itSoftwareLicenseCount?.toString() || "",
+        itSoftwareUsedCount: item.itSoftwareUsedCount?.toString() || "",
+        itSoftwareExpiryDate: item.itSoftwareExpiryDate || "",
+        itSoftwareStatus: item.itSoftwareStatus || "active",
+        itSoftwareNotes: item.itSoftwareNotes || "",
       });
     } else {
       setEditingSoftware(null);
@@ -76,7 +76,7 @@ export function useItSoftware() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      softwareName: [(v) => !isRequired(v) && "กรุณาระบุชื่อซอฟต์แวร์"],
+      itSoftwareName: [(v) => !isRequired(v) && "กรุณาระบุชื่อซอฟต์แวร์"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -89,11 +89,11 @@ export function useItSoftware() {
       setSaving(true);
       const payload = {
         ...formData,
-        softwareLicenseCount: formData.softwareLicenseCount ? parseInt(formData.softwareLicenseCount) : 0,
-        softwareUsedCount: formData.softwareUsedCount ? parseInt(formData.softwareUsedCount) : 0,
+        itSoftwareLicenseCount: formData.itSoftwareLicenseCount ? parseInt(formData.itSoftwareLicenseCount) : 0,
+        itSoftwareUsedCount: formData.itSoftwareUsedCount ? parseInt(formData.itSoftwareUsedCount) : 0,
       };
       if (editingSoftware) {
-        await updateSoftware(editingSoftware.softwareId, payload);
+        await updateSoftware(editingSoftware.itSoftwareId, payload);
         toast.success("อัปเดตซอฟต์แวร์สำเร็จ");
       } else {
         await createSoftware(payload);
@@ -116,7 +116,7 @@ export function useItSoftware() {
   const handleDelete = async () => {
     if (!deletingSoftware) return;
     try {
-      await deleteSoftware(deletingSoftware.softwareId);
+      await deleteSoftware(deletingSoftware.itSoftwareId);
       toast.success("ลบซอฟต์แวร์สำเร็จ");
       deleteModal.onClose();
       setDeletingSoftware(null);

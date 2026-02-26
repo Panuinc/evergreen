@@ -10,39 +10,39 @@ export async function PUT(request, { params }) {
   const body = await request.json();
   const { title, metricType, startValue, targetValue, currentValue, unit, weight } = body;
 
-  const updates = { updatedAt: new Date().toISOString() };
-  if (title !== undefined) updates.title = title;
-  if (metricType !== undefined) updates.metricType = metricType;
-  if (startValue !== undefined) updates.startValue = startValue;
-  if (targetValue !== undefined) updates.targetValue = targetValue;
-  if (currentValue !== undefined) updates.currentValue = currentValue;
-  if (unit !== undefined) updates.unit = unit;
-  if (weight !== undefined) updates.weight = weight;
+  const updates = { perfOkrKeyResultUpdatedAt: new Date().toISOString() };
+  if (title !== undefined) updates.perfOkrKeyResultTitle = title;
+  if (metricType !== undefined) updates.perfOkrKeyResultMetricType = metricType;
+  if (startValue !== undefined) updates.perfOkrKeyResultStartValue = startValue;
+  if (targetValue !== undefined) updates.perfOkrKeyResultTargetValue = targetValue;
+  if (currentValue !== undefined) updates.perfOkrKeyResultCurrentValue = currentValue;
+  if (unit !== undefined) updates.perfOkrKeyResultUnit = unit;
+  if (weight !== undefined) updates.perfOkrKeyResultWeight = weight;
 
   // Auto-compute status if currentValue changed
   if (currentValue !== undefined) {
     const { data: kr } = await supabase
-      .from("okr_key_results")
+      .from("perfOkrKeyResult")
       .select("*")
-      .eq("id", id)
+      .eq("perfOkrKeyResultId", id)
       .single();
 
     if (kr) {
-      updates.status = autoKrStatus({ ...kr, ...updates });
+      updates.perfOkrKeyResultStatus = autoKrStatus({ ...kr, ...updates });
     }
   }
 
   const { data, error } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .update(updates)
-    .eq("id", id)
+    .eq("perfOkrKeyResultId", id)
     .select()
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
   // Update objective progress
-  await updateObjectiveProgress(supabase, data.objectiveId);
+  await updateObjectiveProgress(supabase, data.perfOkrKeyResultObjectiveId);
 
   return Response.json(data);
 }
@@ -55,33 +55,33 @@ export async function DELETE(request, { params }) {
 
   // Get objectiveId before deleting
   const { data: kr } = await supabase
-    .from("okr_key_results")
-    .select("objectiveId")
-    .eq("id", id)
+    .from("perfOkrKeyResult")
+    .select("perfOkrKeyResultObjectiveId")
+    .eq("perfOkrKeyResultId", id)
     .single();
 
   const { error } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .delete()
-    .eq("id", id);
+    .eq("perfOkrKeyResultId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
   // Update objective progress
-  if (kr) await updateObjectiveProgress(supabase, kr.objectiveId);
+  if (kr) await updateObjectiveProgress(supabase, kr.perfOkrKeyResultObjectiveId);
 
   return Response.json({ success: true });
 }
 
 async function updateObjectiveProgress(supabase, objectiveId) {
   const { data: krs } = await supabase
-    .from("okr_key_results")
+    .from("perfOkrKeyResult")
     .select("*")
-    .eq("objectiveId", objectiveId);
+    .eq("perfOkrKeyResultObjectiveId", objectiveId);
 
   const progress = computeObjectiveProgress(krs || []);
   await supabase
-    .from("okr_objectives")
-    .update({ progress, updatedAt: new Date().toISOString() })
-    .eq("id", objectiveId);
+    .from("perfOkrObjective")
+    .update({ perfOkrObjectiveProgress: progress, perfOkrObjectiveUpdatedAt: new Date().toISOString() })
+    .eq("perfOkrObjectiveId", objectiveId);
 }

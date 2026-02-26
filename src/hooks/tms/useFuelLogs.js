@@ -15,17 +15,17 @@ import {
 const today = new Date().toISOString().split("T")[0];
 
 const emptyForm = {
-  fuelLogVehicleId: "",
-  fuelLogDriverId: "",
-  fuelLogDate: today,
-  fuelLogFuelType: "diesel",
-  fuelLogLiters: "",
-  fuelLogPricePerLiter: "",
-  fuelLogTotalCost: "",
-  fuelLogMileage: "",
-  fuelLogStation: "",
-  fuelLogNotes: "",
-  fuelLogReceiptUrl: "",
+  tmsFuelLogVehicleId: "",
+  tmsFuelLogDriverId: "",
+  tmsFuelLogDate: today,
+  tmsFuelLogFuelType: "diesel",
+  tmsFuelLogLiters: "",
+  tmsFuelLogPricePerLiter: "",
+  tmsFuelLogTotalCost: "",
+  tmsFuelLogMileage: "",
+  tmsFuelLogStation: "",
+  tmsFuelLogNotes: "",
+  tmsFuelLogReceiptUrl: "",
 };
 
 export function useFuelLogs() {
@@ -66,17 +66,17 @@ export function useFuelLogs() {
     if (fuelLog) {
       setEditingFuelLog(fuelLog);
       setFormData({
-        fuelLogVehicleId: fuelLog.fuelLogVehicleId?.toString() || "",
-        fuelLogDriverId: fuelLog.fuelLogDriverId?.toString() || "",
-        fuelLogDate: fuelLog.fuelLogDate || today,
-        fuelLogFuelType: fuelLog.fuelLogFuelType || "diesel",
-        fuelLogLiters: fuelLog.fuelLogLiters?.toString() || "",
-        fuelLogPricePerLiter: fuelLog.fuelLogPricePerLiter?.toString() || "",
-        fuelLogTotalCost: fuelLog.fuelLogTotalCost?.toString() || "",
-        fuelLogMileage: fuelLog.fuelLogMileage?.toString() || "",
-        fuelLogStation: fuelLog.fuelLogStation || "",
-        fuelLogNotes: fuelLog.fuelLogNotes || "",
-        fuelLogReceiptUrl: fuelLog.fuelLogReceiptUrl || "",
+        tmsFuelLogVehicleId: fuelLog.tmsFuelLogVehicleId?.toString() || "",
+        tmsFuelLogDriverId: fuelLog.tmsFuelLogDriverId?.toString() || "",
+        tmsFuelLogDate: fuelLog.tmsFuelLogDate || today,
+        tmsFuelLogFuelType: fuelLog.tmsFuelLogFuelType || "diesel",
+        tmsFuelLogLiters: fuelLog.tmsFuelLogLiters?.toString() || "",
+        tmsFuelLogPricePerLiter: fuelLog.tmsFuelLogPricePerLiter?.toString() || "",
+        tmsFuelLogTotalCost: fuelLog.tmsFuelLogTotalCost?.toString() || "",
+        tmsFuelLogMileage: fuelLog.tmsFuelLogMileage?.toString() || "",
+        tmsFuelLogStation: fuelLog.tmsFuelLogStation || "",
+        tmsFuelLogNotes: fuelLog.tmsFuelLogNotes || "",
+        tmsFuelLogReceiptUrl: fuelLog.tmsFuelLogReceiptUrl || "",
       });
     } else {
       setEditingFuelLog(null);
@@ -87,9 +87,9 @@ export function useFuelLogs() {
 
   const handleSave = async () => {
     if (
-      !formData.fuelLogVehicleId ||
-      !formData.fuelLogLiters ||
-      !formData.fuelLogPricePerLiter
+      !formData.tmsFuelLogVehicleId ||
+      !formData.tmsFuelLogLiters ||
+      !formData.tmsFuelLogPricePerLiter
     ) {
       toast.error("กรุณาระบุยานพาหนะ จำนวนลิตร และราคาต่อลิตร");
       return;
@@ -97,20 +97,20 @@ export function useFuelLogs() {
 
     const payload = {
       ...formData,
-      fuelLogLiters: parseFloat(formData.fuelLogLiters),
-      fuelLogPricePerLiter: parseFloat(formData.fuelLogPricePerLiter),
-      fuelLogTotalCost: formData.fuelLogTotalCost
-        ? parseFloat(formData.fuelLogTotalCost)
+      tmsFuelLogLiters: parseFloat(formData.tmsFuelLogLiters),
+      tmsFuelLogPricePerLiter: parseFloat(formData.tmsFuelLogPricePerLiter),
+      tmsFuelLogTotalCost: formData.tmsFuelLogTotalCost
+        ? parseFloat(formData.tmsFuelLogTotalCost)
         : null,
-      fuelLogMileage: formData.fuelLogMileage
-        ? parseFloat(formData.fuelLogMileage)
+      tmsFuelLogMileage: formData.tmsFuelLogMileage
+        ? parseFloat(formData.tmsFuelLogMileage)
         : null,
     };
 
     try {
       setSaving(true);
       if (editingFuelLog) {
-        await updateFuelLog(editingFuelLog.fuelLogId, payload);
+        await updateFuelLog(editingFuelLog.tmsFuelLogId, payload);
         toast.success("อัปเดตบันทึกเชื้อเพลิงสำเร็จ");
       } else {
         await createFuelLog(payload);
@@ -133,7 +133,7 @@ export function useFuelLogs() {
   const handleDelete = async () => {
     if (!deletingFuelLog) return;
     try {
-      await deleteFuelLog(deletingFuelLog.fuelLogId);
+      await deleteFuelLog(deletingFuelLog.tmsFuelLogId);
       toast.success("ลบบันทึกเชื้อเพลิงสำเร็จ");
       deleteModal.onClose();
       setDeletingFuelLog(null);

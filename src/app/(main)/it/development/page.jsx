@@ -22,14 +22,14 @@ import { useItDevRequests } from "@/hooks/it/useItDevRequests";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่คำขอ", uid: "requestNo", sortable: true },
-  { name: "หัวข้อ", uid: "requestTitle", sortable: true },
-  { name: "ร้องขอโดย", uid: "requestedBy" },
-  { name: "ความสำคัญ", uid: "requestPriority", sortable: true },
-  { name: "ผู้รับผิดชอบ", uid: "requestAssignedTo" },
-  { name: "ความคืบหน้า", uid: "requestProgress", sortable: true },
-  { name: "สถานะ", uid: "requestStatus", sortable: true },
-  { name: "วันครบกำหนด", uid: "requestDueDate", sortable: true },
+  { name: "เลขที่คำขอ", uid: "itDevRequestNo", sortable: true },
+  { name: "หัวข้อ", uid: "itDevRequestTitle", sortable: true },
+  { name: "ร้องขอโดย", uid: "itDevRequestRequestedBy" },
+  { name: "ความสำคัญ", uid: "itDevRequestPriority", sortable: true },
+  { name: "ผู้รับผิดชอบ", uid: "itDevRequestAssignedTo" },
+  { name: "ความคืบหน้า", uid: "itDevRequestProgress", sortable: true },
+  { name: "สถานะ", uid: "itDevRequestStatus", sortable: true },
+  { name: "วันครบกำหนด", uid: "itDevRequestDueDate", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -43,13 +43,13 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "requestNo",
-  "requestTitle",
-  "requestedBy",
-  "requestPriority",
-  "requestAssignedTo",
-  "requestProgress",
-  "requestStatus",
+  "itDevRequestNo",
+  "itDevRequestTitle",
+  "itDevRequestRequestedBy",
+  "itDevRequestPriority",
+  "itDevRequestAssignedTo",
+  "itDevRequestProgress",
+  "itDevRequestStatus",
   "actions",
 ];
 
@@ -105,13 +105,13 @@ export default function DevelopmentPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "requestNo":
-          return <span className="font-medium">{item.requestNo || "-"}</span>;
-        case "requestTitle":
-          return <span className="font-medium">{item.requestTitle}</span>;
-        case "requestedBy":
-          return item.requestedBy || "-";
-        case "requestPriority": {
+        case "itDevRequestNo":
+          return <span className="font-medium">{item.itDevRequestNo || "-"}</span>;
+        case "itDevRequestTitle":
+          return <span className="font-medium">{item.itDevRequestTitle}</span>;
+        case "itDevRequestRequestedBy":
+          return item.itDevRequestRequestedBy || "-";
+        case "itDevRequestPriority": {
           const colorMap = {
             low: "default",
             medium: "primary",
@@ -123,16 +123,16 @@ export default function DevelopmentPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.requestPriority] || "default"}
+              color={colorMap[item.itDevRequestPriority] || "default"}
             >
-              {item.requestPriority}
+              {item.itDevRequestPriority}
             </Chip>
           );
         }
-        case "requestAssignedTo":
-          return item.requestAssignedTo || "-";
-        case "requestProgress": {
-          const progress = item.requestProgress || 0;
+        case "itDevRequestAssignedTo":
+          return item.itDevRequestAssignedTo || "-";
+        case "itDevRequestProgress": {
+          const progress = item.itDevRequestProgress || 0;
           const color =
             progress >= 100
               ? "success"
@@ -155,7 +155,7 @@ export default function DevelopmentPage() {
             </div>
           );
         }
-        case "requestStatus": {
+        case "itDevRequestStatus": {
           const colorMap = {
             pending: "default",
             approved: "primary",
@@ -169,14 +169,14 @@ export default function DevelopmentPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.requestStatus] || "default"}
+              color={colorMap[item.itDevRequestStatus] || "default"}
             >
-              {item.requestStatus}
+              {item.itDevRequestStatus}
             </Chip>
           );
         }
-        case "requestDueDate":
-          return formatDate(item.requestDueDate);
+        case "itDevRequestDueDate":
+          return formatDate(item.itDevRequestDueDate);
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -224,17 +224,17 @@ export default function DevelopmentPage() {
         data={requests}
         renderCell={renderCell}
         enableCardView
-        rowKey="requestId"
+        rowKey="itDevRequestId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามเลขที่คำขอ, หัวข้อ, ร้องขอโดย..."
         searchKeys={[
-          "requestNo",
-          "requestTitle",
-          "requestedBy",
-          "requestAssignedTo",
+          "itDevRequestNo",
+          "itDevRequestTitle",
+          "itDevRequestRequestedBy",
+          "itDevRequestAssignedTo",
         ]}
-        statusField="requestStatus"
+        statusField="itDevRequestStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำขอพัฒนา"
         topEndContent={
@@ -260,7 +260,7 @@ export default function DevelopmentPage() {
         <ModalContent>
           <ModalHeader>
             {editingRequest
-              ? `แก้ไข ${editingRequest.requestNo || "คำขอ"}`
+              ? `แก้ไข ${editingRequest.itDevRequestNo || "คำขอ"}`
               : "คำขอพัฒนาใหม่"}
           </ModalHeader>
           <ModalBody>
@@ -274,11 +274,11 @@ export default function DevelopmentPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.requestTitle}
-                    onChange={(e) => updateField("requestTitle", e.target.value)}
+                    value={formData.itDevRequestTitle}
+                    onChange={(e) => updateField("itDevRequestTitle", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.requestTitle}
-                    errorMessage={validationErrors?.requestTitle}
+                    isInvalid={!!validationErrors?.itDevRequestTitle}
+                    errorMessage={validationErrors?.itDevRequestTitle}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -289,9 +289,9 @@ export default function DevelopmentPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.requestedBy}
+                    value={formData.itDevRequestRequestedBy}
                     onChange={(e) =>
-                      updateField("requestedBy", e.target.value)
+                      updateField("itDevRequestRequestedBy", e.target.value)
                     }
                   />
                 </div>
@@ -304,13 +304,13 @@ export default function DevelopmentPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.requestPriority
-                        ? [formData.requestPriority]
+                      formData.itDevRequestPriority
+                        ? [formData.itDevRequestPriority]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("requestPriority", val);
+                      updateField("itDevRequestPriority", val);
                     }}
                   >
                     <SelectItem key="low">ต่ำ</SelectItem>
@@ -326,10 +326,10 @@ export default function DevelopmentPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.requestStatus]}
+                    selectedKeys={[formData.itDevRequestStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "pending";
-                      updateField("requestStatus", val);
+                      updateField("itDevRequestStatus", val);
                     }}
                   >
                     <SelectItem key="pending">รอดำเนินการ</SelectItem>
@@ -348,9 +348,9 @@ export default function DevelopmentPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.requestAssignedTo}
+                    value={formData.itDevRequestAssignedTo}
                     onChange={(e) =>
-                      updateField("requestAssignedTo", e.target.value)
+                      updateField("itDevRequestAssignedTo", e.target.value)
                     }
                   />
                 </div>
@@ -363,9 +363,9 @@ export default function DevelopmentPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.requestStartDate}
+                    value={formData.itDevRequestStartDate}
                     onChange={(e) =>
-                      updateField("requestStartDate", e.target.value)
+                      updateField("itDevRequestStartDate", e.target.value)
                     }
                   />
                 </div>
@@ -378,9 +378,9 @@ export default function DevelopmentPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.requestDueDate}
+                    value={formData.itDevRequestDueDate}
                     onChange={(e) =>
-                      updateField("requestDueDate", e.target.value)
+                      updateField("itDevRequestDueDate", e.target.value)
                     }
                   />
                 </div>
@@ -394,9 +394,9 @@ export default function DevelopmentPage() {
                   size="md"
                   radius="md"
                   minRows={3}
-                  value={formData.requestDescription}
+                  value={formData.itDevRequestDescription}
                   onChange={(e) =>
-                    updateField("requestDescription", e.target.value)
+                    updateField("itDevRequestDescription", e.target.value)
                   }
                 />
               </div>
@@ -408,8 +408,8 @@ export default function DevelopmentPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.requestNotes}
-                  onChange={(e) => updateField("requestNotes", e.target.value)}
+                  value={formData.itDevRequestNotes}
+                  onChange={(e) => updateField("itDevRequestNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -441,23 +441,23 @@ export default function DevelopmentPage() {
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <span>
-              {selectedRequest?.requestNo} - {selectedRequest?.requestTitle}
+              {selectedRequest?.itDevRequestNo} - {selectedRequest?.itDevRequestTitle}
             </span>
             <div className="flex items-center gap-3 mt-1">
               <Progress
                 size="md"
-                value={selectedRequest?.requestProgress || 0}
+                value={selectedRequest?.itDevRequestProgress || 0}
                 color={
-                  (selectedRequest?.requestProgress || 0) >= 100
+                  (selectedRequest?.itDevRequestProgress || 0) >= 100
                     ? "success"
-                    : (selectedRequest?.requestProgress || 0) >= 50
+                    : (selectedRequest?.itDevRequestProgress || 0) >= 50
                       ? "primary"
                       : "warning"
                 }
                 className="flex-1"
               />
               <span className="text-sm font-normal text-default-500">
-                {selectedRequest?.requestProgress || 0}%
+                {selectedRequest?.itDevRequestProgress || 0}%
               </span>
             </div>
           </ModalHeader>
@@ -474,9 +474,9 @@ export default function DevelopmentPage() {
                       size="md"
                       radius="md"
                       minRows={2}
-                      value={progressForm.logDescription}
+                      value={progressForm.itDevProgressLogDescription}
                       onChange={(e) =>
-                        updateProgressField("logDescription", e.target.value)
+                        updateProgressField("itDevProgressLogDescription", e.target.value)
                       }
                     />
                   </div>
@@ -490,9 +490,9 @@ export default function DevelopmentPage() {
                     radius="md"
                     min={0}
                     max={100}
-                    value={progressForm.logProgress}
+                    value={progressForm.itDevProgressLogProgress}
                     onChange={(e) =>
-                      updateProgressField("logProgress", e.target.value)
+                      updateProgressField("itDevProgressLogProgress", e.target.value)
                     }
                   />
                   <Input
@@ -502,9 +502,9 @@ export default function DevelopmentPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={progressForm.logCreatedBy}
+                    value={progressForm.itDevProgressLogCreatedBy}
                     onChange={(e) =>
-                      updateProgressField("logCreatedBy", e.target.value)
+                      updateProgressField("itDevProgressLogCreatedBy", e.target.value)
                     }
                   />
                 </div>
@@ -538,7 +538,7 @@ export default function DevelopmentPage() {
                   <div className="flex flex-col gap-3 mt-2">
                     {progressLogs.map((log) => (
                       <div
-                        key={log.logId}
+                        key={log.itDevProgressLogId}
                         className="flex gap-3 p-3 rounded-lg border border-default-200"
                       >
                         <div className="flex-shrink-0 mt-0.5">
@@ -549,29 +549,29 @@ export default function DevelopmentPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-sm font-medium">
-                              {log.logCreatedBy || "ไม่ทราบ"}
+                              {log.itDevProgressLogCreatedBy || "ไม่ทราบ"}
                             </span>
                             <div className="flex items-center gap-1 text-xs text-default-400">
                               <Clock size={12} />
-                              {formatDateTime(log.logCreatedAt)}
+                              {formatDateTime(log.itDevProgressLogCreatedAt)}
                             </div>
                           </div>
                           <p className="text-sm text-default-600 mt-1 whitespace-pre-wrap">
-                            {log.logDescription}
+                            {log.itDevProgressLogDescription}
                           </p>
                           <div className="flex items-center gap-2 mt-2">
                             <Progress
                               size="sm"
-                              value={log.logProgress || 0}
+                              value={log.itDevProgressLogProgress || 0}
                               color={
-                                (log.logProgress || 0) >= 100
+                                (log.itDevProgressLogProgress || 0) >= 100
                                   ? "success"
                                   : "primary"
                               }
                               className="flex-1 max-w-[200px]"
                             />
                             <span className="text-xs text-default-500">
-                              {log.logProgress}%
+                              {log.itDevProgressLogProgress}%
                             </span>
                           </div>
                         </div>
@@ -603,7 +603,7 @@ export default function DevelopmentPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingRequest?.requestNo} - {deletingRequest?.requestTitle}
+                {deletingRequest?.itDevRequestNo} - {deletingRequest?.itDevRequestTitle}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

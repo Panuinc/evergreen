@@ -12,13 +12,13 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  accessSystem: "",
-  accessType: "grant",
-  accessRequestedFor: "",
-  accessRequestedBy: "",
-  accessStatus: "pending",
-  accessApprovedBy: "",
-  accessNotes: "",
+  itSystemAccessSystem: "",
+  itSystemAccessType: "grant",
+  itSystemAccessRequestedFor: "",
+  itSystemAccessRequestedBy: "",
+  itSystemAccessStatus: "pending",
+  itSystemAccessApprovedBy: "",
+  itSystemAccessNotes: "",
 };
 
 export function useItSystemAccess() {
@@ -52,13 +52,13 @@ export function useItSystemAccess() {
     if (access) {
       setEditingAccess(access);
       setFormData({
-        accessSystem: access.accessSystem || "",
-        accessType: access.accessType || "grant",
-        accessRequestedFor: access.accessRequestedFor || "",
-        accessRequestedBy: access.accessRequestedBy || "",
-        accessStatus: access.accessStatus || "pending",
-        accessApprovedBy: access.accessApprovedBy || "",
-        accessNotes: access.accessNotes || "",
+        itSystemAccessSystem: access.itSystemAccessSystem || "",
+        itSystemAccessType: access.itSystemAccessType || "grant",
+        itSystemAccessRequestedFor: access.itSystemAccessRequestedFor || "",
+        itSystemAccessRequestedBy: access.itSystemAccessRequestedBy || "",
+        itSystemAccessStatus: access.itSystemAccessStatus || "pending",
+        itSystemAccessApprovedBy: access.itSystemAccessApprovedBy || "",
+        itSystemAccessNotes: access.itSystemAccessNotes || "",
       });
     } else {
       setEditingAccess(null);
@@ -70,7 +70,7 @@ export function useItSystemAccess() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      accessSystem: [(v) => !isRequired(v) && "กรุณาระบุชื่อระบบ"],
+      itSystemAccessSystem: [(v) => !isRequired(v) && "กรุณาระบุชื่อระบบ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -82,7 +82,7 @@ export function useItSystemAccess() {
     try {
       setSaving(true);
       if (editingAccess) {
-        await updateSystemAccess(editingAccess.accessId, formData);
+        await updateSystemAccess(editingAccess.itSystemAccessId, formData);
         toast.success("อัปเดตคำขอเข้าถึงสำเร็จ");
       } else {
         await createSystemAccess(formData);
@@ -105,7 +105,7 @@ export function useItSystemAccess() {
   const handleDelete = async () => {
     if (!deletingAccess) return;
     try {
-      await deleteSystemAccess(deletingAccess.accessId);
+      await deleteSystemAccess(deletingAccess.itSystemAccessId);
       toast.success("ลบคำขอเข้าถึงสำเร็จ");
       deleteModal.onClose();
       setDeletingAccess(null);

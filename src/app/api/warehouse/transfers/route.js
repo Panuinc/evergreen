@@ -6,7 +6,7 @@ export async function GET() {
   const { supabase, session } = auth;
 
   const { data, error } = await supabase
-    .from("warehouseTransfers")
+    .from("whTransfer")
     .select("*")
     .eq("user_id", session.user.id)
     .order("created_at", { ascending: false });
@@ -40,7 +40,7 @@ export async function POST(request) {
   };
 
   const { data, error } = await supabase
-    .from("warehouseTransfers")
+    .from("whTransfer")
     .insert([record])
     .select()
     .single();

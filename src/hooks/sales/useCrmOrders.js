@@ -25,7 +25,7 @@ export function useCrmOrders() {
       const data = await getOrders();
       setOrders(
         statusFilter
-          ? data.filter((o) => o.orderStatus === statusFilter)
+          ? data.filter((o) => o.crmOrderStatus === statusFilter)
           : data
       );
     } catch (error) {
@@ -38,7 +38,7 @@ export function useCrmOrders() {
   const handleStatusChange = async (order, newStatus) => {
     try {
       setSaving(true);
-      await updateOrder(order.orderId, { orderStatus: newStatus });
+      await updateOrder(order.crmOrderId, { crmOrderStatus: newStatus });
       toast.success(`เปลี่ยนสถานะคำสั่งซื้อเป็น ${newStatus} สำเร็จ`);
       loadData();
     } catch (error) {
@@ -61,7 +61,7 @@ export function useCrmOrders() {
   const handleDelete = async () => {
     if (!deletingOrder) return;
     try {
-      await deleteOrder(deletingOrder.orderId);
+      await deleteOrder(deletingOrder.crmOrderId);
       toast.success("ลบคำสั่งซื้อสำเร็จ");
       deleteModal.onClose();
       setDeletingOrder(null);

@@ -10,22 +10,22 @@ export async function GET(request) {
   const status = searchParams.get("status");
 
   let query = supabase
-    .from("crmOrders")
+    .from("crmOrder")
     .select(
-      "*, crmContacts(contactFirstName, contactLastName), crmAccounts(accountName), crmQuotations(quotationNo)"
+      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmQuotation(crmQuotationNo)"
     );
 
   if (search) {
     query = query.or(
-      `orderNo.ilike.%${search}%,orderShippingAddress.ilike.%${search}%,orderTrackingNumber.ilike.%${search}%`
+      `crmOrderNo.ilike.%${search}%,crmOrderShippingAddress.ilike.%${search}%,crmOrderTrackingNumber.ilike.%${search}%`
     );
   }
 
   if (status) {
-    query = query.eq("orderStatus", status);
+    query = query.eq("crmOrderStatus", status);
   }
 
-  const { data, error } = await query.order("orderCreatedAt", {
+  const { data, error } = await query.order("crmOrderCreatedAt", {
     ascending: false,
   });
 
@@ -40,7 +40,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmOrders")
+    .from("crmOrder")
     .insert([body])
     .select()
     .single();

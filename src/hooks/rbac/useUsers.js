@@ -57,7 +57,7 @@ export function useUsers() {
 
   const openRoleAssignment = (user) => {
     setSelectedUser(user);
-    setUserRoleIds(user.roles?.map((r) => r.roleId) || []);
+    setUserRoleIds(user.roles?.map((r) => r.rbacRoleId) || []);
     onOpen();
   };
 
@@ -67,11 +67,11 @@ export function useUsers() {
 
     try {
       if (userRoleIds.includes(roleId)) {
-        await removeRoleFromUser(selectedUser.userProfileId, roleId);
+        await removeRoleFromUser(selectedUser.rbacUserProfileId, roleId);
         setUserRoleIds((prev) => prev.filter((id) => id !== roleId));
         toast.success("ลบบทบาทสำเร็จ");
       } else {
-        await assignRoleToUser(selectedUser.userProfileId, roleId);
+        await assignRoleToUser(selectedUser.rbacUserProfileId, roleId);
         setUserRoleIds((prev) => [...prev, roleId]);
         toast.success("กำหนดบทบาทสำเร็จ");
       }

@@ -22,11 +22,11 @@ import ImagePreviewModal from "@/components/ui/ImagePreviewModal";
 
 const columns = [
   { name: "การขนส่ง", uid: "shipment", sortable: true },
-  { name: "ชื่อผู้รับ", uid: "deliveryReceiverName", sortable: true },
-  { name: "สถานะ", uid: "deliveryStatus", sortable: true },
-  { name: "ลายเซ็น", uid: "deliverySignatureUrl" },
-  { name: "รูปภาพ", uid: "deliveryPhotoUrls" },
-  { name: "เวลารับสินค้า", uid: "deliveryReceivedAt", sortable: true },
+  { name: "ชื่อผู้รับ", uid: "tmsDeliveryReceiverName", sortable: true },
+  { name: "สถานะ", uid: "tmsDeliveryStatus", sortable: true },
+  { name: "ลายเซ็น", uid: "tmsDeliverySignatureUrl" },
+  { name: "รูปภาพ", uid: "tmsDeliveryPhotoUrls" },
+  { name: "เวลารับสินค้า", uid: "tmsDeliveryReceivedAt", sortable: true },
   { name: "จัดการ", uid: "actions" },
 ];
 
@@ -59,10 +59,10 @@ const STATUS_LABELS = {
 
 const INITIAL_VISIBLE_COLUMNS = [
   "shipment",
-  "deliveryReceiverName",
-  "deliveryStatus",
-  "deliverySignatureUrl",
-  "deliveryPhotoUrls",
+  "tmsDeliveryReceiverName",
+  "tmsDeliveryStatus",
+  "tmsDeliverySignatureUrl",
+  "tmsDeliveryPhotoUrls",
   "deliveryReceivedAt",
   "actions",
 ];
@@ -101,56 +101,56 @@ export default function DeliveriesPage() {
       switch (columnKey) {
         case "shipment": {
           const s = shipments.find(
-            (s) => s.shipmentId === item.deliveryShipmentId,
+            (s) => s.tmsShipmentId === item.tmsDeliveryShipmentId,
           );
           return s
-            ? `${s.shipmentNumber} - ${s.shipmentCustomerName}`
+            ? `${s.tmsShipmentNumber} - ${s.tmsShipmentCustomerName}`
             : "-";
         }
-        case "deliveryReceiverName":
-          return item.deliveryReceiverName || "-";
-        case "deliveryStatus":
+        case "tmsDeliveryReceiverName":
+          return item.tmsDeliveryReceiverName || "-";
+        case "tmsDeliveryStatus":
           return (
             <Chip
               variant="bordered"
               size="md"
               radius="md"
-              color={STATUS_COLORS[item.deliveryStatus] || "default"}
+              color={STATUS_COLORS[item.tmsDeliveryStatus] || "default"}
             >
-              {STATUS_LABELS[item.deliveryStatus] || item.deliveryStatus}
+              {STATUS_LABELS[item.tmsDeliveryStatus] || item.tmsDeliveryStatus}
             </Chip>
           );
-        case "deliverySignatureUrl":
-          return item.deliverySignatureUrl ? (
+        case "tmsDeliverySignatureUrl":
+          return item.tmsDeliverySignatureUrl ? (
             <img
-              src={item.deliverySignatureUrl}
+              src={item.tmsDeliverySignatureUrl}
               alt="signature"
               className="w-10 h-10 object-cover rounded cursor-pointer border border-default-200"
-              onClick={() => openPreview(item.deliverySignatureUrl)}
+              onClick={() => openPreview(item.tmsDeliverySignatureUrl)}
             />
           ) : "-";
-        case "deliveryPhotoUrls":
-          return item.deliveryPhotoUrls?.length > 0 ? (
+        case "tmsDeliveryPhotoUrls":
+          return item.tmsDeliveryPhotoUrls?.length > 0 ? (
             <div className="flex gap-1">
-              {item.deliveryPhotoUrls.slice(0, 3).map((url, i) => (
+              {item.tmsDeliveryPhotoUrls.slice(0, 3).map((url, i) => (
                 <img
                   key={i}
                   src={url}
                   alt={`photo-${i}`}
                   className="w-8 h-8 object-cover rounded cursor-pointer border border-default-200"
-                  onClick={() => openPreview(item.deliveryPhotoUrls, i)}
+                  onClick={() => openPreview(item.tmsDeliveryPhotoUrls, i)}
                 />
               ))}
-              {item.deliveryPhotoUrls.length > 3 && (
+              {item.tmsDeliveryPhotoUrls.length > 3 && (
                 <span className="text-xs text-default-400 self-center">
-                  +{item.deliveryPhotoUrls.length - 3}
+                  +{item.tmsDeliveryPhotoUrls.length - 3}
                 </span>
               )}
             </div>
           ) : "-";
-        case "deliveryReceivedAt":
-          return item.deliveryReceivedAt
-            ? new Date(item.deliveryReceivedAt).toLocaleString("th-TH")
+        case "tmsDeliveryReceivedAt":
+          return item.tmsDeliveryReceivedAt
+            ? new Date(item.tmsDeliveryReceivedAt).toLocaleString("th-TH")
             : "-";
         case "actions":
           return (
@@ -189,12 +189,12 @@ export default function DeliveriesPage() {
         data={deliveries}
         renderCell={renderCell}
         enableCardView
-        rowKey="deliveryId"
+        rowKey="tmsDeliveryId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยชื่อผู้รับ, หมายเหตุ..."
-        searchKeys={["deliveryReceiverName", "deliveryNotes"]}
-        statusField="deliveryStatus"
+        searchKeys={["tmsDeliveryReceiverName", "tmsDeliveryNotes"]}
+        statusField="tmsDeliveryStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบการจัดส่ง"
         topEndContent={
@@ -233,21 +233,21 @@ export default function DeliveriesPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.deliveryShipmentId
-                        ? [formData.deliveryShipmentId]
+                      formData.tmsDeliveryShipmentId
+                        ? [formData.tmsDeliveryShipmentId]
                         : []
                     }
                     onSelectionChange={(keys) =>
                       updateField(
-                        "deliveryShipmentId",
+                        "tmsDeliveryShipmentId",
                         Array.from(keys)[0] || "",
                       )
                     }
                     isRequired
                   >
                     {shipments.map((s) => (
-                      <SelectItem key={s.shipmentId}>
-                        {s.shipmentNumber} - {s.shipmentCustomerName}
+                      <SelectItem key={s.tmsShipmentId}>
+                        {s.tmsShipmentNumber} - {s.tmsShipmentCustomerName}
                       </SelectItem>
                     ))}
                   </Select>
@@ -260,9 +260,9 @@ export default function DeliveriesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deliveryReceiverName}
+                    value={formData.tmsDeliveryReceiverName}
                     onChange={(e) =>
-                      updateField("deliveryReceiverName", e.target.value)
+                      updateField("tmsDeliveryReceiverName", e.target.value)
                     }
                   />
                 </div>
@@ -274,9 +274,9 @@ export default function DeliveriesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deliveryReceiverPhone}
+                    value={formData.tmsDeliveryReceiverPhone}
                     onChange={(e) =>
-                      updateField("deliveryReceiverPhone", e.target.value)
+                      updateField("tmsDeliveryReceiverPhone", e.target.value)
                     }
                   />
                 </div>
@@ -289,11 +289,11 @@ export default function DeliveriesPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.deliveryStatus ? [formData.deliveryStatus] : []
+                      formData.tmsDeliveryStatus ? [formData.tmsDeliveryStatus] : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "pending";
-                      updateField("deliveryStatus", val);
+                      updateField("tmsDeliveryStatus", val);
                     }}
                   >
                     <SelectItem key="pending">รอดำเนินการ</SelectItem>
@@ -316,9 +316,9 @@ export default function DeliveriesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deliveryDamageNotes}
+                    value={formData.tmsDeliveryDamageNotes}
                     onChange={(e) =>
-                      updateField("deliveryDamageNotes", e.target.value)
+                      updateField("tmsDeliveryDamageNotes", e.target.value)
                     }
                   />
                 </div>
@@ -330,9 +330,9 @@ export default function DeliveriesPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.deliveryNotes}
+                    value={formData.tmsDeliveryNotes}
                     onChange={(e) =>
-                      updateField("deliveryNotes", e.target.value)
+                      updateField("tmsDeliveryNotes", e.target.value)
                     }
                   />
                 </div>
@@ -341,8 +341,8 @@ export default function DeliveriesPage() {
                     label="ลายเซ็น"
                     accept="image/*"
                     multiple={false}
-                    value={formData.deliverySignatureUrl}
-                    onChange={(url) => updateField("deliverySignatureUrl", url)}
+                    value={formData.tmsDeliverySignatureUrl}
+                    onChange={(url) => updateField("tmsDeliverySignatureUrl", url)}
                     folder="delivery-signatures"
                   />
                 </div>
@@ -351,8 +351,8 @@ export default function DeliveriesPage() {
                     label="รูปภาพการจัดส่ง"
                     accept="image/*"
                     multiple={true}
-                    value={formData.deliveryPhotoUrls}
-                    onChange={(urls) => updateField("deliveryPhotoUrls", urls)}
+                    value={formData.tmsDeliveryPhotoUrls}
+                    onChange={(urls) => updateField("tmsDeliveryPhotoUrls", urls)}
                     folder="delivery-photos"
                   />
                 </div>
@@ -384,7 +384,7 @@ export default function DeliveriesPage() {
             <p>
               คุณต้องการลบการจัดส่งของ{" "}
               <span className="font-semibold">
-                {deletingDelivery?.deliveryReceiverName}
+                {deletingDelivery?.tmsDeliveryReceiverName}
               </span>
               {" "}หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

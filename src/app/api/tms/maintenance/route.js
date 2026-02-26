@@ -9,19 +9,19 @@ export async function GET(request) {
   const search = searchParams.get("search");
   const vehicleId = searchParams.get("vehicleId");
 
-  let query = supabase.from("maintenances").select("*");
+  let query = supabase.from("tmsMaintenance").select("*");
 
   if (search) {
     query = query.or(
-      `maintenanceDescription.ilike.%${search}%,maintenanceVendor.ilike.%${search}%`
+      `tmsMaintenanceDescription.ilike.%${search}%,tmsMaintenanceVendor.ilike.%${search}%`
     );
   }
 
   if (vehicleId) {
-    query = query.eq("maintenanceVehicleId", vehicleId);
+    query = query.eq("tmsMaintenanceVehicleId", vehicleId);
   }
 
-  const { data, error } = await query.order("maintenanceDate", {
+  const { data, error } = await query.order("tmsMaintenanceDate", {
     ascending: false,
   });
 
@@ -36,7 +36,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("maintenances")
+    .from("tmsMaintenance")
     .insert([body])
     .select()
     .single();

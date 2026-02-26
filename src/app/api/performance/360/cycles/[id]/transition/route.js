@@ -12,9 +12,9 @@ export async function POST(request, { params }) {
 
   // Get current cycle
   const { data: cycle, error: cycleError } = await supabase
-    .from("feedback_360_cycles")
+    .from("perf360Cycle")
     .select("*")
-    .eq("id", id)
+    .eq("perf360CycleId", id)
     .single();
 
   if (cycleError || !cycle) {
@@ -22,19 +22,19 @@ export async function POST(request, { params }) {
   }
 
   // Validate transition
-  const allowed = VALID_TRANSITIONS[cycle.status] || [];
+  const allowed = VALID_TRANSITIONS[cycle.perf360CycleStatus] || [];
   if (!allowed.includes(toStatus)) {
     return Response.json({
-      error: `ไม่สามารถเปลี่ยนสถานะจาก "${cycle.status}" เป็น "${toStatus}" ได้`,
+      error: `ไม่สามารถเปลี่ยนสถานะจาก "${cycle.perf360CycleStatus}" เป็น "${toStatus}" ได้`,
     }, { status: 400 });
   }
 
   // Validation per transition
   if (toStatus === "nominating") {
     const { count } = await supabase
-      .from("feedback_360_competencies")
+      .from("perf360Competency")
       .select("*", { count: "exact", head: true })
-      .eq("cycleId", id);
+      .eq("perf360CompetencyCycleId", id);
     if (!count || count === 0) {
       return Response.json({ error: "กรุณาเพิ่มสมรรถนะก่อนเปิดรับการเสนอชื่อ" }, { status: 400 });
     }
@@ -42,9 +42,9 @@ export async function POST(request, { params }) {
 
   if (toStatus === "active") {
     const { count } = await supabase
-      .from("feedback_360_nominations")
+      .from("perf360Nomination")
       .select("*", { count: "exact", head: true })
-      .eq("cycleId", id);
+      .eq("perf360NominationCycleId", id);
     if (!count || count === 0) {
       return Response.json({ error: "กรุณาเพิ่มรายชื่อผู้ประเมินก่อนเริ่ม" }, { status: 400 });
     }
@@ -52,9 +52,9 @@ export async function POST(request, { params }) {
 
   // Update status
   const { data, error } = await supabase
-    .from("feedback_360_cycles")
-    .update({ status: toStatus, updatedAt: new Date().toISOString() })
-    .eq("id", id)
+    .from("perf360Cycle")
+    .update({ perf360CycleStatus: toStatus, perf360CycleUpdatedAt: new Date().toISOString() })
+    .eq("perf360CycleId", id)
     .select()
     .single();
 

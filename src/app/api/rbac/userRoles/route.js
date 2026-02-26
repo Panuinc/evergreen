@@ -6,16 +6,16 @@ export async function GET() {
   const { supabase } = auth;
 
   const { data: users, error: usersError } = await supabase
-    .from("userProfiles")
+    .from("rbacUserProfile")
     .select("*")
-    .order("userProfileCreatedAt", { ascending: false });
+    .order("rbacUserProfileCreatedAt", { ascending: false });
 
   if (usersError)
     return Response.json({ error: usersError.message }, { status: 500 });
 
   const { data: allUserRoles, error: rolesError } = await supabase
-    .from("userRoles")
-    .select("*, roles(*)");
+    .from("rbacUserRole")
+    .select("*, rbacRole(*)");
 
   if (rolesError)
     return Response.json({ error: rolesError.message }, { status: 500 });
@@ -23,10 +23,10 @@ export async function GET() {
   const result = users.map((user) => ({
     ...user,
     roles: allUserRoles
-      .filter((ur) => ur.userRoleUserId === user.userProfileId)
-      .map((ur) => ur.roles),
+      .filter((ur) => ur.rbacUserRoleUserId === user.rbacUserProfileId)
+      .map((ur) => ur.rbacRole),
     userRoles: allUserRoles.filter(
-      (ur) => ur.userRoleUserId === user.userProfileId
+      (ur) => ur.rbacUserRoleUserId === user.rbacUserProfileId
     ),
   }));
 

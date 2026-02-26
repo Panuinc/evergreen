@@ -12,9 +12,9 @@ import {
 } from "@/actions/hr";
 
 const emptyForm = {
-  departmentName: "",
-  departmentDescription: "",
-  departmentDivision: "",
+  hrDepartmentName: "",
+  hrDepartmentDescription: "",
+  hrDepartmentDivision: "",
 };
 
 export function useDepartments() {
@@ -52,9 +52,9 @@ export function useDepartments() {
     if (dept) {
       setEditingDept(dept);
       setFormData({
-        departmentName: dept.departmentName || "",
-        departmentDescription: dept.departmentDescription || "",
-        departmentDivision: dept.departmentDivision || "",
+        hrDepartmentName: dept.hrDepartmentName || "",
+        hrDepartmentDescription: dept.hrDepartmentDescription || "",
+        hrDepartmentDivision: dept.hrDepartmentDivision || "",
       });
     } else {
       setEditingDept(null);
@@ -64,7 +64,7 @@ export function useDepartments() {
   };
 
   const handleSave = async () => {
-    if (!formData.departmentName.trim()) {
+    if (!formData.hrDepartmentName.trim()) {
       toast.error("กรุณาระบุชื่อแผนก");
       return;
     }
@@ -72,7 +72,7 @@ export function useDepartments() {
     try {
       setSaving(true);
       if (editingDept) {
-        await updateDepartment(editingDept.departmentId, formData);
+        await updateDepartment(editingDept.hrDepartmentId, formData);
         toast.success("อัปเดตแผนกสำเร็จ");
       } else {
         await createDepartment(formData);
@@ -95,7 +95,7 @@ export function useDepartments() {
   const handleDelete = async () => {
     if (!deletingDept) return;
     try {
-      await deleteDepartment(deletingDept.departmentId);
+      await deleteDepartment(deletingDept.hrDepartmentId);
       toast.success("ลบแผนกสำเร็จ");
       deleteModal.onClose();
       setDeletingDept(null);

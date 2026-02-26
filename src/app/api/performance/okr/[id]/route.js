@@ -7,21 +7,21 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data, error } = await supabase
-    .from("okr_objectives")
+    .from("perfOkrObjective")
     .select("*")
-    .eq("id", id)
+    .eq("perfOkrObjectiveId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
 
   const { data: krs } = await supabase
-    .from("okr_key_results").select("*")
-    .eq("objectiveId", id).order("sortOrder", { ascending: true });
+    .from("perfOkrKeyResult").select("*")
+    .eq("perfOkrKeyResultObjectiveId", id).order("perfOkrKeyResultSortOrder", { ascending: true });
 
   const { data: employee } = await supabase
-    .from("employees")
-    .select("employeeId, employeeFirstName, employeeLastName, employeeDepartment")
-    .eq("employeeId", data.employeeId).maybeSingle();
+    .from("hrEmployee")
+    .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment")
+    .eq("hrEmployeeId", data.perfOkrObjectiveEmployeeId).maybeSingle();
 
   return Response.json({ ...data, keyResults: krs || [], employee: employee || null });
 }
@@ -35,25 +35,25 @@ export async function PUT(request, { params }) {
   const body = await request.json();
   const { title, description, status, visibility, progress } = body;
 
-  const updates = { updatedAt: new Date().toISOString() };
-  if (title !== undefined) updates.title = title;
-  if (description !== undefined) updates.description = description;
-  if (status !== undefined) updates.status = status;
-  if (visibility !== undefined) updates.visibility = visibility;
-  if (progress !== undefined) updates.progress = progress;
+  const updates = { perfOkrObjectiveUpdatedAt: new Date().toISOString() };
+  if (title !== undefined) updates.perfOkrObjectiveTitle = title;
+  if (description !== undefined) updates.perfOkrObjectiveDescription = description;
+  if (status !== undefined) updates.perfOkrObjectiveStatus = status;
+  if (visibility !== undefined) updates.perfOkrObjectiveVisibility = visibility;
+  if (progress !== undefined) updates.perfOkrObjectiveProgress = progress;
 
   const { data, error } = await supabase
-    .from("okr_objectives")
+    .from("perfOkrObjective")
     .update(updates)
-    .eq("id", id)
+    .eq("perfOkrObjectiveId", id)
     .select()
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
   const { data: krs } = await supabase
-    .from("okr_key_results").select("*")
-    .eq("objectiveId", id).order("sortOrder", { ascending: true });
+    .from("perfOkrKeyResult").select("*")
+    .eq("perfOkrKeyResultObjectiveId", id).order("perfOkrKeyResultSortOrder", { ascending: true });
 
   return Response.json({ ...data, keyResults: krs || [] });
 }
@@ -65,9 +65,9 @@ export async function DELETE(request, { params }) {
   const { id } = await params;
 
   const { error } = await supabase
-    .from("okr_objectives")
+    .from("perfOkrObjective")
     .delete()
-    .eq("id", id);
+    .eq("perfOkrObjectiveId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

@@ -19,11 +19,11 @@ import DataTable from "@/components/ui/DataTable";
 
 const columns = [
   { name: "ชื่อ", uid: "name", sortable: true },
-  { name: "โทรศัพท์", uid: "driverPhone" },
-  { name: "ตำแหน่ง", uid: "driverRole", sortable: true },
-  { name: "ประเภทใบขับขี่", uid: "driverLicenseType", sortable: true },
-  { name: "วันหมดอายุใบขับขี่", uid: "driverLicenseExpiry", sortable: true },
-  { name: "สถานะ", uid: "driverStatus", sortable: true },
+  { name: "โทรศัพท์", uid: "tmsDriverPhone" },
+  { name: "ตำแหน่ง", uid: "tmsDriverRole", sortable: true },
+  { name: "ประเภทใบขับขี่", uid: "tmsDriverLicenseType", sortable: true },
+  { name: "วันหมดอายุใบขับขี่", uid: "tmsDriverLicenseExpiry", sortable: true },
+  { name: "สถานะ", uid: "tmsDriverStatus", sortable: true },
   { name: "จัดการ", uid: "actions" },
 ];
 
@@ -36,11 +36,11 @@ const statusOptions = [
 
 const INITIAL_VISIBLE_COLUMNS = [
   "name",
-  "driverPhone",
-  "driverRole",
-  "driverLicenseType",
-  "driverLicenseExpiry",
-  "driverStatus",
+  "tmsDriverPhone",
+  "tmsDriverRole",
+  "tmsDriverLicenseType",
+  "tmsDriverLicenseExpiry",
+  "tmsDriverStatus",
   "actions",
 ];
 
@@ -69,14 +69,14 @@ export default function DriversPage() {
         case "name":
           return (
             <span className="font-medium">
-              {item.driverFirstName} {item.driverLastName}
+              {item.tmsDriverFirstName} {item.tmsDriverLastName}
             </span>
           );
-        case "driverPhone":
+        case "tmsDriverPhone":
           return (
-            <span className="text-default-500">{item.driverPhone || "-"}</span>
+            <span className="text-default-500">{item.tmsDriverPhone || "-"}</span>
           );
-        case "driverRole": {
+        case "tmsDriverRole": {
           const roleColor = {
             driver: "primary",
             assistant: "secondary",
@@ -86,23 +86,23 @@ export default function DriversPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={roleColor[item.driverRole] || "default"}
+              color={roleColor[item.tmsDriverRole] || "default"}
             >
-              {item.driverRole}
+              {item.tmsDriverRole}
             </Chip>
           );
         }
-        case "driverLicenseType":
-          return item.driverLicenseType || "-";
-        case "driverLicenseExpiry":
+        case "tmsDriverLicenseType":
+          return item.tmsDriverLicenseType || "-";
+        case "tmsDriverLicenseExpiry":
           return (
             <span className="text-default-500">
-              {item.driverLicenseExpiry
-                ? new Date(item.driverLicenseExpiry).toLocaleDateString("th-TH")
+              {item.tmsDriverLicenseExpiry
+                ? new Date(item.tmsDriverLicenseExpiry).toLocaleDateString("th-TH")
                 : "-"}
             </span>
           );
-        case "driverStatus": {
+        case "tmsDriverStatus": {
           const colorMap = {
             available: "success",
             on_duty: "warning",
@@ -114,9 +114,9 @@ export default function DriversPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.driverStatus] || "default"}
+              color={colorMap[item.tmsDriverStatus] || "default"}
             >
-              {item.driverStatus}
+              {item.tmsDriverStatus}
             </Chip>
           );
         }
@@ -157,16 +157,16 @@ export default function DriversPage() {
         data={drivers}
         renderCell={renderCell}
         enableCardView
-        rowKey="driverId"
+        rowKey="tmsDriverId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยชื่อ, เบอร์โทร..."
         searchKeys={[
-          "driverFirstName",
-          "driverLastName",
-          "driverPhone",
+          "tmsDriverFirstName",
+          "tmsDriverLastName",
+          "tmsDriverPhone",
         ]}
-        statusField="driverStatus"
+        statusField="tmsDriverStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบพนักงานขับรถ"
         topEndContent={
@@ -204,9 +204,9 @@ export default function DriversPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.driverFirstName}
+                    value={formData.tmsDriverFirstName}
                     onChange={(e) =>
-                      updateField("driverFirstName", e.target.value)
+                      updateField("tmsDriverFirstName", e.target.value)
                     }
                     isRequired
                   />
@@ -219,9 +219,9 @@ export default function DriversPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.driverLastName}
+                    value={formData.tmsDriverLastName}
                     onChange={(e) =>
-                      updateField("driverLastName", e.target.value)
+                      updateField("tmsDriverLastName", e.target.value)
                     }
                     isRequired
                   />
@@ -234,9 +234,9 @@ export default function DriversPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.driverPhone}
+                    value={formData.tmsDriverPhone}
                     onChange={(e) =>
-                      updateField("driverPhone", e.target.value)
+                      updateField("tmsDriverPhone", e.target.value)
                     }
                   />
                 </div>
@@ -249,11 +249,11 @@ export default function DriversPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.driverRole ? [formData.driverRole] : []
+                      formData.tmsDriverRole ? [formData.tmsDriverRole] : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("driverRole", val);
+                      updateField("tmsDriverRole", val);
                     }}
                   >
                     <SelectItem key="driver">พนักงานขับรถ</SelectItem>
@@ -268,9 +268,9 @@ export default function DriversPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.driverLicenseNumber}
+                    value={formData.tmsDriverLicenseNumber}
                     onChange={(e) =>
-                      updateField("driverLicenseNumber", e.target.value)
+                      updateField("tmsDriverLicenseNumber", e.target.value)
                     }
                   />
                 </div>
@@ -283,13 +283,13 @@ export default function DriversPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.driverLicenseType
-                        ? [formData.driverLicenseType]
+                      formData.tmsDriverLicenseType
+                        ? [formData.tmsDriverLicenseType]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("driverLicenseType", val);
+                      updateField("tmsDriverLicenseType", val);
                     }}
                   >
                     <SelectItem key="type1">ประเภท 1</SelectItem>
@@ -307,9 +307,9 @@ export default function DriversPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.driverLicenseExpiry}
+                    value={formData.tmsDriverLicenseExpiry}
                     onChange={(e) =>
-                      updateField("driverLicenseExpiry", e.target.value)
+                      updateField("tmsDriverLicenseExpiry", e.target.value)
                     }
                   />
                 </div>
@@ -322,18 +322,18 @@ export default function DriversPage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.driverEmployeeId
-                        ? [formData.driverEmployeeId]
+                      formData.tmsDriverEmployeeId
+                        ? [formData.tmsDriverEmployeeId]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("driverEmployeeId", val);
+                      updateField("tmsDriverEmployeeId", val);
                     }}
                   >
                     {employees.map((emp) => (
-                      <SelectItem key={emp.employeeId}>
-                        {emp.employeeFirstName} {emp.employeeLastName}
+                      <SelectItem key={emp.hrEmployeeId}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
                       </SelectItem>
                     ))}
                   </Select>
@@ -345,10 +345,10 @@ export default function DriversPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.driverStatus]}
+                    selectedKeys={[formData.tmsDriverStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "available";
-                      updateField("driverStatus", val);
+                      updateField("tmsDriverStatus", val);
                     }}
                   >
                     <SelectItem key="available">พร้อม</SelectItem>
@@ -365,9 +365,9 @@ export default function DriversPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.driverNotes}
+                    value={formData.tmsDriverNotes}
                     onChange={(e) =>
-                      updateField("driverNotes", e.target.value)
+                      updateField("tmsDriverNotes", e.target.value)
                     }
                   />
                 </div>
@@ -399,8 +399,8 @@ export default function DriversPage() {
             <p>
               คุณต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingDriver?.driverFirstName}{" "}
-                {deletingDriver?.driverLastName}
+                {deletingDriver?.tmsDriverFirstName}{" "}
+                {deletingDriver?.tmsDriverLastName}
               </span>
               หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

@@ -42,11 +42,11 @@ export function useOkr() {
   const objectiveModal = useDisclosure();
   const [editingObjective, setEditingObjective] = useState(null);
   const [objectiveForm, setObjectiveForm] = useState({
-    title: "",
-    description: "",
-    year: String(new Date().getFullYear()),
-    quarter: String(Math.ceil((new Date().getMonth() + 1) / 3)),
-    visibility: "team",
+    perfOkrObjectiveTitle: "",
+    perfOkrObjectiveDescription: "",
+    perfOkrObjectiveYear: String(new Date().getFullYear()),
+    perfOkrObjectiveQuarter: String(Math.ceil((new Date().getMonth() + 1) / 3)),
+    perfOkrObjectiveVisibility: "team",
   });
   const [savingObjective, setSavingObjective] = useState(false);
 
@@ -54,13 +54,13 @@ export function useOkr() {
   const krModal = useDisclosure();
   const [editingKr, setEditingKr] = useState(null);
   const [krForm, setKrForm] = useState({
-    objectiveId: "",
-    title: "",
-    metricType: "number",
-    startValue: "0",
-    targetValue: "",
-    unit: "",
-    weight: "1",
+    perfOkrKeyResultObjectiveId: "",
+    perfOkrKeyResultTitle: "",
+    perfOkrKeyResultMetricType: "number",
+    perfOkrKeyResultStartValue: "0",
+    perfOkrKeyResultTargetValue: "",
+    perfOkrKeyResultUnit: "",
+    perfOkrKeyResultWeight: "1",
   });
   const [savingKr, setSavingKr] = useState(false);
 
@@ -86,7 +86,7 @@ export function useOkr() {
       const data = await getEmployees();
       setEmployees(data || []);
       if (user?.id) {
-        const myEmp = (data || []).find((e) => e.employeeUserId === user.id);
+        const myEmp = (data || []).find((e) => e.hrEmployeeUserId === user.id);
         setCurrentEmployee(myEmp || null);
       }
     } catch {
@@ -145,41 +145,47 @@ export function useOkr() {
     if (obj) {
       setEditingObjective(obj);
       setObjectiveForm({
-        title: obj.title,
-        description: obj.description || "",
-        year: String(obj.year),
-        quarter: String(obj.quarter),
-        visibility: obj.visibility || "team",
+        perfOkrObjectiveTitle: obj.perfOkrObjectiveTitle,
+        perfOkrObjectiveDescription: obj.perfOkrObjectiveDescription || "",
+        perfOkrObjectiveYear: String(obj.perfOkrObjectiveYear),
+        perfOkrObjectiveQuarter: String(obj.perfOkrObjectiveQuarter),
+        perfOkrObjectiveVisibility: obj.perfOkrObjectiveVisibility || "team",
       });
     } else {
       setEditingObjective(null);
       setObjectiveForm({
-        title: "",
-        description: "",
-        year: filterYear,
-        quarter: filterQuarter,
-        visibility: "team",
+        perfOkrObjectiveTitle: "",
+        perfOkrObjectiveDescription: "",
+        perfOkrObjectiveYear: filterYear,
+        perfOkrObjectiveQuarter: filterQuarter,
+        perfOkrObjectiveVisibility: "team",
       });
     }
     objectiveModal.onOpen();
   }, [objectiveModal, filterYear, filterQuarter]);
 
   const handleSaveObjective = useCallback(async () => {
-    if (!objectiveForm.title.trim()) {
+    if (!objectiveForm.perfOkrObjectiveTitle.trim()) {
       toast.error("กรุณากรอกชื่อ Objective");
       return;
     }
     setSavingObjective(true);
     try {
       if (editingObjective) {
-        await updateObjective(editingObjective.id, {
-          title: objectiveForm.title,
-          description: objectiveForm.description,
-          visibility: objectiveForm.visibility,
+        await updateObjective(editingObjective.perfOkrObjectiveId, {
+          title: objectiveForm.perfOkrObjectiveTitle,
+          description: objectiveForm.perfOkrObjectiveDescription,
+          visibility: objectiveForm.perfOkrObjectiveVisibility,
         });
         toast.success("อัปเดต Objective สำเร็จ");
       } else {
-        await createObjective(objectiveForm);
+        await createObjective({
+          title: objectiveForm.perfOkrObjectiveTitle,
+          description: objectiveForm.perfOkrObjectiveDescription,
+          year: objectiveForm.perfOkrObjectiveYear,
+          quarter: objectiveForm.perfOkrObjectiveQuarter,
+          visibility: objectiveForm.perfOkrObjectiveVisibility,
+        });
         toast.success("สร้าง Objective สำเร็จ");
       }
       objectiveModal.onClose();
@@ -191,9 +197,9 @@ export function useOkr() {
     }
   }, [editingObjective, objectiveForm, objectiveModal, loadMyObjectives]);
 
-  const handleDeleteObjective = useCallback(async (id) => {
+  const handleDeleteObjective = useCallback(async (perfOkrObjectiveId) => {
     try {
-      await deleteObjective(id);
+      await deleteObjective(perfOkrObjectiveId);
       toast.success("ลบ Objective สำเร็จ");
       loadMyObjectives();
     } catch (error) {
@@ -201,9 +207,9 @@ export function useOkr() {
     }
   }, [loadMyObjectives]);
 
-  const handleUpdateObjectiveStatus = useCallback(async (id, status) => {
+  const handleUpdateObjectiveStatus = useCallback(async (perfOkrObjectiveId, status) => {
     try {
-      await updateObjective(id, { status });
+      await updateObjective(perfOkrObjectiveId, { status });
       toast.success("อัปเดตสถานะสำเร็จ");
       loadMyObjectives();
     } catch (error) {
@@ -212,59 +218,59 @@ export function useOkr() {
   }, [loadMyObjectives]);
 
   // Key Result CRUD
-  const handleOpenKrForm = useCallback((objectiveId, kr = null) => {
+  const handleOpenKrForm = useCallback((perfOkrKeyResultObjectiveId, kr = null) => {
     if (kr) {
       setEditingKr(kr);
       setKrForm({
-        objectiveId,
-        title: kr.title,
-        metricType: kr.metricType,
-        startValue: String(kr.startValue),
-        targetValue: String(kr.targetValue),
-        unit: kr.unit || "",
-        weight: String(kr.weight),
+        perfOkrKeyResultObjectiveId,
+        perfOkrKeyResultTitle: kr.perfOkrKeyResultTitle,
+        perfOkrKeyResultMetricType: kr.perfOkrKeyResultMetricType,
+        perfOkrKeyResultStartValue: String(kr.perfOkrKeyResultStartValue),
+        perfOkrKeyResultTargetValue: String(kr.perfOkrKeyResultTargetValue),
+        perfOkrKeyResultUnit: kr.perfOkrKeyResultUnit || "",
+        perfOkrKeyResultWeight: String(kr.perfOkrKeyResultWeight),
       });
     } else {
       setEditingKr(null);
       setKrForm({
-        objectiveId,
-        title: "",
-        metricType: "number",
-        startValue: "0",
-        targetValue: "",
-        unit: "",
-        weight: "1",
+        perfOkrKeyResultObjectiveId,
+        perfOkrKeyResultTitle: "",
+        perfOkrKeyResultMetricType: "number",
+        perfOkrKeyResultStartValue: "0",
+        perfOkrKeyResultTargetValue: "",
+        perfOkrKeyResultUnit: "",
+        perfOkrKeyResultWeight: "1",
       });
     }
     krModal.onOpen();
   }, [krModal]);
 
   const handleSaveKr = useCallback(async () => {
-    if (!krForm.title.trim() || !krForm.targetValue) {
+    if (!krForm.perfOkrKeyResultTitle.trim() || !krForm.perfOkrKeyResultTargetValue) {
       toast.error("กรุณากรอกชื่อและเป้าหมาย");
       return;
     }
     setSavingKr(true);
     try {
       if (editingKr) {
-        await updateKeyResult(editingKr.id, {
-          title: krForm.title,
-          metricType: krForm.metricType,
-          startValue: parseFloat(krForm.startValue),
-          targetValue: parseFloat(krForm.targetValue),
-          unit: krForm.unit || null,
-          weight: parseFloat(krForm.weight),
+        await updateKeyResult(editingKr.perfOkrKeyResultId, {
+          title: krForm.perfOkrKeyResultTitle,
+          metricType: krForm.perfOkrKeyResultMetricType,
+          startValue: parseFloat(krForm.perfOkrKeyResultStartValue),
+          targetValue: parseFloat(krForm.perfOkrKeyResultTargetValue),
+          unit: krForm.perfOkrKeyResultUnit || null,
+          weight: parseFloat(krForm.perfOkrKeyResultWeight),
         });
         toast.success("อัปเดต Key Result สำเร็จ");
       } else {
         await createKeyResult({
-          objectiveId: krForm.objectiveId,
-          title: krForm.title,
-          metricType: krForm.metricType,
-          startValue: parseFloat(krForm.startValue),
-          targetValue: parseFloat(krForm.targetValue),
-          unit: krForm.unit || null,
-          weight: parseFloat(krForm.weight),
+          objectiveId: krForm.perfOkrKeyResultObjectiveId,
+          title: krForm.perfOkrKeyResultTitle,
+          metricType: krForm.perfOkrKeyResultMetricType,
+          startValue: parseFloat(krForm.perfOkrKeyResultStartValue),
+          targetValue: parseFloat(krForm.perfOkrKeyResultTargetValue),
+          unit: krForm.perfOkrKeyResultUnit || null,
+          weight: parseFloat(krForm.perfOkrKeyResultWeight),
         });
         toast.success("สร้าง Key Result สำเร็จ");
       }
@@ -277,9 +283,9 @@ export function useOkr() {
     }
   }, [editingKr, krForm, krModal, loadMyObjectives]);
 
-  const handleDeleteKr = useCallback(async (id) => {
+  const handleDeleteKr = useCallback(async (perfOkrKeyResultId) => {
     try {
-      await deleteKeyResult(id);
+      await deleteKeyResult(perfOkrKeyResultId);
       toast.success("ลบ Key Result สำเร็จ");
       loadMyObjectives();
     } catch (error) {
@@ -290,7 +296,7 @@ export function useOkr() {
   // Check-in
   const handleOpenCheckin = useCallback((kr) => {
     setCheckinKr(kr);
-    setCheckinValue(String(kr.currentValue));
+    setCheckinValue(String(kr.perfOkrKeyResultCurrentValue));
     setCheckinNote("");
     checkinModal.onOpen();
   }, [checkinModal]);
@@ -303,7 +309,7 @@ export function useOkr() {
     setSavingCheckin(true);
     try {
       await createCheckin({
-        keyResultId: checkinKr.id,
+        keyResultId: checkinKr.perfOkrKeyResultId,
         newValue: parseFloat(checkinValue),
         note: checkinNote || null,
       });
@@ -317,10 +323,10 @@ export function useOkr() {
     }
   }, [checkinKr, checkinValue, checkinNote, checkinModal, loadMyObjectives]);
 
-  const loadCheckinHistory = useCallback(async (keyResultId) => {
+  const loadCheckinHistory = useCallback(async (perfOkrKeyResultId) => {
     setLoadingCheckins(true);
     try {
-      const data = await getCheckins(keyResultId);
+      const data = await getCheckins(perfOkrKeyResultId);
       setCheckins(data || []);
     } catch {
       toast.error("ไม่สามารถโหลดประวัติ Check-in ได้");

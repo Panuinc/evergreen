@@ -7,9 +7,9 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   const { data, error } = await supabase
-    .from("crmLeads")
+    .from("crmLead")
     .select("*")
-    .eq("leadId", id)
+    .eq("crmLeadId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -24,9 +24,9 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmLeads")
+    .from("crmLead")
     .update(body)
-    .eq("leadId", id)
+    .eq("crmLeadId", id)
     .select()
     .single();
 
@@ -45,15 +45,15 @@ export async function POST(request, { params }) {
   if (body.action === "convert") {
     // Get the lead
     const { data: lead, error: leadError } = await supabase
-      .from("crmLeads")
+      .from("crmLead")
       .select("*")
-      .eq("leadId", id)
+      .eq("crmLeadId", id)
       .single();
 
     if (leadError)
       return Response.json({ error: leadError.message }, { status: 404 });
 
-    if (lead.leadStatus === "converted") {
+    if (lead.crmLeadStatus === "converted") {
       return Response.json(
         { error: "Lead is already converted" },
         { status: 400 }
@@ -62,15 +62,15 @@ export async function POST(request, { params }) {
 
     // Create contact from lead
     const { data: contact, error: contactError } = await supabase
-      .from("crmContacts")
+      .from("crmContact")
       .insert([
         {
-          contactFirstName: lead.leadName.split(" ")[0] || lead.leadName,
-          contactLastName: lead.leadName.split(" ").slice(1).join(" ") || "",
-          contactEmail: lead.leadEmail,
-          contactPhone: lead.leadPhone,
-          contactPosition: lead.leadPosition,
-          contactNotes: `Converted from lead ${lead.leadNo}`,
+          crmContactFirstName: lead.crmLeadName.split(" ")[0] || lead.crmLeadName,
+          crmContactLastName: lead.crmLeadName.split(" ").slice(1).join(" ") || "",
+          crmContactEmail: lead.crmLeadEmail,
+          crmContactPhone: lead.crmLeadPhone,
+          crmContactPosition: lead.crmLeadPosition,
+          crmContactNotes: `Converted from lead ${lead.crmLeadNo}`,
         },
       ])
       .select()
@@ -81,15 +81,15 @@ export async function POST(request, { params }) {
 
     // Create opportunity from lead
     const { data: opportunity, error: oppError } = await supabase
-      .from("crmOpportunities")
+      .from("crmOpportunity")
       .insert([
         {
-          opportunityName: `${lead.leadName} - Opportunity`,
-          opportunityStage: "prospecting",
-          opportunityContactId: contact.contactId,
-          opportunityAssignedTo: lead.leadAssignedTo,
-          opportunitySource: lead.leadSource,
-          opportunityNotes: `Converted from lead ${lead.leadNo}`,
+          crmOpportunityName: `${lead.crmLeadName} - Opportunity`,
+          crmOpportunityStage: "prospecting",
+          crmOpportunityContactId: contact.crmContactId,
+          crmOpportunityAssignedTo: lead.crmLeadAssignedTo,
+          crmOpportunitySource: lead.crmLeadSource,
+          crmOpportunityNotes: `Converted from lead ${lead.crmLeadNo}`,
         },
       ])
       .select()
@@ -100,13 +100,13 @@ export async function POST(request, { params }) {
 
     // Update lead status
     await supabase
-      .from("crmLeads")
+      .from("crmLead")
       .update({
-        leadStatus: "converted",
-        leadConvertedContactId: contact.contactId,
-        leadConvertedOpportunityId: opportunity.opportunityId,
+        crmLeadStatus: "converted",
+        crmLeadConvertedContactId: contact.crmContactId,
+        crmLeadConvertedOpportunityId: opportunity.crmOpportunityId,
       })
-      .eq("leadId", id);
+      .eq("crmLeadId", id);
 
     return Response.json({ contact, opportunity }, { status: 201 });
   }
@@ -121,9 +121,9 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("crmLeads")
+    .from("crmLead")
     .delete()
-    .eq("leadId", id);
+    .eq("crmLeadId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

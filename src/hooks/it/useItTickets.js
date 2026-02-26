@@ -12,14 +12,14 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  ticketTitle: "",
-  ticketDescription: "",
-  ticketCategory: "other",
-  ticketPriority: "medium",
-  ticketStatus: "open",
-  ticketRequestedBy: "",
-  ticketAssignedTo: "",
-  ticketNotes: "",
+  itTicketTitle: "",
+  itTicketDescription: "",
+  itTicketCategory: "other",
+  itTicketPriority: "medium",
+  itTicketStatus: "open",
+  itTicketRequestedBy: "",
+  itTicketAssignedTo: "",
+  itTicketNotes: "",
 };
 
 export function useItTickets() {
@@ -53,14 +53,14 @@ export function useItTickets() {
     if (ticket) {
       setEditingTicket(ticket);
       setFormData({
-        ticketTitle: ticket.ticketTitle || "",
-        ticketDescription: ticket.ticketDescription || "",
-        ticketCategory: ticket.ticketCategory || "other",
-        ticketPriority: ticket.ticketPriority || "medium",
-        ticketStatus: ticket.ticketStatus || "open",
-        ticketRequestedBy: ticket.ticketRequestedBy || "",
-        ticketAssignedTo: ticket.ticketAssignedTo || "",
-        ticketNotes: ticket.ticketNotes || "",
+        itTicketTitle: ticket.itTicketTitle || "",
+        itTicketDescription: ticket.itTicketDescription || "",
+        itTicketCategory: ticket.itTicketCategory || "other",
+        itTicketPriority: ticket.itTicketPriority || "medium",
+        itTicketStatus: ticket.itTicketStatus || "open",
+        itTicketRequestedBy: ticket.itTicketRequestedBy || "",
+        itTicketAssignedTo: ticket.itTicketAssignedTo || "",
+        itTicketNotes: ticket.itTicketNotes || "",
       });
     } else {
       setEditingTicket(null);
@@ -72,7 +72,7 @@ export function useItTickets() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      ticketTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อตั๋ว"],
+      itTicketTitle: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อตั๋ว"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -84,7 +84,7 @@ export function useItTickets() {
     try {
       setSaving(true);
       if (editingTicket) {
-        await updateTicket(editingTicket.ticketId, formData);
+        await updateTicket(editingTicket.itTicketId, formData);
         toast.success("อัปเดตตั๋วสำเร็จ");
       } else {
         await createTicket(formData);
@@ -107,7 +107,7 @@ export function useItTickets() {
   const handleDelete = async () => {
     if (!deletingTicket) return;
     try {
-      await deleteTicket(deletingTicket.ticketId);
+      await deleteTicket(deletingTicket.itTicketId);
       toast.success("ลบตั๋วสำเร็จ");
       deleteModal.onClose();
       setDeletingTicket(null);

@@ -162,25 +162,25 @@ async function executeTool(name, args, supabase) {
   switch (name) {
     case "get_vehicles": {
       let q = supabase
-        .from("vehicles")
-        .select("vehicleId, vehicleName, vehiclePlateNumber, vehicleType, vehicleBrand, vehicleModel, vehicleYear, vehicleStatus, vehicleCurrentMileage, vehicleFuelType, vehicleCapacityKg, vehicleRegistrationExpiry, vehicleInsuranceExpiry")
-        .order("vehicleName");
-      if (args.status) q = q.eq("vehicleStatus", args.status);
-      if (args.type) q = q.ilike("vehicleType", `%${args.type}%`);
+        .from("tmsVehicle")
+        .select("tmsVehicleId, tmsVehicleName, tmsVehiclePlateNumber, tmsVehicleType, tmsVehicleBrand, tmsVehicleModel, tmsVehicleYear, tmsVehicleStatus, tmsVehicleCurrentMileage, tmsVehicleFuelType, tmsVehicleCapacityKg, tmsVehicleRegistrationExpiry, tmsVehicleInsuranceExpiry")
+        .order("tmsVehicleName");
+      if (args.status) q = q.eq("tmsVehicleStatus", args.status);
+      if (args.type) q = q.ilike("tmsVehicleType", `%${args.type}%`);
       const { data } = await q;
       return data ?? [];
     }
 
     case "get_drivers": {
       let q = supabase
-        .from("drivers")
-        .select("driverId, driverFirstName, driverLastName, driverPhone, driverLicenseNumber, driverLicenseType, driverLicenseExpiry, driverRole, driverStatus")
-        .order("driverFirstName");
-      if (args.status) q = q.eq("driverStatus", args.status);
+        .from("tmsDriver")
+        .select("tmsDriverId, tmsDriverFirstName, tmsDriverLastName, tmsDriverPhone, tmsDriverLicenseNumber, tmsDriverLicenseType, tmsDriverLicenseExpiry, tmsDriverRole, tmsDriverStatus")
+        .order("tmsDriverFirstName");
+      if (args.status) q = q.eq("tmsDriverStatus", args.status);
       if (args.licenseExpiringSoon) {
         const today = new Date().toISOString().split("T")[0];
         const in90 = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-        q = q.gte("driverLicenseExpiry", today).lte("driverLicenseExpiry", in90);
+        q = q.gte("tmsDriverLicenseExpiry", today).lte("tmsDriverLicenseExpiry", in90);
       }
       const { data } = await q;
       return data ?? [];
@@ -188,37 +188,37 @@ async function executeTool(name, args, supabase) {
 
     case "get_shipments": {
       let q = supabase
-        .from("shipments")
-        .select("shipmentId, shipmentNumber, shipmentCustomerName, shipmentDestination, shipmentStatus, shipmentEstimatedArrival, shipmentWeightKg, shipmentCreatedAt")
-        .order("shipmentCreatedAt", { ascending: false })
+        .from("tmsShipment")
+        .select("tmsShipmentId, tmsShipmentNumber, tmsShipmentCustomerName, tmsShipmentDestination, tmsShipmentStatus, tmsShipmentEstimatedArrival, tmsShipmentWeightKg, tmsShipmentCreatedAt")
+        .order("tmsShipmentCreatedAt", { ascending: false })
         .limit(args.limit || 50);
-      if (args.status) q = q.eq("shipmentStatus", args.status);
-      if (args.since) q = q.gte("shipmentCreatedAt", args.since);
+      if (args.status) q = q.eq("tmsShipmentStatus", args.status);
+      if (args.since) q = q.gte("tmsShipmentCreatedAt", args.since);
       const { data } = await q;
       return data ?? [];
     }
 
     case "get_fuel_logs": {
       let q = supabase
-        .from("fuelLogs")
-        .select("fuelLogId, fuelLogDate, fuelLogFuelType, fuelLogLiters, fuelLogPricePerLiter, fuelLogTotalCost, fuelLogMileage, fuelLogStation, fuelLogVehicleId")
-        .order("fuelLogDate", { ascending: false })
+        .from("tmsFuelLog")
+        .select("tmsFuelLogId, tmsFuelLogDate, tmsFuelLogFuelType, tmsFuelLogLiters, tmsFuelLogPricePerLiter, tmsFuelLogTotalCost, tmsFuelLogMileage, tmsFuelLogStation, tmsFuelLogVehicleId")
+        .order("tmsFuelLogDate", { ascending: false })
         .limit(args.limit || 50);
-      if (args.vehicleId) q = q.eq("fuelLogVehicleId", args.vehicleId);
-      if (args.since) q = q.gte("fuelLogDate", args.since);
+      if (args.vehicleId) q = q.eq("tmsFuelLogVehicleId", args.vehicleId);
+      if (args.since) q = q.gte("tmsFuelLogDate", args.since);
       const { data } = await q;
       return data ?? [];
     }
 
     case "get_maintenances": {
       let q = supabase
-        .from("maintenances")
-        .select("maintenanceId, maintenanceVehicleId, maintenanceType, maintenanceDescription, maintenanceDate, maintenanceStatus, maintenanceCost, maintenanceVendor, maintenanceNextDueDate")
-        .order("maintenanceDate", { ascending: false })
+        .from("tmsMaintenance")
+        .select("tmsMaintenanceId, tmsMaintenanceVehicleId, tmsMaintenanceType, tmsMaintenanceDescription, tmsMaintenanceDate, tmsMaintenanceStatus, tmsMaintenanceCost, tmsMaintenanceVendor, tmsMaintenanceNextDueDate")
+        .order("tmsMaintenanceDate", { ascending: false })
         .limit(args.limit || 50);
-      if (args.vehicleId) q = q.eq("maintenanceVehicleId", args.vehicleId);
-      if (args.status) q = q.eq("maintenanceStatus", args.status);
-      if (args.since) q = q.gte("maintenanceDate", args.since);
+      if (args.vehicleId) q = q.eq("tmsMaintenanceVehicleId", args.vehicleId);
+      if (args.status) q = q.eq("tmsMaintenanceStatus", args.status);
+      if (args.since) q = q.gte("tmsMaintenanceDate", args.since);
       const { data } = await q;
       return data ?? [];
     }

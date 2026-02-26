@@ -19,16 +19,16 @@ import { menuData } from "@/config/menu";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "ชื่อ", uid: "resourceName", sortable: true },
-  { name: "โมดูล", uid: "resourceModuleId", sortable: true },
-  { name: "รายละเอียด", uid: "resourceDescription" },
+  { name: "ชื่อ", uid: "rbacResourceName", sortable: true },
+  { name: "โมดูล", uid: "rbacResourceModuleId", sortable: true },
+  { name: "รายละเอียด", uid: "rbacResourceDescription" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "resourceName",
-  "resourceModuleId",
-  "resourceDescription",
+  "rbacResourceName",
+  "rbacResourceModuleId",
+  "rbacResourceDescription",
   "actions",
 ];
 
@@ -49,18 +49,18 @@ export default function ResourcesPage() {
   const renderCell = useCallback(
     (resource, columnKey) => {
       switch (columnKey) {
-        case "resourceName":
-          return <span className="font-medium">{resource.resourceName}</span>;
-        case "resourceModuleId":
+        case "rbacResourceName":
+          return <span className="font-medium">{resource.rbacResourceName}</span>;
+        case "rbacResourceModuleId":
           return (
             <span className="text-default-500">
-              {resource.resourceModuleId || "-"}
+              {resource.rbacResourceModuleId || "-"}
             </span>
           );
-        case "resourceDescription":
+        case "rbacResourceDescription":
           return (
             <span className="text-default-500">
-              {resource.resourceDescription || "-"}
+              {resource.rbacResourceDescription || "-"}
             </span>
           );
         case "actions":
@@ -100,11 +100,11 @@ export default function ResourcesPage() {
         data={resources}
         renderCell={renderCell}
         enableCardView
-        rowKey="resourceId"
+        rowKey="rbacResourceId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามชื่อ, โมดูล, รายละเอียด..."
-        searchKeys={["resourceName", "resourceModuleId", "resourceDescription"]}
+        searchKeys={["rbacResourceName", "rbacResourceModuleId", "rbacResourceDescription"]}
         emptyContent="ไม่พบทรัพยากร"
         topEndContent={
           <Button
@@ -134,9 +134,9 @@ export default function ResourcesPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.resourceName}
+                  value={formData.rbacResourceName}
                   onChange={(e) =>
-                    setFormData({ ...formData, resourceName: e.target.value })
+                    setFormData({ ...formData, rbacResourceName: e.target.value })
                   }
                 />
               </div>
@@ -149,12 +149,12 @@ export default function ResourcesPage() {
                   size="md"
                   radius="md"
                   selectedKeys={
-                    formData.resourceModuleId ? [formData.resourceModuleId] : []
+                    formData.rbacResourceModuleId ? [formData.rbacResourceModuleId] : []
                   }
                   onSelectionChange={(keys) =>
                     setFormData({
                       ...formData,
-                      resourceModuleId: Array.from(keys)[0] || "",
+                      rbacResourceModuleId: Array.from(keys)[0] || "",
                     })
                   }
                 >
@@ -171,11 +171,11 @@ export default function ResourcesPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.resourceDescription}
+                  value={formData.rbacResourceDescription}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      resourceDescription: e.target.value,
+                      rbacResourceDescription: e.target.value,
                     })
                   }
                 />

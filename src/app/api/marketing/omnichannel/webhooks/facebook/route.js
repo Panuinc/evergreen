@@ -48,14 +48,14 @@ async function handleMessage(supabase, event) {
 
   // Upsert contact
   const { data: contact } = await supabase
-    .from("omContacts")
+    .from("omContact")
     .upsert(
       {
-        contactChannelType: "facebook",
-        contactExternalId: senderId,
-        contactDisplayName: senderId,
+        omContactChannelType: "facebook",
+        omContactExternalId: senderId,
+        omContactDisplayName: senderId,
       },
-      { onConflict: "contactChannelType,contactExternalId" }
+      { onConflict: "omContactChannelType,omContactExternalId" }
     )
     .select()
     .single();
@@ -64,40 +64,40 @@ async function handleMessage(supabase, event) {
 
   // Find or create conversation
   let { data: conversation } = await supabase
-    .from("omConversations")
+    .from("omConversation")
     .select()
-    .eq("conversationContactId", contact.contactId)
-    .eq("conversationChannelType", "facebook")
-    .neq("conversationStatus", "closed")
-    .order("conversationCreatedAt", { ascending: false })
+    .eq("omConversationContactId", contact.omContactId)
+    .eq("omConversationChannelType", "facebook")
+    .neq("omConversationStatus", "closed")
+    .order("omConversationCreatedAt", { ascending: false })
     .limit(1)
     .single();
 
   if (!conversation) {
     const { data: newConv } = await supabase
-      .from("omConversations")
+      .from("omConversation")
       .insert({
-        conversationContactId: contact.contactId,
-        conversationChannelType: "facebook",
-        conversationStatus: "open",
-        conversationLastMessageAt: new Date().toISOString(),
-        conversationLastMessagePreview: messageText.slice(0, 100),
-        conversationUnreadCount: 1,
-        conversationAiAutoReply: true,
+        omConversationContactId: contact.omContactId,
+        omConversationChannelType: "facebook",
+        omConversationStatus: "open",
+        omConversationLastMessageAt: new Date().toISOString(),
+        omConversationLastMessagePreview: messageText.slice(0, 100),
+        omConversationUnreadCount: 1,
+        omConversationAiAutoReply: true,
       })
       .select()
       .single();
     conversation = newConv;
   } else {
     await supabase
-      .from("omConversations")
+      .from("omConversation")
       .update({
-        conversationLastMessageAt: new Date().toISOString(),
-        conversationLastMessagePreview: messageText.slice(0, 100),
-        conversationUnreadCount: (conversation.conversationUnreadCount || 0) + 1,
-        conversationStatus: conversation.conversationStatus === "closed" ? "open" : conversation.conversationStatus,
+        omConversationLastMessageAt: new Date().toISOString(),
+        omConversationLastMessagePreview: messageText.slice(0, 100),
+        omConversationUnreadCount: (conversation.omConversationUnreadCount || 0) + 1,
+        omConversationStatus: conversation.omConversationStatus === "closed" ? "open" : conversation.omConversationStatus,
       })
-      .eq("conversationId", conversation.conversationId);
+      .eq("omConversationId", conversation.omConversationId);
   }
 
   if (!conversation) return;
@@ -116,20 +116,20 @@ async function handleMessage(supabase, event) {
   }
 
   // Insert message
-  await supabase.from("omMessages").insert({
-    messageConversationId: conversation.conversationId,
-    messageSenderType: "customer",
-    messageSenderId: senderId,
-    messageContent: imageUrl || messageText || "[image]",
-    messageType: messageType,
-    messageExternalId: externalId,
-    messageMetadata: event.message,
-    messageImageUrl: imageUrl,
+  await supabase.from("omMessage").insert({
+    omMessageConversationId: conversation.omConversationId,
+    omMessageSenderType: "customer",
+    omMessageSenderId: senderId,
+    omMessageContent: imageUrl || messageText || "[image]",
+    omMessageType: messageType,
+    omMessageExternalId: externalId,
+    omMessageMetadata: event.message,
+    omMessageImageUrl: imageUrl,
   });
 
   // Trigger AI auto-reply if enabled
-  if (conversation.conversationAiAutoReply) {
-    triggerAiReply(conversation.conversationId);
+  if (conversation.omConversationAiAutoReply) {
+    triggerAiReply(conversation.omConversationId);
   }
 }
 

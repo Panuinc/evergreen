@@ -8,7 +8,7 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data, error } = await supabase
-    .from("warehouseTransfers")
+    .from("whTransfer")
     .select("*")
     .eq("id", id)
     .eq("user_id", session.user.id)
@@ -35,7 +35,7 @@ export async function PUT(request, { params }) {
   }
 
   const { data, error } = await supabase
-    .from("warehouseTransfers")
+    .from("whTransfer")
     .update(updates)
     .eq("id", id)
     .eq("user_id", session.user.id)

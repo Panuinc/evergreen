@@ -8,71 +8,71 @@ import { exportToCsv } from "@/lib/exportCsv";
 import DataTable from "@/components/ui/DataTable";
 
 const SHIPMENT_COLUMNS = [
-  { name: "เลขที่", uid: "shipmentNumber", sortable: true },
-  { name: "วันที่", uid: "shipmentDate", sortable: true },
-  { name: "ลูกค้า", uid: "shipmentCustomerName", sortable: true },
-  { name: "ปลายทาง", uid: "shipmentDestination" },
-  { name: "สถานะ", uid: "shipmentStatus", sortable: true },
+  { name: "เลขที่", uid: "tmsShipmentNumber", sortable: true },
+  { name: "วันที่", uid: "tmsShipmentDate", sortable: true },
+  { name: "ลูกค้า", uid: "tmsShipmentCustomerName", sortable: true },
+  { name: "ปลายทาง", uid: "tmsShipmentDestination" },
+  { name: "สถานะ", uid: "tmsShipmentStatus", sortable: true },
 ];
 
 const FUEL_COLUMNS = [
-  { name: "วันที่", uid: "fuelLogDate", sortable: true },
-  { name: "ลิตร", uid: "fuelLogLiters", sortable: true },
-  { name: "ราคา/ลิตร", uid: "fuelLogPricePerLiter", sortable: true },
-  { name: "ค่าใช้จ่ายรวม", uid: "fuelLogTotalCost", sortable: true },
-  { name: "สถานี", uid: "fuelLogStation" },
+  { name: "วันที่", uid: "tmsFuelLogDate", sortable: true },
+  { name: "ลิตร", uid: "tmsFuelLogLiters", sortable: true },
+  { name: "ราคา/ลิตร", uid: "tmsFuelLogPricePerLiter", sortable: true },
+  { name: "ค่าใช้จ่ายรวม", uid: "tmsFuelLogTotalCost", sortable: true },
+  { name: "สถานี", uid: "tmsFuelLogStation" },
 ];
 
 const MAINTENANCE_COLUMNS = [
-  { name: "วันที่", uid: "maintenanceDate", sortable: true },
-  { name: "ประเภท", uid: "maintenanceType", sortable: true },
-  { name: "รายละเอียด", uid: "maintenanceDescription" },
-  { name: "ค่าใช้จ่าย", uid: "maintenanceCost", sortable: true },
-  { name: "สถานะ", uid: "maintenanceStatus", sortable: true },
+  { name: "วันที่", uid: "tmsMaintenanceDate", sortable: true },
+  { name: "ประเภท", uid: "tmsMaintenanceType", sortable: true },
+  { name: "รายละเอียด", uid: "tmsMaintenanceDescription" },
+  { name: "ค่าใช้จ่าย", uid: "tmsMaintenanceCost", sortable: true },
+  { name: "สถานะ", uid: "tmsMaintenanceStatus", sortable: true },
 ];
 
 const VEHICLE_COLUMNS = [
-  { name: "ชื่อ", uid: "vehicleName", sortable: true },
-  { name: "ทะเบียน", uid: "vehiclePlateNumber", sortable: true },
-  { name: "ประเภท", uid: "vehicleType", sortable: true },
-  { name: "ยี่ห้อ", uid: "vehicleBrand" },
-  { name: "สถานะ", uid: "vehicleStatus", sortable: true },
+  { name: "ชื่อ", uid: "tmsVehicleName", sortable: true },
+  { name: "ทะเบียน", uid: "tmsVehiclePlateNumber", sortable: true },
+  { name: "ประเภท", uid: "tmsVehicleType", sortable: true },
+  { name: "ยี่ห้อ", uid: "tmsVehicleBrand" },
+  { name: "สถานะ", uid: "tmsVehicleStatus", sortable: true },
 ];
 
 const CSV_CONFIGS = {
   shipments: [
-    { header: "เลขที่", key: "shipmentNumber" },
-    { header: "วันที่", key: "shipmentDate" },
-    { header: "ลูกค้า", key: "shipmentCustomerName" },
-    { header: "โทรศัพท์", key: "shipmentCustomerPhone" },
-    { header: "ปลายทาง", key: "shipmentDestination" },
-    { header: "น้ำหนัก (กก.)", key: "shipmentWeightKg" },
-    { header: "สถานะ", key: "shipmentStatus" },
+    { header: "เลขที่", key: "tmsShipmentNumber" },
+    { header: "วันที่", key: "tmsShipmentDate" },
+    { header: "ลูกค้า", key: "tmsShipmentCustomerName" },
+    { header: "โทรศัพท์", key: "tmsShipmentCustomerPhone" },
+    { header: "ปลายทาง", key: "tmsShipmentDestination" },
+    { header: "น้ำหนัก (กก.)", key: "tmsShipmentWeightKg" },
+    { header: "สถานะ", key: "tmsShipmentStatus" },
   ],
   fuelLogs: [
-    { header: "วันที่", key: "fuelLogDate" },
-    { header: "ลิตร", key: "fuelLogLiters" },
-    { header: "ราคา/ลิตร", key: "fuelLogPricePerLiter" },
-    { header: "ค่าใช้จ่ายรวม", key: "fuelLogTotalCost" },
-    { header: "เลขไมล์", key: "fuelLogMileage" },
-    { header: "สถานี", key: "fuelLogStation" },
+    { header: "วันที่", key: "tmsFuelLogDate" },
+    { header: "ลิตร", key: "tmsFuelLogLiters" },
+    { header: "ราคา/ลิตร", key: "tmsFuelLogPricePerLiter" },
+    { header: "ค่าใช้จ่ายรวม", key: "tmsFuelLogTotalCost" },
+    { header: "เลขไมล์", key: "tmsFuelLogMileage" },
+    { header: "สถานี", key: "tmsFuelLogStation" },
   ],
   maintenances: [
-    { header: "วันที่", key: "maintenanceDate" },
-    { header: "ประเภท", key: "maintenanceType" },
-    { header: "รายละเอียด", key: "maintenanceDescription" },
-    { header: "ค่าใช้จ่าย", key: "maintenanceCost" },
-    { header: "ผู้ให้บริการ", key: "maintenanceVendor" },
-    { header: "สถานะ", key: "maintenanceStatus" },
+    { header: "วันที่", key: "tmsMaintenanceDate" },
+    { header: "ประเภท", key: "tmsMaintenanceType" },
+    { header: "รายละเอียด", key: "tmsMaintenanceDescription" },
+    { header: "ค่าใช้จ่าย", key: "tmsMaintenanceCost" },
+    { header: "ผู้ให้บริการ", key: "tmsMaintenanceVendor" },
+    { header: "สถานะ", key: "tmsMaintenanceStatus" },
   ],
   vehicles: [
-    { header: "ชื่อ", key: "vehicleName" },
-    { header: "ทะเบียนรถ", key: "vehiclePlateNumber" },
-    { header: "ประเภท", key: "vehicleType" },
-    { header: "ยี่ห้อ", key: "vehicleBrand" },
-    { header: "รุ่น", key: "vehicleModel" },
-    { header: "ชนิดเชื้อเพลิง", key: "vehicleFuelType" },
-    { header: "สถานะ", key: "vehicleStatus" },
+    { header: "ชื่อ", key: "tmsVehicleName" },
+    { header: "ทะเบียนรถ", key: "tmsVehiclePlateNumber" },
+    { header: "ประเภท", key: "tmsVehicleType" },
+    { header: "ยี่ห้อ", key: "tmsVehicleBrand" },
+    { header: "รุ่น", key: "tmsVehicleModel" },
+    { header: "ชนิดเชื้อเพลิง", key: "tmsVehicleFuelType" },
+    { header: "สถานะ", key: "tmsVehicleStatus" },
   ],
 };
 
@@ -84,10 +84,10 @@ const TAB_COLUMNS = {
 };
 
 const ROW_KEYS = {
-  shipments: "shipmentId",
-  fuelLogs: "fuelLogId",
-  maintenances: "maintenanceId",
-  vehicles: "vehicleId",
+  shipments: "tmsShipmentId",
+  fuelLogs: "tmsFuelLogId",
+  maintenances: "tmsMaintenanceId",
+  vehicles: "tmsVehicleId",
 };
 
 export default function ReportsPage() {
@@ -113,7 +113,7 @@ export default function ReportsPage() {
     if (columnKey.includes("Date") || columnKey.includes("date")) {
       return value ? new Date(value).toLocaleDateString("th-TH") : "-";
     }
-    if (columnKey.includes("Cost") || columnKey.includes("cost") || columnKey === "fuelLogPricePerLiter") {
+    if (columnKey.includes("Cost") || columnKey.includes("cost") || columnKey === "tmsFuelLogPricePerLiter") {
       return value ? `฿${Number(value).toLocaleString()}` : "-";
     }
     if (columnKey.includes("Status") || columnKey.includes("status")) {

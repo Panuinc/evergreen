@@ -12,15 +12,15 @@ import {
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
-  accountName: "",
-  accountIndustry: "",
-  accountWebsite: "",
-  accountPhone: "",
-  accountEmail: "",
-  accountEmployees: "",
-  accountAnnualRevenue: "",
-  accountAddress: "",
-  accountNotes: "",
+  crmAccountName: "",
+  crmAccountIndustry: "",
+  crmAccountWebsite: "",
+  crmAccountPhone: "",
+  crmAccountEmail: "",
+  crmAccountEmployees: "",
+  crmAccountAnnualRevenue: "",
+  crmAccountAddress: "",
+  crmAccountNotes: "",
 };
 
 export function useCrmAccounts() {
@@ -54,15 +54,15 @@ export function useCrmAccounts() {
     if (account) {
       setEditingAccount(account);
       setFormData({
-        accountName: account.accountName || "",
-        accountIndustry: account.accountIndustry || "",
-        accountWebsite: account.accountWebsite || "",
-        accountPhone: account.accountPhone || "",
-        accountEmail: account.accountEmail || "",
-        accountEmployees: account.accountEmployees?.toString() || "",
-        accountAnnualRevenue: account.accountAnnualRevenue?.toString() || "",
-        accountAddress: account.accountAddress || "",
-        accountNotes: account.accountNotes || "",
+        crmAccountName: account.crmAccountName || "",
+        crmAccountIndustry: account.crmAccountIndustry || "",
+        crmAccountWebsite: account.crmAccountWebsite || "",
+        crmAccountPhone: account.crmAccountPhone || "",
+        crmAccountEmail: account.crmAccountEmail || "",
+        crmAccountEmployees: account.crmAccountEmployees?.toString() || "",
+        crmAccountAnnualRevenue: account.crmAccountAnnualRevenue?.toString() || "",
+        crmAccountAddress: account.crmAccountAddress || "",
+        crmAccountNotes: account.crmAccountNotes || "",
       });
     } else {
       setEditingAccount(null);
@@ -74,7 +74,7 @@ export function useCrmAccounts() {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      accountName: [(v) => !isRequired(v) && "กรุณาระบุชื่อบัญชี"],
+      crmAccountName: [(v) => !isRequired(v) && "กรุณาระบุชื่อบัญชี"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -87,16 +87,16 @@ export function useCrmAccounts() {
       setSaving(true);
       const payload = {
         ...formData,
-        accountEmployees: formData.accountEmployees
-          ? parseInt(formData.accountEmployees)
+        crmAccountEmployees: formData.crmAccountEmployees
+          ? parseInt(formData.crmAccountEmployees)
           : null,
-        accountAnnualRevenue: formData.accountAnnualRevenue
-          ? parseFloat(formData.accountAnnualRevenue)
+        crmAccountAnnualRevenue: formData.crmAccountAnnualRevenue
+          ? parseFloat(formData.crmAccountAnnualRevenue)
           : null,
       };
 
       if (editingAccount) {
-        await updateAccount(editingAccount.accountId, payload);
+        await updateAccount(editingAccount.crmAccountId, payload);
         toast.success("อัปเดตบัญชีสำเร็จ");
       } else {
         await createAccount(payload);
@@ -119,7 +119,7 @@ export function useCrmAccounts() {
   const handleDelete = async () => {
     if (!deletingAccount) return;
     try {
-      await deleteAccount(deletingAccount.accountId);
+      await deleteAccount(deletingAccount.crmAccountId);
       toast.success("ลบบัญชีสำเร็จ");
       deleteModal.onClose();
       setDeletingAccount(null);

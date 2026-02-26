@@ -18,15 +18,15 @@ import { useCrmLeads } from "@/hooks/sales/useCrmLeads";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่ลีด", uid: "leadNo", sortable: true },
-  { name: "ชื่อ", uid: "leadName", sortable: true },
-  { name: "บริษัท", uid: "leadCompany" },
-  { name: "อีเมล", uid: "leadEmail" },
-  { name: "โทรศัพท์", uid: "leadPhone" },
-  { name: "แหล่งที่มา", uid: "leadSource" },
-  { name: "คะแนน", uid: "leadScore" },
-  { name: "สถานะ", uid: "leadStatus" },
-  { name: "ผู้รับผิดชอบ", uid: "leadAssignedTo" },
+  { name: "เลขที่ลีด", uid: "crmLeadNo", sortable: true },
+  { name: "ชื่อ", uid: "crmLeadName", sortable: true },
+  { name: "บริษัท", uid: "crmLeadCompany" },
+  { name: "อีเมล", uid: "crmLeadEmail" },
+  { name: "โทรศัพท์", uid: "crmLeadPhone" },
+  { name: "แหล่งที่มา", uid: "crmLeadSource" },
+  { name: "คะแนน", uid: "crmLeadScore" },
+  { name: "สถานะ", uid: "crmLeadStatus" },
+  { name: "ผู้รับผิดชอบ", uid: "crmLeadAssignedTo" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -39,12 +39,12 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "leadNo",
-  "leadName",
-  "leadCompany",
-  "leadSource",
-  "leadScore",
-  "leadStatus",
+  "crmLeadNo",
+  "crmLeadName",
+  "crmLeadCompany",
+  "crmLeadSource",
+  "crmLeadScore",
+  "crmLeadStatus",
   "actions",
 ];
 
@@ -71,44 +71,44 @@ export default function LeadsPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "leadNo":
-          return <span className="text-default-500">{item.leadNo || "-"}</span>;
-        case "leadName":
-          return <span className="font-medium">{item.leadName}</span>;
-        case "leadCompany":
-          return item.leadCompany || "-";
-        case "leadEmail":
-          return item.leadEmail || "-";
-        case "leadPhone":
-          return item.leadPhone || "-";
-        case "leadSource":
-          return item.leadSource ? (
+        case "crmLeadNo":
+          return <span className="text-default-500">{item.crmLeadNo || "-"}</span>;
+        case "crmLeadName":
+          return <span className="font-medium">{item.crmLeadName}</span>;
+        case "crmLeadCompany":
+          return item.crmLeadCompany || "-";
+        case "crmLeadEmail":
+          return item.crmLeadEmail || "-";
+        case "crmLeadPhone":
+          return item.crmLeadPhone || "-";
+        case "crmLeadSource":
+          return item.crmLeadSource ? (
             <Chip variant="bordered" size="md" radius="md">
-              {item.leadSource}
+              {item.crmLeadSource}
             </Chip>
           ) : (
             "-"
           );
-        case "leadScore": {
+        case "crmLeadScore": {
           const scoreColorMap = {
             hot: "danger",
             warm: "warning",
             cold: "primary",
           };
-          return item.leadScore ? (
+          return item.crmLeadScore ? (
             <Chip
               variant="bordered"
               size="md"
               radius="md"
-              color={scoreColorMap[item.leadScore] || "default"}
+              color={scoreColorMap[item.crmLeadScore] || "default"}
             >
-              {item.leadScore}
+              {item.crmLeadScore}
             </Chip>
           ) : (
             "-"
           );
         }
-        case "leadStatus": {
+        case "crmLeadStatus": {
           const statusColorMap = {
             new: "primary",
             contacted: "warning",
@@ -116,25 +116,25 @@ export default function LeadsPage() {
             converted: "secondary",
             lost: "danger",
           };
-          return item.leadStatus ? (
+          return item.crmLeadStatus ? (
             <Chip
               variant="bordered"
               size="md"
               radius="md"
-              color={statusColorMap[item.leadStatus] || "default"}
+              color={statusColorMap[item.crmLeadStatus] || "default"}
             >
-              {item.leadStatus}
+              {item.crmLeadStatus}
             </Chip>
           ) : (
             "-"
           );
         }
-        case "leadAssignedTo":
-          return item.leadAssignedTo || "-";
+        case "crmLeadAssignedTo":
+          return item.crmLeadAssignedTo || "-";
         case "actions":
           return (
             <div className="flex items-center gap-1">
-              {item.leadStatus === "qualified" && (
+              {item.crmLeadStatus === "qualified" && (
                 <Button
                   variant="bordered"
                   size="md"
@@ -179,17 +179,17 @@ export default function LeadsPage() {
         data={leads}
         renderCell={renderCell}
         enableCardView
-        rowKey="leadId"
+        rowKey="crmLeadId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาลีด..."
         searchKeys={[
-          "leadName",
-          "leadCompany",
-          "leadEmail",
-          "leadPhone",
+          "crmLeadName",
+          "crmLeadCompany",
+          "crmLeadEmail",
+          "crmLeadPhone",
         ]}
-        statusField="leadStatus"
+        statusField="crmLeadStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบลีด"
         topEndContent={
@@ -227,11 +227,11 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.leadName}
-                    onChange={(e) => updateField("leadName", e.target.value)}
+                    value={formData.crmLeadName}
+                    onChange={(e) => updateField("crmLeadName", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.leadName}
-                    errorMessage={validationErrors?.leadName}
+                    isInvalid={!!validationErrors?.crmLeadName}
+                    errorMessage={validationErrors?.crmLeadName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -242,8 +242,8 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.leadEmail}
-                    onChange={(e) => updateField("leadEmail", e.target.value)}
+                    value={formData.crmLeadEmail}
+                    onChange={(e) => updateField("crmLeadEmail", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -254,8 +254,8 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.leadPhone}
-                    onChange={(e) => updateField("leadPhone", e.target.value)}
+                    value={formData.crmLeadPhone}
+                    onChange={(e) => updateField("crmLeadPhone", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -266,8 +266,8 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.leadCompany}
-                    onChange={(e) => updateField("leadCompany", e.target.value)}
+                    value={formData.crmLeadCompany}
+                    onChange={(e) => updateField("crmLeadCompany", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -278,8 +278,8 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.leadPosition}
-                    onChange={(e) => updateField("leadPosition", e.target.value)}
+                    value={formData.crmLeadPosition}
+                    onChange={(e) => updateField("crmLeadPosition", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -290,10 +290,10 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.leadSource ? [formData.leadSource] : []}
+                    selectedKeys={formData.crmLeadSource ? [formData.crmLeadSource] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("leadSource", val);
+                      updateField("crmLeadSource", val);
                     }}
                   >
                     <SelectItem key="website">เว็บไซต์</SelectItem>
@@ -313,10 +313,10 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.leadScore ? [formData.leadScore] : []}
+                    selectedKeys={formData.crmLeadScore ? [formData.crmLeadScore] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("leadScore", val);
+                      updateField("crmLeadScore", val);
                     }}
                   >
                     <SelectItem key="hot">ร้อน</SelectItem>
@@ -332,10 +332,10 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.leadStatus ? [formData.leadStatus] : []}
+                    selectedKeys={formData.crmLeadStatus ? [formData.crmLeadStatus] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("leadStatus", val);
+                      updateField("crmLeadStatus", val);
                     }}
                   >
                     <SelectItem key="new">ใหม่</SelectItem>
@@ -353,8 +353,8 @@ export default function LeadsPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.leadAssignedTo}
-                    onChange={(e) => updateField("leadAssignedTo", e.target.value)}
+                    value={formData.crmLeadAssignedTo}
+                    onChange={(e) => updateField("crmLeadAssignedTo", e.target.value)}
                   />
                 </div>
               </div>
@@ -366,8 +366,8 @@ export default function LeadsPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.leadNotes}
-                  onChange={(e) => updateField("leadNotes", e.target.value)}
+                  value={formData.crmLeadNotes}
+                  onChange={(e) => updateField("crmLeadNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -397,7 +397,7 @@ export default function LeadsPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingLead?.leadName}
+                {deletingLead?.crmLeadName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

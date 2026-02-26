@@ -15,9 +15,9 @@ export function useResources() {
   const [loading, setLoading] = useState(true);
   const [editingResource, setEditingResource] = useState(null);
   const [formData, setFormData] = useState({
-    resourceName: "",
-    resourceModuleId: "",
-    resourceDescription: "",
+    rbacResourceName: "",
+    rbacResourceModuleId: "",
+    rbacResourceDescription: "",
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -41,30 +41,30 @@ export function useResources() {
     if (resource) {
       setEditingResource(resource);
       setFormData({
-        resourceName: resource.resourceName,
-        resourceModuleId: resource.resourceModuleId || "",
-        resourceDescription: resource.resourceDescription || "",
+        rbacResourceName: resource.rbacResourceName,
+        rbacResourceModuleId: resource.rbacResourceModuleId || "",
+        rbacResourceDescription: resource.rbacResourceDescription || "",
       });
     } else {
       setEditingResource(null);
       setFormData({
-        resourceName: "",
-        resourceModuleId: "",
-        resourceDescription: "",
+        rbacResourceName: "",
+        rbacResourceModuleId: "",
+        rbacResourceDescription: "",
       });
     }
     onOpen();
   };
 
   const handleSave = async () => {
-    if (!formData.resourceName.trim()) {
+    if (!formData.rbacResourceName.trim()) {
       toast.error("กรุณาระบุชื่อทรัพยากร");
       return;
     }
 
     try {
       if (editingResource) {
-        await updateResource(editingResource.resourceId, formData);
+        await updateResource(editingResource.rbacResourceId, formData);
         toast.success("อัปเดตทรัพยากรสำเร็จ");
       } else {
         await createResource(formData);
@@ -79,7 +79,7 @@ export function useResources() {
 
   const handleDelete = async (resource) => {
     try {
-      await deleteResource(resource.resourceId);
+      await deleteResource(resource.rbacResourceId);
       toast.success("ลบทรัพยากรสำเร็จ");
       loadResources();
     } catch (error) {

@@ -12,51 +12,51 @@ export async function GET(request) {
   if (pending === "true") {
     // Get current employee
     const { data: currentEmployee } = await supabase
-      .from("employees")
-      .select("employeeId")
-      .eq("employeeUserId", session.user.id)
+      .from("hrEmployee")
+      .select("hrEmployeeId")
+      .eq("hrEmployeeUserId", session.user.id)
       .maybeSingle();
 
     if (!currentEmployee) return Response.json([]);
 
     // Get pending nominations
     const { data: nominations, error } = await supabase
-      .from("feedback_360_nominations")
+      .from("perf360Nomination")
       .select("*")
-      .eq("reviewerEmployeeId", currentEmployee.employeeId)
-      .eq("status", "pending");
+      .eq("perf360NominationReviewerEmployeeId", currentEmployee.hrEmployeeId)
+      .eq("perf360NominationStatus", "pending");
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
     if (!nominations || nominations.length === 0) return Response.json([]);
 
     // Fetch cycles separately
-    const cycleIds = [...new Set(nominations.map((n) => n.cycleId))];
+    const cycleIds = [...new Set(nominations.map((n) => n.perf360NominationCycleId))];
     const { data: cycles } = await supabase
-      .from("feedback_360_cycles")
+      .from("perf360Cycle")
       .select("*")
-      .in("id", cycleIds);
+      .in("perf360CycleId", cycleIds);
 
     const cycleMap = {};
-    for (const c of (cycles || [])) cycleMap[c.id] = c;
+    for (const c of (cycles || [])) cycleMap[c.perf360CycleId] = c;
 
     // Fetch reviewee employees separately
-    const revieweeIds = [...new Set(nominations.map((n) => n.revieweeEmployeeId))];
+    const revieweeIds = [...new Set(nominations.map((n) => n.perf360NominationRevieweeEmployeeId))];
     const { data: emps } = await supabase
-      .from("employees")
-      .select("employeeId, employeeFirstName, employeeLastName, employeeDepartment")
-      .in("employeeId", revieweeIds);
+      .from("hrEmployee")
+      .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment")
+      .in("hrEmployeeId", revieweeIds);
 
     const empMap = {};
-    for (const e of (emps || [])) empMap[e.employeeId] = e;
+    for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
 
     // Enrich and filter for active cycles
     const enriched = nominations
       .map((n) => ({
         ...n,
-        cycle: cycleMap[n.cycleId] || null,
-        reviewee: empMap[n.revieweeEmployeeId] || null,
+        cycle: cycleMap[n.perf360NominationCycleId] || null,
+        reviewee: empMap[n.perf360NominationRevieweeEmployeeId] || null,
       }))
-      .filter((n) => n.cycle && n.cycle.status === "active");
+      .filter((n) => n.cycle && n.cycle.perf360CycleStatus === "active");
 
     return Response.json(enriched);
   }
@@ -78,49 +78,49 @@ export async function POST(request) {
 
   // Get nomination
   const { data: nomination, error: nomError } = await supabase
-    .from("feedback_360_nominations")
+    .from("perf360Nomination")
     .select("*")
-    .eq("id", nominationId)
+    .eq("perf360NominationId", nominationId)
     .single();
 
   if (nomError || !nomination) {
     return Response.json({ error: "ไม่พบรายการประเมิน" }, { status: 404 });
   }
 
-  if (nomination.status === "completed") {
+  if (nomination.perf360NominationStatus === "completed") {
     return Response.json({ error: "รายการนี้ถูกประเมินแล้ว" }, { status: 400 });
   }
 
   // Get competencies for score validation
   const { data: competencies } = await supabase
-    .from("feedback_360_competencies")
+    .from("perf360Competency")
     .select("*")
-    .eq("cycleId", nomination.cycleId);
+    .eq("perf360CompetencyCycleId", nomination.perf360NominationCycleId);
 
   // Compute averages
   const competencyAverages = {};
   for (const comp of (competencies || [])) {
-    const compScores = scores[comp.id] || [];
-    competencyAverages[comp.id] = parseFloat(computeCompetencyAverage(compScores).toFixed(2));
+    const compScores = scores[comp.perf360CompetencyId] || [];
+    competencyAverages[comp.perf360CompetencyId] = parseFloat(computeCompetencyAverage(compScores).toFixed(2));
   }
 
   const overallScore = parseFloat(computeWeightedOverall(competencyAverages, competencies || []).toFixed(2));
 
   // Insert response
   const { data: response, error: respError } = await supabase
-    .from("feedback_360_responses")
+    .from("perf360Response")
     .insert([{
-      nominationId,
-      cycleId: nomination.cycleId,
-      revieweeEmployeeId: nomination.revieweeEmployeeId,
-      reviewerEmployeeId: nomination.reviewerEmployeeId,
-      relationshipType: nomination.relationshipType,
-      scores,
-      competencyAverages,
-      overallScore,
-      strengthComment: strengthComment || null,
-      improvementComment: improvementComment || null,
-      comment: comment || null,
+      perf360ResponseNominationId: nominationId,
+      perf360ResponseCycleId: nomination.perf360NominationCycleId,
+      perf360ResponseRevieweeEmployeeId: nomination.perf360NominationRevieweeEmployeeId,
+      perf360ResponseReviewerEmployeeId: nomination.perf360NominationReviewerEmployeeId,
+      perf360ResponseRelationshipType: nomination.perf360NominationRelationshipType,
+      perf360ResponseScores: scores,
+      perf360ResponseCompetencyAverages: competencyAverages,
+      perf360ResponseOverallScore: overallScore,
+      perf360ResponseStrengthComment: strengthComment || null,
+      perf360ResponseImprovementComment: improvementComment || null,
+      perf360ResponseComment: comment || null,
     }])
     .select()
     .single();
@@ -129,9 +129,9 @@ export async function POST(request) {
 
   // Update nomination status
   await supabase
-    .from("feedback_360_nominations")
-    .update({ status: "completed", completedAt: new Date().toISOString() })
-    .eq("id", nominationId);
+    .from("perf360Nomination")
+    .update({ perf360NominationStatus: "completed", perf360NominationCompletedAt: new Date().toISOString() })
+    .eq("perf360NominationId", nominationId);
 
   return Response.json(response, { status: 201 });
 }

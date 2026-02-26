@@ -8,7 +8,7 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data, error } = await supabase
-    .from("scanRecords")
+    .from("whScanRecord")
     .select("*")
     .eq("session_id", id)
     .order("scanned_at", { ascending: false });
@@ -44,7 +44,7 @@ export async function POST(request, { params }) {
   }));
 
   const { data, error } = await supabase
-    .from("scanRecords")
+    .from("whScanRecord")
     .insert(records)
     .select();
 

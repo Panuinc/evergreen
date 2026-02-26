@@ -72,13 +72,13 @@ export default function ProfilePage() {
               {roles?.length > 0 ? (
                 roles.map((role) => (
                   <Chip
-                    key={role.roleId}
+                    key={role.rbacRoleId}
                     variant="bordered"
                     size="md"
                     radius="md"
-                    color={role.roleIsSuperadmin ? "danger" : "primary"}
+                    color={role.rbacRoleIsSuperadmin ? "danger" : "primary"}
                   >
-                    {role.roleName}
+                    {role.rbacRoleName}
                   </Chip>
                 ))
               ) : (
@@ -101,37 +101,37 @@ export default function ProfilePage() {
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-default-500 w-24">ชื่อ</span>
               <span className="font-medium">
-                {employee.employeeFirstName}
+                {employee.hrEmployeeFirstName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-default-500 w-24">นามสกุล</span>
               <span className="font-medium">
-                {employee.employeeLastName}
+                {employee.hrEmployeeLastName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-default-500 w-24">อีเมล</span>
               <span className="font-medium">
-                {employee.employeeEmail || "-"}
+                {employee.hrEmployeeEmail || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-default-500 w-24">โทรศัพท์</span>
               <span className="font-medium">
-                {employee.employeePhone || "-"}
+                {employee.hrEmployeePhone || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-default-500 w-24">แผนก</span>
               <span className="font-medium">
-                {employee.employeeDepartment || "-"}
+                {employee.hrEmployeeDepartment || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-default-500 w-24">ตำแหน่ง</span>
               <span className="font-medium">
-                {employee.employeePosition || "-"}
+                {employee.hrEmployeePosition || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -141,10 +141,10 @@ export default function ProfilePage() {
                 size="md"
                 radius="md"
                 color={
-                  employee.employeeStatus === "active" ? "success" : "default"
+                  employee.hrEmployeeStatus === "active" ? "success" : "default"
                 }
               >
-                {employee.employeeStatus}
+                {employee.hrEmployeeStatus}
               </Chip>
             </div>
           </div>

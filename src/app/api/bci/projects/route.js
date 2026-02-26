@@ -11,7 +11,7 @@ export async function GET() {
 
   while (true) {
     const { data, error } = await auth.supabase
-      .from("bciProjects")
+      .from("bciProject")
       .select("*")
       .order("modifiedDate", { ascending: false })
       .range(from, from + PAGE_SIZE - 1);

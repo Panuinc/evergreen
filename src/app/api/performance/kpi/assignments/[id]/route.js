@@ -8,13 +8,13 @@ export async function PUT(request, { params }) {
 
   const body = await request.json();
   const updates = {};
-  if (body.targetValue !== undefined) updates.targetValue = parseFloat(body.targetValue);
-  if (body.weight !== undefined) updates.weight = parseFloat(body.weight);
+  if (body.targetValue !== undefined) updates.perfKpiAssignmentTargetValue = parseFloat(body.targetValue);
+  if (body.weight !== undefined) updates.perfKpiAssignmentWeight = parseFloat(body.weight);
 
   const { data, error } = await supabase
-    .from("kpi_assignments")
+    .from("perfKpiAssignment")
     .update(updates)
-    .eq("id", id)
+    .eq("perfKpiAssignmentId", id)
     .select()
     .single();
 
@@ -22,8 +22,8 @@ export async function PUT(request, { params }) {
 
   // Fetch definition separately
   const { data: definition } = await supabase
-    .from("kpi_definitions").select("*")
-    .eq("id", data.definitionId).maybeSingle();
+    .from("perfKpiDefinition").select("*")
+    .eq("perfKpiDefinitionId", data.perfKpiAssignmentDefinitionId).maybeSingle();
 
   return Response.json({ ...data, definition: definition || null });
 }
@@ -35,9 +35,9 @@ export async function DELETE(request, { params }) {
   const { id } = await params;
 
   const { error } = await supabase
-    .from("kpi_assignments")
+    .from("perfKpiAssignment")
     .delete()
-    .eq("id", id);
+    .eq("perfKpiAssignmentId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

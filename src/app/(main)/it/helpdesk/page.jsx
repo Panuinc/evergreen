@@ -19,13 +19,13 @@ import { useItTickets } from "@/hooks/it/useItTickets";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่ตั๋ว", uid: "ticketNo", sortable: true },
-  { name: "หัวข้อ", uid: "ticketTitle", sortable: true },
-  { name: "หมวดหมู่", uid: "ticketCategory", sortable: true },
-  { name: "ความสำคัญ", uid: "ticketPriority", sortable: true },
-  { name: "สถานะ", uid: "ticketStatus", sortable: true },
-  { name: "ร้องขอโดย", uid: "ticketRequestedBy" },
-  { name: "ผู้รับผิดชอบ", uid: "ticketAssignedTo" },
+  { name: "เลขที่ตั๋ว", uid: "itTicketNo", sortable: true },
+  { name: "หัวข้อ", uid: "itTicketTitle", sortable: true },
+  { name: "หมวดหมู่", uid: "itTicketCategory", sortable: true },
+  { name: "ความสำคัญ", uid: "itTicketPriority", sortable: true },
+  { name: "สถานะ", uid: "itTicketStatus", sortable: true },
+  { name: "ร้องขอโดย", uid: "itTicketRequestedBy" },
+  { name: "ผู้รับผิดชอบ", uid: "itTicketAssignedTo" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -37,12 +37,12 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "ticketNo",
-  "ticketTitle",
-  "ticketCategory",
-  "ticketPriority",
-  "ticketStatus",
-  "ticketAssignedTo",
+  "itTicketNo",
+  "itTicketTitle",
+  "itTicketCategory",
+  "itTicketPriority",
+  "itTicketStatus",
+  "itTicketAssignedTo",
   "actions",
 ];
 
@@ -68,13 +68,13 @@ export default function HelpDeskPage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "ticketNo":
-          return <span className="font-medium">{item.ticketNo || "-"}</span>;
-        case "ticketTitle":
-          return <span className="font-medium">{item.ticketTitle}</span>;
-        case "ticketCategory":
-          return item.ticketCategory || "-";
-        case "ticketPriority": {
+        case "itTicketNo":
+          return <span className="font-medium">{item.itTicketNo || "-"}</span>;
+        case "itTicketTitle":
+          return <span className="font-medium">{item.itTicketTitle}</span>;
+        case "itTicketCategory":
+          return item.itTicketCategory || "-";
+        case "itTicketPriority": {
           const colorMap = {
             low: "default",
             medium: "primary",
@@ -86,13 +86,13 @@ export default function HelpDeskPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.ticketPriority] || "default"}
+              color={colorMap[item.itTicketPriority] || "default"}
             >
-              {item.ticketPriority}
+              {item.itTicketPriority}
             </Chip>
           );
         }
-        case "ticketStatus": {
+        case "itTicketStatus": {
           const colorMap = {
             open: "warning",
             in_progress: "primary",
@@ -104,16 +104,16 @@ export default function HelpDeskPage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.ticketStatus] || "default"}
+              color={colorMap[item.itTicketStatus] || "default"}
             >
-              {item.ticketStatus}
+              {item.itTicketStatus}
             </Chip>
           );
         }
-        case "ticketRequestedBy":
-          return item.ticketRequestedBy || "-";
-        case "ticketAssignedTo":
-          return item.ticketAssignedTo || "-";
+        case "itTicketRequestedBy":
+          return item.itTicketRequestedBy || "-";
+        case "itTicketAssignedTo":
+          return item.itTicketAssignedTo || "-";
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -151,17 +151,17 @@ export default function HelpDeskPage() {
         data={tickets}
         renderCell={renderCell}
         enableCardView
-        rowKey="ticketId"
+        rowKey="itTicketId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาตามเลขที่ตั๋ว, หัวข้อ, ผู้ร้องขอ..."
         searchKeys={[
-          "ticketNo",
-          "ticketTitle",
-          "ticketRequestedBy",
-          "ticketAssignedTo",
+          "itTicketNo",
+          "itTicketTitle",
+          "itTicketRequestedBy",
+          "itTicketAssignedTo",
         ]}
-        statusField="ticketStatus"
+        statusField="itTicketStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบตั๋ว"
         topEndContent={
@@ -186,7 +186,7 @@ export default function HelpDeskPage() {
       >
         <ModalContent>
           <ModalHeader>
-            {editingTicket ? `แก้ไขตั๋ว ${editingTicket.ticketNo || ""}` : "สร้างตั๋วใหม่"}
+            {editingTicket ? `แก้ไขตั๋ว ${editingTicket.itTicketNo || ""}` : "สร้างตั๋วใหม่"}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
@@ -199,11 +199,11 @@ export default function HelpDeskPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.ticketTitle}
-                    onChange={(e) => updateField("ticketTitle", e.target.value)}
+                    value={formData.itTicketTitle}
+                    onChange={(e) => updateField("itTicketTitle", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.ticketTitle}
-                    errorMessage={validationErrors?.ticketTitle}
+                    isInvalid={!!validationErrors?.itTicketTitle}
+                    errorMessage={validationErrors?.itTicketTitle}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -214,10 +214,10 @@ export default function HelpDeskPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.ticketCategory ? [formData.ticketCategory] : []}
+                    selectedKeys={formData.itTicketCategory ? [formData.itTicketCategory] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("ticketCategory", val);
+                      updateField("itTicketCategory", val);
                     }}
                   >
                     <SelectItem key="hardware">ฮาร์ดแวร์</SelectItem>
@@ -235,10 +235,10 @@ export default function HelpDeskPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.ticketPriority ? [formData.ticketPriority] : []}
+                    selectedKeys={formData.itTicketPriority ? [formData.itTicketPriority] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("ticketPriority", val);
+                      updateField("itTicketPriority", val);
                     }}
                   >
                     <SelectItem key="low">ต่ำ</SelectItem>
@@ -254,10 +254,10 @@ export default function HelpDeskPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.ticketStatus]}
+                    selectedKeys={[formData.itTicketStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "open";
-                      updateField("ticketStatus", val);
+                      updateField("itTicketStatus", val);
                     }}
                   >
                     <SelectItem key="open">เปิด</SelectItem>
@@ -274,8 +274,8 @@ export default function HelpDeskPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.ticketRequestedBy}
-                    onChange={(e) => updateField("ticketRequestedBy", e.target.value)}
+                    value={formData.itTicketRequestedBy}
+                    onChange={(e) => updateField("itTicketRequestedBy", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -286,8 +286,8 @@ export default function HelpDeskPage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.ticketAssignedTo}
-                    onChange={(e) => updateField("ticketAssignedTo", e.target.value)}
+                    value={formData.itTicketAssignedTo}
+                    onChange={(e) => updateField("itTicketAssignedTo", e.target.value)}
                   />
                 </div>
               </div>
@@ -299,8 +299,8 @@ export default function HelpDeskPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.ticketDescription}
-                  onChange={(e) => updateField("ticketDescription", e.target.value)}
+                  value={formData.itTicketDescription}
+                  onChange={(e) => updateField("itTicketDescription", e.target.value)}
                 />
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -311,8 +311,8 @@ export default function HelpDeskPage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.ticketNotes}
-                  onChange={(e) => updateField("ticketNotes", e.target.value)}
+                  value={formData.itTicketNotes}
+                  onChange={(e) => updateField("itTicketNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -342,7 +342,7 @@ export default function HelpDeskPage() {
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingTicket?.ticketNo} - {deletingTicket?.ticketTitle}
+                {deletingTicket?.itTicketNo} - {deletingTicket?.itTicketTitle}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

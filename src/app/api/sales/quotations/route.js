@@ -9,16 +9,16 @@ export async function GET(request) {
   const status = searchParams.get("status");
 
   let query = supabase
-    .from("crmQuotations")
+    .from("crmQuotation")
     .select(
-      "*, crmContacts(contactFirstName, contactLastName), crmAccounts(accountName), crmOpportunities(opportunityName)"
+      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmOpportunity(crmOpportunityName)"
     );
 
   if (status) {
-    query = query.eq("quotationStatus", status);
+    query = query.eq("crmQuotationStatus", status);
   }
 
-  const { data, error } = await query.order("quotationCreatedAt", {
+  const { data, error } = await query.order("crmQuotationCreatedAt", {
     ascending: false,
   });
 
@@ -33,7 +33,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmQuotations")
+    .from("crmQuotation")
     .insert([body])
     .select()
     .single();

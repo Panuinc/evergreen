@@ -6,15 +6,15 @@ export async function submitEvaluation(data) {
   return post("/api/performance/evaluation", data);
 }
 
-export async function getMyEvaluations(period) {
+export async function getMyEvaluations(perfEvaluationPeriod) {
   const params = new URLSearchParams({ myResults: "true" });
-  if (period) params.set("period", period);
+  if (perfEvaluationPeriod) params.set("period", perfEvaluationPeriod);
   return get(`/api/performance/evaluation?${params}`);
 }
 
-export async function getMySubmittedEvaluations(period) {
+export async function getMySubmittedEvaluations(perfEvaluationPeriod) {
   const params = new URLSearchParams();
-  if (period) params.set("period", period);
+  if (perfEvaluationPeriod) params.set("period", perfEvaluationPeriod);
   return get(`/api/performance/evaluation?${params}`);
 }
 
@@ -24,12 +24,12 @@ export async function getEvaluationSummary(params) {
 
 // ==================== Evaluation AI Feedback ====================
 
-export async function getEvaluationFeedback(employeeId, period) {
-  return get(`/api/performance/evaluation/feedback?employeeId=${employeeId}&period=${period}`);
+export async function getEvaluationFeedback(perfEvaluationEmployeeId, perfEvaluationPeriod) {
+  return get(`/api/performance/evaluation/feedback?employeeId=${perfEvaluationEmployeeId}&period=${perfEvaluationPeriod}`);
 }
 
-export async function generateEvaluationFeedbackAction(employeeId, period) {
-  return post("/api/performance/evaluation/feedback", { employeeId, period });
+export async function generateEvaluationFeedbackAction(perfEvaluationEmployeeId, perfEvaluationPeriod) {
+  return post("/api/performance/evaluation/feedback", { employeeId: perfEvaluationEmployeeId, period: perfEvaluationPeriod });
 }
 
 // ==================== OKR ====================
@@ -43,28 +43,28 @@ export async function createObjective(data) {
   return post("/api/performance/okr", data);
 }
 
-export async function updateObjective(id, data) {
-  return put(`/api/performance/okr/${id}`, data);
+export async function updateObjective(perfOkrObjectiveId, data) {
+  return put(`/api/performance/okr/${perfOkrObjectiveId}`, data);
 }
 
-export async function deleteObjective(id) {
-  return del(`/api/performance/okr/${id}`);
+export async function deleteObjective(perfOkrObjectiveId) {
+  return del(`/api/performance/okr/${perfOkrObjectiveId}`);
 }
 
 export async function createKeyResult(data) {
   return post("/api/performance/okr/key-results", data);
 }
 
-export async function updateKeyResult(id, data) {
-  return put(`/api/performance/okr/key-results/${id}`, data);
+export async function updateKeyResult(perfOkrKeyResultId, data) {
+  return put(`/api/performance/okr/key-results/${perfOkrKeyResultId}`, data);
 }
 
-export async function deleteKeyResult(id) {
-  return del(`/api/performance/okr/key-results/${id}`);
+export async function deleteKeyResult(perfOkrKeyResultId) {
+  return del(`/api/performance/okr/key-results/${perfOkrKeyResultId}`);
 }
 
-export async function getCheckins(keyResultId) {
-  return get(`/api/performance/okr/checkins?keyResultId=${keyResultId}`);
+export async function getCheckins(perfOkrKeyResultId) {
+  return get(`/api/performance/okr/checkins?keyResultId=${perfOkrKeyResultId}`);
 }
 
 export async function createCheckin(data) {
@@ -82,12 +82,12 @@ export async function createKpiDefinition(data) {
   return post("/api/performance/kpi/definitions", data);
 }
 
-export async function updateKpiDefinition(id, data) {
-  return put(`/api/performance/kpi/definitions/${id}`, data);
+export async function updateKpiDefinition(perfKpiDefinitionId, data) {
+  return put(`/api/performance/kpi/definitions/${perfKpiDefinitionId}`, data);
 }
 
-export async function deleteKpiDefinition(id) {
-  return del(`/api/performance/kpi/definitions/${id}`);
+export async function deleteKpiDefinition(perfKpiDefinitionId) {
+  return del(`/api/performance/kpi/definitions/${perfKpiDefinitionId}`);
 }
 
 export async function getKpiAssignments(params = {}) {
@@ -99,16 +99,16 @@ export async function createKpiAssignment(data) {
   return post("/api/performance/kpi/assignments", data);
 }
 
-export async function updateKpiAssignment(id, data) {
-  return put(`/api/performance/kpi/assignments/${id}`, data);
+export async function updateKpiAssignment(perfKpiAssignmentId, data) {
+  return put(`/api/performance/kpi/assignments/${perfKpiAssignmentId}`, data);
 }
 
-export async function deleteKpiAssignment(id) {
-  return del(`/api/performance/kpi/assignments/${id}`);
+export async function deleteKpiAssignment(perfKpiAssignmentId) {
+  return del(`/api/performance/kpi/assignments/${perfKpiAssignmentId}`);
 }
 
-export async function getKpiRecords(assignmentId) {
-  return get(`/api/performance/kpi/records?assignmentId=${assignmentId}`);
+export async function getKpiRecords(perfKpiAssignmentId) {
+  return get(`/api/performance/kpi/records?assignmentId=${perfKpiAssignmentId}`);
 }
 
 export async function recordKpiValue(data) {
@@ -131,36 +131,36 @@ export async function createFeedback360Cycle(data) {
   return post("/api/performance/360/cycles", data);
 }
 
-export async function updateFeedback360Cycle(id, data) {
-  return put(`/api/performance/360/cycles/${id}`, data);
+export async function updateFeedback360Cycle(perf360CycleId, data) {
+  return put(`/api/performance/360/cycles/${perf360CycleId}`, data);
 }
 
-export async function deleteFeedback360Cycle(id) {
-  return del(`/api/performance/360/cycles/${id}`);
+export async function deleteFeedback360Cycle(perf360CycleId) {
+  return del(`/api/performance/360/cycles/${perf360CycleId}`);
 }
 
-export async function transitionFeedback360Cycle(id, toStatus) {
-  return post(`/api/performance/360/cycles/${id}/transition`, { toStatus });
+export async function transitionFeedback360Cycle(perf360CycleId, toStatus) {
+  return post(`/api/performance/360/cycles/${perf360CycleId}/transition`, { toStatus });
 }
 
-export async function getFeedback360Competencies(cycleId) {
-  return get(`/api/performance/360/competencies?cycleId=${cycleId}`);
+export async function getFeedback360Competencies(perf360CycleId) {
+  return get(`/api/performance/360/competencies?cycleId=${perf360CycleId}`);
 }
 
-export async function saveFeedback360Competencies(cycleId, competencies) {
-  return post("/api/performance/360/competencies", { cycleId, competencies });
+export async function saveFeedback360Competencies(perf360CycleId, competencies) {
+  return post("/api/performance/360/competencies", { cycleId: perf360CycleId, competencies });
 }
 
-export async function getFeedback360Nominations(cycleId) {
-  return get(`/api/performance/360/nominations?cycleId=${cycleId}`);
+export async function getFeedback360Nominations(perf360CycleId) {
+  return get(`/api/performance/360/nominations?cycleId=${perf360CycleId}`);
 }
 
 export async function createFeedback360Nomination(data) {
   return post("/api/performance/360/nominations", data);
 }
 
-export async function deleteFeedback360Nomination(id) {
-  return del(`/api/performance/360/nominations?id=${id}`);
+export async function deleteFeedback360Nomination(perf360NominationId) {
+  return del(`/api/performance/360/nominations?id=${perf360NominationId}`);
 }
 
 export async function getMyPendingFeedback360Reviews() {
@@ -171,8 +171,8 @@ export async function submitFeedback360Response(data) {
   return post("/api/performance/360/responses", data);
 }
 
-export async function getFeedback360Results(cycleId, employeeId) {
-  const qs = new URLSearchParams({ cycleId });
-  if (employeeId) qs.set("employeeId", employeeId);
+export async function getFeedback360Results(perf360CycleId, perfEvaluationEmployeeId) {
+  const qs = new URLSearchParams({ cycleId: perf360CycleId });
+  if (perfEvaluationEmployeeId) qs.set("employeeId", perfEvaluationEmployeeId);
   return get(`/api/performance/360/results?${qs}`);
 }

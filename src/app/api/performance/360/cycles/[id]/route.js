@@ -7,9 +7,9 @@ export async function GET(request, { params }) {
   const { id } = await params;
 
   const { data, error } = await supabase
-    .from("feedback_360_cycles")
+    .from("perf360Cycle")
     .select("*")
-    .eq("id", id)
+    .eq("perf360CycleId", id)
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
@@ -23,17 +23,24 @@ export async function PUT(request, { params }) {
   const { id } = await params;
 
   const body = await request.json();
-  const updates = { updatedAt: new Date().toISOString() };
+  const updates = { perf360CycleUpdatedAt: new Date().toISOString() };
 
-  const fields = ["name", "description", "year", "quarter", "responseDeadline", "anonymousToReviewee"];
-  for (const field of fields) {
-    if (body[field] !== undefined) updates[field] = body[field];
+  const fieldMap = {
+    name: "perf360CycleName",
+    description: "perf360CycleDescription",
+    year: "perf360CycleYear",
+    quarter: "perf360CycleQuarter",
+    responseDeadline: "perf360CycleResponseDeadline",
+    anonymousToReviewee: "perf360CycleAnonymousToReviewee",
+  };
+  for (const [bodyField, dbField] of Object.entries(fieldMap)) {
+    if (body[bodyField] !== undefined) updates[dbField] = body[bodyField];
   }
 
   const { data, error } = await supabase
-    .from("feedback_360_cycles")
+    .from("perf360Cycle")
     .update(updates)
-    .eq("id", id)
+    .eq("perf360CycleId", id)
     .select()
     .single();
 
@@ -48,9 +55,9 @@ export async function DELETE(request, { params }) {
   const { id } = await params;
 
   const { error } = await supabase
-    .from("feedback_360_cycles")
+    .from("perf360Cycle")
     .delete()
-    .eq("id", id);
+    .eq("perf360CycleId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   return Response.json({ success: true });

@@ -47,13 +47,13 @@ function decodeEpc(hex) {
 
 function formatItem(item) {
   return {
-    number: item.number,
-    displayName: item.displayName,
-    type: item.type,
-    inventory: item.inventory,
+    number: item.bcItemNumber,
+    displayName: item.bcItemDisplayName,
+    type: item.bcItemType,
+    inventory: item.bcItemInventory,
     baseUnitOfMeasure: item.baseUnitOfMeasure,
-    unitPrice: item.unitPrice,
-    unitCost: item.unitCost,
+    unitPrice: item.bcItemUnitPrice,
+    unitCost: item.bcItemUnitCost,
     itemCategoryCode: item.itemCategoryCode,
     projectCode: item.projectCode || null,
     projectName: item.projectName || null,
@@ -82,7 +82,7 @@ export async function POST(request) {
       if (decoded.rfidCode) {
         /* New format: lookup by rfidCode */
         const { data: items } = await auth.supabase
-          .from("bcItems")
+          .from("bcItem")
           .select("*")
           .eq("rfidCode", decoded.rfidCode)
           .limit(1);
@@ -91,9 +91,9 @@ export async function POST(request) {
         /* Old format: ILIKE pattern match on number */
         const pattern = `%${decoded.itemCompact.replace(/ /g, "%")}%`;
         const { data: items } = await auth.supabase
-          .from("bcItems")
+          .from("bcItem")
           .select("*")
-          .ilike("number", pattern)
+          .ilike("bcItemNumber", pattern)
           .limit(1);
         item = items?.[0] || null;
       }

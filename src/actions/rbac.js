@@ -79,12 +79,12 @@ export async function getRolePermissions(roleId) {
 }
 
 export async function assignPermissionToRole(roleId, permissionId) {
-  return post(`/api/rbac/rolePermissions/${roleId}`, { permissionId });
+  return post(`/api/rbac/rolePermissions/${roleId}`, { rbacRolePermissionPermissionId: permissionId });
 }
 
 export async function removePermissionFromRole(roleId, permissionId) {
   return del(
-    `/api/rbac/rolePermissions/${roleId}?permissionId=${permissionId}`
+    `/api/rbac/rolePermissions/${roleId}?rbacRolePermissionPermissionId=${permissionId}`
   );
 }
 
@@ -99,11 +99,11 @@ export async function getUserRoles(userId) {
 }
 
 export async function assignRoleToUser(userId, roleId) {
-  return post(`/api/rbac/userRoles/${userId}`, { roleId });
+  return post(`/api/rbac/userRoles/${userId}`, { rbacUserRoleRoleId: roleId });
 }
 
 export async function removeRoleFromUser(userId, roleId) {
-  return del(`/api/rbac/userRoles/${userId}?roleId=${roleId}`);
+  return del(`/api/rbac/userRoles/${userId}?rbacUserRoleRoleId=${roleId}`);
 }
 
 // ==================== Permission Checking ====================
@@ -133,11 +133,11 @@ export async function logAccess(
 ) {
   try {
     await post("/api/rbac/accessLogs", {
-      userId,
-      resource,
-      action,
-      granted,
-      metadata,
+      rbacAccessLogUserId: userId,
+      rbacAccessLogResource: resource,
+      rbacAccessLogAction: action,
+      rbacAccessLogGranted: granted,
+      rbacAccessLogMetadata: metadata,
     });
   } catch (error) {
     console.error("Failed to log access:", error);

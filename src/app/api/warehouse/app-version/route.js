@@ -8,7 +8,7 @@ export async function GET() {
   );
 
   const { data, error } = await supabase
-    .from("appVersions")
+    .from("whAppVersion")
     .select("*")
     .order("version_code", { ascending: false })
     .limit(1)

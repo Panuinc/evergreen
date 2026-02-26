@@ -19,21 +19,21 @@ import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 
 const maintenanceCsvColumns = [
-  { header: "วันที่", key: "maintenanceDate" },
-  { header: "ประเภท", key: "maintenanceType" },
-  { header: "รายละเอียด", key: "maintenanceDescription" },
-  { header: "ค่าใช้จ่าย", key: "maintenanceCost" },
-  { header: "ผู้ให้บริการ", key: "maintenanceVendor" },
-  { header: "สถานะ", key: "maintenanceStatus" },
+  { header: "วันที่", key: "tmsMaintenanceDate" },
+  { header: "ประเภท", key: "tmsMaintenanceType" },
+  { header: "รายละเอียด", key: "tmsMaintenanceDescription" },
+  { header: "ค่าใช้จ่าย", key: "tmsMaintenanceCost" },
+  { header: "ผู้ให้บริการ", key: "tmsMaintenanceVendor" },
+  { header: "สถานะ", key: "tmsMaintenanceStatus" },
 ];
 
 const columns = [
-  { name: "วันที่", uid: "maintenanceDate", sortable: true },
-  { name: "ยานพาหนะ", uid: "vehicleName", sortable: true },
-  { name: "ประเภท", uid: "maintenanceType", sortable: true },
-  { name: "รายละเอียด", uid: "maintenanceDescription" },
-  { name: "ค่าใช้จ่าย", uid: "maintenanceCost", sortable: true },
-  { name: "สถานะ", uid: "maintenanceStatus", sortable: true },
+  { name: "วันที่", uid: "tmsMaintenanceDate", sortable: true },
+  { name: "ยานพาหนะ", uid: "tmsVehicleName", sortable: true },
+  { name: "ประเภท", uid: "tmsMaintenanceType", sortable: true },
+  { name: "รายละเอียด", uid: "tmsMaintenanceDescription" },
+  { name: "ค่าใช้จ่าย", uid: "tmsMaintenanceCost", sortable: true },
+  { name: "สถานะ", uid: "tmsMaintenanceStatus", sortable: true },
   { name: "จัดการ", uid: "actions" },
 ];
 
@@ -45,12 +45,12 @@ const statusOptions = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "maintenanceDate",
-  "vehicleName",
-  "maintenanceType",
-  "maintenanceDescription",
-  "maintenanceCost",
-  "maintenanceStatus",
+  "tmsMaintenanceDate",
+  "tmsVehicleName",
+  "tmsMaintenanceType",
+  "tmsMaintenanceDescription",
+  "tmsMaintenanceCost",
+  "tmsMaintenanceStatus",
   "actions",
 ];
 
@@ -76,38 +76,38 @@ export default function MaintenancePage() {
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "maintenanceDate":
+        case "tmsMaintenanceDate":
           return (
             <span className="text-default-500">
-              {item.maintenanceDate
-                ? new Date(item.maintenanceDate).toLocaleDateString("th-TH")
+              {item.tmsMaintenanceDate
+                ? new Date(item.tmsMaintenanceDate).toLocaleDateString("th-TH")
                 : "-"}
             </span>
           );
-        case "vehicleName": {
+        case "tmsVehicleName": {
           const vehicle = vehicles.find(
-            (v) => v.vehicleId === item.maintenanceVehicleId,
+            (v) => v.tmsVehicleId === item.tmsMaintenanceVehicleId,
           );
           return vehicle
-            ? `${vehicle.vehicleName} (${vehicle.vehiclePlateNumber})`
+            ? `${vehicle.tmsVehicleName} (${vehicle.tmsVehiclePlateNumber})`
             : "-";
         }
-        case "maintenanceType":
-          return item.maintenanceType
-            ? item.maintenanceType.charAt(0).toUpperCase() +
-                item.maintenanceType.slice(1).replace(/_/g, " ")
+        case "tmsMaintenanceType":
+          return item.tmsMaintenanceType
+            ? item.tmsMaintenanceType.charAt(0).toUpperCase() +
+                item.tmsMaintenanceType.slice(1).replace(/_/g, " ")
             : "-";
-        case "maintenanceDescription":
+        case "tmsMaintenanceDescription":
           return (
             <span className="text-default-500">
-              {item.maintenanceDescription || "-"}
+              {item.tmsMaintenanceDescription || "-"}
             </span>
           );
-        case "maintenanceCost":
-          return item.maintenanceCost
-            ? `฿${Number(item.maintenanceCost).toLocaleString()}`
+        case "tmsMaintenanceCost":
+          return item.tmsMaintenanceCost
+            ? `฿${Number(item.tmsMaintenanceCost).toLocaleString()}`
             : "-";
-        case "maintenanceStatus": {
+        case "tmsMaintenanceStatus": {
           const colorMap = {
             scheduled: "primary",
             in_progress: "warning",
@@ -119,9 +119,9 @@ export default function MaintenancePage() {
               variant="bordered"
               size="md"
               radius="md"
-              color={colorMap[item.maintenanceStatus] || "default"}
+              color={colorMap[item.tmsMaintenanceStatus] || "default"}
             >
-              {item.maintenanceStatus}
+              {item.tmsMaintenanceStatus}
             </Chip>
           );
         }
@@ -162,15 +162,15 @@ export default function MaintenancePage() {
         data={maintenance}
         renderCell={renderCell}
         enableCardView
-        rowKey="maintenanceId"
+        rowKey="tmsMaintenanceId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยรายละเอียด, ผู้ให้บริการ..."
         searchKeys={[
-          "maintenanceDescription",
-          "maintenanceVendor",
+          "tmsMaintenanceDescription",
+          "tmsMaintenanceVendor",
         ]}
-        statusField="maintenanceStatus"
+        statusField="tmsMaintenanceStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบรายการซ่อมบำรุง"
         topEndContent={
@@ -208,19 +208,19 @@ export default function MaintenancePage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.maintenanceVehicleId
-                        ? [formData.maintenanceVehicleId]
+                      formData.tmsMaintenanceVehicleId
+                        ? [formData.tmsMaintenanceVehicleId]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("maintenanceVehicleId", val);
+                      updateField("tmsMaintenanceVehicleId", val);
                     }}
                     isRequired
                   >
                     {vehicles.map((v) => (
-                      <SelectItem key={v.vehicleId}>
-                        {v.vehicleName} ({v.vehiclePlateNumber})
+                      <SelectItem key={v.tmsVehicleId}>
+                        {v.tmsVehicleName} ({v.tmsVehiclePlateNumber})
                       </SelectItem>
                     ))}
                   </Select>
@@ -234,13 +234,13 @@ export default function MaintenancePage() {
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.maintenanceType
-                        ? [formData.maintenanceType]
+                      formData.tmsMaintenanceType
+                        ? [formData.tmsMaintenanceType]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("maintenanceType", val);
+                      updateField("tmsMaintenanceType", val);
                     }}
                   >
                     <SelectItem key="preventive">ป้องกัน</SelectItem>
@@ -259,9 +259,9 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.maintenanceDescription}
+                    value={formData.tmsMaintenanceDescription}
                     onChange={(e) =>
-                      updateField("maintenanceDescription", e.target.value)
+                      updateField("tmsMaintenanceDescription", e.target.value)
                     }
                     isRequired
                   />
@@ -275,9 +275,9 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.maintenanceDate}
+                    value={formData.tmsMaintenanceDate}
                     onChange={(e) =>
-                      updateField("maintenanceDate", e.target.value)
+                      updateField("tmsMaintenanceDate", e.target.value)
                     }
                   />
                 </div>
@@ -290,9 +290,9 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.maintenanceCompletedDate}
+                    value={formData.tmsMaintenanceCompletedDate}
                     onChange={(e) =>
-                      updateField("maintenanceCompletedDate", e.target.value)
+                      updateField("tmsMaintenanceCompletedDate", e.target.value)
                     }
                   />
                 </div>
@@ -305,9 +305,9 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.maintenanceMileage}
+                    value={formData.tmsMaintenanceMileage}
                     onChange={(e) =>
-                      updateField("maintenanceMileage", e.target.value)
+                      updateField("tmsMaintenanceMileage", e.target.value)
                     }
                   />
                 </div>
@@ -320,9 +320,9 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.maintenanceCost}
+                    value={formData.tmsMaintenanceCost}
                     onChange={(e) =>
-                      updateField("maintenanceCost", e.target.value)
+                      updateField("tmsMaintenanceCost", e.target.value)
                     }
                   />
                 </div>
@@ -334,9 +334,9 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.maintenanceVendor}
+                    value={formData.tmsMaintenanceVendor}
                     onChange={(e) =>
-                      updateField("maintenanceVendor", e.target.value)
+                      updateField("tmsMaintenanceVendor", e.target.value)
                     }
                   />
                 </div>
@@ -347,10 +347,10 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.maintenanceStatus]}
+                    selectedKeys={[formData.tmsMaintenanceStatus]}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "scheduled";
-                      updateField("maintenanceStatus", val);
+                      updateField("tmsMaintenanceStatus", val);
                     }}
                   >
                     <SelectItem key="scheduled">นัดหมาย</SelectItem>
@@ -368,9 +368,9 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.maintenanceNextDueDate}
+                    value={formData.tmsMaintenanceNextDueDate}
                     onChange={(e) =>
-                      updateField("maintenanceNextDueDate", e.target.value)
+                      updateField("tmsMaintenanceNextDueDate", e.target.value)
                     }
                   />
                 </div>
@@ -383,9 +383,9 @@ export default function MaintenancePage() {
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.maintenanceNextDueMileage}
+                    value={formData.tmsMaintenanceNextDueMileage}
                     onChange={(e) =>
-                      updateField("maintenanceNextDueMileage", e.target.value)
+                      updateField("tmsMaintenanceNextDueMileage", e.target.value)
                     }
                   />
                 </div>
@@ -398,9 +398,9 @@ export default function MaintenancePage() {
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.maintenanceNotes}
+                  value={formData.tmsMaintenanceNotes}
                   onChange={(e) =>
-                    updateField("maintenanceNotes", e.target.value)
+                    updateField("tmsMaintenanceNotes", e.target.value)
                   }
                 />
               </div>
@@ -430,11 +430,11 @@ export default function MaintenancePage() {
           <ModalBody>
             <p>
               คุณต้องการลบรายการซ่อมบำรุงนี้
-              {deletingMaintenance?.maintenanceDescription && (
+              {deletingMaintenance?.tmsMaintenanceDescription && (
                 <>
                   {" "}
                   <span className="font-semibold">
-                    ({deletingMaintenance.maintenanceDescription})
+                    ({deletingMaintenance.tmsMaintenanceDescription})
                   </span>
                 </>
               )}

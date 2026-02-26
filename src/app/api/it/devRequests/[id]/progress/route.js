@@ -7,10 +7,10 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   const { data, error } = await supabase
-    .from("itDevProgressLogs")
+    .from("itDevProgressLog")
     .select("*")
-    .eq("logRequestId", id)
-    .order("logCreatedAt", { ascending: false });
+    .eq("itDevProgressLogRequestId", id)
+    .order("itDevProgressLogCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -26,26 +26,26 @@ export async function POST(request, { params }) {
 
   // Insert progress log
   const { data: log, error: logError } = await supabase
-    .from("itDevProgressLogs")
-    .insert([{ ...body, logRequestId: id }])
+    .from("itDevProgressLog")
+    .insert([{ ...body, itDevProgressLogRequestId: id }])
     .select()
     .single();
 
   if (logError) return Response.json({ error: logError.message }, { status: 400 });
 
   // Update request progress and status
-  const updateData = { requestProgress: body.logProgress };
-  if (body.logProgress >= 100) {
-    updateData.requestStatus = "completed";
-    updateData.requestCompletedAt = new Date().toISOString();
-  } else if (body.logProgress > 0) {
-    updateData.requestStatus = "in_progress";
+  const updateData = { itDevRequestProgress: body.itDevProgressLogProgress };
+  if (body.itDevProgressLogProgress >= 100) {
+    updateData.itDevRequestStatus = "completed";
+    updateData.itDevRequestCompletedAt = new Date().toISOString();
+  } else if (body.itDevProgressLogProgress > 0) {
+    updateData.itDevRequestStatus = "in_progress";
   }
 
   await supabase
-    .from("itDevRequests")
+    .from("itDevRequest")
     .update(updateData)
-    .eq("requestId", id);
+    .eq("itDevRequestId", id);
 
   return Response.json(log, { status: 201 });
 }

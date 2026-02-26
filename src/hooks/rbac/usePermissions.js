@@ -42,7 +42,7 @@ export function usePermissions() {
   const permMap = useMemo(() => {
     const map = {};
     permissions.forEach((p) => {
-      map[`${p.permissionResourceId}:${p.permissionActionId}`] = p;
+      map[`${p.rbacPermissionResourceId}:${p.rbacPermissionActionId}`] = p;
     });
     return map;
   }, [permissions]);
@@ -54,15 +54,15 @@ export function usePermissions() {
     try {
       const existing = permMap[key];
       if (existing) {
-        await deletePermission(existing.permissionId);
+        await deletePermission(existing.rbacPermissionId);
         setPermissions((prev) =>
-          prev.filter((p) => p.permissionId !== existing.permissionId),
+          prev.filter((p) => p.rbacPermissionId !== existing.rbacPermissionId),
         );
         toast.success("ลบสิทธิ์สำเร็จ");
       } else {
         const newPerm = await createPermission({
-          permissionResourceId: resourceId,
-          permissionActionId: actionId,
+          rbacPermissionResourceId: resourceId,
+          rbacPermissionActionId: actionId,
         });
         setPermissions((prev) => [...prev, newPerm]);
         toast.success("สร้างสิทธิ์สำเร็จ");

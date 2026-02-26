@@ -6,33 +6,33 @@ import { useBcItems } from "@/hooks/bc/useBcItems";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่", uid: "number", sortable: true },
-  { name: "ชื่อสินค้า", uid: "displayName", sortable: true },
-  { name: "โครงการ", uid: "projectName", sortable: true },
-  { name: "ประเภท", uid: "type", sortable: true },
-  { name: "คงคลัง", uid: "inventory", sortable: true },
-  { name: "ราคาต่อหน่วย", uid: "unitPrice", sortable: true },
-  { name: "ต้นทุนต่อหน่วย", uid: "unitCost", sortable: true },
-  { name: "หมวดหมู่", uid: "itemCategoryCode", sortable: true },
+  { name: "เลขที่", uid: "bcItemNumber", sortable: true },
+  { name: "ชื่อสินค้า", uid: "bcItemDisplayName", sortable: true },
+  { name: "โครงการ", uid: "bcItemProjectName", sortable: true },
+  { name: "ประเภท", uid: "bcItemType", sortable: true },
+  { name: "คงคลัง", uid: "bcItemInventory", sortable: true },
+  { name: "ราคาต่อหน่วย", uid: "bcItemUnitPrice", sortable: true },
+  { name: "ต้นทุนต่อหน่วย", uid: "bcItemUnitCost", sortable: true },
+  { name: "หมวดหมู่", uid: "bcItemCategoryCode", sortable: true },
   {
     name: "กลุ่มการลงบัญชี",
-    uid: "generalProductPostingGroupCode",
+    uid: "bcItemGeneralProductPostingGroupCode",
     sortable: true,
   },
-  { name: "ถูกบล็อก", uid: "blocked", sortable: true },
+  { name: "ถูกบล็อก", uid: "bcItemBlocked", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "number",
-  "displayName",
-  "projectName",
-  "type",
-  "inventory",
-  "unitPrice",
-  "unitCost",
-  "itemCategoryCode",
-  "generalProductPostingGroupCode",
-  "blocked",
+  "bcItemNumber",
+  "bcItemDisplayName",
+  "bcItemProjectName",
+  "bcItemType",
+  "bcItemInventory",
+  "bcItemUnitPrice",
+  "bcItemUnitCost",
+  "bcItemCategoryCode",
+  "bcItemGeneralProductPostingGroupCode",
+  "bcItemBlocked",
 ];
 
 export default function BcItemsPage() {
@@ -41,7 +41,7 @@ export default function BcItemsPage() {
   const postingGroupOptions = useMemo(() => {
     const unique = [
       ...new Set(
-        items.map((i) => i.generalProductPostingGroupCode).filter(Boolean),
+        items.map((i) => i.bcItemGeneralProductPostingGroupCode).filter(Boolean),
       ),
     ];
     return unique.map((v) => ({ uid: v, name: v }));
@@ -49,51 +49,51 @@ export default function BcItemsPage() {
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "displayName":
-        return <span className="font-medium">{item.displayName}</span>;
-      case "projectName":
-        return item.projectName ? (
+      case "bcItemDisplayName":
+        return <span className="font-medium">{item.bcItemDisplayName}</span>;
+      case "bcItemProjectName":
+        return item.bcItemProjectName ? (
           <Chip variant="bordered" size="md" radius="md" color="secondary">
-            {item.projectName}
+            {item.bcItemProjectName}
           </Chip>
         ) : (
           <span className="text-default-300">-</span>
         );
-      case "inventory": {
-        const inv = Number(item.inventory);
+      case "bcItemInventory": {
+        const inv = Number(item.bcItemInventory);
         return (
           <span className={inv > 0 ? "text-success" : "text-danger"}>
-            {item.inventory != null ? inv.toLocaleString("th-TH") : "-"}
+            {item.bcItemInventory != null ? inv.toLocaleString("th-TH") : "-"}
           </span>
         );
       }
-      case "unitPrice":
-        return item.unitPrice != null
-          ? Number(item.unitPrice).toLocaleString("th-TH", {
+      case "bcItemUnitPrice":
+        return item.bcItemUnitPrice != null
+          ? Number(item.bcItemUnitPrice).toLocaleString("th-TH", {
               minimumFractionDigits: 2,
             })
           : "-";
-      case "unitCost": {
-        const hasCost = item.unitCost != null && Number(item.unitCost) > 0;
+      case "bcItemUnitCost": {
+        const hasCost = item.bcItemUnitCost != null && Number(item.bcItemUnitCost) > 0;
         return (
           <span className={hasCost ? "text-primary" : "text-danger"}>
-            {item.unitCost != null
-              ? Number(item.unitCost).toLocaleString("th-TH", {
+            {item.bcItemUnitCost != null
+              ? Number(item.bcItemUnitCost).toLocaleString("th-TH", {
                   minimumFractionDigits: 2,
                 })
               : "-"}
           </span>
         );
       }
-      case "blocked":
+      case "bcItemBlocked":
         return (
           <Chip
             variant="bordered"
             size="md"
             radius="md"
-            color={!item.blocked ? "success" : "danger"}
+            color={!item.bcItemBlocked ? "success" : "danger"}
           >
-            {item.blocked ? "ใช่" : "ไม่"}
+            {item.bcItemBlocked ? "ใช่" : "ไม่"}
           </Chip>
         );
       default:
@@ -108,14 +108,14 @@ export default function BcItemsPage() {
         data={items}
         renderCell={renderCell}
         enableCardView
-        rowKey="id"
+        rowKey="bcItemId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        statusField="generalProductPostingGroupCode"
+        statusField="bcItemGeneralProductPostingGroupCode"
         statusOptions={postingGroupOptions}
         filterLabel="กลุ่มการลงบัญชี"
         searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อ..."
-        searchKeys={["number", "displayName", "projectName"]}
+        searchKeys={["bcItemNumber", "bcItemDisplayName", "bcItemProjectName"]}
         emptyContent="ไม่พบสินค้า"
       />
     </div>
