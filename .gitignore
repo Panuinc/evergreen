@@ -37,6 +37,7 @@ yarn-error.log*
 deploy.sh
 scripts/deploy-*.sh
 scripts/replace-secrets.sh
+scripts/DEPLOY-GUIDE.md
 
 # sensitive data
 *.xlsx
