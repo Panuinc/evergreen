@@ -1,26 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
-import { createClient as createServerClient } from "@/lib/supabase/server";
+import { withAuth } from "@/app/api/_lib/auth";
 
 export async function POST(request) {
-  // ตรวจสอบว่า user ที่เรียกเป็น authenticated
-  const supabaseServer = await createServerClient();
-  const {
-    data: { session },
-  } = await supabaseServer.auth.getSession();
+  // ตรวจสอบว่า user ที่เรียกเป็น authenticated (ใช้ getUser() ที่ verify กับ Auth server)
+  const { supabase, session, error: authError } = await withAuth();
 
-  if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (authError) return authError;
 
   // ตรวจสอบว่า user มี rbac permission (superadmin หรือ rbac:create)
-  const { data: permissions } = await supabaseServer.rpc(
+  const { data: permissions } = await supabase.rpc(
     "get_user_permissions",
     { p_user_id: session.user.id },
   );
 
-  const isSuperAdmin = permissions?.some((p) => p.isSuperadmin);
+  const isSuperAdmin = permissions?.some((p) => p.is_superadmin);
   const hasRbacCreate = permissions?.some(
-    (p) => p.permission === "rbac:create",
+    (p) => `${p.resource_name}:${p.action_name}` === "rbac:create",
   );
 
   if (!isSuperAdmin && !hasRbacCreate) {
@@ -60,6 +55,14 @@ export async function POST(request) {
 
   if (createError) {
     return Response.json({ error: createError.message }, { status: 400 });
+  }
+
+  // สร้าง record ใน rbacUserProfile เพื่อให้แสดงในหน้า users
+  if (newUser.user) {
+    await supabaseAdmin.from("rbacUserProfile").insert({
+      rbacUserProfileId: newUser.user.id,
+      rbacUserProfileEmail: newUser.user.email,
+    });
   }
 
   // ถ้ามี employeeId ให้ผูก user กับ employee
