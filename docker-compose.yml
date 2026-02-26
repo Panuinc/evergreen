@@ -7,3 +7,27 @@ services:
       - "3000:3000"
     env_file:
       - .env.local
+
+  bc-sync:
+    image: alpine:3.20
+    container_name: evergreen-bc-sync
+    restart: unless-stopped
+    depends_on:
+      - evergreen
+    env_file:
+      - .env.local
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache curl
+        echo "BC Sync cron started — every 1 hour"
+        while true; do
+          echo "[$(date)] Triggering BC sync..."
+          curl -sf -H "Authorization: Bearer $${CRON_SECRET}" \
+            "http://evergreen:3000/api/sync/bc" \
+            -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
+            --max-time 290 || echo "[$(date)] Sync failed"
+          echo "[$(date)] Sleeping 1 hour..."
+          sleep 3600
+        done
