@@ -173,7 +173,7 @@ describe("RBAC Actions", () => {
       await rbac.assignPermissionToRole("r1", "p1");
       expect(apiClient.post).toHaveBeenCalledWith(
         "/api/rbac/rolePermissions/r1",
-        { permissionId: "p1" }
+        { rbacRolePermissionPermissionId: "p1" }
       );
     });
   });
@@ -183,7 +183,7 @@ describe("RBAC Actions", () => {
       apiClient.del.mockResolvedValue({});
       await rbac.removePermissionFromRole("r1", "p1");
       expect(apiClient.del).toHaveBeenCalledWith(
-        "/api/rbac/rolePermissions/r1?permissionId=p1"
+        "/api/rbac/rolePermissions/r1?rbacRolePermissionPermissionId=p1"
       );
     });
   });
@@ -203,7 +203,7 @@ describe("RBAC Actions", () => {
       apiClient.post.mockResolvedValue({});
       await rbac.assignRoleToUser("u1", "r1");
       expect(apiClient.post).toHaveBeenCalledWith("/api/rbac/userRoles/u1", {
-        roleId: "r1",
+        rbacUserRoleRoleId: "r1",
       });
     });
   });
@@ -213,7 +213,7 @@ describe("RBAC Actions", () => {
       apiClient.del.mockResolvedValue({});
       await rbac.removeRoleFromUser("u1", "r1");
       expect(apiClient.del).toHaveBeenCalledWith(
-        "/api/rbac/userRoles/u1?roleId=r1"
+        "/api/rbac/userRoles/u1?rbacUserRoleRoleId=r1"
       );
     });
   });
@@ -259,11 +259,11 @@ describe("RBAC Actions", () => {
       apiClient.post.mockResolvedValue({});
       await rbac.logAccess("u1", "hr:employees", "access", true);
       expect(apiClient.post).toHaveBeenCalledWith("/api/rbac/accessLogs", {
-        userId: "u1",
-        resource: "hr:employees",
-        action: "access",
-        granted: true,
-        metadata: null,
+        rbacAccessLogUserId: "u1",
+        rbacAccessLogResource: "hr:employees",
+        rbacAccessLogAction: "access",
+        rbacAccessLogGranted: true,
+        rbacAccessLogMetadata: null,
       });
     });
 

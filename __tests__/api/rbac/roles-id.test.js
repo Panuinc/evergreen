@@ -34,15 +34,15 @@ describe("API /api/rbac/roles/[id]", () => {
 
   describe("GET", () => {
     it("returns a role by ID", async () => {
-      const role = { roleId: "r1", roleName: "Admin" };
+      const role = { rbacRoleId: "r1", rbacRoleName: "Admin" };
       mockSingle.mockResolvedValue({ data: role, error: null });
 
       const request = new Request("http://localhost/api/rbac/roles/r1");
       const response = await GET(request, makeParams("r1"));
       const data = await response.json();
 
-      expect(data.roleName).toBe("Admin");
-      expect(mockEq).toHaveBeenCalledWith("roleId", "r1");
+      expect(data.rbacRoleName).toBe("Admin");
+      expect(mockEq).toHaveBeenCalledWith("rbacRoleId", "r1");
     });
 
     it("returns 404 when not found", async () => {
@@ -60,7 +60,7 @@ describe("API /api/rbac/roles/[id]", () => {
 
   describe("PUT", () => {
     it("updates a role", async () => {
-      const updatedRole = { roleId: "r1", roleName: "Super Admin" };
+      const updatedRole = { rbacRoleId: "r1", rbacRoleName: "Super Admin" };
       mockUpdate.mockReturnValue({
         eq: () => ({
           select: () => ({
@@ -71,12 +71,12 @@ describe("API /api/rbac/roles/[id]", () => {
 
       const request = new Request("http://localhost/api/rbac/roles/r1", {
         method: "PUT",
-        body: JSON.stringify({ roleName: "Super Admin" }),
+        body: JSON.stringify({ rbacRoleName: "Super Admin" }),
       });
       const response = await PUT(request, makeParams("r1"));
       const data = await response.json();
 
-      expect(data.roleName).toBe("Super Admin");
+      expect(data.rbacRoleName).toBe("Super Admin");
     });
 
     it("returns 400 on update error", async () => {
@@ -94,7 +94,7 @@ describe("API /api/rbac/roles/[id]", () => {
 
       const request = new Request("http://localhost/api/rbac/roles/r1", {
         method: "PUT",
-        body: JSON.stringify({ roleName: "" }),
+        body: JSON.stringify({ rbacRoleName: "" }),
       });
       const response = await PUT(request, makeParams("r1"));
 

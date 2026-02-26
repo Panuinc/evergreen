@@ -30,10 +30,10 @@ describe("API /api/rbac/roles", () => {
     it("returns roles with user and permission counts", async () => {
       const roles = [
         {
-          roleId: "r1",
-          roleName: "Admin",
-          userRoles: [{ count: 5 }],
-          rolePermissions: [{ count: 10 }],
+          rbacRoleId: "r1",
+          rbacRoleName: "Admin",
+          rbacUserRole: [{ count: 5 }],
+          rbacRolePermission: [{ count: 10 }],
         },
       ];
       mockOrder.mockResolvedValue({ data: roles, error: null });
@@ -43,7 +43,7 @@ describe("API /api/rbac/roles", () => {
 
       expect(data).toEqual(roles);
       expect(mockSelect).toHaveBeenCalledWith(
-        "*, userRoles:userRoles(count), rolePermissions:rolePermissions(count)"
+        "*, rbacUserRole:rbacUserRole(count), rbacRolePermission:rbacRolePermission(count)"
       );
     });
 
@@ -60,7 +60,7 @@ describe("API /api/rbac/roles", () => {
 
   describe("POST", () => {
     it("creates a new role", async () => {
-      const newRole = { roleId: "r2", roleName: "Editor" };
+      const newRole = { rbacRoleId: "r2", rbacRoleName: "Editor" };
       mockInsert.mockReturnValue({
         select: () => ({
           single: () => Promise.resolve({ data: newRole, error: null }),
@@ -69,13 +69,13 @@ describe("API /api/rbac/roles", () => {
 
       const request = new Request("http://localhost/api/rbac/roles", {
         method: "POST",
-        body: JSON.stringify({ roleName: "Editor" }),
+        body: JSON.stringify({ rbacRoleName: "Editor" }),
       });
       const response = await POST(request);
 
       expect(response.status).toBe(201);
       const data = await response.json();
-      expect(data.roleName).toBe("Editor");
+      expect(data.rbacRoleName).toBe("Editor");
     });
 
     it("returns 400 on create error", async () => {
@@ -91,7 +91,7 @@ describe("API /api/rbac/roles", () => {
 
       const request = new Request("http://localhost/api/rbac/roles", {
         method: "POST",
-        body: JSON.stringify({ roleName: "Admin" }),
+        body: JSON.stringify({ rbacRoleName: "Admin" }),
       });
       const response = await POST(request);
 

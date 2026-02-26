@@ -31,7 +31,7 @@ describe("API /api/sales/leads", () => {
 
   describe("GET", () => {
     it("returns leads list", async () => {
-      const leads = [{ id: 1, leadName: "Prospect A" }];
+      const leads = [{ id: 1, crmLeadName: "Prospect A" }];
       mockOrder.mockResolvedValue({ data: leads, error: null });
 
       const request = new Request("http://localhost/api/sales/leads");
@@ -39,7 +39,7 @@ describe("API /api/sales/leads", () => {
       const data = await response.json();
 
       expect(data).toEqual(leads);
-      expect(mockSupabase.from).toHaveBeenCalledWith("crmLeads");
+      expect(mockSupabase.from).toHaveBeenCalledWith("crmLead");
     });
 
     it("filters by search", async () => {
@@ -49,7 +49,7 @@ describe("API /api/sales/leads", () => {
       await GET(request);
 
       expect(mockOr).toHaveBeenCalledWith(
-        expect.stringContaining("leadName.ilike.%Acme%")
+        expect.stringContaining("crmLeadName.ilike.%Acme%")
       );
     });
 
@@ -68,7 +68,7 @@ describe("API /api/sales/leads", () => {
 
   describe("POST", () => {
     it("creates a new lead", async () => {
-      const newLead = { id: 1, leadName: "New Lead" };
+      const newLead = { id: 1, crmLeadName: "New Lead" };
       mockInsert.mockReturnValue({
         select: () => ({
           single: () => Promise.resolve({ data: newLead, error: null }),
@@ -77,7 +77,7 @@ describe("API /api/sales/leads", () => {
 
       const request = new Request("http://localhost/api/sales/leads", {
         method: "POST",
-        body: JSON.stringify({ leadName: "New Lead" }),
+        body: JSON.stringify({ crmLeadName: "New Lead" }),
       });
       const response = await POST(request);
 

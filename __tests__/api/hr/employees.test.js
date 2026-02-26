@@ -32,7 +32,7 @@ describe("API /api/hr/employees", () => {
 
   describe("GET", () => {
     it("returns employees list", async () => {
-      const employees = [{ id: 1, employeeFirstName: "John" }];
+      const employees = [{ id: 1, hrEmployeeFirstName: "John" }];
       mockOrder.mockResolvedValue({ data: employees, error: null });
 
       const request = new Request("http://localhost/api/hr/employees");
@@ -40,7 +40,7 @@ describe("API /api/hr/employees", () => {
       const data = await response.json();
 
       expect(data).toEqual(employees);
-      expect(mockSupabase.from).toHaveBeenCalledWith("employees");
+      expect(mockSupabase.from).toHaveBeenCalledWith("hrEmployee");
     });
 
     it("filters by search term", async () => {
@@ -52,7 +52,7 @@ describe("API /api/hr/employees", () => {
       await GET(request);
 
       expect(mockOr).toHaveBeenCalledWith(
-        expect.stringContaining("employeeFirstName.ilike.%John%")
+        expect.stringContaining("hrEmployeeFirstName.ilike.%John%")
       );
     });
 
@@ -73,20 +73,20 @@ describe("API /api/hr/employees", () => {
 
   describe("POST", () => {
     it("creates a new employee", async () => {
-      const newEmployee = { id: 1, employeeFirstName: "Alice" };
+      const newEmployee = { id: 1, hrEmployeeFirstName: "Alice" };
       mockInsert.mockReturnValue({
         select: () => ({ single: () => Promise.resolve({ data: newEmployee, error: null }) }),
       });
 
       const request = new Request("http://localhost/api/hr/employees", {
         method: "POST",
-        body: JSON.stringify({ employeeFirstName: "Alice" }),
+        body: JSON.stringify({ hrEmployeeFirstName: "Alice" }),
       });
       const response = await POST(request);
 
       expect(response.status).toBe(201);
       const data = await response.json();
-      expect(data.employeeFirstName).toBe("Alice");
+      expect(data.hrEmployeeFirstName).toBe("Alice");
     });
 
     it("returns 400 on insert error", async () => {
@@ -102,7 +102,7 @@ describe("API /api/hr/employees", () => {
 
       const request = new Request("http://localhost/api/hr/employees", {
         method: "POST",
-        body: JSON.stringify({ employeeFirstName: "Dup" }),
+        body: JSON.stringify({ hrEmployeeFirstName: "Dup" }),
       });
       const response = await POST(request);
 

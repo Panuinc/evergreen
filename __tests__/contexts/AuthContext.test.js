@@ -24,7 +24,7 @@ jest.mock("@/lib/supabase/client", () => ({
 
 // Mock window.location
 delete window.location;
-window.location = { href: "" };
+window.location = { href: "", assign: jest.fn(), replace: jest.fn() };
 
 function TestConsumer() {
   const { user, loading, signIn, signOut } = useAuth();
@@ -168,8 +168,6 @@ describe("AuthContext", () => {
       .spyOn(console, "error")
       .mockImplementation(() => {});
 
-    // The default context value is {}, so methods will be undefined
-    // causing a runtime error when the consumer tries to use them
     expect(() => {
       render(<TestConsumer />);
     }).toThrow();

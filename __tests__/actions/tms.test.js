@@ -110,7 +110,7 @@ describe("TMS Actions", () => {
       await tms.updateShipmentStatus("s1", "delivered");
       expect(apiClient.put).toHaveBeenCalledWith(
         "/api/tms/shipments/s1/status",
-        { status: "delivered" }
+        { tmsShipmentStatus: "delivered" }
       );
     });
 
