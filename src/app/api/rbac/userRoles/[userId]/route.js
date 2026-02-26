@@ -20,7 +20,8 @@ export async function POST(request, { params }) {
   if (auth.error) return auth.error;
   const { supabase } = auth;
   const { userId } = await params;
-  const { roleId } = await request.json();
+  const body = await request.json();
+  const roleId = body.rbacUserRoleRoleId || body.roleId;
 
   const { data, error } = await supabase
     .from("rbacUserRole")
@@ -38,7 +39,7 @@ export async function DELETE(request, { params }) {
   const { supabase } = auth;
   const { userId } = await params;
   const { searchParams } = new URL(request.url);
-  const roleId = searchParams.get("roleId");
+  const roleId = searchParams.get("rbacUserRoleRoleId") || searchParams.get("roleId");
 
   const { error } = await supabase
     .from("rbacUserRole")
