@@ -4,8 +4,8 @@ function formatOrder(o) {
   return {
     number: o.bcSalesOrderNumber,
     documentType: o.bcSalesOrderDocumentType,
-    sellToCustomerName: o.bcSalesOrderSellToCustomerName,
-    sellToCustomerNo: o.bcSalesOrderSellToCustomerNo,
+    sellToCustomerName: o.bcSalesOrderCustomerName,
+    sellToCustomerNo: o.bcSalesOrderCustomerNumber,
     orderDate: o.bcSalesOrderDate,
     status: o.bcSalesOrderStatus,
     Completely_Shipped: o.bcSalesOrderCompletelyShipped,
@@ -23,7 +23,7 @@ function formatOrderLine(l) {
     quantity: l.bcSalesOrderLineQuantity,
     unitPrice: l.bcSalesOrderLineUnitPrice,
     amount: l.bcSalesOrderLineAmount,
-    amountIncVat: l.bcSalesOrderLineAmountIncVat,
+    amountIncVat: l.bcSalesOrderLineAmount,
   };
 }
 

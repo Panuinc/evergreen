@@ -34,8 +34,8 @@ export async function GET() {
     // Build sales price map: itemNo → latest unitPrice
     const salesPriceMap = {};
     for (const sl of salesLines) {
-      if (sl.lineObjectNumber && sl.bcSalesOrderLineUnitPrice > 0) {
-        salesPriceMap[sl.lineObjectNumber] = Number(sl.bcSalesOrderLineUnitPrice);
+      if (sl.bcSalesOrderLineObjectNumber && sl.bcSalesOrderLineUnitPrice > 0) {
+        salesPriceMap[sl.bcSalesOrderLineObjectNumber] = Number(sl.bcSalesOrderLineUnitPrice);
       }
     }
 
@@ -50,13 +50,13 @@ export async function GET() {
           outputCost: 0,
         };
       }
-      if (e.bcItemLedgerEntryType === "Consumption") {
+      if (e.bcItemLedgerEntryEntryType === "Consumption") {
         orderCostMap[e.bcItemLedgerEntryDocumentNo].consumptionCost += Math.abs(
-          Number(e.costAmountActual) || 0,
+          Number(e.bcItemLedgerEntryCostAmountActual) || 0,
         );
-      } else if (e.bcItemLedgerEntryType === "Output") {
+      } else if (e.bcItemLedgerEntryEntryType === "Output") {
         orderCostMap[e.bcItemLedgerEntryDocumentNo].outputQty += Number(e.bcItemLedgerEntryQuantity) || 0;
-        orderCostMap[e.bcItemLedgerEntryDocumentNo].outputCost += Number(e.costAmountActual) || 0;
+        orderCostMap[e.bcItemLedgerEntryDocumentNo].outputCost += Number(e.bcItemLedgerEntryCostAmountActual) || 0;
       }
     }
 

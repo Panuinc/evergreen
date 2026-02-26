@@ -13,7 +13,7 @@ export async function GET() {
     const { data, error } = await auth.supabase
       .from("bciProject")
       .select("*")
-      .order("modifiedDate", { ascending: false })
+      .order("bciProjectModifiedDate", { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) return Response.json({ error: error.message }, { status: 500 });

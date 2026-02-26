@@ -953,8 +953,8 @@ CREATE TABLE public.whAppVersion (
   whAppVersionName text,
   whAppVersionDownloadUrl text,
   whAppVersionReleaseNotes text,
-  whAppVersionIsMandatory boolean DEFAULT false,
   whAppVersionCreatedAt timestamp with time zone DEFAULT now(),
+  whAppVersionIsMandatory boolean DEFAULT false,
   CONSTRAINT whAppVersion_pkey PRIMARY KEY (whAppVersionId)
 );
 CREATE TABLE public.whOrderMatch (

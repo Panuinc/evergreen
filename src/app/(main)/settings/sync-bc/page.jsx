@@ -123,7 +123,7 @@ function ResultCards({ tables, results }) {
           <Card
             key={t.key}
             shadow="none"
-            className={`border ${isError ? "border-danger bg-danger-50" : "border-default bg-white"}`}
+            className={`border ${isError ? "border-danger bg-danger-50" : "border-default bg-content1"}`}
           >
             <CardBody className="gap-1">
               <div className="flex items-center gap-2">
@@ -241,25 +241,25 @@ function BciImportSection() {
           </CardHeader>
           <CardBody>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Card shadow="none" className="border border-default bg-white">
+              <Card shadow="none" className="border border-default bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-xs text-default-500">แถวทั้งหมด</p>
                   <p className="text-2xl font-bold">{result.results.totalRows?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-default bg-white">
+              <Card shadow="none" className="border border-default bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-xs text-default-500">นำเข้าแล้ว</p>
                   <p className="text-2xl font-bold">{result.results.imported?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-default bg-white">
+              <Card shadow="none" className="border border-default bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-xs text-default-500">Column ที่ map ได้</p>
                   <p className="text-2xl font-bold">{result.results.columnsMapped}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-default bg-white">
+              <Card shadow="none" className="border border-default bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-xs text-default-500">ข้ามไป</p>
                   <p className="text-2xl font-bold">{result.results.skipped}</p>
