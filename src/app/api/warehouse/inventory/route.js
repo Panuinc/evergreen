@@ -1,5 +1,22 @@
 import { withAuth } from "@/app/api/_lib/auth";
 
+function formatItem(item) {
+  return {
+    number: item.bcItemNumber,
+    displayName: item.bcItemDisplayName,
+    type: item.bcItemType,
+    inventory: item.bcItemInventory,
+    baseUnitOfMeasure: item.bcItemBaseUnitOfMeasure,
+    unitPrice: item.bcItemUnitPrice,
+    unitCost: item.bcItemUnitCost,
+    itemCategoryCode: item.bcItemCategoryCode,
+    generalProductPostingGroupCode: item.bcItemGeneralProductPostingGroupCode,
+    rfidCode: item.bcItemRfidCode || null,
+    projectCode: item.bcItemProjectCode || null,
+    projectName: item.bcItemProjectName || null,
+  };
+}
+
 const PAGE_SIZE = 1000;
 
 export async function GET(request) {
@@ -31,7 +48,7 @@ export async function GET(request) {
     }
 
     const filtered = allData.filter((item) => !item.bcItemBlocked && item.bcItemInventory > 0);
-    return Response.json(filtered);
+    return Response.json(filtered.map(formatItem));
   }
 
   let allData = [];
@@ -53,5 +70,5 @@ export async function GET(request) {
   }
 
   const filtered = allData.filter((item) => !item.bcItemBlocked && item.bcItemInventory > 0);
-  return Response.json(filtered);
+  return Response.json(filtered.map(formatItem));
 }

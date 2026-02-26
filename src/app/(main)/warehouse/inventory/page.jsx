@@ -17,14 +17,14 @@ export default function WarehouseInventoryPage() {
   const groupedData = useMemo(() => {
     const groups = {};
     items.forEach((item) => {
-      const group = item.bcItemGeneralProductPostingGroupCode || "ไม่ระบุ";
+      const group = item.generalProductPostingGroupCode || "ไม่ระบุ";
       if (!groups[group]) {
         groups[group] = { count: 0, totalQty: 0, totalValue: 0 };
       }
       groups[group].count += 1;
-      groups[group].totalQty += Number(item.bcItemInventory) || 0;
+      groups[group].totalQty += Number(item.inventory) || 0;
       groups[group].totalValue +=
-        (Number(item.bcItemInventory) || 0) * (Number(item.bcItemUnitCost) || 0);
+        (Number(item.inventory) || 0) * (Number(item.unitCost) || 0);
     });
     return groups;
   }, [items]);
@@ -38,9 +38,9 @@ export default function WarehouseInventoryPage() {
 
   const totalSummary = useMemo(() => {
     const totalItems = items.length;
-    const totalQty = items.reduce((s, i) => s + (Number(i.bcItemInventory) || 0), 0);
+    const totalQty = items.reduce((s, i) => s + (Number(i.inventory) || 0), 0);
     const totalValue = items.reduce(
-      (s, i) => s + (Number(i.bcItemInventory) || 0) * (Number(i.bcItemUnitCost) || 0),
+      (s, i) => s + (Number(i.inventory) || 0) * (Number(i.unitCost) || 0),
       0,
     );
     return { totalItems, totalQty, totalValue };

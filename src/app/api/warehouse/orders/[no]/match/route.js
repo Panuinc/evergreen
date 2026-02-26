@@ -9,12 +9,12 @@ export async function POST(request, { params }) {
   const body = await request.json();
 
   const record = {
-    user_id: session.user.id,
-    order_number: body.order_number || no,
-    order_type: body.order_type,
-    expected_items: body.expected_items,
-    scanned_items: body.scanned_items,
-    session_id: body.session_id || null,
+    whOrderMatchUserId: session.user.id,
+    whOrderMatchOrderNumber: body.order_number || no,
+    whOrderMatchOrderType: body.order_type,
+    whOrderMatchExpectedItems: body.expected_items,
+    whOrderMatchScannedItems: body.scanned_items,
+    whOrderMatchSessionId: body.session_id || null,
   };
 
   const { data, error } = await supabase

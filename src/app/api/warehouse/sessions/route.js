@@ -1,5 +1,21 @@
 import { withAuth } from "@/app/api/_lib/auth";
 
+function formatSession(s) {
+  return {
+    id: s.whScanSessionId,
+    user_id: s.whScanSessionUserId,
+    name: s.whScanSessionName,
+    type: s.whScanSessionType,
+    started_at: s.whScanSessionStartedAt,
+    ended_at: s.whScanSessionEndedAt,
+    gps_lat: s.whScanSessionGpsLat,
+    gps_lon: s.whScanSessionGpsLon,
+    tag_count: s.whScanSessionTagCount,
+    total_reads: s.whScanSessionTotalReads,
+    metadata: s.whScanSessionMetadata,
+  };
+}
+
 export async function GET() {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -12,7 +28,7 @@ export async function GET() {
     .order("whScanSessionStartedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data);
+  return Response.json(data.map(formatSession));
 }
 
 export async function POST(request) {
@@ -42,5 +58,5 @@ export async function POST(request) {
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
-  return Response.json(data, { status: 201 });
+  return Response.json(formatSession(data), { status: 201 });
 }

@@ -18,5 +18,13 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json({
+    id: data.whAppVersionId,
+    version_code: data.whAppVersionCode,
+    version_name: data.whAppVersionName,
+    apk_url: data.whAppVersionDownloadUrl,
+    release_notes: data.whAppVersionReleaseNotes,
+    is_mandatory: data.whAppVersionIsMandatory || false,
+    created_at: data.whAppVersionCreatedAt,
+  });
 }

@@ -1,5 +1,32 @@
 import { withAuth } from "@/app/api/_lib/auth";
 
+function formatOrder(o) {
+  return {
+    number: o.bcSalesOrderNumber,
+    documentType: o.bcSalesOrderDocumentType,
+    sellToCustomerName: o.bcSalesOrderSellToCustomerName,
+    sellToCustomerNo: o.bcSalesOrderSellToCustomerNo,
+    orderDate: o.bcSalesOrderDate,
+    status: o.bcSalesOrderStatus,
+    Completely_Shipped: o.bcSalesOrderCompletelyShipped,
+    totalAmountIncVat: o.bcSalesOrderTotalAmountIncVat,
+    salespersonCode: o.bcSalesOrderSalespersonCode,
+    lines: (o.lines || []).map(formatOrderLine),
+  };
+}
+
+function formatOrderLine(l) {
+  return {
+    number: l.bcSalesOrderLineNo,
+    documentNo: l.bcSalesOrderLineDocumentNo,
+    description: l.bcSalesOrderLineDescription,
+    quantity: l.bcSalesOrderLineQuantity,
+    unitPrice: l.bcSalesOrderLineUnitPrice,
+    amount: l.bcSalesOrderLineAmount,
+    amountIncVat: l.bcSalesOrderLineAmountIncVat,
+  };
+}
+
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -62,5 +89,5 @@ export async function GET(request) {
     }
   }
 
-  return Response.json(data);
+  return Response.json(data.map(formatOrder));
 }

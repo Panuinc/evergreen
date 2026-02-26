@@ -1,5 +1,21 @@
 import { withAuth } from "@/app/api/_lib/auth";
 
+function formatTransfer(t) {
+  return {
+    id: t.whTransferId,
+    user_id: t.whTransferUserId,
+    no: t.whTransferNo,
+    from_location: t.whTransferFromLocation,
+    to_location: t.whTransferToLocation,
+    session_id: t.whTransferSessionId,
+    notes: t.whTransferNotes,
+    gps_lat: t.whTransferGpsLat,
+    gps_lon: t.whTransferGpsLon,
+    status: t.whTransferStatus,
+    created_at: t.whTransferCreatedAt,
+  };
+}
+
 export async function GET() {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -12,7 +28,7 @@ export async function GET() {
     .order("whTransferCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data);
+  return Response.json(data.map(formatTransfer));
 }
 
 export async function POST(request) {
@@ -46,5 +62,5 @@ export async function POST(request) {
     .single();
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
-  return Response.json(data, { status: 201 });
+  return Response.json(formatTransfer(data), { status: 201 });
 }

@@ -1,5 +1,19 @@
 import { withAuth } from "@/app/api/_lib/auth";
 
+function formatRecord(r) {
+  return {
+    id: r.whScanRecordId,
+    session_id: r.whScanRecordSessionId,
+    epc: r.whScanRecordEpc,
+    rssi: r.whScanRecordRssi,
+    item_number: r.whScanRecordItemNumber,
+    item_name: r.whScanRecordItemName,
+    photo_url: r.whScanRecordPhotoUrl,
+    read_count: r.whScanRecordReadCount,
+    scanned_at: r.whScanRecordScannedAt,
+  };
+}
+
 export async function GET(request, { params }) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -14,7 +28,7 @@ export async function GET(request, { params }) {
     .order("whScanRecordScannedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data);
+  return Response.json(data.map(formatRecord));
 }
 
 export async function POST(request, { params }) {
@@ -49,5 +63,5 @@ export async function POST(request, { params }) {
     .select();
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
-  return Response.json(data, { status: 201 });
+  return Response.json(data.map(formatRecord), { status: 201 });
 }
