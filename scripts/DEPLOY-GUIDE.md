@@ -4,7 +4,7 @@
 
 - IP: `192.168.1.120`
 - User: `Panuwat.Ja`
-- Password: `**(ดูใน 1Password / ถามแอดมิน)**`
+- Password: **(ดูใน 1Password / ถามแอดมิน)**
 - Project Path: `/volume1/docker/evergreen`
 - App URL: `http://192.168.1.120:3000`
 - Domain: `https://evergreen.chhindustry.com`
@@ -20,8 +20,6 @@
 ```bash
 ssh Panuwat.Ja@192.168.1.120
 ```
-
-ใส่ password: `**(ดูใน 1Password / ถามแอดมิน)**`
 
 ---
 
@@ -43,6 +41,8 @@ curl -L https://github.com/Panuinc/evergreen/archive/refs/heads/main.tar.gz | ta
 
 ### ขั้นตอนที่ 4 — สร้าง .env.local (ครั้งแรกเท่านั้น)
 
+> **สำคัญ:** ห้ามเก็บ secret keys ใน repo — ขอ .env.local จากแอดมินโดยตรง
+
 ```bash
 cat > .env.local << 'EOF'
 NEXT_PUBLIC_SUPABASE_URL=<ขอจากแอดมิน>
@@ -51,7 +51,7 @@ SUPABASE_SERVICE_ROLE_KEY=<ขอจากแอดมิน>
 BC_AUTH_URL=<ขอจากแอดมิน>
 BC_CLIENT_ID=<ขอจากแอดมิน>
 BC_CLIENT_SECRET=<ขอจากแอดมิน>
-BC_SCOPE=https://api.businesscentral.dynamics.com/.default
+BC_SCOPE=<ขอจากแอดมิน>
 BC_TENANT_ID=<ขอจากแอดมิน>
 BC_ENVIRONMENT=production
 OPENROUTER_API_KEY=<ขอจากแอดมิน>
@@ -70,8 +70,6 @@ EOF
 ```bash
 sudo docker compose up -d --build
 ```
-
-ใส่ password: `**(ดูใน 1Password / ถามแอดมิน)**`
 
 รอประมาณ 5-10 นาที (ครั้งแรกจะนานหน่อย)
 
