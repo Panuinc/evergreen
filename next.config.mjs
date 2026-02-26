@@ -2,6 +2,7 @@
 const nextConfig = {
   output: "standalone",
   reactCompiler: true,
+  cacheComponents: true,
   transpilePackages: ["@heroui/react"],
   experimental: {
     optimizePackageImports: ["@heroui/react", "lucide-react"],

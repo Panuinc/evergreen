@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { cacheLife, cacheTag } from "next/cache";
 import QuotationDocument from "./QuotationDocument";
 
 function getSupabase() {
@@ -8,14 +9,39 @@ function getSupabase() {
   );
 }
 
-export async function generateMetadata({ params }) {
-  const { id } = await params;
+async function getQuotation(id) {
+  "use cache";
+  cacheTag(`quotation-${id}`);
+  cacheLife("hours");
+
   const supabase = getSupabase();
-  const { data: quotation } = await supabase
+  const { data } = await supabase
     .from("omQuotations")
-    .select("quotationNo, customerName")
+    .select("*")
     .eq("quotationId", id)
     .single();
+
+  return data;
+}
+
+async function getQuotationLines(id) {
+  "use cache";
+  cacheTag(`quotation-${id}`, "quotation-lines");
+  cacheLife("hours");
+
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from("omQuotationLines")
+    .select("*")
+    .eq("lineQuotationId", id)
+    .order("lineOrder", { ascending: true });
+
+  return data;
+}
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const quotation = await getQuotation(id);
 
   if (!quotation) {
     return { title: "ไม่พบใบเสนอราคา" };
@@ -29,17 +55,7 @@ export async function generateMetadata({ params }) {
 
 export default async function QuotationPage({ params }) {
   const { id } = await params;
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-
-  const { data: quotation } = await supabase
-    .from("omQuotations")
-    .select("*")
-    .eq("quotationId", id)
-    .single();
+  const quotation = await getQuotation(id);
 
   if (!quotation) {
     return (
@@ -49,11 +65,7 @@ export default async function QuotationPage({ params }) {
     );
   }
 
-  const { data: lines } = await supabase
-    .from("omQuotationLines")
-    .select("*")
-    .eq("lineQuotationId", id)
-    .order("lineOrder", { ascending: true });
+  const lines = await getQuotationLines(id);
 
   return <QuotationDocument quotation={quotation} lines={lines || []} />;
 }
