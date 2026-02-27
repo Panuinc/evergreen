@@ -88,7 +88,7 @@ function getBcUrls() {
   };
 }
 
-export async function bcApiGet(endpoint, params = {}, { timeout = 60_000 } = {}) {
+export async function bcApiGet(endpoint, params = {}, { timeout = 60_000, maxPageSize = 5000 } = {}) {
   const token = await getToken();
   const { api } = getBcUrls();
 
@@ -105,6 +105,7 @@ export async function bcApiGet(endpoint, params = {}, { timeout = 60_000 } = {})
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
+        Prefer: `odata.maxpagesize=${maxPageSize}`,
       },
     }, { timeout });
 
