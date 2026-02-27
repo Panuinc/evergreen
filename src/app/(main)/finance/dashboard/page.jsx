@@ -7,7 +7,9 @@ import {
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
   useDisclosure,
 } from "@heroui/react";
-import { Eye, Info } from "lucide-react";
+import { Eye, Info, BotMessageSquare, RefreshCw } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useFinanceDashboard } from "@/hooks/finance/useFinanceDashboard";
 import DataTable from "@/components/ui/DataTable";
 import {
@@ -163,6 +165,102 @@ export default function FinanceDashboardPage() {
       ? arInvoiceMap[selectedAging.item.customerNumber] || []
       : apInvoiceMap[selectedAging.item.vendorNumber] || [])
     : [];
+
+  // ─── AI Analysis ───
+  const [aiAnalysis, setAiAnalysis] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const runAiAnalysis = useCallback(async () => {
+    if (!financials) return;
+    setAiLoading(true);
+    setAiAnalysis("");
+
+    // Build snapshot text for the AI
+    const snapshot = {
+      financials: [
+        `สินทรัพย์รวม: ${fmt(financials.totalAssets)} (หมุนเวียน ${fmt(financials.currentAssets)}, ไม่หมุนเวียน ${fmt(financials.noncurrentAssets)})`,
+        `หนี้สินรวม: ${fmt(financials.totalLiabilities)} (หมุนเวียน ${fmt(financials.currentLiabilities)}, ไม่หมุนเวียน ${fmt(financials.noncurrentLiabilities)})`,
+        `ส่วนของเจ้าของ: ${fmt(financials.totalEquity)} (ทุน ${fmt(financials.shareCapital)}, กำไรสะสม ${fmt(financials.retainedEarnings)})`,
+        `เงินทุนหมุนเวียน (Working Capital): ${fmt(financials.workingCapital)}`,
+        `รายได้รวม: ${fmt(financials.totalRevenue)} (ขาย ${fmt(financials.salesRevenue)}, บริการ ${fmt(financials.serviceRevenue)}, อื่น ${fmt(financials.otherIncome)})`,
+        `ต้นทุนขาย: ${fmt(financials.cogs)}`,
+        `กำไรขั้นต้น: ${fmt(financials.grossProfit)}`,
+        `ค่าใช้จ่ายขาย: ${fmt(financials.sellingExpense)}, ค่าใช้จ่ายบริหาร: ${fmt(financials.adminExpense)}`,
+        `กำไรสุทธิ: ${fmt(financials.netIncome)}`,
+      ].join("\n"),
+      ratios: [
+        `Current Ratio: ${financials.currentRatio.toFixed(2)} (เกณฑ์: ≥2 ดี, 1-2 พอใช้, <1 เสี่ยง)`,
+        `D/E Ratio: ${financials.debtToEquity.toFixed(2)} (เกณฑ์: ≤1 ดี, 1-2 พอใช้, >2 เสี่ยง)`,
+        `Gross Margin: ${financials.grossMargin.toFixed(1)}% (เกณฑ์: ≥30% ดี, 15-30% พอใช้)`,
+        `Net Margin: ${financials.netMargin.toFixed(1)}% (เกณฑ์: ≥10% ดี, 5-10% พอใช้)`,
+      ].join("\n"),
+      ar: arTotals
+        ? [
+            `ยอดรวม: ${fmt(arTotals.balanceDue)} จำนวน ${arChartData.length} ราย`,
+            `ปัจจุบัน: ${fmt(arTotals.current)}, งวด1: ${fmt(arTotals.period1)}, งวด2: ${fmt(arTotals.period2)}, งวด3+: ${fmt(arTotals.period3)}`,
+            arConcentration ? `Top 5 concentration: ${arConcentration.top5Pct.toFixed(0)}% (${fmt(arConcentration.top5Total)})` : "",
+            `ลูกค้า Top 10:`,
+            ...arChartData.slice(0, 10).map((r) => `  - ${r.name} (${r.customerNumber}): รวม ${fmt(r.balanceDue)}, ปัจจุบัน ${fmt(r.current)}, ค้าง1 ${fmt(r.period1)}, ค้าง2 ${fmt(r.period2)}, ค้าง3+ ${fmt(r.period3)}`),
+          ].filter(Boolean).join("\n")
+        : "ไม่มีข้อมูล",
+      ap: apTotals
+        ? [
+            `ยอดรวม: ${fmt(Math.abs(apTotals.balanceDue))} จำนวน ${apChartData.length} ราย`,
+            `ปัจจุบัน: ${fmt(Math.abs(apTotals.current))}, งวด1: ${fmt(Math.abs(apTotals.period1))}, งวด2: ${fmt(Math.abs(apTotals.period2))}, งวด3+: ${fmt(Math.abs(apTotals.period3))}`,
+            `เจ้าหนี้ Top 10:`,
+            ...apChartData.slice(0, 10).map((p) => `  - ${p.name} (${p.vendorNumber}): รวม ${fmt(Math.abs(p.balanceDue))}`),
+          ].join("\n")
+        : "ไม่มีข้อมูล",
+      arTrend: arTrendByMonth.length
+        ? arTrendByMonth.map((m) => `${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}, ค้าง ${fmt(m.remaining)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      apTrend: apTrendByMonth.length
+        ? apTrendByMonth.map((m) => `${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      arBands: arOverdueBands.some((b) => b.count > 0)
+        ? arOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}, ค้าง ${fmt(b.remaining)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      apBands: apOverdueBands.some((b) => b.count > 0)
+        ? apOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}`).join("\n")
+        : "ไม่มีข้อมูล",
+    };
+
+    try {
+      const res = await fetch("/api/finance/aiAnalysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snapshot }),
+      });
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) setAiAnalysis((prev) => prev + content);
+          } catch {}
+        }
+      }
+    } catch (err) {
+      setAiAnalysis(`เกิดข้อผิดพลาด: ${err.message}`);
+    } finally {
+      setAiLoading(false);
+    }
+  }, [financials, arTotals, apTotals, arChartData, apChartData, arConcentration, arTrendByMonth, apTrendByMonth, arOverdueBands, apOverdueBands]);
 
   const arAgingRenderCell = useCallback((item, key) => {
     switch (key) {
@@ -433,6 +531,79 @@ export default function FinanceDashboardPage() {
           )}
         />
       </div>
+
+      {/* ═══ Section 3.5: AI Analysis ═══ */}
+      <Card shadow="none" className="border border-default-200">
+        <CardHeader className="pb-0 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <BotMessageSquare size={18} className="text-primary" />
+            <p className="text-sm font-semibold">AI วิเคราะห์สถานะการเงิน</p>
+            <Chip size="sm" variant="flat" color="secondary">CFO Advisor</Chip>
+          </div>
+          <Button
+            variant={aiAnalysis ? "bordered" : "solid"}
+            color="primary"
+            size="sm"
+            isLoading={aiLoading}
+            isDisabled={!financials || aiLoading}
+            onPress={runAiAnalysis}
+            startContent={!aiLoading && (aiAnalysis ? <RefreshCw size={14} /> : <BotMessageSquare size={14} />)}
+          >
+            {aiAnalysis ? "วิเคราะห์ใหม่" : "เริ่มวิเคราะห์"}
+          </Button>
+        </CardHeader>
+        <CardBody>
+          {aiLoading && !aiAnalysis && (
+            <div className="flex items-center gap-3 py-8 justify-center">
+              <Spinner size="sm" />
+              <span className="text-sm text-default-500">AI กำลังวิเคราะห์ข้อมูลการเงิน...</span>
+            </div>
+          )}
+          {!aiAnalysis && !aiLoading && (
+            <p className="text-sm text-default-400 py-4 text-center">
+              กดปุ่ม &quot;เริ่มวิเคราะห์&quot; เพื่อให้ AI วิเคราะห์สถานะการเงิน ให้คำแนะนำ และแผนปฏิบัติการ
+            </p>
+          )}
+          {aiAnalysis && (
+            <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-sm leading-relaxed">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  table: ({ children }) => (
+                    <div className="overflow-x-auto my-2">
+                      <table className="border-collapse w-full text-xs">{children}</table>
+                    </div>
+                  ),
+                  thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
+                  th: ({ children }) => (
+                    <th className="border border-default-200 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="border border-default-200 px-3 py-1.5 text-foreground">{children}</td>
+                  ),
+                  tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
+                  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
+                  li: ({ children }) => <li className="text-foreground">{children}</li>,
+                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  code: ({ inline, children }) =>
+                    inline ? (
+                      <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+                    ) : (
+                      <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
+                        <code className="text-xs font-mono">{children}</code>
+                      </pre>
+                    ),
+                }}
+              >
+                {aiAnalysis}
+              </ReactMarkdown>
+              {aiLoading && <Spinner size="sm" className="mt-2" />}
+            </div>
+          )}
+        </CardBody>
+      </Card>
 
       {/* ═══ Section 4: Balance Sheet & Expense Charts ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
