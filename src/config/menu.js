@@ -232,7 +232,7 @@ export const menuData = [
       },
       // { name: "แผนการผลิต", icon: Calendar },
       // { name: "ใบสั่งงาน", icon: ClipboardList },
-      // { name: "BOM", icon: List },
+      { name: "BOM", icon: List, href: "/production/bom" },
       // { name: "สถานะเครื่องจักร", icon: Settings },
       // { name: "ประสิทธิภาพ", icon: TrendingUp },
       // { name: "ซ่อมบำรุง", icon: Wrench },
