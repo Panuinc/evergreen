@@ -260,7 +260,6 @@ const generateDXF = (results) => {
 };
 
 const useFrameSelection = (
-  frameType,
   doorThickness,
   surfaceThickness,
   doorHeight,
@@ -272,7 +271,10 @@ const useFrameSelection = (
       ? parseFloat(doorThickness) - (S + GLUE_THICKNESS) * 2
       : 0;
     const requiredLength = doorHeight ? parseFloat(doorHeight) : 0;
-    const frames = (erpFrames && erpFrames[frameType]) || [];
+
+    if (!requiredThickness || !erpFrames) {
+      return { candidates: [] };
+    }
 
     const filterAndSort = (frameList) =>
       frameList
@@ -309,157 +311,200 @@ const useFrameSelection = (
         : `${f.thickness}×${f.width}×${f.length}${suffix}`;
     };
 
-    const createFrameResult = (
-      frameList,
-      isFlipped,
-      _planeAmount,
-      needSplice = false,
-      spliceInfo = null,
-    ) => {
-      const mapFrame = (f) => {
-        const actualPlane = isFlipped
-          ? f.width - requiredThickness
-          : f.thickness - requiredThickness;
-        const plane = Math.max(0, actualPlane);
-        return {
-          ...f,
-          useThickness: isFlipped
-            ? f.width - plane
-            : f.thickness - plane,
-          useWidth: isFlipped ? f.thickness : f.width,
-          isFlipped,
-          planeAmount: plane,
-          needSplice,
-          ...(spliceInfo && {
-            spliceCount: spliceInfo.spliceCount,
-            spliceOverlap: spliceInfo.spliceOverlap,
-            splicePosition: spliceInfo.splicePosition,
-            effectiveLength: spliceInfo.effectiveLength,
-          }),
-          displaySize: createDisplaySize(f, isFlipped, plane, needSplice),
-        };
-      };
+    const mapFrame = (f, isFlipped, needSplice, spliceInfo) => {
+      const actualPlane = isFlipped
+        ? f.width - requiredThickness
+        : f.thickness - requiredThickness;
+      const plane = Math.max(0, actualPlane);
       return {
-        frames: needSplice
-          ? [mapFrame(spliceInfo.frame)]
-          : frameList.map(mapFrame),
-        needFlip: isFlipped,
-        needPlane: _planeAmount > 0,
+        ...f,
+        useThickness: isFlipped ? f.width - plane : f.thickness - plane,
+        useWidth: isFlipped ? f.thickness : f.width,
+        isFlipped,
+        planeAmount: plane,
         needSplice,
+        ...(spliceInfo && {
+          spliceCount: spliceInfo.spliceCount,
+          spliceOverlap: spliceInfo.spliceOverlap,
+          splicePosition: spliceInfo.splicePosition,
+          effectiveLength: spliceInfo.effectiveLength,
+        }),
+        displaySize: createDisplaySize(f, isFlipped, plane, needSplice),
       };
     };
 
-    const strategies = [
-      () => {
-        const exact = filterAndSort(
-          frames.filter((f) => f.thickness === requiredThickness),
-        );
-        return exact.length > 0 ? createFrameResult(exact, false, 0) : null;
-      },
-      () => {
-        const flipExact = filterAndSort(
-          frames.filter((f) => f.width === requiredThickness),
-        );
-        return flipExact.length > 0
-          ? createFrameResult(flipExact, true, 0)
-          : null;
-      },
-      () => {
-        const thicker = frames
-          .filter(
-            (f) =>
-              f.thickness > requiredThickness && f.length >= requiredLength,
-          )
-          .sort((a, b) =>
-            a.thickness !== b.thickness
-              ? a.thickness - b.thickness
-              : a.length - b.length,
-          );
-        return thicker.length > 0
-          ? createFrameResult(
-              thicker,
-              false,
-              thicker[0].thickness - requiredThickness,
-            )
-          : null;
-      },
-      () => {
-        const flipPlane = frames
-          .filter(
-            (f) => f.width > requiredThickness && f.length >= requiredLength,
-          )
-          .sort((a, b) =>
-            a.width !== b.width ? a.width - b.width : a.length - b.length,
-          );
-        return flipPlane.length > 0
-          ? createFrameResult(
-              flipPlane,
-              true,
-              flipPlane[0].width - requiredThickness,
-            )
-          : null;
-      },
-      () => {
-        const splice = findSpliceable(
-          frames.filter((f) => f.thickness === requiredThickness),
-        );
-        return splice ? createFrameResult([], false, 0, true, splice) : null;
-      },
-      () => {
-        const splice = findSpliceable(
-          frames.filter((f) => f.width === requiredThickness),
-        );
-        return splice ? createFrameResult([], true, 0, true, splice) : null;
-      },
-      () => {
-        const splice = findSpliceable(
-          frames.filter((f) => f.thickness > requiredThickness),
-        );
-        return splice
-          ? createFrameResult(
-              [],
-              false,
-              splice.frame.thickness - requiredThickness,
-              true,
-              splice,
-            )
-          : null;
-      },
-      () => {
-        const splice = findSpliceable(
-          frames.filter((f) => f.width > requiredThickness),
-        );
-        return splice
-          ? createFrameResult(
-              [],
-              true,
-              splice.frame.width - requiredThickness,
-              true,
-              splice,
-            )
-          : null;
-      },
-    ];
+    // Strategy priority (lower = better)
+    const STRATEGY_PRIORITY = {
+      exact: 0,
+      flip_exact: 1,
+      plane: 2,
+      flip_plane: 3,
+      splice: 4,
+      flip_splice: 5,
+      splice_plane: 6,
+      flip_splice_plane: 7,
+    };
 
-    for (const strategy of strategies) {
-      const result = strategy();
-      if (result) return result;
+    const allCandidates = [];
+
+    for (const ft of FRAME_TYPES) {
+      const frames = (erpFrames[ft.value]) || [];
+      if (frames.length === 0) continue;
+
+      // Strategy 1: Exact thickness match
+      const exact = filterAndSort(
+        frames.filter((f) => f.thickness === requiredThickness),
+      );
+      if (exact.length > 0) {
+        const best = exact[0];
+        allCandidates.push({
+          frameType: ft.value,
+          frameTypeLabel: ft.label,
+          strategy: "exact",
+          priority: STRATEGY_PRIORITY.exact,
+          frame: mapFrame(best, false, false, null),
+          allFrames: exact.map((f) => mapFrame(f, false, false, null)),
+        });
+      }
+
+      // Strategy 2: Flip exact
+      const flipExact = filterAndSort(
+        frames.filter((f) => f.width === requiredThickness),
+      );
+      if (flipExact.length > 0) {
+        const best = flipExact[0];
+        allCandidates.push({
+          frameType: ft.value,
+          frameTypeLabel: ft.label,
+          strategy: "flip_exact",
+          priority: STRATEGY_PRIORITY.flip_exact,
+          frame: mapFrame(best, true, false, null),
+          allFrames: flipExact.map((f) => mapFrame(f, true, false, null)),
+        });
+      }
+
+      // Strategy 3: Plane (thicker, need to plane down)
+      const thicker = frames
+        .filter(
+          (f) =>
+            f.thickness > requiredThickness && f.length >= requiredLength,
+        )
+        .sort((a, b) =>
+          a.thickness !== b.thickness
+            ? a.thickness - b.thickness
+            : a.length - b.length,
+        );
+      if (thicker.length > 0) {
+        const best = thicker[0];
+        allCandidates.push({
+          frameType: ft.value,
+          frameTypeLabel: ft.label,
+          strategy: "plane",
+          priority: STRATEGY_PRIORITY.plane,
+          frame: mapFrame(best, false, false, null),
+          allFrames: thicker.map((f) => mapFrame(f, false, false, null)),
+        });
+      }
+
+      // Strategy 4: Flip + plane
+      const flipPlane = frames
+        .filter(
+          (f) => f.width > requiredThickness && f.length >= requiredLength,
+        )
+        .sort((a, b) =>
+          a.width !== b.width ? a.width - b.width : a.length - b.length,
+        );
+      if (flipPlane.length > 0) {
+        const best = flipPlane[0];
+        allCandidates.push({
+          frameType: ft.value,
+          frameTypeLabel: ft.label,
+          strategy: "flip_plane",
+          priority: STRATEGY_PRIORITY.flip_plane,
+          frame: mapFrame(best, true, false, null),
+          allFrames: flipPlane.map((f) => mapFrame(f, true, false, null)),
+        });
+      }
+
+      // Strategy 5: Splice exact
+      const spliceExact = findSpliceable(
+        frames.filter((f) => f.thickness === requiredThickness),
+      );
+      if (spliceExact) {
+        allCandidates.push({
+          frameType: ft.value,
+          frameTypeLabel: ft.label,
+          strategy: "splice",
+          priority: STRATEGY_PRIORITY.splice,
+          frame: mapFrame(spliceExact.frame, false, true, spliceExact),
+          allFrames: [mapFrame(spliceExact.frame, false, true, spliceExact)],
+        });
+      }
+
+      // Strategy 6: Flip splice
+      const flipSplice = findSpliceable(
+        frames.filter((f) => f.width === requiredThickness),
+      );
+      if (flipSplice) {
+        allCandidates.push({
+          frameType: ft.value,
+          frameTypeLabel: ft.label,
+          strategy: "flip_splice",
+          priority: STRATEGY_PRIORITY.flip_splice,
+          frame: mapFrame(flipSplice.frame, true, true, flipSplice),
+          allFrames: [mapFrame(flipSplice.frame, true, true, flipSplice)],
+        });
+      }
+
+      // Strategy 7: Splice + plane
+      const splicePlane = findSpliceable(
+        frames.filter((f) => f.thickness > requiredThickness),
+      );
+      if (splicePlane) {
+        allCandidates.push({
+          frameType: ft.value,
+          frameTypeLabel: ft.label,
+          strategy: "splice_plane",
+          priority: STRATEGY_PRIORITY.splice_plane,
+          frame: mapFrame(splicePlane.frame, false, true, splicePlane),
+          allFrames: [mapFrame(splicePlane.frame, false, true, splicePlane)],
+        });
+      }
+
+      // Strategy 8: Flip splice + plane
+      const flipSplicePlane = findSpliceable(
+        frames.filter((f) => f.width > requiredThickness),
+      );
+      if (flipSplicePlane) {
+        allCandidates.push({
+          frameType: ft.value,
+          frameTypeLabel: ft.label,
+          strategy: "flip_splice_plane",
+          priority: STRATEGY_PRIORITY.flip_splice_plane,
+          frame: mapFrame(flipSplicePlane.frame, true, true, flipSplicePlane),
+          allFrames: [
+            mapFrame(flipSplicePlane.frame, true, true, flipSplicePlane),
+          ],
+        });
+      }
     }
 
-    const maxLength = Math.max(...frames.map((f) => f.length), 0);
-    const maxSpliceLength = maxLength > 0 ? maxLength * 2 - 100 : 0;
-    return {
-      frames: [],
-      needFlip: false,
-      needPlane: false,
-      needSplice: false,
-      noMatch: true,
-      reason:
-        maxLength > 0
-          ? `ไม่พบไม้ที่เหมาะสม (ต้องการ ≥${requiredLength}มม., ต่อได้สูงสุด ${maxSpliceLength}มม.)`
-          : `ไม่มีไม้ความหนา ${requiredThickness}มม.`,
-    };
-  }, [frameType, doorThickness, surfaceThickness, doorHeight, erpFrames]);
+    // Sort: best strategy first, then by unit cost
+    allCandidates.sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      return (a.frame.unitCost || 0) - (b.frame.unitCost || 0);
+    });
+
+    // Deduplicate: keep best candidate per frameType
+    const seen = new Set();
+    const candidates = allCandidates.filter((c) => {
+      if (seen.has(c.frameType)) return false;
+      seen.add(c.frameType);
+      return true;
+    });
+
+    return { candidates };
+  }, [doorThickness, surfaceThickness, doorHeight, erpFrames]);
 };
 
 const useCalculations = (params) => {
@@ -3244,10 +3289,9 @@ const UIDoorBom = ({
   setSurfacePrice,
   surfaceThickness,
   setSurfaceThickness,
-  frameType,
-  setFrameType,
   selectedFrameCode,
   setSelectedFrameCode,
+  frameCandidates,
   lockBlockPosition,
   setLockBlockPosition,
   lockBlockPiecesPerSide,
@@ -3263,7 +3307,6 @@ const UIDoorBom = ({
   selectedCoreItem,
   lockBlockLeft,
   lockBlockRight,
-  frameSelection,
   currentFrame,
   results,
   cuttingPlan,
@@ -3502,115 +3545,119 @@ const UIDoorBom = ({
               </div>
             </CardHeader>
             <CardBody className="gap-2">
-              <div className="flex flex-col xl:flex-row items-center justify-center w-full h-fit gap-2">
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Select
-                    name="frameType"
-                    label="ประเภทไม้กรอบ"
-                    labelPlacement="outside"
-                    placeholder="กรุณาเลือก"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={frameType ? [frameType] : []}
-                    onSelectionChange={(keys) =>
-                      setFrameType([...keys][0] || "")
-                    }
-                  >
-                    {FRAME_TYPES.map((opt) => (
-                      <SelectItem key={opt.value}>{opt.label}</SelectItem>
-                    ))}
-                  </Select>
-                </div>
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Select
-                    name="selectedFrameCode"
-                    label={`เลือกไม้กรอบ (ยาว≥${doorHeight || 0}mm)`}
-                    labelPlacement="outside"
-                    placeholder="กรุณาเลือก"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    isDisabled={
-                      !frameType || frameSelection.frames.length === 0
-                    }
-                    selectedKeys={selectedFrameCode ? [selectedFrameCode] : []}
-                    onSelectionChange={(keys) =>
-                      setSelectedFrameCode([...keys][0] || "")
-                    }
-                  >
-                    {frameSelection.frames.map((frame) => (
-                      <SelectItem key={frame.code}>
-                        {frame.displaySize}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-
-              {frameType && frameSelection.frames.length === 0 && (
+              {frameCandidates.length === 0 && results.frameThickness > 0 && (
                 <Chip color="default" variant="shadow" className="w-full">
-                  ⚠️{" "}
-                  {frameSelection.reason ||
-                    `ไม่พบไม้ที่เหมาะสมสำหรับความหนา ${results.frameThickness}มม.`}
+                  ⚠️ ไม่พบไม้ที่เหมาะสมสำหรับความหนา{" "}
+                  {results.frameThickness}มม.
                 </Chip>
               )}
 
-              {frameType && frameSelection.frames.length > 0 && (
-                <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
-                  <div className="flex justify-between">
-                    <span>ขนาดกรอบจริง:</span>
-                    <span className="font-bold text-foreground">
-                      {currentFrame.useThickness}×{currentFrame.useWidth} mm
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>รหัส ERP:</span>
-                    <span className="font-mono text-xs">
-                      {selectedFrameCode}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>ราคา:</span>
-                    <span className="font-bold text-foreground">
-                      ฿{(currentFrame.unitCost || 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>สต็อก:</span>
-                    <span className="font-bold text-foreground">
-                      {(currentFrame.inventory || 0).toLocaleString()}
-                    </span>
-                  </div>
-                  {currentFrame.isFlipped && (
-                    <Chip color="default" variant="shadow" size="md">
-                      🔄 พลิก {currentFrame.thickness}×{currentFrame.width} →{" "}
-                      {currentFrame.width}×{currentFrame.thickness}
-                    </Chip>
-                  )}
-                  {currentFrame.planeAmount > 0 && (
-                    <Chip color="default" variant="shadow" size="md">
-                      🪚 ต้องไส {currentFrame.planeAmount} มม.
-                    </Chip>
-                  )}
-                  {currentFrame.needSplice && (
-                    <div className="flex flex-col gap-2 p-2 bg-default-50 rounded-lg">
-                      <Chip color="default" variant="shadow" size="md">
-                        🔗 ต่อ {currentFrame.spliceCount} ชิ้น
-                      </Chip>
-                      <span className="text-xs">
-                        • ตำแหน่งต่อ: {currentFrame.splicePosition} มม. จากปลาย
-                      </span>
-                      <span className="text-xs">
-                        • ระยะทับซ้อน: {currentFrame.spliceOverlap} มม.
-                      </span>
-                      <span className="text-xs">
-                        • ความยาวรวม: {currentFrame.effectiveLength} มม.
-                      </span>
-                    </div>
-                  )}
+              {frameCandidates.length > 0 && (
+                <div className="flex flex-col gap-2 p-2">
+                  <span className="text-[13px] font-medium">
+                    ไม้ที่เหมาะสม (เรียงจากดีที่สุด)
+                  </span>
+                  {frameCandidates.map((candidate, idx) => {
+                    const f = candidate.frame;
+                    const isSelected = selectedFrameCode
+                      ? candidate.allFrames.some(
+                          (af) => af.code === selectedFrameCode,
+                        )
+                      : idx === 0;
+                    return (
+                      <div
+                        key={`${candidate.frameType}-${candidate.strategy}`}
+                        className={`flex flex-col gap-1 p-3 rounded-lg cursor-pointer border-2 transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary-50"
+                            : "border-default-200 bg-default-50 hover:border-default-400"
+                        }`}
+                        onClick={() => setSelectedFrameCode(f.code)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {isSelected && (
+                              <Chip
+                                color="primary"
+                                variant="solid"
+                                size="sm"
+                              >
+                                เลือก
+                              </Chip>
+                            )}
+                            {idx === 0 && !isSelected && (
+                              <Chip
+                                color="success"
+                                variant="flat"
+                                size="sm"
+                              >
+                                แนะนำ
+                              </Chip>
+                            )}
+                            <span className="font-bold text-[13px]">
+                              {candidate.frameTypeLabel}
+                            </span>
+                          </div>
+                          <span className="text-[13px] font-bold text-foreground">
+                            ฿{(f.unitCost || 0).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-default-600">
+                          <span>
+                            {f.displaySize}
+                          </span>
+                          <span>
+                            ใช้จริง: {f.useThickness}×{f.useWidth} mm
+                          </span>
+                          <span>
+                            สต็อก: {(f.inventory || 0).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {f.isFlipped && (
+                            <Chip color="warning" variant="flat" size="sm">
+                              พลิก
+                            </Chip>
+                          )}
+                          {f.planeAmount > 0 && (
+                            <Chip color="secondary" variant="flat" size="sm">
+                              ไส {f.planeAmount} มม.
+                            </Chip>
+                          )}
+                          {f.needSplice && (
+                            <Chip color="danger" variant="flat" size="sm">
+                              ต่อ {f.spliceCount} ชิ้น
+                            </Chip>
+                          )}
+                        </div>
+                        {isSelected && candidate.allFrames.length > 1 && (
+                          <div className="mt-2">
+                            <Select
+                              label="เลือกขนาดอื่น"
+                              size="sm"
+                              variant="bordered"
+                              selectedKeys={
+                                selectedFrameCode ? [selectedFrameCode] : []
+                              }
+                              onSelectionChange={(keys) =>
+                                setSelectedFrameCode([...keys][0] || "")
+                              }
+                            >
+                              {candidate.allFrames.map((af) => (
+                                <SelectItem
+                                  key={af.code}
+                                  textValue={af.displaySize}
+                                >
+                                  {af.displaySize} — ฿
+                                  {(af.unitCost || 0).toLocaleString()}
+                                </SelectItem>
+                              ))}
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -4423,7 +4470,6 @@ export default function DoorConfigurator() {
   const [surfaceMaterial, setSurfaceMaterial] = useState("");
   const [surfacePrice, setSurfacePrice] = useState("");
   const [surfaceThickness, setSurfaceThickness] = useState("");
-  const [frameType, setFrameType] = useState("");
   const [selectedFrameCode, setSelectedFrameCode] = useState("");
   const [lockBlockPosition, setLockBlockPosition] = useState("");
   const [lockBlockPiecesPerSide, setLockBlockPiecesPerSide] = useState("");
@@ -4457,7 +4503,6 @@ export default function DoorConfigurator() {
     lockBlockPosition === "right" || lockBlockPosition === "both";
 
   const frameSelection = useFrameSelection(
-    frameType,
     doorThickness,
     surfaceThickness,
     doorHeight,
@@ -4465,26 +4510,29 @@ export default function DoorConfigurator() {
   );
 
   const currentFrame = useMemo(() => {
-    if (!frameSelection.frames?.length)
-      return {
-        thickness: 0,
-        width: 0,
-        length: 0,
-        useThickness: 0,
-        useWidth: 0,
-        isFlipped: false,
-        planeAmount: 0,
-        code: "",
-        desc: "",
-      };
+    const emptyFrame = {
+      thickness: 0,
+      width: 0,
+      length: 0,
+      useThickness: 0,
+      useWidth: 0,
+      isFlipped: false,
+      planeAmount: 0,
+      code: "",
+      desc: "",
+    };
+    if (!frameSelection.candidates?.length) return emptyFrame;
 
-    const frame = frameSelection.frames.find(
-      (f) => f.code === selectedFrameCode,
-    );
-    if (frame) return frame;
+    // Find candidate by selectedFrameCode
+    if (selectedFrameCode) {
+      for (const c of frameSelection.candidates) {
+        const found = c.allFrames.find((f) => f.code === selectedFrameCode);
+        if (found) return found;
+      }
+    }
 
-    const firstFrame = frameSelection.frames[0];
-    return firstFrame;
+    // Default: first choice (best candidate's best frame)
+    return frameSelection.candidates[0]?.frame || emptyFrame;
   }, [frameSelection, selectedFrameCode]);
 
   const numericDoubleCount = parseInt(doubleFrameCount) || 0;
@@ -4572,10 +4620,9 @@ export default function DoorConfigurator() {
     setSurfacePrice,
     surfaceThickness,
     setSurfaceThickness,
-    frameType,
-    setFrameType,
     selectedFrameCode,
     setSelectedFrameCode,
+    frameCandidates: frameSelection.candidates,
     lockBlockPosition,
     setLockBlockPosition,
     lockBlockPiecesPerSide,
@@ -4591,7 +4638,6 @@ export default function DoorConfigurator() {
     selectedCoreItem,
     lockBlockLeft,
     lockBlockRight,
-    frameSelection,
     currentFrame,
     results,
     cuttingPlan,
