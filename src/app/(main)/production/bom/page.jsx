@@ -22,22 +22,27 @@ import {
   FileCode,
   ChevronDown,
 } from "lucide-react";
-import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
-import { Select, SelectItem } from "@heroui/select";
-import { Card, CardHeader, CardBody } from "@heroui/card";
-import { Chip } from "@heroui/chip";
-import { Divider } from "@heroui/divider";
-import { Progress } from "@heroui/progress";
 import {
+  Button,
+  Input,
+  Select,
+  SelectItem,
+  Card,
+  CardHeader,
+  CardBody,
+  Chip,
+  Divider,
+  Progress,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-} from "@heroui/dropdown";
-import { Switch } from "@heroui/switch";
-import { Tooltip } from "@heroui/tooltip";
-import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
+  Switch,
+  Tooltip,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@heroui/react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
@@ -51,87 +56,87 @@ const CUT_ALLOWANCE = 10;
 const NO_RAIL_CORE_TYPES = ["foam", "particle_solid", "honeycomb"];
 
 const SURFACE_MATERIALS = [
-  { value: "upvc", label: "UPVC" },
-  { value: "wpc", label: "WPC" },
-  { value: "laminate", label: "Laminate" },
-  { value: "plywood", label: "Plywood" },
-  { value: "melamine", label: "Melamine" },
+  { value: "upvc", label: "ยูพีวีซี (UPVC)" },
+  { value: "wpc", label: "ดับเบิ้ลยูพีซี (WPC)" },
+  { value: "laminate", label: "ลามิเนต" },
+  { value: "plywood", label: "ไม้อัด" },
+  { value: "melamine", label: "เมลามีน" },
 ];
 
 const FRAME_TYPES = [
-  { value: "rubberwood", label: "Rubberwood" },
-  { value: "sadao", label: "Sadao" },
-  { value: "lvl", label: "LVL" },
+  { value: "rubberwood", label: "ไม้ยางพารา" },
+  { value: "sadao", label: "ไม้สะเดา" },
+  { value: "lvl", label: "ไม้ LVL" },
 ];
 
 const DOUBLE_FRAME_SIDES = [
-  { key: "top", label: "Top" },
-  { key: "bottom", label: "Bottom" },
-  { key: "left", label: "Left" },
-  { key: "center", label: "Center" },
-  { key: "right", label: "Right" },
-  { key: "all", label: "All" },
+  { key: "top", label: "บน" },
+  { key: "bottom", label: "ล่าง" },
+  { key: "left", label: "ซ้าย" },
+  { key: "center", label: "กลาง" },
+  { key: "right", label: "ขวา" },
+  { key: "all", label: "ทั้งหมด" },
 ];
 
 const LOCK_BLOCK_PIECES_OPTIONS = [
-  { value: "1", label: "1 Piece" },
-  { value: "2", label: "2 Pieces" },
-  { value: "3", label: "3 Pieces" },
-  { value: "4", label: "4 Pieces" },
+  { value: "1", label: "1 ชิ้น" },
+  { value: "2", label: "2 ชิ้น" },
+  { value: "3", label: "3 ชิ้น" },
+  { value: "4", label: "4 ชิ้น" },
 ];
 
 const LOCK_BLOCK_POSITIONS = [
-  { value: "left", left: true, right: false, label: "Left" },
-  { value: "right", left: false, right: true, label: "Right" },
-  { value: "both", left: true, right: true, label: "Both" },
+  { value: "left", left: true, right: false, label: "ซ้าย" },
+  { value: "right", left: false, right: true, label: "ขวา" },
+  { value: "both", left: true, right: true, label: "ทั้งสองด้าน" },
 ];
 
 const DOUBLE_FRAME_COUNT_OPTIONS = [
-  { value: "0", label: "No Double" },
-  { value: "1", label: "1 Layer" },
-  { value: "2", label: "2 Layers" },
-  { value: "3", label: "3 Layers" },
+  { value: "0", label: "ไม่ซ้อน" },
+  { value: "1", label: "1 ชั้น" },
+  { value: "2", label: "2 ชั้น" },
+  { value: "3", label: "3 ชั้น" },
 ];
 
 const CORE_TYPES = [
   {
     value: "foam",
-    label: "EPS Foam",
+    label: "โฟม EPS",
     type: "solid",
     thickness: null,
     spacing: null,
   },
   {
     value: "plywood_strips",
-    label: "Plywood Strips",
+    label: "ไม้อัดเส้น",
     type: "strips",
     thickness: 4,
     spacing: 40,
   },
   {
     value: "particle_solid",
-    label: "Particle Board (Solid)",
+    label: "ไม้ปาร์ติเคิล (แผ่นเต็ม)",
     type: "solid",
     thickness: null,
     spacing: null,
   },
   {
     value: "rockwool",
-    label: "Rockwool",
+    label: "ร็อควูล",
     type: "solid",
     thickness: null,
     spacing: null,
   },
   {
     value: "honeycomb",
-    label: "Honeycomb",
+    label: "รังผึ้ง",
     type: "solid",
     thickness: null,
     spacing: null,
   },
   {
     value: "particle_strips",
-    label: "Particle Strips",
+    label: "ไม้ปาร์ติเคิลเส้น",
     type: "strips",
     thickness: 12,
     spacing: null,
@@ -314,56 +319,61 @@ const GRID_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8];
 const LAYER_CONFIG = {
   grid: {
     id: "grid",
-    label: "Grid Reference",
+    label: "เส้นกริด",
     color: "#DCDCDC",
     defaultVisible: true,
   },
   title: {
     id: "title",
-    label: "Title Block",
+    label: "กรอบชื่อ",
     color: "#4456E9",
     defaultVisible: true,
   },
   dimensions: {
     id: "dimensions",
-    label: "Dimensions",
+    label: "มิติ",
     color: "#000000",
     defaultVisible: true,
   },
   centerlines: {
     id: "centerlines",
-    label: "Center Lines",
+    label: "เส้นกึ่งกลาง",
     color: "#666666",
     defaultVisible: true,
   },
   surface: {
     id: "surface",
-    label: "Surface Material",
+    label: "วัสดุผิว",
     color: "#10B981",
     defaultVisible: true,
   },
   frame: {
     id: "frame",
-    label: "Frame (Stile)",
+    label: "กรอบ (เสา)",
     color: "#FFB441",
     defaultVisible: true,
   },
   rails: {
     id: "rails",
-    label: "Frame (Rail)",
+    label: "กรอบ (ราว)",
     color: "#FF8A00",
     defaultVisible: true,
   },
   lockblock: {
     id: "lockblock",
-    label: "Lock Block",
+    label: "บล็อกล็อค",
     color: "#FF0076",
     defaultVisible: true,
   },
-  core: { id: "core", label: "Core", color: "#4456E9", defaultVisible: true },
+  core: {
+    id: "core",
+    label: "ไส้ประตู",
+    color: "#4456E9",
+    defaultVisible: true,
+  },
   doubleframe: {
     id: "doubleframe",
-    label: "Double Frame",
+    label: "กรอบซ้อน",
     color: "#FFB441",
     defaultVisible: true,
   },
@@ -457,9 +467,9 @@ const useFrameSelection = (
 
     const createDisplaySize = (f, isFlipped, planeAmount, needSplice) => {
       const parts = [];
-      if (isFlipped) parts.push("Flipped");
-      if (planeAmount > 0) parts.push(`Plane ${planeAmount}mm`);
-      if (needSplice) parts.push("Spliced 2 pcs");
+      if (isFlipped) parts.push("พลิก");
+      if (planeAmount > 0) parts.push(`ไส ${planeAmount}มม.`);
+      if (needSplice) parts.push("ต่อ 2 ชิ้น");
       const suffix = parts.length > 0 ? ` (${parts.join("+")})` : "";
       return isFlipped
         ? `${f.width}×${f.thickness}×${f.length}${suffix}`
@@ -607,8 +617,8 @@ const useFrameSelection = (
       noMatch: true,
       reason:
         maxLength > 0
-          ? `No suitable timber available (requires ≥${requiredLength}mm, max splice length ${maxSpliceLength}mm)`
-          : `No timber with thickness ${requiredThickness}mm available`,
+          ? `ไม่พบไม้ที่เหมาะสม (ต้องการ ≥${requiredLength}มม., ต่อได้สูงสุด ${maxSpliceLength}มม.)`
+          : `ไม่มีไม้ความหนา ${requiredThickness}มม.`,
     };
   }, [frameType, doorThickness, surfaceThickness, doorHeight]);
 };
@@ -804,14 +814,14 @@ const useCuttingPlan = (results, currentFrame, coreType) => {
     const stileLength = H;
     if (needSplice && stileLength > stockLength) {
       const pieceLength = Math.ceil(stileLength / 2) + spliceOverlap / 2;
-      addPiece("Stile (Piece 1)", pieceLength, 2, "secondary", true);
-      addPiece("Stile (Piece 2)", pieceLength, 2, "warning", true);
+      addPiece("เสา (ชิ้นที่ 1)", pieceLength, 2, "secondary", true);
+      addPiece("เสา (ชิ้นที่ 2)", pieceLength, 2, "warning", true);
     } else {
-      addPiece("Stile", stileLength, 2, "secondary");
+      addPiece("เสา", stileLength, 2, "secondary");
     }
 
     const railLength = W - 2 * F;
-    addPiece("Rail", railLength, 2, "primary");
+    addPiece("ราว", railLength, 2, "primary");
 
     const clearHeight = H - 2 * F;
     const clearWidth = W - 2 * F;
@@ -823,21 +833,21 @@ const useCuttingPlan = (results, currentFrame, coreType) => {
         if (needSplice && clearHeight > stockLength) {
           const pieceLength = Math.ceil(clearHeight / 2) + spliceOverlap / 2;
           addPiece(
-            "Double Stile Left (Piece 1)",
+            "เสาซ้อนซ้าย (ชิ้นที่ 1)",
             pieceLength,
             count,
             "warning",
             true,
           );
           addPiece(
-            "Double Stile Left (Piece 2)",
+            "เสาซ้อนซ้าย (ชิ้นที่ 2)",
             pieceLength,
             count,
             "secondary",
             true,
           );
         } else {
-          addPiece("Double Stile Left", clearHeight, count, "warning");
+          addPiece("เสาซ้อนซ้าย", clearHeight, count, "warning");
         }
       }
 
@@ -845,43 +855,37 @@ const useCuttingPlan = (results, currentFrame, coreType) => {
         if (needSplice && clearHeight > stockLength) {
           const pieceLength = Math.ceil(clearHeight / 2) + spliceOverlap / 2;
           addPiece(
-            "Double Stile Right (Piece 1)",
+            "เสาซ้อนขวา (ชิ้นที่ 1)",
             pieceLength,
             count,
             "warning",
             true,
           );
           addPiece(
-            "Double Stile Right (Piece 2)",
+            "เสาซ้อนขวา (ชิ้นที่ 2)",
             pieceLength,
             count,
             "secondary",
             true,
           );
         } else {
-          addPiece("Double Stile Right", clearHeight, count, "warning");
+          addPiece("เสาซ้อนขวา", clearHeight, count, "warning");
         }
       }
 
       if (doubleFrame.center) {
         if (needSplice && clearHeight > stockLength) {
           const pieceLength = Math.ceil(clearHeight / 2) + spliceOverlap / 2;
+          addPiece("เสากลาง (ชิ้นที่ 1)", pieceLength, count, "warning", true);
           addPiece(
-            "Center Stile (Piece 1)",
-            pieceLength,
-            count,
-            "warning",
-            true,
-          );
-          addPiece(
-            "Center Stile (Piece 2)",
+            "เสากลาง (ชิ้นที่ 2)",
             pieceLength,
             count,
             "secondary",
             true,
           );
         } else {
-          addPiece("Center Stile", clearHeight, count, "warning");
+          addPiece("เสากลาง", clearHeight, count, "warning");
         }
       }
 
@@ -889,14 +893,14 @@ const useCuttingPlan = (results, currentFrame, coreType) => {
         let topLength = clearWidth;
         if (doubleFrame.left) topLength -= F * count;
         if (doubleFrame.right) topLength -= F * count;
-        addPiece("Double Rail Top", topLength, count, "secondary");
+        addPiece("ราวซ้อนบน", topLength, count, "secondary");
       }
 
       if (doubleFrame.bottom) {
         let bottomLength = clearWidth;
         if (doubleFrame.left) bottomLength -= F * count;
         if (doubleFrame.right) bottomLength -= F * count;
-        addPiece("Double Rail Bottom", bottomLength, count, "secondary");
+        addPiece("ราวซ้อนล่าง", bottomLength, count, "secondary");
       }
     }
 
@@ -908,12 +912,12 @@ const useCuttingPlan = (results, currentFrame, coreType) => {
         if (doubleFrame.left) damLength -= F * doubleFrame.count;
         if (doubleFrame.right) damLength -= F * doubleFrame.count;
       }
-      addPiece("Cross Rail", damLength, railCount, "primary");
+      addPiece("คานขวาง", damLength, railCount, "primary");
     }
 
     if (lockBlockCount > 0) {
       addPiece(
-        "Lock Block",
+        "บล็อกล็อค",
         LOCK_BLOCK_HEIGHT,
         lockBlockCount,
         "danger",
@@ -1088,7 +1092,7 @@ const useCoreCalculation = (results, coreType) => {
 
         if (lockBlockYTop > topOffset) {
           pieces.push({
-            name: "Core Upper Section",
+            name: "ไส้ส่วนบน",
             x: leftOffset,
             y: topOffset,
             width: coreWidth,
@@ -1102,7 +1106,7 @@ const useCoreCalculation = (results, coreType) => {
             const middleWidth = coreWidth - solidLockBlockWidth * 2;
             if (middleWidth > 0) {
               pieces.push({
-                name: "Core Middle Section",
+                name: "ไส้ส่วนกลาง",
                 x: leftOffset + solidLockBlockWidth,
                 y: lockBlockYTop,
                 width: middleWidth,
@@ -1111,7 +1115,7 @@ const useCoreCalculation = (results, coreType) => {
             }
           } else if (lockBlockLeft) {
             pieces.push({
-              name: "Core Middle Section",
+              name: "ไส้ส่วนกลาง",
               x: leftOffset + solidLockBlockWidth,
               y: lockBlockYTop,
               width: coreWidth - solidLockBlockWidth,
@@ -1119,7 +1123,7 @@ const useCoreCalculation = (results, coreType) => {
             });
           } else if (lockBlockRight) {
             pieces.push({
-              name: "Core Middle Section",
+              name: "ไส้ส่วนกลาง",
               x: leftOffset,
               y: lockBlockYTop,
               width: coreWidth - solidLockBlockWidth,
@@ -1130,7 +1134,7 @@ const useCoreCalculation = (results, coreType) => {
 
         if (lockBlockYBottom < H - bottomOffset) {
           pieces.push({
-            name: "Core Lower Section",
+            name: "ไส้ส่วนล่าง",
             x: leftOffset,
             y: lockBlockYBottom,
             width: coreWidth,
@@ -1139,7 +1143,7 @@ const useCoreCalculation = (results, coreType) => {
         }
       } else if (isFullPanelCore && !hasLockBlock) {
         pieces.push({
-          name: "Full Panel Core",
+          name: "ไส้เต็มแผ่น",
           x: leftOffset,
           y: topOffset,
           width: coreWidth,
@@ -1157,14 +1161,14 @@ const useCoreCalculation = (results, coreType) => {
           ) {
             if (lockBlockLeft && lockBlockRight) {
               pieces.push({
-                name: `Core Row ${rowIdx + 1} (Left)`,
+                name: `ไส้แถวที่ ${rowIdx + 1} (ซ้าย)`,
                 x: leftOffset + solidLockBlockWidth,
                 y: row.top,
                 width: (coreWidth - solidLockBlockWidth * 2) / 2,
                 height: row.height,
               });
               pieces.push({
-                name: `Core Row ${rowIdx + 1} (Right)`,
+                name: `ไส้แถวที่ ${rowIdx + 1} (ขวา)`,
                 x:
                   W -
                   rightOffset -
@@ -1176,7 +1180,7 @@ const useCoreCalculation = (results, coreType) => {
               });
             } else if (lockBlockLeft) {
               pieces.push({
-                name: `Core Row ${rowIdx + 1}`,
+                name: `ไส้แถวที่ ${rowIdx + 1}`,
                 x: leftOffset + solidLockBlockWidth,
                 y: row.top,
                 width: coreWidth - solidLockBlockWidth,
@@ -1184,7 +1188,7 @@ const useCoreCalculation = (results, coreType) => {
               });
             } else if (lockBlockRight) {
               pieces.push({
-                name: `Core Row ${rowIdx + 1}`,
+                name: `ไส้แถวที่ ${rowIdx + 1}`,
                 x: leftOffset,
                 y: row.top,
                 width: coreWidth - solidLockBlockWidth,
@@ -1193,7 +1197,7 @@ const useCoreCalculation = (results, coreType) => {
             }
           } else {
             pieces.push({
-              name: `Core Row ${rowIdx + 1}`,
+              name: `ไส้แถวที่ ${rowIdx + 1}`,
               x: leftOffset,
               y: row.top,
               width: coreWidth,
@@ -1375,7 +1379,7 @@ const useCoreCalculation = (results, coreType) => {
               y: yCenter - stripThickness / 2,
               width: coreWidth,
               height: stripThickness,
-              name: `Particle Cross Rail ${idx + 1}`,
+              name: `คานขวางปาร์ติเคิล ${idx + 1}`,
             };
           })
         : [];
@@ -1725,7 +1729,7 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         letterSpacing: 2,
       })}
 
-      {txt(x + w / 2, midY("ownerH"), "PROJECT OWNER", {
+      {txt(x + w / 2, midY("ownerH"), "เจ้าของโครงการ", {
         size: 38,
         weight: 900,
       })}
@@ -1738,11 +1742,11 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         yMap.pcH.y + yMap.pcH.h + yMap.pcV.h,
         2,
       )}
-      {txt(x + (splitHalf - x) / 2, midY("pcH"), "PROJECT CODE", {
+      {txt(x + (splitHalf - x) / 2, midY("pcH"), "รหัสโครงการ", {
         size: 24,
         weight: 900,
       })}
-      {txt(splitHalf + (x + w - splitHalf) / 2, midY("pcH"), "CODE", {
+      {txt(splitHalf + (x + w - splitHalf) / 2, midY("pcH"), "รหัส", {
         size: 32,
         weight: 900,
       })}
@@ -1755,10 +1759,10 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         weight: 600,
       })}
 
-      {txt(x + w / 2, midY("dimH"), "DIMENSION", { size: 34, weight: 900 })}
+      {txt(x + w / 2, midY("dimH"), "ขนาด", { size: 34, weight: 900 })}
       {txt(x + w / 2, midY("dimV"), dimText, { size: 26, weight: 600 })}
 
-      {txt(x + w / 2, midY("typeH"), "TYPE", { size: 34, weight: 900 })}
+      {txt(x + w / 2, midY("typeH"), "ประเภท", { size: 34, weight: 900 })}
       {txt(x + w / 2, midY("typeV"), type, { size: 26, weight: 600 })}
 
       {line(
@@ -1768,14 +1772,19 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         yMap.issueH.y + yMap.issueH.h + yMap.issueV.h,
         2,
       )}
-      {txt(x + (splitIssue - x) / 2, midY("issueH"), "ISSUE DATE", {
+      {txt(x + (splitIssue - x) / 2, midY("issueH"), "วันที่ออก", {
         size: 30,
         weight: 900,
       })}
-      {txt(splitIssue + (x + w - splitIssue) / 2, midY("issueH"), "REVISE", {
-        size: 28,
-        weight: 900,
-      })}
+      {txt(
+        splitIssue + (x + w - splitIssue) / 2,
+        midY("issueH"),
+        "แก้ไขครั้งที่",
+        {
+          size: 28,
+          weight: 900,
+        },
+      )}
       {txt(x + (splitIssue - x) / 2, midY("issueV"), issueDate, {
         size: 26,
         weight: 600,
@@ -1800,12 +1809,12 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
                 : coApproved;
         const label =
           kRow === "drawn"
-            ? "DRAWN"
+            ? "เขียนโดย"
             : kRow === "checked"
-              ? "CHECKED"
+              ? "ตรวจสอบโดย"
               : kRow === "sale"
-                ? "SALE"
-                : "CO-APPROVED";
+                ? "ฝ่ายขาย"
+                : "อนุมัติร่วม";
 
         return (
           <React.Fragment key={`ap-${kRow}`}>
@@ -1840,7 +1849,7 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         textAnchor="start"
         dominantBaseline="middle"
       >
-        Straightness ( ± 4 MM. )
+        ความตรง ( ± 4 มม. )
       </text>
       <text
         x={x + pad * 2}
@@ -1852,7 +1861,7 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         textAnchor="start"
         dominantBaseline="middle"
       >
-        Tolerance ( ± 3 MM. )
+        ค่าเผื่อ ( ± 3 มม. )
       </text>
       <text
         x={x + pad * 2}
@@ -1864,7 +1873,7 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         textAnchor="start"
         dominantBaseline="middle"
       >
-        Thickness ( ± 1 MM. )
+        ความหนา ( ± 1 มม. )
       </text>
       <text
         x={x + pad * 2}
@@ -1876,7 +1885,7 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         textAnchor="start"
         dominantBaseline="middle"
       >
-        UNIT : Millimeters
+        หน่วย : มิลลิเมตร
       </text>
 
       <rect
@@ -1893,21 +1902,19 @@ const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
         weight: 900,
       })}
 
-      {txt(x + w / 2, midY("thai1"), "*Product Warranty Terms*", {
+      {txt(x + w / 2, midY("thai1"), "*เงื่อนไขการรับประกันสินค้า*", {
         size: 20,
         weight: 600,
       })}
-      {txt(
-        x + w / 2,
-        midY("thai2"),
-        "*Verify and confirm before signing approval*",
-        { size: 20, weight: 600 },
-      )}
-      {txt(x + w / 2, midY("sig"), "( Customer SIG.)", {
+      {txt(x + w / 2, midY("thai2"), "*ตรวจสอบและยืนยันก่อนลงนามอนุมัติ*", {
         size: 20,
         weight: 600,
       })}
-      {txt(x + w / 2, midY("app"), "( Approved date )", {
+      {txt(x + w / 2, midY("sig"), "( ลายเซ็นลูกค้า )", {
+        size: 20,
+        weight: 600,
+      })}
+      {txt(x + w / 2, midY("app"), "( วันที่อนุมัติ )", {
         size: 20,
         weight: 600,
       })}
@@ -1972,14 +1979,14 @@ const EnhancedEngineeringDrawing = memo(
     } = safeResults;
 
     const surfaceMaterialLabel =
-      getMaterialLabel(SURFACE_MATERIALS, surfaceMaterial) || "Not specified";
+      getMaterialLabel(SURFACE_MATERIALS, surfaceMaterial) || "ไม่ระบุ";
 
     const titleData = useMemo(
       () => ({
         projectOwner: safeResults.projectOwner || "",
         projectCode: safeResults.projectCode || "0",
         code: safeResults.code || "0",
-        dimension: `${T} × ${W} × ${H} mm`,
+        dimension: `${T} × ${W} × ${H} มม.`,
         type: safeResults.type || "",
         issueDate: safeResults.issueDate || "",
         revise: safeResults.revise ?? "0",
@@ -2081,7 +2088,7 @@ const EnhancedEngineeringDrawing = memo(
       try {
         const pdf = new jsPDF({
           orientation: "landscape",
-          unit: "mm",
+          unit: "มม.",
           format: "a4",
         });
 
@@ -2426,7 +2433,7 @@ const EnhancedEngineeringDrawing = memo(
             fontSize="14"
             fill="#4456E9"
           >
-            +{coreCalculation.pieces.length - maxPiecesToDraw} more strips
+            +{coreCalculation.pieces.length - maxPiecesToDraw} แถบเพิ่มเติม
           </text>,
         );
       }
@@ -2459,7 +2466,7 @@ const EnhancedEngineeringDrawing = memo(
               <PopoverContent className="w-64">
                 <div className="p-2 space-y-2">
                   <div className="flex justify-between items-center pb-2 border-b-1 border-default gap-2">
-                    <span className="font-semibold text-[13px]">Layers</span>
+                    <span className="font-semibold text-[13px]">เลเยอร์</span>
                     <div className="flex gap-2">
                       <Button
                         color="default"
@@ -2469,7 +2476,7 @@ const EnhancedEngineeringDrawing = memo(
                         className="w-full text-foreground"
                         onPress={() => toggleAllLayers(true)}
                       >
-                        All On
+                        เปิดทั้งหมด
                       </Button>
                       <Button
                         color="default"
@@ -2479,7 +2486,7 @@ const EnhancedEngineeringDrawing = memo(
                         className="w-full text-foreground"
                         onPress={() => toggleAllLayers(false)}
                       >
-                        All Off
+                        ปิดทั้งหมด
                       </Button>
                     </div>
                   </div>
@@ -2523,32 +2530,32 @@ const EnhancedEngineeringDrawing = memo(
                   Export
                 </Button>
               </DropdownTrigger>
-              <DropdownMenu aria-label="Export options">
+              <DropdownMenu aria-label="ตัวเลือกส่งออก">
                 <DropdownItem
                   key="pdf"
                   startContent={<FileText />}
-                  description="Vector format, best for printing"
+                  description="รูปแบบเวกเตอร์ เหมาะสำหรับพิมพ์"
                   onPress={exportToPDF}
                 >
-                  Export as PDF
+                  ส่งออก PDF
                 </DropdownItem>
 
                 <DropdownItem
                   key="png-hd"
                   startContent={<FileImage />}
-                  description="4x resolution for large prints"
+                  description="ความละเอียด 4 เท่า สำหรับงานพิมพ์ขนาดใหญ่"
                   onPress={() => exportToPNG(4)}
                 >
-                  Export as PNG (4K)
+                  ส่งออก PNG (4K)
                 </DropdownItem>
 
                 <DropdownItem
                   key="dxf"
                   startContent={<FileCode />}
-                  description="For AutoCAD/CAD software"
+                  description="สำหรับซอฟต์แวร์ AutoCAD/CAD"
                   onPress={exportToDXF}
                 >
-                  Export as DXF
+                  ส่งออก DXF
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
@@ -2571,7 +2578,7 @@ const EnhancedEngineeringDrawing = memo(
             {({ zoomIn, zoomOut, resetTransform, centerView }) => (
               <>
                 <div className="absolute botto right-4 z-10 flex flex-col gap-2 bg-background/90 backdrop-blur-sm rounded-lg p-2 shadow-md">
-                  <Tooltip content="Zoom In" placement="left">
+                  <Tooltip content="ซูมเข้า" placement="left">
                     <Button
                       color="default"
                       variant="light"
@@ -2584,7 +2591,7 @@ const EnhancedEngineeringDrawing = memo(
                       <ZoomIn />
                     </Button>
                   </Tooltip>
-                  <Tooltip content="Zoom Out" placement="left">
+                  <Tooltip content="ซูมออก" placement="left">
                     <Button
                       color="default"
                       variant="light"
@@ -2598,7 +2605,7 @@ const EnhancedEngineeringDrawing = memo(
                     </Button>
                   </Tooltip>
                   <Divider className="" />
-                  <Tooltip content="Fit to View" placement="left">
+                  <Tooltip content="พอดีหน้าจอ" placement="left">
                     <Button
                       color="default"
                       variant="light"
@@ -2611,7 +2618,7 @@ const EnhancedEngineeringDrawing = memo(
                       <Maximize2 />
                     </Button>
                   </Tooltip>
-                  <Tooltip content="Reset Zoom" placement="left">
+                  <Tooltip content="รีเซ็ตซูม" placement="left">
                     <Button
                       color="default"
                       variant="light"
@@ -2905,7 +2912,7 @@ const EnhancedEngineeringDrawing = memo(
                       fontWeight="bold"
                       fill={theme.text}
                     >
-                      DOOR FRAME STRUCTURE DRAWING
+                      แบบโครงสร้างกรอบประตู
                     </text>
 
                     <g id="side-view">
@@ -3315,7 +3322,7 @@ const EnhancedEngineeringDrawing = memo(
                         fontSize="14"
                         fill={theme.text}
                       >
-                        Door {surfaceMaterialLabel}
+                        ประตู {surfaceMaterialLabel}
                       </text>
                       <text
                         x={positions.exterior.x + dims.exterior.W / 2}
@@ -3324,7 +3331,7 @@ const EnhancedEngineeringDrawing = memo(
                         fontSize="14"
                         fill={theme.text}
                       >
-                        Surface thickness: {S} mm × 2 sides
+                        ความหนาผิว: {S} มม. × 2 ด้าน
                       </text>
 
                       <text
@@ -3357,19 +3364,19 @@ const EnhancedEngineeringDrawing = memo(
         <div className="flex items-center justify-between p-2 bg-default-50 border-t-1 border-default text-xs text-default-500">
           <div className="flex items-center gap-2">
             <span>
-              Door: {T}×{W}×{H} mm
+              ประตู: {T}×{W}×{H} มม.
             </span>
             <span>
-              Frame: {R}×{F} mm
+              กรอบ: {R}×{F} มม.
             </span>
             {!NO_RAIL_CORE_TYPES.includes(coreCalculation?.coreType?.value) &&
               coreCalculation?.coreType?.value !== "particle_strips" && (
-                <span>Rails: {railSections - 1}</span>
+                <span>คานขวาง: {railSections - 1}</span>
               )}
-            <span>Lock Blocks: {lockBlockCount}</span>
+            <span>บล็อกล็อค: {lockBlockCount}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span>Scale: 1:25</span>
+            <span>มาตราส่วน: 1:25</span>
           </div>
         </div>
       </div>
@@ -3426,7 +3433,7 @@ const UIDoorBom = ({
     >
       <div className="flex flex-col items-center justify-center w-full h-fit p-2 gap-2">
         <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-          🚪 Door Configuration System
+          🚪 ระบบถอด BOM ประตู
         </div>
       </div>
 
@@ -3438,7 +3445,7 @@ const UIDoorBom = ({
                 <Chip color="default" variant="solid" size="md">
                   1
                 </Chip>
-                <span className="font-semibold">📝 Customer Specs</span>
+                <span className="font-semibold">📝 ข้อมูลลูกค้า</span>
               </div>
             </CardHeader>
             <CardBody className="gap-2">
@@ -3447,9 +3454,9 @@ const UIDoorBom = ({
                   <Input
                     name="doorThickness"
                     type="number"
-                    label="Thickness (mm)"
+                    label="ความหนา (มม.)"
                     labelPlacement="outside"
-                    placeholder="Enter Thickness"
+                    placeholder="กรอกความหนา"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3462,9 +3469,9 @@ const UIDoorBom = ({
                   <Input
                     name="doorWidth"
                     type="number"
-                    label="Width (mm)"
+                    label="ความกว้าง (มม.)"
                     labelPlacement="outside"
-                    placeholder="Enter Width"
+                    placeholder="กรอกความกว้าง"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3477,9 +3484,9 @@ const UIDoorBom = ({
                   <Input
                     name="doorHeight"
                     type="number"
-                    label="Height (mm)"
+                    label="ความสูง (มม.)"
                     labelPlacement="outside"
-                    placeholder="Enter Height"
+                    placeholder="กรอกความสูง"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3491,8 +3498,8 @@ const UIDoorBom = ({
               </div>
               <div className="flex items-center justify-center w-full p-2">
                 <Chip color="default" variant="shadow" size="md">
-                  Spec: {formatDimension(doorThickness, doorWidth, doorHeight)}{" "}
-                  mm
+                  สเปค: {formatDimension(doorThickness, doorWidth, doorHeight)}{" "}
+                  มม.
                 </Chip>
               </div>
             </CardBody>
@@ -3504,7 +3511,7 @@ const UIDoorBom = ({
                 <Chip color="default" variant="solid" size="md">
                   2
                 </Chip>
-                <span className="font-semibold">🎨 Surface Material</span>
+                <span className="font-semibold">🎨 วัสดุผิว</span>
               </div>
             </CardHeader>
             <CardBody className="gap-2">
@@ -3512,9 +3519,9 @@ const UIDoorBom = ({
                 <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                   <Select
                     name="surfaceMaterial"
-                    label="Material Type"
+                    label="ประเภทวัสดุ"
                     labelPlacement="outside"
-                    placeholder="Please Select"
+                    placeholder="กรุณาเลือก"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3533,9 +3540,9 @@ const UIDoorBom = ({
                   <Input
                     name="surfaceThickness"
                     type="number"
-                    label="Thickness/Sheet (mm)"
+                    label="ความหนา/แผ่น (มม.)"
                     labelPlacement="outside"
-                    placeholder="Enter Thickness"
+                    placeholder="กรอกความหนา"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3548,33 +3555,33 @@ const UIDoorBom = ({
               <Divider />
               <div className="flex flex-col gap-2 text-[13px] p-2">
                 <div className="flex justify-between">
-                  <span>Material:</span>
+                  <span>วัสดุ:</span>
                   <span className="font-bold text-foreground">
                     {getMaterialLabel(SURFACE_MATERIALS, surfaceMaterial)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Surface Material:</span>
+                  <span>วัสดุผิว:</span>
                   <span>
-                    {surfaceThickness || 0} mm × 2 ={" "}
-                    {(parseFloat(surfaceThickness) || 0) * 2} mm
+                    {surfaceThickness || 0} มม. × 2 ={" "}
+                    {(parseFloat(surfaceThickness) || 0) * 2} มม.
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Glue:</span>
+                  <span>กาว:</span>
                   <span>
-                    {GLUE_THICKNESS} mm × 2 = {GLUE_THICKNESS * 2} mm
+                    {GLUE_THICKNESS} มม. × 2 = {GLUE_THICKNESS * 2} มม.
                   </span>
                 </div>
                 <Divider className="" />
                 <div className="flex justify-between font-bold">
-                  <span>Total:</span>
-                  <span>{results.totalSurfaceThickness} mm</span>
+                  <span>รวม:</span>
+                  <span>{results.totalSurfaceThickness} มม.</span>
                 </div>
                 <div className="flex justify-between font-bold">
-                  <span>Required Frame Thickness:</span>
+                  <span>ความหนากรอบที่ต้องการ:</span>
                   <span className="text-foreground">
-                    {results.frameThickness} mm
+                    {results.frameThickness} มม.
                   </span>
                 </div>
               </div>
@@ -3587,7 +3594,7 @@ const UIDoorBom = ({
                 <Chip color="default" variant="solid" size="md">
                   3
                 </Chip>
-                <span className="font-semibold">🪵 Frame (ERP)</span>
+                <span className="font-semibold">🪵 กรอบไม้ (ERP)</span>
               </div>
             </CardHeader>
             <CardBody className="gap-2">
@@ -3595,9 +3602,9 @@ const UIDoorBom = ({
                 <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                   <Select
                     name="frameType"
-                    label="Frame Wood Type"
+                    label="ประเภทไม้กรอบ"
                     labelPlacement="outside"
-                    placeholder="Please Select"
+                    placeholder="กรุณาเลือก"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3615,9 +3622,9 @@ const UIDoorBom = ({
                 <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                   <Select
                     name="selectedFrameCode"
-                    label={`Select Frame Wood (length≥${doorHeight || 0}mm)`}
+                    label={`เลือกไม้กรอบ (ยาว≥${doorHeight || 0}mm)`}
                     labelPlacement="outside"
-                    placeholder="Please Select"
+                    placeholder="กรุณาเลือก"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3643,49 +3650,48 @@ const UIDoorBom = ({
                 <Chip color="default" variant="shadow" className="w-full">
                   ⚠️{" "}
                   {frameSelection.reason ||
-                    `No suitable timber available for thickness ${results.frameThickness}mm`}
+                    `ไม่พบไม้ที่เหมาะสมสำหรับความหนา ${results.frameThickness}มม.`}
                 </Chip>
               )}
 
               {frameType && frameSelection.frames.length > 0 && (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <div className="flex justify-between">
-                    <span>Actual Frame Size:</span>
+                    <span>ขนาดกรอบจริง:</span>
                     <span className="font-bold text-foreground">
                       {currentFrame.useThickness}×{currentFrame.useWidth} mm
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>ERP Code:</span>
+                    <span>รหัส ERP:</span>
                     <span className="font-mono text-xs">
                       {selectedFrameCode}
                     </span>
                   </div>
                   {currentFrame.isFlipped && (
                     <Chip color="default" variant="shadow" size="md">
-                      🔄 Flipped {currentFrame.thickness}×{currentFrame.width} →{" "}
+                      🔄 พลิก {currentFrame.thickness}×{currentFrame.width} →{" "}
                       {currentFrame.width}×{currentFrame.thickness}
                     </Chip>
                   )}
                   {currentFrame.planeAmount > 0 && (
                     <Chip color="default" variant="shadow" size="md">
-                      🪚 Needs planing {currentFrame.planeAmount} mm
+                      🪚 ต้องไส {currentFrame.planeAmount} มม.
                     </Chip>
                   )}
                   {currentFrame.needSplice && (
                     <div className="flex flex-col gap-2 p-2 bg-default-50 rounded-lg">
                       <Chip color="default" variant="shadow" size="md">
-                        🔗 Splice {currentFrame.spliceCount} pieces
+                        🔗 ต่อ {currentFrame.spliceCount} ชิ้น
                       </Chip>
                       <span className="text-xs">
-                        • Splice position: {currentFrame.splicePosition} mm from
-                        end
+                        • ตำแหน่งต่อ: {currentFrame.splicePosition} มม. จากปลาย
                       </span>
                       <span className="text-xs">
-                        • Overlap allowance: {currentFrame.spliceOverlap} mm
+                        • ระยะทับซ้อน: {currentFrame.spliceOverlap} มม.
                       </span>
                       <span className="text-xs">
-                        • Total length: {currentFrame.effectiveLength} mm
+                        • ความยาวรวม: {currentFrame.effectiveLength} มม.
                       </span>
                     </div>
                   )}
@@ -3695,9 +3701,7 @@ const UIDoorBom = ({
               <Divider />
 
               <div className="flex flex-col gap-2">
-                <span className="text-[13px] font-medium">
-                  Sides for Double Frame
-                </span>
+                <span className="text-[13px] font-medium">ด้านที่ซ้อนกรอบ</span>
                 <div className="flex flex-wrap gap-2">
                   {DOUBLE_FRAME_SIDES.map(({ key, label }) => (
                     <Button
@@ -3717,9 +3721,9 @@ const UIDoorBom = ({
               <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                 <Select
                   name="doubleFrameCount"
-                  label="Double Frame Layers/Side"
+                  label="จำนวนชั้นซ้อน/ด้าน"
                   labelPlacement="outside"
-                  placeholder="Please Select"
+                  placeholder="กรุณาเลือก"
                   color="default"
                   variant="bordered"
                   size="md"
@@ -3749,61 +3753,59 @@ const UIDoorBom = ({
                 <Chip color="default" variant="solid" size="md">
                   4
                 </Chip>
-                <span className="font-semibold">➖ Horizontal Cross Rails</span>
+                <span className="font-semibold">➖ คานขวาง</span>
               </div>
             </CardHeader>
             <CardBody className="gap-2">
               {isNoRailCoreType ? (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <Chip color="default" variant="shadow" size="md">
-                    ⚠️ Core type {coreCalculation?.coreType?.label || coreType}{" "}
-                    has no center cross rails
+                    ⚠️ ไส้ประเภท {coreCalculation?.coreType?.label || coreType}{" "}
+                    ไม่มีคานขวางตรงกลาง
                   </Chip>
                   <span className="text-default-500">
-                    Full panel core with frame on left, right, top, and bottom
-                    only
+                    ไส้เต็มแผ่น มีกรอบเฉพาะซ้าย ขวา บน ล่าง
                   </span>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <div className="flex justify-between">
-                    <span>Sections:</span>
+                    <span>จำนวนช่อง:</span>
                     <span className="font-bold text-foreground">
-                      {results.railSections} sections (
-                      {results.railSections - 1} cross rails)
+                      {results.railSections} ช่อง ({results.railSections - 1}{" "}
+                      คานขวาง)
                     </span>
                   </div>
 
                   {doorHeight && parseFloat(doorHeight) >= 2400 && (
                     <Chip color="default" variant="shadow" size="md">
-                      ⚡ Door height exceeds 2400mm → auto divided into 4
-                      sections
+                      ⚡ ความสูงประตูเกิน 2400มม. → แบ่งอัตโนมัติเป็น 4 ช่อง
                     </Chip>
                   )}
 
                   {results.railsAdjusted && (
                     <Chip color="default" variant="shadow" size="md">
-                      🔄 Cross rail positions auto-adjusted to avoid Lock Block
+                      🔄 ปรับตำแหน่งคานขวางอัตโนมัติเพื่อหลีกเลี่ยงบล็อกล็อค
                     </Chip>
                   )}
 
                   <div className="flex justify-between">
-                    <span>Cross Rail Size:</span>
+                    <span>ขนาดคานขวาง:</span>
                     <span className="font-bold text-foreground">
                       {coreType === "particle_strips"
-                        ? `${coreCalculation.stripThickness || 12} mm (particle strips cut)`
-                        : `${currentFrame.useThickness || 0}×${currentFrame.useWidth || 0} mm`}
+                        ? `${coreCalculation.stripThickness || 12} มม. (ตัดจากแผ่นปาร์ติเคิล)`
+                        : `${currentFrame.useThickness || 0}×${currentFrame.useWidth || 0} มม.`}
                     </span>
                   </div>
 
                   {coreType !== "particle_strips" && (
                     <span className="text-xs text-default-500">
-                      (Same wood as frame)
+                      (ใช้ไม้เดียวกับกรอบ)
                     </span>
                   )}
                   {coreType === "particle_strips" && (
                     <span className="text-xs text-default-500">
-                      (Using particle strips as cross rails instead)
+                      (ใช้แผ่นปาร์ติเคิลแทนคานขวาง)
                     </span>
                   )}
 
@@ -3815,12 +3817,12 @@ const UIDoorBom = ({
                       pos !== results.railPositionsOriginal[idx];
                     return (
                       <div key={idx} className="flex justify-between">
-                        <span>Position {idx + 1}:</span>
+                        <span>ตำแหน่งที่ {idx + 1}:</span>
                         <span>
-                          {pos} mm{" "}
+                          {pos} มม.{" "}
                           {wasAdjusted && (
                             <span className="text-xs">
-                              (was {results.railPositionsOriginal[idx]})
+                              (เดิม {results.railPositionsOriginal[idx]})
                             </span>
                           )}
                         </span>
@@ -3838,7 +3840,7 @@ const UIDoorBom = ({
                 <Chip color="default" variant="solid" size="md">
                   5
                 </Chip>
-                <span className="font-semibold">🔒 Lock Block</span>
+                <span className="font-semibold">🔒 บล็อกล็อค</span>
               </div>
             </CardHeader>
             <CardBody className="gap-2">
@@ -3846,9 +3848,9 @@ const UIDoorBom = ({
                 <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                   <Select
                     name="lockBlockPiecesPerSide"
-                    label="Pieces Per Side"
+                    label="จำนวนชิ้น/ด้าน"
                     labelPlacement="outside"
-                    placeholder="Please Select"
+                    placeholder="กรุณาเลือก"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3868,9 +3870,9 @@ const UIDoorBom = ({
                 <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                   <Select
                     name="lockBlockPosition"
-                    label="Lock Block Position"
+                    label="ตำแหน่งบล็อกล็อค"
                     labelPlacement="outside"
-                    placeholder="Please Select"
+                    placeholder="กรุณาเลือก"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -3883,12 +3885,12 @@ const UIDoorBom = ({
                     {LOCK_BLOCK_POSITIONS.map((pos) => (
                       <SelectItem
                         key={pos.value}
-                        textValue={`${pos.label} (${pos.value === "both" ? `${piecesPerSide * 2} pcs` : `${piecesPerSide} pcs`})`}
+                        textValue={`${pos.label} (${pos.value === "both" ? `${piecesPerSide * 2} ชิ้น` : `${piecesPerSide} ชิ้น`})`}
                       >
                         {pos.label} (
                         {pos.value === "both"
-                          ? `${piecesPerSide * 2} pcs`
-                          : `${piecesPerSide} pcs`}
+                          ? `${piecesPerSide * 2} ชิ้น`
+                          : `${piecesPerSide} ชิ้น`}
                         )
                       </SelectItem>
                     ))}
@@ -3899,33 +3901,33 @@ const UIDoorBom = ({
               {(lockBlockLeft || lockBlockRight) && piecesPerSide > 0 && (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <div className="flex justify-between">
-                    <span>Total Quantity:</span>
+                    <span>จำนวนรวม:</span>
                     <span className="font-bold text-foreground">
-                      {results.lockBlockCount} pcs ({lockBlockDesc})
+                      {results.lockBlockCount} ชิ้น ({lockBlockDesc})
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Lock Block Size:</span>
+                    <span>ขนาดบล็อกล็อค:</span>
                     <span className="font-bold text-foreground">
                       {currentFrame.useThickness || 0}×
                       {currentFrame.useWidth || 0}×{LOCK_BLOCK_HEIGHT} mm
                     </span>
                   </div>
                   <span className="text-xs text-default-500">
-                    (Same wood as frame)
+                    (ใช้ไม้เดียวกับกรอบ)
                   </span>
                   <Divider className="" />
                   <div className="flex justify-between text-foreground">
-                    <span>Top Edge:</span>
-                    <span>{results.lockBlockTop} mm from floor</span>
+                    <span>ขอบบน:</span>
+                    <span>{results.lockBlockTop} มม. จากพื้น</span>
                   </div>
                   <div className="flex justify-between text-foreground">
-                    <span>Center:</span>
-                    <span>{results.lockBlockPosition} mm from floor</span>
+                    <span>กลาง:</span>
+                    <span>{results.lockBlockPosition} มม. จากพื้น</span>
                   </div>
                   <div className="flex justify-between text-foreground">
-                    <span>Bottom Edge:</span>
-                    <span>{results.lockBlockBottom} mm from floor</span>
+                    <span>ขอบล่าง:</span>
+                    <span>{results.lockBlockBottom} มม. จากพื้น</span>
                   </div>
                 </div>
               )}
@@ -3938,16 +3940,16 @@ const UIDoorBom = ({
                 <Chip color="default" variant="solid" size="md">
                   6
                 </Chip>
-                <span className="font-semibold">🧱 Door Core Material</span>
+                <span className="font-semibold">🧱 วัสดุไส้ประตู</span>
               </div>
             </CardHeader>
             <CardBody className="gap-2">
               <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                 <Select
                   name="coreType"
-                  label="Core Type"
+                  label="ประเภทไส้"
                   labelPlacement="outside"
-                  placeholder="Please Select"
+                  placeholder="กรุณาเลือก"
                   color="default"
                   variant="bordered"
                   size="md"
@@ -3964,16 +3966,16 @@ const UIDoorBom = ({
               {coreType && coreCalculation.coreType && (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <div className="flex justify-between">
-                    <span>Type:</span>
+                    <span>ประเภท:</span>
                     <span className="font-bold text-foreground">
                       {coreCalculation.coreType.label}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Pattern:</span>
+                    <span>รูปแบบ:</span>
                     <span className="font-bold">
-                      {coreCalculation.isSolid ? "Solid" : "Strips"}
-                      {coreCalculation.isFullPanelCore && " (No cross rails)"}
+                      {coreCalculation.isSolid ? "เต็มแผ่น" : "แถบ"}
+                      {coreCalculation.isFullPanelCore && " (ไม่มีคานขวาง)"}
                     </span>
                   </div>
 
@@ -3981,21 +3983,21 @@ const UIDoorBom = ({
                     <>
                       <Divider className="" />
                       <div className="flex justify-between">
-                        <span>Edge Padding:</span>
-                        <span>{coreCalculation.edgePadding || 40} mm</span>
+                        <span>ระยะขอบ:</span>
+                        <span>{coreCalculation.edgePadding || 40} มม.</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Strip Thickness:</span>
-                        <span>{coreCalculation.stripThickness} mm</span>
+                        <span>ความหนาแถบ:</span>
+                        <span>{coreCalculation.stripThickness} มม.</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Strip Spacing:</span>
-                        <span>{coreCalculation.stripSpacing} mm</span>
+                        <span>ระยะห่างแถบ:</span>
+                        <span>{coreCalculation.stripSpacing} มม.</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Columns:</span>
+                        <span>คอลัมน์:</span>
                         <span className="font-bold text-foreground">
-                          {coreCalculation.columns} columns
+                          {coreCalculation.columns} คอลัมน์
                           {coreCalculation.coreType?.value ===
                             "particle_strips" &&
                             doorWidth && (
@@ -4006,16 +4008,16 @@ const UIDoorBom = ({
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Rows:</span>
-                        <span>{coreCalculation.rows} rows</span>
+                        <span>แถว:</span>
+                        <span>{coreCalculation.rows} แถว</span>
                       </div>
 
                       {coreCalculation.coreType?.value === "particle_strips" &&
                         coreCalculation.damPieces?.length > 0 && (
                           <div className="flex justify-between">
-                            <span>Particle Cross Rails:</span>
+                            <span>คานขวางปาร์ติเคิล:</span>
                             <span className="font-bold text-foreground">
-                              {coreCalculation.damPieces.length} pcs
+                              {coreCalculation.damPieces.length} ชิ้น
                             </span>
                           </div>
                         )}
@@ -4024,16 +4026,16 @@ const UIDoorBom = ({
 
                   <Divider className="" />
                   <div className="flex justify-between font-bold">
-                    <span>Total Pieces:</span>
+                    <span>จำนวนชิ้นรวม:</span>
                     <span className="text-foreground">
                       {coreCalculation.totalPieces} pcs
                     </span>
                   </div>
                   <div className="flex justify-between text-xs text-default-500">
-                    <span>Core Area:</span>
+                    <span>พื้นที่ไส้:</span>
                     <span>
                       {coreCalculation.coreWidth} × {coreCalculation.coreHeight}{" "}
-                      mm
+                      มม.
                     </span>
                   </div>
                 </div>
@@ -4044,84 +4046,85 @@ const UIDoorBom = ({
           <Card className="w-full">
             <CardHeader className="bg-default-100">
               <div className="flex items-center gap-2">
-                <span className="font-semibold">📋 Structure Summary</span>
+                <span className="font-semibold">📋 สรุปโครงสร้าง</span>
               </div>
             </CardHeader>
             <CardBody className="gap-2">
               <div className="grid grid-cols-2 gap-2 text-[13px]">
                 <div className="p-2 bg-default-100 rounded-lg">
-                  <span className="block text-default-600">Door Spec:</span>
+                  <span className="block text-default-600">สเปคประตู:</span>
                   <span className="font-bold">
                     {formatDimension(doorThickness, doorWidth, doorHeight)} mm
                   </span>
                 </div>
                 <div className="p-2 bg-default-100 rounded-lg">
-                  <span className="block text-default-600">Surface:</span>
+                  <span className="block text-default-600">ผิว:</span>
                   <span className="font-bold text-foreground">
                     {getMaterialLabel(SURFACE_MATERIALS, surfaceMaterial)}{" "}
                     {surfaceThickness || 0}mm + Glue {GLUE_THICKNESS}mm (×2)
                   </span>
                 </div>
                 <div className="p-2 bg-default-50 rounded-lg">
-                  <span className="block text-default-600">Wood Frame:</span>
+                  <span className="block text-default-600">กรอบไม้:</span>
                   <span className="font-bold text-foreground">
                     {currentFrame.useThickness || "-"}×
                     {currentFrame.useWidth || "-"} mm
                   </span>
                   {currentFrame.isFlipped && (
                     <span className="block text-xs text-foreground">
-                      🔄 Flipped
+                      🔄 พลิก
                     </span>
                   )}
                   {currentFrame.planeAmount > 0 && (
                     <span className="block text-xs text-foreground">
-                      🪚 Plane {currentFrame.planeAmount}mm
+                      🪚 ไส {currentFrame.planeAmount}มม.
                     </span>
                   )}
                 </div>
                 <div className="p-2 bg-default-50 rounded-lg">
-                  <span className="block text-default-600">Cross Rails:</span>
+                  <span className="block text-default-600">คานขวาง:</span>
                   {isNoRailCoreType ? (
                     <span className="font-bold text-default-700">
-                      None (Full panel core)
+                      ไม่มี (ไส้เต็มแผ่น)
                     </span>
                   ) : (
                     <>
                       <span className="font-bold text-foreground">
-                        {results.railSections - 1} pcs ({results.railSections}{" "}
-                        sections)
+                        {results.railSections - 1} ชิ้น ({results.railSections}{" "}
+                        ช่อง)
                       </span>
                       {coreType === "particle_strips" && (
                         <span className="block text-xs text-foreground">
-                          Using particle strips as cross rails
+                          ใช้แผ่นปาร์ติเคิลแทนคานขวาง
                         </span>
                       )}
                     </>
                   )}
                 </div>
                 <div className="col-span-2 p-2 bg-default-50 rounded-lg">
-                  <span className="block text-default-600">Lock Block:</span>
+                  <span className="block text-default-600">บล็อกล็อค:</span>
                   <span className="font-bold text-foreground">
-                    {results.lockBlockCount} pcs ({lockBlockDesc})
+                    {results.lockBlockCount} ชิ้น ({lockBlockDesc})
                   </span>
                 </div>
                 {coreType && coreCalculation.coreType && (
                   <div className="col-span-2 p-2 bg-default-50 rounded-lg">
-                    <span className="block text-default-600">Door Core:</span>
+                    <span className="block text-default-600">ไส้ประตู:</span>
                     <span className="font-bold text-foreground">
                       {coreCalculation.coreType.label} (
-                      {coreCalculation.totalPieces} pcs)
+                      {coreCalculation.totalPieces} ชิ้น)
                     </span>
                     {!coreCalculation.isSolid && (
                       <span className="block text-xs text-default-600">
-                        {coreCalculation.columns} cols × {coreCalculation.rows}{" "}
-                        rows, strip thickness {coreCalculation.stripThickness}mm
-                        spacing {coreCalculation.stripSpacing}mm
+                        {coreCalculation.columns} คอลัมน์ ×{" "}
+                        {coreCalculation.rows} แถว, ความหนาแถบ{" "}
+                        {coreCalculation.stripThickness}mm spacing{" "}
+                        {coreCalculation.stripSpacing}mm
                       </span>
                     )}
                     {coreCalculation.isFullPanelCore && (
                       <span className="block text-xs text-default-700">
-                        ⚠️ Full panel core, no center cross rails
+                        ⚠️ ไส้เต็มแผ่น ไม่มีคานขวาง
                       </span>
                     )}
                   </div>
@@ -4135,7 +4138,7 @@ const UIDoorBom = ({
               {selectedFrameCode && (
                 <div className="p-2 bg-default-50 rounded-lg text-[13px]">
                   <span className="font-medium text-foreground">
-                    ERP Code: {selectedFrameCode}
+                    รหัส ERP: {selectedFrameCode}
                   </span>
                   <span className="block text-xs">{currentFrame.desc}</span>
                 </div>
@@ -4151,22 +4154,21 @@ const UIDoorBom = ({
                     7
                   </Chip>
                   <span className="font-semibold">
-                    ✂️ Cutting Plan (Cutting Optimization)
+                    ✂️ แผนตัดไม้ (เพิ่มประสิทธิภาพ)
                   </span>
                 </div>
               </CardHeader>
               <CardBody className="gap-2">
                 {isNoRailCoreType && (
                   <Chip color="default" variant="shadow" className="w-full">
-                    ⚠️ Core {coreCalculation?.coreType?.label}: No cross rails
-                    (Full panel core)
+                    ⚠️ ไส้ {coreCalculation?.coreType?.label}: ไม่มีคานขวาง
+                    (ไส้เต็มแผ่น)
                   </Chip>
                 )}
 
                 {coreType === "particle_strips" && (
                   <Chip color="default" variant="shadow" className="w-full">
-                    Cross Rails: Using particle strips instead (not included in
-                    frame cutting plan)
+                    คานขวาง: ใช้แผ่นปาร์ติเคิลแทน (ไม่รวมในแผนตัดไม้กรอบ)
                   </Chip>
                 )}
 
@@ -4174,18 +4176,17 @@ const UIDoorBom = ({
                   <div className="p-2 bg-default-50 rounded-lg">
                     <div className="flex items-center gap-2 font-medium text-foreground">
                       <span>🔗</span>
-                      <span>Stile splicing required</span>
+                      <span>ต้องต่อเสา</span>
                     </div>
                     <div className="text-[13px] text-foreground">
                       <div>
-                        • Pieces to splice: {cuttingPlan.spliceCount} pcs
+                        • จำนวนชิ้นที่ต้องต่อ: {cuttingPlan.spliceCount} ชิ้น
                       </div>
                       <div>
-                        • Overlap allowance: {cuttingPlan.spliceOverlap} mm per
-                        joint
+                        • ระยะทับซ้อน: {cuttingPlan.spliceOverlap} มม. ต่อจุดต่อ
                       </div>
                       <div className="text-xs opacity-80">
-                        Use glue + nails at splice joints
+                        ใช้กาว + ตะปูที่จุดต่อ
                       </div>
                     </div>
                   </div>
@@ -4196,31 +4197,33 @@ const UIDoorBom = ({
                     <div className="font-bold text-lg text-foreground">
                       {cuttingPlan.totalStocks}
                     </div>
-                    <div className="text-xs text-default-700">Stocks Used</div>
+                    <div className="text-xs text-default-700">ท่อนที่ใช้</div>
                   </div>
                   <div className="p-2 rounded-lg text-center">
                     <div className="font-bold text-lg text-foreground">
                       {cuttingPlan.efficiency}
                     </div>
-                    <div className="text-xs text-default-700">Efficiency</div>
+                    <div className="text-xs text-default-700">ประสิทธิภาพ</div>
                   </div>
                   <div className="p-2 rounded-lg text-center">
                     <div className="font-bold text-lg text-foreground">
                       {cuttingPlan.usedLength}
                     </div>
-                    <div className="text-xs text-default-700">Used (mm)</div>
+                    <div className="text-xs text-default-700">ใช้ (มม.)</div>
                   </div>
                   <div className="p-2 rounded-lg text-center">
                     <div className="font-bold text-lg text-foreground">
                       {cuttingPlan.totalWaste}
                     </div>
-                    <div className="text-xs text-default-700">Waste (mm)</div>
+                    <div className="text-xs text-default-700">
+                      เศษเหลือ (มม.)
+                    </div>
                   </div>
                 </div>
 
                 <div className="border-1 border-default rounded-lg overflow-hidden">
                   <div className="p-2 text-xs font-semibold bg-default-100">
-                    📋 Parts List (saw kerf allowance {cuttingPlan.sawKerf} mm)
+                    📋 รายการชิ้นส่วน (เผื่อรอยเลื่อย {cuttingPlan.sawKerf} มม.)
                   </div>
                   <div>
                     {cuttingPlan.cutPieces.map((piece, idx) => (
@@ -4244,9 +4247,9 @@ const UIDoorBom = ({
                         </div>
                         <div className="flex items-center gap-2">
                           <span>
-                            {piece.length} mm{" "}
+                            {piece.length} มม.{" "}
                             <span className="text-default-500">
-                              (cut {piece.cutLength ?? piece.length} mm)
+                              (ตัด {piece.cutLength ?? piece.length} มม.)
                             </span>
                           </span>
                           <span className="font-bold">×{piece.qty}</span>
@@ -4258,14 +4261,14 @@ const UIDoorBom = ({
 
                 <div className="border-1 border-default rounded-lg overflow-hidden">
                   <div className="p-2 text-xs font-semibold bg-default-100">
-                    🪵 Cutting Plan (stock length {cuttingPlan.stockLength}mm ×{" "}
-                    {cuttingPlan.totalStocks} pcs)
+                    🪵 แผนตัดไม้ (ท่อนยาว {cuttingPlan.stockLength}มม. ×{" "}
+                    {cuttingPlan.totalStocks} ท่อน)
                   </div>
                   <div className="p-2 space-y-3">
                     {cuttingPlan.stocks.map((stock, stockIdx) => (
                       <div key={stockIdx} className="space-y-1">
                         <div className="text-xs text-default-600">
-                          Stock {stockIdx + 1}
+                          ท่อนที่ {stockIdx + 1}
                         </div>
                         <div className="relative h-8 rounded overflow-hidden bg-default-100">
                           {(() => {
@@ -4323,7 +4326,7 @@ const UIDoorBom = ({
                               }}
                             >
                               {stock.remaining > 100 && (
-                                <span>Waste {stock.remaining}</span>
+                                <span>เศษเหลือ {stock.remaining}</span>
                               )}
                             </div>
                           )}
@@ -4335,7 +4338,7 @@ const UIDoorBom = ({
 
                 <div className="p-2">
                   <div className="flex justify-between text-xs">
-                    <span>Wood Usage Efficiency</span>
+                    <span>ประสิทธิภาพการใช้ไม้</span>
                     <span
                       className={`font-bold text-${getEfficiencyColor(cuttingPlan.efficiency)}`}
                     >
@@ -4349,7 +4352,7 @@ const UIDoorBom = ({
                   />
                   <div className="flex justify-between text-[10px] text-default-500">
                     <span>0%</span>
-                    <span>Good: ≥80%</span>
+                    <span>ดี: ≥80%</span>
                     <span>100%</span>
                   </div>
                 </div>
@@ -4363,7 +4366,7 @@ const UIDoorBom = ({
                     7
                   </Chip>
                   <span className="font-semibold">
-                    ✂️ Cutting Plan (Cutting Optimization)
+                    ✂️ แผนตัดไม้ (เพิ่มประสิทธิภาพ)
                   </span>
                 </div>
               </CardHeader>
@@ -4371,10 +4374,10 @@ const UIDoorBom = ({
                 <div className="flex flex-col items-center justify-center h-48 gap-2">
                   <Calculator className="w-12 h-12 text-default-300" />
                   <p className="text-lg font-medium">
-                    Please complete all door specifications
+                    กรุณากรอกสเปคประตูให้ครบ
                   </p>
                   <p className="text-[13px] text-default-400">
-                    The system will automatically calculate the cutting plan
+                    ระบบจะคำนวณแผนตัดไม้ให้อัตโนมัติ
                   </p>
                 </div>
               </CardBody>
@@ -4387,7 +4390,7 @@ const UIDoorBom = ({
             <CardHeader className="bg-foreground text-background flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <span>📐</span>
-                <span className="font-semibold">Drawing</span>
+                <span className="font-semibold">แบบวาด</span>
               </div>
             </CardHeader>
             <CardBody className="bg-default-50 p-2 min-h-[600px]">
@@ -4400,11 +4403,9 @@ const UIDoorBom = ({
               ) : (
                 <div className="flex flex-col items-center justify-center h-96 gap-2">
                   <RulerDimensionLine className="w-12 h-12 text-default-300" />
-                  <p className="text-lg font-medium">
-                    Please enter door specifications
-                  </p>
+                  <p className="text-lg font-medium">กรุณากรอกข้อมูลประตู</p>
                   <p className="text-[13px] text-default-400">
-                    Enter Thickness (T), Width (W), Height (H)
+                    กรอก ความหนา (T), ความกว้าง (W), ความสูง (H)
                   </p>
                   <div className="flex gap-2">
                     <Chip
@@ -4518,17 +4519,17 @@ export default function DoorConfigurator() {
     const df = results.doubleFrame;
     if (!df?.hasAny || !df.count) return "";
     const sideLabels = {
-      top: "Top",
-      bottom: "Bottom",
-      left: "Left",
-      center: "Center",
-      right: "Right",
+      top: "บน",
+      bottom: "ล่าง",
+      left: "ซ้าย",
+      center: "กลาง",
+      right: "ขวา",
     };
     const sides = Object.entries(sideLabels)
       .filter(([key]) => df[key])
       .map(([_, label]) => label);
     return sides.length
-      ? `Double frame on ${sides.join(", ")} side(s), ${df.count} layer(s)/side`
+      ? `กรอบซ้อนด้าน ${sides.join(", ")} จำนวน ${df.count} ชั้น/ด้าน`
       : "";
   }, [results]);
 
@@ -4551,7 +4552,7 @@ export default function DoorConfigurator() {
 
   const lockBlockDesc =
     lockBlockLeft && lockBlockRight
-      ? `Left ${piecesPerSide} + Right ${piecesPerSide}`
+      ? `ซ้าย ${piecesPerSide} + ขวา ${piecesPerSide}`
       : lockBlockLeft
         ? `Left ${piecesPerSide}`
         : lockBlockRight
