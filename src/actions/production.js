@@ -11,3 +11,7 @@ export async function getBcProduction() {
 export async function getProductionDashboard() {
   return get("/api/production/dashboard");
 }
+
+export async function getFrameMaterials() {
+  return get("/api/production/frames");
+}

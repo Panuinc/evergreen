@@ -47,6 +47,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import * as htmlToImage from "html-to-image";
+import { useFrames } from "@/hooks/production/useFrames";
 
 const GLUE_THICKNESS = 1;
 const LOCK_BLOCK_HEIGHT = 400;
@@ -55,13 +56,7 @@ const CUT_ALLOWANCE = 10;
 
 const NO_RAIL_CORE_TYPES = ["foam", "particle_solid", "honeycomb"];
 
-const SURFACE_MATERIALS = [
-  { value: "upvc", label: "ยูพีวีซี (UPVC)" },
-  { value: "wpc", label: "ดับเบิ้ลยูพีซี (WPC)" },
-  { value: "laminate", label: "ลามิเนต" },
-  { value: "plywood", label: "ไม้อัด" },
-  { value: "melamine", label: "เมลามีน" },
-];
+
 
 const FRAME_TYPES = [
   { value: "rubberwood", label: "ไม้ยางพารา" },
@@ -142,176 +137,6 @@ const CORE_TYPES = [
     spacing: null,
   },
 ];
-
-const ERP_FRAMES = {
-  rubberwood: [
-    {
-      code: "R-01-26-30-200",
-      desc: "Rubberwood Finger Joint 26x30x2040mm",
-      thickness: 26,
-      width: 30,
-      length: 2040,
-    },
-    {
-      code: "R-01-26-30-230",
-      desc: "Rubberwood Finger Joint 26x30x2310mm",
-      thickness: 26,
-      width: 30,
-      length: 2310,
-    },
-    {
-      code: "R-01-26-30-250",
-      desc: "Rubberwood Finger Joint 26x30x2510mm",
-      thickness: 26,
-      width: 30,
-      length: 2510,
-    },
-    {
-      code: "R-01-26-32-200",
-      desc: "Rubberwood Finger Joint 26x32x2040mm",
-      thickness: 26,
-      width: 32,
-      length: 2040,
-    },
-    {
-      code: "R-01-26-32-230",
-      desc: "Rubberwood Finger Joint 26x32x2310mm",
-      thickness: 26,
-      width: 32,
-      length: 2310,
-    },
-    {
-      code: "R-01-26-32-250",
-      desc: "Rubberwood Finger Joint 26x32x2510mm",
-      thickness: 26,
-      width: 32,
-      length: 2510,
-    },
-    {
-      code: "R-01-28-50-200",
-      desc: "Rubberwood Finger Joint 28x50x2040mm",
-      thickness: 28,
-      width: 50,
-      length: 2040,
-    },
-    {
-      code: "R-01-28-50-230",
-      desc: "Rubberwood Finger Joint 28x50x2310mm",
-      thickness: 28,
-      width: 50,
-      length: 2310,
-    },
-    {
-      code: "R-01-28-50-230B",
-      desc: "Rubberwood Finger Joint B 28x50x2310mm",
-      thickness: 28,
-      width: 50,
-      length: 2310,
-    },
-    {
-      code: "R-01-28-50-250",
-      desc: "Rubberwood Finger Joint 28x50x2510mm",
-      thickness: 28,
-      width: 50,
-      length: 2510,
-    },
-    {
-      code: "R-01-32-50-200",
-      desc: "Rubberwood Finger Joint 32x50x2040mm",
-      thickness: 32,
-      width: 50,
-      length: 2040,
-    },
-    {
-      code: "R-01-32-50-230",
-      desc: "Rubberwood Finger Joint 32x50x2310mm",
-      thickness: 32,
-      width: 50,
-      length: 2310,
-    },
-    {
-      code: "R-01-32-50-250",
-      desc: "Rubberwood Finger Joint 32x50x2510mm",
-      thickness: 32,
-      width: 50,
-      length: 2510,
-    },
-  ],
-  sadao: [
-    {
-      code: "R-04-32-50-200",
-      desc: "Sadao Finger Joint 32x50x2040mm",
-      thickness: 32,
-      width: 50,
-      length: 2040,
-    },
-    {
-      code: "R-04-32-50-225",
-      desc: "Sadao Finger Joint 32x50x2250mm",
-      thickness: 32,
-      width: 50,
-      length: 2250,
-    },
-    {
-      code: "R-04-32-50-230",
-      desc: "Sadao Finger Joint 32x50x2300mm",
-      thickness: 32,
-      width: 50,
-      length: 2300,
-    },
-    {
-      code: "R-04-32-50-250",
-      desc: "Sadao Finger Joint 32x50x2500mm",
-      thickness: 32,
-      width: 50,
-      length: 2500,
-    },
-  ],
-  lvl: [
-    {
-      code: "R-19-2.9-3.4-258",
-      desc: "Plywood LVL 29x34x2580mm",
-      thickness: 29,
-      width: 34,
-      length: 2580,
-    },
-    {
-      code: "R-19-2.9-3.5-202",
-      desc: "Plywood LVL 29x35x2020mm",
-      thickness: 29,
-      width: 35,
-      length: 2020,
-    },
-    {
-      code: "R-19-2.9-3.5-244",
-      desc: "Plywood LVL 29x35x2440mm",
-      thickness: 29,
-      width: 35,
-      length: 2440,
-    },
-    {
-      code: "R-19-2.9-3.5-258",
-      desc: "Plywood LVL 29x35x2580mm",
-      thickness: 29,
-      width: 35,
-      length: 2580,
-    },
-    {
-      code: "R-19-3.2-3.5-202",
-      desc: "Plywood LVL 32x35x2020mm",
-      thickness: 32,
-      width: 35,
-      length: 2020,
-    },
-    {
-      code: "R-19-3.2-3.5-244",
-      desc: "Plywood LVL 32x35x2440mm",
-      thickness: 32,
-      width: 35,
-      length: 2440,
-    },
-  ],
-};
 
 const GRID_LETTERS = ["A", "B", "C", "D", "E", "F"];
 const GRID_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -432,6 +257,7 @@ const useFrameSelection = (
   doorThickness,
   surfaceThickness,
   doorHeight,
+  erpFrames,
 ) => {
   return useMemo(() => {
     const S = parseFloat(surfaceThickness) || 0;
@@ -439,7 +265,7 @@ const useFrameSelection = (
       ? parseFloat(doorThickness) - (S + GLUE_THICKNESS) * 2
       : 0;
     const requiredLength = doorHeight ? parseFloat(doorHeight) : 0;
-    const frames = ERP_FRAMES[frameType] || [];
+    const frames = (erpFrames && erpFrames[frameType]) || [];
 
     const filterAndSort = (frameList) =>
       frameList
@@ -479,33 +305,39 @@ const useFrameSelection = (
     const createFrameResult = (
       frameList,
       isFlipped,
-      planeAmount,
+      _planeAmount,
       needSplice = false,
       spliceInfo = null,
     ) => {
-      const mapFrame = (f) => ({
-        ...f,
-        useThickness: isFlipped
-          ? f.width - planeAmount
-          : f.thickness - planeAmount,
-        useWidth: isFlipped ? f.thickness : f.width,
-        isFlipped,
-        planeAmount,
-        needSplice,
-        ...(spliceInfo && {
-          spliceCount: spliceInfo.spliceCount,
-          spliceOverlap: spliceInfo.spliceOverlap,
-          splicePosition: spliceInfo.splicePosition,
-          effectiveLength: spliceInfo.effectiveLength,
-        }),
-        displaySize: createDisplaySize(f, isFlipped, planeAmount, needSplice),
-      });
+      const mapFrame = (f) => {
+        const actualPlane = isFlipped
+          ? f.width - requiredThickness
+          : f.thickness - requiredThickness;
+        const plane = Math.max(0, actualPlane);
+        return {
+          ...f,
+          useThickness: isFlipped
+            ? f.width - plane
+            : f.thickness - plane,
+          useWidth: isFlipped ? f.thickness : f.width,
+          isFlipped,
+          planeAmount: plane,
+          needSplice,
+          ...(spliceInfo && {
+            spliceCount: spliceInfo.spliceCount,
+            spliceOverlap: spliceInfo.spliceOverlap,
+            splicePosition: spliceInfo.splicePosition,
+            effectiveLength: spliceInfo.effectiveLength,
+          }),
+          displaySize: createDisplaySize(f, isFlipped, plane, needSplice),
+        };
+      };
       return {
         frames: needSplice
           ? [mapFrame(spliceInfo.frame)]
           : frameList.map(mapFrame),
         needFlip: isFlipped,
-        needPlane: planeAmount > 0,
+        needPlane: _planeAmount > 0,
         needSplice,
       };
     };
@@ -620,7 +452,7 @@ const useFrameSelection = (
           ? `ไม่พบไม้ที่เหมาะสม (ต้องการ ≥${requiredLength}มม., ต่อได้สูงสุด ${maxSpliceLength}มม.)`
           : `ไม่มีไม้ความหนา ${requiredThickness}มม.`,
     };
-  }, [frameType, doorThickness, surfaceThickness, doorHeight]);
+  }, [frameType, doorThickness, surfaceThickness, doorHeight, erpFrames]);
 };
 
 const useCalculations = (params) => {
@@ -1978,8 +1810,7 @@ const EnhancedEngineeringDrawing = memo(
       doubleFrame = {},
     } = safeResults;
 
-    const surfaceMaterialLabel =
-      getMaterialLabel(SURFACE_MATERIALS, surfaceMaterial) || "ไม่ระบุ";
+    const surfaceMaterialLabel = surfaceMaterial || "ไม่ระบุ";
 
     const titleData = useMemo(
       () => ({
@@ -3396,6 +3227,8 @@ const UIDoorBom = ({
   setDoorHeight,
   surfaceMaterial,
   setSurfaceMaterial,
+  surfacePrice,
+  setSurfacePrice,
   surfaceThickness,
   setSurfaceThickness,
   frameType,
@@ -3517,24 +3350,18 @@ const UIDoorBom = ({
             <CardBody className="gap-2">
               <div className="flex flex-col xl:flex-row items-center justify-center w-full h-fit gap-2">
                 <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Select
+                  <Input
                     name="surfaceMaterial"
                     label="ประเภทวัสดุ"
                     labelPlacement="outside"
-                    placeholder="กรุณาเลือก"
+                    placeholder="กรอกประเภทวัสดุ"
                     color="default"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={surfaceMaterial ? [surfaceMaterial] : []}
-                    onSelectionChange={(keys) =>
-                      setSurfaceMaterial([...keys][0] || "")
-                    }
-                  >
-                    {SURFACE_MATERIALS.map((mat) => (
-                      <SelectItem key={mat.value}>{mat.label}</SelectItem>
-                    ))}
-                  </Select>
+                    value={surfaceMaterial}
+                    onChange={(e) => setSurfaceMaterial(e.target.value)}
+                  />
                 </div>
                 <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                   <Input
@@ -3551,13 +3378,28 @@ const UIDoorBom = ({
                     onChange={(e) => setSurfaceThickness(e.target.value)}
                   />
                 </div>
+                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
+                  <Input
+                    name="surfacePrice"
+                    type="number"
+                    label="ราคา (บาท)"
+                    labelPlacement="outside"
+                    placeholder="กรอกราคา"
+                    color="default"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={surfacePrice}
+                    onChange={(e) => setSurfacePrice(e.target.value)}
+                  />
+                </div>
               </div>
               <Divider />
               <div className="flex flex-col gap-2 text-[13px] p-2">
                 <div className="flex justify-between">
                   <span>วัสดุ:</span>
                   <span className="font-bold text-foreground">
-                    {getMaterialLabel(SURFACE_MATERIALS, surfaceMaterial)}
+                    {surfaceMaterial || "ไม่ระบุ"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -4060,7 +3902,7 @@ const UIDoorBom = ({
                 <div className="p-2 bg-default-100 rounded-lg">
                   <span className="block text-default-600">ผิว:</span>
                   <span className="font-bold text-foreground">
-                    {getMaterialLabel(SURFACE_MATERIALS, surfaceMaterial)}{" "}
+                    {surfaceMaterial || "ไม่ระบุ"}{" "}
                     {surfaceThickness || 0}mm + Glue {GLUE_THICKNESS}mm (×2)
                   </span>
                 </div>
@@ -4438,11 +4280,13 @@ const UIDoorBom = ({
 };
 
 export default function DoorConfigurator() {
+  const { frames: erpFrames, loading: framesLoading } = useFrames();
   const formRef = useRef(null);
   const [doorThickness, setDoorThickness] = useState("");
   const [doorWidth, setDoorWidth] = useState("");
   const [doorHeight, setDoorHeight] = useState("");
   const [surfaceMaterial, setSurfaceMaterial] = useState("");
+  const [surfacePrice, setSurfacePrice] = useState("");
   const [surfaceThickness, setSurfaceThickness] = useState("");
   const [frameType, setFrameType] = useState("");
   const [selectedFrameCode, setSelectedFrameCode] = useState("");
@@ -4469,6 +4313,7 @@ export default function DoorConfigurator() {
     doorThickness,
     surfaceThickness,
     doorHeight,
+    erpFrames,
   );
 
   const currentFrame = useMemo(() => {
@@ -4569,6 +4414,8 @@ export default function DoorConfigurator() {
     setDoorHeight,
     surfaceMaterial,
     setSurfaceMaterial,
+    surfacePrice,
+    setSurfacePrice,
     surfaceThickness,
     setSurfaceThickness,
     frameType,
