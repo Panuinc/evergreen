@@ -130,6 +130,7 @@ export const menuData = [
       { name: "เจ้าหนี้", icon: CreditCard, href: "/finance/agedPayables" },
       { name: "ใบแจ้งหนี้ขาย", icon: FileText, href: "/finance/salesInvoices" },
       { name: "ใบแจ้งหนี้ซื้อ", icon: FileCheck, href: "/finance/purchaseInvoices" },
+      { name: "ติดตามลูกหนี้", icon: ClipboardList, href: "/finance/collections" },
       // { name: "งบประมาณ", icon: PieChart },
       // { name: "ภาษี", icon: FileCheck },
     ],

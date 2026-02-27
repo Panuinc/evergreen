@@ -1,4 +1,4 @@
-import { get } from "@/lib/apiClient";
+import { get, post } from "@/lib/apiClient";
 
 export async function getBalanceSheet() {
   return get("/api/finance/balanceSheet");
@@ -26,4 +26,15 @@ export async function getSalesInvoices(status = "Open", expand = true) {
 
 export async function getPurchaseInvoices(status = "Open", expand = true) {
   return get(`/api/finance/purchaseInvoices?status=${status}&expand=${expand}`);
+}
+
+export async function getCollections(params = {}) {
+  const query = new URLSearchParams(
+    Object.fromEntries(Object.entries(params).filter(([, v]) => v)),
+  ).toString();
+  return get(`/api/finance/collections${query ? `?${query}` : ""}`);
+}
+
+export async function createFollowUp(data) {
+  return post("/api/finance/collections", data);
 }
