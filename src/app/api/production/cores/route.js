@@ -17,6 +17,26 @@ function getCoreType(itemNumber) {
   return null;
 }
 
+function parseDimensionsFromDesc(displayName) {
+  const match = displayName?.match(
+    /(\d+\.?\d*)\s*[xX×]\s*(\d+\.?\d*)\s*[xX×]\s*(\d+\.?\d*)/,
+  );
+  if (!match) return null;
+
+  let v1 = parseFloat(match[1]);
+  let v2 = parseFloat(match[2]);
+  let v3 = parseFloat(match[3]);
+
+  // If length < 1000, likely in cm → convert to mm
+  if (v3 < 1000) v3 = Math.round(v3 * 10);
+
+  return {
+    thickness: Math.round(v1),
+    width: Math.round(v2),
+    length: Math.round(v3),
+  };
+}
+
 export async function GET() {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -57,11 +77,13 @@ export async function GET() {
     const coreType = getCoreType(item.bcItemNumber);
     if (!coreType) continue;
 
+    const dims = parseDimensionsFromDesc(item.bcItemDisplayName);
     grouped[coreType].push({
       code: item.bcItemNumber,
       desc: item.bcItemDisplayName || item.bcItemNumber,
       inventory: item.bcItemInventory ?? 0,
       unitCost: item.bcItemUnitCost ?? 0,
+      ...(dims && { thickness: dims.thickness, width: dims.width, length: dims.length }),
     });
   }
 

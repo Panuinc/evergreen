@@ -3309,6 +3309,8 @@ const UIDoorBom = ({
   setEdgeBanding,
   edgeMaterial,
   setEdgeMaterial,
+  edgePrice,
+  setEdgePrice,
   edgeSides,
   setEdgeSides,
   drilling,
@@ -4097,18 +4099,33 @@ const UIDoorBom = ({
 
               {edgeBanding && (
                 <div className="flex flex-col gap-3 p-2">
-                  <Input
-                    name="edgeMaterial"
-                    label="วัสดุขอบ"
-                    labelPlacement="outside"
-                    placeholder="กรอกประเภทวัสดุขอบ"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={edgeMaterial}
-                    onChange={(e) => setEdgeMaterial(e.target.value)}
-                  />
+                  <div className="flex flex-col xl:flex-row gap-2">
+                    <Input
+                      name="edgeMaterial"
+                      label="วัสดุขอบ"
+                      labelPlacement="outside"
+                      placeholder="กรอกประเภทวัสดุขอบ"
+                      color="default"
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      value={edgeMaterial}
+                      onChange={(e) => setEdgeMaterial(e.target.value)}
+                    />
+                    <Input
+                      name="edgePrice"
+                      type="number"
+                      label="ราคา (บาท)"
+                      labelPlacement="outside"
+                      placeholder="กรอกราคา"
+                      color="default"
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      value={edgePrice}
+                      onChange={(e) => setEdgePrice(e.target.value)}
+                    />
+                  </div>
                   <div className="flex flex-col gap-2">
                     <span className="text-[13px] font-medium">
                       ด้านที่ทำขอบ
@@ -4169,6 +4186,7 @@ const UIDoorBom = ({
                     { key: "handle", label: "มือจับ" },
                     { key: "peephole", label: "ตาแมว" },
                     { key: "hinge", label: "บานพับ" },
+                    { key: "dropSeal", label: "Drop Seal" },
                   ].map(({ key, label }) => (
                     <div
                       key={key}
@@ -4233,7 +4251,7 @@ const UIDoorBom = ({
                   รายละเอียดต้นทุน / บาน
                 </span>
                 <div className="flex justify-between">
-                  <span>กรอบไม้:</span>
+                  <span>กรอบไม้ ({priceSummary.frameStocks} ท่อน × ฿{priceSummary.frameUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):</span>
                   <span>
                     ฿{priceSummary.frameCost.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -4242,7 +4260,7 @@ const UIDoorBom = ({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>วัสดุผิว:</span>
+                  <span>วัสดุผิว (×2 ด้าน):</span>
                   <span>
                     ฿{priceSummary.surface.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -4251,7 +4269,7 @@ const UIDoorBom = ({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>วัสดุไส้:</span>
+                  <span>วัสดุไส้ ({priceSummary.coreQtyLabel} × ฿{priceSummary.coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):</span>
                   <span>
                     ฿{priceSummary.core.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -4259,6 +4277,17 @@ const UIDoorBom = ({
                     })}
                   </span>
                 </div>
+                {priceSummary.edge > 0 && (
+                  <div className="flex justify-between">
+                    <span>ทำขอบประตู:</span>
+                    <span>
+                      ฿{priceSummary.edge.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                )}
                 {priceSummary.drillCost > 0 && (
                   <div className="flex justify-between">
                     <span>เจาะอุปกรณ์:</span>
@@ -4789,6 +4818,7 @@ export default function DoorConfigurator() {
   const [selectedCoreCode, setSelectedCoreCode] = useState("");
   const [edgeBanding, setEdgeBanding] = useState(false);
   const [edgeMaterial, setEdgeMaterial] = useState("");
+  const [edgePrice, setEdgePrice] = useState("");
   const [edgeSides, setEdgeSides] = useState({
     top: false,
     bottom: false,
@@ -4801,6 +4831,7 @@ export default function DoorConfigurator() {
     handle: { checked: false, price: "" },
     peephole: { checked: false, price: "" },
     hinge: { checked: false, price: "" },
+    dropSeal: { checked: false, price: "" },
   });
 
   const [customMargin, setCustomMargin] = useState("");
@@ -4855,36 +4886,6 @@ export default function DoorConfigurator() {
     return frameSelection.candidates[0]?.frame || emptyFrame;
   }, [frameSelection, selectedFrameCode]);
 
-  const priceSummary = useMemo(() => {
-    const frameCost = currentFrame?.unitCost || 0;
-    const surface = parseFloat(surfacePrice) || 0;
-    const core = selectedCoreItem?.unitCost || 0;
-    const drillCost = Object.values(drillItems).reduce(
-      (sum, item) =>
-        item.checked ? sum + (parseFloat(item.price) || 0) : sum,
-      0,
-    );
-    const totalPerDoor = frameCost + surface + core + drillCost;
-    const qty = parseInt(orderQty) || 0;
-    const margin = parseFloat(customMargin) || 0;
-
-    return {
-      frameCost,
-      surface,
-      core,
-      drillCost,
-      totalPerDoor,
-      plus10: totalPerDoor * 1.1,
-      profit20: totalPerDoor * 1.2,
-      customPrice: totalPerDoor + margin,
-      qty,
-      grandTotal: totalPerDoor * qty,
-      grandPlus10: totalPerDoor * 1.1 * qty,
-      grandProfit20: totalPerDoor * 1.2 * qty,
-      grandCustom: (totalPerDoor + margin) * qty,
-    };
-  }, [currentFrame, surfacePrice, selectedCoreItem, drillItems, orderQty, customMargin]);
-
   const numericDoubleCount = parseInt(doubleFrameCount) || 0;
 
   const results = useCalculations({
@@ -4902,6 +4903,100 @@ export default function DoorConfigurator() {
 
   const cuttingPlan = useCuttingPlan(results, currentFrame, coreType);
   const coreCalculation = useCoreCalculation(results, coreType);
+
+  const priceSummary = useMemo(() => {
+    // กรอบไม้: ราคาต่อท่อน × จำนวนท่อนที่ใช้จริงต่อบาน
+    const frameUnitCost = currentFrame?.unitCost || 0;
+    const frameStocks = cuttingPlan?.totalStocks || 0;
+    const frameCost = frameUnitCost * frameStocks;
+
+    const surface = (parseFloat(surfacePrice) || 0) * 2;
+
+    // วัสดุไส้: คำนวณตามประเภท
+    const coreUnitCost = selectedCoreItem?.unitCost || 0;
+    const isSolidCore = coreCalculation?.isSolid !== false;
+    let coreQtyUsed = 0;
+    let coreQtyLabel = "";
+
+    if (isSolidCore) {
+      // ไส้แผ่นเต็ม (foam, rockwool, honeycomb, particle_solid): นับจำนวนแผ่น
+      coreQtyUsed = coreCalculation?.totalPieces || 0;
+      coreQtyLabel = `${coreQtyUsed} แผ่น`;
+    } else {
+      // ไส้เส้น (plywood_strips, particle_strips): เส้นเต็มตัดเป็นชิ้น
+      // จำนวนเส้นเต็มที่ต้องซื้อ = columns (แนวตั้ง) + damPieces (แนวขวาง)
+      const stripLength = selectedCoreItem?.length || 0;
+      const columns = coreCalculation?.columns || 0;
+      const damPieces = coreCalculation?.damPieces?.length || 0;
+
+      if (stripLength > 0 && coreCalculation?.pieces?.length > 0) {
+        // คำนวณจำนวนเส้นเต็มจริงๆ ด้วย bin-packing per column
+        // แต่ละ column มี pieces หลายชิ้น (แต่ละ row) ที่ตัดจากเส้นเดียวกัน
+        // ถ้ารวมความยาวชิ้นใน column <= stripLength ใช้ 1 เส้น
+        // ถ้าเกิน ต้องใช้มากกว่า 1 เส้น
+
+        // Group pieces by column
+        const piecesByCol = {};
+        for (const p of coreCalculation.pieces) {
+          if (!piecesByCol[p.col]) piecesByCol[p.col] = [];
+          piecesByCol[p.col].push(p.height);
+        }
+
+        let totalStrips = 0;
+        for (const col in piecesByCol) {
+          const totalHeight = piecesByCol[col].reduce((s, h) => s + h, 0);
+          totalStrips += Math.ceil(totalHeight / stripLength);
+        }
+
+        // damPieces (แนวขวาง) — แต่ละชิ้นมี width = coreWidth
+        if (damPieces > 0 && coreCalculation.damPieces) {
+          for (const dam of coreCalculation.damPieces) {
+            totalStrips += Math.ceil((dam.width || 0) / stripLength);
+          }
+        }
+
+        coreQtyUsed = totalStrips;
+      } else {
+        // fallback: columns + damPieces
+        coreQtyUsed = columns + damPieces;
+      }
+      coreQtyLabel = `${coreQtyUsed} เส้น`;
+    }
+
+    const core = coreUnitCost * coreQtyUsed;
+
+    const edge = edgeBanding ? (parseFloat(edgePrice) || 0) : 0;
+    const drillCost = Object.values(drillItems).reduce(
+      (sum, item) =>
+        item.checked ? sum + (parseFloat(item.price) || 0) : sum,
+      0,
+    );
+    const totalPerDoor = frameCost + surface + core + edge + drillCost;
+    const qty = parseInt(orderQty) || 0;
+    const margin = parseFloat(customMargin) || 0;
+
+    return {
+      frameCost,
+      frameStocks,
+      frameUnitCost,
+      surface,
+      core,
+      coreQtyUsed,
+      coreQtyLabel,
+      coreUnitCost,
+      edge,
+      drillCost,
+      totalPerDoor,
+      plus10: totalPerDoor * 1.1,
+      profit20: totalPerDoor * 1.2,
+      customPrice: totalPerDoor + margin,
+      qty,
+      grandTotal: totalPerDoor * qty,
+      grandPlus10: totalPerDoor * 1.1 * qty,
+      grandProfit20: totalPerDoor * 1.2 * qty,
+      grandCustom: (totalPerDoor + margin) * qty,
+    };
+  }, [currentFrame, surfacePrice, selectedCoreItem, edgeBanding, edgePrice, drillItems, orderQty, customMargin, cuttingPlan, coreCalculation]);
 
   const isDataComplete = doorThickness && doorWidth && doorHeight;
   const piecesPerSide = parseInt(lockBlockPiecesPerSide) || 0;
@@ -4990,6 +5085,8 @@ export default function DoorConfigurator() {
     setEdgeBanding,
     edgeMaterial,
     setEdgeMaterial,
+    edgePrice,
+    setEdgePrice,
     edgeSides,
     setEdgeSides,
     drilling,
