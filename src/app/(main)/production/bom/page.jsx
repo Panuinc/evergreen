@@ -3305,6 +3305,16 @@ const UIDoorBom = ({
   setSelectedCoreCode,
   availableCoreItems,
   selectedCoreItem,
+  edgeBanding,
+  setEdgeBanding,
+  edgeMaterial,
+  setEdgeMaterial,
+  edgeSides,
+  setEdgeSides,
+  drilling,
+  setDrilling,
+  drillItems,
+  setDrillItems,
   lockBlockLeft,
   lockBlockRight,
   currentFrame,
@@ -3316,6 +3326,9 @@ const UIDoorBom = ({
   doubleConfigSummary,
   handleToggleDoubleSide,
   lockBlockDesc,
+  priceSummary,
+  customMargin,
+  setCustomMargin,
 }) => {
   const isNoRailCoreType = NO_RAIL_CORE_TYPES.includes(coreType);
 
@@ -4064,6 +4077,296 @@ const UIDoorBom = ({
           </Card>
 
           <Card className="w-full">
+            <CardHeader className="bg-foreground text-background">
+              <div className="flex items-center gap-2">
+                <Chip color="default" variant="solid" size="md">
+                  7
+                </Chip>
+                <span className="font-semibold">📐 การทำขอบประตู</span>
+              </div>
+            </CardHeader>
+            <CardBody className="gap-2">
+              <div className="flex items-center justify-between p-2">
+                <span className="text-[13px] font-medium">ทำขอบประตู</span>
+                <Switch
+                  isSelected={edgeBanding}
+                  onValueChange={setEdgeBanding}
+                  size="sm"
+                />
+              </div>
+
+              {edgeBanding && (
+                <div className="flex flex-col gap-3 p-2">
+                  <Input
+                    name="edgeMaterial"
+                    label="วัสดุขอบ"
+                    labelPlacement="outside"
+                    placeholder="กรอกประเภทวัสดุขอบ"
+                    color="default"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={edgeMaterial}
+                    onChange={(e) => setEdgeMaterial(e.target.value)}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[13px] font-medium">
+                      ด้านที่ทำขอบ
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { key: "top", label: "บน" },
+                        { key: "bottom", label: "ล่าง" },
+                        { key: "left", label: "ซ้าย" },
+                        { key: "right", label: "ขวา" },
+                      ].map(({ key, label }) => (
+                        <Button
+                          key={key}
+                          color={edgeSides[key] ? "default" : "default"}
+                          variant={edgeSides[key] ? "shadow" : "bordered"}
+                          size="md"
+                          radius="md"
+                          onPress={() =>
+                            setEdgeSides((prev) => ({
+                              ...prev,
+                              [key]: !prev[key],
+                            }))
+                          }
+                        >
+                          {edgeSides[key] ? `✅ ${label}` : label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card className="w-full">
+            <CardHeader className="bg-foreground text-background">
+              <div className="flex items-center gap-2">
+                <Chip color="default" variant="solid" size="md">
+                  8
+                </Chip>
+                <span className="font-semibold">🔩 เจาะใส่อุปกรณ์</span>
+              </div>
+            </CardHeader>
+            <CardBody className="gap-2">
+              <div className="flex items-center justify-between p-2">
+                <span className="text-[13px] font-medium">เจาะอุปกรณ์</span>
+                <Switch
+                  isSelected={drilling}
+                  onValueChange={setDrilling}
+                  size="sm"
+                />
+              </div>
+
+              {drilling && (
+                <div className="flex flex-col gap-3 p-2">
+                  {[
+                    { key: "doorCloser", label: "โช็ค" },
+                    { key: "handle", label: "มือจับ" },
+                    { key: "peephole", label: "ตาแมว" },
+                    { key: "hinge", label: "บานพับ" },
+                  ].map(({ key, label }) => (
+                    <div
+                      key={key}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors ${
+                        drillItems[key].checked
+                          ? "border-primary bg-primary-50"
+                          : "border-default-200 bg-default-50"
+                      }`}
+                    >
+                      <Switch
+                        isSelected={drillItems[key].checked}
+                        onValueChange={(val) =>
+                          setDrillItems((prev) => ({
+                            ...prev,
+                            [key]: { ...prev[key], checked: val },
+                          }))
+                        }
+                        size="sm"
+                      />
+                      <span className="text-[13px] font-medium min-w-[60px]">
+                        {label}
+                      </span>
+                      {drillItems[key].checked && (
+                        <Input
+                          type="number"
+                          label="ราคา (บาท)"
+                          labelPlacement="inside"
+                          placeholder="0"
+                          color="default"
+                          variant="bordered"
+                          size="sm"
+                          radius="md"
+                          className="max-w-[150px]"
+                          value={drillItems[key].price}
+                          onChange={(e) =>
+                            setDrillItems((prev) => ({
+                              ...prev,
+                              [key]: { ...prev[key], price: e.target.value },
+                            }))
+                          }
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card className="w-full">
+            <CardHeader className="bg-foreground text-background">
+              <div className="flex items-center gap-2">
+                <Chip color="default" variant="solid" size="md">
+                  9
+                </Chip>
+                <span className="font-semibold">💰 สรุปราคา</span>
+              </div>
+            </CardHeader>
+            <CardBody className="gap-2">
+              <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
+                <span className="font-bold text-foreground">
+                  รายละเอียดต้นทุน / บาน
+                </span>
+                <div className="flex justify-between">
+                  <span>กรอบไม้:</span>
+                  <span>
+                    ฿{priceSummary.frameCost.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>วัสดุผิว:</span>
+                  <span>
+                    ฿{priceSummary.surface.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>วัสดุไส้:</span>
+                  <span>
+                    ฿{priceSummary.core.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                {priceSummary.drillCost > 0 && (
+                  <div className="flex justify-between">
+                    <span>เจาะอุปกรณ์:</span>
+                    <span>
+                      ฿{priceSummary.drillCost.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                )}
+                <Divider />
+                <div className="flex justify-between font-bold text-foreground">
+                  <span>ต้นทุนรวม / บาน:</span>
+                  <span>
+                    ฿{priceSummary.totalPerDoor.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>ต้นทุน + 10% / บาน:</span>
+                  <span className="font-bold">
+                    ฿{priceSummary.plus10.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>กำไร 20% / บาน:</span>
+                  <span className="font-bold">
+                    ฿{priceSummary.profit20.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="whitespace-nowrap">กำไรตามใจ / บาน:</span>
+                  <Input
+                    type="number"
+                    placeholder="กรอกกำไร (บาท)"
+                    size="sm"
+                    variant="bordered"
+                    className="max-w-[140px]"
+                    value={customMargin}
+                    onChange={(e) => setCustomMargin(e.target.value)}
+                  />
+                  <span className="font-bold whitespace-nowrap">
+                    ฿{priceSummary.customPrice.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+              </div>
+
+              {priceSummary.qty > 0 && (
+                <div className="flex flex-col gap-2 text-[13px] p-2 bg-primary-50 rounded-lg">
+                  <span className="font-bold text-foreground">
+                    รวมทั้งหมด ({priceSummary.qty} บาน)
+                  </span>
+                  <div className="flex justify-between font-bold text-foreground">
+                    <span>ต้นทุนรวม:</span>
+                    <span>
+                      ฿{priceSummary.grandTotal.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>ต้นทุน + 10%:</span>
+                    <span className="font-bold">
+                      ฿{priceSummary.grandPlus10.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>กำไร 20%:</span>
+                    <span className="font-bold">
+                      ฿{priceSummary.grandProfit20.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  {customMargin && (
+                    <div className="flex justify-between">
+                      <span>กำไรตามใจ:</span>
+                      <span className="font-bold">
+                        ฿{priceSummary.grandCustom.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card className="w-full">
             <CardHeader className="bg-default-100">
               <div className="flex items-center gap-2">
                 <span className="font-semibold">📋 สรุปโครงสร้าง</span>
@@ -4484,6 +4787,23 @@ export default function DoorConfigurator() {
   const [doubleFrameCount, setDoubleFrameCount] = useState("");
   const [coreType, setCoreType] = useState("");
   const [selectedCoreCode, setSelectedCoreCode] = useState("");
+  const [edgeBanding, setEdgeBanding] = useState(false);
+  const [edgeMaterial, setEdgeMaterial] = useState("");
+  const [edgeSides, setEdgeSides] = useState({
+    top: false,
+    bottom: false,
+    left: false,
+    right: false,
+  });
+  const [drilling, setDrilling] = useState(false);
+  const [drillItems, setDrillItems] = useState({
+    doorCloser: { checked: false, price: "" },
+    handle: { checked: false, price: "" },
+    peephole: { checked: false, price: "" },
+    hinge: { checked: false, price: "" },
+  });
+
+  const [customMargin, setCustomMargin] = useState("");
 
   const availableCoreItems = useMemo(() => {
     if (!coreType || !coreItems) return [];
@@ -4534,6 +4854,36 @@ export default function DoorConfigurator() {
     // Default: first choice (best candidate's best frame)
     return frameSelection.candidates[0]?.frame || emptyFrame;
   }, [frameSelection, selectedFrameCode]);
+
+  const priceSummary = useMemo(() => {
+    const frameCost = currentFrame?.unitCost || 0;
+    const surface = parseFloat(surfacePrice) || 0;
+    const core = selectedCoreItem?.unitCost || 0;
+    const drillCost = Object.values(drillItems).reduce(
+      (sum, item) =>
+        item.checked ? sum + (parseFloat(item.price) || 0) : sum,
+      0,
+    );
+    const totalPerDoor = frameCost + surface + core + drillCost;
+    const qty = parseInt(orderQty) || 0;
+    const margin = parseFloat(customMargin) || 0;
+
+    return {
+      frameCost,
+      surface,
+      core,
+      drillCost,
+      totalPerDoor,
+      plus10: totalPerDoor * 1.1,
+      profit20: totalPerDoor * 1.2,
+      customPrice: totalPerDoor + margin,
+      qty,
+      grandTotal: totalPerDoor * qty,
+      grandPlus10: totalPerDoor * 1.1 * qty,
+      grandProfit20: totalPerDoor * 1.2 * qty,
+      grandCustom: (totalPerDoor + margin) * qty,
+    };
+  }, [currentFrame, surfacePrice, selectedCoreItem, drillItems, orderQty, customMargin]);
 
   const numericDoubleCount = parseInt(doubleFrameCount) || 0;
 
@@ -4636,6 +4986,16 @@ export default function DoorConfigurator() {
     setSelectedCoreCode,
     availableCoreItems,
     selectedCoreItem,
+    edgeBanding,
+    setEdgeBanding,
+    edgeMaterial,
+    setEdgeMaterial,
+    edgeSides,
+    setEdgeSides,
+    drilling,
+    setDrilling,
+    drillItems,
+    setDrillItems,
     lockBlockLeft,
     lockBlockRight,
     currentFrame,
@@ -4647,6 +5007,9 @@ export default function DoorConfigurator() {
     doubleConfigSummary,
     handleToggleDoubleSide,
     lockBlockDesc,
+    priceSummary,
+    customMargin,
+    setCustomMargin,
   };
 
   return <UIDoorBom {...uiProps} />;
