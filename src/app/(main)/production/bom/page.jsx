@@ -48,6 +48,7 @@ import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import * as htmlToImage from "html-to-image";
 import { useFrames } from "@/hooks/production/useFrames";
+import { useCores } from "@/hooks/production/useCores";
 
 const GLUE_THICKNESS = 1;
 const LOCK_BLOCK_HEIGHT = 400;
@@ -56,6 +57,56 @@ const CUT_ALLOWANCE = 10;
 
 const NO_RAIL_CORE_TYPES = ["foam", "particle_solid", "honeycomb"];
 
+const CORE_TYPE_CONFIG = [
+  {
+    value: "foam",
+    label: "โฟม EPS",
+    type: "solid",
+    thickness: null,
+    spacing: null,
+    dbKey: "foam",
+  },
+  {
+    value: "plywood_strips",
+    label: "ไม้อัดเส้น",
+    type: "strips",
+    thickness: 4,
+    spacing: 40,
+    dbKey: "plywood",
+  },
+  {
+    value: "particle_solid",
+    label: "ไม้ปาร์ติเคิล (แผ่นเต็ม)",
+    type: "solid",
+    thickness: null,
+    spacing: null,
+    dbKey: "particle",
+  },
+  {
+    value: "rockwool",
+    label: "ร็อควูล",
+    type: "solid",
+    thickness: null,
+    spacing: null,
+    dbKey: "rockwool",
+  },
+  {
+    value: "honeycomb",
+    label: "รังผึ้ง",
+    type: "solid",
+    thickness: null,
+    spacing: null,
+    dbKey: "honeycomb",
+  },
+  {
+    value: "particle_strips",
+    label: "ไม้ปาร์ติเคิลเส้น",
+    type: "strips",
+    thickness: 12,
+    spacing: null,
+    dbKey: "particle",
+  },
+];
 
 
 const FRAME_TYPES = [
@@ -93,50 +144,6 @@ const DOUBLE_FRAME_COUNT_OPTIONS = [
   { value: "3", label: "3 ชั้น" },
 ];
 
-const CORE_TYPES = [
-  {
-    value: "foam",
-    label: "โฟม EPS",
-    type: "solid",
-    thickness: null,
-    spacing: null,
-  },
-  {
-    value: "plywood_strips",
-    label: "ไม้อัดเส้น",
-    type: "strips",
-    thickness: 4,
-    spacing: 40,
-  },
-  {
-    value: "particle_solid",
-    label: "ไม้ปาร์ติเคิล (แผ่นเต็ม)",
-    type: "solid",
-    thickness: null,
-    spacing: null,
-  },
-  {
-    value: "rockwool",
-    label: "ร็อควูล",
-    type: "solid",
-    thickness: null,
-    spacing: null,
-  },
-  {
-    value: "honeycomb",
-    label: "รังผึ้ง",
-    type: "solid",
-    thickness: null,
-    spacing: null,
-  },
-  {
-    value: "particle_strips",
-    label: "ไม้ปาร์ติเคิลเส้น",
-    type: "strips",
-    thickness: 12,
-    spacing: null,
-  },
-];
 
 const GRID_LETTERS = ["A", "B", "C", "D", "E", "F"];
 const GRID_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -848,7 +855,7 @@ const useCoreCalculation = (results, coreType) => {
       lockBlockBottom,
       doubleFrame,
     } = results;
-    const coreConfig = CORE_TYPES.find((c) => c.value === coreType);
+    const coreConfig = CORE_TYPE_CONFIG.find((c) => c.value === coreType);
     if (!coreConfig) {
       return {
         coreType: null,
@@ -3219,6 +3226,12 @@ EnhancedEngineeringDrawing.displayName = "EnhancedEngineeringDrawing";
 
 const UIDoorBom = ({
   formRef,
+  customerPO,
+  setCustomerPO,
+  orderQty,
+  setOrderQty,
+  doorType,
+  setDoorType,
   doorThickness,
   setDoorThickness,
   doorWidth,
@@ -3244,6 +3257,10 @@ const UIDoorBom = ({
   setDoubleFrameCount,
   coreType,
   setCoreType,
+  selectedCoreCode,
+  setSelectedCoreCode,
+  availableCoreItems,
+  selectedCoreItem,
   lockBlockLeft,
   lockBlockRight,
   frameSelection,
@@ -3282,6 +3299,51 @@ const UIDoorBom = ({
               </div>
             </CardHeader>
             <CardBody className="gap-2">
+              <div className="flex flex-col xl:flex-row items-center justify-center w-full h-fit gap-2">
+                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
+                  <Input
+                    name="customerPO"
+                    label="PO ลูกค้า"
+                    labelPlacement="outside"
+                    placeholder="กรอก PO"
+                    color="default"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={customerPO}
+                    onChange={(e) => setCustomerPO(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
+                  <Input
+                    name="orderQty"
+                    type="number"
+                    label="จำนวนสั่ง"
+                    labelPlacement="outside"
+                    placeholder="กรอกจำนวน"
+                    color="default"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={orderQty}
+                    onChange={(e) => setOrderQty(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
+                  <Input
+                    name="doorType"
+                    label="ประเภทประตู"
+                    labelPlacement="outside"
+                    placeholder="กรอกประเภท"
+                    color="default"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={doorType}
+                    onChange={(e) => setDoorType(e.target.value)}
+                  />
+                </div>
+              </div>
               <div className="flex flex-col xl:flex-row items-center justify-center w-full h-fit gap-2">
                 <div className="flex items-center justify-center w-full h-full p-2 gap-2">
                   <Input
@@ -3508,6 +3570,18 @@ const UIDoorBom = ({
                     <span>รหัส ERP:</span>
                     <span className="font-mono text-xs">
                       {selectedFrameCode}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>ราคา:</span>
+                    <span className="font-bold text-foreground">
+                      ฿{(currentFrame.unitCost || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>สต็อก:</span>
+                    <span className="font-bold text-foreground">
+                      {(currentFrame.inventory || 0).toLocaleString()}
                     </span>
                   </div>
                   {currentFrame.isFlipped && (
@@ -3799,11 +3873,68 @@ const UIDoorBom = ({
                   selectedKeys={coreType ? [coreType] : []}
                   onSelectionChange={(keys) => setCoreType([...keys][0] || "")}
                 >
-                  {CORE_TYPES.map((core) => (
+                  {CORE_TYPE_CONFIG.map((core) => (
                     <SelectItem key={core.value}>{core.label}</SelectItem>
                   ))}
                 </Select>
               </div>
+
+              {coreType && (
+                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
+                  <Select
+                    name="coreItem"
+                    label="เลือกวัสดุไส้"
+                    labelPlacement="outside"
+                    placeholder="กรุณาเลือก"
+                    color="default"
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    selectedKeys={selectedCoreCode ? [selectedCoreCode] : []}
+                    onSelectionChange={(keys) =>
+                      setSelectedCoreCode([...keys][0] || "")
+                    }
+                  >
+                    {availableCoreItems.map((item) => (
+                      <SelectItem
+                        key={item.code}
+                        textValue={`${item.desc} — ฿${(item.unitCost || 0).toLocaleString()}`}
+                      >
+                        {item.desc} — ฿{(item.unitCost || 0).toLocaleString()}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              )}
+
+              {selectedCoreItem && (
+                <div className="flex flex-col gap-2 text-[13px] p-2 bg-primary-50 rounded-lg">
+                  <div className="flex justify-between">
+                    <span>รหัส:</span>
+                    <span className="font-bold text-foreground">
+                      {selectedCoreItem.code}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>รายละเอียด:</span>
+                    <span className="font-bold text-foreground">
+                      {selectedCoreItem.desc}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>ราคา:</span>
+                    <span className="font-bold text-foreground">
+                      ฿{(selectedCoreItem.unitCost || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>สต็อก:</span>
+                    <span className="font-bold text-foreground">
+                      {(selectedCoreItem.inventory || 0).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {coreType && coreCalculation.coreType && (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
@@ -4281,7 +4412,11 @@ const UIDoorBom = ({
 
 export default function DoorConfigurator() {
   const { frames: erpFrames, loading: framesLoading } = useFrames();
+  const { cores: coreItems, loading: coresLoading } = useCores();
   const formRef = useRef(null);
+  const [customerPO, setCustomerPO] = useState("");
+  const [orderQty, setOrderQty] = useState("");
+  const [doorType, setDoorType] = useState("");
   const [doorThickness, setDoorThickness] = useState("");
   const [doorWidth, setDoorWidth] = useState("");
   const [doorHeight, setDoorHeight] = useState("");
@@ -4302,6 +4437,19 @@ export default function DoorConfigurator() {
   });
   const [doubleFrameCount, setDoubleFrameCount] = useState("");
   const [coreType, setCoreType] = useState("");
+  const [selectedCoreCode, setSelectedCoreCode] = useState("");
+
+  const availableCoreItems = useMemo(() => {
+    if (!coreType || !coreItems) return [];
+    const config = CORE_TYPE_CONFIG.find((c) => c.value === coreType);
+    if (!config) return [];
+    return coreItems[config.dbKey] || [];
+  }, [coreType, coreItems]);
+
+  const selectedCoreItem = useMemo(() => {
+    if (!selectedCoreCode || !availableCoreItems.length) return null;
+    return availableCoreItems.find((item) => item.code === selectedCoreCode) || null;
+  }, [selectedCoreCode, availableCoreItems]);
 
   const lockBlockLeft =
     lockBlockPosition === "left" || lockBlockPosition === "both";
@@ -4406,6 +4554,12 @@ export default function DoorConfigurator() {
 
   const uiProps = {
     formRef,
+    customerPO,
+    setCustomerPO,
+    orderQty,
+    setOrderQty,
+    doorType,
+    setDoorType,
     doorThickness,
     setDoorThickness,
     doorWidth,
@@ -4431,6 +4585,10 @@ export default function DoorConfigurator() {
     setDoubleFrameCount,
     coreType,
     setCoreType,
+    selectedCoreCode,
+    setSelectedCoreCode,
+    availableCoreItems,
+    selectedCoreItem,
     lockBlockLeft,
     lockBlockRight,
     frameSelection,

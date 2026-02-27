@@ -15,3 +15,7 @@ export async function getProductionDashboard() {
 export async function getFrameMaterials() {
   return get("/api/production/frames");
 }
+
+export async function getCoreMaterials() {
+  return get("/api/production/cores");
+}
