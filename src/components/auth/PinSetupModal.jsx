@@ -20,18 +20,21 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleNext = () => {
-    if (pin.length !== 6) {
+  const handleNext = (completedPin) => {
+    const p = typeof completedPin === "string" ? completedPin : pin;
+    if (p.length !== 6) {
       toast.error("กรุณาใส่ตัวเลข 6 หลัก");
       return;
     }
+    setPin(p);
     setStep("confirm");
     setConfirmPin("");
     setError(false);
   };
 
-  const handleConfirm = async () => {
-    if (confirmPin !== pin) {
+  const handleConfirm = async (completedPin) => {
+    const cp = typeof completedPin === "string" ? completedPin : confirmPin;
+    if (cp !== pin) {
       setError(true);
       toast.error("PIN ไม่ตรงกัน");
       setConfirmPin("");

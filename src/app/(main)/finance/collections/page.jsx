@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  Card, CardBody, CardHeader, Spinner, Chip, Button,
+  Chip, Button,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
   Tabs, Tab, Input, Textarea, Select, SelectItem,
-  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
+  Card, CardBody, CardHeader,
   useDisclosure,
 } from "@heroui/react";
 import {
   Phone, Mail, MapPin, MessageCircle, FileText, Plus, History,
-  Download, Clock, Eye, RefreshCw,
+  Download, Clock, RefreshCw,
 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { getAgedReceivables, getCollections, createFollowUp } from "@/actions/finance";
@@ -101,24 +101,6 @@ function exportCSV(data, filename) {
   URL.revokeObjectURL(url);
 }
 
-/* ═══════════════════ Sub-components ═══════════════════ */
-
-function KpiCard({ title, value, subtitle, color = "default" }) {
-  const colors = {
-    primary: "text-primary", success: "text-success", warning: "text-warning",
-    danger: "text-danger", secondary: "text-secondary", default: "text-foreground",
-  };
-  return (
-    <Card shadow="none" className="border border-default-200">
-      <CardBody className="p-3">
-        <p className="text-xs text-default-500">{title}</p>
-        <p className={`text-lg font-bold ${colors[color]}`}>{value}</p>
-        {subtitle && <p className="text-xs text-default-400">{subtitle}</p>}
-      </CardBody>
-    </Card>
-  );
-}
-
 /* ═══════════════════ Main Page ═══════════════════ */
 
 const INITIAL_FORM = {
@@ -134,7 +116,6 @@ const INITIAL_FORM = {
 };
 
 export default function CollectionsPage() {
-  // ─── State ───
   const [arData, setArData] = useState([]);
   const [followUps, setFollowUps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -311,19 +292,19 @@ export default function CollectionsPage() {
   const trackingRenderCell = useCallback((item, key) => {
     switch (key) {
       case "name":
-        return <span className="font-medium text-sm">{item.name}</span>;
+        return <span className="font-medium">{item.name}</span>;
       case "customerNumber":
-        return <span className="font-mono text-xs text-default-500">{item.customerNumber}</span>;
+        return <span className="font-mono">{item.customerNumber}</span>;
       case "balanceDue":
-        return <span className="font-semibold text-danger">{fmt(item.balanceDue)}</span>;
+        return <span className="font-semibold">{fmt(item.balanceDue)}</span>;
       case "current":
-        return <span className="text-success text-sm">{fmt(item.current)}</span>;
+        return <span className="text-success">{fmt(item.current)}</span>;
       case "period1":
-        return <span className="text-warning text-sm">{fmt(item.period1)}</span>;
+        return <span className="text-warning">{fmt(item.period1)}</span>;
       case "period2":
-        return <span className="text-orange-500 text-sm">{fmt(item.period2)}</span>;
+        return <span className="text-warning">{fmt(item.period2)}</span>;
       case "period3":
-        return <span className="text-danger text-sm">{fmt(item.period3)}</span>;
+        return <span className="text-danger">{fmt(item.period3)}</span>;
       case "lastStatus":
         return item.lastStatus
           ? <Chip size="sm" variant="flat" color={statusColor(item.lastStatus)}>{statusLabel(item.lastStatus)}</Chip>
@@ -331,21 +312,20 @@ export default function CollectionsPage() {
       case "lastReason":
         return item.lastReason
           ? <Chip size="sm" variant="dot" color={reasonColor(item.lastReason)}>{reasonLabel(item.lastReason)}</Chip>
-          : <span className="text-xs text-default-400">-</span>;
+          : <span className="text-default-400">-</span>;
       case "lastContactDate":
-        return <span className="text-xs">{item.lastContactDate ? fmtDate(item.lastContactDate) : "-"}</span>;
+        return <span>{item.lastContactDate ? fmtDate(item.lastContactDate) : "-"}</span>;
       case "nextFollowUpDate": {
-        if (!item.nextFollowUpDate) return <span className="text-xs text-default-400">-</span>;
+        if (!item.nextFollowUpDate) return <span className="text-default-400">-</span>;
         const overdue = item.nextFollowUpDate <= new Date().toISOString().slice(0, 10);
         return (
-          <span className={`text-xs font-medium ${overdue ? "text-danger" : "text-primary"}`}>
+          <span className={`font-medium ${overdue ? "text-danger" : "text-primary"}`}>
             {fmtDate(item.nextFollowUpDate)}
-            {overdue && " ⚠️"}
           </span>
         );
       }
       case "followUpCount":
-        return <span className="text-xs">{item.followUpCount || 0}</span>;
+        return <span>{item.followUpCount || 0}</span>;
       case "actions":
         return (
           <div className="flex gap-1">
@@ -379,46 +359,37 @@ export default function CollectionsPage() {
   const reportRenderCell = useCallback((item, key) => {
     switch (key) {
       case "contactDate":
-        return <span className="text-xs">{fmtDate(item.contactDate)}</span>;
+        return <span>{fmtDate(item.contactDate)}</span>;
       case "customerName":
         return (
           <div>
-            <p className="text-sm font-medium">{item.customerName}</p>
-            <p className="text-xs text-default-400">{item.customerNumber}</p>
+            <p className="font-medium">{item.customerName}</p>
+            <p className="text-default-400">{item.customerNumber}</p>
           </div>
         );
       case "contactMethod":
-        return <span className="text-xs">{contactLabel(item.contactMethod)}</span>;
+        return <span>{contactLabel(item.contactMethod)}</span>;
       case "reason":
         return <Chip size="sm" variant="dot" color={reasonColor(item.reason)}>{reasonLabel(item.reason)}</Chip>;
       case "reasonDetail":
-        return <span className="text-xs text-default-600 line-clamp-2">{item.reasonDetail || "-"}</span>;
+        return <span className="text-default-600 line-clamp-2">{item.reasonDetail || "-"}</span>;
       case "note":
-        return <span className="text-xs text-default-600 line-clamp-2">{item.note || "-"}</span>;
+        return <span className="text-default-600 line-clamp-2">{item.note || "-"}</span>;
       case "status":
         return <Chip size="sm" variant="flat" color={statusColor(item.status)}>{statusLabel(item.status)}</Chip>;
       case "promiseDate":
-        return <span className="text-xs">{item.promiseDate ? fmtDate(item.promiseDate) : "-"}</span>;
+        return <span>{item.promiseDate ? fmtDate(item.promiseDate) : "-"}</span>;
       case "promiseAmount":
-        return item.promiseAmount ? <span className="text-xs font-medium">{fmt(item.promiseAmount)}</span> : <span className="text-xs text-default-400">-</span>;
+        return item.promiseAmount ? <span className="font-medium">{fmt(item.promiseAmount)}</span> : <span className="text-default-400">-</span>;
       case "createdByName":
-        return <span className="text-xs text-default-500">{item.createdByName || "-"}</span>;
+        return <span className="text-default-500">{item.createdByName || "-"}</span>;
       default:
         return item[key] ?? "-";
     }
   }, []);
 
-  // ─── Loading ───
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Spinner size="lg" label="กำลังโหลดข้อมูลลูกหนี้..." />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col w-full h-full gap-4">
       <Tabs aria-label="Collections tabs" color="primary" variant="underlined">
         {/* ═══════════════════ Tab 1: Tracking ═══════════════════ */}
         <Tab
@@ -433,39 +404,24 @@ export default function CollectionsPage() {
             </div>
           }
         >
-          {/* KPI Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
-            <KpiCard title="ยอดค้างชำระรวม" value={`฿${fmt(kpis.totalOverdue)}`} color="danger" subtitle={`${kpis.total} ราย`} />
-            <KpiCard title="ติดตามแล้ว" value={kpis.contacted} color="success" subtitle={kpis.total > 0 ? `${((kpis.contacted / kpis.total) * 100).toFixed(0)}%` : ""} />
-            <KpiCard title="ยังไม่ติดตาม" value={kpis.uncontacted} color="danger" subtitle="ต้องติดตาม" />
-            <KpiCard title="ครบกำหนดวันนี้" value={kpis.dueToday} color="warning" subtitle="ต้องโทรวันนี้" />
-            <KpiCard title="สัญญาจะชำระ" value={`฿${fmt(kpis.promisedTotal)}`} color="primary" />
-            <KpiCard title="ติดตามทั้งหมด" value={followUps.length} subtitle="ครั้ง" />
-          </div>
-
-          {/* Main DataTable */}
-          <Card shadow="none" className="border border-default-200">
-            <CardBody>
-              <DataTable
-                columns={trackingColumns}
-                data={mergedData}
-                renderCell={trackingRenderCell}
-                rowKey="customerNumber"
-                isLoading={loading}
-                searchKeys={["name", "customerNumber"]}
-                searchPlaceholder="ค้นหาลูกค้า..."
-                initialVisibleColumns={["name", "customerNumber", "balanceDue", "period2", "period3", "lastStatus", "lastReason", "nextFollowUpDate", "followUpCount", "actions"]}
-                defaultSortDescriptor={{ column: "balanceDue", direction: "descending" }}
-                emptyContent="ไม่มีลูกหนี้ค้างชำระ"
-                defaultRowsPerPage={15}
-                getRowClassName={(item) => {
-                  if (!item.followUpCount) return "bg-danger-50/30";
-                  if (item.nextFollowUpDate && item.nextFollowUpDate <= new Date().toISOString().slice(0, 10)) return "bg-warning-50/30";
-                  return undefined;
-                }}
-              />
-            </CardBody>
-          </Card>
+          <DataTable
+            columns={trackingColumns}
+            data={mergedData}
+            renderCell={trackingRenderCell}
+            rowKey="customerNumber"
+            isLoading={loading}
+            searchKeys={["name", "customerNumber"]}
+            searchPlaceholder="ค้นหาลูกค้า..."
+            initialVisibleColumns={["name", "customerNumber", "balanceDue", "period2", "period3", "lastStatus", "lastReason", "nextFollowUpDate", "followUpCount", "actions"]}
+            defaultSortDescriptor={{ column: "balanceDue", direction: "descending" }}
+            emptyContent="ไม่มีลูกหนี้ค้างชำระ"
+            defaultRowsPerPage={15}
+            getRowClassName={(item) => {
+              if (!item.followUpCount) return "bg-danger-50/30";
+              if (item.nextFollowUpDate && item.nextFollowUpDate <= new Date().toISOString().slice(0, 10)) return "bg-warning-50/30";
+              return undefined;
+            }}
+          />
         </Tab>
 
         {/* ═══════════════════ Tab 2: Report ═══════════════════ */}
@@ -515,21 +471,8 @@ export default function CollectionsPage() {
             </Button>
           </div>
 
-          {/* Report KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <KpiCard title="การติดตามในช่วงนี้" value={reportData.total} color="primary" subtitle="ครั้ง" />
-            <KpiCard title="ลูกค้าที่ติดตาม" value={reportData.uniqueCustomers} color="success" subtitle="ราย" />
-            <KpiCard title="สัญญาจะชำระ" value={`฿${fmt(reportData.totalPromised)}`} color="warning" />
-            <KpiCard
-              title="เฉลี่ย/ลูกค้า"
-              value={reportData.uniqueCustomers > 0 ? (reportData.total / reportData.uniqueCustomers).toFixed(1) : "0"}
-              subtitle="ครั้ง/ราย"
-            />
-          </div>
-
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Reason Breakdown */}
             <Card shadow="none" className="border border-default-200">
               <CardHeader className="pb-0">
                 <p className="text-sm font-semibold">เหตุผลที่ลูกหนี้ยังไม่ชำระ</p>
@@ -555,7 +498,6 @@ export default function CollectionsPage() {
               </CardBody>
             </Card>
 
-            {/* Status Distribution */}
             <Card shadow="none" className="border border-default-200">
               <CardHeader className="pb-0">
                 <p className="text-sm font-semibold">สถานะการติดตาม</p>
@@ -590,24 +532,17 @@ export default function CollectionsPage() {
           </div>
 
           {/* Report DataTable */}
-          <Card shadow="none" className="border border-default-200">
-            <CardHeader className="pb-0">
-              <p className="text-sm font-semibold">รายการติดตามทั้งหมด ({reportData.total} รายการ)</p>
-            </CardHeader>
-            <CardBody>
-              <DataTable
-                columns={reportColumns}
-                data={reportData.filtered}
-                renderCell={reportRenderCell}
-                rowKey="id"
-                searchKeys={["customerName", "customerNumber", "note", "reasonDetail"]}
-                searchPlaceholder="ค้นหา..."
-                defaultSortDescriptor={{ column: "contactDate", direction: "descending" }}
-                emptyContent="ไม่มีข้อมูลในช่วงนี้"
-                defaultRowsPerPage={20}
-              />
-            </CardBody>
-          </Card>
+          <DataTable
+            columns={reportColumns}
+            data={reportData.filtered}
+            renderCell={reportRenderCell}
+            rowKey="id"
+            searchKeys={["customerName", "customerNumber", "note", "reasonDetail"]}
+            searchPlaceholder="ค้นหา..."
+            defaultSortDescriptor={{ column: "contactDate", direction: "descending" }}
+            emptyContent="ไม่มีข้อมูลในช่วงนี้"
+            defaultRowsPerPage={20}
+          />
         </Tab>
       </Tabs>
 
@@ -689,7 +624,7 @@ export default function CollectionsPage() {
                 placeholder="0.00"
                 value={form.promiseAmount}
                 onChange={(e) => setField("promiseAmount", e.target.value)}
-                startContent={<span className="text-xs text-default-400">฿</span>}
+                startContent={<span className="text-default-400">฿</span>}
               />
               <Input
                 type="date"
@@ -734,24 +669,24 @@ export default function CollectionsPage() {
                         <div className="flex items-center gap-2">
                           <Chip size="sm" variant="flat" color={statusColor(fu.status)}>{statusLabel(fu.status)}</Chip>
                           <Chip size="sm" variant="dot" color={reasonColor(fu.reason)}>{reasonLabel(fu.reason)}</Chip>
-                          <span className="text-xs text-default-500">{contactLabel(fu.contactMethod)}</span>
+                          <span className="text-default-500">{contactLabel(fu.contactMethod)}</span>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs font-medium">{fmtDate(fu.contactDate)}</p>
+                          <p className="font-medium">{fmtDate(fu.contactDate)}</p>
                           {idx === 0 && <Chip size="sm" variant="flat" color="primary" className="mt-1">ล่าสุด</Chip>}
                         </div>
                       </div>
                       {fu.reasonDetail && (
-                        <p className="text-sm text-default-600 mb-1">
+                        <p className="text-default-600 mb-1">
                           <span className="font-medium">เหตุผล:</span> {fu.reasonDetail}
                         </p>
                       )}
                       {fu.note && (
-                        <p className="text-sm text-default-600 mb-1">
+                        <p className="text-default-600 mb-1">
                           <span className="font-medium">หมายเหตุ:</span> {fu.note}
                         </p>
                       )}
-                      <div className="flex gap-4 mt-2 text-xs text-default-400">
+                      <div className="flex gap-4 mt-2 text-default-400">
                         {fu.promiseDate && <span>สัญญาจะชำระ: {fmtDate(fu.promiseDate)}</span>}
                         {fu.promiseAmount && <span>จำนวน: ฿{fmt(fu.promiseAmount)}</span>}
                         {fu.nextFollowUpDate && (
@@ -766,7 +701,7 @@ export default function CollectionsPage() {
                 ))}
               </div>
             ) : (
-              <p className="py-10 text-center text-sm text-default-400">ยังไม่มีประวัติการติดตาม</p>
+              <p className="py-10 text-center text-default-400">ยังไม่มีประวัติการติดตาม</p>
             )}
           </ModalBody>
           <ModalFooter>
