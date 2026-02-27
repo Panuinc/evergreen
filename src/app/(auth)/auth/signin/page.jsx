@@ -28,21 +28,25 @@ export default function SignInPage() {
   const [pinError, setPinError] = useState(false);
 
   // ดึง email จาก localStorage ที่จำไว้ตอน login ครั้งก่อน
-  const lastEmail = typeof window !== "undefined"
-    ? localStorage.getItem("lastSignInEmail") || ""
-    : "";
+  const lastEmail =
+    typeof window !== "undefined"
+      ? localStorage.getItem("lastSignInEmail") || ""
+      : "";
 
   if (loading || user) {
     return <Loading />;
   }
 
-  const handlePinVerify = async () => {
+  const handlePinVerify = async (pinValue) => {
+    const currentPin = pinValue || pin;
     if (!lastEmail) {
-      toast.error("ไม่พบการลงชื่อเข้าใช้ก่อนหน้า กรุณาลงชื่อเข้าใช้ด้วยรหัสผ่านก่อน");
+      toast.error(
+        "ไม่พบการลงชื่อเข้าใช้ก่อนหน้า กรุณาลงชื่อเข้าใช้ด้วยรหัสผ่านก่อน",
+      );
       setMode("password");
       return;
     }
-    if (pin.length !== 6) {
+    if (currentPin.length !== 6) {
       toast.error("กรุณาใส่ PIN 6 หลัก");
       return;
     }
@@ -54,7 +58,7 @@ export default function SignInPage() {
       const res = await fetch("/api/auth/pin/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: lastEmail, pin }),
+        body: JSON.stringify({ email: lastEmail, pin: currentPin }),
       });
 
       const data = await res.json();

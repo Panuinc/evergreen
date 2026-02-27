@@ -24,7 +24,7 @@ export default function PinInput({ value = "", onChange, onComplete, length = 6,
         onComplete(newPin);
       }
     },
-    [digits, length, onChange]
+    [digits, length, onChange, onComplete]
   );
 
   const handleKeyDown = useCallback(
