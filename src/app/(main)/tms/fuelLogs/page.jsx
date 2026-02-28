@@ -1,7 +1,7 @@
 "use client";
 
-import { useFuelLogs } from "@/hooks/tms/useFuelLogs";
-import FuelLogsView from "@/components/tms/FuelLogsView";
+import { useFuelLogs } from "@/modules/tms/hooks/useFuelLogs";
+import FuelLogsView from "@/modules/tms/components/FuelLogsView";
 
 export default function FuelLogsPage() {
   const {

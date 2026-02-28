@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { getConfigCheck } from "@/actions/configCheck";
+import { getConfigCheck } from "@/modules/settings/actions";
 
 export function useConfigCheck() {
   const [status, setStatus] = useState(null);

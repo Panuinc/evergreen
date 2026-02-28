@@ -1,7 +1,7 @@
 "use client";
 
-import { useTmsReports } from "@/hooks/tms/useTmsReports";
-import ReportsView from "@/components/tms/ReportsView";
+import { useTmsReports } from "@/modules/tms/hooks/useTmsReports";
+import ReportsView from "@/modules/tms/components/ReportsView";
 
 export default function ReportsPage() {
   const {

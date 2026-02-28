@@ -1,7 +1,7 @@
 "use client";
 
-import { useRoutes } from "@/hooks/tms/useRoutes";
-import RoutesView from "@/components/tms/RoutesView";
+import { useRoutes } from "@/modules/tms/hooks/useRoutes";
+import RoutesView from "@/modules/tms/components/RoutesView";
 
 export default function RoutesPage() {
   const {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useItSecurity } from "@/hooks/it/useItSecurity";
-import SecurityView from "@/components/it/SecurityView";
+import { useItSecurity } from "@/modules/it/hooks/useItSecurity";
+import SecurityView from "@/modules/it/components/SecurityView";
 
 export default function SecurityPage() {
   const hook = useItSecurity();

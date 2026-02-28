@@ -1,7 +1,7 @@
 "use client";
 
-import { useWarehouseInventory } from "@/hooks/warehouse/useWarehouseInventory";
-import WarehouseInventoryView from "@/components/warehouse/WarehouseInventoryView";
+import { useWarehouseInventory } from "@/modules/warehouse/hooks/useWarehouseInventory";
+import WarehouseInventoryView from "@/modules/warehouse/components/WarehouseInventoryView";
 
 export default function WarehouseInventoryPage() {
   const { items, loading } = useWarehouseInventory();

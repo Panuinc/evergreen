@@ -1,8 +1,8 @@
 "use client";
 
 import { Spinner } from "@heroui/react";
-import { useEvaluation } from "@/hooks/performance/useEvaluation";
-import EvaluationView from "@/components/performance/EvaluationView";
+import { useEvaluation } from "@/modules/performance/hooks/useEvaluation";
+import EvaluationView from "@/modules/performance/components/EvaluationView";
 
 export default function EvaluationPage() {
   const hook = useEvaluation();

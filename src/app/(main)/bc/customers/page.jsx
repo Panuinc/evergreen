@@ -1,7 +1,7 @@
 "use client";
 
-import { useBcCustomers } from "@/hooks/bc/useBcCustomers";
-import BcCustomersView from "@/components/bc/BcCustomersView";
+import { useBcCustomers } from "@/modules/bc/hooks/useBcCustomers";
+import BcCustomersView from "@/modules/bc/components/BcCustomersView";
 
 export default function BcCustomersPage() {
   const { customers, loading } = useBcCustomers();

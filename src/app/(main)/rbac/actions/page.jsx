@@ -1,7 +1,7 @@
 "use client";
 
-import { useActions } from "@/hooks/rbac/useActions";
-import ActionsView from "@/components/rbac/ActionsView";
+import { useActions } from "@/modules/rbac/hooks/useActions";
+import ActionsView from "@/modules/rbac/components/ActionsView";
 
 export default function ActionsPage() {
   const {

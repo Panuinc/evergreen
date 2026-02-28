@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useWarehouseInventory } from "@/hooks/warehouse/useWarehouseInventory";
-import WarehouseInventoryGroupView from "@/components/warehouse/WarehouseInventoryGroupView";
+import { useWarehouseInventory } from "@/modules/warehouse/hooks/useWarehouseInventory";
+import WarehouseInventoryGroupView from "@/modules/warehouse/components/WarehouseInventoryGroupView";
 
 export default function WarehouseGroupPage() {
   const { group } = useParams();

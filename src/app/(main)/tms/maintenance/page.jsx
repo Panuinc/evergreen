@@ -1,7 +1,7 @@
 "use client";
 
-import { useMaintenance } from "@/hooks/tms/useMaintenance";
-import MaintenanceView from "@/components/tms/MaintenanceView";
+import { useMaintenance } from "@/modules/tms/hooks/useMaintenance";
+import MaintenanceView from "@/modules/tms/components/MaintenanceView";
 
 export default function MaintenancePage() {
   const {

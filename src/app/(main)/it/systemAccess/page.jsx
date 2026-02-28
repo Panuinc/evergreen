@@ -1,7 +1,7 @@
 "use client";
 
-import { useItSystemAccess } from "@/hooks/it/useItSystemAccess";
-import SystemAccessView from "@/components/it/SystemAccessView";
+import { useItSystemAccess } from "@/modules/it/hooks/useItSystemAccess";
+import SystemAccessView from "@/modules/it/components/SystemAccessView";
 
 export default function SystemAccessPage() {
   const hook = useItSystemAccess();

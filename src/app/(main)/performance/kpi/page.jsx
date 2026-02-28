@@ -1,8 +1,8 @@
 "use client";
 
 import { Spinner } from "@heroui/react";
-import { useKpi } from "@/hooks/performance/useKpi";
-import KpiView from "@/components/performance/KpiView";
+import { useKpi } from "@/modules/performance/hooks/useKpi";
+import KpiView from "@/modules/performance/components/KpiView";
 
 export default function KpiPage() {
   const hook = useKpi();

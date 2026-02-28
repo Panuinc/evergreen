@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { getUserPermissions } from "@/actions/rbac";
+import { getUserPermissions } from "@/modules/rbac/actions";
 
 const RBACContext = createContext({});
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useDepartments } from "@/hooks/hr/useDepartments";
-import DepartmentsView from "@/components/hr/DepartmentsView";
+import { useDepartments } from "@/modules/hr/hooks/useDepartments";
+import DepartmentsView from "@/modules/hr/components/DepartmentsView";
 
 export default function DepartmentsPage() {
   const {

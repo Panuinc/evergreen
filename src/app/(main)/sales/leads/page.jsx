@@ -1,7 +1,7 @@
 "use client";
 
-import { useCrmLeads } from "@/hooks/sales/useCrmLeads";
-import LeadsView from "@/components/sales/LeadsView";
+import { useCrmLeads } from "@/modules/sales/hooks/useCrmLeads";
+import LeadsView from "@/modules/sales/components/LeadsView";
 
 export default function LeadsPage() {
   const {

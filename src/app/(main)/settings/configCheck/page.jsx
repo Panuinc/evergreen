@@ -1,7 +1,7 @@
 "use client";
 
 import { useConfigCheck } from "@/hooks/shared/useConfigCheck";
-import ConfigCheckView from "@/components/settings/ConfigCheckView";
+import ConfigCheckView from "@/modules/settings/components/ConfigCheckView";
 
 export default function ConfigCheckPage() {
   const { status, loading, refetch } = useConfigCheck();

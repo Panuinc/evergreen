@@ -1,7 +1,7 @@
 "use client";
 
-import { useStockItems } from "@/hooks/marketing/useStockItems";
-import StockItemsView from "@/components/marketing/StockItemsView";
+import { useStockItems } from "@/modules/marketing/hooks/useStockItems";
+import StockItemsView from "@/modules/marketing/components/StockItemsView";
 
 export default function StockItemsPage() {
   const { items, loading, prices, updatePrice } = useStockItems();

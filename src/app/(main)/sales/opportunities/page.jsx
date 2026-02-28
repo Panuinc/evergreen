@@ -1,7 +1,7 @@
 "use client";
 
-import { useCrmOpportunities } from "@/hooks/sales/useCrmOpportunities";
-import OpportunitiesView from "@/components/sales/OpportunitiesView";
+import { useCrmOpportunities } from "@/modules/sales/hooks/useCrmOpportunities";
+import OpportunitiesView from "@/modules/sales/components/OpportunitiesView";
 
 export default function OpportunitiesPage() {
   const {

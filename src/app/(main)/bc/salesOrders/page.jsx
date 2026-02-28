@@ -1,7 +1,7 @@
 "use client";
 
-import { useBcSalesOrders } from "@/hooks/bc/useBcSalesOrders";
-import BcSalesOrdersView from "@/components/bc/BcSalesOrdersView";
+import { useBcSalesOrders } from "@/modules/bc/hooks/useBcSalesOrders";
+import BcSalesOrdersView from "@/modules/bc/components/BcSalesOrdersView";
 
 export default function BcSalesOrdersPage() {
   const { salesOrders, loading, selectedOrder, isOpen, onClose, openLines } =

@@ -1,7 +1,7 @@
 "use client";
 
-import { useItTickets } from "@/hooks/it/useItTickets";
-import HelpDeskView from "@/components/it/HelpDeskView";
+import { useItTickets } from "@/modules/it/hooks/useItTickets";
+import HelpDeskView from "@/modules/it/components/HelpDeskView";
 
 export default function HelpDeskPage() {
   const hook = useItTickets();

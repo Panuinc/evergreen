@@ -1,7 +1,7 @@
 "use client";
 
-import { useItSoftware } from "@/hooks/it/useItSoftware";
-import SoftwareView from "@/components/it/SoftwareView";
+import { useItSoftware } from "@/modules/it/hooks/useItSoftware";
+import SoftwareView from "@/modules/it/components/SoftwareView";
 
 export default function SoftwarePage() {
   const hook = useItSoftware();

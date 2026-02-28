@@ -1,8 +1,8 @@
 "use client";
 
 import { Spinner } from "@heroui/react";
-import { useOkr } from "@/hooks/performance/useOkr";
-import OkrView from "@/components/performance/OkrView";
+import { useOkr } from "@/modules/performance/hooks/useOkr";
+import OkrView from "@/modules/performance/components/OkrView";
 
 export default function OkrPage() {
   const hook = useOkr();

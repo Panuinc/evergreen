@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useMarketingSalesOrderDetail } from "@/hooks/marketing/useMarketingSalesOrderDetail";
-import SalesOrderDetailView from "@/components/marketing/SalesOrderDetailView";
+import { useMarketingSalesOrderDetail } from "@/modules/marketing/hooks/useMarketingSalesOrderDetail";
+import SalesOrderDetailView from "@/modules/marketing/components/SalesOrderDetailView";
 
 export default function SalesOrderDetailPage() {
   const { no } = useParams();

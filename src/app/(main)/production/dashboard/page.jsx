@@ -1,7 +1,7 @@
 "use client";
 
-import { useProductionDashboard } from "@/hooks/production/useProductionDashboard";
-import DashboardView from "@/components/production/DashboardView";
+import { useProductionDashboard } from "@/modules/production/hooks/useProductionDashboard";
+import DashboardView from "@/modules/production/components/DashboardView";
 
 export default function ProductionDashboardPage() {
   const { data, loading } = useProductionDashboard();

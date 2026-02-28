@@ -1,7 +1,7 @@
 "use client";
 
-import { useItDevRequests } from "@/hooks/it/useItDevRequests";
-import DevelopmentView from "@/components/it/DevelopmentView";
+import { useItDevRequests } from "@/modules/it/hooks/useItDevRequests";
+import DevelopmentView from "@/modules/it/components/DevelopmentView";
 
 export default function DevelopmentPage() {
   const hook = useItDevRequests();

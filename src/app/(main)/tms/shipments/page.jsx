@@ -1,7 +1,7 @@
 "use client";
 
-import { useShipments } from "@/hooks/tms/useShipments";
-import ShipmentsView from "@/components/tms/ShipmentsView";
+import { useShipments } from "@/modules/tms/hooks/useShipments";
+import ShipmentsView from "@/modules/tms/components/ShipmentsView";
 
 export default function ShipmentsPage() {
   const {

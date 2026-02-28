@@ -1,7 +1,7 @@
 "use client";
 
-import { useProduction } from "@/hooks/production/useProduction";
-import EntriesView from "@/components/production/EntriesView";
+import { useProduction } from "@/modules/production/hooks/useProduction";
+import EntriesView from "@/modules/production/components/EntriesView";
 
 export default function ProductionEntriesPage() {
   const { data, loading } = useProduction();

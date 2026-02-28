@@ -1,7 +1,7 @@
 "use client";
 
-import { useDrivers } from "@/hooks/tms/useDrivers";
-import DriversView from "@/components/tms/DriversView";
+import { useDrivers } from "@/modules/tms/hooks/useDrivers";
+import DriversView from "@/modules/tms/components/DriversView";
 
 export default function DriversPage() {
   const {

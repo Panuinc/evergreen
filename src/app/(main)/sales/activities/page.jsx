@@ -1,7 +1,7 @@
 "use client";
 
-import { useCrmActivities } from "@/hooks/sales/useCrmActivities";
-import ActivitiesView from "@/components/sales/ActivitiesView";
+import { useCrmActivities } from "@/modules/sales/hooks/useCrmActivities";
+import ActivitiesView from "@/modules/sales/components/ActivitiesView";
 
 export default function ActivitiesPage() {
   const {

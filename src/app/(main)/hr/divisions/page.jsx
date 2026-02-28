@@ -1,7 +1,7 @@
 "use client";
 
-import { useDivisions } from "@/hooks/hr/useDivisions";
-import DivisionsView from "@/components/hr/DivisionsView";
+import { useDivisions } from "@/modules/hr/hooks/useDivisions";
+import DivisionsView from "@/modules/hr/components/DivisionsView";
 
 export default function DivisionsPage() {
   const {

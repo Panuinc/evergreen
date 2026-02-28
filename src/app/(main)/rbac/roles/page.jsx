@@ -1,7 +1,7 @@
 "use client";
 
-import { useRoles } from "@/hooks/rbac/useRoles";
-import RolesView from "@/components/rbac/RolesView";
+import { useRoles } from "@/modules/rbac/hooks/useRoles";
+import RolesView from "@/modules/rbac/components/RolesView";
 
 export default function RolesPage() {
   const {

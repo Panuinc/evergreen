@@ -1,7 +1,7 @@
 "use client";
 
-import { usePurchaseInvoices } from "@/hooks/finance/usePurchaseInvoices";
-import PurchaseInvoicesView from "@/components/finance/PurchaseInvoicesView";
+import { usePurchaseInvoices } from "@/modules/finance/hooks/usePurchaseInvoices";
+import PurchaseInvoicesView from "@/modules/finance/components/PurchaseInvoicesView";
 
 export default function PurchaseInvoicesPage() {
   const { data, loading, selected, isOpen, onClose, openLines } = usePurchaseInvoices();

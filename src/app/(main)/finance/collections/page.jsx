@@ -1,7 +1,7 @@
 "use client";
 
-import { useCollections } from "@/hooks/finance/useCollections";
-import CollectionsView from "@/components/finance/CollectionsView";
+import { useCollections } from "@/modules/finance/hooks/useCollections";
+import CollectionsView from "@/modules/finance/components/CollectionsView";
 
 export default function CollectionsPage() {
   const hook = useCollections();

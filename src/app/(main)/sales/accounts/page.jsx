@@ -1,7 +1,7 @@
 "use client";
 
-import { useCrmAccounts } from "@/hooks/sales/useCrmAccounts";
-import AccountsView from "@/components/sales/AccountsView";
+import { useCrmAccounts } from "@/modules/sales/hooks/useCrmAccounts";
+import AccountsView from "@/modules/sales/components/AccountsView";
 
 export default function AccountsPage() {
   const {

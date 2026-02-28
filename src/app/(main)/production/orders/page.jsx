@@ -1,7 +1,7 @@
 "use client";
 
-import { useProductionOrders } from "@/hooks/production/useProductionOrders";
-import OrdersView from "@/components/production/OrdersView";
+import { useProductionOrders } from "@/modules/production/hooks/useProductionOrders";
+import OrdersView from "@/modules/production/components/OrdersView";
 
 export default function ProductionOrdersPage() {
   const { data, loading } = useProductionOrders();

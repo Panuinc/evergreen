@@ -1,7 +1,7 @@
 "use client";
 
-import { useItAssets } from "@/hooks/it/useItAssets";
-import AssetsView from "@/components/it/AssetsView";
+import { useItAssets } from "@/modules/it/hooks/useItAssets";
+import AssetsView from "@/modules/it/components/AssetsView";
 
 export default function AssetsPage() {
   const hook = useItAssets();

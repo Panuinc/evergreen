@@ -1,7 +1,7 @@
 "use client";
 
-import { useUsers } from "@/hooks/rbac/useUsers";
-import UsersView from "@/components/rbac/UsersView";
+import { useUsers } from "@/modules/rbac/hooks/useUsers";
+import UsersView from "@/modules/rbac/components/UsersView";
 
 export default function UsersPage() {
   const {

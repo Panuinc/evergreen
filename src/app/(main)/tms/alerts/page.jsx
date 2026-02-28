@@ -1,7 +1,7 @@
 "use client";
 
-import { useTmsAlerts } from "@/hooks/tms/useTmsAlerts";
-import AlertsView from "@/components/tms/AlertsView";
+import { useTmsAlerts } from "@/modules/tms/hooks/useTmsAlerts";
+import AlertsView from "@/modules/tms/components/AlertsView";
 
 export default function AlertsPage() {
   const {

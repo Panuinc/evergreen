@@ -1,7 +1,7 @@
 "use client";
 
-import { useResources } from "@/hooks/rbac/useResources";
-import ResourcesView from "@/components/rbac/ResourcesView";
+import { useResources } from "@/modules/rbac/hooks/useResources";
+import ResourcesView from "@/modules/rbac/components/ResourcesView";
 
 export default function ResourcesPage() {
   const {

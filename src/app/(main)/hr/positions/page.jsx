@@ -1,7 +1,7 @@
 "use client";
 
-import { usePositions } from "@/hooks/hr/usePositions";
-import PositionsView from "@/components/hr/PositionsView";
+import { usePositions } from "@/modules/hr/hooks/usePositions";
+import PositionsView from "@/modules/hr/components/PositionsView";
 
 export default function PositionsPage() {
   const {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useSyncBc } from "@/hooks/settings/useSyncBc";
-import { useBciImport } from "@/hooks/settings/useBciImport";
-import SyncBcView from "@/components/settings/SyncBcView";
+import { useSyncBc } from "@/modules/settings/hooks/useSyncBc";
+import { useBciImport } from "@/modules/settings/hooks/useBciImport";
+import SyncBcView from "@/modules/settings/components/SyncBcView";
 
 export default function SyncPage() {
   const { syncingAll, allResult, allError, phases, lastSync, handleSyncAll } =

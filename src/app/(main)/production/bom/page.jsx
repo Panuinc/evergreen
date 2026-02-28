@@ -1,7 +1,7 @@
 "use client";
 
-import { useBom } from "@/hooks/production/useBom";
-import BomView from "@/components/production/BomView";
+import { useBom } from "@/modules/production/hooks/useBom";
+import BomView from "@/modules/production/components/BomView";
 
 export default function DoorConfigurator() {
   const {

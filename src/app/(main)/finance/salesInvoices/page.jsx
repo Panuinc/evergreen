@@ -1,7 +1,7 @@
 "use client";
 
-import { useSalesInvoices } from "@/hooks/finance/useSalesInvoices";
-import SalesInvoicesView from "@/components/finance/SalesInvoicesView";
+import { useSalesInvoices } from "@/modules/finance/hooks/useSalesInvoices";
+import SalesInvoicesView from "@/modules/finance/components/SalesInvoicesView";
 
 export default function SalesInvoicesPage() {
   const { data, loading, selected, isOpen, onClose, openLines } = useSalesInvoices();

@@ -1,7 +1,7 @@
 "use client";
 
-import { useFinanceDashboard } from "@/hooks/finance/useFinanceDashboard";
-import FinanceDashboardView from "@/components/finance/FinanceDashboardView";
+import { useFinanceDashboard } from "@/modules/finance/hooks/useFinanceDashboard";
+import FinanceDashboardView from "@/modules/finance/components/FinanceDashboardView";
 
 export default function FinanceDashboardPage() {
   const hook = useFinanceDashboard();

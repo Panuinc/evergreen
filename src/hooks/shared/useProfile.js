@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getProfile, changePassword } from "@/actions/profile";
+import { getProfile, changePassword } from "@/modules/profile/actions";
 
 export function useProfile() {
   const [profile, setProfile] = useState(null);

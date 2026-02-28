@@ -1,7 +1,7 @@
 "use client";
 
-import { useCrmOrders } from "@/hooks/sales/useCrmOrders";
-import OrdersView from "@/components/sales/OrdersView";
+import { useCrmOrders } from "@/modules/sales/hooks/useCrmOrders";
+import OrdersView from "@/modules/sales/components/OrdersView";
 
 export default function OrdersPage() {
   const {

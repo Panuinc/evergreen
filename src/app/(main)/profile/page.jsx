@@ -1,7 +1,7 @@
 "use client";
 
-import { useProfilePage } from "@/hooks/profile/useProfilePage";
-import ProfileView from "@/components/profile/ProfileView";
+import { useProfilePage } from "@/modules/profile/hooks/useProfilePage";
+import ProfileView from "@/modules/profile/components/ProfileView";
 
 export default function ProfilePage() {
   const props = useProfilePage();

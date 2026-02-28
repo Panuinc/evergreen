@@ -2,8 +2,8 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useMarketingSalesOrders } from "@/hooks/marketing/useMarketingSalesOrders";
-import SalesOrdersView from "@/components/marketing/SalesOrdersView";
+import { useMarketingSalesOrders } from "@/modules/marketing/hooks/useMarketingSalesOrders";
+import SalesOrdersView from "@/modules/marketing/components/SalesOrdersView";
 
 export default function MarketingSalesOrdersPage() {
   const router = useRouter();

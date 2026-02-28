@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRBAC } from "@/contexts/RBACContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { logAccess } from "@/actions/rbac";
+import { logAccess } from "@/modules/rbac/actions";
 import Loading from "@/components/ui/Loading";
 import Forbidden from "@/app/forbidden";
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useItDashboard } from "@/hooks/it/useItDashboard";
-import DashboardView from "@/components/it/DashboardView";
+import { useItDashboard } from "@/modules/it/hooks/useItDashboard";
+import DashboardView from "@/modules/it/components/DashboardView";
 
 export default function ITDashboardPage() {
   const { stats, loading } = useItDashboard();

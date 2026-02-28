@@ -1,7 +1,7 @@
 "use client";
 
-import { useEmployees } from "@/hooks/hr/useEmployees";
-import EmployeesView from "@/components/hr/EmployeesView";
+import { useEmployees } from "@/modules/hr/hooks/useEmployees";
+import EmployeesView from "@/modules/hr/components/EmployeesView";
 
 export default function EmployeesPage() {
   const {

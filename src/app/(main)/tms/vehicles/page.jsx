@@ -1,7 +1,7 @@
 "use client";
 
-import { useVehicles } from "@/hooks/tms/useVehicles";
-import VehiclesView from "@/components/tms/VehiclesView";
+import { useVehicles } from "@/modules/tms/hooks/useVehicles";
+import VehiclesView from "@/modules/tms/components/VehiclesView";
 
 export default function VehiclesPage() {
   const {

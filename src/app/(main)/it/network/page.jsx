@@ -1,7 +1,7 @@
 "use client";
 
-import { useItNetwork } from "@/hooks/it/useItNetwork";
-import NetworkView from "@/components/it/NetworkView";
+import { useItNetwork } from "@/modules/it/hooks/useItNetwork";
+import NetworkView from "@/modules/it/components/NetworkView";
 
 export default function NetworkPage() {
   const hook = useItNetwork();

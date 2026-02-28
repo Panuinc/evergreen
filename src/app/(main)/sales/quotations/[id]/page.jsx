@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useCrmQuotationEditor } from "@/hooks/sales/useCrmQuotationEditor";
-import QuotationEditorView from "@/components/sales/QuotationEditorView";
+import { useCrmQuotationEditor } from "@/modules/sales/hooks/useCrmQuotationEditor";
+import QuotationEditorView from "@/modules/sales/components/QuotationEditorView";
 
 export default function QuotationEditorPage() {
   const params = useParams();

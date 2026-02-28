@@ -1,7 +1,7 @@
 "use client";
 
-import { useAgedReceivables } from "@/hooks/finance/useAgedReceivables";
-import AgedReceivablesView from "@/components/finance/AgedReceivablesView";
+import { useAgedReceivables } from "@/modules/finance/hooks/useAgedReceivables";
+import AgedReceivablesView from "@/modules/finance/components/AgedReceivablesView";
 
 export default function AgedReceivablesPage() {
   const { data, loading } = useAgedReceivables();

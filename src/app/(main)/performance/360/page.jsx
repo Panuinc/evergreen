@@ -1,8 +1,8 @@
 "use client";
 
 import { Spinner } from "@heroui/react";
-import { useFeedback360 } from "@/hooks/performance/useFeedback360";
-import Feedback360View from "@/components/performance/Feedback360View";
+import { useFeedback360 } from "@/modules/performance/hooks/useFeedback360";
+import Feedback360View from "@/modules/performance/components/Feedback360View";
 
 export default function Feedback360Page() {
   const hook = useFeedback360();

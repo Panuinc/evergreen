@@ -1,7 +1,7 @@
 "use client";
 
-import { useAccessLogs } from "@/hooks/rbac/useAccessLogs";
-import AccessLogsView from "@/components/rbac/AccessLogsView";
+import { useAccessLogs } from "@/modules/rbac/hooks/useAccessLogs";
+import AccessLogsView from "@/modules/rbac/components/AccessLogsView";
 
 export default function AccessLogsPage() {
   const { logs, loading } = useAccessLogs();

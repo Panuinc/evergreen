@@ -1,7 +1,7 @@
 "use client";
 
-import { useDeliveries } from "@/hooks/tms/useDeliveries";
-import DeliveriesView from "@/components/tms/DeliveriesView";
+import { useDeliveries } from "@/modules/tms/hooks/useDeliveries";
+import DeliveriesView from "@/modules/tms/components/DeliveriesView";
 
 export default function DeliveriesPage() {
   const {

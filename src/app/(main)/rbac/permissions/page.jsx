@@ -1,7 +1,7 @@
 "use client";
 
-import { usePermissions } from "@/hooks/rbac/usePermissions";
-import PermissionsView from "@/components/rbac/PermissionsView";
+import { usePermissions } from "@/modules/rbac/hooks/usePermissions";
+import PermissionsView from "@/modules/rbac/components/PermissionsView";
 
 export default function PermissionsPage() {
   const {

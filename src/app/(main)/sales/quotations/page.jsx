@@ -1,7 +1,7 @@
 "use client";
 
-import { useCrmQuotations } from "@/hooks/sales/useCrmQuotations";
-import QuotationsView from "@/components/sales/QuotationsView";
+import { useCrmQuotations } from "@/modules/sales/hooks/useCrmQuotations";
+import QuotationsView from "@/modules/sales/components/QuotationsView";
 
 export default function QuotationsPage() {
   const {

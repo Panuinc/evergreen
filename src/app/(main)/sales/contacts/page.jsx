@@ -1,7 +1,7 @@
 "use client";
 
-import { useCrmContacts } from "@/hooks/sales/useCrmContacts";
-import ContactsView from "@/components/sales/ContactsView";
+import { useCrmContacts } from "@/modules/sales/hooks/useCrmContacts";
+import ContactsView from "@/modules/sales/components/ContactsView";
 
 export default function ContactsPage() {
   const {
