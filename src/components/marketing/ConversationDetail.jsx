@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button, Input, Chip, Textarea } from "@heroui/react";
 import { X, Plus, Tag, StickyNote, FileText, ExternalLink } from "lucide-react";
-import { getQuotationsByConversation } from "@/actions/omnichannel";
+import { getQuotationsByConversation } from "@/actions/marketing";
 import ChannelBadge from "./ChannelBadge";
 
 export default function ConversationDetail({ conversation, onUpdateContact, onClose }) {

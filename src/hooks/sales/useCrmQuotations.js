@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { getQuotationsList, deleteQuotation } from "@/actions/sales";
 import { useDisclosure } from "@heroui/react";
 
 export function useCrmQuotations() {
+  const router = useRouter();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
@@ -50,6 +52,23 @@ export function useCrmQuotations() {
     }
   };
 
+  const handleNew = useCallback(async () => {
+    try {
+      const { createQuotation } = await import("@/actions/sales");
+      const newQ = await createQuotation({});
+      router.push(`/sales/quotations/${newQ.crmQuotationId}`);
+    } catch (error) {
+      toast.error("ไม่สามารถสร้างใบเสนอราคาได้");
+    }
+  }, [router]);
+
+  const onNavigateToQuotation = useCallback(
+    (quotationId) => {
+      router.push(`/sales/quotations/${quotationId}`);
+    },
+    [router]
+  );
+
   return {
     quotations,
     loading,
@@ -59,6 +78,8 @@ export function useCrmQuotations() {
     deleteModal,
     confirmDelete,
     handleDelete,
+    handleNew,
+    onNavigateToQuotation,
     reload: loadData,
   };
 }

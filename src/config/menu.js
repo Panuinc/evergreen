@@ -191,6 +191,7 @@ export const menuData = [
     id: "operations",
     name: "ปฏิบัติการ",
     icon: Settings,
+    href: "/operations",
     subMenus: [
       { name: "จัดการกระบวนการ", icon: ClipboardList },
       { name: "วางแผนทรัพยากร", icon: Calendar },
@@ -204,6 +205,7 @@ export const menuData = [
     id: "procurement",
     name: "จัดซื้อจัดจ้าง",
     icon: ShoppingCart,
+    href: "/procurement",
     subMenus: [
       { name: "ใบขอซื้อ", icon: FileText },
       { name: "ใบสั่งซื้อ", icon: ClipboardList },
@@ -242,6 +244,7 @@ export const menuData = [
     id: "qa",
     name: "ประกันคุณภาพ",
     icon: BadgeCheck,
+    href: "/qa",
     subMenus: [
       { name: "ตรวจสอบ", icon: ScanLine },
       { name: "รายงานทดสอบ", icon: FileText },
@@ -255,6 +258,7 @@ export const menuData = [
     id: "rnd",
     name: "วิจัยและพัฒนา",
     icon: Lightbulb,
+    href: "/rnd",
     subMenus: [
       { name: "โปรเจค", icon: Briefcase },
       { name: "การทดลอง", icon: FlaskConical },
@@ -268,6 +272,7 @@ export const menuData = [
     id: "cs",
     name: "บริการลูกค้า",
     icon: HeadphonesIcon,
+    href: "/cs",
     subMenus: [
       { name: "ตั๋วแจ้งปัญหา", icon: ClipboardList },
       { name: "คอลเซ็นเตอร์", icon: Phone },
@@ -314,6 +319,7 @@ export const menuData = [
     id: "legal",
     name: "กฎหมายและกำกับดูแล",
     icon: FileText,
+    href: "/legal",
     subMenus: [
       { name: "สัญญา", icon: FileCheck },
       { name: "กฎระเบียบ", icon: Scale },

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getStockItems } from "@/actions/omnichannel";
+import { getStockItems } from "@/actions/marketing";
 
 export function useStockItems() {
   const [items, setItems] = useState([]);

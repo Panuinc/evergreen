@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { getQuotations } from "@/actions/omnichannel";
+import { getQuotations } from "@/actions/marketing";
 
 export function useQuotations() {
+  const router = useRouter();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -25,5 +27,10 @@ export function useQuotations() {
     }
   };
 
-  return { quotations, loading, statusFilter, setStatusFilter };
+  const handleNavigateToQuotation = useCallback(
+    (id) => router.push(`/marketing/omnichannel/quotations/${id}`),
+    [router]
+  );
+
+  return { quotations, loading, statusFilter, setStatusFilter, handleNavigateToQuotation };
 }

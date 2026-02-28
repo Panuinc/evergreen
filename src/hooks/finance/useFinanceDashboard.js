@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import {
   getTrialBalance,
@@ -9,6 +10,18 @@ import {
   getSalesInvoices,
   getPurchaseInvoices,
 } from "@/actions/finance";
+
+// Formatting helpers used by runAiAnalysis snapshot builder
+function fmt(v) {
+  return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
+}
+
+const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+function fmtMonth(ym) {
+  if (!ym) return "";
+  const [y, m] = ym.split("-");
+  return `${THAI_MONTHS[parseInt(m) - 1]} ${(parseInt(y) + 543) % 100}`;
+}
 
 // BC returns numbers as comma-formatted strings like "4,857.97" or empty strings
 function parseNum(val) {
@@ -432,6 +445,121 @@ export function useFinanceDashboard() {
     return bands;
   }, [purchaseInvoices]);
 
+  // ═══════════════════════════════════════
+  // Aging Detail Modal state
+  // ═══════════════════════════════════════
+  const [selectedAging, setSelectedAging] = useState(null);
+  const { isOpen: isAgingOpen, onOpen: onAgingOpen, onClose: onAgingClose } = useDisclosure();
+
+  const openAgingDetail = useCallback((item, type) => {
+    setSelectedAging({ item, type });
+    onAgingOpen();
+  }, [onAgingOpen]);
+
+  const agingInvoices = selectedAging
+    ? (selectedAging.type === "ar"
+      ? arInvoiceMap[selectedAging.item.customerNumber] || []
+      : apInvoiceMap[selectedAging.item.vendorNumber] || [])
+    : [];
+
+  // ═══════════════════════════════════════
+  // AI Analysis
+  // ═══════════════════════════════════════
+  const [aiAnalysis, setAiAnalysis] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const runAiAnalysis = useCallback(async () => {
+    if (!financials) return;
+    setAiLoading(true);
+    setAiAnalysis("");
+
+    // Build snapshot text for the AI
+    const snapshot = {
+      financials: [
+        `สินทรัพย์รวม: ${fmt(financials.totalAssets)} (หมุนเวียน ${fmt(financials.currentAssets)}, ไม่หมุนเวียน ${fmt(financials.noncurrentAssets)})`,
+        `หนี้สินรวม: ${fmt(financials.totalLiabilities)} (หมุนเวียน ${fmt(financials.currentLiabilities)}, ไม่หมุนเวียน ${fmt(financials.noncurrentLiabilities)})`,
+        `ส่วนของเจ้าของ: ${fmt(financials.totalEquity)} (ทุน ${fmt(financials.shareCapital)}, กำไรสะสม ${fmt(financials.retainedEarnings)})`,
+        `เงินทุนหมุนเวียน (Working Capital): ${fmt(financials.workingCapital)}`,
+        `รายได้รวม: ${fmt(financials.totalRevenue)} (ขาย ${fmt(financials.salesRevenue)}, บริการ ${fmt(financials.serviceRevenue)}, อื่น ${fmt(financials.otherIncome)})`,
+        `ต้นทุนขาย: ${fmt(financials.cogs)}`,
+        `กำไรขั้นต้น: ${fmt(financials.grossProfit)}`,
+        `ค่าใช้จ่ายขาย: ${fmt(financials.sellingExpense)}, ค่าใช้จ่ายบริหาร: ${fmt(financials.adminExpense)}`,
+        `กำไรสุทธิ: ${fmt(financials.netIncome)}`,
+      ].join("\n"),
+      ratios: [
+        `Current Ratio: ${financials.currentRatio.toFixed(2)} (เกณฑ์: ≥2 ดี, 1-2 พอใช้, <1 เสี่ยง)`,
+        `D/E Ratio: ${financials.debtToEquity.toFixed(2)} (เกณฑ์: ≤1 ดี, 1-2 พอใช้, >2 เสี่ยง)`,
+        `Gross Margin: ${financials.grossMargin.toFixed(1)}% (เกณฑ์: ≥30% ดี, 15-30% พอใช้)`,
+        `Net Margin: ${financials.netMargin.toFixed(1)}% (เกณฑ์: ≥10% ดี, 5-10% พอใช้)`,
+      ].join("\n"),
+      ar: arTotals
+        ? [
+            `ยอดรวม: ${fmt(arTotals.balanceDue)} จำนวน ${arChartData.length} ราย`,
+            `ปัจจุบัน: ${fmt(arTotals.current)}, งวด1: ${fmt(arTotals.period1)}, งวด2: ${fmt(arTotals.period2)}, งวด3+: ${fmt(arTotals.period3)}`,
+            arConcentration ? `Top 5 concentration: ${arConcentration.top5Pct.toFixed(0)}% (${fmt(arConcentration.top5Total)})` : "",
+            `ลูกค้า Top 10:`,
+            ...arChartData.slice(0, 10).map((r) => `  - ${r.name} (${r.customerNumber}): รวม ${fmt(r.balanceDue)}, ปัจจุบัน ${fmt(r.current)}, ค้าง1 ${fmt(r.period1)}, ค้าง2 ${fmt(r.period2)}, ค้าง3+ ${fmt(r.period3)}`),
+          ].filter(Boolean).join("\n")
+        : "ไม่มีข้อมูล",
+      ap: apTotals
+        ? [
+            `ยอดรวม: ${fmt(Math.abs(apTotals.balanceDue))} จำนวน ${apChartData.length} ราย`,
+            `ปัจจุบัน: ${fmt(Math.abs(apTotals.current))}, งวด1: ${fmt(Math.abs(apTotals.period1))}, งวด2: ${fmt(Math.abs(apTotals.period2))}, งวด3+: ${fmt(Math.abs(apTotals.period3))}`,
+            `เจ้าหนี้ Top 10:`,
+            ...apChartData.slice(0, 10).map((p) => `  - ${p.name} (${p.vendorNumber}): รวม ${fmt(Math.abs(p.balanceDue))}`),
+          ].join("\n")
+        : "ไม่มีข้อมูล",
+      arTrend: arTrendByMonth.length
+        ? arTrendByMonth.map((m) => `${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}, ค้าง ${fmt(m.remaining)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      apTrend: apTrendByMonth.length
+        ? apTrendByMonth.map((m) => `${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      arBands: arOverdueBands.some((b) => b.count > 0)
+        ? arOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}, ค้าง ${fmt(b.remaining)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      apBands: apOverdueBands.some((b) => b.count > 0)
+        ? apOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}`).join("\n")
+        : "ไม่มีข้อมูล",
+    };
+
+    try {
+      const res = await fetch("/api/finance/aiAnalysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snapshot }),
+      });
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) setAiAnalysis((prev) => prev + content);
+          } catch {}
+        }
+      }
+    } catch (err) {
+      setAiAnalysis(`เกิดข้อผิดพลาด: ${err.message}`);
+    } finally {
+      setAiLoading(false);
+    }
+  }, [financials, arTotals, apTotals, arChartData, apChartData, arConcentration, arTrendByMonth, apTrendByMonth, arOverdueBands, apOverdueBands]);
+
   return {
     loading,
     trialBalance,
@@ -443,6 +571,8 @@ export function useFinanceDashboard() {
     arChartData, arTotals, arConcentration, arAgingPie, arInvoiceMap,
     apChartData, apTotals, apAgingPie, apInvoiceMap,
     arTrendByMonth, apTrendByMonth, arOverdueBands, apOverdueBands,
+    selectedAging, isAgingOpen, onAgingClose, openAgingDetail, agingInvoices,
+    aiAnalysis, aiLoading, runAiAnalysis,
     reload: loadAll,
   };
 }

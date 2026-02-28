@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { getQuotation, updateQuotation, quotationAction } from "@/actions/omnichannel";
+import { getQuotation, updateQuotation, quotationAction } from "@/actions/marketing";
 
 export function useQuotationEditor(id) {
   const [quotation, setQuotation] = useState(null);

@@ -1,62 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Chip,
-  Tabs,
-  Tab,
-} from "@heroui/react";
-import { Plus, Edit, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { useCrmQuotations } from "@/hooks/sales/useCrmQuotations";
-import DataTable from "@/components/ui/DataTable";
-
-const columns = [
-  { name: "เลขที่ใบเสนอราคา", uid: "crmQuotationNo", sortable: true },
-  { name: "ผู้ติดต่อ", uid: "contact" },
-  { name: "บัญชี", uid: "account" },
-  { name: "โอกาสขาย", uid: "opportunity" },
-  { name: "สถานะ", uid: "crmQuotationStatus" },
-  { name: "ยอดรวม", uid: "crmQuotationTotal" },
-  { name: "ใช้ได้ถึง", uid: "crmQuotationValidUntil" },
-  { name: "สร้างเมื่อ", uid: "crmQuotationCreatedAt" },
-  { name: "การดำเนินการ", uid: "actions" },
-];
-
-const statusOptions = [
-  { uid: "draft", name: "ฉบับร่าง" },
-  { uid: "submitted", name: "ส่งแล้ว" },
-  { uid: "approved", name: "อนุมัติ" },
-  { uid: "rejected", name: "ปฏิเสธ" },
-  { uid: "converted", name: "แปลงแล้ว" },
-];
-
-const STATUS_COLOR_MAP = {
-  draft: "default",
-  submitted: "primary",
-  approved: "success",
-  rejected: "danger",
-  converted: "secondary",
-};
-
-const INITIAL_VISIBLE_COLUMNS = [
-  "crmQuotationNo",
-  "contact",
-  "crmQuotationStatus",
-  "crmQuotationTotal",
-  "crmQuotationCreatedAt",
-  "actions",
-];
+import QuotationsView from "@/components/sales/QuotationsView";
 
 export default function QuotationsPage() {
-  const router = useRouter();
   const {
     quotations,
     loading,
@@ -66,166 +13,22 @@ export default function QuotationsPage() {
     deleteModal,
     confirmDelete,
     handleDelete,
-    reload,
+    handleNew,
+    onNavigateToQuotation,
   } = useCrmQuotations();
 
-  const handleNew = async () => {
-    try {
-      const { createQuotation } = await import("@/actions/sales");
-      const newQ = await createQuotation({});
-      router.push(`/sales/quotations/${newQ.crmQuotationId}`);
-    } catch (error) {
-      toast.error("ไม่สามารถสร้างใบเสนอราคาได้");
-    }
-  };
-
-  const renderCell = useCallback(
-    (item, columnKey) => {
-      switch (columnKey) {
-        case "crmQuotationNo":
-          return (
-            <span
-              className="text-primary cursor-pointer"
-              onClick={() =>
-                router.push(`/sales/quotations/${item.crmQuotationId}`)
-              }
-            >
-              {item.crmQuotationNo}
-            </span>
-          );
-        case "contact":
-          return item.crmContact
-            ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
-            : "-";
-        case "account":
-          return item.crmAccount?.crmAccountName || "-";
-        case "opportunity":
-          return item.crmOpportunity?.crmOpportunityName || "-";
-        case "crmQuotationStatus": {
-          const color = STATUS_COLOR_MAP[item.crmQuotationStatus] || "default";
-          return (
-            <Chip variant="bordered" size="md" radius="md" color={color}>
-              {item.crmQuotationStatus}
-            </Chip>
-          );
-        }
-        case "crmQuotationTotal":
-          return item.crmQuotationTotal != null
-            ? `฿${Number(item.crmQuotationTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })}`
-            : "-";
-        case "crmQuotationValidUntil":
-          return item.crmQuotationValidUntil
-            ? new Date(item.crmQuotationValidUntil).toLocaleDateString("th-TH")
-            : "-";
-        case "crmQuotationCreatedAt":
-          return item.crmQuotationCreatedAt
-            ? new Date(item.crmQuotationCreatedAt).toLocaleDateString("th-TH")
-            : "-";
-        case "actions":
-          return (
-            <div className="flex items-center gap-1">
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() =>
-                  router.push(`/sales/quotations/${item.crmQuotationId}`)
-                }
-              >
-                <Edit />
-              </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 />
-              </Button>
-            </div>
-          );
-        default:
-          return item[columnKey] || "-";
-      }
-    },
-    [router, confirmDelete],
-  );
-
   return (
-    <div className="flex flex-col w-full h-full gap-4">
-      <Tabs
-        selectedKey={statusFilter}
-        onSelectionChange={setStatusFilter}
-        variant="bordered"
-        size="md"
-        radius="md"
-      >
-        <Tab key="" title="ทั้งหมด" />
-        <Tab key="draft" title="ฉบับร่าง" />
-        <Tab key="submitted" title="ส่งแล้ว" />
-        <Tab key="approved" title="อนุมัติ" />
-        <Tab key="rejected" title="ปฏิเสธ" />
-      </Tabs>
-
-      <DataTable
-        columns={columns}
-        data={quotations}
-        renderCell={renderCell}
-        enableCardView
-        rowKey="crmQuotationId"
-        isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        searchPlaceholder="ค้นหาใบเสนอราคา..."
-        searchKeys={["crmQuotationNo"]}
-        emptyContent="ไม่พบใบเสนอราคา"
-        topEndContent={
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            startContent={<Plus />}
-            onPress={handleNew}
-          >
-            สร้างใบเสนอราคาใหม่
-          </Button>
-        }
-      />
-
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-        <ModalContent>
-          <ModalHeader>ลบใบเสนอราคา</ModalHeader>
-          <ModalBody>
-            <p>
-              คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
-                {deletingQuotation?.crmQuotationNo}
-              </span>
-              ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
-            </p>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              onPress={deleteModal.onClose}
-            >
-              ยกเลิก
-            </Button>
-            <Button
-              variant="bordered"
-              size="md"
-              radius="md"
-              onPress={handleDelete}
-            >
-              ลบ
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </div>
+    <QuotationsView
+      quotations={quotations}
+      loading={loading}
+      statusFilter={statusFilter}
+      setStatusFilter={setStatusFilter}
+      deletingQuotation={deletingQuotation}
+      deleteModal={deleteModal}
+      confirmDelete={confirmDelete}
+      handleDelete={handleDelete}
+      handleNew={handleNew}
+      onNavigateToQuotation={onNavigateToQuotation}
+    />
   );
 }

@@ -1,79 +1,10 @@
 "use client";
 
-import { useCallback } from "react";
-import { Chip } from "@heroui/react";
 import { useAccessLogs } from "@/hooks/rbac/useAccessLogs";
-import DataTable from "@/components/ui/DataTable";
-
-const columns = [
-  { name: "เวลา", uid: "rbacAccessLogCreatedAt", sortable: true },
-  { name: "รหัสผู้ใช้", uid: "rbacAccessLogUserId", sortable: true },
-  { name: "ทรัพยากร", uid: "rbacAccessLogResource", sortable: true },
-  { name: "การดำเนินการ", uid: "rbacAccessLogAction", sortable: true },
-  { name: "สถานะ", uid: "rbacAccessLogGranted", sortable: true },
-];
-
-const STATUS_OPTIONS = [
-  { name: "อนุญาต", uid: "granted" },
-  { name: "ปฏิเสธ", uid: "denied" },
-];
+import AccessLogsView from "@/components/rbac/AccessLogsView";
 
 export default function AccessLogsPage() {
   const { logs, loading } = useAccessLogs();
 
-  const renderCell = useCallback((log, columnKey) => {
-    switch (columnKey) {
-      case "rbacAccessLogCreatedAt":
-        return (
-          <span className="text-default-500">
-            {new Date(log.rbacAccessLogCreatedAt).toLocaleString()}
-          </span>
-        );
-      case "rbacAccessLogUserId":
-        return (
-          <span className="font-mono">
-            {log.rbacAccessLogUserId?.slice(0, 8) || "-"}
-          </span>
-        );
-      case "rbacAccessLogResource":
-        return <span className="font-medium">{log.rbacAccessLogResource}</span>;
-      case "rbacAccessLogAction":
-        return log.rbacAccessLogAction;
-      case "rbacAccessLogGranted":
-        return (
-          <Chip
-            variant="bordered"
-            size="md"
-            radius="md"
-            color={log.rbacAccessLogGranted ? "success" : "danger"}
-          >
-            {log.rbacAccessLogGranted ? "อนุญาต" : "ปฏิเสธ"}
-          </Chip>
-        );
-      default:
-        return log[columnKey] || "-";
-    }
-  }, []);
-
-  return (
-    <div className="flex flex-col w-full h-full gap-4">
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">บันทึกการเข้าถึง</h1>
-        <p className="text-default-400">200 รายการล่าสุด</p>
-      </div>
-
-      <DataTable
-        columns={columns}
-        data={logs}
-        renderCell={renderCell}
-        rowKey="rbacAccessLogId"
-        isLoading={loading}
-        initialVisibleColumns={["rbacAccessLogCreatedAt", "rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction", "rbacAccessLogGranted"]}
-        searchPlaceholder="ค้นหาบันทึก..."
-        searchKeys={["rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction"]}
-        emptyContent="ไม่พบบันทึกการเข้าถึง"
-        defaultRowsPerPage={20}
-      />
-    </div>
-  );
+  return <AccessLogsView logs={logs} loading={loading} />;
 }
