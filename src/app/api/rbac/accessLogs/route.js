@@ -23,11 +23,11 @@ export async function POST(request) {
 
   const { error } = await supabase.from("rbacAccessLog").insert([
     {
-      rbacAccessLogUserId: body.userId,
-      rbacAccessLogResource: body.resource,
-      rbacAccessLogAction: body.action,
-      rbacAccessLogGranted: body.granted,
-      rbacAccessLogMetadata: body.metadata || null,
+      rbacAccessLogUserId: body.rbacAccessLogUserId,
+      rbacAccessLogResource: body.rbacAccessLogResource,
+      rbacAccessLogAction: body.rbacAccessLogAction,
+      rbacAccessLogGranted: body.rbacAccessLogGranted,
+      rbacAccessLogMetadata: body.rbacAccessLogMetadata || null,
     },
   ]);
 

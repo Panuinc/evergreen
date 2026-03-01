@@ -152,7 +152,7 @@ export function useRoles() {
 
   // Group permissions by resource for display
   const groupedPermissions = allPermissions.reduce((acc, perm) => {
-    const resourceName = perm.resources?.rbacResourceName || "Unknown";
+    const resourceName = perm.rbacResource?.rbacResourceName || "Unknown";
     if (!acc[resourceName]) acc[resourceName] = [];
     acc[resourceName].push(perm);
     return acc;
