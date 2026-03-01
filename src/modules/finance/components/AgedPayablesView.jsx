@@ -65,6 +65,7 @@ export default function AgedPayablesView({ data, loading }) {
         searchKeys={["vendorNumber", "name"]}
         defaultSortDescriptor={{ column: "balanceDue", direction: "descending" }}
         emptyContent="ไม่พบข้อมูลเจ้าหนี้ค้างชำระ"
+        enableCardView
       />
     </div>
   );

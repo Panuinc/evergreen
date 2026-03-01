@@ -11,15 +11,15 @@ const STATUS_COLORS = {
 };
 
 const BASE_ORDER_COLUMNS = [
-  { name: "เลขที่", uid: "No", sortable: true },
-  { name: "ลูกค้า", uid: "Sell_to_Customer_Name", sortable: true },
-  { name: "วันที่สั่ง", uid: "Order_Date", sortable: true },
-  { name: "สถานะ", uid: "Status", sortable: true },
-  { name: "ยอดรวม", uid: "totalAmount", sortable: true },
-  { name: "จัดส่ง", uid: "shipStatus" },
+  { name: "เลขที่", uid: "bcSalesOrderNumber", sortable: true },
+  { name: "ลูกค้า", uid: "bcSalesOrderCustomerName", sortable: true },
+  { name: "วันที่สั่ง", uid: "bcSalesOrderDate", sortable: true },
+  { name: "สถานะ", uid: "bcSalesOrderStatus", sortable: true },
+  { name: "ยอดรวม", uid: "bcSalesOrderTotalAmountIncVat", sortable: true },
+  { name: "จัดส่ง", uid: "bcSalesOrderCompletelyShipped" },
 ];
 
-const INITIAL_VISIBLE = ["No", "Sell_to_Customer_Name", "Order_Date", "Status", "totalAmount", "shipStatus"];
+const INITIAL_VISIBLE = ["bcSalesOrderNumber", "bcSalesOrderCustomerName", "bcSalesOrderDate", "bcSalesOrderStatus", "bcSalesOrderTotalAmountIncVat", "bcSalesOrderCompletelyShipped"];
 
 export default function SalesOrdersView({
   orders,
@@ -43,37 +43,37 @@ export default function SalesOrdersView({
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "No":
+      case "bcSalesOrderNumber":
         return (
           <button
             className="text-primary underline text-left"
-            onClick={() => onNavigateToOrder(item.No)}
+            onClick={() => onNavigateToOrder(item.bcSalesOrderNumber)}
           >
-            {item.No}
+            {item.bcSalesOrderNumber}
           </button>
         );
-      case "Order_Date":
-        return item.Order_Date
-          ? new Date(item.Order_Date).toLocaleDateString("th-TH", {
+      case "bcSalesOrderDate":
+        return item.bcSalesOrderDate
+          ? new Date(item.bcSalesOrderDate).toLocaleDateString("th-TH", {
               year: "numeric",
               month: "short",
               day: "numeric",
             })
           : "-";
-      case "Status":
+      case "bcSalesOrderStatus":
         return (
-          <Chip variant="bordered" size="md" radius="md" color={STATUS_COLORS[item.Status] || "default"}>
-            {item.Status}
+          <Chip variant="bordered" size="md" radius="md" color={STATUS_COLORS[item.bcSalesOrderStatus] || "default"}>
+            {item.bcSalesOrderStatus}
           </Chip>
         );
-      case "totalAmount":
+      case "bcSalesOrderTotalAmountIncVat":
         return (
           <span className="block text-right font-medium">
-            {(item.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+            {(item.bcSalesOrderTotalAmountIncVat || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
         );
-      case "shipStatus":
-        return item.Completely_Shipped ? (
+      case "bcSalesOrderCompletelyShipped":
+        return item.bcSalesOrderCompletelyShipped ? (
           <Chip variant="bordered" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
           <Chip variant="bordered" size="md" radius="md" color="default">รอจัดส่ง</Chip>
@@ -130,13 +130,14 @@ export default function SalesOrdersView({
         columns={ORDER_COLUMNS}
         data={orders}
         renderCell={renderCell}
-        rowKey="No"
+        rowKey="bcSalesOrderNumber"
         initialVisibleColumns={INITIAL_VISIBLE}
         searchPlaceholder="ค้นหาเลขที่, ชื่อลูกค้า..."
-        searchKeys={["No", "Sell_to_Customer_Name"]}
+        searchKeys={["bcSalesOrderNumber", "bcSalesOrderCustomerName"]}
         defaultRowsPerPage={15}
-        defaultSortDescriptor={{ column: "Order_Date", direction: "descending" }}
+        defaultSortDescriptor={{ column: "bcSalesOrderDate", direction: "descending" }}
         emptyContent="ไม่พบออเดอร์"
+        enableCardView
       />
     </div>
   );

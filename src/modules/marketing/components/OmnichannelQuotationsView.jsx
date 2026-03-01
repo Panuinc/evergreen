@@ -131,6 +131,7 @@ export default function OmnichannelQuotationsView({
         searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อลูกค้า..."
         searchKeys={["omQuotationNumber", "customerName"]}
         emptyContent="ไม่มีใบเสนอราคา"
+        enableCardView
       />
     </div>
   );

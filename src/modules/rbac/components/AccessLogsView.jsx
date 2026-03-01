@@ -78,6 +78,7 @@ export default function AccessLogsView({ logs, loading }) {
         searchKeys={["rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction"]}
         emptyContent="ไม่พบบันทึกการเข้าถึง"
         defaultRowsPerPage={20}
+        enableCardView
       />
     </div>
   );

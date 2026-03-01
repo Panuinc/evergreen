@@ -9,7 +9,7 @@ export async function GET() {
     const [{ data: bcItems, error: itemErr }, priceResult] = await Promise.all([
       auth.supabase
         .from("bcItem")
-        .select("bcItemNumber,bcItemDisplayName,bcItemUnitPrice,bcItemUnitCost,bcItemInventory,bcItemBaseUnitOfMeasure")
+        .select("*")
         .like("bcItemNumber", "FG-00003%"),
       auth.supabase.from("omPriceItem").select("*"),
     ]);
@@ -23,12 +23,7 @@ export async function GET() {
     }
 
     const merged = (bcItems || []).map((item) => ({
-      number: item.bcItemNumber,
-      displayName: item.bcItemDisplayName,
-      unitPrice: item.bcItemUnitPrice,
-      unitCost: item.bcItemUnitCost,
-      inventory: item.bcItemInventory,
-      baseUnitOfMeasure: item.bcItemBaseUnitOfMeasure,
+      ...item,
       customPrice: priceMap[item.bcItemNumber] ?? null,
     }));
 

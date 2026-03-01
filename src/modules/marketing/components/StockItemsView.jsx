@@ -198,6 +198,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
         topEndContent={saveButton}
         defaultRowsPerPage={20}
         emptyContent="ไม่พบสินค้า"
+        enableCardView
       />
     </div>
   );

@@ -212,6 +212,7 @@ export default function EntriesView({ data, loading }) {
             emptyContent="ไม่พบข้อมูลรายการเคลื่อนไหว WPC"
             statusField="bcItemLedgerEntryEntryType"
             statusOptions={statusOptions}
+            enableCardView
           />
         </Tab>
         <Tab
@@ -230,6 +231,7 @@ export default function EntriesView({ data, loading }) {
             emptyContent="ไม่พบข้อมูลรายการเคลื่อนไหว"
             statusField="bcItemLedgerEntryEntryType"
             statusOptions={statusOptions}
+            enableCardView
           />
         </Tab>
       </Tabs>

@@ -11,15 +11,15 @@ const STATUS_COLORS = {
 };
 
 const LINE_COLUMNS = [
-  { name: "รหัส", uid: "No" },
-  { name: "รายละเอียด", uid: "Description" },
-  { name: "โครงการ", uid: "projectName" },
-  { name: "จำนวน", uid: "Quantity", sortable: true },
-  { name: "หน่วย", uid: "Unit_of_Measure_Code" },
-  { name: "ราคา/หน่วย", uid: "Unit_Price", sortable: true },
-  { name: "ยอดรวม", uid: "Line_Amount", sortable: true },
-  { name: "ส่งแล้ว", uid: "Quantity_Shipped" },
-  { name: "คงค้าง", uid: "BWK_Outstanding_Quantity" },
+  { name: "รหัส", uid: "bcSalesOrderLineObjectNumber" },
+  { name: "รายละเอียด", uid: "bcSalesOrderLineDescription" },
+  { name: "โครงการ", uid: "bcSalesOrderLineProjectName" },
+  { name: "จำนวน", uid: "bcSalesOrderLineQuantity", sortable: true },
+  { name: "หน่วย", uid: "bcSalesOrderLineUnitOfMeasureCode" },
+  { name: "ราคา/หน่วย", uid: "bcSalesOrderLineUnitPrice", sortable: true },
+  { name: "ยอดรวม", uid: "bcSalesOrderLineAmount", sortable: true },
+  { name: "ส่งแล้ว", uid: "bcSalesOrderLineQuantityShipped" },
+  { name: "คงค้าง", uid: "bcSalesOrderLineOutstandingQuantity" },
 ];
 
 export default function SalesOrderDetailView({
@@ -31,20 +31,20 @@ export default function SalesOrderDetailView({
 }) {
   const renderLineCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "projectName":
-        return item.projectName ? (
+      case "bcSalesOrderLineProjectName":
+        return item.bcSalesOrderLineProjectName ? (
           <Chip variant="bordered" size="md" radius="md" color="secondary">
-            {item.projectName}
+            {item.bcSalesOrderLineProjectName}
           </Chip>
         ) : (
           "-"
         );
-      case "Quantity":
-      case "Quantity_Shipped":
-      case "BWK_Outstanding_Quantity":
+      case "bcSalesOrderLineQuantity":
+      case "bcSalesOrderLineQuantityShipped":
+      case "bcSalesOrderLineOutstandingQuantity":
         return <span className="block text-right">{item[columnKey] || 0}</span>;
-      case "Unit_Price":
-      case "Line_Amount":
+      case "bcSalesOrderLineUnitPrice":
+      case "bcSalesOrderLineAmount":
         return (
           <span className="block text-right font-medium">
             {(item[columnKey] || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -87,11 +87,11 @@ export default function SalesOrderDetailView({
         >
           <ArrowLeft size={18} />
         </Button>
-        <h2 className="text-lg font-semibold">{order.No}</h2>
-        <Chip variant="bordered" size="md" radius="md" color={STATUS_COLORS[order.Status] || "default"}>
-          {order.Status}
+        <h2 className="text-lg font-semibold">{order.bcSalesOrderNumber}</h2>
+        <Chip variant="bordered" size="md" radius="md" color={STATUS_COLORS[order.bcSalesOrderStatus] || "default"}>
+          {order.bcSalesOrderStatus}
         </Chip>
-        {order.Completely_Shipped ? (
+        {order.bcSalesOrderCompletelyShipped ? (
           <Chip variant="bordered" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
           <Chip variant="bordered" size="md" radius="md" color="default">รอจัดส่ง</Chip>
@@ -117,15 +117,15 @@ export default function SalesOrderDetailView({
             <div className="space-y-2 text-sm">
               <div className="flex gap-2">
                 <span className="text-default-400 w-24 shrink-0">ลูกค้า</span>
-                <span className="font-medium">{order.Sell_to_Customer_Name}</span>
+                <span className="font-medium">{order.bcSalesOrderCustomerName}</span>
               </div>
               <div className="flex gap-2">
                 <span className="text-default-400 w-24 shrink-0">รหัสลูกค้า</span>
-                <span>{order.Sell_to_Customer_No}</span>
+                <span>{order.bcSalesOrderCustomerNumber}</span>
               </div>
               <div className="flex gap-2 items-start">
                 <span className="text-default-400 w-24 shrink-0">ที่อยู่</span>
-                <span>{order.Sell_to_Address || "-"}</span>
+                <span>{order.bcSalesOrderSellToAddress || "-"}</span>
               </div>
             </div>
           </CardBody>
@@ -139,8 +139,8 @@ export default function SalesOrderDetailView({
               <div className="flex gap-2">
                 <span className="text-default-400 w-24 shrink-0">วันที่สั่ง</span>
                 <span>
-                  {order.Order_Date
-                    ? new Date(order.Order_Date).toLocaleDateString("th-TH", {
+                  {order.bcSalesOrderDate
+                    ? new Date(order.bcSalesOrderDate).toLocaleDateString("th-TH", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
@@ -151,8 +151,8 @@ export default function SalesOrderDetailView({
               <div className="flex gap-2">
                 <span className="text-default-400 w-24 shrink-0">ครบกำหนด</span>
                 <span>
-                  {order.Due_Date && order.Due_Date !== "0001-01-01"
-                    ? new Date(order.Due_Date).toLocaleDateString("th-TH", {
+                  {order.bcSalesOrderDueDate && order.bcSalesOrderDueDate !== "0001-01-01"
+                    ? new Date(order.bcSalesOrderDueDate).toLocaleDateString("th-TH", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
@@ -162,7 +162,7 @@ export default function SalesOrderDetailView({
               </div>
               <div className="flex gap-2">
                 <span className="text-default-400 w-24 shrink-0">เลขที่อ้างอิง</span>
-                <span>{order.External_Document_No || "-"}</span>
+                <span>{order.bcSalesOrderExternalDocumentNumber || "-"}</span>
               </div>
               <div className="flex gap-2">
                 <span className="text-default-400 w-24 shrink-0">ยอดรวม</span>
@@ -182,8 +182,8 @@ export default function SalesOrderDetailView({
           columns={LINE_COLUMNS}
           data={order.lines || []}
           renderCell={renderLineCell}
-          rowKey="Line_No"
-          initialVisibleColumns={["No", "Description", "projectName", "Quantity", "Unit_of_Measure_Code", "Unit_Price", "Line_Amount", "Quantity_Shipped", "BWK_Outstanding_Quantity"]}
+          rowKey="bcSalesOrderLineNo"
+          initialVisibleColumns={["bcSalesOrderLineObjectNumber", "bcSalesOrderLineDescription", "bcSalesOrderLineProjectName", "bcSalesOrderLineQuantity", "bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineUnitPrice", "bcSalesOrderLineAmount", "bcSalesOrderLineQuantityShipped", "bcSalesOrderLineOutstandingQuantity"]}
           emptyContent="ไม่มีรายการ"
           defaultRowsPerPage={20}
         />

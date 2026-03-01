@@ -24,8 +24,8 @@ export function useMarketingSalesOrders() {
 
   const filteredOrders = useMemo(() => {
     if (shipFilter === "all") return orders;
-    if (shipFilter === "shipped") return orders.filter((o) => o.Completely_Shipped);
-    return orders.filter((o) => !o.Completely_Shipped);
+    if (shipFilter === "shipped") return orders.filter((o) => o.bcSalesOrderCompletelyShipped);
+    return orders.filter((o) => !o.bcSalesOrderCompletelyShipped);
   }, [orders, shipFilter]);
 
   return {

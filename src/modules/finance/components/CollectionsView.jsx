@@ -254,6 +254,7 @@ export default function CollectionsView({
               if (item.nextFollowUpDate && item.nextFollowUpDate <= new Date().toISOString().slice(0, 10)) return "bg-warning-50/30";
               return undefined;
             }}
+            enableCardView
           />
         </Tab>
 
@@ -375,6 +376,7 @@ export default function CollectionsView({
             defaultSortDescriptor={{ column: "contactDate", direction: "descending" }}
             emptyContent="ไม่มีข้อมูลในช่วงนี้"
             defaultRowsPerPage={20}
+            enableCardView
           />
         </Tab>
       </Tabs>

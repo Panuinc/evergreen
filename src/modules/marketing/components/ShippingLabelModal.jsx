@@ -74,19 +74,19 @@ function buildLabelHTML(data, label, barcodeValue) {
 }
 
 export default function ShippingLabelModal({ isOpen, onClose, order, customerPhone }) {
-  const lines = order?.lines?.filter((l) => l.Type === "Item" && l.Quantity > 0) || [];
+  const lines = order?.lines?.filter((l) => l.bcSalesOrderLineType === "Item" && l.bcSalesOrderLineQuantity > 0) || [];
 
   const [selectedLines, setSelectedLines] = useState(() =>
-    Object.fromEntries(lines.map((l) => [l.Line_No, true])),
+    Object.fromEntries(lines.map((l) => [l.bcSalesOrderLineNo, true])),
   );
   const [quantities, setQuantities] = useState(() =>
-    Object.fromEntries(lines.map((l) => [l.Line_No, l.BWK_Outstanding_Quantity || l.Quantity || 0])),
+    Object.fromEntries(lines.map((l) => [l.bcSalesOrderLineNo, l.bcSalesOrderLineOutstandingQuantity || l.bcSalesOrderLineQuantity || 0])),
   );
   const [recipientName, setRecipientName] = useState(
-    order?.Ship_to_Name || order?.Sell_to_Customer_Name || "",
+    order?.bcSalesOrderShipToName || order?.bcSalesOrderCustomerName || "",
   );
   const [recipientAddress, setRecipientAddress] = useState(
-    [order?.Ship_to_Address || order?.Sell_to_Address, order?.Ship_to_City || order?.Sell_to_City, order?.Ship_to_Post_Code || order?.Sell_to_Post_Code]
+    [order?.bcSalesOrderShipToAddress || order?.bcSalesOrderSellToAddress, order?.bcSalesOrderShipToCity || order?.bcSalesOrderSellToCity, order?.bcSalesOrderShipToPostCode || order?.bcSalesOrderSellToPostCode]
       .filter(Boolean)
       .join(" ") || "",
   );
@@ -94,8 +94,8 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
 
   const totalLabels = useMemo(() => {
     return lines.reduce((sum, l) => {
-      if (!selectedLines[l.Line_No]) return sum;
-      return sum + (quantities[l.Line_No] || 0);
+      if (!selectedLines[l.bcSalesOrderLineNo]) return sum;
+      return sum + (quantities[l.bcSalesOrderLineNo] || 0);
     }, 0);
   }, [lines, selectedLines, quantities]);
 
@@ -113,19 +113,19 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
 
   const buildLabelData = () => {
     const items = lines
-      .filter((l) => selectedLines[l.Line_No] && quantities[l.Line_No] > 0)
+      .filter((l) => selectedLines[l.bcSalesOrderLineNo] && quantities[l.bcSalesOrderLineNo] > 0)
       .map((l) => ({
-        description: l.Description || l.No,
-        itemNo: l.No,
-        qty: quantities[l.Line_No],
-        uom: l.Unit_of_Measure_Code || "PCS",
+        description: l.bcSalesOrderLineDescription || l.bcSalesOrderLineObjectNumber,
+        itemNo: l.bcSalesOrderLineObjectNumber,
+        qty: quantities[l.bcSalesOrderLineNo],
+        uom: l.bcSalesOrderLineUnitOfMeasureCode || "PCS",
       }));
 
     if (items.length === 0) return null;
 
     return {
-      orderNo: order.No,
-      externalDocNo: order.External_Document_No || "",
+      orderNo: order.bcSalesOrderNumber,
+      externalDocNo: order.bcSalesOrderExternalDocumentNumber || "",
       recipient: {
         name: recipientName,
         address: recipientAddress,
@@ -140,9 +140,9 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
     const data = buildLabelData();
     if (!data) return;
 
-    const key = `shipping-label-${order.No}`;
+    const key = `shipping-label-${order.bcSalesOrderNumber}`;
     localStorage.setItem(key, JSON.stringify(data));
-    window.open(`/marketing/shippingLabel/${encodeURIComponent(order.No)}`, "_blank");
+    window.open(`/marketing/shippingLabel/${encodeURIComponent(order.bcSalesOrderNumber)}`, "_blank");
     onClose();
   };
 
@@ -244,7 +244,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <span>พิมพ์ใบปะหน้าส่งสินค้า</span>
-          <span className="text-sm font-normal text-default-400">{order?.No}</span>
+          <span className="text-sm font-normal text-default-400">{order?.bcSalesOrderNumber}</span>
         </ModalHeader>
         <ModalBody className="gap-6">
           {/* Recipient Info */}
@@ -286,21 +286,21 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
             <div className="space-y-2">
               {lines.map((l) => (
                 <div
-                  key={l.Line_No}
+                  key={l.bcSalesOrderLineNo}
                   className="flex items-center gap-3 p-3 rounded-lg border border-default-200"
                 >
                   <Checkbox
-                    isSelected={selectedLines[l.Line_No] || false}
-                    onValueChange={() => handleToggle(l.Line_No)}
+                    isSelected={selectedLines[l.bcSalesOrderLineNo] || false}
+                    onValueChange={() => handleToggle(l.bcSalesOrderLineNo)}
                     size="sm"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
-                      {l.Description || l.No}
+                      {l.bcSalesOrderLineDescription || l.bcSalesOrderLineObjectNumber}
                     </p>
                     <p className="text-xs text-default-400">
-                      สั่ง {l.Quantity} / ส่งแล้ว {l.Quantity_Shipped || 0} / คงค้าง{" "}
-                      {l.BWK_Outstanding_Quantity || 0} {l.Unit_of_Measure_Code}
+                      สั่ง {l.bcSalesOrderLineQuantity} / ส่งแล้ว {l.bcSalesOrderLineQuantityShipped || 0} / คงค้าง{" "}
+                      {l.bcSalesOrderLineOutstandingQuantity || 0} {l.bcSalesOrderLineUnitOfMeasureCode}
                     </p>
                   </div>
                   <Input
@@ -310,13 +310,13 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                     radius="md"
                     className="w-20"
                     min={0}
-                    max={l.Quantity}
-                    value={String(quantities[l.Line_No] || 0)}
-                    onValueChange={(v) => handleQtyChange(l.Line_No, v)}
-                    isDisabled={!selectedLines[l.Line_No]}
+                    max={l.bcSalesOrderLineQuantity}
+                    value={String(quantities[l.bcSalesOrderLineNo] || 0)}
+                    onValueChange={(v) => handleQtyChange(l.bcSalesOrderLineNo, v)}
+                    isDisabled={!selectedLines[l.bcSalesOrderLineNo]}
                   />
                   <span className="text-xs text-default-400 w-8">
-                    {l.Unit_of_Measure_Code || "PCS"}
+                    {l.bcSalesOrderLineUnitOfMeasureCode || "PCS"}
                   </span>
                 </div>
               ))}

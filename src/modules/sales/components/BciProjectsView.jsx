@@ -332,6 +332,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
           </Button>
         </div>
       }
+      enableCardView
       filterColumns={[
         {
           uid: "bciProjectStage",

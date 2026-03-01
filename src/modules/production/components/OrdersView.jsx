@@ -217,6 +217,7 @@ export default function OrdersView({ data, loading }) {
             statusField="bcProductionOrderStatus"
             statusOptions={statusOptions}
             getRowClassName={getRowClassName}
+            enableCardView
           />
         </Tab>
         <Tab
@@ -236,6 +237,7 @@ export default function OrdersView({ data, loading }) {
             statusField="bcProductionOrderStatus"
             statusOptions={statusOptions}
             getRowClassName={getRowClassName}
+            enableCardView
           />
         </Tab>
       </Tabs>

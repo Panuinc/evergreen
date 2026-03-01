@@ -149,6 +149,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
         getRowClassName={(item) =>
           item.daysOverdue > 0 ? "bg-danger-50/50" : undefined
         }
+        enableCardView
       />
 
       <Modal isOpen={isOpen} onClose={onClose} size="5xl" scrollBehavior="inside">

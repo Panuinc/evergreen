@@ -18,7 +18,7 @@ export function useTmsAlerts() {
     try {
       setLoading(true);
       const data = await getAlerts();
-      setAlerts(data.alerts);
+      setAlerts(data.alerts.map((a, i) => ({ ...a, id: `${a.type}_${a.entityId}_${i}` })));
       setAlertCount(data.totalCount);
     } catch {
       toast.error("โหลดการแจ้งเตือนล้มเหลว");

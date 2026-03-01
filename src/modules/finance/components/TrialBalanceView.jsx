@@ -87,6 +87,7 @@ export default function TrialBalanceView({ data, loading }) {
         searchKeys={["number", "display"]}
         defaultSortDescriptor={{ column: "number", direction: "ascending" }}
         emptyContent="ไม่พบข้อมูลงบทดลอง"
+        enableCardView
       />
     </div>
   );

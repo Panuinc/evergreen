@@ -46,7 +46,7 @@ export function useDrivers() {
         getDrivers(),
         getEmployees(),
       ]);
-      setDrivers(driverData);
+      setDrivers(driverData.map((d) => ({ ...d, name: `${d.tmsDriverFirstName} ${d.tmsDriverLastName}`.trim() })));
       setEmployees(empData);
     } catch (error) {
       toast.error("โหลดข้อมูลล้มเหลว");
