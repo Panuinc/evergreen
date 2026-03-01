@@ -267,6 +267,21 @@ async function runSync(supabase, requestedTables, send) {
         },
         { timeout: 120_000 },
       );
+      // Fetch existing RFID codes so upsert doesn't overwrite them with null
+      const itemNos = items.map((i) => i.No);
+      const rfidMap = {};
+      for (let i = 0; i < itemNos.length; i += 1000) {
+        const batch = itemNos.slice(i, i + 1000);
+        const { data: existing } = await supabase
+          .from("bcItem")
+          .select("bcItemExternalId, bcItemRfidCode")
+          .in("bcItemExternalId", batch)
+          .not("bcItemRfidCode", "is", null);
+        for (const row of existing || []) {
+          rfidMap[row.bcItemExternalId] = row.bcItemRfidCode;
+        }
+      }
+
       const itemRows = items.map((i) => {
         const projectCode = extractProjectCode(i.No);
         return {
@@ -283,6 +298,7 @@ async function runSync(supabase, requestedTables, send) {
           bcItemBaseUnitOfMeasure: i.Base_Unit_of_Measure,
           bcItemProjectCode: projectCode,
           bcItemProjectName: projectCode ? dimMap[projectCode] || null : null,
+          bcItemRfidCode: rfidMap[i.No] || null,
           bcItemSyncedAt: now,
         };
       });
