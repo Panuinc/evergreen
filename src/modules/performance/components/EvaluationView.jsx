@@ -17,7 +17,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { ClipboardList, BarChart3, Shield, Trash2, Save, Sparkles } from "lucide-react";
-import SpiderChart from "@/modules/performance/components/charts/SpiderChart";
+import SpiderChart from "@/modules/performance/components/SpiderChart";
 import AiFeedbackPanel from "@/modules/performance/components/AiFeedbackPanel";
 import {
   EVALUATION_CATEGORIES,

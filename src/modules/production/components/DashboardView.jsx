@@ -11,19 +11,19 @@ import {
   Tab,
 } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
-import OrdersByStatusChart from "@/modules/production/components/charts/OrdersByStatusChart";
-import CostByProjectChart from "@/modules/production/components/charts/CostByProjectChart";
-import DailyProductionTrendChart from "@/modules/production/components/charts/DailyProductionTrendChart";
-import TopOutputItemsChart from "@/modules/production/components/charts/TopOutputItemsChart";
-import WipByOrderChart from "@/modules/production/components/charts/WipByOrderChart";
-import TopConsumedItemsChart from "@/modules/production/components/charts/TopConsumedItemsChart";
-import CostByDepartmentChart from "@/modules/production/components/charts/CostByDepartmentChart";
-import OnTimeTrendChart from "@/modules/production/components/charts/OnTimeTrendChart";
-import LeadTimeTrendChart from "@/modules/production/components/charts/LeadTimeTrendChart";
-import EmployeeSpecializationChart from "@/modules/production/components/charts/EmployeeSpecializationChart";
-import FgOutputBreakdownChart from "@/modules/production/components/charts/FgOutputBreakdownChart";
-import ProfitByItemChart from "@/modules/production/components/charts/ProfitByItemChart";
-import ProfitByProjectSection from "@/modules/production/components/charts/ProfitByProjectSection";
+import OrdersByStatusChart from "@/modules/production/components/OrdersByStatusChart";
+import CostByProjectChart from "@/modules/production/components/CostByProjectChart";
+import DailyProductionTrendChart from "@/modules/production/components/DailyProductionTrendChart";
+import TopOutputItemsChart from "@/modules/production/components/TopOutputItemsChart";
+import WipByOrderChart from "@/modules/production/components/WipByOrderChart";
+import TopConsumedItemsChart from "@/modules/production/components/TopConsumedItemsChart";
+import CostByDepartmentChart from "@/modules/production/components/CostByDepartmentChart";
+import OnTimeTrendChart from "@/modules/production/components/OnTimeTrendChart";
+import LeadTimeTrendChart from "@/modules/production/components/LeadTimeTrendChart";
+import EmployeeSpecializationChart from "@/modules/production/components/EmployeeSpecializationChart";
+import FgOutputBreakdownChart from "@/modules/production/components/FgOutputBreakdownChart";
+import ProfitByItemChart from "@/modules/production/components/ProfitByItemChart";
+import ProfitByProjectSection from "@/modules/production/components/ProfitByProjectSection";
 
 // ── Helpers ──
 function fmt(v) {

@@ -1,8 +1,8 @@
 import { Card, CardBody, Spinner } from "@heroui/react";
 import { Server, HeadphonesIcon, FileText, Globe, Shield, Clock } from "lucide-react";
-import TicketTrendChart from "@/modules/it/components/charts/TicketTrendChart";
-import AssetByCategoryChart from "@/modules/it/components/charts/AssetByCategoryChart";
-import LicenseExpiryChart from "@/modules/it/components/charts/LicenseExpiryChart";
+import TicketTrendChart from "@/modules/it/components/TicketTrendChart";
+import AssetByCategoryChart from "@/modules/it/components/AssetByCategoryChart";
+import LicenseExpiryChart from "@/modules/it/components/LicenseExpiryChart";
 
 export default function DashboardView({ stats, loading }) {
   if (loading) {
