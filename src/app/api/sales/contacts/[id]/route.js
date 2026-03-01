@@ -7,8 +7,8 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   let query = supabase
-    .from("crmContact")
-    .select("*, crmAccount(crmAccountName)")
+    .from("salesContact")
+    .select("*, salesAccount(crmAccountName)")
     .eq("crmContactId", id);
   if (!isSuperAdmin) query = query.eq("isActive", true);
   const { data, error } = await query.single();
@@ -25,7 +25,7 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmContact")
+    .from("salesContact")
     .update(body)
     .eq("crmContactId", id)
     .select()
@@ -42,7 +42,7 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("crmContact")
+    .from("salesContact")
     .update({ isActive: false })
     .eq("crmContactId", id);
 

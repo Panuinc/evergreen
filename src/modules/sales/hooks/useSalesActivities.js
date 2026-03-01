@@ -19,7 +19,7 @@ const emptyForm = {
   crmActivityAssignedTo: "",
 };
 
-export function useCrmActivities() {
+export function useSalesActivities() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

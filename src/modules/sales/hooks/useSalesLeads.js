@@ -25,7 +25,7 @@ const emptyForm = {
   crmLeadNotes: "",
 };
 
-export function useCrmLeads() {
+export function useSalesLeads() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

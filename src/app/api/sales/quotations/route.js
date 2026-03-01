@@ -9,9 +9,9 @@ export async function GET(request) {
   const status = searchParams.get("status");
 
   let query = supabase
-    .from("crmQuotation")
+    .from("salesQuotation")
     .select(
-      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmOpportunity(crmOpportunityName)"
+      "*, salesContact(crmContactFirstName, crmContactLastName), salesAccount(crmAccountName), salesOpportunity(crmOpportunityName)"
     );
   if (!isSuperAdmin) query = query.eq("isActive", true);
 
@@ -34,7 +34,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmQuotation")
+    .from("salesQuotation")
     .insert([body])
     .select()
     .single();

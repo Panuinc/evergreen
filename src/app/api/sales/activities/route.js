@@ -12,9 +12,9 @@ export async function GET(request) {
   const opportunityId = searchParams.get("opportunityId");
 
   let query = supabase
-    .from("crmActivity")
+    .from("salesActivity")
     .select(
-      "*, crmContact(crmContactFirstName, crmContactLastName), crmOpportunity(crmOpportunityName), crmAccount(crmAccountName)"
+      "*, salesContact(crmContactFirstName, crmContactLastName), salesOpportunity(crmOpportunityName), salesAccount(crmAccountName)"
     );
   if (!isSuperAdmin) query = query.eq("isActive", true);
 
@@ -44,7 +44,7 @@ export async function POST(request) {
   if (body.crmActivityId) {
     const { crmActivityId, ...updateData } = body;
     const { data, error } = await supabase
-      .from("crmActivity")
+      .from("salesActivity")
       .update(updateData)
       .eq("crmActivityId", crmActivityId)
       .select()
@@ -57,7 +57,7 @@ export async function POST(request) {
   // Handle delete via POST with deleteId
   if (body.deleteId) {
     const { error } = await supabase
-      .from("crmActivity")
+      .from("salesActivity")
       .update({ isActive: false })
       .eq("crmActivityId", body.deleteId);
 
@@ -67,7 +67,7 @@ export async function POST(request) {
 
   // Create new activity
   const { data, error } = await supabase
-    .from("crmActivity")
+    .from("salesActivity")
     .insert([body])
     .select()
     .single();

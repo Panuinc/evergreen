@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { getQuotationsList, deleteQuotation } from "@/modules/sales/actions";
 import { useDisclosure } from "@heroui/react";
 
-export function useCrmQuotations() {
+export function useSalesQuotations() {
   const router = useRouter();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);

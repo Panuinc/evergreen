@@ -1,10 +1,10 @@
 "use client";
 
-import { useCrmDashboard } from "@/modules/sales/hooks/useCrmDashboard";
+import { useSalesDashboard } from "@/modules/sales/hooks/useSalesDashboard";
 import DashboardView from "@/modules/sales/components/DashboardView";
 
 export default function SalesDashboardPage() {
-  const { data, loading } = useCrmDashboard();
+  const { data, loading } = useSalesDashboard();
 
   return <DashboardView data={data} loading={loading} />;
 }

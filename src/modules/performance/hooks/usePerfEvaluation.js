@@ -21,7 +21,7 @@ import {
 } from "@/lib/performance/evaluationCriteria";
 import { useAuth } from "@/contexts/AuthContext";
 
-export function useEvaluation() {
+export function usePerfEvaluation() {
   const { user } = useAuth();
 
   // Form state

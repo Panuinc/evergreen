@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useCrmQuotationEditor } from "@/modules/sales/hooks/useCrmQuotationEditor";
+import { useSalesQuotationEditor } from "@/modules/sales/hooks/useSalesQuotationEditor";
 import QuotationEditorView from "@/modules/sales/components/QuotationEditorView";
 
 export default function QuotationEditorPage() {
@@ -25,7 +25,7 @@ export default function QuotationEditorPage() {
     handleSave,
     handleAction,
     updateQuotationField,
-  } = useCrmQuotationEditor(quotationId);
+  } = useSalesQuotationEditor(quotationId);
 
   const onNavigateBack = () => {
     router.push("/sales/quotations");

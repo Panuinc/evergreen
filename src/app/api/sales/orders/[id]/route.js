@@ -7,9 +7,9 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   let query = supabase
-    .from("crmOrder")
+    .from("salesOrder")
     .select(
-      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmQuotation(crmQuotationNo)"
+      "*, salesContact(crmContactFirstName, crmContactLastName), salesAccount(crmAccountName), salesQuotation(crmQuotationNo)"
     )
     .eq("crmOrderId", id);
   if (!isSuperAdmin) query = query.eq("isActive", true);
@@ -27,7 +27,7 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmOrder")
+    .from("salesOrder")
     .update(body)
     .eq("crmOrderId", id)
     .select()
@@ -44,7 +44,7 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("crmOrder")
+    .from("salesOrder")
     .update({ isActive: false })
     .eq("crmOrderId", id);
 

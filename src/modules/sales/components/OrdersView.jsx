@@ -70,9 +70,9 @@ export default function OrdersView({
             ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
             : "-";
         case "account":
-          return item.crmAccount?.crmAccountName || "-";
+          return item.salesAccount?.crmAccountName || "-";
         case "quotation":
-          return item.crmQuotation?.crmQuotationNo || "-";
+          return item.salesQuotation?.crmQuotationNo || "-";
         case "crmOrderStatus": {
           const colorMap = {
             pending: "default",
@@ -211,13 +211,13 @@ export default function OrdersView({
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">บัญชี</span>
                     <span className="font-medium">
-                      {selectedOrder.crmAccount?.crmAccountName || "-"}
+                      {selectedOrder.salesAccount?.crmAccountName || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm text-default-500">ใบเสนอราคา</span>
                     <span className="font-medium">
-                      {selectedOrder.crmQuotation?.crmQuotationNo || "-"}
+                      {selectedOrder.salesQuotation?.crmQuotationNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">

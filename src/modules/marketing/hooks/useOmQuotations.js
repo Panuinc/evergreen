@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { getQuotations } from "@/modules/marketing/actions";
 
-export function useQuotations() {
+export function useOmQuotations() {
   const router = useRouter();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);

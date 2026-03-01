@@ -18,7 +18,7 @@ import {
   getKpiDashboard,
 } from "@/modules/performance/actions";
 
-export function useKpi() {
+export function usePerfKpi() {
   const { user } = useAuth();
 
   // Tab

@@ -5,7 +5,7 @@ import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { getOrders, updateOrder, deleteOrder } from "@/modules/sales/actions";
 
-export function useCrmOrders() {
+export function useSalesOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

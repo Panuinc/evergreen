@@ -4,15 +4,15 @@
 -- Run this in Supabase SQL Editor
 -- =============================================================
 
--- ==================== Sales / CRM ====================
-ALTER TABLE "crmLead" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
-ALTER TABLE "crmContact" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
-ALTER TABLE "crmAccount" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
-ALTER TABLE "crmOpportunity" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
-ALTER TABLE "crmQuotation" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
-ALTER TABLE "crmQuotationLine" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
-ALTER TABLE "crmOrder" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
-ALTER TABLE "crmActivity" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
+-- ==================== Sales ====================
+ALTER TABLE "salesLead" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
+ALTER TABLE "salesContact" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
+ALTER TABLE "salesAccount" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
+ALTER TABLE "salesOpportunity" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
+ALTER TABLE "salesQuotation" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
+ALTER TABLE "salesQuotationLine" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
+ALTER TABLE "salesOrder" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
+ALTER TABLE "salesActivity" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
 
 -- ==================== HR ====================
 ALTER TABLE "hrDepartment" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
@@ -59,13 +59,13 @@ ALTER TABLE "omConversation" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NUL
 ALTER TABLE "omMessage" ADD COLUMN IF NOT EXISTS "isActive" boolean NOT NULL DEFAULT true;
 
 -- ==================== Partial Indexes ====================
-CREATE INDEX IF NOT EXISTS idx_crmLead_active ON "crmLead"("isActive") WHERE "isActive" = true;
-CREATE INDEX IF NOT EXISTS idx_crmContact_active ON "crmContact"("isActive") WHERE "isActive" = true;
-CREATE INDEX IF NOT EXISTS idx_crmAccount_active ON "crmAccount"("isActive") WHERE "isActive" = true;
-CREATE INDEX IF NOT EXISTS idx_crmOpportunity_active ON "crmOpportunity"("isActive") WHERE "isActive" = true;
-CREATE INDEX IF NOT EXISTS idx_crmQuotation_active ON "crmQuotation"("isActive") WHERE "isActive" = true;
-CREATE INDEX IF NOT EXISTS idx_crmOrder_active ON "crmOrder"("isActive") WHERE "isActive" = true;
-CREATE INDEX IF NOT EXISTS idx_crmActivity_active ON "crmActivity"("isActive") WHERE "isActive" = true;
+CREATE INDEX IF NOT EXISTS idx_salesLead_active ON "salesLead"("isActive") WHERE "isActive" = true;
+CREATE INDEX IF NOT EXISTS idx_salesContact_active ON "salesContact"("isActive") WHERE "isActive" = true;
+CREATE INDEX IF NOT EXISTS idx_salesAccount_active ON "salesAccount"("isActive") WHERE "isActive" = true;
+CREATE INDEX IF NOT EXISTS idx_salesOpportunity_active ON "salesOpportunity"("isActive") WHERE "isActive" = true;
+CREATE INDEX IF NOT EXISTS idx_salesQuotation_active ON "salesQuotation"("isActive") WHERE "isActive" = true;
+CREATE INDEX IF NOT EXISTS idx_salesOrder_active ON "salesOrder"("isActive") WHERE "isActive" = true;
+CREATE INDEX IF NOT EXISTS idx_salesActivity_active ON "salesActivity"("isActive") WHERE "isActive" = true;
 CREATE INDEX IF NOT EXISTS idx_hrDepartment_active ON "hrDepartment"("isActive") WHERE "isActive" = true;
 CREATE INDEX IF NOT EXISTS idx_hrDivision_active ON "hrDivision"("isActive") WHERE "isActive" = true;
 CREATE INDEX IF NOT EXISTS idx_hrPosition_active ON "hrPosition"("isActive") WHERE "isActive" = true;

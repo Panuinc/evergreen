@@ -1,6 +1,6 @@
 "use client";
 
-import { useCrmOpportunities } from "@/modules/sales/hooks/useCrmOpportunities";
+import { useSalesOpportunities } from "@/modules/sales/hooks/useSalesOpportunities";
 import OpportunitiesView from "@/modules/sales/components/OpportunitiesView";
 
 export default function OpportunitiesPage() {
@@ -28,7 +28,7 @@ export default function OpportunitiesPage() {
     confirmDelete,
     handleDelete,
     toggleActive,
-  } = useCrmOpportunities();
+  } = useSalesOpportunities();
 
   return (
     <OpportunitiesView

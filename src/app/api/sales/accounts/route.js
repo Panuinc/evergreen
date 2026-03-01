@@ -8,7 +8,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
 
-  let query = supabase.from("crmAccount").select("*");
+  let query = supabase.from("salesAccount").select("*");
   if (!isSuperAdmin) query = query.eq("isActive", true);
 
   if (search) {
@@ -32,7 +32,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmAccount")
+    .from("salesAccount")
     .insert([body])
     .select()
     .single();

@@ -93,7 +93,7 @@ export default function ContactsView({
         case "crmContactPosition":
           return item.crmContactPosition || "-";
         case "crmAccountName":
-          return item.crmAccount?.crmAccountName || "-";
+          return item.salesAccount?.crmAccountName || "-";
         case "crmContactTags":
           return item.crmContactTags ? (
             <Chip variant="bordered" size="md" radius="md" color="primary">

@@ -17,7 +17,7 @@ const emptyLine = {
   crmQuotationLineAmount: 0,
 };
 
-export function useCrmQuotationEditor(quotationId) {
+export function useSalesQuotationEditor(quotationId) {
   const [quotation, setQuotation] = useState(null);
   const [lines, setLines] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -121,7 +121,7 @@ export default function OpportunitiesView({
             ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
             : "-";
         case "account":
-          return item.crmAccount?.crmAccountName || "-";
+          return item.salesAccount?.crmAccountName || "-";
         case "crmOpportunityStage": {
           const colorMap = {
             prospecting: "default",

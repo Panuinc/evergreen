@@ -1,6 +1,6 @@
 "use client";
 
-import { useCrmAccounts } from "@/modules/sales/hooks/useCrmAccounts";
+import { useSalesAccounts } from "@/modules/sales/hooks/useSalesAccounts";
 import AccountsView from "@/modules/sales/components/AccountsView";
 
 export default function AccountsPage() {
@@ -21,7 +21,7 @@ export default function AccountsPage() {
     confirmDelete,
     handleDelete,
     toggleActive,
-  } = useCrmAccounts();
+  } = useSalesAccounts();
 
   return (
     <AccountsView

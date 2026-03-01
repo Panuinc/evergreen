@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { getQuotation, updateQuotation, quotationAction } from "@/modules/marketing/actions";
 
-export function useQuotationEditor(id) {
+export function useOmQuotationEditor(id) {
   const [quotation, setQuotation] = useState(null);
   const [lines, setLines] = useState([]);
   const [loading, setLoading] = useState(true);

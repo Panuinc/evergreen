@@ -1,6 +1,6 @@
 "use client";
 
-import { useCrmContacts } from "@/modules/sales/hooks/useCrmContacts";
+import { useSalesContacts } from "@/modules/sales/hooks/useSalesContacts";
 import ContactsView from "@/modules/sales/components/ContactsView";
 
 export default function ContactsPage() {
@@ -21,7 +21,7 @@ export default function ContactsPage() {
     confirmDelete,
     handleDelete,
     toggleActive,
-  } = useCrmContacts();
+  } = useSalesContacts();
 
   return (
     <ContactsView

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getStockItems } from "@/modules/marketing/actions";
 
-export function useStockItems() {
+export function useOmStockItems() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [prices, setPrices] = useState({});

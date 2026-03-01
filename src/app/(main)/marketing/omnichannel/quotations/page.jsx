@@ -1,11 +1,11 @@
 "use client";
 
-import { useQuotations } from "@/modules/marketing/hooks/useQuotations";
+import { useOmQuotations } from "@/modules/marketing/hooks/useOmQuotations";
 import OmnichannelQuotationsView from "@/modules/marketing/components/OmnichannelQuotationsView";
 
 export default function QuotationListPage() {
   const { quotations, loading, statusFilter, setStatusFilter, handleNavigateToQuotation } =
-    useQuotations();
+    useOmQuotations();
 
   return (
     <OmnichannelQuotationsView

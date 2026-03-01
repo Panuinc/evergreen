@@ -1,6 +1,6 @@
 "use client";
 
-import { useCrmActivities } from "@/modules/sales/hooks/useCrmActivities";
+import { useSalesActivities } from "@/modules/sales/hooks/useSalesActivities";
 import ActivitiesView from "@/modules/sales/components/ActivitiesView";
 
 export default function ActivitiesPage() {
@@ -26,7 +26,7 @@ export default function ActivitiesPage() {
     confirmDelete,
     handleDelete,
     toggleActive,
-  } = useCrmActivities();
+  } = useSalesActivities();
 
   return (
     <ActivitiesView

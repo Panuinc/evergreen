@@ -23,7 +23,7 @@ const emptyForm = {
   crmAccountNotes: "",
 };
 
-export function useCrmAccounts() {
+export function useSalesAccounts() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

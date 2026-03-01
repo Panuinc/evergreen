@@ -1,6 +1,6 @@
 "use client";
 
-import { useCrmLeads } from "@/modules/sales/hooks/useCrmLeads";
+import { useSalesLeads } from "@/modules/sales/hooks/useSalesLeads";
 import LeadsView from "@/modules/sales/components/LeadsView";
 
 export default function LeadsPage() {
@@ -22,7 +22,7 @@ export default function LeadsPage() {
     handleDelete,
     handleConvert,
     toggleActive,
-  } = useCrmLeads();
+  } = useSalesLeads();
 
   return (
     <LeadsView

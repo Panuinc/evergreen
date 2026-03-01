@@ -141,6 +141,6 @@ export async function deleteActivity(id) {
 
 // ==================== Dashboard ====================
 
-export async function getCrmDashboard() {
+export async function getSalesDashboard() {
   return get("/api/sales/dashboard");
 }

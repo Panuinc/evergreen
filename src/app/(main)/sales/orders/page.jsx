@@ -1,6 +1,6 @@
 "use client";
 
-import { useCrmOrders } from "@/modules/sales/hooks/useCrmOrders";
+import { useSalesOrders } from "@/modules/sales/hooks/useSalesOrders";
 import OrdersView from "@/modules/sales/components/OrdersView";
 
 export default function OrdersPage() {
@@ -19,7 +19,7 @@ export default function OrdersPage() {
     confirmDelete,
     handleDelete,
     reload,
-  } = useCrmOrders();
+  } = useSalesOrders();
 
   return (
     <OrdersView

@@ -33,7 +33,7 @@ const STAGE_PROBABILITY = {
   closed_lost: 0,
 };
 
-export function useCrmOpportunities() {
+export function useSalesOpportunities() {
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

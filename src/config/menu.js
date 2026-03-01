@@ -110,12 +110,12 @@ export const menuData = [
     subMenus: [
       { name: "แดชบอร์ด IT", icon: LayoutDashboard, href: "/it/dashboard" },
       { name: "ทรัพย์สิน", icon: Server, href: "/it/assets" },
-      { name: "ศูนย์ช่วยเหลือ", icon: HeadphonesIcon, href: "/it/helpdesk" },
+      { name: "ศูนย์ช่วยเหลือ", icon: HeadphonesIcon, href: "/it/tickets" },
       { name: "การเข้าถึงระบบ", icon: Shield, href: "/it/systemAccess" },
       { name: "เครือข่าย", icon: Globe, href: "/it/network" },
       { name: "ซอฟต์แวร์", icon: FileText, href: "/it/software" },
       { name: "ความปลอดภัย", icon: Lock, href: "/it/security" },
-      { name: "พัฒนาระบบ", icon: GitBranch, href: "/it/development" },
+      { name: "พัฒนาระบบ", icon: GitBranch, href: "/it/devRequests" },
     ],
   },
   {

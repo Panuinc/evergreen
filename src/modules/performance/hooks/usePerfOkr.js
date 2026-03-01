@@ -17,7 +17,7 @@ import {
   createCheckin,
 } from "@/modules/performance/actions";
 
-export function useOkr() {
+export function usePerfOkr() {
   const { user } = useAuth();
 
   // Tab

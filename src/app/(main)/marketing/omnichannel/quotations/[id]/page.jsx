@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useQuotationEditor } from "@/modules/marketing/hooks/useQuotationEditor";
+import { useOmQuotationEditor } from "@/modules/marketing/hooks/useOmQuotationEditor";
 import OmnichannelQuotationEditorView from "@/modules/marketing/components/OmnichannelQuotationEditorView";
 
 export default function QuotationEditorPage() {
@@ -17,7 +17,7 @@ export default function QuotationEditorPage() {
     calcTotal,
     handleSave,
     handleAction,
-  } = useQuotationEditor(id);
+  } = useOmQuotationEditor(id);
 
   return (
     <OmnichannelQuotationEditorView

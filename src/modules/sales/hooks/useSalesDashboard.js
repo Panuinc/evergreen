@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getCrmDashboard } from "@/modules/sales/actions";
+import { getSalesDashboard } from "@/modules/sales/actions";
 
-export function useCrmDashboard() {
+export function useSalesDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +15,7 @@ export function useCrmDashboard() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const result = await getCrmDashboard();
+      const result = await getSalesDashboard();
       setData(result);
     } catch (error) {
       toast.error("โหลดแดชบอร์ดล้มเหลว");

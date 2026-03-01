@@ -135,7 +135,7 @@ export default function ActivitiesView({
             ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
             : "-";
         case "opportunity":
-          return item.crmOpportunity?.crmOpportunityName || "-";
+          return item.salesOpportunity?.crmOpportunityName || "-";
         case "crmActivityPriority": {
           const color = PRIORITY_COLOR_MAP[item.crmActivityPriority] || "default";
           return (

@@ -16,9 +16,9 @@ export async function GET(request, { params }) {
 
   // Fetch quotation with relations
   let query = supabase
-    .from("crmQuotation")
+    .from("salesQuotation")
     .select(
-      "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmOpportunity(crmOpportunityName)"
+      "*, salesContact(crmContactFirstName, crmContactLastName), salesAccount(crmAccountName), salesOpportunity(crmOpportunityName)"
     )
     .eq("crmQuotationId", id);
   if (!isSuperAdmin) query = query.eq("isActive", true);
@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
 
   // Fetch lines
   let linesQuery = supabase
-    .from("crmQuotationLine")
+    .from("salesQuotationLine")
     .select("*")
     .eq("crmQuotationLineQuotationId", id);
   if (!isSuperAdmin) linesQuery = linesQuery.eq("isActive", true);
@@ -48,7 +48,7 @@ export async function PUT(request, { params }) {
 
   // Update quotation
   const { data: quotation, error } = await supabase
-    .from("crmQuotation")
+    .from("salesQuotation")
     .update(quotationData)
     .eq("crmQuotationId", id)
     .select()
@@ -59,7 +59,7 @@ export async function PUT(request, { params }) {
   // Update lines if provided
   if (lines) {
     // Delete existing lines
-    await supabase.from("crmQuotationLine").delete().eq("crmQuotationLineQuotationId", id);
+    await supabase.from("salesQuotationLine").delete().eq("crmQuotationLineQuotationId", id);
 
     // Insert new lines
     if (lines.length > 0) {
@@ -73,7 +73,7 @@ export async function PUT(request, { params }) {
         crmQuotationLineDiscount: line.crmQuotationLineDiscount || 0,
         crmQuotationLineAmount: line.crmQuotationLineAmount || 0,
       }));
-      await supabase.from("crmQuotationLine").insert(lineData);
+      await supabase.from("salesQuotationLine").insert(lineData);
     }
   }
 
@@ -96,7 +96,7 @@ export async function POST(request, { params }) {
 
   // Get current quotation
   const { data: quotation, error: fetchError } = await supabase
-    .from("crmQuotation")
+    .from("salesQuotation")
     .select("*")
     .eq("crmQuotationId", id)
     .single();
@@ -116,7 +116,7 @@ export async function POST(request, { params }) {
   // Handle convert to order
   if (action === "convert_order") {
     const { data: order, error: orderError } = await supabase
-      .from("crmOrder")
+      .from("salesOrder")
       .insert([
         {
           crmOrderQuotationId: id,
@@ -139,7 +139,7 @@ export async function POST(request, { params }) {
 
     // Update quotation status
     await supabase
-      .from("crmQuotation")
+      .from("salesQuotation")
       .update({ crmQuotationStatus: "converted" })
       .eq("crmQuotationId", id);
 
@@ -156,7 +156,7 @@ export async function POST(request, { params }) {
   }
 
   const { data, error } = await supabase
-    .from("crmQuotation")
+    .from("salesQuotation")
     .update(updateData)
     .eq("crmQuotationId", id)
     .select()
@@ -175,13 +175,13 @@ export async function DELETE(request, { params }) {
 
   // Soft-delete quotation lines (cascade)
   await supabase
-    .from("crmQuotationLine")
+    .from("salesQuotationLine")
     .update({ isActive: false })
     .eq("crmQuotationLineQuotationId", id);
 
   // Soft-delete quotation
   const { error } = await supabase
-    .from("crmQuotation")
+    .from("salesQuotation")
     .update({ isActive: false })
     .eq("crmQuotationId", id);
 

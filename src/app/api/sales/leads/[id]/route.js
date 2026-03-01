@@ -7,7 +7,7 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
   let query = supabase
-    .from("crmLead")
+    .from("salesLead")
     .select("*")
     .eq("crmLeadId", id);
   if (!isSuperAdmin) query = query.eq("isActive", true);
@@ -25,7 +25,7 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
   const { data, error } = await supabase
-    .from("crmLead")
+    .from("salesLead")
     .update(body)
     .eq("crmLeadId", id)
     .select()
@@ -46,7 +46,7 @@ export async function POST(request, { params }) {
   if (body.action === "convert") {
     // Get the lead
     const { data: lead, error: leadError } = await supabase
-      .from("crmLead")
+      .from("salesLead")
       .select("*")
       .eq("crmLeadId", id)
       .single();
@@ -63,7 +63,7 @@ export async function POST(request, { params }) {
 
     // Create contact from lead
     const { data: contact, error: contactError } = await supabase
-      .from("crmContact")
+      .from("salesContact")
       .insert([
         {
           crmContactFirstName: lead.crmLeadName.split(" ")[0] || lead.crmLeadName,
@@ -82,7 +82,7 @@ export async function POST(request, { params }) {
 
     // Create opportunity from lead
     const { data: opportunity, error: oppError } = await supabase
-      .from("crmOpportunity")
+      .from("salesOpportunity")
       .insert([
         {
           crmOpportunityName: `${lead.crmLeadName} - Opportunity`,
@@ -101,7 +101,7 @@ export async function POST(request, { params }) {
 
     // Update lead status
     await supabase
-      .from("crmLead")
+      .from("salesLead")
       .update({
         crmLeadStatus: "converted",
         crmLeadConvertedContactId: contact.crmContactId,
@@ -122,7 +122,7 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const { error } = await supabase
-    .from("crmLead")
+    .from("salesLead")
     .update({ isActive: false })
     .eq("crmLeadId", id);
 

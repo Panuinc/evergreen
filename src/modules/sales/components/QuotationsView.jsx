@@ -81,9 +81,9 @@ export default function QuotationsView({
             ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
             : "-";
         case "account":
-          return item.crmAccount?.crmAccountName || "-";
+          return item.salesAccount?.crmAccountName || "-";
         case "opportunity":
-          return item.crmOpportunity?.crmOpportunityName || "-";
+          return item.salesOpportunity?.crmOpportunityName || "-";
         case "crmQuotationStatus": {
           const color = STATUS_COLOR_MAP[item.crmQuotationStatus] || "default";
           return (

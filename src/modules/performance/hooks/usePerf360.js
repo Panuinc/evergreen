@@ -22,7 +22,7 @@ import {
 } from "@/modules/performance/actions";
 import { DEFAULT_COMPETENCY_TEMPLATES } from "@/lib/performance/feedback360Constants";
 
-export function useFeedback360() {
+export function usePerf360() {
   const { user } = useAuth();
 
   // Tab

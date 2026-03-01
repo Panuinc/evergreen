@@ -23,7 +23,7 @@ const emptyForm = {
   crmContactNotes: "",
 };
 
-export function useCrmContacts() {
+export function useSalesContacts() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
