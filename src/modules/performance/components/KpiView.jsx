@@ -36,7 +36,7 @@ import {
   Users,
   FileText,
 } from "lucide-react";
-import LineChart from "@/components/charts/LineChart";
+import LineChart from "@/modules/performance/components/charts/LineChart";
 import {
   KPI_CATEGORIES,
   KPI_FREQUENCIES,

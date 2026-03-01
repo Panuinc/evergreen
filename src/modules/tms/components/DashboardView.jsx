@@ -1,10 +1,10 @@
 import { Card, CardBody, Spinner } from "@heroui/react";
 import { Truck, Package, Fuel, Wrench, CheckCircle, Clock } from "lucide-react";
-import ShipmentStatusChart from "@/components/charts/ShipmentStatusChart";
-import MonthlyShipmentChart from "@/components/charts/MonthlyShipmentChart";
-import FuelCostChart from "@/components/charts/FuelCostChart";
-import VehicleUtilizationChart from "@/components/charts/VehicleUtilizationChart";
-import MaintenanceCostChart from "@/components/charts/MaintenanceCostChart";
+import ShipmentStatusChart from "@/modules/tms/components/charts/ShipmentStatusChart";
+import MonthlyShipmentChart from "@/modules/tms/components/charts/MonthlyShipmentChart";
+import FuelCostChart from "@/modules/tms/components/charts/FuelCostChart";
+import VehicleUtilizationChart from "@/modules/tms/components/charts/VehicleUtilizationChart";
+import MaintenanceCostChart from "@/modules/tms/components/charts/MaintenanceCostChart";
 
 const buildCards = (stats) => [
   { title: "ยานพาหนะทั้งหมด", value: stats.totalVehicles, sub: `${stats.availableVehicles} พร้อมใช้งาน`, icon: Truck, color: "text-primary" },

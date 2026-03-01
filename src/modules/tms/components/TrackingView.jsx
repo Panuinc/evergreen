@@ -14,8 +14,8 @@ import {
   Spinner,
 } from "@heroui/react";
 import { MapPin, RefreshCw, Navigation, History } from "lucide-react";
-import VehicleMap from "@/components/maps/VehicleMap";
-import RoutePlayback from "@/components/maps/RoutePlayback";
+import VehicleMap from "@/modules/tms/components/maps/VehicleMap";
+import RoutePlayback from "@/modules/tms/components/maps/RoutePlayback";
 
 const STATUS_COLORS = {
   available: "success",

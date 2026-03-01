@@ -7,10 +7,10 @@ import {
   Briefcase,
   UserPlus,
 } from "lucide-react";
-import EmployeeByDivisionChart from "@/components/charts/EmployeeByDivisionChart";
-import EmployeeByDepartmentChart from "@/components/charts/EmployeeByDepartmentChart";
-import EmployeeStatusChart from "@/components/charts/EmployeeStatusChart";
-import NewEmployeeTrendChart from "@/components/charts/NewEmployeeTrendChart";
+import EmployeeByDivisionChart from "@/modules/hr/components/charts/EmployeeByDivisionChart";
+import EmployeeByDepartmentChart from "@/modules/hr/components/charts/EmployeeByDepartmentChart";
+import EmployeeStatusChart from "@/modules/hr/components/charts/EmployeeStatusChart";
+import NewEmployeeTrendChart from "@/modules/hr/components/charts/NewEmployeeTrendChart";
 
 export default function HrDashboardView({ stats, loading }) {
   if (loading) {

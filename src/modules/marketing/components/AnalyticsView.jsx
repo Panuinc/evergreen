@@ -13,21 +13,21 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { Button } from "@heroui/react";
-import RevenueTrendChart from "@/components/charts/RevenueTrendChart";
-import MonthlySalesChart from "@/components/charts/MonthlySalesChart";
-import DailyTrendChart from "@/components/charts/DailyTrendChart";
-import RevenueByDayChart from "@/components/charts/RevenueByDayChart";
-import TopCustomersChart from "@/components/charts/TopCustomersChart";
-import TopSkuChart from "@/components/charts/TopSkuChart";
-import OrderStatusChart from "@/components/charts/OrderStatusChart";
-import FulfillmentChart from "@/components/charts/FulfillmentChart";
-import LocationDistChart from "@/components/charts/LocationDistChart";
-import OrderValueDistChart from "@/components/charts/OrderValueDistChart";
-import MonthlyComparisonTable from "@/components/charts/MonthlyComparisonTable";
-import CustomerInsightsCard from "@/components/charts/CustomerInsightsCard";
-import ChannelDistChart from "@/components/charts/ChannelDistChart";
-import CustomerGroupChart from "@/components/charts/CustomerGroupChart";
-import ProjectTypeChart from "@/components/charts/ProjectTypeChart";
+import RevenueTrendChart from "@/modules/marketing/components/charts/RevenueTrendChart";
+import MonthlySalesChart from "@/modules/marketing/components/charts/MonthlySalesChart";
+import DailyTrendChart from "@/modules/marketing/components/charts/DailyTrendChart";
+import RevenueByDayChart from "@/modules/marketing/components/charts/RevenueByDayChart";
+import TopCustomersChart from "@/modules/marketing/components/charts/TopCustomersChart";
+import TopSkuChart from "@/modules/marketing/components/charts/TopSkuChart";
+import OrderStatusChart from "@/modules/marketing/components/charts/OrderStatusChart";
+import FulfillmentChart from "@/modules/marketing/components/charts/FulfillmentChart";
+import LocationDistChart from "@/modules/marketing/components/charts/LocationDistChart";
+import OrderValueDistChart from "@/modules/marketing/components/charts/OrderValueDistChart";
+import MonthlyComparisonTable from "@/modules/marketing/components/charts/MonthlyComparisonTable";
+import CustomerInsightsCard from "@/modules/marketing/components/charts/CustomerInsightsCard";
+import ChannelDistChart from "@/modules/marketing/components/charts/ChannelDistChart";
+import CustomerGroupChart from "@/modules/marketing/components/charts/CustomerGroupChart";
+import ProjectTypeChart from "@/modules/marketing/components/charts/ProjectTypeChart";
 
 const PERIODS = [
   { key: "all", label: "ทั้งหมด" },
