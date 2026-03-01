@@ -11,9 +11,11 @@ import {
   Input,
   Skeleton,
 } from "@heroui/react";
-import { Printer, Eye } from "lucide-react";
+import { Printer, Eye, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { printRfidLabels, previewLabel } from "@/lib/qzPrinter";
+
+const MAX_BATCH = 25;
 
 export default function PrintRfidModal({ isOpen, onClose, item }) {
   const [quantity, setQuantity] = useState("");
@@ -48,10 +50,23 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
     }
   }, [isOpen, item, loadPreview]);
 
+  const hasRfidCode = item?.rfidCode != null;
+  const qty = Number(quantity) || 0;
+  const isOverBatch = qty > MAX_BATCH;
+
   const handlePrint = async () => {
-    const qty = Number(quantity);
     if (!qty || qty < 1) {
       toast.error("กรุณาระบุจำนวนที่ต้องการพิมพ์");
+      return;
+    }
+
+    if (!hasRfidCode) {
+      toast.error("สินค้านี้ยังไม่ได้กำหนด RFID Code กรุณา assign ก่อนพิมพ์");
+      return;
+    }
+
+    if (isOverBatch) {
+      toast.error(`จำนวนต่อ batch ต้องไม่เกิน ${MAX_BATCH} ชิ้น`);
       return;
     }
 
@@ -83,6 +98,9 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
               <p className="text-default-500">{item.displayName}</p>
               <p className="text-default-400">
                 คงเหลือ: {Number(item.inventory || 0).toLocaleString("th-TH")}
+              </p>
+              <p className={hasRfidCode ? "text-success-600" : "text-danger"}>
+                RFID Code: {hasRfidCode ? item.rfidCode : "ยังไม่ได้กำหนด"}
               </p>
             </div>
 
@@ -130,8 +148,22 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
               onValueChange={setQuantity}
             />
 
+            {!hasRfidCode && (
+              <div className="flex items-center gap-2 rounded-lg bg-danger-50 p-3 text-sm text-danger">
+                <AlertTriangle size={16} className="shrink-0" />
+                <span>สินค้านี้ยังไม่ได้กำหนด RFID Code กรุณา assign ก่อนพิมพ์</span>
+              </div>
+            )}
+
+            {isOverBatch && (
+              <div className="flex items-center gap-2 rounded-lg bg-warning-50 p-3 text-sm text-warning-700">
+                <AlertTriangle size={16} className="shrink-0" />
+                <span>จำนวนต่อ batch ต้องไม่เกิน {MAX_BATCH} ชิ้น (EPC encoding limit)</span>
+              </div>
+            )}
+
             <p className="text-xs text-default-400">
-              RFID จะเขียนข้อมูล: รหัสสินค้า + ลำดับชิ้น (1/{quantity} ถึง{" "}
+              RFID จะเขียนข้อมูล: RFID Code + ลำดับชิ้น (1/{quantity} ถึง{" "}
               {quantity}/{quantity})
             </p>
           </div>
@@ -146,7 +178,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             radius="md"
             onPress={handlePrint}
             isLoading={printing}
-            isDisabled={!quantity}
+            isDisabled={!quantity || !hasRfidCode || isOverBatch}
             startContent={!printing && <Printer size={16} />}
           >
             พิมพ์ {quantity} ใบ

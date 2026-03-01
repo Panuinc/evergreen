@@ -1,10 +1,28 @@
 const EPC_BYTES = 12; /* 96-bit tag */
+const MAX_RFID_CODE = 99999999; // 8 digits max for EPC encoding
+const MAX_SEQUENCE = 25; // A-P encoding limit (0-9 + A-P)
 
 export function generatePlainEPC(
   rfidCodeOrItemNumber,
   sequenceNumber,
   totalQuantity,
 ) {
+  // Validate rfidCode range
+  if (typeof rfidCodeOrItemNumber === "number") {
+    if (rfidCodeOrItemNumber < 1 || rfidCodeOrItemNumber > MAX_RFID_CODE) {
+      throw new Error(
+        `rfidCode ต้องอยู่ระหว่าง 1 - ${MAX_RFID_CODE.toLocaleString()} (ได้รับ ${rfidCodeOrItemNumber})`,
+      );
+    }
+  }
+
+  // Validate sequence/total range
+  if (sequenceNumber > MAX_SEQUENCE || totalQuantity > MAX_SEQUENCE) {
+    throw new Error(
+      `จำนวนต่อ batch ต้องไม่เกิน ${MAX_SEQUENCE} ชิ้น (seq=${sequenceNumber}, total=${totalQuantity})`,
+    );
+  }
+
   const seqChar =
     sequenceNumber <= 9
       ? String(sequenceNumber)
