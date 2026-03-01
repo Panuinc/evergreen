@@ -3,7 +3,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase, session } = auth;
+  const { supabase, session, isSuperAdmin } = auth;
 
   const { searchParams } = new URL(request.url);
   const visibility = searchParams.get("visibility");
@@ -20,8 +20,9 @@ export async function GET(request) {
 
   let query = supabase
     .from("perfOkrObjective")
-    .select("*")
-    .order("perfOkrObjectiveCreatedAt", { ascending: false });
+    .select("*");
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  query = query.order("perfOkrObjectiveCreatedAt", { ascending: false });
 
   if (year) query = query.eq("perfOkrObjectiveYear", parseInt(year));
   if (quarter) query = query.eq("perfOkrObjectiveQuarter", parseInt(quarter));
@@ -48,11 +49,12 @@ export async function GET(request) {
 
   // Fetch key results separately
   const objIds = data.map((o) => o.perfOkrObjectiveId);
-  const { data: allKrs } = await supabase
+  let krQuery = supabase
     .from("perfOkrKeyResult")
     .select("*")
-    .in("perfOkrKeyResultObjectiveId", objIds)
-    .order("perfOkrKeyResultSortOrder", { ascending: true });
+    .in("perfOkrKeyResultObjectiveId", objIds);
+  if (!isSuperAdmin) krQuery = krQuery.eq("isActive", true);
+  const { data: allKrs } = await krQuery.order("perfOkrKeyResultSortOrder", { ascending: true });
 
   const krMap = {};
   for (const kr of (allKrs || [])) {
@@ -145,6 +147,7 @@ export async function POST(request) {
     .from("perfOkrKeyResult")
     .select("*")
     .eq("perfOkrKeyResultObjectiveId", objective.perfOkrObjectiveId)
+    .eq("isActive", true)
     .order("perfOkrKeyResultSortOrder", { ascending: true });
 
   return Response.json({ ...objective, keyResults: krs || [] }, { status: 201 });

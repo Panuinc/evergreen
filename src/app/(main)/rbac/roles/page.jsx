@@ -23,6 +23,7 @@ export default function RolesPage() {
     groupedPermissions,
     openPermissions,
     togglePermission,
+    toggleActive,
   } = useRoles();
 
   return (
@@ -45,6 +46,7 @@ export default function RolesPage() {
       groupedPermissions={groupedPermissions}
       openPermissions={openPermissions}
       togglePermission={togglePermission}
+      toggleActive={toggleActive}
     />
   );
 }

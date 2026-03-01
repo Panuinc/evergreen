@@ -51,7 +51,8 @@ async function updateObjectiveProgress(supabase, objectiveId) {
   const { data: krs } = await supabase
     .from("perfOkrKeyResult")
     .select("*")
-    .eq("perfOkrKeyResultObjectiveId", objectiveId);
+    .eq("perfOkrKeyResultObjectiveId", objectiveId)
+    .eq("isActive", true);
 
   const progress = computeObjectiveProgress(krs || []);
   await supabase

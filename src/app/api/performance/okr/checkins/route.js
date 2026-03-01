@@ -78,7 +78,8 @@ export async function POST(request) {
   const { data: allKrs } = await supabase
     .from("perfOkrKeyResult")
     .select("*")
-    .eq("perfOkrKeyResultObjectiveId", kr.perfOkrKeyResultObjectiveId);
+    .eq("perfOkrKeyResultObjectiveId", kr.perfOkrKeyResultObjectiveId)
+    .eq("isActive", true);
 
   // Replace the updated KR in the list for accurate calculation
   const krsForCalc = (allKrs || []).map((k) =>

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -10,11 +10,13 @@ import {
   Select,
   SelectItem,
   Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อทรัพย์สิน", uid: "itAssetName", sortable: true },
   { name: "แท็กทรัพย์สิน", uid: "itAssetTag", sortable: true },
   { name: "หมวดหมู่", uid: "itAssetCategory", sortable: true },
@@ -33,7 +35,7 @@ const statusOptions = [
   { name: "จำหน่ายแล้ว", uid: "disposed" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "itAssetName",
   "itAssetTag",
   "itAssetCategory",
@@ -59,7 +61,29 @@ export default function AssetsView({
   handleSave,
   confirmDelete,
   handleDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
@@ -95,6 +119,17 @@ export default function AssetsView({
             </Chip>
           );
         }
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={item.isActive ? "success" : "danger"}
+            >
+              {item.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -107,22 +142,30 @@ export default function AssetsView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={item.isActive}
+                  onValueChange={() => toggleActive(item)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => confirmDelete(item)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return item[columnKey] || "-";
       }
     },
-    [handleOpen, confirmDelete],
+    [handleOpen, confirmDelete, isSuperAdmin, toggleActive],
   );
 
   return (
@@ -134,7 +177,7 @@ export default function AssetsView({
         enableCardView
         rowKey="itAssetId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, แท็ก, ยี่ห้อ, สถานที่..."
         searchKeys={[
           "itAssetName",

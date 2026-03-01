@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -10,11 +10,13 @@ import {
   Select,
   SelectItem,
   Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, ArrowRightLeft } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "เลขที่ลีด", uid: "crmLeadNo", sortable: true },
   { name: "ชื่อ", uid: "crmLeadName", sortable: true },
   { name: "บริษัท", uid: "crmLeadCompany" },
@@ -35,7 +37,7 @@ const statusOptions = [
   { name: "สูญเสีย", uid: "lost" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "crmLeadNo",
   "crmLeadName",
   "crmLeadCompany",
@@ -62,7 +64,29 @@ export default function LeadsView({
   confirmDelete,
   handleDelete,
   handleConvert,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
@@ -126,6 +150,17 @@ export default function LeadsView({
         }
         case "crmLeadAssignedTo":
           return item.crmLeadAssignedTo || "-";
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={item.isActive ? "success" : "danger"}
+            >
+              {item.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -149,22 +184,30 @@ export default function LeadsView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={item.isActive}
+                  onValueChange={() => toggleActive(item)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => confirmDelete(item)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return item[columnKey] || "-";
       }
     },
-    [handleOpen, confirmDelete, handleConvert],
+    [handleOpen, confirmDelete, handleConvert, isSuperAdmin, toggleActive],
   );
 
   return (
@@ -176,7 +219,7 @@ export default function LeadsView({
         enableCardView
         rowKey="crmLeadId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาลีด..."
         searchKeys={[
           "crmLeadName",

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -10,10 +10,12 @@ import {
   Select,
   SelectItem,
   Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Download } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
+import { useRBAC } from "@/contexts/RBACContext";
 
 const maintenanceCsvColumns = [
   { header: "วันที่", key: "tmsMaintenanceDate" },
@@ -24,7 +26,7 @@ const maintenanceCsvColumns = [
   { header: "สถานะ", key: "tmsMaintenanceStatus" },
 ];
 
-const columns = [
+const baseColumns = [
   { name: "วันที่", uid: "tmsMaintenanceDate", sortable: true },
   { name: "ยานพาหนะ", uid: "tmsVehicleName", sortable: true },
   { name: "ประเภท", uid: "tmsMaintenanceType", sortable: true },
@@ -41,7 +43,7 @@ const statusOptions = [
   { name: "ยกเลิก", uid: "cancelled" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "tmsMaintenanceDate",
   "tmsVehicleName",
   "tmsMaintenanceType",
@@ -74,7 +76,29 @@ export default function MaintenanceView({
   handleSave,
   confirmDelete,
   handleDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
@@ -120,6 +144,17 @@ export default function MaintenanceView({
               {item.tmsMaintenanceStatus}
             </Chip>
           );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={item.isActive ? "success" : "danger"}
+            >
+              {item.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -132,22 +167,30 @@ export default function MaintenanceView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={item.isActive}
+                  onValueChange={() => toggleActive(item)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => confirmDelete(item)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return item[columnKey] || "-";
       }
     },
-    [handleOpen, confirmDelete, vehicles],
+    [handleOpen, confirmDelete, toggleActive, isSuperAdmin, vehicles],
   );
 
   return (
@@ -159,7 +202,7 @@ export default function MaintenanceView({
         enableCardView
         rowKey="tmsMaintenanceId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาด้วยรายละเอียด, ผู้ให้บริการ..."
         searchKeys={[
           "tmsMaintenanceDescription",

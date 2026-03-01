@@ -3,13 +3,15 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request, { params }) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
   const { roleId } = await params;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("rbacRolePermission")
     .select("*, rbacPermission(*, rbacResource(*), rbacAction(*))")
     .eq("rbacRolePermissionRoleId", roleId);
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  const { data, error } = await query;
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
@@ -47,7 +49,7 @@ export async function DELETE(request, { params }) {
 
   const { error } = await supabase
     .from("rbacRolePermission")
-    .delete()
+    .update({ isActive: false })
     .eq("rbacRolePermissionRoleId", roleId)
     .eq("rbacRolePermissionPermissionId", permissionId);
 

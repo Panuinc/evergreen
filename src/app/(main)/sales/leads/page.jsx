@@ -21,6 +21,7 @@ export default function LeadsPage() {
     confirmDelete,
     handleDelete,
     handleConvert,
+    toggleActive,
   } = useCrmLeads();
 
   return (
@@ -41,6 +42,7 @@ export default function LeadsPage() {
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
       handleConvert={handleConvert}
+      toggleActive={toggleActive}
     />
   );
 }

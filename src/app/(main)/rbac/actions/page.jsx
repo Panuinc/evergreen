@@ -15,6 +15,7 @@ export default function ActionsPage() {
     handleOpen,
     handleSave,
     handleDelete,
+    toggleActive,
   } = useActions();
 
   return (
@@ -29,6 +30,7 @@ export default function ActionsPage() {
       handleOpen={handleOpen}
       handleSave={handleSave}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

@@ -6,12 +6,12 @@ export async function GET() {
   const { supabase } = auth;
 
   const [assetsRes, ticketsRes, softwareRes, devicesRes, incidentsRes, accessRes] = await Promise.all([
-    supabase.from("itAsset").select("itAssetId, itAssetCategory, itAssetStatus"),
-    supabase.from("itTicket").select("itTicketId, itTicketStatus, itTicketPriority, itTicketCategory, itTicketCreatedAt"),
-    supabase.from("itSoftware").select("itSoftwareId, itSoftwareStatus, itSoftwareLicenseType, itSoftwareExpiryDate"),
-    supabase.from("itNetworkDevice").select("itNetworkDeviceId, itNetworkDeviceStatus, itNetworkDeviceType"),
-    supabase.from("itSecurityIncident").select("itSecurityIncidentId, itSecurityIncidentStatus, itSecurityIncidentSeverity, itSecurityIncidentCreatedAt"),
-    supabase.from("itSystemAccess").select("itSystemAccessId, itSystemAccessStatus"),
+    supabase.from("itAsset").select("itAssetId, itAssetCategory, itAssetStatus").eq("isActive", true),
+    supabase.from("itTicket").select("itTicketId, itTicketStatus, itTicketPriority, itTicketCategory, itTicketCreatedAt").eq("isActive", true),
+    supabase.from("itSoftware").select("itSoftwareId, itSoftwareStatus, itSoftwareLicenseType, itSoftwareExpiryDate").eq("isActive", true),
+    supabase.from("itNetworkDevice").select("itNetworkDeviceId, itNetworkDeviceStatus, itNetworkDeviceType").eq("isActive", true),
+    supabase.from("itSecurityIncident").select("itSecurityIncidentId, itSecurityIncidentStatus, itSecurityIncidentSeverity, itSecurityIncidentCreatedAt").eq("isActive", true),
+    supabase.from("itSystemAccess").select("itSystemAccessId, itSystemAccessStatus").eq("isActive", true),
   ]);
 
   if (assetsRes.error || ticketsRes.error || softwareRes.error || devicesRes.error || incidentsRes.error || accessRes.error) {

@@ -19,6 +19,7 @@ export default function DivisionsPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useDivisions();
 
   return (
@@ -37,6 +38,7 @@ export default function DivisionsPage() {
       onSave={handleSave}
       onConfirmDelete={confirmDelete}
       onDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

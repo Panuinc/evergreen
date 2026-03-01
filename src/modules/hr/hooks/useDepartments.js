@@ -105,6 +105,16 @@ export function useDepartments() {
     }
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateDepartment(item.hrDepartmentId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadData();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   return {
     departments,
     divisions,
@@ -121,5 +131,6 @@ export function useDepartments() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }

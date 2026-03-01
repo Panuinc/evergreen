@@ -6,10 +6,10 @@ export async function GET() {
   const { supabase } = auth;
 
   const [vehiclesRes, shipmentsRes, fuelRes, mainRes] = await Promise.all([
-    supabase.from("tmsVehicle").select("tmsVehicleId, tmsVehicleName, tmsVehicleStatus"),
-    supabase.from("tmsShipment").select("tmsShipmentStatus, tmsShipmentDate, tmsShipmentVehicleId"),
-    supabase.from("tmsFuelLog").select("tmsFuelLogTotalCost, tmsFuelLogDate"),
-    supabase.from("tmsMaintenance").select("tmsMaintenanceCost, tmsMaintenanceStatus, tmsMaintenanceDate"),
+    supabase.from("tmsVehicle").select("tmsVehicleId, tmsVehicleName, tmsVehicleStatus").eq("isActive", true),
+    supabase.from("tmsShipment").select("tmsShipmentStatus, tmsShipmentDate, tmsShipmentVehicleId").eq("isActive", true),
+    supabase.from("tmsFuelLog").select("tmsFuelLogTotalCost, tmsFuelLogDate").eq("isActive", true),
+    supabase.from("tmsMaintenance").select("tmsMaintenanceCost, tmsMaintenanceStatus, tmsMaintenanceDate").eq("isActive", true),
   ]);
 
   if (vehiclesRes.error || shipmentsRes.error || fuelRes.error || mainRes.error) {

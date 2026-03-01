@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -10,11 +10,14 @@ import {
   Select,
   SelectItem,
   Textarea,
+  Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อตำแหน่ง", uid: "hrPositionTitle", sortable: true },
   { name: "แผนก", uid: "hrPositionDepartment", sortable: true },
   { name: "รายละเอียด", uid: "hrPositionDescription" },
@@ -22,7 +25,7 @@ const columns = [
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "hrPositionTitle",
   "hrPositionDepartment",
   "hrPositionDescription",
@@ -45,7 +48,29 @@ export default function PositionsView({
   onSave,
   onConfirmDelete,
   onDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const deptOptions = departments.map((d) => ({
     name: d.hrDepartmentName,
     uid: d.hrDepartmentName,
@@ -70,6 +95,17 @@ export default function PositionsView({
               {new Date(pos.hrPositionCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={pos.isActive ? "success" : "danger"}
+            >
+              {pos.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -82,22 +118,30 @@ export default function PositionsView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => onConfirmDelete(pos)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={pos.isActive}
+                  onValueChange={() => toggleActive(pos)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => onConfirmDelete(pos)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return pos[columnKey] || "-";
       }
     },
-    [onOpen, onConfirmDelete],
+    [onOpen, onConfirmDelete, isSuperAdmin, toggleActive],
   );
 
   return (
@@ -109,7 +153,7 @@ export default function PositionsView({
         enableCardView
         rowKey="hrPositionId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อตำแหน่ง, แผนก, รายละเอียด..."
         searchKeys={[
           "hrPositionTitle",

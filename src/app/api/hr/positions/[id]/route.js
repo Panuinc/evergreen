@@ -26,7 +26,7 @@ export async function DELETE(request, { params }) {
 
   const { error } = await supabase
     .from("hrPosition")
-    .delete()
+    .update({ isActive: false })
     .eq("hrPositionId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });

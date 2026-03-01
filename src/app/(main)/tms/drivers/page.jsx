@@ -20,6 +20,7 @@ export default function DriversPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useDrivers();
 
   return (
@@ -39,6 +40,7 @@ export default function DriversPage() {
       handleSave={handleSave}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

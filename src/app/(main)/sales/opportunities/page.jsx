@@ -27,6 +27,7 @@ export default function OpportunitiesPage() {
     handleCloseLost,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useCrmOpportunities();
 
   return (
@@ -53,6 +54,7 @@ export default function OpportunitiesPage() {
       handleCloseLost={handleCloseLost}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

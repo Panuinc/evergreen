@@ -26,7 +26,7 @@ export async function DELETE(request, { params }) {
 
   const { error } = await supabase
     .from("rbacResource")
-    .delete()
+    .update({ isActive: false })
     .eq("rbacResourceId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });

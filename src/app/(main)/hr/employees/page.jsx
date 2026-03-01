@@ -22,6 +22,7 @@ export default function EmployeesPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useEmployees();
 
   return (
@@ -43,6 +44,7 @@ export default function EmployeesPage() {
       onSave={handleSave}
       onConfirmDelete={confirmDelete}
       onDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

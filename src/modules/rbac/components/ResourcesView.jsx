@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -12,19 +12,22 @@ import {
   Textarea,
   Select,
   SelectItem,
+  Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { menuData } from "@/config/menu";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อ", uid: "rbacResourceName", sortable: true },
   { name: "โมดูล", uid: "rbacResourceModuleId", sortable: true },
   { name: "รายละเอียด", uid: "rbacResourceDescription" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "rbacResourceName",
   "rbacResourceModuleId",
   "rbacResourceDescription",
@@ -42,7 +45,29 @@ export default function ResourcesView({
   handleOpen,
   handleSave,
   handleDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (resource, columnKey) => {
       switch (columnKey) {
@@ -60,6 +85,17 @@ export default function ResourcesView({
               {resource.rbacResourceDescription || "-"}
             </span>
           );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={resource.isActive ? "success" : "danger"}
+            >
+              {resource.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -72,22 +108,30 @@ export default function ResourcesView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => handleDelete(resource)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={resource.isActive}
+                  onValueChange={() => toggleActive(resource)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => handleDelete(resource)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return resource[columnKey] || "-";
       }
     },
-    [handleOpen, handleDelete],
+    [handleOpen, handleDelete, toggleActive, isSuperAdmin],
   );
 
   return (
@@ -99,7 +143,7 @@ export default function ResourcesView({
         enableCardView
         rowKey="rbacResourceId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, โมดูล, รายละเอียด..."
         searchKeys={["rbacResourceName", "rbacResourceModuleId", "rbacResourceDescription"]}
         emptyContent="ไม่พบทรัพยากร"

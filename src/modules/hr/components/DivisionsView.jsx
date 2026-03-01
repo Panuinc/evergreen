@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -8,18 +8,21 @@ import {
   ModalFooter,
   Input,
   Textarea,
+  Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อ", uid: "hrDivisionName", sortable: true },
   { name: "รายละเอียด", uid: "hrDivisionDescription" },
   { name: "วันที่สร้าง", uid: "hrDivisionCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "hrDivisionName",
   "hrDivisionDescription",
   "hrDivisionCreatedAt",
@@ -41,7 +44,29 @@ export default function DivisionsView({
   onSave,
   onConfirmDelete,
   onDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (div, columnKey) => {
       switch (columnKey) {
@@ -59,6 +84,17 @@ export default function DivisionsView({
               {new Date(div.hrDivisionCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={div.isActive ? "success" : "danger"}
+            >
+              {div.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -71,22 +107,30 @@ export default function DivisionsView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => onConfirmDelete(div)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={div.isActive}
+                  onValueChange={() => toggleActive(div)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => onConfirmDelete(div)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return div[columnKey] || "-";
       }
     },
-    [onOpen, onConfirmDelete],
+    [onOpen, onConfirmDelete, isSuperAdmin, toggleActive],
   );
 
   return (
@@ -98,7 +142,7 @@ export default function DivisionsView({
         enableCardView
         rowKey="hrDivisionId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
         searchKeys={["hrDivisionName", "hrDivisionDescription"]}
         emptyContent="ไม่พบฝ่าย"

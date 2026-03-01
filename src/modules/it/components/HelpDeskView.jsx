@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -13,11 +13,13 @@ import {
   SelectItem,
   Chip,
   Textarea,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "เลขที่ตั๋ว", uid: "itTicketNo", sortable: true },
   { name: "หัวข้อ", uid: "itTicketTitle", sortable: true },
   { name: "หมวดหมู่", uid: "itTicketCategory", sortable: true },
@@ -35,7 +37,7 @@ const statusOptions = [
   { name: "ปิด", uid: "closed" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "itTicketNo",
   "itTicketTitle",
   "itTicketCategory",
@@ -61,7 +63,29 @@ export default function HelpDeskView({
   handleSave,
   confirmDelete,
   handleDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
@@ -111,6 +135,17 @@ export default function HelpDeskView({
           return item.itTicketRequestedBy || "-";
         case "itTicketAssignedTo":
           return item.itTicketAssignedTo || "-";
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={item.isActive ? "success" : "danger"}
+            >
+              {item.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -123,22 +158,30 @@ export default function HelpDeskView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={item.isActive}
+                  onValueChange={() => toggleActive(item)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => confirmDelete(item)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return item[columnKey] || "-";
       }
     },
-    [handleOpen, confirmDelete],
+    [handleOpen, confirmDelete, isSuperAdmin, toggleActive],
   );
 
   return (
@@ -150,7 +193,7 @@ export default function HelpDeskView({
         enableCardView
         rowKey="itTicketId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามเลขที่ตั๋ว, หัวข้อ, ผู้ร้องขอ..."
         searchKeys={[
           "itTicketNo",

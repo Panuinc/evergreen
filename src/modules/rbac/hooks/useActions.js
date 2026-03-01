@@ -71,6 +71,16 @@ export function useActions() {
     }
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateAction(item.rbacActionId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadActions();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   const handleDelete = async (action) => {
     try {
       await deleteAction(action.rbacActionId);
@@ -92,5 +102,6 @@ export function useActions() {
     handleOpen,
     handleSave,
     handleDelete,
+    toggleActive,
   };
 }

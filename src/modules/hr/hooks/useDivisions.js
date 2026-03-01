@@ -97,6 +97,16 @@ export function useDivisions() {
     }
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateDivision(item.hrDivisionId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadDivisions();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   return {
     divisions,
     loading,
@@ -112,5 +122,6 @@ export function useDivisions() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }

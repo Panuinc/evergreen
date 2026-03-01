@@ -155,6 +155,16 @@ export function useCrmActivities() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateActivity(item.crmActivityId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadData();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   return {
     activities,
     loading,
@@ -176,5 +186,6 @@ export function useCrmActivities() {
     handleToggleComplete,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }

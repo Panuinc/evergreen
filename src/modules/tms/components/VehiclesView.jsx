@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -10,10 +10,12 @@ import {
   Select,
   SelectItem,
   Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Download } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
+import { useRBAC } from "@/contexts/RBACContext";
 
 const vehicleCsvColumns = [
   { header: "ทะเบียนรถ", key: "tmsVehiclePlateNumber" },
@@ -27,7 +29,7 @@ const vehicleCsvColumns = [
   { header: "สถานะ", key: "tmsVehicleStatus" },
 ];
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อ", uid: "tmsVehicleName", sortable: true },
   { name: "ทะเบียนรถ", uid: "tmsVehiclePlateNumber", sortable: true },
   { name: "ประเภท", uid: "tmsVehicleType", sortable: true },
@@ -50,7 +52,7 @@ const STATUS_COLORS = {
   retired: "default",
 };
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "tmsVehicleName",
   "tmsVehiclePlateNumber",
   "tmsVehicleType",
@@ -75,7 +77,29 @@ export default function VehiclesView({
   handleSave,
   confirmDelete,
   handleDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
@@ -102,6 +126,17 @@ export default function VehiclesView({
               {item.tmsVehicleStatus}
             </Chip>
           );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={item.isActive ? "success" : "danger"}
+            >
+              {item.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -114,22 +149,30 @@ export default function VehiclesView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={item.isActive}
+                  onValueChange={() => toggleActive(item)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => confirmDelete(item)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return item[columnKey] || "-";
       }
     },
-    [handleOpen, confirmDelete],
+    [handleOpen, confirmDelete, toggleActive, isSuperAdmin],
   );
 
   return (
@@ -141,7 +184,7 @@ export default function VehiclesView({
         enableCardView
         rowKey="tmsVehicleId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาด้วยทะเบียน, ชื่อ, ยี่ห้อ, รุ่น..."
         searchKeys={[
           "tmsVehiclePlateNumber",

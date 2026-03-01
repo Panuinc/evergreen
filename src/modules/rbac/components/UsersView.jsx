@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -16,15 +16,16 @@ import {
 } from "@heroui/react";
 import { Plus, Settings, KeyRound } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "อีเมล", uid: "rbacUserProfileEmail", sortable: true },
   { name: "บทบาท", uid: "roles" },
   { name: "สร้างเมื่อ", uid: "rbacUserProfileCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "rbacUserProfileEmail",
   "roles",
   "rbacUserProfileCreatedAt",
@@ -59,6 +60,27 @@ export default function UsersView({
   openResetPassword,
   handleResetPassword,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (user, columnKey) => {
       switch (columnKey) {
@@ -89,6 +111,17 @@ export default function UsersView({
             <span className="text-default-500">
               {new Date(user.rbacUserProfileCreatedAt).toLocaleDateString()}
             </span>
+          );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={user.isActive ? "success" : "danger"}
+            >
+              {user.isActive ? "Active" : "Inactive"}
+            </Chip>
           );
         case "actions":
           return (
@@ -131,7 +164,7 @@ export default function UsersView({
         enableCardView
         rowKey="rbacUserProfileId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามอีเมล..."
         searchKeys={["rbacUserProfileEmail"]}
         emptyContent="ไม่พบผู้ใช้"

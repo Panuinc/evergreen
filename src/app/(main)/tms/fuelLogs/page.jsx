@@ -21,6 +21,7 @@ export default function FuelLogsPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useFuelLogs();
 
   return (
@@ -41,6 +42,7 @@ export default function FuelLogsPage() {
       handleSave={handleSave}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

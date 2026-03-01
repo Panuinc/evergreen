@@ -14,6 +14,7 @@ export async function GET(request) {
     let query = supabase
       .from("perfKpiAssignment")
       .select("*")
+      .eq("isActive", true)
       .eq("perfKpiAssignmentYear", parseInt(year));
 
     if (employeeId) {

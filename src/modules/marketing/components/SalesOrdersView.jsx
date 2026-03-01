@@ -1,15 +1,16 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Chip, Spinner, Tabs, Tab } from "@heroui/react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
 const STATUS_COLORS = {
   Open: "warning",
   Released: "success",
 };
 
-const ORDER_COLUMNS = [
+const BASE_ORDER_COLUMNS = [
   { name: "เลขที่", uid: "No", sortable: true },
   { name: "ลูกค้า", uid: "Sell_to_Customer_Name", sortable: true },
   { name: "วันที่สั่ง", uid: "Order_Date", sortable: true },
@@ -28,6 +29,18 @@ export default function SalesOrdersView({
   reload,
   onNavigateToOrder,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const ORDER_COLUMNS = useMemo(() => {
+    if (isSuperAdmin) {
+      return [
+        ...BASE_ORDER_COLUMNS,
+        { name: "สถานะใช้งาน", uid: "isActive" },
+      ];
+    }
+    return BASE_ORDER_COLUMNS;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "No":
@@ -64,6 +77,17 @@ export default function SalesOrdersView({
           <Chip variant="bordered" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
           <Chip variant="bordered" size="md" radius="md" color="default">รอจัดส่ง</Chip>
+        );
+      case "isActive":
+        return (
+          <Chip
+            variant="bordered"
+            size="md"
+            radius="md"
+            color={item.isActive ? "success" : "danger"}
+          >
+            {item.isActive ? "Active" : "Inactive"}
+          </Chip>
         );
       default:
         return item[columnKey] || "-";

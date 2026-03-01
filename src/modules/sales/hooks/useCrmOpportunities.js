@@ -193,6 +193,16 @@ export function useCrmOpportunities() {
     });
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateOpportunity(item.crmOpportunityId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadData();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   return {
     opportunities,
     loading,
@@ -216,5 +226,6 @@ export function useCrmOpportunities() {
     handleCloseLost,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }

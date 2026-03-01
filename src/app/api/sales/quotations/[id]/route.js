@@ -10,27 +10,29 @@ const VALID_TRANSITIONS = {
 export async function GET(request, { params }) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { id } = await params;
 
   // Fetch quotation with relations
-  const { data: quotation, error } = await supabase
+  let query = supabase
     .from("crmQuotation")
     .select(
       "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmOpportunity(crmOpportunityName)"
     )
-    .eq("crmQuotationId", id)
-    .single();
+    .eq("crmQuotationId", id);
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  const { data: quotation, error } = await query.single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
 
   // Fetch lines
-  const { data: lines } = await supabase
+  let linesQuery = supabase
     .from("crmQuotationLine")
     .select("*")
-    .eq("crmQuotationLineQuotationId", id)
-    .order("crmQuotationLineOrder", { ascending: true });
+    .eq("crmQuotationLineQuotationId", id);
+  if (!isSuperAdmin) linesQuery = linesQuery.eq("isActive", true);
+  const { data: lines } = await linesQuery.order("crmQuotationLineOrder", { ascending: true });
 
   return Response.json({ ...quotation, lines: lines || [] });
 }
@@ -170,9 +172,17 @@ export async function DELETE(request, { params }) {
   const { supabase } = auth;
 
   const { id } = await params;
+
+  // Soft-delete quotation lines (cascade)
+  await supabase
+    .from("crmQuotationLine")
+    .update({ isActive: false })
+    .eq("crmQuotationLineQuotationId", id);
+
+  // Soft-delete quotation
   const { error } = await supabase
     .from("crmQuotation")
-    .delete()
+    .update({ isActive: false })
     .eq("crmQuotationId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });

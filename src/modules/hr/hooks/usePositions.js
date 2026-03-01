@@ -105,6 +105,16 @@ export function usePositions() {
     }
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updatePosition(item.hrPositionId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadData();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   return {
     positions,
     departments,
@@ -121,5 +131,6 @@ export function usePositions() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }

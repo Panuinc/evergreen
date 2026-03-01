@@ -3,7 +3,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
@@ -11,6 +11,7 @@ export async function GET(request) {
   let query = supabase
     .from("crmContact")
     .select("*, crmAccount(crmAccountName)");
+  if (!isSuperAdmin) query = query.eq("isActive", true);
 
   if (search) {
     query = query.or(

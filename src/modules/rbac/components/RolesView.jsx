@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -17,8 +17,9 @@ import {
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Shield } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อ", uid: "rbacRoleName", sortable: true },
   { name: "รายละเอียด", uid: "rbacRoleDescription" },
   { name: "ประเภท", uid: "roleType", sortable: true },
@@ -27,7 +28,7 @@ const columns = [
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "rbacRoleName",
   "rbacRoleDescription",
   "roleType",
@@ -55,7 +56,29 @@ export default function RolesView({
   groupedPermissions,
   openPermissions,
   togglePermission,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (role, columnKey) => {
       switch (columnKey) {
@@ -81,6 +104,17 @@ export default function RolesView({
           return role.rbacUserRole?.[0]?.count ?? 0;
         case "permCount":
           return role.rbacRolePermission?.[0]?.count ?? 0;
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={role.isActive ? "success" : "danger"}
+            >
+              {role.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -103,23 +137,31 @@ export default function RolesView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => handleDelete(role)}
-                isDisabled={role.rbacRoleIsSuperadmin}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={role.isActive}
+                  onValueChange={() => toggleActive(role)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => handleDelete(role)}
+                  isDisabled={role.rbacRoleIsSuperadmin}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return role[columnKey] || "-";
       }
     },
-    [handleOpen, handleDelete, openPermissions],
+    [handleOpen, handleDelete, openPermissions, toggleActive, isSuperAdmin],
   );
 
   return (
@@ -131,7 +173,7 @@ export default function RolesView({
         enableCardView
         rowKey="rbacRoleId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
         searchKeys={["rbacRoleName", "rbacRoleDescription"]}
         emptyContent="ไม่พบบทบาท"

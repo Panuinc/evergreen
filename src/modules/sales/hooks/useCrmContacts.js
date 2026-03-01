@@ -128,6 +128,16 @@ export function useCrmContacts() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateContact(item.crmContactId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadData();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   return {
     contacts,
     loading,
@@ -144,5 +154,6 @@ export function useCrmContacts() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }

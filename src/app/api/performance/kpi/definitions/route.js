@@ -3,7 +3,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { searchParams } = new URL(request.url);
   const category = searchParams.get("category");
@@ -11,9 +11,9 @@ export async function GET(request) {
 
   let query = supabase
     .from("perfKpiDefinition")
-    .select("*")
-    .order("perfKpiDefinitionCategory")
-    .order("perfKpiDefinitionName");
+    .select("*");
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  query = query.order("perfKpiDefinitionCategory").order("perfKpiDefinitionName");
 
   if (category) query = query.eq("perfKpiDefinitionCategory", category);
   if (activeOnly === "true") query = query.eq("perfKpiDefinitionIsActive", true);

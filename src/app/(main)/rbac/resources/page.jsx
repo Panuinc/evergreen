@@ -15,6 +15,7 @@ export default function ResourcesPage() {
     handleOpen,
     handleSave,
     handleDelete,
+    toggleActive,
   } = useResources();
 
   return (
@@ -29,6 +30,7 @@ export default function ResourcesPage() {
       handleOpen={handleOpen}
       handleSave={handleSave}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

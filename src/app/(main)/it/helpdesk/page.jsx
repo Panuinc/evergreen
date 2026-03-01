@@ -23,6 +23,7 @@ export default function HelpDeskPage() {
       handleSave={hook.handleSave}
       confirmDelete={hook.confirmDelete}
       handleDelete={hook.handleDelete}
+      toggleActive={hook.toggleActive}
     />
   );
 }

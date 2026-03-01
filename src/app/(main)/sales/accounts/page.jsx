@@ -20,6 +20,7 @@ export default function AccountsPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useCrmAccounts();
 
   return (
@@ -39,6 +40,7 @@ export default function AccountsPage() {
       handleSave={handleSave}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

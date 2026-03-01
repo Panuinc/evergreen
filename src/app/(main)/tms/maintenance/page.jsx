@@ -20,6 +20,7 @@ export default function MaintenancePage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useMaintenance();
 
   return (
@@ -39,6 +40,7 @@ export default function MaintenancePage() {
       handleSave={handleSave}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

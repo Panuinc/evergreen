@@ -25,6 +25,7 @@ export default function ActivitiesPage() {
     handleToggleComplete,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useCrmActivities();
 
   return (
@@ -49,6 +50,7 @@ export default function ActivitiesPage() {
       handleToggleComplete={handleToggleComplete}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

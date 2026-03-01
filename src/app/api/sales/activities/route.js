@@ -3,7 +3,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
@@ -16,6 +16,7 @@ export async function GET(request) {
     .select(
       "*, crmContact(crmContactFirstName, crmContactLastName), crmOpportunity(crmOpportunityName), crmAccount(crmAccountName)"
     );
+  if (!isSuperAdmin) query = query.eq("isActive", true);
 
   if (type) query = query.eq("crmActivityType", type);
   if (status) query = query.eq("crmActivityStatus", status);
@@ -57,7 +58,7 @@ export async function POST(request) {
   if (body.deleteId) {
     const { error } = await supabase
       .from("crmActivity")
-      .delete()
+      .update({ isActive: false })
       .eq("crmActivityId", body.deleteId);
 
     if (error) return Response.json({ error: error.message }, { status: 400 });

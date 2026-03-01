@@ -8,6 +8,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("hrEmployee")
     .select("hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeEmail")
+    .eq("isActive", true)
     .is("hrEmployeeUserId", null)
     .order("hrEmployeeFirstName");
 

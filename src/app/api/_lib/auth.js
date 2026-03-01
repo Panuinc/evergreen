@@ -2,6 +2,16 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createBrowserClient } from "@supabase/supabase-js";
 import { headers } from "next/headers";
 
+async function checkSuperAdmin(supabase, userId) {
+  const { data: roles } = await supabase
+    .from("rbacUserRole")
+    .select("rbacRole(rbacRoleIsSuperadmin)")
+    .eq("rbacUserRoleUserId", userId)
+    .eq("isActive", true);
+
+  return roles?.some((r) => r.rbacRole?.rbacRoleIsSuperadmin === true) || false;
+}
+
 export async function withAuth() {
   // Try cookie-based session first (web app)
   const supabase = await createClient();
@@ -11,7 +21,8 @@ export async function withAuth() {
   } = await supabase.auth.getUser();
 
   if (!error && user) {
-    return { supabase, session: { user } };
+    const isSuperAdmin = await checkSuperAdmin(supabase, user.id);
+    return { supabase, session: { user }, isSuperAdmin };
   }
 
   // Fall back to Bearer token (mobile app)
@@ -32,7 +43,8 @@ export async function withAuth() {
     } = await supabaseWithToken.auth.getUser(token);
 
     if (!userError && user) {
-      return { supabase: supabaseWithToken, session: { user } };
+      const isSuperAdmin = await checkSuperAdmin(supabaseWithToken, user.id);
+      return { supabase: supabaseWithToken, session: { user }, isSuperAdmin };
     }
   }
 

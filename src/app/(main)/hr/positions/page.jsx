@@ -20,6 +20,7 @@ export default function PositionsPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = usePositions();
 
   return (
@@ -39,6 +40,7 @@ export default function PositionsPage() {
       onSave={handleSave}
       onConfirmDelete={confirmDelete}
       onDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

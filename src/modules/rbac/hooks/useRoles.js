@@ -140,6 +140,16 @@ export function useRoles() {
     }
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateRole(item.rbacRoleId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadRoles();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   // Group permissions by resource for display
   const groupedPermissions = allPermissions.reduce((acc, perm) => {
     const resourceName = perm.resources?.rbacResourceName || "Unknown";
@@ -168,5 +178,6 @@ export function useRoles() {
     groupedPermissions,
     openPermissions,
     togglePermission,
+    toggleActive,
   };
 }

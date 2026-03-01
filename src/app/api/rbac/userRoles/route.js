@@ -15,7 +15,8 @@ export async function GET() {
 
   const { data: allUserRoles, error: rolesError } = await supabase
     .from("rbacUserRole")
-    .select("*, rbacRole(*)");
+    .select("*, rbacRole(*)")
+    .eq("isActive", true);
 
   if (rolesError)
     return Response.json({ error: rolesError.message }, { status: 500 });

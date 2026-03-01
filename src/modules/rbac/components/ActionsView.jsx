@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -10,18 +10,21 @@ import {
   ModalFooter,
   Input,
   Textarea,
+  Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อ", uid: "rbacActionName", sortable: true },
   { name: "รายละเอียด", uid: "rbacActionDescription" },
   { name: "สร้างเมื่อ", uid: "rbacActionCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "rbacActionName",
   "rbacActionDescription",
   "rbacActionCreatedAt",
@@ -39,7 +42,29 @@ export default function ActionsView({
   handleOpen,
   handleSave,
   handleDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (action, columnKey) => {
       switch (columnKey) {
@@ -57,6 +82,17 @@ export default function ActionsView({
               {new Date(action.rbacActionCreatedAt).toLocaleDateString()}
             </span>
           );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={action.isActive ? "success" : "danger"}
+            >
+              {action.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -69,22 +105,30 @@ export default function ActionsView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => handleDelete(action)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={action.isActive}
+                  onValueChange={() => toggleActive(action)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => handleDelete(action)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return action[columnKey] || "-";
       }
     },
-    [handleOpen, handleDelete],
+    [handleOpen, handleDelete, toggleActive, isSuperAdmin],
   );
 
   return (
@@ -96,7 +140,7 @@ export default function ActionsView({
         enableCardView
         rowKey="rbacActionId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
         searchKeys={["rbacActionName", "rbacActionDescription"]}
         emptyContent="ไม่พบการดำเนินการ"

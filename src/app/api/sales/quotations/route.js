@@ -3,7 +3,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
@@ -13,6 +13,7 @@ export async function GET(request) {
     .select(
       "*, crmContact(crmContactFirstName, crmContactLastName), crmAccount(crmAccountName), crmOpportunity(crmOpportunityName)"
     );
+  if (!isSuperAdmin) query = query.eq("isActive", true);
 
   if (status) {
     query = query.eq("crmQuotationStatus", status);

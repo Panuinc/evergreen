@@ -14,14 +14,17 @@ export async function GET() {
     supabase
       .from("tmsVehicle")
       .select("tmsVehicleId, tmsVehicleName, tmsVehiclePlateNumber, tmsVehicleRegistrationExpiry, tmsVehicleInsuranceExpiry, tmsVehicleActExpiry, tmsVehicleCurrentMileage")
+      .eq("isActive", true)
       .neq("tmsVehicleStatus", "retired"),
     supabase
       .from("tmsDriver")
       .select("tmsDriverId, tmsDriverFirstName, tmsDriverLastName, tmsDriverLicenseExpiry")
+      .eq("isActive", true)
       .neq("tmsDriverStatus", "inactive"),
     supabase
       .from("tmsMaintenance")
       .select("tmsMaintenanceId, tmsMaintenanceVehicleId, tmsMaintenanceNextDueDate, tmsMaintenanceNextDueMileage, tmsMaintenanceDescription, tmsVehicle(tmsVehicleName, tmsVehiclePlateNumber, tmsVehicleCurrentMileage)")
+      .eq("isActive", true)
       .eq("tmsMaintenanceStatus", "completed")
       .not("tmsMaintenanceNextDueDate", "is", null),
   ]);

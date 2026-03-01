@@ -133,6 +133,16 @@ export function useCrmAccounts() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateAccount(item.crmAccountId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadData();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   return {
     accounts,
     loading,
@@ -149,5 +159,6 @@ export function useCrmAccounts() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }

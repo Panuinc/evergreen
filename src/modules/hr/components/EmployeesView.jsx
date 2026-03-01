@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -10,11 +10,13 @@ import {
   Select,
   SelectItem,
   Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อ", uid: "name", sortable: true },
   { name: "อีเมล", uid: "hrEmployeeEmail", sortable: true },
   { name: "โทรศัพท์", uid: "hrEmployeePhone" },
@@ -30,7 +32,7 @@ const statusOptions = [
   { name: "ปิดใช้งาน", uid: "inactive" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "name",
   "hrEmployeeEmail",
   "hrEmployeeDivision",
@@ -58,7 +60,29 @@ export default function EmployeesView({
   onSave,
   onConfirmDelete,
   onDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (emp, columnKey) => {
       switch (columnKey) {
@@ -93,6 +117,17 @@ export default function EmployeesView({
               {emp.hrEmployeeStatus}
             </Chip>
           );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={emp.isActive ? "success" : "danger"}
+            >
+              {emp.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -105,22 +140,30 @@ export default function EmployeesView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => onConfirmDelete(emp)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={emp.isActive}
+                  onValueChange={() => toggleActive(emp)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => onConfirmDelete(emp)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return emp[columnKey] || "-";
       }
     },
-    [onOpen, onConfirmDelete],
+    [onOpen, onConfirmDelete, isSuperAdmin, toggleActive],
   );
 
   return (
@@ -132,7 +175,7 @@ export default function EmployeesView({
         enableCardView
         rowKey="hrEmployeeId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, อีเมล, แผนก, ตำแหน่ง..."
         searchKeys={[
           "hrEmployeeFirstName",

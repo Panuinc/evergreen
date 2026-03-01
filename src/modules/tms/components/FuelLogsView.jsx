@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -9,11 +9,14 @@ import {
   Input,
   Select,
   SelectItem,
+  Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, Download } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 import FileUpload from "@/components/ui/FileUpload";
+import { useRBAC } from "@/contexts/RBACContext";
 
 const fuelCsvColumns = [
   { header: "วันที่", key: "tmsFuelLogDate" },
@@ -24,7 +27,7 @@ const fuelCsvColumns = [
   { header: "สถานี", key: "tmsFuelLogStation" },
 ];
 
-const columns = [
+const baseColumns = [
   { name: "วันที่", uid: "tmsFuelLogDate", sortable: true },
   { name: "ยานพาหนะ", uid: "tmsVehicleName", sortable: true },
   { name: "ลิตร", uid: "tmsFuelLogLiters", sortable: true },
@@ -35,7 +38,7 @@ const columns = [
   { name: "จัดการ", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "tmsFuelLogDate",
   "tmsVehicleName",
   "tmsFuelLogLiters",
@@ -63,7 +66,29 @@ export default function FuelLogsView({
   handleSave,
   confirmDelete,
   handleDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const vehicleOptions = vehicles.map((v) => ({
     name: `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})`,
     uid: v.tmsVehicleId,
@@ -106,6 +131,17 @@ export default function FuelLogsView({
             : "-";
         case "tmsFuelLogStation":
           return item.tmsFuelLogStation || "-";
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={item.isActive ? "success" : "danger"}
+            >
+              {item.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -118,22 +154,30 @@ export default function FuelLogsView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={item.isActive}
+                  onValueChange={() => toggleActive(item)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => confirmDelete(item)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return item[columnKey] || "-";
       }
     },
-    [handleOpen, confirmDelete, vehicles],
+    [handleOpen, confirmDelete, toggleActive, isSuperAdmin, vehicles],
   );
 
   return (
@@ -145,7 +189,7 @@ export default function FuelLogsView({
         enableCardView
         rowKey="tmsFuelLogId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาด้วยชื่อสถานี..."
         searchKeys={["tmsFuelLogStation"]}
         statusField="tmsFuelLogVehicleId"

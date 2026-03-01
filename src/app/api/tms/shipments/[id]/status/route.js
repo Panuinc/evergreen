@@ -22,6 +22,7 @@ export async function PUT(request, { params }) {
     .from("tmsShipment")
     .select("*")
     .eq("tmsShipmentId", id)
+    .eq("isActive", true)
     .single();
 
   if (fetchError) {

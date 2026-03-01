@@ -20,6 +20,7 @@ export default function ContactsPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useCrmContacts();
 
   return (
@@ -39,6 +40,7 @@ export default function ContactsPage() {
       handleSave={handleSave}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

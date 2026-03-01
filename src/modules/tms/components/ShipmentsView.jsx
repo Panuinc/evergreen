@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -14,10 +14,12 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, ChevronDown, Download } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
+import { useRBAC } from "@/contexts/RBACContext";
 
 const shipmentCsvColumns = [
   { header: "เลขที่", key: "tmsShipmentNumber" },
@@ -29,7 +31,7 @@ const shipmentCsvColumns = [
   { header: "สถานะ", key: "tmsShipmentStatus" },
 ];
 
-const columns = [
+const baseColumns = [
   { name: "เลขที่", uid: "tmsShipmentNumber", sortable: true },
   { name: "วันที่", uid: "tmsShipmentDate", sortable: true },
   { name: "ลูกค้า", uid: "tmsShipmentCustomerName", sortable: true },
@@ -82,7 +84,7 @@ const STATUS_LABELS = {
   cancelled: "ยกเลิก",
 };
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "tmsShipmentNumber",
   "tmsShipmentDate",
   "tmsShipmentCustomerName",
@@ -111,7 +113,29 @@ export default function ShipmentsView({
   confirmDelete,
   handleDelete,
   handleStatusChange,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
@@ -142,6 +166,17 @@ export default function ShipmentsView({
               color={STATUS_COLORS[item.tmsShipmentStatus] || "default"}
             >
               {STATUS_LABELS[item.tmsShipmentStatus] || item.tmsShipmentStatus}
+            </Chip>
+          );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={item.isActive ? "success" : "danger"}
+            >
+              {item.isActive ? "Active" : "Inactive"}
             </Chip>
           );
         case "actions": {
@@ -175,15 +210,23 @@ export default function ShipmentsView({
               >
                 <Edit size={16} />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 size={16} />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={item.isActive}
+                  onValueChange={() => toggleActive(item)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => confirmDelete(item)}
+                >
+                  <Trash2 size={16} />
+                </Button>
+              )}
             </div>
           );
         }
@@ -191,7 +234,7 @@ export default function ShipmentsView({
           return item[columnKey] || "-";
       }
     },
-    [vehicles, drivers, handleOpen, confirmDelete, handleStatusChange],
+    [vehicles, drivers, handleOpen, confirmDelete, handleStatusChange, toggleActive, isSuperAdmin],
   );
 
   const availableVehicles = vehicles.filter((v) => v.tmsVehicleStatus === "available");
@@ -207,7 +250,7 @@ export default function ShipmentsView({
         enableCardView
         rowKey="tmsShipmentId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาด้วยเลขที่, ลูกค้า..."
         searchKeys={["tmsShipmentNumber", "tmsShipmentCustomerName", "tmsShipmentDestination"]}
         statusField="tmsShipmentStatus"

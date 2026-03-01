@@ -53,7 +53,7 @@ export async function DELETE(request, { params }) {
   const { supabase } = auth;
   const { id } = await params;
 
-  // Get objectiveId before deleting
+  // Get objectiveId before soft-deleting
   const { data: kr } = await supabase
     .from("perfOkrKeyResult")
     .select("perfOkrKeyResultObjectiveId")
@@ -62,7 +62,7 @@ export async function DELETE(request, { params }) {
 
   const { error } = await supabase
     .from("perfOkrKeyResult")
-    .delete()
+    .update({ isActive: false })
     .eq("perfOkrKeyResultId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
@@ -77,7 +77,8 @@ async function updateObjectiveProgress(supabase, objectiveId) {
   const { data: krs } = await supabase
     .from("perfOkrKeyResult")
     .select("*")
-    .eq("perfOkrKeyResultObjectiveId", objectiveId);
+    .eq("perfOkrKeyResultObjectiveId", objectiveId)
+    .eq("isActive", true);
 
   const progress = computeObjectiveProgress(krs || []);
   await supabase

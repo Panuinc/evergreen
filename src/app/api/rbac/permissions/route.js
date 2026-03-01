@@ -3,12 +3,13 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET() {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("rbacPermission")
-    .select("*, rbacResource(*), rbacAction(*)")
-    .order("rbacPermissionCreatedAt", { ascending: false });
+    .select("*, rbacResource(*), rbacAction(*)");
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  const { data, error } = await query.order("rbacPermissionCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);

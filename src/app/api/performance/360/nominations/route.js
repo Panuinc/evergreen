@@ -26,7 +26,7 @@ async function enrichNominations(supabase, nominations) {
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { searchParams } = new URL(request.url);
   const cycleId = searchParams.get("cycleId");
@@ -35,11 +35,12 @@ export async function GET(request) {
     return Response.json({ error: "กรุณาระบุ cycleId" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("perf360Nomination")
     .select("*")
-    .eq("perf360NominationCycleId", cycleId)
-    .order("perf360NominationCreatedAt", { ascending: false });
+    .eq("perf360NominationCycleId", cycleId);
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  const { data, error } = await query.order("perf360NominationCreatedAt", { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
@@ -95,7 +96,7 @@ export async function DELETE(request) {
 
   const { error } = await supabase
     .from("perf360Nomination")
-    .delete()
+    .update({ isActive: false })
     .eq("perf360NominationId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });

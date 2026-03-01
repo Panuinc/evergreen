@@ -45,6 +45,7 @@ export async function GET(request) {
   let query = supabase
     .from(config.table)
     .select(config.select)
+    .eq("isActive", true)
     .order(config.order, { ascending: false });
 
   if (config.dateField && startDate) {

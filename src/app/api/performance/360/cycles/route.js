@@ -3,15 +3,16 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
 
   let query = supabase
     .from("perf360Cycle")
-    .select("*")
-    .order("perf360CycleCreatedAt", { ascending: false });
+    .select("*");
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  query = query.order("perf360CycleCreatedAt", { ascending: false });
 
   if (status) query = query.eq("perf360CycleStatus", status);
 

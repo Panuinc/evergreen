@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Chip, Tabs, Tab } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
 const STATUS_MAP = {
   draft: { label: "ร่าง", color: "default" },
@@ -10,7 +11,7 @@ const STATUS_MAP = {
   paid: { label: "ชำระแล้ว", color: "primary" },
 };
 
-const COLUMNS = [
+const BASE_COLUMNS = [
   { name: "เลขที่", uid: "omQuotationNumber", sortable: true },
   { name: "ลูกค้า", uid: "customerName", sortable: true },
   { name: "ช่องทาง", uid: "channelType", sortable: true },
@@ -33,6 +34,18 @@ export default function OmnichannelQuotationsView({
   setStatusFilter,
   onNavigateToQuotation,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const COLUMNS = useMemo(() => {
+    if (isSuperAdmin) {
+      return [
+        ...BASE_COLUMNS,
+        { name: "สถานะใช้งาน", uid: "isActive" },
+      ];
+    }
+    return BASE_COLUMNS;
+  }, [isSuperAdmin]);
+
   const tableData = useMemo(
     () =>
       quotations.map((q) => ({
@@ -73,6 +86,17 @@ export default function OmnichannelQuotationsView({
       }
       case "omQuotationCreatedAt":
         return new Date(item.omQuotationCreatedAt).toLocaleDateString("th-TH");
+      case "isActive":
+        return (
+          <Chip
+            variant="bordered"
+            size="md"
+            radius="md"
+            color={item.isActive ? "success" : "danger"}
+          >
+            {item.isActive ? "Active" : "Inactive"}
+          </Chip>
+        );
       default:
         return item[columnKey] || "-";
     }

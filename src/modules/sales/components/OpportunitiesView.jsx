@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -12,9 +12,11 @@ import {
   Select,
   SelectItem,
   Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, LayoutList, Columns3 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
 const KANBAN_STAGES = [
   { key: "prospecting", name: "สำรวจ", color: "#6366f1" },
@@ -23,7 +25,7 @@ const KANBAN_STAGES = [
   { key: "negotiation", name: "เจรจา", color: "#f97316" },
 ];
 
-const columns = [
+const baseColumns = [
   { name: "เลขที่", uid: "crmOpportunityNo", sortable: true },
   { name: "ชื่อ", uid: "crmOpportunityName", sortable: true },
   { name: "ผู้ติดต่อ", uid: "contact" },
@@ -45,7 +47,7 @@ const statusOptions = [
   { name: "ปิดแพ้", uid: "closed_lost" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "crmOpportunityNo",
   "crmOpportunityName",
   "contact",
@@ -78,7 +80,29 @@ export default function OpportunitiesView({
   handleCloseLost,
   confirmDelete,
   handleDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
@@ -134,6 +158,17 @@ export default function OpportunitiesView({
         }
         case "crmOpportunityExpectedCloseDate":
           return item.crmOpportunityExpectedCloseDate || "-";
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={item.isActive ? "success" : "danger"}
+            >
+              {item.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -146,22 +181,30 @@ export default function OpportunitiesView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => confirmDelete(item)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={item.isActive}
+                  onValueChange={() => toggleActive(item)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => confirmDelete(item)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return item[columnKey] || "-";
       }
     },
-    [handleOpen, confirmDelete],
+    [handleOpen, confirmDelete, isSuperAdmin, toggleActive],
   );
 
   return (
@@ -174,7 +217,7 @@ export default function OpportunitiesView({
           enableCardView
           rowKey="crmOpportunityId"
           isLoading={loading}
-          initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+          initialVisibleColumns={initialVisibleColumns}
           searchPlaceholder="ค้นหาโอกาสขาย..."
           searchKeys={["crmOpportunityName", "crmOpportunityAssignedTo"]}
           statusField="crmOpportunityStage"

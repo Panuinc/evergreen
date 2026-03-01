@@ -20,6 +20,7 @@ export default function DepartmentsPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useDepartments();
 
   return (
@@ -39,6 +40,7 @@ export default function DepartmentsPage() {
       onSave={handleSave}
       onConfirmDelete={confirmDelete}
       onDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

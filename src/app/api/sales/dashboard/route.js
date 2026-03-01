@@ -13,18 +13,21 @@ export async function GET() {
     { data: activities },
     { data: stages },
   ] = await Promise.all([
-    supabase.from("crmLead").select("crmLeadId, crmLeadStatus, crmLeadScore, crmLeadCreatedAt"),
+    supabase.from("crmLead").select("crmLeadId, crmLeadStatus, crmLeadScore, crmLeadCreatedAt").eq("isActive", true),
     supabase
       .from("crmOpportunity")
       .select(
         "crmOpportunityId, crmOpportunityStage, crmOpportunityAmount, crmOpportunityProbability, crmOpportunityAssignedTo, crmOpportunityCreatedAt, crmOpportunityActualCloseDate"
-      ),
+      )
+      .eq("isActive", true),
     supabase
       .from("crmOrder")
-      .select("crmOrderId, crmOrderStatus, crmOrderTotal, crmOrderCreatedAt"),
+      .select("crmOrderId, crmOrderStatus, crmOrderTotal, crmOrderCreatedAt")
+      .eq("isActive", true),
     supabase
       .from("crmActivity")
       .select("crmActivityId, crmActivityType, crmActivityStatus, crmActivitySubject, crmActivityDueDate, crmActivityCreatedAt")
+      .eq("isActive", true)
       .order("crmActivityCreatedAt", { ascending: false })
       .limit(10),
     supabase

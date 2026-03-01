@@ -20,6 +20,7 @@ export default function VehiclesPage() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   } = useVehicles();
 
   return (
@@ -39,6 +40,7 @@ export default function VehiclesPage() {
       handleSave={handleSave}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      toggleActive={toggleActive}
     />
   );
 }

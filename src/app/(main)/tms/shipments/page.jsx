@@ -23,6 +23,7 @@ export default function ShipmentsPage() {
     confirmDelete,
     handleDelete,
     handleStatusChange,
+    toggleActive,
   } = useShipments();
 
   return (
@@ -45,6 +46,7 @@ export default function ShipmentsPage() {
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
       handleStatusChange={handleStatusChange}
+      toggleActive={toggleActive}
     />
   );
 }

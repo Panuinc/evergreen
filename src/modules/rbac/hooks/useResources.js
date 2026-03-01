@@ -77,6 +77,16 @@ export function useResources() {
     }
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateResource(item.rbacResourceId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadResources();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   const handleDelete = async (resource) => {
     try {
       await deleteResource(resource.rbacResourceId);
@@ -98,5 +108,6 @@ export function useResources() {
     handleOpen,
     handleSave,
     handleDelete,
+    toggleActive,
   };
 }

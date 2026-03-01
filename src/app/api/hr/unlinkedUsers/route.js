@@ -16,6 +16,7 @@ export async function GET() {
   const { data: linkedEmployees, error: empError } = await supabase
     .from("hrEmployee")
     .select("hrEmployeeUserId")
+    .eq("isActive", true)
     .not("hrEmployeeUserId", "is", null);
 
   if (empError)

@@ -3,15 +3,16 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request, { params }) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { id } = await params;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("omConversation")
     .select("*, omContact(*)")
-    .eq("omConversationId", id)
-    .single();
+    .eq("omConversationId", id);
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  const { data, error } = await query.single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
   return Response.json(data);
@@ -50,13 +51,13 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
 
-  // Delete messages first (cascade should handle this, but be explicit)
-  await supabase.from("omMessage").delete().eq("omMessageConversationId", id);
+  // Soft-delete messages first (cascade)
+  await supabase.from("omMessage").update({ isActive: false }).eq("omMessageConversationId", id);
 
-  // Delete conversation
+  // Soft-delete conversation
   const { error } = await supabase
     .from("omConversation")
-    .delete()
+    .update({ isActive: false })
     .eq("omConversationId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });

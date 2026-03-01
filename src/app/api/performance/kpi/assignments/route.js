@@ -26,7 +26,7 @@ async function enrichAssignments(supabase, assignments) {
 export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase, session } = auth;
+  const { supabase, session, isSuperAdmin } = auth;
 
   const { searchParams } = new URL(request.url);
   const year = searchParams.get("year");
@@ -36,8 +36,9 @@ export async function GET(request) {
 
   let query = supabase
     .from("perfKpiAssignment")
-    .select("*")
-    .order("perfKpiAssignmentCreatedAt", { ascending: false });
+    .select("*");
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  query = query.order("perfKpiAssignmentCreatedAt", { ascending: false });
 
   if (year) query = query.eq("perfKpiAssignmentYear", parseInt(year));
   if (definitionId) query = query.eq("perfKpiAssignmentDefinitionId", definitionId);

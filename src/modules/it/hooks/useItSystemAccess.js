@@ -115,6 +115,16 @@ export function useItSystemAccess() {
     }
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateSystemAccess(item.itSystemAccessId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadData();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   const updateField = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -135,5 +145,6 @@ export function useItSystemAccess() {
     handleSave,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }

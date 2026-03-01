@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   Button,
   Modal,
@@ -10,11 +10,14 @@ import {
   Textarea,
   Select,
   SelectItem,
+  Chip,
+  Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import { useRBAC } from "@/contexts/RBACContext";
 
-const columns = [
+const baseColumns = [
   { name: "ชื่อ", uid: "hrDepartmentName", sortable: true },
   { name: "ฝ่าย", uid: "hrDepartmentDivision", sortable: true },
   { name: "รายละเอียด", uid: "hrDepartmentDescription" },
@@ -22,7 +25,7 @@ const columns = [
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
+const BASE_VISIBLE_COLUMNS = [
   "hrDepartmentName",
   "hrDepartmentDivision",
   "hrDepartmentDescription",
@@ -46,7 +49,29 @@ export default function DepartmentsView({
   onSave,
   onConfirmDelete,
   onDelete,
+  toggleActive,
 }) {
+  const { isSuperAdmin } = useRBAC();
+
+  const initialVisibleColumns = useMemo(() => {
+    if (isSuperAdmin) {
+      return [...BASE_VISIBLE_COLUMNS, "isActive"];
+    }
+    return BASE_VISIBLE_COLUMNS;
+  }, [isSuperAdmin]);
+
+  const columns = useMemo(() => {
+    if (isSuperAdmin) {
+      const actionsCol = baseColumns[baseColumns.length - 1];
+      return [
+        ...baseColumns.slice(0, -1),
+        { name: "สถานะใช้งาน", uid: "isActive" },
+        actionsCol,
+      ];
+    }
+    return baseColumns;
+  }, [isSuperAdmin]);
+
   const renderCell = useCallback(
     (dept, columnKey) => {
       switch (columnKey) {
@@ -66,6 +91,17 @@ export default function DepartmentsView({
               {new Date(dept.hrDepartmentCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );
+        case "isActive":
+          return (
+            <Chip
+              variant="bordered"
+              size="md"
+              radius="md"
+              color={dept.isActive ? "success" : "danger"}
+            >
+              {dept.isActive ? "Active" : "Inactive"}
+            </Chip>
+          );
         case "actions":
           return (
             <div className="flex items-center gap-1">
@@ -78,22 +114,30 @@ export default function DepartmentsView({
               >
                 <Edit />
               </Button>
-              <Button
-                variant="bordered"
-                size="md"
-                radius="md"
-                isIconOnly
-                onPress={() => onConfirmDelete(dept)}
-              >
-                <Trash2 />
-              </Button>
+              {isSuperAdmin ? (
+                <Switch
+                  size="sm"
+                  isSelected={dept.isActive}
+                  onValueChange={() => toggleActive(dept)}
+                />
+              ) : (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  isIconOnly
+                  onPress={() => onConfirmDelete(dept)}
+                >
+                  <Trash2 />
+                </Button>
+              )}
             </div>
           );
         default:
           return dept[columnKey] || "-";
       }
     },
-    [onOpen, onConfirmDelete],
+    [onOpen, onConfirmDelete, isSuperAdmin, toggleActive],
   );
 
   return (
@@ -105,7 +149,7 @@ export default function DepartmentsView({
         enableCardView
         rowKey="hrDepartmentId"
         isLoading={loading}
-        initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
+        initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, ฝ่าย, รายละเอียด..."
         searchKeys={["hrDepartmentName", "hrDepartmentDivision", "hrDepartmentDescription"]}
         emptyContent="ไม่พบแผนก"

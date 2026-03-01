@@ -32,6 +32,7 @@ export default function DevelopmentPage() {
       openProgress={hook.openProgress}
       handleAddProgress={hook.handleAddProgress}
       updateProgressField={hook.updateProgressField}
+      toggleActive={hook.toggleActive}
     />
   );
 }

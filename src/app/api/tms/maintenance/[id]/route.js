@@ -3,14 +3,15 @@ import { withAuth } from "@/app/api/_lib/auth";
 export async function GET(request, { params }) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
-  const { supabase } = auth;
+  const { supabase, isSuperAdmin } = auth;
 
   const { id } = await params;
-  const { data, error } = await supabase
+  let query = supabase
     .from("tmsMaintenance")
     .select("*")
-    .eq("tmsMaintenanceId", id)
-    .single();
+    .eq("tmsMaintenanceId", id);
+  if (!isSuperAdmin) query = query.eq("isActive", true);
+  const { data, error } = await query.single();
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
   return Response.json(data);
@@ -42,7 +43,7 @@ export async function DELETE(request, { params }) {
   const { id } = await params;
   const { error } = await supabase
     .from("tmsMaintenance")
-    .delete()
+    .update({ isActive: false })
     .eq("tmsMaintenanceId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });

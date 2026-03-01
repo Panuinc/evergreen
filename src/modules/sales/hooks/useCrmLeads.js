@@ -140,6 +140,16 @@ export function useCrmLeads() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const toggleActive = async (item) => {
+    try {
+      await updateLead(item.crmLeadId, { isActive: !item.isActive });
+      toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
+      loadData();
+    } catch (error) {
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
+  };
+
   return {
     leads,
     loading,
@@ -157,5 +167,6 @@ export function useCrmLeads() {
     handleConvert,
     confirmDelete,
     handleDelete,
+    toggleActive,
   };
 }
