@@ -57,6 +57,7 @@ export default function DoorConfigurator() {
     currentFrame,
     results,
     cuttingPlan,
+    frameLengthOptions,
     coreCalculation,
     isDataComplete,
     piecesPerSide,
@@ -122,6 +123,7 @@ export default function DoorConfigurator() {
       currentFrame={currentFrame}
       results={results}
       cuttingPlan={cuttingPlan}
+      frameLengthOptions={frameLengthOptions}
       coreCalculation={coreCalculation}
       isDataComplete={isDataComplete}
       piecesPerSide={piecesPerSide}

@@ -446,7 +446,70 @@ const useCalculations = (params) => {
   ]);
 };
 
-const useCuttingPlan = (results, currentFrame, coreType) => {
+// ── Pure helpers for cutting plan optimization ──────────────────────────────
+
+/**
+ * First-Fit Decreasing (FFD) bin-packing.
+ * Sorts pieces longest-first then greedily fills stocks.
+ */
+function runBinPacking(allPieces, stockLength, sawKerf = 5) {
+  const sorted = [...allPieces].sort(
+    (a, b) => (b.cutLength ?? b.length) - (a.cutLength ?? a.length),
+  );
+  const stocks = [];
+  sorted.forEach((piece) => {
+    const pieceCut = piece.cutLength ?? piece.length;
+    const pieceWithKerf = pieceCut + sawKerf;
+    const available = stocks.find((s) => s.remaining >= pieceWithKerf);
+    if (available) {
+      available.pieces.push(piece);
+      available.remaining -= pieceWithKerf;
+      available.used += pieceWithKerf;
+    } else {
+      stocks.push({
+        length: stockLength,
+        pieces: [piece],
+        remaining: stockLength - pieceWithKerf,
+        used: pieceWithKerf,
+      });
+    }
+  });
+  // Correct the last kerf on each stock (last cut has no kerf)
+  stocks.forEach((s) => {
+    s.remaining += sawKerf;
+    s.used -= sawKerf;
+  });
+  return stocks;
+}
+
+/**
+ * Expand cutPieces definitions (with qty) into individual pieces,
+ * optionally multiplied by orderQty for batch planning.
+ */
+function expandPieces(cutPieces, orderQty = 1) {
+  return cutPieces.flatMap((piece) =>
+    Array.from({ length: piece.qty * orderQty }, (_, i) => ({
+      ...piece,
+      id: `${piece.name}-${i + 1}`,
+    })),
+  );
+}
+
+/** Derive efficiency stats from a stocks array. */
+function computeStockStats(stocks, stockLength) {
+  const totalStocks = stocks.length;
+  const totalStock = totalStocks * stockLength;
+  const totalWaste = stocks.reduce((sum, s) => sum + s.remaining, 0);
+  const usedLength = totalStock - totalWaste;
+  const efficiency = totalStock
+    ? ((usedLength / totalStock) * 100).toFixed(1)
+    : "0.0";
+  return { totalStocks, totalStock, totalWaste, usedLength, efficiency };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+
+const useCuttingPlan = (results, currentFrame, coreType, orderQty) => {
   return useMemo(() => {
     if (!results || !currentFrame) {
       return {
@@ -463,6 +526,7 @@ const useCuttingPlan = (results, currentFrame, coreType) => {
         needSplice: false,
         spliceCount: 0,
         spliceOverlap: 100,
+        batch: null,
       };
     }
 
@@ -608,50 +672,31 @@ const useCuttingPlan = (results, currentFrame, coreType) => {
       );
     }
 
-    const allPieces = cutPieces
-      .flatMap((piece) =>
-        Array.from({ length: piece.qty }, (_, i) => ({
-          ...piece,
-          id: `${piece.name}-${i + 1}`,
-        })),
-      )
-      .sort((a, b) => (b.cutLength ?? b.length) - (a.cutLength ?? a.length));
+    // ── Single-door plan (for visualization) ──
+    const allPieces = expandPieces(cutPieces, 1);
+    const stocks = runBinPacking(allPieces, stockLength, sawKerf);
+    const { totalStocks, totalStock, totalWaste, usedLength, efficiency } =
+      computeStockStats(stocks, stockLength);
 
-    const stocks = [];
-    allPieces.forEach((piece) => {
-      const pieceCut = piece.cutLength ?? piece.length;
-      const pieceWithKerf = pieceCut + sawKerf;
-      const availableStock = stocks.find((s) => s.remaining >= pieceWithKerf);
-
-      if (availableStock) {
-        availableStock.pieces.push(piece);
-        availableStock.remaining -= pieceWithKerf;
-        availableStock.used += pieceWithKerf;
-      } else {
-        stocks.push({
-          length: stockLength,
-          pieces: [piece],
-          remaining: stockLength - pieceWithKerf,
-          used: pieceWithKerf,
-        });
-      }
-    });
-
-    stocks.forEach((s) => {
-      s.remaining += sawKerf;
-      s.used -= sawKerf;
-    });
-
-    const totalStocks = stocks.length;
-    const totalStock = totalStocks * stockLength;
-    const totalWaste = stocks.reduce((sum, s) => sum + s.remaining, 0);
-    const usedLength = totalStock - totalWaste;
-    const efficiency = totalStock
-      ? ((usedLength / totalStock) * 100).toFixed(1)
-      : "0.0";
     const spliceCount =
       cutPieces.filter((p) => p.isSplice).reduce((sum, p) => sum + p.qty, 0) /
       2;
+
+    // ── Batch plan (optimize cutting across the whole order) ──
+    const batchQty = Math.max(1, parseInt(orderQty) || 1);
+    let batch = null;
+    if (batchQty > 1) {
+      const batchPieces = expandPieces(cutPieces, batchQty);
+      const batchStocks = runBinPacking(batchPieces, stockLength, sawKerf);
+      const batchStats = computeStockStats(batchStocks, stockLength);
+      const naiveStocksTotal = totalStocks * batchQty;
+      batch = {
+        ...batchStats,
+        naiveStocksTotal,
+        savedStocks: naiveStocksTotal - batchStats.totalStocks,
+        orderQty: batchQty,
+      };
+    }
 
     return {
       cutPieces,
@@ -667,8 +712,67 @@ const useCuttingPlan = (results, currentFrame, coreType) => {
       needSplice,
       spliceCount,
       spliceOverlap,
+      batch,
     };
-  }, [results, currentFrame, coreType]);
+  }, [results, currentFrame, coreType, orderQty]);
+};
+
+/**
+ * For the currently selected frame candidate, compare all available stock
+ * lengths (from allFrames) to find the cheapest option for the order.
+ * Uses the same cutPieces (same T×W, different length only).
+ */
+const useFrameLengthOptimizer = (cutPieces, frameCandidates, orderQty, selectedFrameCode) => {
+  return useMemo(() => {
+    const empty = {
+      allOptions: [],
+      recommendedFrameCode: null,
+      recommendedOption: null,
+      currentOption: null,
+      potentialSavings: 0,
+    };
+    if (!cutPieces?.length || !frameCandidates?.length) return empty;
+
+    const batchQty = Math.max(1, parseInt(orderQty) || 1);
+    const sawKerf = 5;
+
+    // Evaluate every frame across every candidate
+    const allOptions = frameCandidates
+      .flatMap((candidate) =>
+        (candidate.allFrames || []).map((frame) => {
+          const pieces = expandPieces(cutPieces, batchQty);
+          const stocks = runBinPacking(pieces, frame.length || 2040, sawKerf);
+          const stats = computeStockStats(stocks, frame.length || 2040);
+          const totalCost = stocks.length * (frame.unitCost || 0);
+          return {
+            frame,
+            candidateKey: `${candidate.frameType}-${candidate.strategy}`,
+            totalStocks: stocks.length,
+            stocksPerDoor: stocks.length / batchQty,
+            totalCost,
+            costPerDoor: totalCost / batchQty,
+            efficiency: stats.efficiency,
+          };
+        }),
+      )
+      .sort((a, b) => a.totalCost - b.totalCost);
+
+    if (allOptions.length === 0) return empty;
+
+    const recommendedOption = allOptions[0];
+    const recommendedFrameCode = recommendedOption.frame.code;
+
+    const currentCode = selectedFrameCode || frameCandidates[0]?.frame?.code;
+    const currentOption =
+      allOptions.find((o) => o.frame.code === currentCode) || recommendedOption;
+
+    const potentialSavings = Math.max(
+      0,
+      (currentOption?.totalCost || 0) - (recommendedOption?.totalCost || 0),
+    );
+
+    return { allOptions, recommendedFrameCode, recommendedOption, currentOption, potentialSavings };
+  }, [cutPieces, frameCandidates, orderQty, selectedFrameCode]);
 };
 
 const useCoreCalculation = (results, coreType) => {
@@ -1198,13 +1302,37 @@ export function useBom() {
     doubleFrameCount: numericDoubleCount,
   });
 
-  const cuttingPlan = useCuttingPlan(results, currentFrame, coreType);
+  const cuttingPlan = useCuttingPlan(results, currentFrame, coreType, orderQty);
+  const frameLengthOptions = useFrameLengthOptimizer(
+    cuttingPlan.cutPieces,
+    frameSelection.candidates,
+    orderQty,
+    selectedFrameCode,
+  );
   const coreCalculation = useCoreCalculation(results, coreType);
 
   const priceSummary = useMemo(() => {
     const frameUnitCost = currentFrame?.unitCost || 0;
+    const qty = parseInt(orderQty) || 0;
+    const batchQty = Math.max(1, qty);
+
+    // Single-door stocks (for per-door display)
     const frameStocks = cuttingPlan?.totalStocks || 0;
-    const frameCost = frameUnitCost * frameStocks;
+    const frameCost = frameUnitCost * frameStocks; // per door (naive)
+
+    // Batch-optimized total stocks for the whole order
+    const frameStocksTotal =
+      cuttingPlan?.batch?.totalStocks ?? frameStocks * batchQty;
+    const frameCostTotal = frameUnitCost * frameStocksTotal;
+
+    // Per-door cost using batch optimization (may be fractional)
+    const frameCostPerDoor = qty > 0 ? frameCostTotal / qty : frameCost;
+
+    // Savings: naive (per-door × qty) vs batch
+    const frameSavings = Math.max(
+      0,
+      frameCost * (qty || 1) - frameCostTotal,
+    );
 
     const surface = (parseFloat(surfacePrice) || 0) * 2;
 
@@ -1255,14 +1383,22 @@ export function useBom() {
         item.checked ? sum + (parseFloat(item.price) || 0) : sum,
       0,
     );
-    const totalPerDoor = frameCost + surface + core + edge + drillCost;
-    const qty = parseInt(orderQty) || 0;
     const margin = parseFloat(customMargin) || 0;
 
+    // Per-door total uses batch-optimized frame cost
+    const nonFramePerDoor = surface + core + edge + drillCost;
+    const totalPerDoor = frameCostPerDoor + nonFramePerDoor;
+
+    // Grand totals use batch-optimized frame cost + linear non-frame costs
+    const grandTotal = qty > 0 ? frameCostTotal + nonFramePerDoor * qty : 0;
+
     return {
-      frameCost,
-      frameStocks,
+      frameCost: frameCostPerDoor,   // optimized per-door frame cost
+      frameCostNaive: frameCost,     // naive per-door (single-door × 1) for display
+      frameStocks,                   // single-door stock count (for display)
+      frameStocksTotal,              // total stocks for whole order (batch)
       frameUnitCost,
+      frameSavings,                  // savings from batch vs naive
       surface,
       core,
       coreQtyUsed,
@@ -1275,10 +1411,10 @@ export function useBom() {
       profit20: totalPerDoor * 1.2,
       customPrice: totalPerDoor + margin,
       qty,
-      grandTotal: totalPerDoor * qty,
-      grandPlus10: totalPerDoor * 1.1 * qty,
-      grandProfit20: totalPerDoor * 1.2 * qty,
-      grandCustom: (totalPerDoor + margin) * qty,
+      grandTotal,
+      grandPlus10: grandTotal * 1.1,
+      grandProfit20: grandTotal * 1.2,
+      grandCustom: grandTotal + margin * qty,
     };
   }, [currentFrame, surfacePrice, selectedCoreItem, edgeBanding, edgePrice, drillItems, orderQty, customMargin, cuttingPlan, coreCalculation]);
 
@@ -1382,6 +1518,7 @@ export function useBom() {
     currentFrame,
     results,
     cuttingPlan,
+    frameLengthOptions,
     coreCalculation,
     isDataComplete,
     piecesPerSide,

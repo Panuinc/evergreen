@@ -2288,6 +2288,7 @@ const UIDoorBom = ({
   priceSummary,
   customMargin,
   setCustomMargin,
+  frameLengthOptions,
 }) => {
   const isNoRailCoreType = NO_RAIL_CORE_TYPES.includes(coreType);
 
@@ -2493,26 +2494,31 @@ const UIDoorBom = ({
                           (af) => af.code === selectedFrameCode,
                         )
                       : idx === 0;
+                    const isRecommended = candidate.allFrames.some(
+                      (af) => af.code === frameLengthOptions?.recommendedFrameCode,
+                    );
                     return (
                       <div
                         key={`${candidate.frameType}-${candidate.strategy}`}
                         className={`flex flex-col gap-1 p-3 rounded-lg cursor-pointer border-2 transition-colors ${
                           isSelected
                             ? "border-primary bg-primary-50"
-                            : "border-default-200 bg-default-50 hover:border-default-400"
+                            : isRecommended
+                              ? "border-success-300 bg-success-50 hover:border-success-400"
+                              : "border-default-200 bg-default-50 hover:border-default-400"
                         }`}
                         onClick={() => setSelectedFrameCode(f.code)}
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             {isSelected && (
                               <Chip color="primary" variant="solid" size="sm">
                                 เลือก
                               </Chip>
                             )}
-                            {idx === 0 && !isSelected && (
+                            {isRecommended && (
                               <Chip color="success" variant="flat" size="sm">
-                                แนะนำ
+                                💰 ถูกที่สุด
                               </Chip>
                             )}
                             <span className="font-bold text-[13px]">
@@ -2562,15 +2568,20 @@ const UIDoorBom = ({
                                 setSelectedFrameCode([...keys][0] || "")
                               }
                             >
-                              {candidate.allFrames.map((af) => (
-                                <SelectItem
-                                  key={af.code}
-                                  textValue={af.displaySize}
-                                >
-                                  {af.displaySize} — ฿
-                                  {(af.unitCost || 0).toLocaleString()}
-                                </SelectItem>
-                              ))}
+                              {candidate.allFrames.map((af) => {
+                                const isRecLen =
+                                  af.code === frameLengthOptions?.recommendedFrameCode;
+                                return (
+                                  <SelectItem
+                                    key={af.code}
+                                    textValue={af.displaySize}
+                                  >
+                                    {af.displaySize} — ฿
+                                    {(af.unitCost || 0).toLocaleString()}
+                                    {isRecLen ? " ✓ แนะนำ" : ""}
+                                  </SelectItem>
+                                );
+                              })}
                             </Select>
                           </div>
                         )}
@@ -2579,6 +2590,61 @@ const UIDoorBom = ({
                   })}
                 </div>
               )}
+
+              {frameLengthOptions?.potentialSavings > 0 &&
+                frameLengthOptions?.recommendedOption && (
+                  <div className="flex flex-col gap-2 p-3 bg-success-50 rounded-lg border border-success-200">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[12px] font-semibold text-success-700">
+                        💡 พบตัวเลือกที่ถูกกว่า
+                      </span>
+                      <Chip color="success" variant="flat" size="sm">
+                        ประหยัด ฿
+                        {frameLengthOptions.potentialSavings.toLocaleString(
+                          undefined,
+                          { maximumFractionDigits: 0 },
+                        )}
+                      </Chip>
+                    </div>
+                    <div className="flex items-center justify-between text-[12px]">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-medium">
+                          {frameLengthOptions.recommendedOption.frame.displaySize}
+                        </span>
+                        <span className="text-default-500">
+                          {frameLengthOptions.recommendedOption.totalStocks} ท่อน ·{" "}
+                          {frameLengthOptions.recommendedOption.efficiency}%
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-success-700">
+                          ฿
+                          {frameLengthOptions.recommendedOption.totalCost.toLocaleString(
+                            undefined,
+                            { maximumFractionDigits: 0 },
+                          )}
+                        </div>
+                        <div className="text-success-600 text-[11px]">
+                          ฿
+                          {frameLengthOptions.recommendedOption.costPerDoor.toFixed(2)}
+                          /บาน
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      color="success"
+                      variant="flat"
+                      onPress={() =>
+                        setSelectedFrameCode(
+                          frameLengthOptions.recommendedFrameCode,
+                        )
+                      }
+                    >
+                      เลือกตัวเลือกนี้
+                    </Button>
+                  </div>
+                )}
 
               <Divider />
 
@@ -3308,9 +3374,38 @@ const UIDoorBom = ({
 
               {priceSummary.qty > 0 && (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-primary-50 rounded-lg">
-                  <span className="font-bold text-foreground">
-                    รวมทั้งหมด ({priceSummary.qty} บาน)
-                  </span>
+                  <div className="flex items-center justify-between flex-wrap gap-1">
+                    <span className="font-bold text-foreground">
+                      รวมทั้งหมด ({priceSummary.qty} บาน)
+                    </span>
+                    {priceSummary.frameSavings > 0 && (
+                      <Chip color="success" variant="flat" size="sm">
+                        ✂️ ประหยัดไม้ ฿
+                        {priceSummary.frameSavings.toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        })}
+                      </Chip>
+                    )}
+                  </div>
+                  {priceSummary.frameSavings > 0 && (
+                    <div className="flex justify-between text-success-600">
+                      <span>
+                        กรอบไม้รวม ({priceSummary.frameStocksTotal} ท่อน ×{" "}
+                        {priceSummary.qty} บาน):
+                      </span>
+                      <span className="font-medium">
+                        ประหยัด{" "}
+                        {(
+                          (priceSummary.frameSavings /
+                            (priceSummary.frameStocksTotal *
+                              priceSummary.frameUnitCost +
+                              priceSummary.frameSavings)) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-foreground">
                     <span>ต้นทุนรวม:</span>
                     <span>
@@ -3532,6 +3627,36 @@ const UIDoorBom = ({
                     </div>
                   </div>
                 </div>
+
+                {cuttingPlan.batch && cuttingPlan.batch.savedStocks > 0 && (
+                  <div className="p-3 bg-success-50 rounded-lg border border-success-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-semibold text-success-700">
+                        📦 ตัดแบบกลุ่ม {cuttingPlan.batch.orderQty} บาน
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-[11px] text-center">
+                      <div>
+                        <div className="font-bold text-success-700 text-base">
+                          {cuttingPlan.batch.totalStocks}
+                        </div>
+                        <div className="text-default-600">ท่อนรวม</div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-default-500 line-through text-base">
+                          {cuttingPlan.batch.naiveStocksTotal}
+                        </div>
+                        <div className="text-default-600">ถ้าตัดแยก</div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-success-600 text-base">
+                          -{cuttingPlan.batch.savedStocks}
+                        </div>
+                        <div className="text-default-600">ประหยัด</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="border-1 border-default rounded-lg overflow-hidden">
                   <div className="p-2 text-xs font-semibold bg-default-100">

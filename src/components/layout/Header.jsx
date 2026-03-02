@@ -35,7 +35,7 @@ export default function Header({ onMobileMenuToggle }) {
         >
           <Menu />
         </button>
-        Evergreen โดย CHH Industry
+        Evergreen By CHH Industry
       </div>
       <div className="hidden md:flex flex-row items-center justify-center w-full h-full p-2 gap-2">
         {" "}
