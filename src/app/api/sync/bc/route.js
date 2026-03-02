@@ -267,7 +267,7 @@ async function runSync(supabase, requestedTables, send) {
         },
         { timeout: 120_000 },
       );
-      // Fetch existing RFID codes so upsert doesn't overwrite them with null
+      // Fetch existing RFID codes so upsert doesn't overwrite them
       const itemNos = items.map((i) => i.No);
       const rfidMap = {};
       for (let i = 0; i < itemNos.length; i += 1000) {
@@ -279,6 +279,20 @@ async function runSync(supabase, requestedTables, send) {
           .not("bcItemRfidCode", "is", null);
         for (const row of existing || []) {
           rfidMap[row.bcItemExternalId] = row.bcItemRfidCode;
+        }
+      }
+
+      // Auto-assign sequential rfidCode to items that don't have one yet
+      const maxExisting = Object.values(rfidMap).reduce(
+        (max, v) => Math.max(max, parseInt(v) || 0),
+        0,
+      );
+      let nextCode = maxExisting + 1;
+      // Sort items by No to ensure stable assignment order across syncs
+      const sortedItems = [...items].sort((a, b) => a.No.localeCompare(b.No));
+      for (const item of sortedItems) {
+        if (!rfidMap[item.No]) {
+          rfidMap[item.No] = String(nextCode++);
         }
       }
 
@@ -298,7 +312,7 @@ async function runSync(supabase, requestedTables, send) {
           bcItemBaseUnitOfMeasure: i.Base_Unit_of_Measure,
           bcItemProjectCode: projectCode,
           bcItemProjectName: projectCode ? dimMap[projectCode] || null : null,
-          bcItemRfidCode: rfidMap[i.No] || null,
+          bcItemRfidCode: rfidMap[i.No],
           bcItemSyncedAt: now,
         };
       });

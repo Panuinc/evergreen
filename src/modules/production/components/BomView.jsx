@@ -40,6 +40,8 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import * as htmlToImage from "html-to-image";
+import BomAIPanel from "@/modules/production/components/BomAIPanel";
+import { useBomAI } from "@/modules/production/hooks/useBomAI";
 
 const GLUE_THICKNESS = 1;
 const LOCK_BLOCK_HEIGHT = 400;
@@ -2292,10 +2294,88 @@ const UIDoorBom = ({
 }) => {
   const isNoRailCoreType = NO_RAIL_CORE_TYPES.includes(coreType);
 
+  const [framePlanPage, setFramePlanPage] = useState(1);
+  const [corePlanPage, setCorePlanPage] = useState(1);
+  const FRAME_PAGE_SIZE = 10;
+  const CORE_PAGE_SIZE = 5;
+
+  const bomState = useMemo(
+    () => ({
+      customerPO,
+      orderQty,
+      doorType,
+      doorThickness,
+      doorWidth,
+      doorHeight,
+      surfaceMaterial,
+      surfaceThickness,
+      surfacePrice,
+      coreType,
+      edgeBanding,
+    }),
+    [customerPO, orderQty, doorType, doorThickness, doorWidth, doorHeight, surfaceMaterial, surfaceThickness, surfacePrice, coreType, edgeBanding],
+  );
+
+  const aiSetters = useMemo(
+    () => ({
+      setCustomerPO,
+      setOrderQty,
+      setDoorType,
+      setDoorThickness,
+      setDoorWidth,
+      setDoorHeight,
+      setSurfaceMaterial,
+      setSurfacePrice,
+      setSurfaceThickness,
+      setCoreType,
+      setEdgeBanding,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const bomAI = useBomAI({ bomState, setters: aiSetters });
+
   return (
     <div ref={formRef} className="flex flex-col w-full gap-3">
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 w-full">
         <div className="xl:col-span-1 flex flex-col gap-3">
+          <BomAIPanel bomState={bomState} bomAI={bomAI} />
+
+          {/* Door type tab bar — shown when PDF has multiple door types */}
+          {bomAI.pendingDoors.length > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary-50 border border-primary-200 flex-wrap">
+              <span className="text-[11px] font-semibold text-primary-700 shrink-0">
+                ประตูที่อ่านได้:
+              </span>
+              {bomAI.pendingDoors.map((door, i) => {
+                const isApplied = bomAI.appliedDoorIdxs.includes(i);
+                const isActive = i === bomAI.selectedDoorIdx;
+                return (
+                  <Chip
+                    key={i}
+                    size="sm"
+                    variant={isActive ? "solid" : "flat"}
+                    color={isApplied ? "success" : isActive ? "primary" : "default"}
+                    className="cursor-pointer text-[12px] font-medium"
+                    onClick={() => {
+                      bomAI.selectDoor(i);
+                      bomAI.applyDoorFields(door, null, i);
+                    }}
+                  >
+                    {isApplied ? "✓ " : ""}{door.doorCode || `ประตู ${i + 1}`}
+                  </Chip>
+                );
+              })}
+              <Button
+                size="sm" variant="light" color="default"
+                className="ml-auto text-[11px] h-6 min-w-0 px-2"
+                onPress={bomAI.dismissPendingDoors}
+              >
+                ปิด
+              </Button>
+            </div>
+          )}
           <Card shadow="none" className="w-full border border-default-200">
             <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
@@ -3599,60 +3679,52 @@ const UIDoorBom = ({
                   </div>
                 )}
 
-                <div className="grid grid-cols-4 gap-2">
-                  <div className="p-2 rounded-lg text-center">
-                    <div className="font-bold text-lg text-foreground">
-                      {cuttingPlan.totalStocks}
-                    </div>
-                    <div className="text-xs text-default-700">ท่อนที่ใช้</div>
+                {/* Single-door stats */}
+                <div className="rounded-lg border border-default-200 overflow-hidden">
+                  <div className="px-3 py-1.5 bg-default-100 text-xs font-semibold text-default-600">
+                    1 บาน
                   </div>
-                  <div className="p-2 rounded-lg text-center">
-                    <div className="font-bold text-lg text-foreground">
-                      {cuttingPlan.efficiency}
+                  <div className="grid grid-cols-4 gap-0 divide-x divide-default-200">
+                    <div className="p-2 text-center">
+                      <div className="font-bold text-lg text-foreground">{cuttingPlan.totalStocks}</div>
+                      <div className="text-[11px] text-default-500">ท่อนไม้ที่ใช้</div>
                     </div>
-                    <div className="text-xs text-default-700">ประสิทธิภาพ</div>
-                  </div>
-                  <div className="p-2 rounded-lg text-center">
-                    <div className="font-bold text-lg text-foreground">
-                      {cuttingPlan.usedLength}
+                    <div className="p-2 text-center">
+                      <div className="font-bold text-lg text-foreground">{cuttingPlan.efficiency}%</div>
+                      <div className="text-[11px] text-default-500">ประสิทธิภาพ</div>
                     </div>
-                    <div className="text-xs text-default-700">ใช้ (มม.)</div>
-                  </div>
-                  <div className="p-2 rounded-lg text-center">
-                    <div className="font-bold text-lg text-foreground">
-                      {cuttingPlan.totalWaste}
+                    <div className="p-2 text-center">
+                      <div className="font-bold text-lg text-foreground">{cuttingPlan.usedLength}</div>
+                      <div className="text-[11px] text-default-500">ใช้จริง (มม.)</div>
                     </div>
-                    <div className="text-xs text-default-700">
-                      เศษเหลือ (มม.)
+                    <div className="p-2 text-center">
+                      <div className="font-bold text-lg text-default-400">{cuttingPlan.totalWaste}</div>
+                      <div className="text-[11px] text-default-500">เศษ (มม.)</div>
                     </div>
                   </div>
                 </div>
 
-                {cuttingPlan.batch && cuttingPlan.batch.savedStocks > 0 && (
-                  <div className="p-3 bg-success-50 rounded-lg border border-success-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-semibold text-success-700">
-                        📦 ตัดแบบกลุ่ม {cuttingPlan.batch.orderQty} บาน
-                      </span>
+                {/* Batch stats */}
+                {cuttingPlan.batch && (
+                  <div className="rounded-lg border border-success-200 overflow-hidden">
+                    <div className="px-3 py-1.5 bg-success-50 text-xs font-semibold text-success-700 flex items-center justify-between">
+                      <span>📦 ทั้ง order {cuttingPlan.batch.orderQty} บาน (ตัดรวม)</span>
+                      {cuttingPlan.batch.savedStocks > 0 && (
+                        <span className="text-success-600">ประหยัดได้ {cuttingPlan.batch.savedStocks} ท่อน</span>
+                      )}
                     </div>
-                    <div className="grid grid-cols-3 gap-2 text-[11px] text-center">
-                      <div>
-                        <div className="font-bold text-success-700 text-base">
-                          {cuttingPlan.batch.totalStocks}
-                        </div>
-                        <div className="text-default-600">ท่อนรวม</div>
+                    <div className="grid grid-cols-3 gap-0 divide-x divide-default-200">
+                      <div className="p-2 text-center">
+                        <div className="font-bold text-lg text-success-700">{cuttingPlan.batch.totalStocks}</div>
+                        <div className="text-[11px] text-default-500">ท่อนทั้งหมด (ตัดรวม)</div>
                       </div>
-                      <div>
-                        <div className="font-bold text-default-500 line-through text-base">
-                          {cuttingPlan.batch.naiveStocksTotal}
-                        </div>
-                        <div className="text-default-600">ถ้าตัดแยก</div>
+                      <div className="p-2 text-center">
+                        <div className="font-bold text-lg text-default-400 line-through">{cuttingPlan.batch.naiveStocksTotal}</div>
+                        <div className="text-[11px] text-default-500">ถ้าตัดแยกบาน ({cuttingPlan.totalStocks}×{cuttingPlan.batch.orderQty})</div>
                       </div>
-                      <div>
-                        <div className="font-bold text-success-600 text-base">
-                          -{cuttingPlan.batch.savedStocks}
-                        </div>
-                        <div className="text-default-600">ประหยัด</div>
+                      <div className="p-2 text-center">
+                        <div className="font-bold text-lg text-success-600">{cuttingPlan.batch.efficiency}%</div>
+                        <div className="text-[11px] text-default-500">ประสิทธิภาพรวม</div>
                       </div>
                     </div>
                   </div>
@@ -3696,103 +3768,220 @@ const UIDoorBom = ({
                   </div>
                 </div>
 
-                <div className="border-1 border-default rounded-lg overflow-hidden">
-                  <div className="p-2 text-xs font-semibold bg-default-100">
-                    🪵 แผนตัดไม้ (ท่อนยาว {cuttingPlan.stockLength}มม. ×{" "}
-                    {cuttingPlan.totalStocks} ท่อน)
-                  </div>
-                  <div className="p-2 space-y-3">
-                    {cuttingPlan.stocks.map((stock, stockIdx) => (
-                      <div key={stockIdx} className="space-y-1">
-                        <div className="text-xs text-default-600">
-                          ท่อนที่ {stockIdx + 1}
-                        </div>
-                        <div className="relative h-8 rounded overflow-hidden bg-default-100">
-                          {(() => {
-                            let offset = 0;
-                            return stock.pieces.map((piece, pieceIdx) => {
-                              const pieceCut = piece.cutLength ?? piece.length;
-                              const width = (pieceCut / stock.length) * 100;
-                              const kerfWidth =
-                                (cuttingPlan.sawKerf / stock.length) * 100;
-                              const left = offset;
-                              offset += width + kerfWidth;
-                              const colorMap = {
-                                primary: "#4456E9",
-                                secondary: "#FF8A00",
-                                warning: "#FFB441",
-                                danger: "#FF0076",
-                                success: "#10B981",
-                              };
-                              return (
-                                <React.Fragment key={pieceIdx}>
-                                  <div
-                                    className="absolute h-full flex items-center justify-center text-[8px] font-medium overflow-hidden text-white"
-                                    style={{
-                                      left: `${left}%`,
-                                      width: `${width}%`,
-                                      backgroundColor:
-                                        colorMap[piece.color] || "#DCDCDC",
-                                    }}
-                                    title={`${piece.name}: cut ${pieceCut}mm (use ${piece.length}mm)`}
-                                  >
-                                    {width > 8 && (
-                                      <span className="truncate p-2">
-                                        {pieceCut}
-                                      </span>
-                                    )}
-                                  </div>
-                                  {pieceIdx < stock.pieces.length - 1 && (
-                                    <div
-                                      className="absolute h-full bg-default-200"
-                                      style={{
-                                        left: `${left + width}%`,
-                                        width: `${kerfWidth}%`,
-                                      }}
-                                    />
-                                  )}
-                                </React.Fragment>
-                              );
-                            });
-                          })()}
-                          {stock.remaining > 0 && (
-                            <div
-                              className="absolute right-0 h-full flex items-center justify-center text-[8px] bg-background text-default-600"
-                              style={{
-                                width: `${(stock.remaining / stock.length) * 100}%`,
-                              }}
-                            >
-                              {stock.remaining > 100 && (
-                                <span>เศษเหลือ {stock.remaining}</span>
-                              )}
-                            </div>
+                {(() => {
+                  const isBatch = cuttingPlan.batch?.stocks?.length > 0;
+                  const displayStocks = isBatch ? cuttingPlan.batch.stocks : cuttingPlan.stocks;
+                  const totalStocksDisplay = isBatch ? cuttingPlan.batch.totalStocks : cuttingPlan.totalStocks;
+                  const efficiencyDisplay = isBatch ? cuttingPlan.batch.efficiency : cuttingPlan.efficiency;
+                  const framePageCount = Math.ceil(displayStocks.length / FRAME_PAGE_SIZE);
+                  const framePage = Math.min(framePlanPage, framePageCount);
+                  const framePageStocks = displayStocks.slice((framePage - 1) * FRAME_PAGE_SIZE, framePage * FRAME_PAGE_SIZE);
+                  const colorMap = {
+                    primary: "#4456E9",
+                    secondary: "#FF8A00",
+                    warning: "#FFB441",
+                    danger: "#FF0076",
+                    success: "#10B981",
+                  };
+                  return (
+                    <>
+                      <div className="border-1 border-default rounded-lg overflow-hidden">
+                        <div className="p-2 text-xs font-semibold bg-default-100 flex items-center justify-between">
+                          <span>🪵 แผนตัดไม้ (ท่อนยาว {cuttingPlan.stockLength}มม. × {totalStocksDisplay} ท่อน)</span>
+                          {isBatch && (
+                            <span className="text-default-500 font-normal">📦 {cuttingPlan.batch.orderQty} บาน</span>
                           )}
                         </div>
+                        <div className="p-2 space-y-3">
+                          {framePageStocks.map((stock, idx) => {
+                            const stockIdx = (framePage - 1) * FRAME_PAGE_SIZE + idx;
+                            return (
+                              <div key={stockIdx} className="space-y-1">
+                                <div className="text-xs text-default-600">ท่อนที่ {stockIdx + 1}</div>
+                                <div className="relative h-8 rounded overflow-hidden bg-default-100">
+                                  {(() => {
+                                    let offset = 0;
+                                    return stock.pieces.map((piece, pieceIdx) => {
+                                      const pieceCut = piece.cutLength ?? piece.length;
+                                      const width = (pieceCut / stock.length) * 100;
+                                      const kerfWidth = (cuttingPlan.sawKerf / stock.length) * 100;
+                                      const left = offset;
+                                      offset += width + kerfWidth;
+                                      return (
+                                        <React.Fragment key={pieceIdx}>
+                                          <div
+                                            className="absolute h-full flex items-center justify-center text-[8px] font-medium overflow-hidden text-white"
+                                            style={{ left: `${left}%`, width: `${width}%`, backgroundColor: colorMap[piece.color] || "#DCDCDC" }}
+                                            title={`${piece.name}: cut ${pieceCut}mm (use ${piece.length}mm)`}
+                                          >
+                                            {width > 8 && <span className="truncate p-2">{pieceCut}</span>}
+                                          </div>
+                                          {pieceIdx < stock.pieces.length - 1 && (
+                                            <div className="absolute h-full bg-default-200" style={{ left: `${left + width}%`, width: `${kerfWidth}%` }} />
+                                          )}
+                                        </React.Fragment>
+                                      );
+                                    });
+                                  })()}
+                                  {stock.remaining > 0 && (
+                                    <div
+                                      className="absolute right-0 h-full flex items-center justify-center text-[8px] bg-background text-default-600"
+                                      style={{ width: `${(stock.remaining / stock.length) * 100}%` }}
+                                    >
+                                      {stock.remaining > 100 && <span>เศษเหลือ {stock.remaining}</span>}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {framePageCount > 1 && (
+                          <div className="flex items-center justify-between px-3 py-2 border-t border-default-200 bg-default-50">
+                            <button
+                              className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                              onClick={() => setFramePlanPage(p => Math.max(1, p - 1))}
+                              disabled={framePage === 1}
+                            >← ก่อนหน้า</button>
+                            <span className="text-xs text-default-500">
+                              ท่อนที่ {(framePage - 1) * FRAME_PAGE_SIZE + 1}–{Math.min(framePage * FRAME_PAGE_SIZE, displayStocks.length)} / {displayStocks.length}
+                            </span>
+                            <button
+                              className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                              onClick={() => setFramePlanPage(p => Math.min(framePageCount, p + 1))}
+                              disabled={framePage === framePageCount}
+                            >ถัดไป →</button>
+                          </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="p-2">
-                  <div className="flex justify-between text-xs">
-                    <span>ประสิทธิภาพการใช้ไม้</span>
-                    <span
-                      className={`font-bold text-${getEfficiencyColor(cuttingPlan.efficiency)}`}
-                    >
-                      {cuttingPlan.efficiency}%
-                    </span>
-                  </div>
-                  <Progress
-                    value={parseFloat(cuttingPlan.efficiency)}
-                    color={getEfficiencyColor(cuttingPlan.efficiency)}
-                    size="md"
-                  />
-                  <div className="flex justify-between text-[10px] text-default-500">
-                    <span>0%</span>
-                    <span>ดี: ≥80%</span>
-                    <span>100%</span>
-                  </div>
-                </div>
+                      <div className="p-2">
+                        <div className="flex justify-between text-xs">
+                          <span>ประสิทธิภาพการใช้ไม้</span>
+                          <span className={`font-bold text-${getEfficiencyColor(efficiencyDisplay)}`}>
+                            {efficiencyDisplay}%
+                          </span>
+                        </div>
+                        <Progress value={parseFloat(efficiencyDisplay)} color={getEfficiencyColor(efficiencyDisplay)} size="md" />
+                        <div className="flex justify-between text-[10px] text-default-500">
+                          <span>0%</span>
+                          <span>ดี: ≥80%</span>
+                          <span>100%</span>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+
+                {/* Core cutting plan */}
+                {priceSummary.coreStripsPerSheet > 0 && (() => {
+                  const { coreStrips, coreStripsPerSheet, coreSheetWidth, coreStripCutWidth } = priceSummary;
+                  const orderQty = priceSummary.qty || 1;
+                  const batchStrips = coreStrips * orderQty;
+                  const batchSheets = Math.ceil(batchStrips / coreStripsPerSheet);
+                  const batchEfficiency = batchSheets > 0
+                    ? ((batchStrips / (batchSheets * coreStripsPerSheet)) * 100).toFixed(1)
+                    : "0";
+
+                  // Build sheet data for visualization (cap at 5 sheets for display)
+                  const buildSheets = (totalStrips, perSheet) => {
+                    const sheets = [];
+                    let remaining = totalStrips;
+                    while (remaining > 0) {
+                      const used = Math.min(remaining, perSheet);
+                      sheets.push({ used, waste: perSheet - used });
+                      remaining -= used;
+                    }
+                    return sheets;
+                  };
+
+                  const displaySheets = buildSheets(
+                    orderQty > 1 ? batchStrips : coreStrips,
+                    coreStripsPerSheet,
+                  );
+                  const corePageCount = Math.ceil(displaySheets.length / CORE_PAGE_SIZE);
+                  const corePage = Math.min(corePlanPage, corePageCount);
+                  const corePageSheets = displaySheets.slice((corePage - 1) * CORE_PAGE_SIZE, corePage * CORE_PAGE_SIZE);
+
+                  return (
+                    <div className="mt-3 border-1 border-default rounded-lg overflow-hidden">
+                      <div className="p-2 text-xs font-semibold bg-default-100 flex items-center justify-between">
+                        <span>
+                          🧱 แผนตัดใส้ (แผ่น {coreSheetWidth}มม. ÷ {coreStripCutWidth}มม. = {coreStripsPerSheet} เส้น/แผ่น)
+                        </span>
+                        {orderQty > 1 && (
+                          <span className="text-default-500 font-normal">
+                            📦 กลุ่ม {orderQty} บาน: {batchSheets} แผ่น
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-2 space-y-2">
+                        {corePageSheets.map((sheet, idx) => {
+                          const sheetIdx = (corePage - 1) * CORE_PAGE_SIZE + idx;
+                          const usedPct = (sheet.used / coreStripsPerSheet) * 100;
+                          const wastePct = (sheet.waste / coreStripsPerSheet) * 100;
+                          return (
+                            <div key={sheetIdx} className="space-y-0.5">
+                              <div className="text-xs text-default-500">
+                                แผ่นที่ {sheetIdx + 1}
+                                <span className="ml-1 text-default-400">
+                                  ({sheet.used} เส้น{sheet.waste > 0 ? ` · เหลือ ${sheet.waste}` : ""})
+                                </span>
+                              </div>
+                              <div className="relative h-6 rounded overflow-hidden bg-default-100">
+                                <div
+                                  className="absolute h-full flex items-center justify-center text-[8px] font-medium text-white"
+                                  style={{ width: `${usedPct}%`, backgroundColor: "#D97706" }}
+                                  title={`ใช้ ${sheet.used} เส้น`}
+                                >
+                                  {usedPct > 15 && `${sheet.used} เส้น`}
+                                </div>
+                                {sheet.waste > 0 && (
+                                  <div
+                                    className="absolute right-0 h-full flex items-center justify-center text-[8px] text-default-500"
+                                    style={{ width: `${wastePct}%` }}
+                                  >
+                                    {wastePct > 10 && `เศษ ${sheet.waste}`}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {corePageCount > 1 && (
+                        <div className="flex items-center justify-between px-3 py-2 border-t border-default-200 bg-default-50">
+                          <button
+                            className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                            onClick={() => setCorePlanPage(p => Math.max(1, p - 1))}
+                            disabled={corePage === 1}
+                          >← ก่อนหน้า</button>
+                          <span className="text-xs text-default-500">
+                            แผ่นที่ {(corePage - 1) * CORE_PAGE_SIZE + 1}–{Math.min(corePage * CORE_PAGE_SIZE, displaySheets.length)} / {displaySheets.length}
+                          </span>
+                          <button
+                            className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                            onClick={() => setCorePlanPage(p => Math.min(corePageCount, p + 1))}
+                            disabled={corePage === corePageCount}
+                          >ถัดไป →</button>
+                        </div>
+                      )}
+                      <div className="px-2 pb-2 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span>ประสิทธิภาพการใช้แผ่น</span>
+                          <span className={`font-bold text-${getEfficiencyColor(batchEfficiency)}`}>
+                            {batchEfficiency}%
+                          </span>
+                        </div>
+                        <Progress
+                          value={parseFloat(batchEfficiency)}
+                          color={getEfficiencyColor(batchEfficiency)}
+                          size="sm"
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
               </CardBody>
             </Card>
           ) : (

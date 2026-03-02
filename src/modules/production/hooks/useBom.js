@@ -26,6 +26,7 @@ const CORE_TYPE_CONFIG = [
     type: "strips",
     thickness: 4,
     spacing: 40,
+    sheetWidth: 1220,
     dbKey: "plywood",
   },
   {
@@ -58,6 +59,7 @@ const CORE_TYPE_CONFIG = [
     type: "strips",
     thickness: 12,
     spacing: null,
+    sheetWidth: 1220,
     dbKey: "particle",
   },
 ];
@@ -692,6 +694,7 @@ const useCuttingPlan = (results, currentFrame, coreType, orderQty) => {
       const naiveStocksTotal = totalStocks * batchQty;
       batch = {
         ...batchStats,
+        stocks: batchStocks,
         naiveStocksTotal,
         savedStocks: naiveStocksTotal - batchStats.totalStocks,
         orderQty: batchQty,
@@ -1341,14 +1344,23 @@ export function useBom() {
     let coreQtyUsed = 0;
     let coreQtyLabel = "";
 
+    let coreStrips = 0;
+    let coreStripsPerSheet = 0;
+    let coreSheetWidth = 0;
+    let coreStripCutWidth = 0;
+
     if (isSolidCore) {
       coreQtyUsed = coreCalculation?.totalPieces || 0;
       coreQtyLabel = `${coreQtyUsed} \u0E41\u0E1C\u0E48\u0E19`;
     } else {
       const stripLength = selectedCoreItem?.length || 0;
+      // Use parsed ERP width, fallback to standard sheet width from config (1220mm)
+      const sheetWidth =
+        selectedCoreItem?.width || coreCalculation?.coreType?.sheetWidth || 0;
       const columns = coreCalculation?.columns || 0;
       const damPieces = coreCalculation?.damPieces?.length || 0;
 
+      let totalStrips = 0;
       if (stripLength > 0 && coreCalculation?.pieces?.length > 0) {
         const piecesByCol = {};
         for (const p of coreCalculation.pieces) {
@@ -1356,7 +1368,6 @@ export function useBom() {
           piecesByCol[p.col].push(p.height);
         }
 
-        let totalStrips = 0;
         for (const col in piecesByCol) {
           const totalHeight = piecesByCol[col].reduce((s, h) => s + h, 0);
           totalStrips += Math.ceil(totalHeight / stripLength);
@@ -1367,12 +1378,30 @@ export function useBom() {
             totalStrips += Math.ceil((dam.width || 0) / stripLength);
           }
         }
-
-        coreQtyUsed = totalStrips;
       } else {
-        coreQtyUsed = columns + damPieces;
+        totalStrips = columns + damPieces;
       }
-      coreQtyLabel = `${coreQtyUsed} \u0E40\u0E2A\u0E49\u0E19`;
+
+      // Convert strip count → sheets: one sheet yields floor(sheetWidth / doorThickness) strips
+      // Strip cut width = door/frame thickness (core fills the full frame depth)
+      const stripCutWidth = parseInt(doorThickness) || 0;
+      const stripsPerSheet =
+        sheetWidth > 0 && stripCutWidth > 0
+          ? Math.floor(sheetWidth / stripCutWidth)
+          : 0;
+      const sheetsNeeded =
+        stripsPerSheet > 0 ? Math.ceil(totalStrips / stripsPerSheet) : totalStrips;
+
+      coreQtyUsed = sheetsNeeded;
+      coreQtyLabel =
+        stripsPerSheet > 0
+          ? `${sheetsNeeded} \u0E41\u0E1C\u0E48\u0E19 (${totalStrips} \u0E40\u0E2A\u0E49\u0E19)`
+          : `${totalStrips} \u0E40\u0E2A\u0E49\u0E19`;
+
+      coreStrips = totalStrips;
+      coreStripsPerSheet = stripsPerSheet;
+      coreSheetWidth = sheetWidth;
+      coreStripCutWidth = stripCutWidth;
     }
 
     const core = coreUnitCost * coreQtyUsed;
@@ -1404,6 +1433,10 @@ export function useBom() {
       coreQtyUsed,
       coreQtyLabel,
       coreUnitCost,
+      coreStrips,
+      coreStripsPerSheet,
+      coreSheetWidth,
+      coreStripCutWidth,
       edge,
       drillCost,
       totalPerDoor,
@@ -1416,7 +1449,7 @@ export function useBom() {
       grandProfit20: grandTotal * 1.2,
       grandCustom: grandTotal + margin * qty,
     };
-  }, [currentFrame, surfacePrice, selectedCoreItem, edgeBanding, edgePrice, drillItems, orderQty, customMargin, cuttingPlan, coreCalculation]);
+  }, [currentFrame, surfacePrice, selectedCoreItem, edgeBanding, edgePrice, drillItems, orderQty, customMargin, cuttingPlan, coreCalculation, doorThickness]);
 
   const isDataComplete = doorThickness && doorWidth && doorHeight;
   const piecesPerSide = parseInt(lockBlockPiecesPerSide) || 0;
