@@ -305,7 +305,6 @@ export const menuData = [
       // ข้อมูลหลัก
       { name: "ยานพาหนะ", icon: Truck, href: "/tms/vehicles" },
       { name: "พนักงานขับรถ", icon: Users, href: "/tms/drivers" },
-      { name: "เส้นทาง", icon: MapPin, href: "/tms/routes" },
       // หลังเสร็จงาน
       { name: "บันทึกน้ำมัน", icon: Boxes, href: "/tms/fuelLogs" },
       { name: "ซ่อมบำรุง", icon: Wrench, href: "/tms/maintenance" },
