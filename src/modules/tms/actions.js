@@ -206,3 +206,29 @@ export async function getReportData(type, startDate, endDate) {
 export async function getAlerts() {
   return get("/api/tms/alerts");
 }
+
+// ==================== Delivery Plans ====================
+
+export async function getDeliveryPlans(month) {
+  return get(`/api/tms/deliveryPlans?month=${month}`);
+}
+
+export async function createDeliveryPlan(data) {
+  return post("/api/tms/deliveryPlans", data);
+}
+
+export async function updateDeliveryPlan(id, data) {
+  return put(`/api/tms/deliveryPlans/${id}`, data);
+}
+
+export async function deleteDeliveryPlan(id) {
+  return del(`/api/tms/deliveryPlans/${id}`);
+}
+
+export async function getDeliveryPlanSalesOrders(search = "") {
+  return get(`/api/tms/deliveryPlans/salesOrders?search=${encodeURIComponent(search)}`);
+}
+
+export async function getDeliveryPlanSalesOrderLines(orderNo) {
+  return get(`/api/tms/deliveryPlans/salesOrders/${encodeURIComponent(orderNo)}/lines`);
+}

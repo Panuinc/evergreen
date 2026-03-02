@@ -1,0 +1,339 @@
+"use client";
+
+import { Tabs, Tab, Button, Chip, Spinner } from "@heroui/react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { useDeliveryPlans } from "@/modules/tms/hooks/useDeliveryPlans";
+import DeliveryPlanModal from "./DeliveryPlanModal";
+
+const DAYS_TH = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+const MONTHS_TH = [
+  "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
+  "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
+  "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
+];
+
+const STATUS_COLORS = {
+  planned: "primary",
+  in_progress: "warning",
+  completed: "success",
+  cancelled: "default",
+};
+
+function toDateString(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function isToday(date) {
+  const t = new Date();
+  return (
+    date.getFullYear() === t.getFullYear() &&
+    date.getMonth() === t.getMonth() &&
+    date.getDate() === t.getDate()
+  );
+}
+
+// --- Month View ---
+function MonthView({ currentDate, getPlansForDate, onDateClick }) {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
+
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const rows = [];
+  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+
+  return (
+    <div className="flex flex-col gap-1">
+      {/* Day headers */}
+      <div className="grid grid-cols-7">
+        {DAYS_TH.map((d, i) => (
+          <div
+            key={d}
+            className={`text-center text-xs font-semibold py-2 ${
+              i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-default-500"
+            }`}
+          >
+            {d}
+          </div>
+        ))}
+      </div>
+      {/* Rows */}
+      {rows.map((row, ri) => (
+        <div key={ri} className="grid grid-cols-7 gap-1">
+          {row.map((date, ci) => {
+            if (!date)
+              return <div key={ci} className="min-h-20 rounded-xl" />;
+            const dateStr = toDateString(date);
+            const plans = getPlansForDate(dateStr);
+            const today = isToday(date);
+            return (
+              <button
+                key={ci}
+                onClick={() => onDateClick(date)}
+                className={`min-h-20 rounded-xl border p-1.5 flex flex-col gap-1 text-left transition-colors hover:border-primary-300 hover:bg-primary-50 ${
+                  today
+                    ? "border-primary-400 bg-primary-50"
+                    : "border-default-200"
+                }`}
+              >
+                <span
+                  className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full ${
+                    today
+                      ? "bg-primary text-white"
+                      : ci === 0
+                      ? "text-danger-500"
+                      : ci === 6
+                      ? "text-primary-500"
+                      : "text-default-700"
+                  }`}
+                >
+                  {date.getDate()}
+                </span>
+                <div className="flex flex-col gap-0.5 overflow-hidden">
+                  {plans.slice(0, 3).map((p) => (
+                    <div
+                      key={p.tmsDeliveryPlanId}
+                      className={`text-[10px] px-1.5 py-0.5 rounded-md truncate font-medium ${
+                        p.tmsDeliveryPlanStatus === "planned"
+                          ? "bg-primary-100 text-primary-700"
+                          : p.tmsDeliveryPlanStatus === "in_progress"
+                          ? "bg-warning-100 text-warning-700"
+                          : p.tmsDeliveryPlanStatus === "completed"
+                          ? "bg-success-100 text-success-700"
+                          : "bg-default-100 text-default-600"
+                      }`}
+                    >
+                      {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"}
+                    </div>
+                  ))}
+                  {plans.length > 3 && (
+                    <span className="text-[10px] text-default-400 px-1">
+                      +{plans.length - 3} อื่นๆ
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// --- Week View ---
+function WeekView({ currentDate, getPlansForDate, onDateClick }) {
+  const startOfWeek = new Date(currentDate);
+  startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    return d;
+  });
+
+  return (
+    <div className="grid grid-cols-7 gap-2">
+      {days.map((date, i) => {
+        const dateStr = toDateString(date);
+        const plans = getPlansForDate(dateStr);
+        const today = isToday(date);
+        return (
+          <div key={i} className="flex flex-col gap-2">
+            {/* Day header */}
+            <div className="flex flex-col items-center gap-1">
+              <span
+                className={`text-xs font-semibold ${
+                  i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-default-500"
+                }`}
+              >
+                {DAYS_TH[i]}
+              </span>
+              <span
+                className={`text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full ${
+                  today ? "bg-primary text-white" : "text-default-700"
+                }`}
+              >
+                {date.getDate()}
+              </span>
+            </div>
+            {/* Plans */}
+            <div className="flex flex-col gap-1 min-h-32">
+              {plans.map((p) => (
+                <div
+                  key={p.tmsDeliveryPlanId}
+                  className={`p-2 rounded-xl border text-xs cursor-pointer hover:opacity-80 ${
+                    p.tmsDeliveryPlanStatus === "planned"
+                      ? "bg-primary-50 border-primary-200"
+                      : p.tmsDeliveryPlanStatus === "in_progress"
+                      ? "bg-warning-50 border-warning-200"
+                      : p.tmsDeliveryPlanStatus === "completed"
+                      ? "bg-success-50 border-success-200"
+                      : "bg-default-50 border-default-200"
+                  }`}
+                  onClick={() => onDateClick(date)}
+                >
+                  <p className="font-semibold truncate">
+                    {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"}
+                  </p>
+                  <p className="text-default-500 truncate">
+                    {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemCustomerName}
+                  </p>
+                  <Chip
+                    size="sm"
+                    color={STATUS_COLORS[p.tmsDeliveryPlanStatus]}
+                    variant="flat"
+                    className="mt-1"
+                  >
+                    {p.tmsDeliveryPlanItem?.length || 0} รายการ
+                  </Chip>
+                </div>
+              ))}
+              {/* Add button for empty days */}
+              <button
+                onClick={() => onDateClick(date)}
+                className="w-full py-2 rounded-xl border border-dashed border-default-200 text-xs text-default-400 hover:border-primary-300 hover:text-primary-500 transition-colors"
+              >
+                + เพิ่มแผน
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// --- Main Component ---
+export default function DeliveryPlanCalendar() {
+  const {
+    loading,
+    saving,
+    currentDate,
+    viewMode,
+    setViewMode,
+    selectedDate,
+    isModalOpen,
+    editingPlan,
+    salesOrders,
+    soLoading,
+    selectedSO,
+    soLines,
+    soLinesLoading,
+    goToPrev,
+    goToNext,
+    goToToday,
+    handleDateClick,
+    handleEditPlan,
+    closeModal,
+    searchSalesOrders,
+    selectSalesOrder,
+    handleSave,
+    handleDelete,
+    getPlansForDate,
+  } = useDeliveryPlans();
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  // Title for week view
+  const startOfWeek = new Date(currentDate);
+  startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+  const title =
+    viewMode === "month"
+      ? `${MONTHS_TH[month]} ${year + 543}`
+      : `${startOfWeek.getDate()} – ${endOfWeek.getDate()} ${MONTHS_TH[endOfWeek.getMonth()]} ${endOfWeek.getFullYear() + 543}`;
+
+  // Plans on selected date
+  const dateStr = editingPlan
+    ? editingPlan.tmsDeliveryPlanDate
+    : selectedDate
+    ? toDateString(selectedDate)
+    : "";
+  const plansOnDate = dateStr ? getPlansForDate(dateStr) : [];
+
+  return (
+    <div className="flex flex-col w-full gap-4 p-2">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          <CalendarDays size={20} className="text-primary" />
+          <h1 className="text-base font-semibold">แผนส่งของ</h1>
+        </div>
+        <Tabs
+          selectedKey={viewMode}
+          onSelectionChange={(k) => setViewMode(k)}
+          size="sm"
+          variant="bordered"
+        >
+          <Tab key="month" title="รายเดือน" />
+          <Tab key="week" title="รายสัปดาห์" />
+        </Tabs>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="flat" isIconOnly onPress={goToPrev}>
+            <ChevronLeft size={16} />
+          </Button>
+          <Button size="sm" variant="flat" isIconOnly onPress={goToNext}>
+            <ChevronRight size={16} />
+          </Button>
+          <Button size="sm" variant="flat" onPress={goToToday}>
+            วันนี้
+          </Button>
+        </div>
+        <p className="text-sm font-semibold">{title}</p>
+        {loading && <Spinner size="sm" />}
+      </div>
+
+      {/* Calendar */}
+      {viewMode === "month" ? (
+        <MonthView
+          currentDate={currentDate}
+          getPlansForDate={getPlansForDate}
+          onDateClick={handleDateClick}
+        />
+      ) : (
+        <WeekView
+          currentDate={currentDate}
+          getPlansForDate={getPlansForDate}
+          onDateClick={handleDateClick}
+        />
+      )}
+
+      {/* Modal */}
+      <DeliveryPlanModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        selectedDate={selectedDate}
+        editingPlan={editingPlan}
+        plansOnDate={plansOnDate}
+        salesOrders={salesOrders}
+        soLoading={soLoading}
+        selectedSO={selectedSO}
+        soLines={soLines}
+        soLinesLoading={soLinesLoading}
+        saving={saving}
+        onSearchSO={searchSalesOrders}
+        onSelectSO={selectSalesOrder}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        onEditPlan={handleEditPlan}
+      />
+    </div>
+  );
+}
