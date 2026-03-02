@@ -1,9 +1,14 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useDeliveries } from "@/modules/tms/hooks/useDeliveries";
 import DeliveriesView from "@/modules/tms/components/DeliveriesView";
 
-export default function DeliveriesPage() {
+function DeliveriesPageInner() {
+  const searchParams = useSearchParams();
+  const fromShipmentId = searchParams.get("shipmentId") || null;
+
   const {
     deliveries,
     shipments,
@@ -20,7 +25,7 @@ export default function DeliveriesPage() {
     handleSave,
     confirmDelete,
     handleDelete,
-  } = useDeliveries();
+  } = useDeliveries(fromShipmentId);
 
   return (
     <DeliveriesView
@@ -40,5 +45,13 @@ export default function DeliveriesPage() {
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
     />
+  );
+}
+
+export default function DeliveriesPage() {
+  return (
+    <Suspense>
+      <DeliveriesPageInner />
+    </Suspense>
   );
 }

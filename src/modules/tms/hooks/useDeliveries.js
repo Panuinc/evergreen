@@ -9,6 +9,8 @@ import {
   updateDelivery,
   deleteDelivery,
   getShipments,
+  getShipmentById,
+  updateShipmentStatus,
 } from "@/modules/tms/actions";
 
 const emptyForm = {
@@ -22,7 +24,7 @@ const emptyForm = {
   tmsDeliveryPhotoUrls: [],
 };
 
-export function useDeliveries() {
+export function useDeliveries(fromShipmentId = null) {
   const [deliveries, setDeliveries] = useState([]);
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +38,24 @@ export function useDeliveries() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Pre-fill form from shipment when shipmentId is in URL
+  useEffect(() => {
+    if (!fromShipmentId) return;
+    getShipmentById(fromShipmentId)
+      .then((shipment) => {
+        if (!shipment) return;
+        setFormData({
+          ...emptyForm,
+          tmsDeliveryShipmentId: shipment.tmsShipmentId,
+          tmsDeliveryReceiverName: shipment.tmsShipmentCustomerName || "",
+          tmsDeliveryReceiverPhone: shipment.tmsShipmentCustomerPhone || "",
+        });
+        setEditingDelivery(null);
+        onOpen();
+      })
+      .catch(() => {});
+  }, [fromShipmentId]);
 
   const loadData = async () => {
     try {
@@ -87,6 +107,10 @@ export function useDeliveries() {
       } else {
         await createDelivery(formData);
         toast.success("สร้างการส่งมอบสำเร็จ");
+        // Auto-update linked shipment to pod_confirmed
+        if (fromShipmentId) {
+          await updateShipmentStatus(fromShipmentId, "pod_confirmed");
+        }
       }
       onClose();
       loadData();

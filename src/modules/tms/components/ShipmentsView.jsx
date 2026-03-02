@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { COMPANY_HQ } from "@/modules/tms/constants";
 import {
   Button,
@@ -17,7 +18,7 @@ import {
   DropdownItem,
   Switch,
 } from "@heroui/react";
-import { Plus, Edit, Trash2, ChevronDown, Download } from "lucide-react";
+import { Plus, Edit, Trash2, ChevronDown, Download, ClipboardCheck } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 import { useRBAC } from "@/contexts/RBACContext";
@@ -117,6 +118,7 @@ export default function ShipmentsView({
   toggleActive,
 }) {
   const { isSuperAdmin } = useRBAC();
+  const router = useRouter();
 
   const initialVisibleColumns = useMemo(() => {
     if (isSuperAdmin) {
@@ -202,6 +204,18 @@ export default function ShipmentsView({
                   </DropdownMenu>
                 </Dropdown>
               )}
+              {!["pod_confirmed", "cancelled", "draft"].includes(item.tmsShipmentStatus) && (
+                <Button
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  color="success"
+                  isIconOnly
+                  onPress={() => router.push(`/tms/deliveries?shipmentId=${item.tmsShipmentId}`)}
+                >
+                  <ClipboardCheck size={16} />
+                </Button>
+              )}
               <Button
                 variant="bordered"
                 size="md"
@@ -235,7 +249,7 @@ export default function ShipmentsView({
           return item[columnKey] || "-";
       }
     },
-    [vehicles, drivers, handleOpen, confirmDelete, handleStatusChange, toggleActive, isSuperAdmin],
+    [vehicles, drivers, handleOpen, confirmDelete, handleStatusChange, toggleActive, isSuperAdmin, router],
   );
 
   const availableVehicles = vehicles.filter((v) => v.tmsVehicleStatus === "available");
