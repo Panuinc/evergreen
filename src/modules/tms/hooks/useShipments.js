@@ -11,7 +11,6 @@ import {
   updateShipmentStatus,
   getVehicles,
   getDrivers,
-  getRoutes,
   getDeliveryPlanById,
   updateDeliveryPlan,
 } from "@/modules/tms/actions";
@@ -21,7 +20,6 @@ const emptyForm = {
   tmsShipmentCustomerPhone: "",
   tmsShipmentCustomerAddress: "",
   tmsShipmentDestination: "",
-  tmsShipmentRouteId: "",
   tmsShipmentVehicleId: "",
   tmsShipmentDriverId: "",
   tmsShipmentAssistantId: "",
@@ -37,7 +35,6 @@ export function useShipments(fromPlanId = null) {
   const [shipments, setShipments] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [drivers, setDrivers] = useState([]);
-  const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingShipment, setEditingShipment] = useState(null);
@@ -83,16 +80,14 @@ export function useShipments(fromPlanId = null) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [shipData, vehData, drvData, routeData] = await Promise.all([
+      const [shipData, vehData, drvData] = await Promise.all([
         getShipments(),
         getVehicles(),
         getDrivers(),
-        getRoutes(),
       ]);
       setShipments(shipData);
       setVehicles(vehData);
       setDrivers(drvData);
-      setRoutes(routeData);
     } catch {
       toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
@@ -108,7 +103,6 @@ export function useShipments(fromPlanId = null) {
         tmsShipmentCustomerPhone: shipment.tmsShipmentCustomerPhone || "",
         tmsShipmentCustomerAddress: shipment.tmsShipmentCustomerAddress || "",
         tmsShipmentDestination: shipment.tmsShipmentDestination || "",
-        tmsShipmentRouteId: shipment.tmsShipmentRouteId?.toString() || "",
         tmsShipmentVehicleId: shipment.tmsShipmentVehicleId?.toString() || "",
         tmsShipmentDriverId: shipment.tmsShipmentDriverId?.toString() || "",
         tmsShipmentAssistantId: shipment.tmsShipmentAssistantId?.toString() || "",
@@ -208,7 +202,6 @@ export function useShipments(fromPlanId = null) {
     shipments,
     vehicles,
     drivers,
-    routes,
     loading,
     saving,
     editingShipment,

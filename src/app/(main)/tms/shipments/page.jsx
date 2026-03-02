@@ -13,7 +13,6 @@ function ShipmentsPageInner() {
     shipments,
     vehicles,
     drivers,
-    routes,
     loading,
     saving,
     editingShipment,
@@ -36,7 +35,6 @@ function ShipmentsPageInner() {
       shipments={shipments}
       vehicles={vehicles}
       drivers={drivers}
-      routes={routes}
       loading={loading}
       saving={saving}
       editingShipment={editingShipment}

@@ -44,28 +44,6 @@ export async function deleteDriver(id) {
   return del(`/api/tms/drivers/${id}`);
 }
 
-// ==================== Routes ====================
-
-export async function getRoutes() {
-  return get("/api/tms/routes");
-}
-
-export async function getRouteById(id) {
-  return get(`/api/tms/routes/${id}`);
-}
-
-export async function createRoute(data) {
-  return post("/api/tms/routes", data);
-}
-
-export async function updateRoute(id, data) {
-  return put(`/api/tms/routes/${id}`, data);
-}
-
-export async function deleteRoute(id) {
-  return del(`/api/tms/routes/${id}`);
-}
-
 // ==================== Shipments ====================
 
 export async function getShipments() {
