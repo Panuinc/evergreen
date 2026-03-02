@@ -1,9 +1,14 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useShipments } from "@/modules/tms/hooks/useShipments";
 import ShipmentsView from "@/modules/tms/components/ShipmentsView";
 
-export default function ShipmentsPage() {
+function ShipmentsPageInner() {
+  const searchParams = useSearchParams();
+  const fromPlanId = searchParams.get("planId") || null;
+
   const {
     shipments,
     vehicles,
@@ -24,7 +29,7 @@ export default function ShipmentsPage() {
     handleDelete,
     handleStatusChange,
     toggleActive,
-  } = useShipments();
+  } = useShipments(fromPlanId);
 
   return (
     <ShipmentsView
@@ -48,5 +53,13 @@ export default function ShipmentsPage() {
       handleStatusChange={handleStatusChange}
       toggleActive={toggleActive}
     />
+  );
+}
+
+export default function ShipmentsPage() {
+  return (
+    <Suspense>
+      <ShipmentsPageInner />
+    </Suspense>
   );
 }

@@ -12,6 +12,8 @@ import {
   getVehicles,
   getDrivers,
   getRoutes,
+  getDeliveryPlanById,
+  updateDeliveryPlan,
 } from "@/modules/tms/actions";
 
 const emptyForm = {
@@ -30,7 +32,7 @@ const emptyForm = {
   tmsShipmentEstimatedArrival: "",
 };
 
-export function useShipments() {
+export function useShipments(fromPlanId = null) {
   const [shipments, setShipments] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [drivers, setDrivers] = useState([]);
@@ -47,6 +49,35 @@ export function useShipments() {
     loadData();
   }, []);
 
+  // Pre-fill form from delivery plan when planId is in URL
+  useEffect(() => {
+    if (!fromPlanId) return;
+    getDeliveryPlanById(fromPlanId)
+      .then((plan) => {
+        if (!plan) return;
+        const items = plan.tmsDeliveryPlanItem || [];
+        const firstItem = items[0];
+        const itemsSummary = items
+          .map(
+            (i) =>
+              `${i.tmsDeliveryPlanItemDescription} x${i.tmsDeliveryPlanItemPlannedQty} ${i.tmsDeliveryPlanItemUom}`
+          )
+          .join(", ");
+
+        setFormData({
+          ...emptyForm,
+          tmsShipmentCustomerName: firstItem?.tmsDeliveryPlanItemCustomerName || "",
+          tmsShipmentCustomerAddress: plan.tmsDeliveryPlanAddress || "",
+          tmsShipmentDestination: plan.tmsDeliveryPlanAddress || "",
+          tmsShipmentSalesOrderRef: firstItem?.tmsDeliveryPlanItemSalesOrderNo || "",
+          tmsShipmentItemsSummary: itemsSummary,
+        });
+        setEditingShipment(null);
+        onOpen();
+      })
+      .catch(() => {});
+  }, [fromPlanId]);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -60,7 +91,7 @@ export function useShipments() {
       setVehicles(vehData);
       setDrivers(drvData);
       setRoutes(routeData);
-    } catch (error) {
+    } catch {
       toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
@@ -107,8 +138,17 @@ export function useShipments() {
         await updateShipment(editingShipment.tmsShipmentId, formData);
         toast.success("อัปเดตการจัดส่งสำเร็จ");
       } else {
-        await createShipment(formData);
+        const newShipment = await createShipment(formData);
         toast.success("สร้างการจัดส่งสำเร็จ");
+
+        // Link shipment back to the delivery plan that triggered creation
+        if (fromPlanId && newShipment?.tmsShipmentId) {
+          await updateDeliveryPlan(fromPlanId, {
+            tmsDeliveryPlanShipmentId: newShipment.tmsShipmentId,
+            tmsDeliveryPlanShipmentNumber: newShipment.tmsShipmentNumber,
+            tmsDeliveryPlanStatus: "in_progress",
+          });
+        }
       }
       onClose();
       loadData();
@@ -152,7 +192,7 @@ export function useShipments() {
       await updateShipment(item.tmsShipmentId, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       loadData();
-    } catch (error) {
+    } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
   };

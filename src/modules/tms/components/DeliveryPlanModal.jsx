@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Modal,
   ModalContent,
@@ -13,7 +14,7 @@ import {
   Chip,
   Spinner,
 } from "@heroui/react";
-import { Plus, Trash2, Search } from "lucide-react";
+import { Plus, Trash2, Search, Truck, ExternalLink } from "lucide-react";
 import DeliveryPlanMapPicker from "./DeliveryPlanMapPicker";
 
 const STATUS_COLORS = {
@@ -81,6 +82,7 @@ export default function DeliveryPlanModal({
   onDelete,
   onEditPlan,
 }) {
+  const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [soSearch, setSoSearch] = useState("");
   const [checkedLines, setCheckedLines] = useState({});
@@ -262,23 +264,54 @@ export default function DeliveryPlanModal({
                       </p>
                     )}
                   </div>
-                  <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      onPress={() => onEditPlan(plan)}
-                    >
-                      แก้ไข
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      color="danger"
-                      isIconOnly
-                      onPress={() => onDelete(plan.tmsDeliveryPlanId)}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
+                  <div className="flex flex-col gap-1 items-end">
+                    {/* Shipment link/create button */}
+                    {plan.tmsDeliveryPlanShipmentId ? (
+                      <Button
+                        size="sm"
+                        color="success"
+                        variant="flat"
+                        startContent={<Truck size={12} />}
+                        endContent={<ExternalLink size={11} />}
+                        onPress={() => {
+                          onClose();
+                          router.push("/tms/shipments");
+                        }}
+                      >
+                        {plan.tmsDeliveryPlanShipmentNumber || "ดูการขนส่ง"}
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        color="primary"
+                        variant="flat"
+                        startContent={<Truck size={12} />}
+                        onPress={() => {
+                          onClose();
+                          router.push(`/tms/shipments?planId=${plan.tmsDeliveryPlanId}`);
+                        }}
+                      >
+                        สร้าง Shipment
+                      </Button>
+                    )}
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        onPress={() => onEditPlan(plan)}
+                      >
+                        แก้ไข
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        color="danger"
+                        isIconOnly
+                        onPress={() => onDelete(plan.tmsDeliveryPlanId)}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

@@ -44,7 +44,9 @@ CREATE POLICY "authenticated_all" ON public."tmsDeliveryPlanItem"
 
 -- Add priority + location columns (run this if table already exists)
 ALTER TABLE public."tmsDeliveryPlan"
-  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanPriority" text DEFAULT 'normal',
-  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanAddress"  text,
-  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanLat"      numeric,
-  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanLng"      numeric;
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanPriority"       text DEFAULT 'normal',
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanAddress"        text,
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanLat"            numeric,
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanLng"            numeric,
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanShipmentId"     uuid,
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanShipmentNumber" text;

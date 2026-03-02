@@ -213,6 +213,10 @@ export async function getDeliveryPlans(month) {
   return get(`/api/tms/deliveryPlans?month=${month}`);
 }
 
+export async function getDeliveryPlanById(id) {
+  return get(`/api/tms/deliveryPlans/${id}`);
+}
+
 export async function createDeliveryPlan(data) {
   return post("/api/tms/deliveryPlans", data);
 }
