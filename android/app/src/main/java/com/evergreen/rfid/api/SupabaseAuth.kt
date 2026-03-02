@@ -2,6 +2,7 @@ package com.evergreen.rfid.api
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.evergreen.rfid.util.AppSettings
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import okhttp3.*
@@ -39,8 +40,6 @@ data class PinVerifyResponse(
 
 class SupabaseAuth(private val context: Context) {
     companion object {
-        private const val SUPABASE_URL = "https://nersjlyaqgjrjznbwuhq.supabase.co"
-        private const val SUPABASE_ANON_KEY = "sb_publishable_XKQRj-5GRrOSScRocisEpA_qJO5qWfm"
         private const val PREFS_NAME = "evergreen_auth"
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
@@ -51,6 +50,10 @@ class SupabaseAuth(private val context: Context) {
     private val gson = Gson()
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    init {
+        AppSettings.init(context)
+    }
+
     val accessToken: String? get() = prefs.getString(KEY_ACCESS_TOKEN, null)
     val isLoggedIn: Boolean get() = !accessToken.isNullOrEmpty()
     val email: String? get() = prefs.getString(KEY_EMAIL, null)
@@ -60,8 +63,7 @@ class SupabaseAuth(private val context: Context) {
         val body = json.toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("$SUPABASE_URL/auth/v1/token?grant_type=password")
-            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .url("${AppSettings.baseUrl}/api/auth/login")
             .addHeader("Content-Type", "application/json")
             .post(body)
             .build()
@@ -83,7 +85,7 @@ class SupabaseAuth(private val context: Context) {
                     } catch (e: Exception) {
                         AuthError(message = "Login failed: ${response.code}")
                     }
-                    callback(Result.failure(Exception(error.errorDescription.ifEmpty { error.message })))
+                    callback(Result.failure(Exception(error.error.ifEmpty { error.message })))
                 }
             }
         })
@@ -136,7 +138,7 @@ class SupabaseAuth(private val context: Context) {
                     return
                 }
 
-                // Step 2: Exchange token_hash for access/refresh tokens via Supabase
+                // Step 2: Exchange token_hash via NAS proxy
                 verifyOtp(pinResponse.tokenHash, email, callback)
             }
         })
@@ -147,8 +149,7 @@ class SupabaseAuth(private val context: Context) {
         val otpBody = otpJson.toRequestBody("application/json".toMediaType())
 
         val otpRequest = Request.Builder()
-            .url("$SUPABASE_URL/auth/v1/verify")
-            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .url("${AppSettings.baseUrl}/api/auth/verify")
             .addHeader("Content-Type", "application/json")
             .post(otpBody)
             .build()
@@ -182,8 +183,7 @@ class SupabaseAuth(private val context: Context) {
         val body = json.toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("$SUPABASE_URL/auth/v1/token?grant_type=refresh_token")
-            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .url("${AppSettings.baseUrl}/api/auth/refresh")
             .addHeader("Content-Type", "application/json")
             .post(body)
             .build()
@@ -215,8 +215,7 @@ class SupabaseAuth(private val context: Context) {
         val body = json.toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
-            .url("$SUPABASE_URL/auth/v1/token?grant_type=refresh_token")
-            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .url("${AppSettings.baseUrl}/api/auth/refresh")
             .addHeader("Content-Type", "application/json")
             .post(body)
             .build()

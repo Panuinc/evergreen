@@ -11,7 +11,7 @@ object AppSettings {
     private const val KEY_AUTO_DECODE = "auto_decode"
     private const val KEY_LANGUAGE = "language"
 
-    private const val DEFAULT_BASE_URL = "http://192.168.1.37:3000"
+    private const val DEFAULT_BASE_URL = "http://192.168.1.120:3000"
     private const val DEFAULT_RFID_POWER = 30
     private const val DEFAULT_SOUND_ENABLED = true
     private const val DEFAULT_AUTO_DECODE = true

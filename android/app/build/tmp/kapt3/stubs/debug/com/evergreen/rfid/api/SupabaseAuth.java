@@ -5,10 +5,6 @@ public final class SupabaseAuth {
     @org.jetbrains.annotations.NotNull()
     private final android.content.Context context = null;
     @org.jetbrains.annotations.NotNull()
-    private static final java.lang.String SUPABASE_URL = "https://nersjlyaqgjrjznbwuhq.supabase.co";
-    @org.jetbrains.annotations.NotNull()
-    private static final java.lang.String SUPABASE_ANON_KEY = "sb_publishable_XKQRj-5GRrOSScRocisEpA_qJO5qWfm";
-    @org.jetbrains.annotations.NotNull()
     private static final java.lang.String PREFS_NAME = "evergreen_auth";
     @org.jetbrains.annotations.NotNull()
     private static final java.lang.String KEY_ACCESS_TOKEN = "access_token";
@@ -74,7 +70,7 @@ public final class SupabaseAuth {
     private final void saveTokens(com.evergreen.rfid.api.AuthResponse auth, java.lang.String email) {
     }
     
-    @kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0002\b\u0006\b\u0086\u0003\u0018\u00002\u00020\u0001B\u0007\b\u0002\u00a2\u0006\u0002\u0010\u0002R\u000e\u0010\u0003\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0005\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0007\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\b\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\t\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000\u00a8\u0006\n"}, d2 = {"Lcom/evergreen/rfid/api/SupabaseAuth$Companion;", "", "()V", "KEY_ACCESS_TOKEN", "", "KEY_EMAIL", "KEY_REFRESH_TOKEN", "PREFS_NAME", "SUPABASE_ANON_KEY", "SUPABASE_URL", "app_debug"})
+    @kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0002\b\u0004\b\u0086\u0003\u0018\u00002\u00020\u0001B\u0007\b\u0002\u00a2\u0006\u0002\u0010\u0002R\u000e\u0010\u0003\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0005\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0007\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000\u00a8\u0006\b"}, d2 = {"Lcom/evergreen/rfid/api/SupabaseAuth$Companion;", "", "()V", "KEY_ACCESS_TOKEN", "", "KEY_EMAIL", "KEY_REFRESH_TOKEN", "PREFS_NAME", "app_debug"})
     public static final class Companion {
         
         private Companion() {
