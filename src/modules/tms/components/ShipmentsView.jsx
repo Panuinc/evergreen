@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { COMPANY_HQ } from "@/modules/tms/constants";
 import {
   Button,
   Modal,
@@ -282,6 +283,9 @@ export default function ShipmentsView({
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input label="ที่อยู่ลูกค้า" labelPlacement="outside" placeholder="กรอกที่อยู่" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerAddress} onChange={(e) => updateField("tmsShipmentCustomerAddress", e.target.value)} />
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Input label="จุดเริ่มต้น" labelPlacement="outside" variant="bordered" size="md" radius="md" value={COMPANY_HQ.address} isReadOnly />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input label="ปลายทาง" labelPlacement="outside" placeholder="กรอกปลายทาง" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDestination} onChange={(e) => updateField("tmsShipmentDestination", e.target.value)} isRequired />

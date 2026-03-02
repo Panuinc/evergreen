@@ -49,4 +49,5 @@ ALTER TABLE public."tmsDeliveryPlan"
   ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanLat"            numeric,
   ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanLng"            numeric,
   ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanShipmentId"     uuid,
-  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanShipmentNumber" text;
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanShipmentNumber" text,
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanSequence"       integer;

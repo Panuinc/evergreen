@@ -282,6 +282,7 @@ export default function DeliveryPlanCalendar() {
     handleSave,
     handleDelete,
     getPlansForDate,
+    optimizeRoute,
   } = useDeliveryPlans();
 
   const year = currentDate.getFullYear();
@@ -375,6 +376,7 @@ export default function DeliveryPlanCalendar() {
         onSave={handleSave}
         onDelete={handleDelete}
         onEditPlan={handleEditPlan}
+        optimizeRoute={optimizeRoute}
       />
     </div>
   );

@@ -67,6 +67,7 @@ export function useShipments(fromPlanId = null) {
 
         setFormData({
           ...emptyForm,
+          tmsShipmentDate: plan.tmsDeliveryPlanDate || "",
           tmsShipmentCustomerName: firstItem?.tmsDeliveryPlanItemCustomerName || "",
           tmsShipmentCustomerAddress: plan.tmsDeliveryPlanAddress || "",
           tmsShipmentDestination: plan.tmsDeliveryPlanAddress || "",

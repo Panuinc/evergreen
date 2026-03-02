@@ -14,7 +14,7 @@ import {
   Chip,
   Spinner,
 } from "@heroui/react";
-import { Plus, Trash2, Search, Truck, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Search, Truck, ExternalLink, Navigation } from "lucide-react";
 import DeliveryPlanMapPicker from "./DeliveryPlanMapPicker";
 
 const STATUS_COLORS = {
@@ -81,6 +81,7 @@ export default function DeliveryPlanModal({
   onSave,
   onDelete,
   onEditPlan,
+  optimizeRoute,
 }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
@@ -206,10 +207,29 @@ export default function DeliveryPlanModal({
           {/* Plans on this date */}
           {plansOnDate.length > 0 && !showForm && (
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-semibold text-default-500">
-                แผนที่มีอยู่ ({plansOnDate.length})
-              </p>
-              {plansOnDate.map((plan) => (
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-default-500">
+                  แผนที่มีอยู่ ({plansOnDate.length})
+                </p>
+                {plansOnDate.length >= 2 && optimizeRoute && (
+                  <Button
+                    size="sm"
+                    color="secondary"
+                    variant="flat"
+                    startContent={<Navigation size={13} />}
+                    onPress={() => optimizeRoute(plansOnDate)}
+                  >
+                    จัดเส้นทาง
+                  </Button>
+                )}
+              </div>
+              {[...plansOnDate]
+                .sort(
+                  (a, b) =>
+                    (a.tmsDeliveryPlanSequence || 9999) -
+                    (b.tmsDeliveryPlanSequence || 9999)
+                )
+                .map((plan) => (
                 <div
                   key={plan.tmsDeliveryPlanId}
                   className={`flex items-start justify-between p-3 rounded-xl border gap-2 border-l-4 ${
@@ -224,6 +244,11 @@ export default function DeliveryPlanModal({
                 >
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
+                      {plan.tmsDeliveryPlanSequence && (
+                        <div className="w-5 h-5 rounded-full bg-secondary text-white text-xs flex items-center justify-center font-bold shrink-0">
+                          {plan.tmsDeliveryPlanSequence}
+                        </div>
+                      )}
                       <Chip
                         size="sm"
                         color={STATUS_COLORS[plan.tmsDeliveryPlanStatus]}
