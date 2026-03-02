@@ -29,6 +29,7 @@ const emptyForm = {
   tmsShipmentItemsSummary: "",
   tmsShipmentWeightKg: "",
   tmsShipmentNotes: "",
+  tmsShipmentDate: "",
   tmsShipmentEstimatedArrival: "",
 };
 
@@ -114,6 +115,7 @@ export function useShipments(fromPlanId = null) {
         tmsShipmentItemsSummary: shipment.tmsShipmentItemsSummary || "",
         tmsShipmentWeightKg: shipment.tmsShipmentWeightKg?.toString() || "",
         tmsShipmentNotes: shipment.tmsShipmentNotes || "",
+        tmsShipmentDate: shipment.tmsShipmentDate || "",
         tmsShipmentEstimatedArrival: shipment.tmsShipmentEstimatedArrival || "",
       });
     } else {

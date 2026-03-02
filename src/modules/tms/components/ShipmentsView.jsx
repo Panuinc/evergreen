@@ -287,6 +287,9 @@ export default function ShipmentsView({
                   <Input label="ปลายทาง" labelPlacement="outside" placeholder="กรอกปลายทาง" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDestination} onChange={(e) => updateField("tmsShipmentDestination", e.target.value)} isRequired />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Input type="date" label="วันที่ส่ง" labelPlacement="outside" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDate} onChange={(e) => updateField("tmsShipmentDate", e.target.value)} isRequired />
+                </div>
+                <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select label="เส้นทาง" labelPlacement="outside" placeholder="เลือกเส้นทาง" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentRouteId ? [formData.tmsShipmentRouteId] : []} onSelectionChange={(keys) => updateField("tmsShipmentRouteId", Array.from(keys)[0] || "")}>
                     {routes.map((r) => (<SelectItem key={r.tmsRouteId}>{r.tmsRouteName}</SelectItem>))}
                   </Select>
