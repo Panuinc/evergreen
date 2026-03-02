@@ -25,6 +25,10 @@ export function put(url, body) {
   return apiRequest(url, { method: "PUT", body: JSON.stringify(body) });
 }
 
+export function patch(url, body) {
+  return apiRequest(url, { method: "PATCH", body: JSON.stringify(body) });
+}
+
 export function del(url) {
   return apiRequest(url, { method: "DELETE" });
 }

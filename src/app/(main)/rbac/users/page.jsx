@@ -31,6 +31,8 @@ export default function UsersPage() {
     resetting,
     openResetPassword,
     handleResetPassword,
+    togglingUserId,
+    handleToggleUserStatus,
   } = useUsers();
 
   return (
@@ -61,6 +63,8 @@ export default function UsersPage() {
       resetting={resetting}
       openResetPassword={openResetPassword}
       handleResetPassword={handleResetPassword}
+      togglingUserId={togglingUserId}
+      handleToggleUserStatus={handleToggleUserStatus}
     />
   );
 }

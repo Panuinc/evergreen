@@ -21,15 +21,16 @@ export async function GET() {
   if (rolesError)
     return Response.json({ error: rolesError.message }, { status: 500 });
 
-  const result = users.map((user) => ({
-    ...user,
-    roles: allUserRoles
-      .filter((ur) => ur.rbacUserRoleUserId === user.rbacUserProfileId)
-      .map((ur) => ur.rbacRole),
-    userRoles: allUserRoles.filter(
+  const result = users.map((user) => {
+    const userRoles = allUserRoles.filter(
       (ur) => ur.rbacUserRoleUserId === user.rbacUserProfileId
-    ),
-  }));
+    );
+    return {
+      ...user,
+      roles: userRoles.map((ur) => ur.rbacRole),
+      userRoles,
+    };
+  });
 
   return Response.json(result);
 }

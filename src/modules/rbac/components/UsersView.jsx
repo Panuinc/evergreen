@@ -59,6 +59,8 @@ export default function UsersView({
   resetting,
   openResetPassword,
   handleResetPassword,
+  togglingUserId,
+  handleToggleUserStatus,
 }) {
   const { isSuperAdmin } = useRBAC();
 
@@ -119,8 +121,15 @@ export default function UsersView({
               size="md"
               radius="md"
               color={user.isActive ? "success" : "danger"}
+              className="cursor-pointer select-none"
+              onClick={() => handleToggleUserStatus(user)}
+              isDisabled={togglingUserId === user.rbacUserProfileId}
             >
-              {user.isActive ? "Active" : "Inactive"}
+              {togglingUserId === user.rbacUserProfileId
+                ? "..."
+                : user.isActive
+                  ? "Active"
+                  : "Inactive"}
             </Chip>
           );
         case "actions":
@@ -152,7 +161,7 @@ export default function UsersView({
           return user[columnKey] || "-";
       }
     },
-    [openRoleAssignment, openResetPassword],
+    [openRoleAssignment, openResetPassword, togglingUserId, handleToggleUserStatus],
   );
 
   return (

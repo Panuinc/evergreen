@@ -25,6 +25,21 @@ export async function POST(request) {
       return Response.json({ error: error.message }, { status: 401 });
     }
 
+    // Check if user account is active
+    const { data: profile } = await supabase
+      .from("rbacUserProfile")
+      .select("isActive")
+      .eq("rbacUserProfileId", data.user.id)
+      .single();
+
+    if (profile && profile.isActive === false) {
+      await supabase.auth.signOut();
+      return Response.json(
+        { error: "บัญชีนี้ถูกปิดใช้งาน กรุณาติดต่อผู้ดูแลระบบ" },
+        { status: 403 }
+      );
+    }
+
     return Response.json({
       access_token: data.session.access_token,
       refresh_token: data.session.refresh_token,

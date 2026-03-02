@@ -10,6 +10,7 @@ import {
   removeRoleFromUser,
   createUser,
   resetUserPassword,
+  toggleUserStatus,
 } from "@/modules/rbac/actions";
 import { getUnlinkedEmployees } from "@/modules/hr/actions";
 
@@ -41,6 +42,9 @@ export function useUsers() {
   });
   const [creating, setCreating] = useState(false);
   const [unlinkedEmployees, setUnlinkedEmployees] = useState([]);
+
+  // Toggle user status
+  const [togglingUserId, setTogglingUserId] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -141,6 +145,21 @@ export function useUsers() {
     }
   };
 
+  const handleToggleUserStatus = async (user) => {
+    setTogglingUserId(user.rbacUserProfileId);
+    try {
+      await toggleUserStatus(user.rbacUserProfileId, !user.isActive);
+      toast.success(
+        !user.isActive ? "เปิดใช้งานบัญชีสำเร็จ" : "ปิดใช้งานบัญชีสำเร็จ"
+      );
+      await loadData();
+    } catch (error) {
+      toast.error("อัปเดตสถานะล้มเหลว");
+    } finally {
+      setTogglingUserId(null);
+    }
+  };
+
   const openResetPassword = (user) => {
     setResetTarget(user);
     setResetPassword(defaultPassword);
@@ -193,5 +212,7 @@ export function useUsers() {
     resetting,
     openResetPassword,
     handleResetPassword,
+    togglingUserId,
+    handleToggleUserStatus,
   };
 }

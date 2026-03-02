@@ -35,6 +35,32 @@ export async function POST(request, { params }) {
   return Response.json(data, { status: 201 });
 }
 
+export async function PATCH(request, { params }) {
+  const auth = await withAuth();
+  if (auth.error) return auth.error;
+  const { supabase, isSuperAdmin } = auth;
+
+  if (!isSuperAdmin) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { userId } = await params;
+  const body = await request.json();
+  const { isActive } = body;
+
+  if (typeof isActive !== "boolean") {
+    return Response.json({ error: "isActive must be boolean" }, { status: 400 });
+  }
+
+  const { error } = await supabase
+    .from("rbacUserProfile")
+    .update({ isActive })
+    .eq("rbacUserProfileId", userId);
+
+  if (error) return Response.json({ error: error.message }, { status: 400 });
+  return Response.json({ success: true });
+}
+
 export async function DELETE(request, { params }) {
   const auth = await withAuth();
   if (auth.error) return auth.error;

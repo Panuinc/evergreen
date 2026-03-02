@@ -32,7 +32,6 @@ import {
   Phone,
   MessageCircle,
   MapPin,
-  Scale,
   FileCheck,
   List,
   Search,
@@ -41,7 +40,6 @@ import {
   Server,
   Shield,
   FlaskConical,
-  TrendingDown,
   Lock,
   Zap,
   GitBranch,
@@ -323,20 +321,6 @@ export const menuData = [
     href: "/warehouse/inventory",
     subMenus: [
       { name: "ภาพรวมคลัง", icon: Boxes, href: "/warehouse/inventory" },
-    ],
-  },
-  {
-    id: "legal",
-    name: "กฎหมายและกำกับดูแล",
-    icon: FileText,
-    href: "/legal",
-    subMenus: [
-      { name: "สัญญา", icon: FileCheck },
-      { name: "กฎระเบียบ", icon: Scale },
-      { name: "นโยบาย", icon: FileText },
-      { name: "คดีความ", icon: Shield },
-      { name: "การปฏิบัติตาม", icon: BadgeCheck },
-      { name: "ความเสี่ยง", icon: TrendingDown },
     ],
   },
   {

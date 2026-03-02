@@ -2,14 +2,25 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createBrowserClient } from "@supabase/supabase-js";
 import { headers } from "next/headers";
 
-async function checkSuperAdmin(supabase, userId) {
-  const { data: roles } = await supabase
-    .from("rbacUserRole")
-    .select("rbacRole(rbacRoleIsSuperadmin)")
-    .eq("rbacUserRoleUserId", userId)
-    .eq("isActive", true);
+async function checkUserAccess(supabase, userId) {
+  const [rolesResult, profileResult] = await Promise.all([
+    supabase
+      .from("rbacUserRole")
+      .select("rbacRole(rbacRoleIsSuperadmin)")
+      .eq("rbacUserRoleUserId", userId)
+      .eq("isActive", true),
+    supabase
+      .from("rbacUserProfile")
+      .select("isActive")
+      .eq("rbacUserProfileId", userId)
+      .single(),
+  ]);
 
-  return roles?.some((r) => r.rbacRole?.rbacRoleIsSuperadmin === true) || false;
+  const isActive = profileResult.data ? profileResult.data.isActive !== false : true;
+  const isSuperAdmin =
+    rolesResult.data?.some((r) => r.rbacRole?.rbacRoleIsSuperadmin === true) || false;
+
+  return { isSuperAdmin, isActive };
 }
 
 export async function withAuth() {
@@ -21,7 +32,10 @@ export async function withAuth() {
   } = await supabase.auth.getUser();
 
   if (!error && user) {
-    const isSuperAdmin = await checkSuperAdmin(supabase, user.id);
+    const { isSuperAdmin, isActive } = await checkUserAccess(supabase, user.id);
+    if (!isActive) {
+      return { error: Response.json({ error: "บัญชีถูกปิดใช้งาน" }, { status: 403 }) };
+    }
     return { supabase, session: { user }, isSuperAdmin };
   }
 
@@ -43,7 +57,10 @@ export async function withAuth() {
     } = await supabaseWithToken.auth.getUser(token);
 
     if (!userError && user) {
-      const isSuperAdmin = await checkSuperAdmin(supabaseWithToken, user.id);
+      const { isSuperAdmin, isActive } = await checkUserAccess(supabaseWithToken, user.id);
+      if (!isActive) {
+        return { error: Response.json({ error: "บัญชีถูกปิดใช้งาน" }, { status: 403 }) };
+      }
       return { supabase: supabaseWithToken, session: { user }, isSuperAdmin };
     }
   }

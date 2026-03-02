@@ -1,4 +1,4 @@
-import { get, post, put, del } from "@/lib/apiClient";
+import { get, post, put, patch, del } from "@/lib/apiClient";
 
 // ==================== Roles ====================
 
@@ -104,6 +104,10 @@ export async function assignRoleToUser(userId, roleId) {
 
 export async function removeRoleFromUser(userId, roleId) {
   return del(`/api/rbac/userRoles/${userId}?rbacUserRoleRoleId=${roleId}`);
+}
+
+export async function toggleUserStatus(userId, isActive) {
+  return patch(`/api/rbac/userRoles/${userId}`, { isActive });
 }
 
 // ==================== Permission Checking ====================
