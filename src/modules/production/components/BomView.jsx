@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-  memo,
-} from "react";
+import React, { useState, useMemo, useRef, useCallback, memo } from "react";
 import {
   Calculator,
   RulerDimensionLine,
@@ -105,7 +99,6 @@ const CORE_TYPE_CONFIG = [
   },
 ];
 
-
 const FRAME_TYPES = [
   { value: "rubberwood", label: "ไม้ยางพารา" },
   { value: "sadao", label: "ไม้สะเดา" },
@@ -140,7 +133,6 @@ const DOUBLE_FRAME_COUNT_OPTIONS = [
   { value: "2", label: "2 ชั้น" },
   { value: "3", label: "3 ชั้น" },
 ];
-
 
 const GRID_LETTERS = ["A", "B", "C", "D", "E", "F"];
 const GRID_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -2300,184 +2292,142 @@ const UIDoorBom = ({
   const isNoRailCoreType = NO_RAIL_CORE_TYPES.includes(coreType);
 
   return (
-    <div
-      ref={formRef}
-      className="flex flex-col items-center justify-start w-full h-full gap-2 overflow-auto"
-    >
-      <div className="flex flex-col items-center justify-center w-full h-fit p-2 gap-2">
-        <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-          🚪 ระบบถอด BOM ประตู
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center justify-center w-full h-fit p-2 gap-2">
-        <div className="grid grid-cols-1 xl:grid-cols-2 p-2 gap-2 w-full h-full">
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+    <div ref={formRef} className="flex flex-col w-full gap-3">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 w-full">
+        <div className="xl:col-span-1 flex flex-col gap-3">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
+                <Chip color="default" variant="flat" size="sm">
                   1
                 </Chip>
-                <span className="font-semibold">📝 ข้อมูลลูกค้า</span>
+                <span className="font-semibold text-sm">📝 ข้อมูลลูกค้า</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
-              <div className="flex flex-col xl:flex-row items-center justify-center w-full h-fit gap-2">
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="customerPO"
-                    label="PO ลูกค้า"
-                    labelPlacement="outside"
-                    placeholder="กรอก PO"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={customerPO}
-                    onChange={(e) => setCustomerPO(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="orderQty"
-                    type="number"
-                    label="จำนวนสั่ง"
-                    labelPlacement="outside"
-                    placeholder="กรอกจำนวน"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={orderQty}
-                    onChange={(e) => setOrderQty(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="doorType"
-                    label="ประเภทประตู"
-                    labelPlacement="outside"
-                    placeholder="กรอกประเภท"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={doorType}
-                    onChange={(e) => setDoorType(e.target.value)}
-                  />
-                </div>
+            <CardBody className="gap-3 p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Input
+                  name="customerPO"
+                  label="PO ลูกค้า"
+                  labelPlacement="outside"
+                  placeholder="กรอก PO"
+                  variant="bordered"
+                  size="sm"
+                  value={customerPO}
+                  onChange={(e) => setCustomerPO(e.target.value)}
+                />
+                <Input
+                  name="orderQty"
+                  type="number"
+                  label="จำนวนสั่ง"
+                  labelPlacement="outside"
+                  placeholder="กรอกจำนวน"
+                  variant="bordered"
+                  size="sm"
+                  value={orderQty}
+                  onChange={(e) => setOrderQty(e.target.value)}
+                />
+                <Input
+                  name="doorType"
+                  label="ประเภทประตู"
+                  labelPlacement="outside"
+                  placeholder="กรอกประเภท"
+                  variant="bordered"
+                  size="sm"
+                  value={doorType}
+                  onChange={(e) => setDoorType(e.target.value)}
+                />
               </div>
-              <div className="flex flex-col xl:flex-row items-center justify-center w-full h-fit gap-2">
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="doorThickness"
-                    type="number"
-                    label="ความหนา (มม.)"
-                    labelPlacement="outside"
-                    placeholder="กรอกความหนา"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={doorThickness}
-                    onChange={(e) => setDoorThickness(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="doorWidth"
-                    type="number"
-                    label="ความกว้าง (มม.)"
-                    labelPlacement="outside"
-                    placeholder="กรอกความกว้าง"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={doorWidth}
-                    onChange={(e) => setDoorWidth(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="doorHeight"
-                    type="number"
-                    label="ความสูง (มม.)"
-                    labelPlacement="outside"
-                    placeholder="กรอกความสูง"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={doorHeight}
-                    onChange={(e) => setDoorHeight(e.target.value)}
-                  />
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Input
+                  name="doorThickness"
+                  type="number"
+                  label="ความหนา (มม.)"
+                  labelPlacement="outside"
+                  placeholder="หนา"
+                  variant="bordered"
+                  size="sm"
+                  value={doorThickness}
+                  onChange={(e) => setDoorThickness(e.target.value)}
+                />
+                <Input
+                  name="doorWidth"
+                  type="number"
+                  label="ความกว้าง (มม.)"
+                  labelPlacement="outside"
+                  placeholder="กว้าง"
+                  variant="bordered"
+                  size="sm"
+                  value={doorWidth}
+                  onChange={(e) => setDoorWidth(e.target.value)}
+                />
+                <Input
+                  name="doorHeight"
+                  type="number"
+                  label="ความสูง (มม.)"
+                  labelPlacement="outside"
+                  placeholder="สูง"
+                  variant="bordered"
+                  size="sm"
+                  value={doorHeight}
+                  onChange={(e) => setDoorHeight(e.target.value)}
+                />
               </div>
-              <div className="flex items-center justify-center w-full p-2">
-                <Chip color="default" variant="shadow" size="md">
-                  สเปค: {formatDimension(doorThickness, doorWidth, doorHeight)}{" "}
-                  มม.
-                </Chip>
-              </div>
+              <Chip
+                color="default"
+                variant="flat"
+                size="sm"
+                className="w-full justify-center"
+              >
+                สเปค: {formatDimension(doorThickness, doorWidth, doorHeight)}{" "}
+                มม.
+              </Chip>
             </CardBody>
           </Card>
 
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
+                <Chip color="default" variant="flat" size="sm">
                   2
                 </Chip>
-                <span className="font-semibold">🎨 วัสดุผิว</span>
+                <span className="font-semibold text-sm">🎨 วัสดุผิว</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
-              <div className="flex flex-col xl:flex-row items-center justify-center w-full h-fit gap-2">
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="surfaceMaterial"
-                    label="ประเภทวัสดุ"
-                    labelPlacement="outside"
-                    placeholder="กรอกประเภทวัสดุ"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={surfaceMaterial}
-                    onChange={(e) => setSurfaceMaterial(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="surfaceThickness"
-                    type="number"
-                    label="ความหนา/แผ่น (มม.)"
-                    labelPlacement="outside"
-                    placeholder="กรอกความหนา"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={surfaceThickness}
-                    onChange={(e) => setSurfaceThickness(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Input
-                    name="surfacePrice"
-                    type="number"
-                    label="ราคา (บาท)"
-                    labelPlacement="outside"
-                    placeholder="กรอกราคา"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={surfacePrice}
-                    onChange={(e) => setSurfacePrice(e.target.value)}
-                  />
-                </div>
+            <CardBody className="gap-3 p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Input
+                  name="surfaceMaterial"
+                  label="ประเภทวัสดุ"
+                  labelPlacement="outside"
+                  placeholder="กรอกประเภทวัสดุ"
+                  variant="bordered"
+                  size="sm"
+                  value={surfaceMaterial}
+                  onChange={(e) => setSurfaceMaterial(e.target.value)}
+                />
+                <Input
+                  name="surfaceThickness"
+                  type="number"
+                  label="ความหนา/แผ่น (มม.)"
+                  labelPlacement="outside"
+                  placeholder="หนา"
+                  variant="bordered"
+                  size="sm"
+                  value={surfaceThickness}
+                  onChange={(e) => setSurfaceThickness(e.target.value)}
+                />
+                <Input
+                  name="surfacePrice"
+                  type="number"
+                  label="ราคา (บาท)"
+                  labelPlacement="outside"
+                  placeholder="ราคา"
+                  variant="bordered"
+                  size="sm"
+                  value={surfacePrice}
+                  onChange={(e) => setSurfacePrice(e.target.value)}
+                />
               </div>
               <Divider />
               <div className="flex flex-col gap-2 text-[13px] p-2">
@@ -2515,20 +2465,19 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
+                <Chip color="default" variant="flat" size="sm">
                   3
                 </Chip>
-                <span className="font-semibold">🪵 กรอบไม้ (ERP)</span>
+                <span className="font-semibold text-sm">🪵 กรอบไม้ (ERP)</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
+            <CardBody className="gap-3 p-4">
               {frameCandidates.length === 0 && results.frameThickness > 0 && (
                 <Chip color="default" variant="shadow" className="w-full">
-                  ⚠️ ไม่พบไม้ที่เหมาะสมสำหรับความหนา{" "}
-                  {results.frameThickness}มม.
+                  ⚠️ ไม่พบไม้ที่เหมาะสมสำหรับความหนา {results.frameThickness}มม.
                 </Chip>
               )}
 
@@ -2557,20 +2506,12 @@ const UIDoorBom = ({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             {isSelected && (
-                              <Chip
-                                color="primary"
-                                variant="solid"
-                                size="sm"
-                              >
+                              <Chip color="primary" variant="solid" size="sm">
                                 เลือก
                               </Chip>
                             )}
                             {idx === 0 && !isSelected && (
-                              <Chip
-                                color="success"
-                                variant="flat"
-                                size="sm"
-                              >
+                              <Chip color="success" variant="flat" size="sm">
                                 แนะนำ
                               </Chip>
                             )}
@@ -2583,9 +2524,7 @@ const UIDoorBom = ({
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-default-600">
-                          <span>
-                            {f.displaySize}
-                          </span>
+                          <span>{f.displaySize}</span>
                           <span>
                             ใช้จริง: {f.useThickness}×{f.useWidth} mm
                           </span>
@@ -2661,26 +2600,22 @@ const UIDoorBom = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                <Select
-                  name="doubleFrameCount"
-                  label="จำนวนชั้นซ้อน/ด้าน"
-                  labelPlacement="outside"
-                  placeholder="กรุณาเลือก"
-                  color="default"
-                  variant="bordered"
-                  size="md"
-                  radius="md"
-                  selectedKeys={doubleFrameCount ? [doubleFrameCount] : []}
-                  onSelectionChange={(keys) =>
-                    setDoubleFrameCount([...keys][0] || "")
-                  }
-                >
-                  {DOUBLE_FRAME_COUNT_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value}>{opt.label}</SelectItem>
-                  ))}
-                </Select>
-              </div>
+              <Select
+                name="doubleFrameCount"
+                label="จำนวนชั้นซ้อน/ด้าน"
+                labelPlacement="outside"
+                placeholder="กรุณาเลือก"
+                variant="bordered"
+                size="sm"
+                selectedKeys={doubleFrameCount ? [doubleFrameCount] : []}
+                onSelectionChange={(keys) =>
+                  setDoubleFrameCount([...keys][0] || "")
+                }
+              >
+                {DOUBLE_FRAME_COUNT_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </Select>
 
               {doubleConfigSummary && (
                 <Chip color="default" variant="shadow" className="w-full">
@@ -2690,16 +2625,16 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
+                <Chip color="default" variant="flat" size="sm">
                   4
                 </Chip>
-                <span className="font-semibold">➖ คานขวาง</span>
+                <span className="font-semibold text-sm">➖ คานขวาง</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
+            <CardBody className="gap-3 p-4">
               {isNoRailCoreType ? (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <Chip color="default" variant="shadow" size="md">
@@ -2777,68 +2712,60 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
+                <Chip color="default" variant="flat" size="sm">
                   5
                 </Chip>
-                <span className="font-semibold">🔒 บล็อกล็อค</span>
+                <span className="font-semibold text-sm">🔒 บล็อกล็อค</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
-              <div className="flex flex-col xl:flex-row items-center justify-center w-full h-fit gap-2">
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Select
-                    name="lockBlockPiecesPerSide"
-                    label="จำนวนชิ้น/ด้าน"
-                    labelPlacement="outside"
-                    placeholder="กรุณาเลือก"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={
-                      lockBlockPiecesPerSide ? [lockBlockPiecesPerSide] : []
-                    }
-                    onSelectionChange={(keys) =>
-                      setLockBlockPiecesPerSide([...keys][0] || "")
-                    }
-                  >
-                    {LOCK_BLOCK_PIECES_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value}>{opt.label}</SelectItem>
-                    ))}
-                  </Select>
-                </div>
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Select
-                    name="lockBlockPosition"
-                    label="ตำแหน่งบล็อกล็อค"
-                    labelPlacement="outside"
-                    placeholder="กรุณาเลือก"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={lockBlockPosition ? [lockBlockPosition] : []}
-                    onSelectionChange={(keys) =>
-                      setLockBlockPosition([...keys][0] || "")
-                    }
-                  >
-                    {LOCK_BLOCK_POSITIONS.map((pos) => (
-                      <SelectItem
-                        key={pos.value}
-                        textValue={`${pos.label} (${pos.value === "both" ? `${piecesPerSide * 2} ชิ้น` : `${piecesPerSide} ชิ้น`})`}
-                      >
-                        {pos.label} (
-                        {pos.value === "both"
-                          ? `${piecesPerSide * 2} ชิ้น`
-                          : `${piecesPerSide} ชิ้น`}
-                        )
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
+            <CardBody className="gap-3 p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Select
+                  name="lockBlockPiecesPerSide"
+                  label="จำนวนชิ้น/ด้าน"
+                  labelPlacement="outside"
+                  placeholder="กรุณาเลือก"
+                  variant="bordered"
+                  size="sm"
+                  selectedKeys={
+                    lockBlockPiecesPerSide ? [lockBlockPiecesPerSide] : []
+                  }
+                  onSelectionChange={(keys) =>
+                    setLockBlockPiecesPerSide([...keys][0] || "")
+                  }
+                >
+                  {LOCK_BLOCK_PIECES_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  name="lockBlockPosition"
+                  label="ตำแหน่งบล็อกล็อค"
+                  labelPlacement="outside"
+                  placeholder="กรุณาเลือก"
+                  variant="bordered"
+                  size="sm"
+                  selectedKeys={lockBlockPosition ? [lockBlockPosition] : []}
+                  onSelectionChange={(keys) =>
+                    setLockBlockPosition([...keys][0] || "")
+                  }
+                >
+                  {LOCK_BLOCK_POSITIONS.map((pos) => (
+                    <SelectItem
+                      key={pos.value}
+                      textValue={`${pos.label} (${pos.value === "both" ? `${piecesPerSide * 2} ชิ้น` : `${piecesPerSide} ชิ้น`})`}
+                    >
+                      {pos.label} (
+                      {pos.value === "both"
+                        ? `${piecesPerSide * 2} ชิ้น`
+                        : `${piecesPerSide} ชิ้น`}
+                      )
+                    </SelectItem>
+                  ))}
+                </Select>
               </div>
 
               {(lockBlockLeft || lockBlockRight) && piecesPerSide > 0 && (
@@ -2877,61 +2804,53 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
+                <Chip color="default" variant="flat" size="sm">
                   6
                 </Chip>
-                <span className="font-semibold">🧱 วัสดุไส้ประตู</span>
+                <span className="font-semibold text-sm">🧱 วัสดุไส้ประตู</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
-              <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                <Select
-                  name="coreType"
-                  label="ประเภทไส้"
-                  labelPlacement="outside"
-                  placeholder="กรุณาเลือก"
-                  color="default"
-                  variant="bordered"
-                  size="md"
-                  radius="md"
-                  selectedKeys={coreType ? [coreType] : []}
-                  onSelectionChange={(keys) => setCoreType([...keys][0] || "")}
-                >
-                  {CORE_TYPE_CONFIG.map((core) => (
-                    <SelectItem key={core.value}>{core.label}</SelectItem>
-                  ))}
-                </Select>
-              </div>
+            <CardBody className="gap-3 p-4">
+              <Select
+                name="coreType"
+                label="ประเภทไส้"
+                labelPlacement="outside"
+                placeholder="กรุณาเลือก"
+                variant="bordered"
+                size="sm"
+                selectedKeys={coreType ? [coreType] : []}
+                onSelectionChange={(keys) => setCoreType([...keys][0] || "")}
+              >
+                {CORE_TYPE_CONFIG.map((core) => (
+                  <SelectItem key={core.value}>{core.label}</SelectItem>
+                ))}
+              </Select>
 
               {coreType && (
-                <div className="flex items-center justify-center w-full h-full p-2 gap-2">
-                  <Select
-                    name="coreItem"
-                    label="เลือกวัสดุไส้"
-                    labelPlacement="outside"
-                    placeholder="กรุณาเลือก"
-                    color="default"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={selectedCoreCode ? [selectedCoreCode] : []}
-                    onSelectionChange={(keys) =>
-                      setSelectedCoreCode([...keys][0] || "")
-                    }
-                  >
-                    {availableCoreItems.map((item) => (
-                      <SelectItem
-                        key={item.code}
-                        textValue={`${item.desc} — ฿${(item.unitCost || 0).toLocaleString()}`}
-                      >
-                        {item.desc} — ฿{(item.unitCost || 0).toLocaleString()}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
+                <Select
+                  name="coreItem"
+                  label="เลือกวัสดุไส้"
+                  labelPlacement="outside"
+                  placeholder="กรุณาเลือก"
+                  variant="bordered"
+                  size="sm"
+                  selectedKeys={selectedCoreCode ? [selectedCoreCode] : []}
+                  onSelectionChange={(keys) =>
+                    setSelectedCoreCode([...keys][0] || "")
+                  }
+                >
+                  {availableCoreItems.map((item) => (
+                    <SelectItem
+                      key={item.code}
+                      textValue={`${item.desc} — ฿${(item.unitCost || 0).toLocaleString()}`}
+                    >
+                      {item.desc} — ฿{(item.unitCost || 0).toLocaleString()}
+                    </SelectItem>
+                  ))}
+                </Select>
               )}
 
               {selectedCoreItem && (
@@ -3043,16 +2962,16 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
+                <Chip color="default" variant="flat" size="sm">
                   7
                 </Chip>
-                <span className="font-semibold">📐 การทำขอบประตู</span>
+                <span className="font-semibold text-sm">📐 การทำขอบประตู</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
+            <CardBody className="gap-3 p-4">
               <div className="flex items-center justify-between p-2">
                 <span className="text-[13px] font-medium">ทำขอบประตู</span>
                 <Switch
@@ -3125,16 +3044,16 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
+                <Chip color="default" variant="flat" size="sm">
                   8
                 </Chip>
-                <span className="font-semibold">🔩 เจาะใส่อุปกรณ์</span>
+                <span className="font-semibold text-sm">🔩 เจาะใส่อุปกรณ์</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
+            <CardBody className="gap-3 p-4">
               <div className="flex items-center justify-between p-2">
                 <span className="text-[13px] font-medium">เจาะอุปกรณ์</span>
                 <Switch
@@ -3200,25 +3119,85 @@ const UIDoorBom = ({
               )}
             </CardBody>
           </Card>
+        </div>
+        {/* end left form column */}
 
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background">
+        <div className="xl:col-span-2 flex flex-col gap-3">
+          {/* Drawing - at top of right column so user sees live updates */}
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50 flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="solid" size="md">
-                  9
-                </Chip>
-                <span className="font-semibold">💰 สรุปราคา</span>
+                <span className="text-default-500">📐</span>
+                <span className="font-semibold text-sm">แบบวาด</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
+            <CardBody className="bg-default-50 p-2 min-h-[600px]">
+              {isDataComplete ? (
+                <EnhancedEngineeringDrawing
+                  results={results}
+                  coreCalculation={coreCalculation}
+                  surfaceMaterial={surfaceMaterial}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-96 gap-2">
+                  <RulerDimensionLine className="w-12 h-12 text-default-300" />
+                  <p className="text-base font-medium text-default-600">
+                    กรุณากรอกข้อมูลประตู
+                  </p>
+                  <p className="text-[13px] text-default-400">
+                    กรอก ความหนา (T), ความกว้าง (W), ความสูง (H)
+                  </p>
+                  <div className="flex gap-2">
+                    <Chip
+                      color={doorThickness ? "success" : "default"}
+                      variant="flat"
+                    >
+                      T: {doorThickness || "—"}
+                    </Chip>
+                    <Chip
+                      color={doorWidth ? "success" : "default"}
+                      variant="flat"
+                    >
+                      W: {doorWidth || "—"}
+                    </Chip>
+                    <Chip
+                      color={doorHeight ? "success" : "default"}
+                      variant="flat"
+                    >
+                      H: {doorHeight || "—"}
+                    </Chip>
+                  </div>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
+              <div className="flex items-center gap-2">
+                <Chip color="default" variant="flat" size="sm">
+                  9
+                </Chip>
+                <span className="font-semibold text-sm">💰 สรุปราคา</span>
+              </div>
+            </CardHeader>
+            <CardBody className="gap-3 p-4">
               <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                 <span className="font-bold text-foreground">
                   รายละเอียดต้นทุน / บาน
                 </span>
                 <div className="flex justify-between">
-                  <span>กรอบไม้ ({priceSummary.frameStocks} ท่อน × ฿{priceSummary.frameUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):</span>
                   <span>
-                    ฿{priceSummary.frameCost.toLocaleString(undefined, {
+                    กรอบไม้ ({priceSummary.frameStocks} ท่อน × ฿
+                    {priceSummary.frameUnitCost.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    ):
+                  </span>
+                  <span>
+                    ฿
+                    {priceSummary.frameCost.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -3227,16 +3206,25 @@ const UIDoorBom = ({
                 <div className="flex justify-between">
                   <span>วัสดุผิว (×2 ด้าน):</span>
                   <span>
-                    ฿{priceSummary.surface.toLocaleString(undefined, {
+                    ฿
+                    {priceSummary.surface.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>วัสดุไส้ ({priceSummary.coreQtyLabel} × ฿{priceSummary.coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):</span>
                   <span>
-                    ฿{priceSummary.core.toLocaleString(undefined, {
+                    วัสดุไส้ ({priceSummary.coreQtyLabel} × ฿
+                    {priceSummary.coreUnitCost.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    ):
+                  </span>
+                  <span>
+                    ฿
+                    {priceSummary.core.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -3246,7 +3234,8 @@ const UIDoorBom = ({
                   <div className="flex justify-between">
                     <span>ทำขอบประตู:</span>
                     <span>
-                      ฿{priceSummary.edge.toLocaleString(undefined, {
+                      ฿
+                      {priceSummary.edge.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -3257,7 +3246,8 @@ const UIDoorBom = ({
                   <div className="flex justify-between">
                     <span>เจาะอุปกรณ์:</span>
                     <span>
-                      ฿{priceSummary.drillCost.toLocaleString(undefined, {
+                      ฿
+                      {priceSummary.drillCost.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -3268,7 +3258,8 @@ const UIDoorBom = ({
                 <div className="flex justify-between font-bold text-foreground">
                   <span>ต้นทุนรวม / บาน:</span>
                   <span>
-                    ฿{priceSummary.totalPerDoor.toLocaleString(undefined, {
+                    ฿
+                    {priceSummary.totalPerDoor.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -3277,7 +3268,8 @@ const UIDoorBom = ({
                 <div className="flex justify-between">
                   <span>ต้นทุน + 10% / บาน:</span>
                   <span className="font-bold">
-                    ฿{priceSummary.plus10.toLocaleString(undefined, {
+                    ฿
+                    {priceSummary.plus10.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -3286,7 +3278,8 @@ const UIDoorBom = ({
                 <div className="flex justify-between">
                   <span>กำไร 20% / บาน:</span>
                   <span className="font-bold">
-                    ฿{priceSummary.profit20.toLocaleString(undefined, {
+                    ฿
+                    {priceSummary.profit20.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -3304,7 +3297,8 @@ const UIDoorBom = ({
                     onChange={(e) => setCustomMargin(e.target.value)}
                   />
                   <span className="font-bold whitespace-nowrap">
-                    ฿{priceSummary.customPrice.toLocaleString(undefined, {
+                    ฿
+                    {priceSummary.customPrice.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -3320,7 +3314,8 @@ const UIDoorBom = ({
                   <div className="flex justify-between font-bold text-foreground">
                     <span>ต้นทุนรวม:</span>
                     <span>
-                      ฿{priceSummary.grandTotal.toLocaleString(undefined, {
+                      ฿
+                      {priceSummary.grandTotal.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -3329,7 +3324,8 @@ const UIDoorBom = ({
                   <div className="flex justify-between">
                     <span>ต้นทุน + 10%:</span>
                     <span className="font-bold">
-                      ฿{priceSummary.grandPlus10.toLocaleString(undefined, {
+                      ฿
+                      {priceSummary.grandPlus10.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -3338,7 +3334,8 @@ const UIDoorBom = ({
                   <div className="flex justify-between">
                     <span>กำไร 20%:</span>
                     <span className="font-bold">
-                      ฿{priceSummary.grandProfit20.toLocaleString(undefined, {
+                      ฿
+                      {priceSummary.grandProfit20.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -3348,7 +3345,8 @@ const UIDoorBom = ({
                     <div className="flex justify-between">
                       <span>กำไรตามใจ:</span>
                       <span className="font-bold">
-                        ฿{priceSummary.grandCustom.toLocaleString(undefined, {
+                        ฿
+                        {priceSummary.grandCustom.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
@@ -3360,13 +3358,13 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card className="w-full">
-            <CardHeader className="bg-default-100">
+          <Card shadow="none" className="w-full border border-default-200">
+            <CardHeader className="border-b border-default-200 bg-default-50">
               <div className="flex items-center gap-2">
-                <span className="font-semibold">📋 สรุปโครงสร้าง</span>
+                <span className="font-semibold text-sm">📋 สรุปโครงสร้าง</span>
               </div>
             </CardHeader>
-            <CardBody className="gap-2">
+            <CardBody className="gap-3 p-4">
               <div className="grid grid-cols-2 gap-2 text-[13px]">
                 <div className="p-2 bg-default-100 rounded-lg">
                   <span className="block text-default-600">สเปคประตู:</span>
@@ -3377,8 +3375,8 @@ const UIDoorBom = ({
                 <div className="p-2 bg-default-100 rounded-lg">
                   <span className="block text-default-600">ผิว:</span>
                   <span className="font-bold text-foreground">
-                    {surfaceMaterial || "ไม่ระบุ"}{" "}
-                    {surfaceThickness || 0}mm + Glue {GLUE_THICKNESS}mm (×2)
+                    {surfaceMaterial || "ไม่ระบุ"} {surfaceThickness || 0}mm +
+                    Glue {GLUE_THICKNESS}mm (×2)
                   </span>
                 </div>
                 <div className="p-2 bg-default-50 rounded-lg">
@@ -3464,18 +3462,15 @@ const UIDoorBom = ({
           </Card>
 
           {isDataComplete ? (
-            <Card className="w-full">
-              <CardHeader className="bg-foreground text-background">
+            <Card shadow="none" className="w-full border border-default-200">
+              <CardHeader className="border-b border-default-200 bg-default-50">
                 <div className="flex items-center gap-2">
-                  <Chip color="default" variant="solid" size="md">
-                    7
-                  </Chip>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-sm">
                     ✂️ แผนตัดไม้ (เพิ่มประสิทธิภาพ)
                   </span>
                 </div>
               </CardHeader>
-              <CardBody className="gap-2">
+              <CardBody className="gap-3 p-4">
                 {isNoRailCoreType && (
                   <Chip color="default" variant="shadow" className="w-full">
                     ⚠️ ไส้ {coreCalculation?.coreType?.label}: ไม่มีคานขวาง
@@ -3676,13 +3671,10 @@ const UIDoorBom = ({
               </CardBody>
             </Card>
           ) : (
-            <Card className="w-full">
-              <CardHeader className="bg-default-200">
+            <Card shadow="none" className="w-full border border-default-200">
+              <CardHeader className="border-b border-default-200 bg-default-50">
                 <div className="flex items-center gap-2">
-                  <Chip color="default" variant="solid" size="md">
-                    7
-                  </Chip>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-sm">
                     ✂️ แผนตัดไม้ (เพิ่มประสิทธิภาพ)
                   </span>
                 </div>
@@ -3701,55 +3693,9 @@ const UIDoorBom = ({
             </Card>
           )}
         </div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-1 p-2 gap-2 w-full h-full">
-          <Card className="w-full">
-            <CardHeader className="bg-foreground text-background flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <span>📐</span>
-                <span className="font-semibold">แบบวาด</span>
-              </div>
-            </CardHeader>
-            <CardBody className="bg-default-50 p-2 min-h-[600px]">
-              {isDataComplete ? (
-                <EnhancedEngineeringDrawing
-                  results={results}
-                  coreCalculation={coreCalculation}
-                  surfaceMaterial={surfaceMaterial}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-96 gap-2">
-                  <RulerDimensionLine className="w-12 h-12 text-default-300" />
-                  <p className="text-lg font-medium">กรุณากรอกข้อมูลประตู</p>
-                  <p className="text-[13px] text-default-400">
-                    กรอก ความหนา (T), ความกว้าง (W), ความสูง (H)
-                  </p>
-                  <div className="flex gap-2">
-                    <Chip
-                      color={doorThickness ? "success" : "danger"}
-                      variant="shadow"
-                    >
-                      T: {doorThickness || "—"}
-                    </Chip>
-                    <Chip
-                      color={doorWidth ? "success" : "danger"}
-                      variant="shadow"
-                    >
-                      W: {doorWidth || "—"}
-                    </Chip>
-                    <Chip
-                      color={doorHeight ? "success" : "danger"}
-                      variant="shadow"
-                    >
-                      H: {doorHeight || "—"}
-                    </Chip>
-                  </div>
-                </div>
-              )}
-            </CardBody>
-          </Card>
-        </div>
+        {/* end right column */}
       </div>
+      {/* end main grid */}
     </div>
   );
 };
