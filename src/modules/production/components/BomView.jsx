@@ -3361,12 +3361,9 @@ const UIDoorBom = ({
                 </div>
                 <div className="flex justify-between">
                   <span>
-                    วัสดุไส้ ({priceSummary.coreQtyLabel} × ฿
-                    {priceSummary.coreUnitCost.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                    ):
+                    {priceSummary.coreStripsPerSheet > 0
+                      ? `วัสดุไส้ (${priceSummary.coreStrips} เส้น / ${priceSummary.coreStripsPerSheet} เส้น/แผ่น × ฿${priceSummary.coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):`
+                      : `วัสดุไส้ (${priceSummary.coreQtyLabel} × ฿${priceSummary.coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):` }
                   </span>
                   <span>
                     ฿
@@ -3376,6 +3373,19 @@ const UIDoorBom = ({
                     })}
                   </span>
                 </div>
+                {priceSummary.coreStripsPerSheet > 0 && priceSummary.qty > 1 && (() => {
+                  const { coreStrips, coreStripsPerSheet, coreUnitCost, qty } = priceSummary;
+                  const totalStrips = coreStrips * qty;
+                  const sheetsNeeded = Math.ceil(totalStrips / coreStripsPerSheet);
+                  const batchTotal = sheetsNeeded * coreUnitCost;
+                  return (
+                    <div className="text-xs text-default-400 pl-2 space-y-0.5 mb-1">
+                      <div>= {qty} บาน × {coreStrips} เส้น = {totalStrips.toLocaleString()} เส้น</div>
+                      <div>= ceil({totalStrips.toLocaleString()} ÷ {coreStripsPerSheet}) = {sheetsNeeded.toLocaleString()} แผ่น</div>
+                      <div>= {sheetsNeeded.toLocaleString()} × ฿{coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ÷ {qty} บาน = ฿{priceSummary.core.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/บาน</div>
+                    </div>
+                  );
+                })()}
                 {priceSummary.edge > 0 && (
                   <div className="flex justify-between">
                     <span>ทำขอบประตู:</span>

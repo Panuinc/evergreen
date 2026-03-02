@@ -1404,7 +1404,16 @@ export function useBom() {
       coreStripCutWidth = stripCutWidth;
     }
 
-    const core = coreUnitCost * coreQtyUsed;
+    // Proportional (batch-amortized) core cost:
+    // e.g. 18 strips from a 27-strip sheet → costs 18/27 of sheet price, not full sheet
+    let core;
+    if (!isSolidCore && coreStripsPerSheet > 0 && qty > 0) {
+      const coreBatchTotal =
+        Math.ceil((coreStrips * qty) / coreStripsPerSheet) * coreUnitCost;
+      core = coreBatchTotal / qty;
+    } else {
+      core = coreUnitCost * coreQtyUsed;
+    }
 
     const edge = edgeBanding ? (parseFloat(edgePrice) || 0) : 0;
     const drillCost = Object.values(drillItems).reduce(
