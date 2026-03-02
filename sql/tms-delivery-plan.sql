@@ -41,3 +41,10 @@ CREATE POLICY "authenticated_all" ON public."tmsDeliveryPlan"
 
 CREATE POLICY "authenticated_all" ON public."tmsDeliveryPlanItem"
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Add priority + location columns (run this if table already exists)
+ALTER TABLE public."tmsDeliveryPlan"
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanPriority" text DEFAULT 'normal',
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanAddress"  text,
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanLat"      numeric,
+  ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanLng"      numeric;

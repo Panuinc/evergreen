@@ -14,6 +14,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { Plus, Trash2, Search } from "lucide-react";
+import DeliveryPlanMapPicker from "./DeliveryPlanMapPicker";
 
 const STATUS_COLORS = {
   planned: "primary",
@@ -27,6 +28,20 @@ const STATUS_LABELS = {
   in_progress: "กำลังดำเนินการ",
   completed: "เสร็จสิ้น",
   cancelled: "ยกเลิก",
+};
+
+const PRIORITY_COLORS = {
+  urgent: "danger",
+  high: "warning",
+  normal: "primary",
+  low: "default",
+};
+
+const PRIORITY_LABELS = {
+  urgent: "ด่วนมาก",
+  high: "ด่วน",
+  normal: "ปกติ",
+  low: "ต่ำ",
 };
 
 function formatDate(dateStr) {
@@ -72,6 +87,10 @@ export default function DeliveryPlanModal({
   const [plannedQtys, setPlannedQtys] = useState({});
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("planned");
+  const [priority, setPriority] = useState("normal");
+  const [address, setAddress] = useState("");
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
 
   const dateStr = editingPlan
     ? editingPlan.tmsDeliveryPlanDate
@@ -82,6 +101,10 @@ export default function DeliveryPlanModal({
       setShowForm(true);
       setNotes(editingPlan.tmsDeliveryPlanNotes || "");
       setStatus(editingPlan.tmsDeliveryPlanStatus || "planned");
+      setPriority(editingPlan.tmsDeliveryPlanPriority || "normal");
+      setAddress(editingPlan.tmsDeliveryPlanAddress || "");
+      setLat(editingPlan.tmsDeliveryPlanLat || null);
+      setLng(editingPlan.tmsDeliveryPlanLng || null);
     } else {
       setShowForm(false);
       resetForm();
@@ -94,6 +117,10 @@ export default function DeliveryPlanModal({
     setPlannedQtys({});
     setNotes("");
     setStatus("planned");
+    setPriority("normal");
+    setAddress("");
+    setLat(null);
+    setLng(null);
     onSelectSO(null);
   };
 
@@ -115,6 +142,12 @@ export default function DeliveryPlanModal({
 
   const handleQtyChange = (lineNo, val) => {
     setPlannedQtys((prev) => ({ ...prev, [lineNo]: val }));
+  };
+
+  const handleLocationChange = (newLat, newLng, newAddress) => {
+    setLat(newLat);
+    setLng(newLng);
+    setAddress(newAddress || "");
   };
 
   const handleSave = () => {
@@ -143,7 +176,11 @@ export default function DeliveryPlanModal({
     onSave({
       tmsDeliveryPlanDate: dateStr,
       tmsDeliveryPlanStatus: status,
-      tmsDeliveryPlanNotes: notes,
+      tmsDeliveryPlanPriority: priority,
+      tmsDeliveryPlanNotes: notes || null,
+      tmsDeliveryPlanAddress: address || null,
+      tmsDeliveryPlanLat: lat || null,
+      tmsDeliveryPlanLng: lng || null,
       items: editingPlan ? editingPlan.tmsDeliveryPlanItem : items,
     });
   };
@@ -173,16 +210,31 @@ export default function DeliveryPlanModal({
               {plansOnDate.map((plan) => (
                 <div
                   key={plan.tmsDeliveryPlanId}
-                  className="flex items-start justify-between p-3 rounded-xl border border-default-200 gap-2"
+                  className={`flex items-start justify-between p-3 rounded-xl border gap-2 border-l-4 ${
+                    plan.tmsDeliveryPlanPriority === "urgent"
+                      ? "border-l-danger-400"
+                      : plan.tmsDeliveryPlanPriority === "high"
+                      ? "border-l-warning-400"
+                      : plan.tmsDeliveryPlanPriority === "low"
+                      ? "border-l-default-300"
+                      : "border-l-primary-400"
+                  } border-default-200`}
                 >
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Chip
                         size="sm"
                         color={STATUS_COLORS[plan.tmsDeliveryPlanStatus]}
                         variant="flat"
                       >
                         {STATUS_LABELS[plan.tmsDeliveryPlanStatus]}
+                      </Chip>
+                      <Chip
+                        size="sm"
+                        color={PRIORITY_COLORS[plan.tmsDeliveryPlanPriority] || "primary"}
+                        variant="dot"
+                      >
+                        {PRIORITY_LABELS[plan.tmsDeliveryPlanPriority] || "ปกติ"}
                       </Chip>
                       <span className="text-xs text-default-500">
                         {plan.tmsDeliveryPlanItem?.length || 0} รายการ
@@ -199,6 +251,11 @@ export default function DeliveryPlanModal({
                         {item.tmsDeliveryPlanItemUom}
                       </p>
                     ))}
+                    {plan.tmsDeliveryPlanAddress && (
+                      <p className="text-xs text-default-400 truncate">
+                        📍 {plan.tmsDeliveryPlanAddress}
+                      </p>
+                    )}
                     {plan.tmsDeliveryPlanNotes && (
                       <p className="text-xs text-default-400 italic">
                         {plan.tmsDeliveryPlanNotes}
@@ -247,18 +304,39 @@ export default function DeliveryPlanModal({
           {showForm && (
             <div className="flex flex-col gap-4">
               {/* Status selector */}
-              <div className="flex gap-2 flex-wrap">
-                {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                  <Chip
-                    key={key}
-                    color={STATUS_COLORS[key]}
-                    variant={status === key ? "solid" : "bordered"}
-                    className="cursor-pointer"
-                    onClick={() => setStatus(key)}
-                  >
-                    {label}
-                  </Chip>
-                ))}
+              <div className="flex flex-col gap-1.5">
+                <p className="text-xs font-semibold text-default-500">สถานะ</p>
+                <div className="flex gap-2 flex-wrap">
+                  {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                    <Chip
+                      key={key}
+                      color={STATUS_COLORS[key]}
+                      variant={status === key ? "solid" : "bordered"}
+                      className="cursor-pointer"
+                      onClick={() => setStatus(key)}
+                    >
+                      {label}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+
+              {/* Priority selector */}
+              <div className="flex flex-col gap-1.5">
+                <p className="text-xs font-semibold text-default-500">ความสำคัญ</p>
+                <div className="flex gap-2 flex-wrap">
+                  {Object.entries(PRIORITY_LABELS).map(([key, label]) => (
+                    <Chip
+                      key={key}
+                      color={PRIORITY_COLORS[key]}
+                      variant={priority === key ? "solid" : "bordered"}
+                      className="cursor-pointer"
+                      onClick={() => setPriority(key)}
+                    >
+                      {label}
+                    </Chip>
+                  ))}
+                </div>
               </div>
 
               {/* SO Search */}
@@ -374,6 +452,17 @@ export default function DeliveryPlanModal({
                     ))}
                 </div>
               )}
+
+              {/* Location / Map */}
+              <div className="flex flex-col gap-1.5">
+                <p className="text-xs font-semibold">สถานที่ส่ง</p>
+                <DeliveryPlanMapPicker
+                  lat={lat}
+                  lng={lng}
+                  address={address}
+                  onLocationChange={handleLocationChange}
+                />
+              </div>
 
               {/* Notes */}
               <Textarea

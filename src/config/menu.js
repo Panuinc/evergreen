@@ -295,16 +295,21 @@ export const menuData = [
     icon: Truck,
     href: "/tms/dashboard",
     subMenus: [
+      // ภาพรวม
       { name: "แดชบอร์ด", icon: LayoutDashboard, href: "/tms/dashboard" },
+      // ขั้นตอนการทำงาน
       { name: "แผนส่งของ", icon: CalendarDays, href: "/tms/deliveryPlans" },
+      { name: "การขนส่ง", icon: Package, href: "/tms/shipments" },
+      { name: "การจัดส่ง", icon: FileCheck, href: "/tms/deliveries" },
+      { name: "ติดตาม GPS", icon: MapPin, href: "/tms/tracking" },
+      // ข้อมูลหลัก
       { name: "ยานพาหนะ", icon: Truck, href: "/tms/vehicles" },
       { name: "พนักงานขับรถ", icon: Users, href: "/tms/drivers" },
-      { name: "การขนส่ง", icon: Package, href: "/tms/shipments" },
       { name: "เส้นทาง", icon: MapPin, href: "/tms/routes" },
-      { name: "การจัดส่ง", icon: FileCheck, href: "/tms/deliveries" },
+      // หลังเสร็จงาน
       { name: "บันทึกน้ำมัน", icon: Boxes, href: "/tms/fuelLogs" },
       { name: "ซ่อมบำรุง", icon: Wrench, href: "/tms/maintenance" },
-      { name: "ติดตาม GPS", icon: MapPin, href: "/tms/tracking" },
+      // สรุป
       { name: "รายงาน", icon: BarChart3, href: "/tms/reports" },
       {
         name: "การแจ้งเตือน",

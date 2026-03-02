@@ -19,6 +19,13 @@ const STATUS_COLORS = {
   cancelled: "default",
 };
 
+const PRIORITY_DOT = {
+  urgent: "bg-danger-500",
+  high: "bg-warning-500",
+  normal: "bg-primary-400",
+  low: "bg-default-400",
+};
+
 function toDateString(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -102,7 +109,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                   {plans.slice(0, 3).map((p) => (
                     <div
                       key={p.tmsDeliveryPlanId}
-                      className={`text-[10px] px-1.5 py-0.5 rounded-md truncate font-medium ${
+                      className={`text-[10px] px-1.5 py-0.5 rounded-md truncate font-medium flex items-center gap-1 ${
                         p.tmsDeliveryPlanStatus === "planned"
                           ? "bg-primary-100 text-primary-700"
                           : p.tmsDeliveryPlanStatus === "in_progress"
@@ -112,7 +119,14 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                           : "bg-default-100 text-default-600"
                       }`}
                     >
-                      {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"}
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                          PRIORITY_DOT[p.tmsDeliveryPlanPriority] || PRIORITY_DOT.normal
+                        }`}
+                      />
+                      <span className="truncate">
+                        {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"}
+                      </span>
                     </div>
                   ))}
                   {plans.length > 3 && (
@@ -171,7 +185,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
               {plans.map((p) => (
                 <div
                   key={p.tmsDeliveryPlanId}
-                  className={`p-2 rounded-xl border text-xs cursor-pointer hover:opacity-80 ${
+                  className={`p-2 rounded-xl border-l-4 border text-xs cursor-pointer hover:opacity-80 ${
                     p.tmsDeliveryPlanStatus === "planned"
                       ? "bg-primary-50 border-primary-200"
                       : p.tmsDeliveryPlanStatus === "in_progress"
@@ -179,6 +193,14 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                       : p.tmsDeliveryPlanStatus === "completed"
                       ? "bg-success-50 border-success-200"
                       : "bg-default-50 border-default-200"
+                  } ${
+                    p.tmsDeliveryPlanPriority === "urgent"
+                      ? "border-l-danger-500"
+                      : p.tmsDeliveryPlanPriority === "high"
+                      ? "border-l-warning-500"
+                      : p.tmsDeliveryPlanPriority === "low"
+                      ? "border-l-default-400"
+                      : "border-l-primary-400"
                   }`}
                   onClick={() => onDateClick(date)}
                 >
@@ -188,14 +210,34 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                   <p className="text-default-500 truncate">
                     {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemCustomerName}
                   </p>
-                  <Chip
-                    size="sm"
-                    color={STATUS_COLORS[p.tmsDeliveryPlanStatus]}
-                    variant="flat"
-                    className="mt-1"
-                  >
-                    {p.tmsDeliveryPlanItem?.length || 0} รายการ
-                  </Chip>
+                  <div className="flex items-center gap-1 mt-1 flex-wrap">
+                    <Chip
+                      size="sm"
+                      color={STATUS_COLORS[p.tmsDeliveryPlanStatus]}
+                      variant="flat"
+                    >
+                      {p.tmsDeliveryPlanItem?.length || 0} รายการ
+                    </Chip>
+                    {p.tmsDeliveryPlanPriority && p.tmsDeliveryPlanPriority !== "normal" && (
+                      <Chip
+                        size="sm"
+                        color={
+                          p.tmsDeliveryPlanPriority === "urgent"
+                            ? "danger"
+                            : p.tmsDeliveryPlanPriority === "high"
+                            ? "warning"
+                            : "default"
+                        }
+                        variant="flat"
+                      >
+                        {p.tmsDeliveryPlanPriority === "urgent"
+                          ? "ด่วนมาก"
+                          : p.tmsDeliveryPlanPriority === "high"
+                          ? "ด่วน"
+                          : "ต่ำ"}
+                      </Chip>
+                    )}
+                  </div>
                 </div>
               ))}
               {/* Add button for empty days */}

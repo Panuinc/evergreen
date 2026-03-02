@@ -1,0 +1,100 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import { Input, Button } from "@heroui/react";
+import { Search, MapPin, X } from "lucide-react";
+
+const MapInner = dynamic(() => import("./DeliveryPlanMapPickerInner"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[220px] w-full rounded-xl bg-default-100 flex items-center justify-center">
+      <span className="text-xs text-default-400">กำลังโหลดแผนที่...</span>
+    </div>
+  ),
+});
+
+export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationChange }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    try {
+      setSearching(true);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1&accept-language=th`,
+        { headers: { "Accept-Language": "th" } }
+      );
+      const results = await res.json();
+      if (results.length > 0) {
+        const { lat: newLat, lon: newLng, display_name } = results[0];
+        onLocationChange(parseFloat(newLat), parseFloat(newLng), display_name);
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleMapClick = async (clickLat, clickLng) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${clickLat}&lon=${clickLng}&format=json&accept-language=th`
+      );
+      const result = await res.json();
+      onLocationChange(clickLat, clickLng, result.display_name || `${clickLat}, ${clickLng}`);
+    } catch {
+      onLocationChange(clickLat, clickLng, `${clickLat.toFixed(5)}, ${clickLng.toFixed(5)}`);
+    }
+  };
+
+  const handleClear = () => {
+    onLocationChange(null, null, "");
+    setSearchQuery("");
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      {/* Address search */}
+      <div className="flex gap-2">
+        <Input
+          placeholder="ค้นหาสถานที่..."
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+          startContent={<MapPin size={14} className="text-default-400" />}
+          size="sm"
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          className="flex-1"
+        />
+        <Button
+          size="sm"
+          variant="flat"
+          isIconOnly
+          onPress={handleSearch}
+          isLoading={searching}
+        >
+          <Search size={14} />
+        </Button>
+        {(lat || address) && (
+          <Button size="sm" variant="flat" color="danger" isIconOnly onPress={handleClear}>
+            <X size={14} />
+          </Button>
+        )}
+      </div>
+
+      {/* Current address display */}
+      {address && (
+        <p className="text-xs text-default-500 truncate px-1">{address}</p>
+      )}
+
+      {/* Map */}
+      <MapInner lat={lat} lng={lng} onMapClick={handleMapClick} />
+
+      <p className="text-[10px] text-default-400 text-center">
+        คลิกบนแผนที่เพื่อกำหนดจุดส่ง หรือค้นหาด้วยชื่อสถานที่
+      </p>
+    </div>
+  );
+}
