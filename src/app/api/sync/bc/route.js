@@ -359,7 +359,7 @@ async function runSync(supabase, requestedTables, send) {
         bcODataGet(
           "Sales_Order_Excel",
           {
-            $filter: "startswith(No,'SO24')",
+            $filter: "startswith(No,'SO24') or startswith(No,'SO25') or startswith(No,'SO26')",
             $orderby: "No desc",
             $select:
               "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No",
@@ -369,7 +369,7 @@ async function runSync(supabase, requestedTables, send) {
         bcODataGet(
           "Sales_Order_Line_Excel",
           {
-            $filter: "startswith(Document_No,'SO24')",
+            $filter: "startswith(Document_No,'SO24') or startswith(Document_No,'SO25') or startswith(Document_No,'SO26')",
             $select:
               "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code",
           },
