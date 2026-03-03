@@ -235,8 +235,15 @@ const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"
 
 /**
  * Compute COGS adjusted for inventory changes.
- * Raw COGS (51xxx + overrides) minus ending inventory (11500-xx).
- * Works for both GL entries (period movements) and trial balance (cumulative).
+ *
+ * Raw COGS includes 51200-00 (Beginning Inventory) which represents the
+ * opening journal entry: Dr 51200-00 / Cr 115xx. This entry inflates raw
+ * COGS and simultaneously reduces the 115xx net movement.  If we only
+ * subtract 115xx net from raw COGS, beginning inventory is double-counted.
+ *
+ * Correct formula:
+ *   adjustedCOGS = (rawCOGS − 51200-00) − 115xx_net
+ *                = production costs − inventory change during the period
  */
 export function computeAdjustedCogs(byAccount, monthlyTotals) {
   const raw = monthlyTotals?.["cogs"] || { months: {}, total: 0 };
@@ -244,7 +251,17 @@ export function computeAdjustedCogs(byAccount, monthlyTotals) {
   for (const m of MONTHS) months[m] = raw.months[m] || 0;
   let total = raw.total;
 
-  // Deduct ALL inventory accounts (115xx) — not just the 3 known ones
+  // 1. Remove beginning inventory (51200-00) from raw COGS
+  //    so that we work with pure production/purchase costs only.
+  const beginInv = byAccount?.["51200-00"];
+  if (beginInv) {
+    for (const m of MONTHS) months[m] -= beginInv.months[m] || 0;
+    total -= beginInv.total || 0;
+  }
+
+  // 2. Deduct inventory change (115xx net movement during the period).
+  //    Positive net = inventory increased → reduces COGS.
+  //    Negative net = inventory decreased → increases COGS.
   for (const [acctNo, acct] of Object.entries(byAccount || {})) {
     if (!acctNo.startsWith("115")) continue;
     for (const m of MONTHS) {
@@ -462,10 +479,21 @@ export function computeCogsDetail(byAccount) {
   }
   rows.push({ key: "endingInventory", label: "หัก: สินค้าคงเหลือปลายงวด", type: "subtotal", months: endInvMonths, total: endInvTotal });
 
-  // COGS total
+  // COGS total — must subtract beginning inventory (51200-00) from production
+  // total to avoid double-counting (same fix as computeAdjustedCogs).
+  const beginInv = byAccount?.["51200-00"];
+  const beginInvMonths = {};
+  let beginInvTotal = 0;
+  if (beginInv) {
+    for (const m of MONTHS) beginInvMonths[m] = beginInv.months[m] || 0;
+    beginInvTotal = beginInv.total || 0;
+  }
+
   const cogsMonths = {};
-  for (const m of MONTHS) cogsMonths[m] = (prodMonths[m] || 0) + (endInvMonths[m] || 0);
-  const cogsTotal = prodTotal + endInvTotal;
+  for (const m of MONTHS) {
+    cogsMonths[m] = (prodMonths[m] || 0) - (beginInvMonths[m] || 0) + (endInvMonths[m] || 0);
+  }
+  const cogsTotal = prodTotal - beginInvTotal + endInvTotal;
   rows.push({ key: "cogsTotal", label: "ต้นทุนขาย", type: "grandTotal", months: cogsMonths, total: cogsTotal });
 
   return rows;

@@ -19,13 +19,22 @@ function decodeEpc(hex) {
   }
 
   const itemPart = raw.substring(0, slashIndex).trim();
-  const seqChar = raw[slashIndex + 1];
-  const totalChar = raw[slashIndex + 2];
+  const afterSlash = raw.substring(slashIndex + 1);
 
-  const pieceNumber =
-    seqChar >= "A" ? seqChar.charCodeAt(0) - 55 : parseInt(seqChar) || 0;
-  const totalPieces =
-    totalChar >= "A" ? totalChar.charCodeAt(0) - 55 : parseInt(totalChar) || 0;
+  let pieceNumber, totalPieces;
+  if (afterSlash.length >= 4 && /^\d{4}/.test(afterSlash)) {
+    /* New format: 2-digit seq + 2-digit total (e.g. "0129") */
+    pieceNumber = parseInt(afterSlash.substring(0, 2), 10);
+    totalPieces = parseInt(afterSlash.substring(2, 4), 10);
+  } else {
+    /* Old format: 1-char seq + 1-char total (e.g. "1P") */
+    const seqChar = afterSlash[0];
+    const totalChar = afterSlash[1];
+    pieceNumber =
+      seqChar >= "A" ? seqChar.charCodeAt(0) - 55 : parseInt(seqChar) || 0;
+    totalPieces =
+      totalChar >= "A" ? totalChar.charCodeAt(0) - 55 : parseInt(totalChar) || 0;
+  }
 
   /* All digits = rfidCode mapping; otherwise = compact item number */
   if (/^\d+$/.test(itemPart)) {

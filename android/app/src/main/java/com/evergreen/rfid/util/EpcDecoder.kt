@@ -42,11 +42,21 @@ object EpcDecoder {
         }
 
         val itemPart = raw.substring(0, slashIndex).trim()
-        val seqChar = if (slashIndex + 1 < raw.length) raw[slashIndex + 1] else '0'
-        val totalChar = if (slashIndex + 2 < raw.length) raw[slashIndex + 2] else '0'
+        val afterSlash = if (slashIndex + 1 < raw.length) raw.substring(slashIndex + 1) else ""
 
-        val pieceNumber = if (seqChar >= 'A') seqChar.code - 55 else seqChar.digitToIntOrNull() ?: 0
-        val totalPieces = if (totalChar >= 'A') totalChar.code - 55 else totalChar.digitToIntOrNull() ?: 0
+        val pieceNumber: Int
+        val totalPieces: Int
+        if (afterSlash.length >= 4 && afterSlash.substring(0, 4).all { it.isDigit() }) {
+            // New format: 2-digit seq + 2-digit total (e.g. "0129")
+            pieceNumber = afterSlash.substring(0, 2).toIntOrNull() ?: 0
+            totalPieces = afterSlash.substring(2, 4).toIntOrNull() ?: 0
+        } else {
+            // Old format: 1-char seq + 1-char total (e.g. "1P")
+            val seqChar = if (afterSlash.isNotEmpty()) afterSlash[0] else '0'
+            val totalChar = if (afterSlash.length >= 2) afterSlash[1] else '0'
+            pieceNumber = if (seqChar >= 'A') seqChar.code - 55 else seqChar.digitToIntOrNull() ?: 0
+            totalPieces = if (totalChar >= 'A') totalChar.code - 55 else totalChar.digitToIntOrNull() ?: 0
+        }
 
         // All digits = rfidCode mapping; otherwise = compact item number
         return if (itemPart.all { it.isDigit() }) {

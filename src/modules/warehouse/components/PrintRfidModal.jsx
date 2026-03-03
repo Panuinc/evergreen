@@ -15,7 +15,7 @@ import { Printer, Eye, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { printRfidLabels, previewLabel } from "@/lib/qzPrinter";
 
-const MAX_BATCH = 25;
+const MAX_BATCH = 99;
 
 export default function PrintRfidModal({ isOpen, onClose, item }) {
   const [quantity, setQuantity] = useState("");
@@ -158,7 +158,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             {isOverBatch && (
               <div className="flex items-center gap-2 rounded-lg bg-warning-50 p-3 text-sm text-warning-700">
                 <AlertTriangle size={16} className="shrink-0" />
-                <span>จำนวนต่อ batch ต้องไม่เกิน {MAX_BATCH} ชิ้น (EPC encoding limit)</span>
+                <span>จำนวนต่อ batch ต้องไม่เกิน {MAX_BATCH} ชิ้น</span>
               </div>
             )}
 

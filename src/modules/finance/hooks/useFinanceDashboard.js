@@ -143,6 +143,7 @@ function computeFinancials(trialBalanceData) {
     cogs, grossProfit,
     sellingExpense, adminExpense, interestExpense, operatingProfit, totalExpense, netIncome,
     currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
+    inventoryBalance: inventoryDeduction, // TB 115xx balance for COGS fallback
     groups,
     totalAccounts: trialBalanceData.length,
     postingAccounts: posting.length,

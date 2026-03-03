@@ -1,6 +1,6 @@
 const EPC_BYTES = 12; /* 96-bit tag */
-const MAX_RFID_CODE = 99999999; // 8 digits max for EPC encoding
-const MAX_SEQUENCE = 25; // A-P encoding limit (0-9 + A-P)
+const MAX_RFID_CODE = 999999; // 6 digits max for EPC encoding
+const MAX_SEQUENCE = 99; // 2-digit encoding (01-99)
 
 export function generatePlainEPC(
   rfidCodeOrItemNumber,
@@ -23,26 +23,19 @@ export function generatePlainEPC(
     );
   }
 
-  const seqChar =
-    sequenceNumber <= 9
-      ? String(sequenceNumber)
-      : String.fromCharCode(55 + sequenceNumber);
-
-  const totalChar =
-    totalQuantity <= 9
-      ? String(totalQuantity)
-      : String.fromCharCode(55 + totalQuantity);
+  const seqStr = String(sequenceNumber).padStart(2, "0");
+  const totalStr = String(totalQuantity).padStart(2, "0");
 
   let content;
 
   if (typeof rfidCodeOrItemNumber === "number") {
-    /* rfidCode (integer) → zero-padded 8 digits + /seq+total = 11 chars */
-    const codeStr = String(rfidCodeOrItemNumber).padStart(8, "0");
-    content = `${codeStr}/${seqChar}${totalChar}`;
+    /* rfidCode (integer) → zero-padded 6 digits + /seq+total = 11 chars */
+    const codeStr = String(rfidCodeOrItemNumber).padStart(6, "0");
+    content = `${codeStr}/${seqStr}${totalStr}`;
   } else {
     /* Fallback: compact item number (strip dashes) */
     const compact = String(rfidCodeOrItemNumber).replace(/-/g, "");
-    const withSeq = `${compact}/${seqChar}${totalChar}`;
+    const withSeq = `${compact}/${seqStr}${totalStr}`;
     content = withSeq.length <= EPC_BYTES ? withSeq : compact;
   }
 
@@ -105,15 +98,23 @@ export const EPCService = {
 
     if (slashIndex !== -1 && slashIndex < raw.length - 2) {
       itemCompact = raw.substring(0, slashIndex).trim();
-      const seqChar = raw[slashIndex + 1];
-      const totalChar = raw[slashIndex + 2];
+      const afterSlash = raw.substring(slashIndex + 1);
 
-      sequence =
-        seqChar >= "A" ? seqChar.charCodeAt(0) - 55 : parseInt(seqChar, 10);
-      total =
-        totalChar >= "A"
-          ? totalChar.charCodeAt(0) - 55
-          : parseInt(totalChar, 10);
+      if (afterSlash.length >= 4 && /^\d{4}/.test(afterSlash)) {
+        /* New format: 2-digit seq + 2-digit total (e.g. "0129") */
+        sequence = parseInt(afterSlash.substring(0, 2), 10);
+        total = parseInt(afterSlash.substring(2, 4), 10);
+      } else {
+        /* Old format: 1-char seq + 1-char total (e.g. "1P") */
+        const seqChar = afterSlash[0];
+        const totalChar = afterSlash[1];
+        sequence =
+          seqChar >= "A" ? seqChar.charCodeAt(0) - 55 : parseInt(seqChar, 10);
+        total =
+          totalChar >= "A"
+            ? totalChar.charCodeAt(0) - 55
+            : parseInt(totalChar, 10);
+      }
 
       sequenceText = `${sequence}/${total}`;
 

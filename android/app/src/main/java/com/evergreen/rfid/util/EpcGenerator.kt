@@ -15,32 +15,23 @@ object EpcGenerator {
      * @return 24-char hex EPC string
      */
     fun generate(rfidCodeOrItemNumber: Any, sequenceNumber: Int, totalQuantity: Int): String {
-        val seqChar = if (sequenceNumber <= 9) {
-            sequenceNumber.toString()
-        } else {
-            (55 + sequenceNumber).toChar().toString()
-        }
-
-        val totalChar = if (totalQuantity <= 9) {
-            totalQuantity.toString()
-        } else {
-            (55 + totalQuantity).toChar().toString()
-        }
+        val seqStr = sequenceNumber.toString().padStart(2, '0')
+        val totalStr = totalQuantity.toString().padStart(2, '0')
 
         val content = when (rfidCodeOrItemNumber) {
             is Int -> {
-                // rfidCode (integer) → zero-padded 8 digits + /seq+total = 11 chars
-                val codeStr = rfidCodeOrItemNumber.toString().padStart(8, '0')
-                "${codeStr}/${seqChar}${totalChar}"
+                // rfidCode (integer) → zero-padded 6 digits + /seq+total = 11 chars
+                val codeStr = rfidCodeOrItemNumber.toString().padStart(6, '0')
+                "${codeStr}/${seqStr}${totalStr}"
             }
             is Number -> {
-                val codeStr = rfidCodeOrItemNumber.toInt().toString().padStart(8, '0')
-                "${codeStr}/${seqChar}${totalChar}"
+                val codeStr = rfidCodeOrItemNumber.toInt().toString().padStart(6, '0')
+                "${codeStr}/${seqStr}${totalStr}"
             }
             else -> {
                 // Fallback: compact item number (strip dashes)
                 val compact = rfidCodeOrItemNumber.toString().replace("-", "")
-                val withSeq = "${compact}/${seqChar}${totalChar}"
+                val withSeq = "${compact}/${seqStr}${totalStr}"
                 if (withSeq.length <= EPC_BYTES) withSeq else compact
             }
         }

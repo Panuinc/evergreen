@@ -251,12 +251,29 @@ export function useGlMonthlyData(year, enabled = true) {
     [years],
   );
 
+  // Sum of 115xx account totals from GL (0 if unclosed year has no inventory entries)
+  const glInventoryNet = useMemo(() => {
+    let total = 0;
+    for (const [acct, data] of Object.entries(byAccount)) {
+      if (acct.startsWith("115")) total += data.total;
+    }
+    return total;
+  }, [byAccount]);
+
+  // 51200-00 (beginning inventory) total from GL
+  const glBeginInvTotal = useMemo(
+    () => byAccount["51200-00"]?.total || 0,
+    [byAccount],
+  );
+
   return {
     loading,
     error,
     byAccount,
     monthlyTotals,
     monthlyPnL,
+    glInventoryNet,
+    glBeginInvTotal,
     cogsDetail,
     sellingDetail,
     adminDetail,
