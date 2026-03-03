@@ -355,27 +355,37 @@ async function runSync(supabase, requestedTables, send) {
       label: "ดึงข้อมูลคำสั่งขาย...",
     });
     try {
-      const [orders, allLines] = await Promise.all([
-        bcODataGet(
-          "Sales_Order_Excel",
-          {
-            $filter: "startswith(No,'SO24') or startswith(No,'SO25') or startswith(No,'SO26')",
-            $orderby: "No desc",
-            $select:
-              "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No",
-          },
-          { timeout: 120_000 },
-        ),
-        bcODataGet(
-          "Sales_Order_Line_Excel",
-          {
-            $filter: "startswith(Document_No,'SO24') or startswith(Document_No,'SO25') or startswith(Document_No,'SO26')",
-            $select:
-              "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code",
-          },
-          { timeout: 120_000 },
-        ),
-      ]);
+      // Fetch each year sequentially to avoid BC API timeout on large datasets
+      const soYears = ["SO24", "SO25", "SO26"];
+      const selectOrders =
+        "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No";
+      const selectLines =
+        "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code";
+
+      const orders = [];
+      const allLines = [];
+
+      for (const prefix of soYears) {
+        send("progress", {
+          phase: "salesOrders",
+          step: "fetching",
+          label: `ดึงข้อมูลคำสั่งขาย ${prefix}...`,
+        });
+        const [yearOrders, yearLines] = await Promise.all([
+          bcODataGet(
+            "Sales_Order_Excel",
+            { $filter: `startswith(No,'${prefix}')`, $orderby: "No desc", $select: selectOrders },
+            { timeout: 120_000 },
+          ),
+          bcODataGet(
+            "Sales_Order_Line_Excel",
+            { $filter: `startswith(Document_No,'${prefix}')`, $select: selectLines },
+            { timeout: 120_000 },
+          ),
+        ]);
+        orders.push(...yearOrders);
+        allLines.push(...yearLines);
+      }
 
       const amountByOrder = {};
       for (const l of allLines) {
