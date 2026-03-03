@@ -10,6 +10,12 @@ import {
   getSalesInvoices,
   getPurchaseInvoices,
 } from "@/modules/finance/actions";
+import { getFinancePeriodRanges } from "@/lib/comparison";
+import {
+  COGS_OVERRIDE_ACCOUNTS,
+  INTEREST_ACCOUNTS,
+  ADMIN_OVERRIDE_ACCOUNTS,
+} from "@/modules/finance/glAccountMap";
 
 // Formatting helpers used by runAiAnalysis snapshot builder
 function fmt(v) {
@@ -46,38 +52,163 @@ const ACCOUNT_CATEGORIES = {
   "53": { name: "ค่าใช้จ่ายในการบริหาร", nameEn: "Admin Expenses", group: "expense", sub: "admin" },
 };
 
+// Override categories for specific accounts (matches CFO's Excel classification)
+const OVERRIDE_COGS = { name: "ต้นทุนขาย", nameEn: "COGS (Override)", group: "cogs", sub: "cogs" };
+const OVERRIDE_INTEREST = { name: "ต้นทุนทางการเงิน", nameEn: "Finance Costs", group: "expense", sub: "interest" };
+const OVERRIDE_ADMIN = { name: "ค่าใช้จ่ายในการบริหาร", nameEn: "Admin (Override)", group: "expense", sub: "admin" };
+
 function getCategory(accountNumber) {
+  if (!accountNumber) return null;
+  // Check overrides first (specific accounts reclassified per CFO's Excel)
+  if (COGS_OVERRIDE_ACCOUNTS.has(accountNumber)) return OVERRIDE_COGS;
+  if (INTEREST_ACCOUNTS.has(accountNumber)) return OVERRIDE_INTEREST;
+  if (ADMIN_OVERRIDE_ACCOUNTS.has(accountNumber)) return OVERRIDE_ADMIN;
   const prefix = accountNumber?.substring(0, 2);
   return ACCOUNT_CATEGORIES[prefix] || null;
 }
 
+/**
+ * Pure function: compute financial metrics from trial balance data
+ */
+function computeFinancials(trialBalanceData) {
+  if (!trialBalanceData || !trialBalanceData.length) return null;
+  const posting = trialBalanceData.filter((t) => t.accountType === "Posting");
+
+  const groups = {};
+  for (const t of posting) {
+    const cat = getCategory(t.number);
+    if (!cat) continue;
+    const key = cat.group + ":" + cat.sub;
+    if (!groups[key]) groups[key] = { ...cat, debit: 0, credit: 0, accounts: [] };
+    const d = parseNum(t.balanceAtDateDebit);
+    const c = parseNum(t.balanceAtDateCredit);
+    groups[key].debit += d;
+    groups[key].credit += c;
+    if (d > 0 || c > 0) {
+      groups[key].accounts.push({ number: t.number, display: t.display, debit: d, credit: c });
+    }
+  }
+
+  const g = (key) => groups[key] || { debit: 0, credit: 0, accounts: [] };
+
+  // Balance Sheet
+  const currentAssets = g("assets:current").debit - g("assets:current").credit;
+  const noncurrentAssets = g("assets:noncurrent").debit - g("assets:noncurrent").credit;
+  const totalAssets = currentAssets + noncurrentAssets;
+
+  const currentLiabilities = g("liabilities:current").credit - g("liabilities:current").debit;
+  const noncurrentLiabilities = g("liabilities:noncurrent").credit - g("liabilities:noncurrent").debit;
+  const totalLiabilities = currentLiabilities + noncurrentLiabilities;
+
+  const shareCapital = g("equity:capital").credit - g("equity:capital").debit;
+  const retainedEarnings = g("equity:retained").credit - g("equity:retained").debit;
+  const totalEquity = shareCapital + retainedEarnings;
+
+  // Income Statement
+  const salesRevenue = g("revenue:sales").credit - g("revenue:sales").debit;
+  const serviceRevenue = g("revenue:service").credit - g("revenue:service").debit;
+  const otherIncome = g("revenue:other").credit - g("revenue:other").debit;
+  const totalRevenue = salesRevenue + serviceRevenue + otherIncome;
+
+  // Raw COGS (51xxx + overrides) minus ALL inventory accounts (115xx)
+  const rawCogs = g("cogs:cogs").debit - g("cogs:cogs").credit;
+  let inventoryDeduction = 0;
+  for (const t of posting) {
+    if (t.number?.startsWith("115")) {
+      inventoryDeduction += parseNum(t.balanceAtDateDebit) - parseNum(t.balanceAtDateCredit);
+    }
+  }
+  const cogs = rawCogs - inventoryDeduction;
+  const grossProfit = totalRevenue - cogs;
+
+  const sellingExpense = g("expense:selling").debit - g("expense:selling").credit;
+  const adminExpense = g("expense:admin").debit - g("expense:admin").credit;
+  const interestExpense = g("expense:interest").debit - g("expense:interest").credit;
+  const totalExpense = sellingExpense + adminExpense;
+  const operatingProfit = grossProfit - totalExpense;
+  const netIncome = operatingProfit - interestExpense;
+
+  // Financial Ratios
+  const currentRatio = currentLiabilities ? currentAssets / currentLiabilities : 0;
+  const debtToEquity = totalEquity ? totalLiabilities / totalEquity : 0;
+  const grossMargin = totalRevenue ? (grossProfit / totalRevenue) * 100 : 0;
+  const netMargin = totalRevenue ? (netIncome / totalRevenue) * 100 : 0;
+  const workingCapital = currentAssets - currentLiabilities;
+
+  return {
+    currentAssets, noncurrentAssets, totalAssets,
+    currentLiabilities, noncurrentLiabilities, totalLiabilities,
+    shareCapital, retainedEarnings, totalEquity,
+    salesRevenue, serviceRevenue, otherIncome, totalRevenue,
+    cogs, grossProfit,
+    sellingExpense, adminExpense, interestExpense, operatingProfit, totalExpense, netIncome,
+    currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
+    groups,
+    totalAccounts: trialBalanceData.length,
+    postingAccounts: posting.length,
+  };
+}
+
 export function useFinanceDashboard() {
   const [trialBalance, setTrialBalance] = useState([]);
+  const [prevTrialBalance, setPrevTrialBalance] = useState([]);
   const [agedReceivables, setAgedReceivables] = useState([]);
   const [agedPayables, setAgedPayables] = useState([]);
   const [salesInvoices, setSalesInvoices] = useState([]);
   const [purchaseInvoices, setPurchaseInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ═══════════════════════════════════════
+  // Period Comparison State
+  // ═══════════════════════════════════════
+  const now = new Date();
+  const [periodType, setPeriodType] = useState("year"); // "year" | "quarter" | "month"
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedQuarter, setSelectedQuarter] = useState(Math.ceil((now.getMonth() + 1) / 3));
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
+  const [compareEnabled, setCompareEnabled] = useState(false);
+
+  // Compute date ranges based on period selection
+  const periodRanges = useMemo(() => {
+    const periodValue = { year: selectedYear, quarter: selectedQuarter, month: selectedMonth };
+    return getFinancePeriodRanges(periodType, periodValue);
+  }, [periodType, selectedYear, selectedQuarter, selectedMonth]);
+
+  // Load data when period changes
   useEffect(() => {
     loadAll();
-  }, []);
+  }, [periodType, selectedYear, selectedQuarter, selectedMonth, compareEnabled]);
 
   const loadAll = async () => {
     try {
       setLoading(true);
-      const [tb, ar, ap, si, pi] = await Promise.all([
-        getTrialBalance().catch(() => []),
+      const ranges = periodRanges;
+
+      // Always fetch current period trial balance with date range
+      const fetches = [
+        getTrialBalance(ranges.current.start, ranges.current.end).catch(() => []),
         getAgedReceivables().catch(() => []),
         getAgedPayables().catch(() => []),
         getSalesInvoices("Open", false).catch(() => []),
         getPurchaseInvoices("Open", false).catch(() => []),
-      ]);
+      ];
+
+      // If compare mode is on, also fetch previous period
+      if (compareEnabled) {
+        fetches.push(
+          getTrialBalance(ranges.previous.start, ranges.previous.end).catch(() => []),
+        );
+      }
+
+      const results = await Promise.all(fetches);
+      const [tb, ar, ap, si, pi] = results;
+
       setTrialBalance(tb);
       setAgedReceivables(ar);
       setAgedPayables(ap);
       setSalesInvoices(si);
       setPurchaseInvoices(pi);
+      setPrevTrialBalance(compareEnabled ? results[5] : []);
     } catch (error) {
       toast.error("โหลดข้อมูลรายงานการเงินล้มเหลว");
     } finally {
@@ -88,79 +219,45 @@ export function useFinanceDashboard() {
   // ═══════════════════════════════════════
   // DIMENSION 1: Financial Statements (derived from Trial Balance)
   // ═══════════════════════════════════════
-  const financials = useMemo(() => {
-    if (!trialBalance.length) return null;
-    const posting = trialBalance.filter((t) => t.accountType === "Posting");
+  const financials = useMemo(() => computeFinancials(trialBalance), [trialBalance]);
+  const prevFinancials = useMemo(() => computeFinancials(prevTrialBalance), [prevTrialBalance]);
 
-    // Group by account category
-    const groups = {};
-    for (const t of posting) {
-      const cat = getCategory(t.number);
-      if (!cat) continue;
-      const key = cat.group + ":" + cat.sub;
-      if (!groups[key]) groups[key] = { ...cat, debit: 0, credit: 0, accounts: [] };
-      const d = parseNum(t.balanceAtDateDebit);
-      const c = parseNum(t.balanceAtDateCredit);
-      groups[key].debit += d;
-      groups[key].credit += c;
-      if (d > 0 || c > 0) {
-        groups[key].accounts.push({ number: t.number, display: t.display, debit: d, credit: c });
-      }
-    }
-
-    const g = (key) => groups[key] || { debit: 0, credit: 0, accounts: [] };
-
-    // Balance Sheet
-    const currentAssets = g("assets:current").debit - g("assets:current").credit;
-    const noncurrentAssets = g("assets:noncurrent").debit - g("assets:noncurrent").credit;
-    const totalAssets = currentAssets + noncurrentAssets;
-
-    const currentLiabilities = g("liabilities:current").credit - g("liabilities:current").debit;
-    const noncurrentLiabilities = g("liabilities:noncurrent").credit - g("liabilities:noncurrent").debit;
-    const totalLiabilities = currentLiabilities + noncurrentLiabilities;
-
-    const shareCapital = g("equity:capital").credit - g("equity:capital").debit;
-    const retainedEarnings = g("equity:retained").credit - g("equity:retained").debit;
-    const totalEquity = shareCapital + retainedEarnings;
-
-    // Income Statement
-    const salesRevenue = g("revenue:sales").credit - g("revenue:sales").debit;
-    const serviceRevenue = g("revenue:service").credit - g("revenue:service").debit;
-    const otherIncome = g("revenue:other").credit - g("revenue:other").debit;
-    const totalRevenue = salesRevenue + serviceRevenue + otherIncome;
-
-    const cogs = g("cogs:cogs").debit - g("cogs:cogs").credit;
-    const grossProfit = totalRevenue - cogs;
-
-    const sellingExpense = g("expense:selling").debit - g("expense:selling").credit;
-    const adminExpense = g("expense:admin").debit - g("expense:admin").credit;
-    const totalExpense = sellingExpense + adminExpense;
-    const netIncome = grossProfit - totalExpense;
-
-    // Financial Ratios
-    const currentRatio = currentLiabilities ? currentAssets / currentLiabilities : 0;
-    const debtToEquity = totalEquity ? totalLiabilities / totalEquity : 0;
-    const grossMargin = totalRevenue ? (grossProfit / totalRevenue) * 100 : 0;
-    const netMargin = totalRevenue ? (netIncome / totalRevenue) * 100 : 0;
-    const workingCapital = currentAssets - currentLiabilities;
-
+  // Comparison data for KPI cards
+  const comparisonData = useMemo(() => {
+    if (!compareEnabled || !financials || !prevFinancials) return null;
     return {
-      // Balance Sheet
-      currentAssets, noncurrentAssets, totalAssets,
-      currentLiabilities, noncurrentLiabilities, totalLiabilities,
-      shareCapital, retainedEarnings, totalEquity,
-      // Income Statement
-      salesRevenue, serviceRevenue, otherIncome, totalRevenue,
-      cogs, grossProfit,
-      sellingExpense, adminExpense, totalExpense, netIncome,
-      // Ratios
-      currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
-      // Detail groups
-      groups,
-      totalAccounts: trialBalance.length,
-      postingAccounts: posting.length,
+      labels: periodRanges,
+      previous: prevFinancials,
     };
-  }, [trialBalance]);
+  }, [compareEnabled, financials, prevFinancials, periodRanges]);
+
+  // Income Statement comparison chart (current vs previous)
+  const incomeComparisonChart = useMemo(() => {
+    if (!compareEnabled || !financials || !prevFinancials) return [];
+    return [
+      { name: "รายได้ขาย", current: financials.salesRevenue, previous: prevFinancials.salesRevenue },
+      { name: "รายได้บริการ", current: financials.serviceRevenue, previous: prevFinancials.serviceRevenue },
+      { name: "รายได้อื่น", current: financials.otherIncome, previous: prevFinancials.otherIncome },
+      { name: "ต้นทุนขาย", current: financials.cogs, previous: prevFinancials.cogs },
+      { name: "ค่าใช้จ่ายขาย", current: financials.sellingExpense, previous: prevFinancials.sellingExpense },
+      { name: "ค่าใช้จ่ายบริหาร", current: financials.adminExpense, previous: prevFinancials.adminExpense },
+      { name: "ดอกเบี้ยจ่าย", current: financials.interestExpense, previous: prevFinancials.interestExpense },
+      { name: "กำไรขั้นต้น", current: financials.grossProfit, previous: prevFinancials.grossProfit },
+      { name: "กำไรสุทธิ", current: financials.netIncome, previous: prevFinancials.netIncome },
+    ];
+  }, [compareEnabled, financials, prevFinancials]);
+
+  // Balance Sheet comparison chart
+  const bsComparisonChart = useMemo(() => {
+    if (!compareEnabled || !financials || !prevFinancials) return [];
+    return [
+      { name: "สินทรัพย์หมุนเวียน", current: financials.currentAssets, previous: prevFinancials.currentAssets },
+      { name: "สินทรัพย์ไม่หมุนเวียน", current: financials.noncurrentAssets, previous: prevFinancials.noncurrentAssets },
+      { name: "หนี้สินหมุนเวียน", current: financials.currentLiabilities, previous: prevFinancials.currentLiabilities },
+      { name: "หนี้สินไม่หมุนเวียน", current: financials.noncurrentLiabilities, previous: prevFinancials.noncurrentLiabilities },
+      { name: "ส่วนของเจ้าของ", current: financials.totalEquity, previous: prevFinancials.totalEquity },
+    ];
+  }, [compareEnabled, financials, prevFinancials]);
 
   // Balance Sheet chart (Assets breakdown)
   const bsChartData = useMemo(() => {
@@ -184,6 +281,7 @@ export function useFinanceDashboard() {
       { name: "ต้นทุนขาย", value: -financials.cogs, color: "#F31260" },
       { name: "ค่าใช้จ่ายขาย", value: -financials.sellingExpense, color: "#F5A524" },
       { name: "ค่าใช้จ่ายบริหาร", value: -financials.adminExpense, color: "#F97316" },
+      { name: "ดอกเบี้ยจ่าย", value: -financials.interestExpense, color: "#9353D3" },
     ].filter((d) => d.value !== 0);
   }, [financials]);
 
@@ -194,6 +292,7 @@ export function useFinanceDashboard() {
     if (financials.cogs > 0) data.push({ name: "ต้นทุนขาย", value: financials.cogs, color: "#F31260" });
     if (financials.sellingExpense > 0) data.push({ name: "ค่าใช้จ่ายขาย", value: financials.sellingExpense, color: "#F5A524" });
     if (financials.adminExpense > 0) data.push({ name: "ค่าใช้จ่ายบริหาร", value: financials.adminExpense, color: "#F97316" });
+    if (financials.interestExpense > 0) data.push({ name: "ดอกเบี้ยจ่าย", value: financials.interestExpense, color: "#9353D3" });
     return data;
   }, [financials]);
 
@@ -484,7 +583,9 @@ export function useFinanceDashboard() {
         `ต้นทุนขาย: ${fmt(financials.cogs)}`,
         `กำไรขั้นต้น: ${fmt(financials.grossProfit)}`,
         `ค่าใช้จ่ายขาย: ${fmt(financials.sellingExpense)}, ค่าใช้จ่ายบริหาร: ${fmt(financials.adminExpense)}`,
-        `กำไรสุทธิ: ${fmt(financials.netIncome)}`,
+        `กำไรก่อนต้นทุนทางการเงิน: ${fmt(financials.operatingProfit)}`,
+        `ดอกเบี้ยจ่าย (ต้นทุนทางการเงิน): ${fmt(financials.interestExpense)}`,
+        `กำไรสุทธิก่อนภาษี: ${fmt(financials.netIncome)}`,
       ].join("\n"),
       ratios: [
         `Current Ratio: ${financials.currentRatio.toFixed(2)} (เกณฑ์: ≥2 ดี, 1-2 พอใช้, <1 เสี่ยง)`,
@@ -574,5 +675,16 @@ export function useFinanceDashboard() {
     selectedAging, isAgingOpen, onAgingClose, openAgingDetail, agingInvoices,
     aiAnalysis, aiLoading, runAiAnalysis,
     reload: loadAll,
+    // Comparison features
+    periodType, setPeriodType,
+    selectedYear, setSelectedYear,
+    selectedQuarter, setSelectedQuarter,
+    selectedMonth, setSelectedMonth,
+    compareEnabled, setCompareEnabled,
+    periodRanges,
+    comparisonData,
+    prevFinancials,
+    incomeComparisonChart,
+    bsComparisonChart,
   };
 }

@@ -9,6 +9,7 @@ export async function GET() {
     const data = await bcApiGet("trialBalances", {}, { timeout: 30_000 });
     return Response.json(data);
   } catch (e) {
+    console.error("[trialBalance] error:", e.message);
     return Response.json({ error: e.message }, { status: 500 });
   }
 }

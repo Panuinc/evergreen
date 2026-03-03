@@ -5,12 +5,18 @@ import {
   Card, CardBody, CardHeader, Spinner, Chip, Tooltip,
   Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
+  Select, SelectItem,
 } from "@heroui/react";
 import { Eye, Info, BotMessageSquare, RefreshCw } from "lucide-react";
+import MonthlyPnLTable from "./MonthlyPnLTable";
+import CogsDetailTable from "./CogsDetailTable";
+import ExpenseDetailTable from "./ExpenseDetailTable";
+import RevenueDetailTable from "./RevenueDetailTable";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import DataTable from "@/components/ui/DataTable";
 import {
+  LineChart, Line,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
   PieChart, Pie, Cell, ResponsiveContainer,
 } from "recharts";
@@ -76,7 +82,7 @@ function KpiCard({ title, value, unit, color = "default", subtitle, tooltip }) {
   return <Tooltip content={tooltip} placement="bottom" delay={200} closeDelay={0}>{card}</Tooltip>;
 }
 
-function RatioCard({ title, value, subtitle, status, tooltip }) {
+function RatioCard({ title, value, subtitle, status, tooltip, previousValue }) {
   const statusColor = {
     good: "text-success",
     warning: "text-warning",
@@ -91,6 +97,9 @@ function RatioCard({ title, value, subtitle, status, tooltip }) {
           {tooltip && <Info size={10} className="text-default-400" />}
         </div>
         <p className={`text-2xl font-bold ${statusColor[status] || ""}`}>{value}</p>
+        {previousValue != null && (
+          <p className="text-xs text-default-400">ปีก่อน: {previousValue}</p>
+        )}
         {subtitle && <p className="text-xs text-default-400">{subtitle}</p>}
       </CardBody>
     </Card>
@@ -176,7 +185,26 @@ export default function FinanceDashboardView({
   aiLoading,
   runAiAnalysis,
   reload,
+  // Year selector
+  selectedYear,
+  setSelectedYear,
+  // GL Monthly Data props
+  glLoading,
+  glError,
+  monthlyPnL,
+  cogsDetail,
+  sellingDetail,
+  adminDetail,
+  revenueDetail,
+  monthlyChartData,
+  cogsChartData,
+  compYears,
+  // CEO trend charts
+  revenueTrend,
+  profitTrend,
+  trendYearKeys,
 }) {
+
   // ─── renderCell callbacks ───
 
   const arAgingRenderCell = useCallback((item, key) => {
@@ -286,114 +314,202 @@ export default function FinanceDashboardView({
     : financials.netMargin >= 5 ? "warning"
     : "danger";
 
+  // Build year options for dropdown
+  const yearOptions = [];
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= currentYear - 4; y--) {
+    yearOptions.push({ key: String(y), label: `${y + 543} (${y})` });
+  }
+
+  // Line chart colors for each year (oldest → newest: light → dark)
+  const TREND_COLORS = ["#A1A1AA", "#F5A524", "#006FEE"]; // gray, amber, blue
+
   return (
     <div className="flex flex-col w-full gap-4">
+      {/* ═══ Year Selector + Trend Charts ═══ */}
+      <div className="flex items-center gap-3">
+        <Select
+          size="sm"
+          variant="bordered"
+          className="w-44"
+          aria-label="เลือกปีงบ"
+          selectedKeys={[String(selectedYear)]}
+          onSelectionChange={(keys) => {
+            const val = [...keys][0];
+            if (val) setSelectedYear(Number(val));
+          }}
+        >
+          {yearOptions.map((opt) => (
+            <SelectItem key={opt.key}>{opt.label}</SelectItem>
+          ))}
+        </Select>
+        <span className="text-sm text-default-500">
+          แสดงข้อมูล 3 ปี: พ.ศ. {(selectedYear - 2) + 543}–{selectedYear + 543}
+        </span>
+        {glLoading && <Spinner size="sm" />}
+      </div>
+
+      {/* Revenue & Profit Trend Line Charts */}
+      {trendYearKeys?.length > 0 && revenueTrend?.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ChartCard title="แนวโน้มรายได้ (3 ปี)" chip={{ label: "Revenue", color: "primary" }}>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={revenueTrend}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tickFormatter={fmtShort} />
+                <RechartsTooltip formatter={(v, name) => [fmt(v), `พ.ศ. ${name}`]} contentStyle={{ fontSize: 12 }} />
+                <Legend formatter={(v) => `พ.ศ. ${v}`} />
+                {trendYearKeys.map((beYear, i) => (
+                  <Line
+                    key={beYear}
+                    type="monotone"
+                    dataKey={beYear}
+                    stroke={TREND_COLORS[i]}
+                    strokeWidth={i === trendYearKeys.length - 1 ? 2.5 : 1.5}
+                    strokeDasharray={i === trendYearKeys.length - 1 ? undefined : "5 3"}
+                    dot={i === trendYearKeys.length - 1 ? { r: 3 } : false}
+                    connectNulls
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <ChartCard title="แนวโน้มกำไรสุทธิ (3 ปี)" chip={{ label: "Net Profit", color: "success" }}>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={profitTrend}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tickFormatter={fmtShort} />
+                <RechartsTooltip formatter={(v, name) => [fmt(v), `พ.ศ. ${name}`]} contentStyle={{ fontSize: 12 }} />
+                <Legend formatter={(v) => `พ.ศ. ${v}`} />
+                {trendYearKeys.map((beYear, i) => (
+                  <Line
+                    key={beYear}
+                    type="monotone"
+                    dataKey={beYear}
+                    stroke={TREND_COLORS[i]}
+                    strokeWidth={i === trendYearKeys.length - 1 ? 2.5 : 1.5}
+                    strokeDasharray={i === trendYearKeys.length - 1 ? undefined : "5 3"}
+                    dot={i === trendYearKeys.length - 1 ? { r: 3 } : false}
+                    connectNulls
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </div>
+      )}
+
+      {/* ═══ Section: ภาพรวม ═══ */}
+
       {/* Section 1: Financial Position KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        <KpiCard
-          title="สินทรัพย์รวม"
-          value={financials ? fmt(financials.totalAssets) : "-"}
-          color="primary"
-          subtitle={financials ? `หมุนเวียน ${fmt(financials.currentAssets)}` : ""}
-          tooltip={financials && (
-            <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)</p>
-              <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} + {fmt(financials.noncurrentAssets)}</p>
-              <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเดบิต - ยอดเครดิต ของบัญชีหมวด 1</p>
-            </div>
-          )}
-        />
-        <KpiCard
-          title="หนี้สินรวม"
-          value={financials ? fmt(financials.totalLiabilities) : "-"}
-          color="danger"
-          subtitle={financials ? `หมุนเวียน ${fmt(financials.currentLiabilities)}` : ""}
-          tooltip={financials && (
-            <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)</p>
-              <p className="text-tiny text-default-500">= {fmt(financials.currentLiabilities)} + {fmt(financials.noncurrentLiabilities)}</p>
-              <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 2</p>
-            </div>
-          )}
-        />
-        <KpiCard
-          title="ส่วนของเจ้าของ"
-          value={financials ? fmt(financials.totalEquity) : "-"}
-          color="success"
-          subtitle={financials ? `ทุน ${fmt(financials.shareCapital)}` : ""}
-          tooltip={financials && (
-            <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)</p>
-              <p className="text-tiny text-default-500">= {fmt(financials.shareCapital)} + {fmt(financials.retainedEarnings)}</p>
-              <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 3</p>
-            </div>
-          )}
-        />
-        <KpiCard
-          title="เงินทุนหมุนเวียน"
-          value={financials ? fmt(financials.workingCapital) : "-"}
-          color={financials && financials.workingCapital >= 0 ? "success" : "danger"}
-          subtitle="Working Capital"
-          tooltip={financials && (
-            <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">สินทรัพย์หมุนเวียน - หนี้สินหมุนเวียน</p>
-              <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} - {fmt(financials.currentLiabilities)}</p>
-              <p className="text-tiny text-default-400 mt-1">ยิ่งมากยิ่งดี แสดงถึงสภาพคล่องของกิจการ</p>
-            </div>
-          )}
-        />
+            <KpiCard
+              title="สินทรัพย์รวม"
+              value={financials ? fmt(financials.totalAssets) : "-"}
+              color="primary"
+              subtitle={financials ? `หมุนเวียน ${fmt(financials.currentAssets)}` : ""}
+              tooltip={financials && (
+                <div className="px-1 py-1 max-w-xs">
+                  <p className="text-tiny font-semibold">สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} + {fmt(financials.noncurrentAssets)}</p>
+                  <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเดบิต - ยอดเครดิต ของบัญชีหมวด 1</p>
+                </div>
+              )}
+            />
+            <KpiCard
+              title="หนี้สินรวม"
+              value={financials ? fmt(financials.totalLiabilities) : "-"}
+              color="danger"
+              subtitle={financials ? `หมุนเวียน ${fmt(financials.currentLiabilities)}` : ""}
+              tooltip={financials && (
+                <div className="px-1 py-1 max-w-xs">
+                  <p className="text-tiny font-semibold">หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.currentLiabilities)} + {fmt(financials.noncurrentLiabilities)}</p>
+                  <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 2</p>
+                </div>
+              )}
+            />
+            <KpiCard
+              title="ส่วนของเจ้าของ"
+              value={financials ? fmt(financials.totalEquity) : "-"}
+              color="success"
+              subtitle={financials ? `ทุน ${fmt(financials.shareCapital)}` : ""}
+              tooltip={financials && (
+                <div className="px-1 py-1 max-w-xs">
+                  <p className="text-tiny font-semibold">ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.shareCapital)} + {fmt(financials.retainedEarnings)}</p>
+                  <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 3</p>
+                </div>
+              )}
+            />
+            <KpiCard
+              title="เงินทุนหมุนเวียน"
+              value={financials ? fmt(financials.workingCapital) : "-"}
+              color={financials && financials.workingCapital >= 0 ? "success" : "danger"}
+              subtitle="Working Capital"
+              tooltip={financials && (
+                <div className="px-1 py-1 max-w-xs">
+                  <p className="text-tiny font-semibold">สินทรัพย์หมุนเวียน - หนี้สินหมุนเวียน</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} - {fmt(financials.currentLiabilities)}</p>
+                  <p className="text-tiny text-default-400 mt-1">ยิ่งมากยิ่งดี แสดงถึงสภาพคล่องของกิจการ</p>
+                </div>
+              )}
+            />
       </div>
 
       {/* Section 2: Income Statement KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        <KpiCard
-          title="รายได้รวม"
-          value={financials ? fmt(financials.totalRevenue) : "-"}
-          color="success"
-          subtitle={financials ? `ขาย ${fmt(financials.salesRevenue)}` : ""}
-          tooltip={financials && (
-            <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">รายได้ขาย (41xx) + บริการ (42xx) + อื่น (43xx)</p>
-              <p className="text-tiny text-default-500">= {fmt(financials.salesRevenue)} + {fmt(financials.serviceRevenue)} + {fmt(financials.otherIncome)}</p>
-              <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 4</p>
-            </div>
-          )}
-        />
-        <KpiCard
-          title="ต้นทุนขาย"
-          value={financials ? fmt(financials.cogs) : "-"}
-          color="warning"
-          subtitle={financials ? `${financials.grossMargin.toFixed(1)}% Gross Margin` : ""}
-          tooltip={financials && (
-            <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">ต้นทุนสินค้าที่ขาย (51xx)</p>
-              <p className="text-tiny text-default-500">= ยอดเดบิต - ยอดเครดิต ของบัญชีหมวด 51</p>
-            </div>
-          )}
-        />
-        <KpiCard
-          title="กำไรขั้นต้น"
-          value={financials ? fmt(financials.grossProfit) : "-"}
-          color={financials && financials.grossProfit >= 0 ? "success" : "danger"}
-          tooltip={financials && (
-            <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">รายได้รวม - ต้นทุนขาย</p>
-              <p className="text-tiny text-default-500">= {fmt(financials.totalRevenue)} - {fmt(financials.cogs)}</p>
-            </div>
-          )}
-        />
-        <KpiCard
-          title="กำไรสุทธิ"
-          value={financials ? fmt(financials.netIncome) : "-"}
-          color={financials && financials.netIncome >= 0 ? "success" : "danger"}
-          subtitle={financials ? `${financials.netMargin.toFixed(1)}% Net Margin` : ""}
-          tooltip={financials && (
-            <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">กำไรขั้นต้น - ค่าใช้จ่ายขาย (52xx) - ค่าใช้จ่ายบริหาร (53xx)</p>
-              <p className="text-tiny text-default-500">= {fmt(financials.grossProfit)} - {fmt(financials.sellingExpense)} - {fmt(financials.adminExpense)}</p>
-            </div>
-          )}
-        />
+            <KpiCard
+              title="รายได้รวม"
+              value={financials ? fmt(financials.totalRevenue) : "-"}
+              color="success"
+              subtitle={financials ? `ขาย ${fmt(financials.salesRevenue)}` : ""}
+              tooltip={financials && (
+                <div className="px-1 py-1 max-w-xs">
+                  <p className="text-tiny font-semibold">รายได้ขาย (41xx) + บริการ (42xx) + อื่น (43xx)</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.salesRevenue)} + {fmt(financials.serviceRevenue)} + {fmt(financials.otherIncome)}</p>
+                  <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 4</p>
+                </div>
+              )}
+            />
+            <KpiCard
+              title="ต้นทุนขาย"
+              value={financials ? fmt(financials.cogs) : "-"}
+              color="warning"
+              subtitle={financials ? `${financials.grossMargin.toFixed(1)}% Gross Margin` : ""}
+              tooltip={financials && (
+                <div className="px-1 py-1 max-w-xs">
+                  <p className="text-tiny font-semibold">ต้นทุนสินค้าที่ขาย (51xx + ค่าใช้จ่ายโรงงาน)</p>
+                  <p className="text-tiny text-default-500">รวม 51xxx + ค่าเช่าโรงงาน, ซ่อมบำรุง, ค่าเสื่อมราคาเครื่องจักร</p>
+                </div>
+              )}
+            />
+            <KpiCard
+              title="กำไรขั้นต้น"
+              value={financials ? fmt(financials.grossProfit) : "-"}
+              color={financials && financials.grossProfit >= 0 ? "success" : "danger"}
+              tooltip={financials && (
+                <div className="px-1 py-1 max-w-xs">
+                  <p className="text-tiny font-semibold">รายได้รวม - ต้นทุนขาย</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.totalRevenue)} - {fmt(financials.cogs)}</p>
+                </div>
+              )}
+            />
+            <KpiCard
+              title="กำไรสุทธิ"
+              value={financials ? fmt(financials.netIncome) : "-"}
+              color={financials && financials.netIncome >= 0 ? "success" : "danger"}
+              subtitle={financials ? `${financials.netMargin.toFixed(1)}% Net Margin` : ""}
+              tooltip={financials && (
+                <div className="px-1 py-1 max-w-xs">
+                  <p className="text-tiny font-semibold">กำไรขั้นต้น - ค่าใช้จ่ายขาย - ค่าใช้จ่ายบริหาร - ดอกเบี้ยจ่าย</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.grossProfit)} - {fmt(financials.sellingExpense)} - {fmt(financials.adminExpense)} - {fmt(financials.interestExpense)}</p>
+                </div>
+              )}
+            />
       </div>
 
       {/* Section 3: Financial Ratios */}
@@ -403,6 +519,7 @@ export default function FinanceDashboardView({
           value={financials ? financials.currentRatio.toFixed(2) : "-"}
           subtitle="Current Ratio (>2 ดี)"
           status={currentRatioStatus}
+          previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
               <p className="text-tiny font-semibold">สินทรัพย์หมุนเวียน ÷ หนี้สินหมุนเวียน</p>
@@ -416,6 +533,7 @@ export default function FinanceDashboardView({
           value={financials ? financials.debtToEquity.toFixed(2) : "-"}
           subtitle="D/E Ratio (<1 ดี)"
           status={deStatus}
+          previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
               <p className="text-tiny font-semibold">หนี้สินรวม ÷ ส่วนของเจ้าของ</p>
@@ -429,6 +547,7 @@ export default function FinanceDashboardView({
           value={financials ? `${financials.grossMargin.toFixed(1)}%` : "-"}
           subtitle="Gross Margin (>30% ดี)"
           status={grossMarginStatus}
+          previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
               <p className="text-tiny font-semibold">(กำไรขั้นต้น ÷ รายได้รวม) × 100</p>
@@ -442,6 +561,7 @@ export default function FinanceDashboardView({
           value={financials ? `${financials.netMargin.toFixed(1)}%` : "-"}
           subtitle="Net Margin (>10% ดี)"
           status={netMarginStatus}
+          previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
               <p className="text-tiny font-semibold">(กำไรสุทธิ ÷ รายได้รวม) × 100</p>
@@ -638,6 +758,60 @@ export default function FinanceDashboardView({
           <p className="py-10 text-center text-sm text-default-400">ไม่มีข้อมูล</p>
         )}
       </ChartCard>
+
+      {/* ═══ Section: งบกำไรขาดทุนรายเดือน (GL Data) ═══ */}
+      <div className="flex items-center gap-3 mt-2">
+        <div className="h-px flex-1 bg-default-200" />
+        <span className="text-sm font-semibold text-default-500 whitespace-nowrap">
+          รายงานรายเดือน — ปีงบ พ.ศ. {(selectedYear || 0) + 543}
+        </span>
+        <div className="h-px flex-1 bg-default-200" />
+      </div>
+
+      {glError ? (
+        <Card shadow="none" className="border border-danger-200 bg-danger-50">
+          <CardBody className="py-4 text-center">
+            <p className="text-sm text-danger">โหลดข้อมูล GL ล้มเหลว: {glError}</p>
+          </CardBody>
+        </Card>
+      ) : (
+        <>
+          <MonthlyPnLTable
+            data={monthlyPnL}
+            chartData={monthlyChartData}
+            loading={glLoading}
+            year={selectedYear}
+            compYears={compYears}
+          />
+          <RevenueDetailTable
+            data={revenueDetail}
+            loading={glLoading}
+            year={selectedYear}
+            compYears={compYears}
+          />
+          <CogsDetailTable
+            data={cogsDetail}
+            chartData={cogsChartData}
+            loading={glLoading}
+            year={selectedYear}
+            compYears={compYears}
+          />
+          <ExpenseDetailTable
+            sellingDetail={sellingDetail}
+            adminDetail={adminDetail}
+            loading={glLoading}
+            year={selectedYear}
+            compYears={compYears}
+          />
+        </>
+      )}
+
+      {/* ═══ Section: ลูกหนี้/เจ้าหนี้ ═══ */}
+      <div className="flex items-center gap-3 mt-2">
+        <div className="h-px flex-1 bg-default-200" />
+        <span className="text-sm font-semibold text-default-500 whitespace-nowrap">ลูกหนี้ / เจ้าหนี้</span>
+        <div className="h-px flex-1 bg-default-200" />
+      </div>
 
       {/* Section 7: AR/AP KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

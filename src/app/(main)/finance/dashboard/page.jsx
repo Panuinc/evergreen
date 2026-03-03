@@ -1,10 +1,14 @@
 "use client";
 
 import { useFinanceDashboard } from "@/modules/finance/hooks/useFinanceDashboard";
+import { useGlMonthlyData } from "@/modules/finance/hooks/useGlMonthlyData";
 import FinanceDashboardView from "@/modules/finance/components/FinanceDashboardView";
 
 export default function FinanceDashboardPage() {
   const hook = useFinanceDashboard();
+
+  // GL monthly data — uses same selectedYear as period selector
+  const gl = useGlMonthlyData(hook.selectedYear);
 
   return (
     <FinanceDashboardView
@@ -36,6 +40,23 @@ export default function FinanceDashboardPage() {
       aiLoading={hook.aiLoading}
       runAiAnalysis={hook.runAiAnalysis}
       reload={hook.reload}
+      // Year selector
+      selectedYear={hook.selectedYear}
+      setSelectedYear={hook.setSelectedYear}
+      // GL Monthly Data props
+      glLoading={gl.loading}
+      glError={gl.error}
+      monthlyPnL={gl.monthlyPnL}
+      cogsDetail={gl.cogsDetail}
+      sellingDetail={gl.sellingDetail}
+      adminDetail={gl.adminDetail}
+      revenueDetail={gl.revenueDetail}
+      monthlyChartData={gl.monthlyChartData}
+      cogsChartData={gl.cogsChartData}
+      compYears={gl.compYears}
+      revenueTrend={gl.revenueTrend}
+      profitTrend={gl.profitTrend}
+      trendYearKeys={gl.trendYearKeys}
     />
   );
 }

@@ -93,12 +93,24 @@ export async function bcApiGet(endpoint, params = {}, { timeout = 60_000, maxPag
   const { api } = getBcUrls();
 
   const url = new URL(`${api}/${endpoint}`);
+  const odataParts = [];
   for (const [key, value] of Object.entries(params)) {
-    url.searchParams.set(key, value);
+    if (key.startsWith("$")) {
+      // OData system query options ($filter, $select, etc.)
+      // Bypass URLSearchParams which encodes $ → %24 and , → %2C
+      odataParts.push(`${key}=${value}`);
+    } else {
+      url.searchParams.set(key, value);
+    }
+  }
+
+  let firstUrl = url.toString();
+  if (odataParts.length) {
+    firstUrl += (firstUrl.includes("?") ? "&" : "?") + odataParts.join("&");
   }
 
   const allValues = [];
-  let nextUrl = url.toString();
+  let nextUrl = firstUrl;
 
   while (nextUrl) {
     const res = await fetchWithRetry(nextUrl, {

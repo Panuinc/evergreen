@@ -12,6 +12,12 @@ export async function getTrialBalance() {
   return get("/api/finance/trialBalance");
 }
 
+export async function getGlMonthlySummary(year) {
+  return get(
+    `/api/finance/glEntries?start=${year}-01-01&end=${year}-12-31&summarize=monthly`,
+  );
+}
+
 export async function getAgedReceivables() {
   return get("/api/finance/agedReceivables");
 }
@@ -26,6 +32,14 @@ export async function getSalesInvoices(status = "Open", expand = true) {
 
 export async function getPurchaseInvoices(status = "Open", expand = true) {
   return get(`/api/finance/purchaseInvoices?status=${status}&expand=${expand}`);
+}
+
+export async function getGlEntries(start, end) {
+  const params = new URLSearchParams();
+  if (start) params.set("start", start);
+  if (end) params.set("end", end);
+  const qs = params.toString();
+  return get(`/api/finance/glEntries${qs ? `?${qs}` : ""}`);
 }
 
 export async function getCollections(params = {}) {

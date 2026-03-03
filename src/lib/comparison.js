@@ -91,6 +91,72 @@ export function groupByMonth(arr, dateField) {
 }
 
 /**
+ * Get date ranges for finance period comparison
+ * @param {"year"|"quarter"|"month"} periodType
+ * @param {{ year: number, quarter?: number, month?: number }} periodValue
+ * @returns {{ current: { start: string, end: string, label: string }, previous: { start: string, end: string, label: string } }}
+ */
+export function getFinancePeriodRanges(periodType, periodValue) {
+  const { year } = periodValue;
+  const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  const pad = (n) => String(n).padStart(2, "0");
+  const be = (y) => String((y + 543) % 100).padStart(2, "0");
+
+  if (periodType === "year") {
+    return {
+      current: {
+        start: `${year}-01-01`,
+        end: `${year}-12-31`,
+        label: `ปี ${be(year)}`,
+      },
+      previous: {
+        start: `${year - 1}-01-01`,
+        end: `${year - 1}-12-31`,
+        label: `ปี ${be(year - 1)}`,
+      },
+    };
+  }
+
+  if (periodType === "quarter") {
+    const q = periodValue.quarter; // 1-4
+    const startMonth = (q - 1) * 3 + 1;
+    const endMonth = q * 3;
+    const lastDay = new Date(year, endMonth, 0).getDate();
+    const prevLastDay = new Date(year - 1, endMonth, 0).getDate();
+    const qLabel = `Q${q}`;
+    return {
+      current: {
+        start: `${year}-${pad(startMonth)}-01`,
+        end: `${year}-${pad(endMonth)}-${pad(lastDay)}`,
+        label: `${qLabel}/${be(year)}`,
+      },
+      previous: {
+        start: `${year - 1}-${pad(startMonth)}-01`,
+        end: `${year - 1}-${pad(endMonth)}-${pad(prevLastDay)}`,
+        label: `${qLabel}/${be(year - 1)}`,
+      },
+    };
+  }
+
+  // month
+  const m = periodValue.month; // 1-12
+  const lastDay = new Date(year, m, 0).getDate();
+  const prevLastDay = new Date(year - 1, m, 0).getDate();
+  return {
+    current: {
+      start: `${year}-${pad(m)}-01`,
+      end: `${year}-${pad(m)}-${pad(lastDay)}`,
+      label: `${THAI_MONTHS_SHORT[m - 1]} ${be(year)}`,
+    },
+    previous: {
+      start: `${year - 1}-${pad(m)}-01`,
+      end: `${year - 1}-${pad(m)}-${pad(prevLastDay)}`,
+      label: `${THAI_MONTHS_SHORT[m - 1]} ${be(year - 1)}`,
+    },
+  };
+}
+
+/**
  * Build monthly comparison chart data for YTY mode
  * Maps previous year months to align with current year months
  * @param {Array<{month: string, [key]: number}>} currentData - e.g. [{month: "2026-01", value: 100}]
