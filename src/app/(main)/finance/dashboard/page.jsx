@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useFinanceDashboard } from "@/modules/finance/hooks/useFinanceDashboard";
 import { useGlMonthlyData } from "@/modules/finance/hooks/useGlMonthlyData";
 import FinanceDashboardView from "@/modules/finance/components/FinanceDashboardView";
+import { INVENTORY_ACCOUNTS } from "@/modules/finance/glAccountMap";
 
 /**
  * Extract year totals from monthlyPnL rows (GL-based, year-filtered).
@@ -21,15 +22,25 @@ export default function FinanceDashboardPage() {
   // GL monthly data — uses same selectedYear as period selector
   const gl = useGlMonthlyData(hook.selectedYear);
 
+  // ─── TB Inventory Adjustment (for unclosed fiscal years) ───
+  // For unclosed years, GL has no inventory journal entries (51200-00 = 0, 115xx = 0).
+  // Detect this and compute the adjustment amount from TB inventory balance.
+  const inventoryAdjustment = useMemo(() => {
+    const glInvNet = gl.glInventoryNet || 0;
+    const glBeginInv = gl.glBeginInvTotal || 0;
+    const tbInventory = hook.financials?.inventoryBalance || 0;
+    const glHasInventoryData = Math.abs(glInvNet) > 1000 || Math.abs(glBeginInv) > 1000;
+    // If GL already has inventory data (closed year), no adjustment needed
+    if (glHasInventoryData || tbInventory <= 0) return 0;
+    return tbInventory;
+  }, [gl.glInventoryNet, gl.glBeginInvTotal, hook.financials]);
+
   // ─── Merge financials: balance sheet from TB + income statement from GL ───
-  // TB has no date filter → balance sheet is always current (correct).
-  // Income statement fields must come from GL (year-filtered) to match the year selector.
   const financials = useMemo(() => {
     const tb = hook.financials;
     if (!tb) return null;
 
     const pnl = pnlMap(gl.monthlyPnL);
-    // If GL hasn't loaded yet, fall back to TB-based values
     if (!gl.monthlyPnL.length) return tb;
 
     // Income statement from GL
@@ -37,19 +48,7 @@ export default function FinanceDashboardPage() {
     const serviceRevenue = pnl.serviceRevenue || 0;
     const otherIncome = pnl.otherIncome || 0;
     const totalRevenue = pnl.totalRevenue || 0;
-
-    // ─── COGS: apply TB inventory fallback for unclosed years ───
-    // For unclosed fiscal years, GL has no inventory journal entries
-    // (51200-00 = 0 and 115xx = 0). The raw COGS from GL is just
-    // production costs without any inventory deduction.
-    // In this case, use the TB inventory balance to adjust COGS.
-    const glCogs = pnl.cogs || 0;
-    const glInvNet = gl.glInventoryNet || 0;
-    const glBeginInv = gl.glBeginInvTotal || 0;
-    const tbInventory = tb.inventoryBalance || 0;
-    const glHasInventoryData = Math.abs(glInvNet) > 1000 || Math.abs(glBeginInv) > 1000;
-    const cogs = glHasInventoryData ? glCogs : (glCogs - tbInventory);
-
+    const cogs = (pnl.cogs || 0) - inventoryAdjustment;
     const grossProfit = totalRevenue - cogs;
     const sellingExpense = pnl.selling || 0;
     const adminExpense = pnl.admin || 0;
@@ -58,7 +57,7 @@ export default function FinanceDashboardPage() {
     const operatingProfit = grossProfit - totalExpense;
     const netIncome = operatingProfit - interestExpense;
 
-    // Ratios (recomputed with GL income + TB balance sheet)
+    // Ratios (GL income + TB balance sheet)
     const currentRatio = tb.currentLiabilities ? tb.currentAssets / tb.currentLiabilities : 0;
     const debtToEquity = tb.totalEquity ? tb.totalLiabilities / tb.totalEquity : 0;
     const grossMargin = totalRevenue ? (grossProfit / totalRevenue) * 100 : 0;
@@ -66,43 +65,61 @@ export default function FinanceDashboardPage() {
     const workingCapital = tb.currentAssets - tb.currentLiabilities;
 
     return {
-      // Balance sheet from TB (point-in-time, no date filter needed)
-      currentAssets: tb.currentAssets,
-      noncurrentAssets: tb.noncurrentAssets,
-      totalAssets: tb.totalAssets,
-      currentLiabilities: tb.currentLiabilities,
-      noncurrentLiabilities: tb.noncurrentLiabilities,
-      totalLiabilities: tb.totalLiabilities,
-      shareCapital: tb.shareCapital,
-      retainedEarnings: tb.retainedEarnings,
-      totalEquity: tb.totalEquity,
-      // Income statement from GL (year-filtered)
-      salesRevenue,
-      serviceRevenue,
-      otherIncome,
-      totalRevenue,
-      cogs,
-      grossProfit,
-      sellingExpense,
-      adminExpense,
-      interestExpense,
-      operatingProfit,
-      totalExpense,
-      netIncome,
-      // Ratios
-      currentRatio,
-      debtToEquity,
-      grossMargin,
-      netMargin,
-      workingCapital,
-      // Metadata
-      groups: tb.groups,
-      totalAccounts: tb.totalAccounts,
-      postingAccounts: tb.postingAccounts,
+      currentAssets: tb.currentAssets, noncurrentAssets: tb.noncurrentAssets, totalAssets: tb.totalAssets,
+      currentLiabilities: tb.currentLiabilities, noncurrentLiabilities: tb.noncurrentLiabilities, totalLiabilities: tb.totalLiabilities,
+      shareCapital: tb.shareCapital, retainedEarnings: tb.retainedEarnings, totalEquity: tb.totalEquity,
+      salesRevenue, serviceRevenue, otherIncome, totalRevenue,
+      cogs, grossProfit, sellingExpense, adminExpense, interestExpense,
+      operatingProfit, totalExpense, netIncome,
+      currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
+      groups: tb.groups, totalAccounts: tb.totalAccounts, postingAccounts: tb.postingAccounts,
     };
-  }, [hook.financials, gl.monthlyPnL, gl.glInventoryNet, gl.glBeginInvTotal]);
+  }, [hook.financials, gl.monthlyPnL, inventoryAdjustment]);
 
-  // ─── Recompute derived visualizations from merged financials ───
+  // ─── Adjusted monthlyPnL: totals include TB inventory deduction ───
+  const monthlyPnL = useMemo(() => {
+    if (!gl.monthlyPnL.length || !inventoryAdjustment) return gl.monthlyPnL;
+    return gl.monthlyPnL.map((row) => {
+      switch (row.key) {
+        case "cogs":
+          return { ...row, total: row.total - inventoryAdjustment };
+        case "grossProfit":
+        case "operatingProfit":
+        case "netProfit":
+          return { ...row, total: row.total + inventoryAdjustment };
+        default:
+          return row;
+      }
+    });
+  }, [gl.monthlyPnL, inventoryAdjustment]);
+
+  // ─── Adjusted cogsDetail: inject TB inventory as deduction rows ───
+  const cogsDetail = useMemo(() => {
+    if (!gl.cogsDetail.length || !inventoryAdjustment) return gl.cogsDetail;
+    const tbInvAccounts = hook.financials?.inventoryAccounts || {};
+
+    return gl.cogsDetail.map((row) => {
+      // Replace 0-value inventory rows with TB balances
+      for (const inv of INVENTORY_ACCOUNTS) {
+        if (row.key === inv.key && tbInvAccounts[inv.account]) {
+          return { ...row, total: -tbInvAccounts[inv.account].balance };
+        }
+      }
+      if (row.key === "endingInventory") {
+        return { ...row, total: -inventoryAdjustment };
+      }
+      if (row.key === "cogsTotal") {
+        return { ...row, total: row.total - inventoryAdjustment };
+      }
+      return row;
+    });
+  }, [gl.cogsDetail, inventoryAdjustment, hook.financials]);
+
+  // ─── Adjusted monthly chart: note totals in monthlyPnL are adjusted ───
+  // Monthly columns stay as raw GL (actual activity per month).
+  // The annual total column reflects the inventory adjustment.
+
+  // ─── Derived visualizations from merged financials ───
   const isWaterfallData = useMemo(() => {
     if (!financials) return [];
     return [
@@ -159,11 +176,11 @@ export default function FinanceDashboardPage() {
       // Year selector
       selectedYear={hook.selectedYear}
       setSelectedYear={hook.setSelectedYear}
-      // GL Monthly Data props
+      // GL Monthly Data props (adjusted for TB inventory)
       glLoading={gl.loading}
       glError={gl.error}
-      monthlyPnL={gl.monthlyPnL}
-      cogsDetail={gl.cogsDetail}
+      monthlyPnL={monthlyPnL}
+      cogsDetail={cogsDetail}
       sellingDetail={gl.sellingDetail}
       adminDetail={gl.adminDetail}
       revenueDetail={gl.revenueDetail}

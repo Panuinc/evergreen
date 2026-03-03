@@ -113,9 +113,14 @@ function computeFinancials(trialBalanceData) {
   // Raw COGS (51xxx + overrides) minus ALL inventory accounts (115xx)
   const rawCogs = g("cogs:cogs").debit - g("cogs:cogs").credit;
   let inventoryDeduction = 0;
+  const inventoryAccounts = {}; // individual 115xx balances for COGS detail
   for (const t of posting) {
     if (t.number?.startsWith("115")) {
-      inventoryDeduction += parseNum(t.balanceAtDateDebit) - parseNum(t.balanceAtDateCredit);
+      const bal = parseNum(t.balanceAtDateDebit) - parseNum(t.balanceAtDateCredit);
+      inventoryDeduction += bal;
+      if (Math.abs(bal) > 0.01) {
+        inventoryAccounts[t.number] = { name: t.display, balance: bal };
+      }
     }
   }
   const cogs = rawCogs - inventoryDeduction;
@@ -143,7 +148,8 @@ function computeFinancials(trialBalanceData) {
     cogs, grossProfit,
     sellingExpense, adminExpense, interestExpense, operatingProfit, totalExpense, netIncome,
     currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
-    inventoryBalance: inventoryDeduction, // TB 115xx balance for COGS fallback
+    inventoryBalance: inventoryDeduction, // TB 115xx total for COGS fallback
+    inventoryAccounts, // { "11500-01": { name, balance }, ... }
     groups,
     totalAccounts: trialBalanceData.length,
     postingAccounts: posting.length,
