@@ -33,6 +33,7 @@ RUN apk add --no-cache \
     libjpeg-turbo \
     freetype \
     fontconfig \
+    font-noto \
     font-noto-thai && \
     fc-cache -f
 
@@ -60,6 +61,7 @@ RUN apk add --no-cache \
     libjpeg-turbo \
     freetype \
     fontconfig \
+    font-noto \
     font-noto-thai && \
     fc-cache -f
 
