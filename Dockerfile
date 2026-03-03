@@ -31,7 +31,10 @@ RUN apk add --no-cache \
     giflib \
     pixman \
     libjpeg-turbo \
-    freetype
+    freetype \
+    fontconfig \
+    font-noto-thai && \
+    fc-cache -f
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -55,7 +58,10 @@ RUN apk add --no-cache \
     giflib \
     pixman \
     libjpeg-turbo \
-    freetype
+    freetype \
+    fontconfig \
+    font-noto-thai && \
+    fc-cache -f
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
