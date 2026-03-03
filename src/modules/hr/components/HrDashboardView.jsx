@@ -7,12 +7,14 @@ import {
   Briefcase,
   UserPlus,
 } from "lucide-react";
+import CompareToggle from "@/components/ui/CompareToggle";
+import CompareKpiCard from "@/components/ui/CompareKpiCard";
 import EmployeeByDivisionChart from "@/modules/hr/components/EmployeeByDivisionChart";
 import EmployeeByDepartmentChart from "@/modules/hr/components/EmployeeByDepartmentChart";
 import EmployeeStatusChart from "@/modules/hr/components/EmployeeStatusChart";
 import NewEmployeeTrendChart from "@/modules/hr/components/NewEmployeeTrendChart";
 
-export default function HrDashboardView({ stats, loading }) {
+export default function HrDashboardView({ stats, loading, compareMode, setCompareMode }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -29,69 +31,93 @@ export default function HrDashboardView({ stats, loading }) {
     );
   }
 
+  // Handle comparison data shape
+  const isCompare = !!stats.compareMode;
+  const d = isCompare ? stats.current : stats;
+  const prev = isCompare ? stats.previous : null;
+
   const cards = [
     {
       title: "พนักงานทั้งหมด",
-      value: stats.totalEmployees,
+      value: d.totalEmployees,
       sub: "จำนวนพนักงานในระบบ",
       icon: Users,
-      color: "text-primary",
+      color: "primary",
+      currentRaw: prev ? d.totalEmployees : undefined,
+      previousRaw: prev?.totalEmployees,
     },
     {
       title: "พนักงาน Active",
-      value: stats.activeEmployees,
+      value: d.activeEmployees,
       sub: "กำลังปฏิบัติงาน",
       icon: UserCheck,
-      color: "text-success",
+      color: "success",
+      currentRaw: prev ? d.activeEmployees : undefined,
+      previousRaw: prev?.activeEmployees,
     },
     {
       title: "ฝ่ายทั้งหมด",
-      value: stats.totalDivisions,
+      value: d.totalDivisions,
       sub: "จำนวนฝ่าย",
       icon: Building2,
-      color: "text-secondary",
+      color: "secondary",
+      // Point-in-time stat — no comparison
     },
     {
       title: "แผนกทั้งหมด",
-      value: stats.totalDepartments,
+      value: d.totalDepartments,
       sub: "จำนวนแผนก",
       icon: Layers,
-      color: "text-warning",
+      color: "warning",
+      // Point-in-time stat — no comparison
     },
     {
       title: "ตำแหน่งทั้งหมด",
-      value: stats.totalPositions,
+      value: d.totalPositions,
       sub: "จำนวนตำแหน่งงาน",
       icon: Briefcase,
-      color: "text-default-500",
+      color: "default",
+      // Point-in-time stat — no comparison
     },
     {
       title: "พนักงานใหม่เดือนนี้",
-      value: stats.newThisMonth,
+      value: d.newThisMonth,
       sub: "เข้างานเดือนนี้",
       icon: UserPlus,
-      color: "text-success",
+      color: "success",
+      currentRaw: prev ? d.newThisMonth : undefined,
+      previousRaw: prev?.newThisMonth,
     },
   ];
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
+      {setCompareMode && (
+        <div className="flex items-center justify-between">
+          <div />
+          <div className="flex items-center gap-2">
+            {isCompare && stats.labels && (
+              <span className="text-xs text-default-400">
+                {stats.labels.current} vs {stats.labels.previous}
+              </span>
+            )}
+            <CompareToggle value={compareMode} onChange={setCompareMode} />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map((card) => (
-          <Card
+          <CompareKpiCard
             key={card.title}
-            shadow="none"
-            className="border border-default-200"
-          >
-            <CardBody className="p-5 gap-2">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-default-500">{card.title}</p>
-                <card.icon size={20} className={card.color} />
-              </div>
-              <p className="text-2xl font-bold">{card.value}</p>
-              <p className="text-xs text-default-400">{card.sub}</p>
-            </CardBody>
-          </Card>
+            title={card.title}
+            value={card.value}
+            unit={card.unit}
+            color={card.color}
+            subtitle={card.sub}
+            currentRaw={card.currentRaw}
+            previousRaw={card.previousRaw}
+          />
         ))}
       </div>
 
@@ -99,19 +125,19 @@ export default function HrDashboardView({ stats, loading }) {
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">พนักงานตามฝ่าย</p>
-            <EmployeeByDivisionChart data={stats.byDivision} />
+            <EmployeeByDivisionChart data={d.byDivision} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">พนักงานตามแผนก</p>
-            <EmployeeByDepartmentChart data={stats.byDepartment} />
+            <EmployeeByDepartmentChart data={d.byDepartment} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">สถานะพนักงาน</p>
-            <EmployeeStatusChart data={stats.byStatus} />
+            <EmployeeStatusChart data={d.byStatus} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
@@ -119,7 +145,7 @@ export default function HrDashboardView({ stats, loading }) {
             <p className="text-sm font-semibold mb-3">
               แนวโน้มพนักงานใหม่ (6 เดือนล่าสุด)
             </p>
-            <NewEmployeeTrendChart data={stats.trend} />
+            <NewEmployeeTrendChart data={d.trend} />
           </CardBody>
         </Card>
       </div>

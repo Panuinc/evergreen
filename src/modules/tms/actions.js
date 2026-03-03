@@ -168,8 +168,9 @@ export async function getLatestPositions() {
 
 // ==================== Dashboard ====================
 
-export async function getDashboardStats() {
-  return get("/api/tms/dashboard");
+export async function getDashboardStats(compareMode) {
+  const params = compareMode ? `?compareMode=${compareMode}` : "";
+  return get(`/api/tms/dashboard${params}`);
 }
 
 // ==================== Reports ====================

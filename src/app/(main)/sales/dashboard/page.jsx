@@ -4,7 +4,7 @@ import { useSalesDashboard } from "@/modules/sales/hooks/useSalesDashboard";
 import DashboardView from "@/modules/sales/components/DashboardView";
 
 export default function SalesDashboardPage() {
-  const { data, loading } = useSalesDashboard();
+  const { data, loading, compareMode, setCompareMode } = useSalesDashboard();
 
-  return <DashboardView data={data} loading={loading} />;
+  return <DashboardView data={data} loading={loading} compareMode={compareMode} setCompareMode={setCompareMode} />;
 }

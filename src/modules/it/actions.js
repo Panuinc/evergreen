@@ -138,6 +138,7 @@ export async function createProgressLog(requestId, data) {
 
 // ==================== Dashboard ====================
 
-export async function getItDashboardStats() {
-  return get("/api/it/dashboard");
+export async function getItDashboardStats(compareMode) {
+  const params = compareMode ? `?compareMode=${compareMode}` : "";
+  return get(`/api/it/dashboard${params}`);
 }

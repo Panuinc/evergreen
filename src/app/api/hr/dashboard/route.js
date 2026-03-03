@@ -1,49 +1,7 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
-export async function GET() {
-  const auth = await withAuth();
-  if (auth.error) return auth.error;
-  const { supabase } = auth;
-
-  const [employeesRes, divisionsRes, departmentsRes, positionsRes] =
-    await Promise.all([
-      supabase
-        .from("hrEmployee")
-        .select(
-          "hrEmployeeId, hrEmployeeDivision, hrEmployeeDepartment, hrEmployeePosition, hrEmployeeStatus, hrEmployeeCreatedAt",
-        )
-        .eq("isActive", true),
-      supabase
-        .from("hrDivision")
-        .select("hrDivisionId, hrDivisionName")
-        .eq("isActive", true),
-      supabase
-        .from("hrDepartment")
-        .select("hrDepartmentId, hrDepartmentName")
-        .eq("isActive", true),
-      supabase
-        .from("hrPosition")
-        .select("hrPositionId, hrPositionTitle")
-        .eq("isActive", true),
-    ]);
-
-  if (
-    employeesRes.error ||
-    divisionsRes.error ||
-    departmentsRes.error ||
-    positionsRes.error
-  ) {
-    return Response.json(
-      { error: "Failed to fetch dashboard data" },
-      { status: 500 },
-    );
-  }
-
-  const employees = employeesRes.data || [];
-  const divisions = divisionsRes.data || [];
-  const departments = departmentsRes.data || [];
-  const positions = positionsRes.data || [];
-
+function buildDashboard(employees, divisions, departments, positions) {
   // KPI Stats
   const totalEmployees = employees.length;
   const activeEmployees = employees.filter(
@@ -112,7 +70,7 @@ export async function GET() {
     trend.push({ month: monthKey, count });
   }
 
-  return Response.json({
+  return {
     totalEmployees,
     activeEmployees,
     totalDivisions,
@@ -123,5 +81,74 @@ export async function GET() {
     byDepartment,
     byStatus,
     trend,
+  };
+}
+
+export async function GET(request) {
+  const auth = await withAuth();
+  if (auth.error) return auth.error;
+  const { supabase } = auth;
+
+  const url = new URL(request.url);
+  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
+
+  const [employeesRes, divisionsRes, departmentsRes, positionsRes] =
+    await Promise.all([
+      supabase
+        .from("hrEmployee")
+        .select(
+          "hrEmployeeId, hrEmployeeDivision, hrEmployeeDepartment, hrEmployeePosition, hrEmployeeStatus, hrEmployeeCreatedAt",
+        )
+        .eq("isActive", true),
+      supabase
+        .from("hrDivision")
+        .select("hrDivisionId, hrDivisionName")
+        .eq("isActive", true),
+      supabase
+        .from("hrDepartment")
+        .select("hrDepartmentId, hrDepartmentName")
+        .eq("isActive", true),
+      supabase
+        .from("hrPosition")
+        .select("hrPositionId, hrPositionTitle")
+        .eq("isActive", true),
+    ]);
+
+  if (
+    employeesRes.error ||
+    divisionsRes.error ||
+    departmentsRes.error ||
+    positionsRes.error
+  ) {
+    return Response.json(
+      { error: "Failed to fetch dashboard data" },
+      { status: 500 },
+    );
+  }
+
+  const allEmployees = employeesRes.data || [];
+  const divisions = divisionsRes.data || [];
+  const departments = departmentsRes.data || [];
+  const positions = positionsRes.data || [];
+
+  // ── No comparison mode: return as before ──
+  if (!compareMode) {
+    return Response.json(buildDashboard(allEmployees, divisions, departments, positions));
+  }
+
+  // ── Comparison mode: filter employees by creation date ──
+  const ranges = getComparisonRanges(compareMode);
+
+  const curEmployees = filterByDateRange(allEmployees, "hrEmployeeCreatedAt", ranges.current.start, ranges.current.end);
+  const prevEmployees = filterByDateRange(allEmployees, "hrEmployeeCreatedAt", ranges.previous.start, ranges.previous.end);
+
+  const current = buildDashboard(curEmployees, divisions, departments, positions);
+  const previous = buildDashboard(prevEmployees, divisions, departments, positions);
+
+  return Response.json({
+    compareMode,
+    labels: { current: ranges.current.label, previous: ranges.previous.label },
+    current,
+    previous,
   });
 }

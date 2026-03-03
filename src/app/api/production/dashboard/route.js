@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
 const PAGE_SIZE = 1000;
 
@@ -595,9 +596,12 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   };
 }
 
-export async function GET() {
+export async function GET(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
+
+  const url = new URL(request.url);
+  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
 
   try {
     const [allOrders, allEntries, salesLines, items] = await Promise.all([
@@ -626,21 +630,41 @@ export async function GET() {
 
     const today = new Date().toISOString().slice(0, 10);
 
-    // ── Split by WPC ──
-    const wpcOrders = allOrders.filter((o) => o.bcProductionOrderDimension1Code === "WPC");
-    const otherOrders = allOrders.filter((o) => o.bcProductionOrderDimension1Code !== "WPC");
+    // ── Helper: split by WPC and build dashboard ──
+    const splitAndBuild = (orders, entries) => {
+      const wpcOrders = orders.filter((o) => o.bcProductionOrderDimension1Code === "WPC");
+      const otherOrders = orders.filter((o) => o.bcProductionOrderDimension1Code !== "WPC");
+      const wpcEntries = entries.filter((e) => getDept(orderMap[e.bcItemLedgerEntryDocumentNo]) === "WPC");
+      const otherEntries = entries.filter((e) => getDept(orderMap[e.bcItemLedgerEntryDocumentNo]) !== "WPC");
+      return {
+        wpc: buildDashboard(wpcOrders, wpcEntries, orderMap, itemLookup, salesPriceMap, salesLines, today),
+        other: buildDashboard(otherOrders, otherEntries, orderMap, itemLookup, salesPriceMap, salesLines, today),
+      };
+    };
 
-    const wpcEntries = allEntries.filter((e) => {
-      return getDept(orderMap[e.bcItemLedgerEntryDocumentNo]) === "WPC";
+    // ── No comparison mode: return as before ──
+    if (!compareMode) {
+      const { wpc, other } = splitAndBuild(allOrders, allEntries);
+      return Response.json({ wpc, other });
+    }
+
+    // ── Comparison mode: filter by date range ──
+    const ranges = getComparisonRanges(compareMode);
+
+    const curOrders = filterByDateRange(allOrders, "bcProductionOrderDueDate", ranges.current.start, ranges.current.end);
+    const curEntries = filterByDateRange(allEntries, "bcItemLedgerEntryPostingDate", ranges.current.start, ranges.current.end);
+    const prevOrders = filterByDateRange(allOrders, "bcProductionOrderDueDate", ranges.previous.start, ranges.previous.end);
+    const prevEntries = filterByDateRange(allEntries, "bcItemLedgerEntryPostingDate", ranges.previous.start, ranges.previous.end);
+
+    const current = splitAndBuild(curOrders, curEntries);
+    const previous = splitAndBuild(prevOrders, prevEntries);
+
+    return Response.json({
+      compareMode,
+      labels: { current: ranges.current.label, previous: ranges.previous.label },
+      wpc: { current: current.wpc, previous: previous.wpc },
+      other: { current: current.other, previous: previous.other },
     });
-    const otherEntries = allEntries.filter((e) => {
-      return getDept(orderMap[e.bcItemLedgerEntryDocumentNo]) !== "WPC";
-    });
-
-    const wpc = buildDashboard(wpcOrders, wpcEntries, orderMap, itemLookup, salesPriceMap, salesLines, today);
-    const other = buildDashboard(otherOrders, otherEntries, orderMap, itemLookup, salesPriceMap, salesLines, today);
-
-    return Response.json({ wpc, other });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
   }

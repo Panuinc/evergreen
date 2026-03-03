@@ -141,6 +141,7 @@ export async function deleteActivity(id) {
 
 // ==================== Dashboard ====================
 
-export async function getSalesDashboard() {
-  return get("/api/sales/dashboard");
+export async function getSalesDashboard(compareMode) {
+  const params = compareMode ? `?compareMode=${compareMode}` : "";
+  return get(`/api/sales/dashboard${params}`);
 }

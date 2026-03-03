@@ -1,33 +1,7 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
-export async function GET() {
-  const auth = await withAuth();
-  if (auth.error) return auth.error;
-  const { supabase } = auth;
-
-  const [assetsRes, ticketsRes, softwareRes, devicesRes, incidentsRes, accessRes] = await Promise.all([
-    supabase.from("itAsset").select("itAssetId, itAssetCategory, itAssetStatus").eq("isActive", true),
-    supabase.from("itTicket").select("itTicketId, itTicketStatus, itTicketPriority, itTicketCategory, itTicketCreatedAt").eq("isActive", true),
-    supabase.from("itSoftware").select("itSoftwareId, itSoftwareStatus, itSoftwareLicenseType, itSoftwareExpiryDate").eq("isActive", true),
-    supabase.from("itNetworkDevice").select("itNetworkDeviceId, itNetworkDeviceStatus, itNetworkDeviceType").eq("isActive", true),
-    supabase.from("itSecurityIncident").select("itSecurityIncidentId, itSecurityIncidentStatus, itSecurityIncidentSeverity, itSecurityIncidentCreatedAt").eq("isActive", true),
-    supabase.from("itSystemAccess").select("itSystemAccessId, itSystemAccessStatus").eq("isActive", true),
-  ]);
-
-  if (assetsRes.error || ticketsRes.error || softwareRes.error || devicesRes.error || incidentsRes.error || accessRes.error) {
-    return Response.json(
-      { error: "Failed to fetch dashboard data" },
-      { status: 500 }
-    );
-  }
-
-  const assets = assetsRes.data || [];
-  const tickets = ticketsRes.data || [];
-  const software = softwareRes.data || [];
-  const devices = devicesRes.data || [];
-  const incidents = incidentsRes.data || [];
-  const access = accessRes.data || [];
-
+function buildDashboard(assets, tickets, software, devices, incidents, access) {
   // KPI Stats
   const totalAssets = assets.length;
   const openTickets = tickets.filter(
@@ -112,7 +86,7 @@ export async function GET() {
     },
   ];
 
-  return Response.json({
+  return {
     totalAssets,
     openTickets,
     activeLicenses,
@@ -123,5 +97,61 @@ export async function GET() {
     ticketTrend,
     assetByCategory,
     licenseExpiry,
+  };
+}
+
+export async function GET(request) {
+  const auth = await withAuth();
+  if (auth.error) return auth.error;
+  const { supabase } = auth;
+
+  const url = new URL(request.url);
+  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
+
+  const [assetsRes, ticketsRes, softwareRes, devicesRes, incidentsRes, accessRes] = await Promise.all([
+    supabase.from("itAsset").select("itAssetId, itAssetCategory, itAssetStatus").eq("isActive", true),
+    supabase.from("itTicket").select("itTicketId, itTicketStatus, itTicketPriority, itTicketCategory, itTicketCreatedAt").eq("isActive", true),
+    supabase.from("itSoftware").select("itSoftwareId, itSoftwareStatus, itSoftwareLicenseType, itSoftwareExpiryDate").eq("isActive", true),
+    supabase.from("itNetworkDevice").select("itNetworkDeviceId, itNetworkDeviceStatus, itNetworkDeviceType").eq("isActive", true),
+    supabase.from("itSecurityIncident").select("itSecurityIncidentId, itSecurityIncidentStatus, itSecurityIncidentSeverity, itSecurityIncidentCreatedAt").eq("isActive", true),
+    supabase.from("itSystemAccess").select("itSystemAccessId, itSystemAccessStatus").eq("isActive", true),
+  ]);
+
+  if (assetsRes.error || ticketsRes.error || softwareRes.error || devicesRes.error || incidentsRes.error || accessRes.error) {
+    return Response.json(
+      { error: "Failed to fetch dashboard data" },
+      { status: 500 }
+    );
+  }
+
+  const assets = assetsRes.data || [];
+  const allTickets = ticketsRes.data || [];
+  const software = softwareRes.data || [];
+  const devices = devicesRes.data || [];
+  const allIncidents = incidentsRes.data || [];
+  const access = accessRes.data || [];
+
+  // ── No comparison mode: return as before ──
+  if (!compareMode) {
+    return Response.json(buildDashboard(assets, allTickets, software, devices, allIncidents, access));
+  }
+
+  // ── Comparison mode: filter tickets and incidents by creation date ──
+  const ranges = getComparisonRanges(compareMode);
+
+  const curTickets = filterByDateRange(allTickets, "itTicketCreatedAt", ranges.current.start, ranges.current.end);
+  const prevTickets = filterByDateRange(allTickets, "itTicketCreatedAt", ranges.previous.start, ranges.previous.end);
+  const curIncidents = filterByDateRange(allIncidents, "itSecurityIncidentCreatedAt", ranges.current.start, ranges.current.end);
+  const prevIncidents = filterByDateRange(allIncidents, "itSecurityIncidentCreatedAt", ranges.previous.start, ranges.previous.end);
+
+  // Point-in-time data (assets, software, devices, access) stays the same for both periods
+  const current = buildDashboard(assets, curTickets, software, devices, curIncidents, access);
+  const previous = buildDashboard(assets, prevTickets, software, devices, prevIncidents, access);
+
+  return Response.json({
+    compareMode,
+    labels: { current: ranges.current.label, previous: ranges.previous.label },
+    current,
+    previous,
   });
 }

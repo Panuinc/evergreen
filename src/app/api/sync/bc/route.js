@@ -359,7 +359,7 @@ async function runSync(supabase, requestedTables, send) {
         bcODataGet(
           "Sales_Order_Excel",
           {
-            $filter: "startswith(No,'SO26')",
+            $filter: "startswith(No,'SO24')",
             $orderby: "No desc",
             $select:
               "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No",
@@ -369,7 +369,7 @@ async function runSync(supabase, requestedTables, send) {
         bcODataGet(
           "Sales_Order_Line_Excel",
           {
-            $filter: "startswith(Document_No,'SO26')",
+            $filter: "startswith(Document_No,'SO24')",
             $select:
               "Document_No,Line_No,Type,No,Description,Quantity,Unit_Price,Line_Amount,Quantity_Shipped,BWK_Outstanding_Quantity,Unit_of_Measure_Code,Location_Code",
           },
@@ -512,14 +512,14 @@ async function runSync(supabase, requestedTables, send) {
       const [prodOrders, ileEntries] = await Promise.all([
         bcProductionODataGet(
           "productionOrder",
-          { $filter: "No ge 'RPD2601-001'" },
+          { $filter: "No ge 'RPD2501-001'" },
           { timeout: 120_000 },
         ),
         bcProductionODataGet(
           "ItemLedgerEntries",
           {
             $filter:
-              "(Entry_Type eq 'Consumption' or Entry_Type eq 'Output') and Posting_Date ge 2026-01-01 and Document_No ge 'RPD2601'",
+              "(Entry_Type eq 'Consumption' or Entry_Type eq 'Output') and Posting_Date ge 2025-01-01 and Document_No ge 'RPD2501'",
           },
           { timeout: 180_000 },
         ),

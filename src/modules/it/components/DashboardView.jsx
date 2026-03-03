@@ -1,10 +1,12 @@
 import { Card, CardBody, Spinner } from "@heroui/react";
 import { Server, HeadphonesIcon, FileText, Globe, Shield, Clock } from "lucide-react";
+import CompareToggle from "@/components/ui/CompareToggle";
+import CompareKpiCard from "@/components/ui/CompareKpiCard";
 import TicketTrendChart from "@/modules/it/components/TicketTrendChart";
 import AssetByCategoryChart from "@/modules/it/components/AssetByCategoryChart";
 import LicenseExpiryChart from "@/modules/it/components/LicenseExpiryChart";
 
-export default function DashboardView({ stats, loading }) {
+export default function DashboardView({ stats, loading, compareMode, setCompareMode }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -17,29 +19,94 @@ export default function DashboardView({ stats, loading }) {
     return <p className="text-default-400 text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
   }
 
+  // Handle comparison data shape
+  const isCompare = !!stats.compareMode;
+  const d = isCompare ? stats.current : stats;
+  const prev = isCompare ? stats.previous : null;
+
   const cards = [
-    { title: "ทรัพย์สินทั้งหมด", value: stats.totalAssets, sub: "ทรัพย์สิน IT ที่ติดตาม", icon: Server, color: "text-primary" },
-    { title: "ตั๋วที่เปิดอยู่", value: stats.openTickets, sub: "เปิด / กำลังดำเนินการ", icon: HeadphonesIcon, color: "text-warning" },
-    { title: "ไลเซนส์ที่ใช้งาน", value: stats.activeLicenses, sub: "ไลเซนส์ซอฟต์แวร์", icon: FileText, color: "text-success" },
-    { title: "อุปกรณ์เครือข่าย", value: stats.totalNetworkDevices, sub: `${stats.onlineDevices} ออนไลน์`, icon: Globe, color: "text-secondary" },
-    { title: "เหตุการณ์ด้านความปลอดภัย", value: stats.openIncidents, sub: "เปิด / กำลังสอบสวน", icon: Shield, color: "text-danger" },
-    { title: "การเข้าถึงที่รอดำเนินการ", value: stats.pendingAccess, sub: "รอการอนุมัติ", icon: Clock, color: "text-default-500" },
+    {
+      title: "ทรัพย์สินทั้งหมด",
+      value: d.totalAssets,
+      sub: "ทรัพย์สิน IT ที่ติดตาม",
+      icon: Server,
+      color: "primary",
+      // Point-in-time stat — no comparison
+    },
+    {
+      title: "ตั๋วที่เปิดอยู่",
+      value: d.openTickets,
+      sub: "เปิด / กำลังดำเนินการ",
+      icon: HeadphonesIcon,
+      color: "warning",
+      currentRaw: prev ? d.openTickets : undefined,
+      previousRaw: prev?.openTickets,
+      invertColor: true,
+    },
+    {
+      title: "ไลเซนส์ที่ใช้งาน",
+      value: d.activeLicenses,
+      sub: "ไลเซนส์ซอฟต์แวร์",
+      icon: FileText,
+      color: "success",
+      // Point-in-time stat — no comparison
+    },
+    {
+      title: "อุปกรณ์เครือข่าย",
+      value: d.totalNetworkDevices,
+      sub: `${d.onlineDevices} ออนไลน์`,
+      icon: Globe,
+      color: "secondary",
+      // Point-in-time stat — no comparison
+    },
+    {
+      title: "เหตุการณ์ด้านความปลอดภัย",
+      value: d.openIncidents,
+      sub: "เปิด / กำลังสอบสวน",
+      icon: Shield,
+      color: "danger",
+      currentRaw: prev ? d.openIncidents : undefined,
+      previousRaw: prev?.openIncidents,
+      invertColor: true,
+    },
+    {
+      title: "การเข้าถึงที่รอดำเนินการ",
+      value: d.pendingAccess,
+      sub: "รอการอนุมัติ",
+      icon: Clock,
+      color: "default",
+    },
   ];
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
+      {setCompareMode && (
+        <div className="flex items-center justify-between">
+          <div />
+          <div className="flex items-center gap-2">
+            {isCompare && stats.labels && (
+              <span className="text-xs text-default-400">
+                {stats.labels.current} vs {stats.labels.previous}
+              </span>
+            )}
+            <CompareToggle value={compareMode} onChange={setCompareMode} />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {cards.map((card) => (
-          <Card key={card.title} shadow="none" className="border border-default-200">
-            <CardBody className="p-5 gap-2">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-default-500">{card.title}</p>
-                <card.icon size={20} className={card.color} />
-              </div>
-              <p className="text-2xl font-bold">{card.value}</p>
-              <p className="text-xs text-default-400">{card.sub}</p>
-            </CardBody>
-          </Card>
+          <CompareKpiCard
+            key={card.title}
+            title={card.title}
+            value={card.value}
+            unit={card.unit}
+            color={card.color}
+            subtitle={card.sub}
+            currentRaw={card.currentRaw}
+            previousRaw={card.previousRaw}
+            invertColor={card.invertColor}
+          />
         ))}
       </div>
 
@@ -47,19 +114,19 @@ export default function DashboardView({ stats, loading }) {
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">แนวโน้มตั๋ว (6 เดือนล่าสุด)</p>
-            <TicketTrendChart data={stats.ticketTrend} />
+            <TicketTrendChart data={d.ticketTrend} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ทรัพย์สินตามหมวดหมู่</p>
-            <AssetByCategoryChart data={stats.assetByCategory} />
+            <AssetByCategoryChart data={d.assetByCategory} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-default-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ภาพรวมการหมดอายุไลเซนส์</p>
-            <LicenseExpiryChart data={stats.licenseExpiry} />
+            <LicenseExpiryChart data={d.licenseExpiry} />
           </CardBody>
         </Card>
       </div>

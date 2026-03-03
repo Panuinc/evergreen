@@ -11,6 +11,8 @@ import {
   Tab,
 } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
+import CompareToggle from "@/components/ui/CompareToggle";
+import CompareKpiCard from "@/components/ui/CompareKpiCard";
 import OrdersByStatusChart from "@/modules/production/components/OrdersByStatusChart";
 import CostByProjectChart from "@/modules/production/components/CostByProjectChart";
 import DailyProductionTrendChart from "@/modules/production/components/DailyProductionTrendChart";
@@ -127,20 +129,22 @@ const wipInitialColumns = [
 ];
 
 // ── Dashboard content for a single tab ──
-function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
+function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
   if (!d) return null;
 
   return (
     <div className="flex flex-col w-full gap-4">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        <KpiCard
+        <CompareKpiCard
           title="ใบสั่งผลิตทั้งหมด"
           value={fmt(d.totalOrders)}
           unit="ใบ"
           subtitle={`Released ${fmt(d.releasedOrders)} / Finished ${fmt(d.finishedOrders)}`}
+          currentRaw={prev ? d.totalOrders : undefined}
+          previousRaw={prev?.totalOrders}
         />
-        <KpiCard
+        <CompareKpiCard
           title="อัตราส่งตรงเวลา"
           value={d.onTimeRate != null ? `${d.onTimeRate}%` : "-"}
           color={
@@ -153,26 +157,36 @@ function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
                   : "danger"
           }
           subtitle="เสร็จตามกำหนด"
+          currentRaw={prev ? d.onTimeRate : undefined}
+          previousRaw={prev?.onTimeRate}
         />
-        <KpiCard
+        <CompareKpiCard
           title="ระยะเวลาผลิตเฉลี่ย"
           value={d.avgLeadTime != null ? d.avgLeadTime : "-"}
           unit="วัน"
           color="primary"
           subtitle="เฉลี่ยใบที่เสร็จแล้ว"
+          currentRaw={prev ? d.avgLeadTime : undefined}
+          previousRaw={prev?.avgLeadTime}
+          invertColor
         />
-        <KpiCard
+        <CompareKpiCard
           title="ต้นทุนวัตถุดิบ"
           value={fmtCurrency(d.totalConsumptionCost)}
           color="warning"
+          currentRaw={prev ? d.totalConsumptionCost : undefined}
+          previousRaw={prev?.totalConsumptionCost}
+          invertColor
         />
-        <KpiCard
+        <CompareKpiCard
           title="รายได้จากการขาย"
           value={fmtCurrency(d.totalRevenue)}
           color="primary"
           subtitle={`ราคาขาย × ผลผลิต`}
+          currentRaw={prev ? d.totalRevenue : undefined}
+          previousRaw={prev?.totalRevenue}
         />
-        <KpiCard
+        <CompareKpiCard
           title="กำไร/ขาดทุน"
           value={fmtCurrency(d.totalProfit)}
           color={
@@ -183,8 +197,10 @@ function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
                 : "danger"
           }
           subtitle={`รายได้ - ต้นทุนวัตถุดิบ`}
+          currentRaw={prev ? d.totalProfit : undefined}
+          previousRaw={prev?.totalProfit}
         />
-        <KpiCard
+        <CompareKpiCard
           title="อัตรากำไร"
           value={d.profitMargin != null ? `${d.profitMargin}%` : "-"}
           color={
@@ -197,25 +213,35 @@ function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
                   : "danger"
           }
           subtitle="กำไร ÷ รายได้"
+          currentRaw={prev ? d.profitMargin : undefined}
+          previousRaw={prev?.profitMargin}
         />
-        <KpiCard
+        <CompareKpiCard
           title="WIP"
           value={fmtCurrency(d.wipValue)}
           color="danger"
           subtitle="ใบสั่งผลิตค้างอยู่"
+          currentRaw={prev ? d.wipValue : undefined}
+          previousRaw={prev?.wipValue}
+          invertColor
         />
-        <KpiCard
+        <CompareKpiCard
           title="ผลผลิต FG"
           value={fmt(d.totalOutputQty)}
           unit="ชิ้น"
           color="success"
+          currentRaw={prev ? d.totalOutputQty : undefined}
+          previousRaw={prev?.totalOutputQty}
         />
-        <KpiCard
+        <CompareKpiCard
           title="เกินกำหนดส่ง"
           value={fmt(d.overdueCount)}
           unit="ใบ"
           color={d.overdueCount > 0 ? "danger" : "success"}
           subtitle="Released & เลยกำหนด"
+          currentRaw={prev ? d.overdueCount : undefined}
+          previousRaw={prev?.overdueCount}
+          invertColor
         />
       </div>
 
@@ -416,7 +442,7 @@ function DashboardContent({ d, renderOverdueCell, renderWipCell }) {
 }
 
 // ── Main View ──
-export default function DashboardView({ data, loading }) {
+export default function DashboardView({ data, loading, compareMode, setCompareMode }) {
   const renderOverdueCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "id":
@@ -537,20 +563,40 @@ export default function DashboardView({ data, loading }) {
 
   if (!data) return null;
 
+  // Handle comparison data shape
+  const isCompare = !!data.compareMode;
+  const wpcData = isCompare ? data.wpc?.current : data.wpc;
+  const wpcPrev = isCompare ? data.wpc?.previous : null;
+  const otherData = isCompare ? data.other?.current : data.other;
+  const otherPrev = isCompare ? data.other?.previous : null;
+
   return (
     <div className="flex flex-col w-full gap-4">
+      <div className="flex items-center justify-between">
+        <div />
+        {setCompareMode && (
+          <div className="flex items-center gap-2">
+            {isCompare && data.labels && (
+              <span className="text-xs text-default-400">
+                {data.labels.current} vs {data.labels.previous}
+              </span>
+            )}
+            <CompareToggle value={compareMode} onChange={setCompareMode} />
+          </div>
+        )}
+      </div>
       <Tabs aria-label="แผนก" variant="underlined">
         <Tab
           key="wpc"
-          title={`WPC (${fmt(data.wpc?.totalOrders || 0)})`}
+          title={`WPC (${fmt(wpcData?.totalOrders || 0)})`}
         >
-          <DashboardContent d={data.wpc} renderOverdueCell={renderOverdueCell} renderWipCell={renderWipCell} />
+          <DashboardContent d={wpcData} prev={wpcPrev} renderOverdueCell={renderOverdueCell} renderWipCell={renderWipCell} />
         </Tab>
         <Tab
           key="other"
-          title={`อื่นๆ (${fmt(data.other?.totalOrders || 0)})`}
+          title={`อื่นๆ (${fmt(otherData?.totalOrders || 0)})`}
         >
-          <DashboardContent d={data.other} renderOverdueCell={renderOverdueCell} renderWipCell={renderWipCell} />
+          <DashboardContent d={otherData} prev={otherPrev} renderOverdueCell={renderOverdueCell} renderWipCell={renderWipCell} />
         </Tab>
       </Tabs>
     </div>

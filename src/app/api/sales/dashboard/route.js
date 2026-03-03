@@ -1,41 +1,7 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
-export async function GET() {
-  const auth = await withAuth();
-  if (auth.error) return auth.error;
-  const { supabase } = auth;
-
-  // Fetch all data in parallel
-  const [
-    { data: leads },
-    { data: opportunities },
-    { data: orders },
-    { data: activities },
-    { data: stages },
-  ] = await Promise.all([
-    supabase.from("salesLead").select("crmLeadId, crmLeadStatus, crmLeadScore, crmLeadCreatedAt").eq("isActive", true),
-    supabase
-      .from("salesOpportunity")
-      .select(
-        "crmOpportunityId, crmOpportunityStage, crmOpportunityAmount, crmOpportunityProbability, crmOpportunityAssignedTo, crmOpportunityCreatedAt, crmOpportunityActualCloseDate"
-      )
-      .eq("isActive", true),
-    supabase
-      .from("salesOrder")
-      .select("crmOrderId, crmOrderStatus, crmOrderTotal, crmOrderCreatedAt")
-      .eq("isActive", true),
-    supabase
-      .from("salesActivity")
-      .select("crmActivityId, crmActivityType, crmActivityStatus, crmActivitySubject, crmActivityDueDate, crmActivityCreatedAt")
-      .eq("isActive", true)
-      .order("crmActivityCreatedAt", { ascending: false })
-      .limit(10),
-    supabase
-      .from("salesPipelineStage")
-      .select("*")
-      .order("crmPipelineStageOrder", { ascending: true }),
-  ]);
-
+function buildDashboard(leads, opportunities, orders, activities, stages) {
   // KPIs
   const totalLeads = leads?.length || 0;
   const newLeads = leads?.filter((l) => l.crmLeadStatus === "new").length || 0;
@@ -130,7 +96,7 @@ export async function GET() {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
 
-  return Response.json({
+  return {
     kpis: {
       totalLeads,
       newLeads,
@@ -147,6 +113,81 @@ export async function GET() {
     pipelineByStage,
     revenueByMonth,
     topSalespeople,
-    recentActivities: activities || [],
+  };
+}
+
+export async function GET(request) {
+  const auth = await withAuth();
+  if (auth.error) return auth.error;
+  const { supabase } = auth;
+
+  const url = new URL(request.url);
+  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
+
+  // Fetch all data in parallel
+  const [
+    { data: leads },
+    { data: opportunities },
+    { data: orders },
+    { data: activities },
+    { data: stages },
+  ] = await Promise.all([
+    supabase.from("salesLead").select("crmLeadId, crmLeadStatus, crmLeadScore, crmLeadCreatedAt").eq("isActive", true),
+    supabase
+      .from("salesOpportunity")
+      .select(
+        "crmOpportunityId, crmOpportunityStage, crmOpportunityAmount, crmOpportunityProbability, crmOpportunityAssignedTo, crmOpportunityCreatedAt, crmOpportunityActualCloseDate"
+      )
+      .eq("isActive", true),
+    supabase
+      .from("salesOrder")
+      .select("crmOrderId, crmOrderStatus, crmOrderTotal, crmOrderCreatedAt")
+      .eq("isActive", true),
+    supabase
+      .from("salesActivity")
+      .select("crmActivityId, crmActivityType, crmActivityStatus, crmActivitySubject, crmActivityDueDate, crmActivityCreatedAt")
+      .eq("isActive", true)
+      .order("crmActivityCreatedAt", { ascending: false })
+      .limit(10),
+    supabase
+      .from("salesPipelineStage")
+      .select("*")
+      .order("crmPipelineStageOrder", { ascending: true }),
+  ]);
+
+  // ── No comparison mode: return as before ──
+  if (!compareMode) {
+    const result = buildDashboard(leads, opportunities, orders, activities, stages);
+    return Response.json({
+      ...result,
+      recentActivities: activities || [],
+    });
+  }
+
+  // ── Comparison mode: filter by date range ──
+  const ranges = getComparisonRanges(compareMode);
+
+  const curLeads = filterByDateRange(leads || [], "crmLeadCreatedAt", ranges.current.start, ranges.current.end);
+  const curOpportunities = filterByDateRange(opportunities || [], "crmOpportunityCreatedAt", ranges.current.start, ranges.current.end);
+  const curOrders = filterByDateRange(orders || [], "crmOrderCreatedAt", ranges.current.start, ranges.current.end);
+
+  const prevLeads = filterByDateRange(leads || [], "crmLeadCreatedAt", ranges.previous.start, ranges.previous.end);
+  const prevOpportunities = filterByDateRange(opportunities || [], "crmOpportunityCreatedAt", ranges.previous.start, ranges.previous.end);
+  const prevOrders = filterByDateRange(orders || [], "crmOrderCreatedAt", ranges.previous.start, ranges.previous.end);
+
+  const current = buildDashboard(curLeads, curOpportunities, curOrders, activities, stages);
+  const previous = buildDashboard(prevLeads, prevOpportunities, prevOrders, activities, stages);
+
+  return Response.json({
+    compareMode,
+    labels: { current: ranges.current.label, previous: ranges.previous.label },
+    current: {
+      ...current,
+      recentActivities: activities || [],
+    },
+    previous: {
+      ...previous,
+      recentActivities: [],
+    },
   });
 }

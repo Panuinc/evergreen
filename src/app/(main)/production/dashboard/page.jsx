@@ -4,7 +4,7 @@ import { useProductionDashboard } from "@/modules/production/hooks/useProduction
 import DashboardView from "@/modules/production/components/DashboardView";
 
 export default function ProductionDashboardPage() {
-  const { data, loading } = useProductionDashboard();
+  const { data, loading, compareMode, setCompareMode } = useProductionDashboard();
 
-  return <DashboardView data={data} loading={loading} />;
+  return <DashboardView data={data} loading={loading} compareMode={compareMode} setCompareMode={setCompareMode} />;
 }
