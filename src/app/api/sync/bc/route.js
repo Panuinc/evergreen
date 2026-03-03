@@ -369,21 +369,25 @@ async function runSync(supabase, requestedTables, send) {
         send("progress", {
           phase: "salesOrders",
           step: "fetching",
-          label: `ดึงข้อมูลคำสั่งขาย ${prefix}...`,
+          label: `ดึงคำสั่งขาย ${prefix}...`,
         });
-        const [yearOrders, yearLines] = await Promise.all([
-          bcODataGet(
-            "Sales_Order_Excel",
-            { $filter: `startswith(No,'${prefix}')`, $orderby: "No desc", $select: selectOrders },
-            { timeout: 120_000 },
-          ),
-          bcODataGet(
-            "Sales_Order_Line_Excel",
-            { $filter: `startswith(Document_No,'${prefix}')`, $select: selectLines },
-            { timeout: 120_000 },
-          ),
-        ]);
+        const yearOrders = await bcODataGet(
+          "Sales_Order_Excel",
+          { $filter: `startswith(No,'${prefix}')`, $orderby: "No desc", $select: selectOrders },
+          { timeout: 120_000 },
+        );
         orders.push(...yearOrders);
+
+        send("progress", {
+          phase: "salesOrderLines",
+          step: "fetching",
+          label: `ดึงรายการ ${prefix}...`,
+        });
+        const yearLines = await bcODataGet(
+          "Sales_Order_Line_Excel",
+          { $filter: `startswith(Document_No,'${prefix}')`, $select: selectLines },
+          { timeout: 120_000 },
+        );
         allLines.push(...yearLines);
       }
 
