@@ -779,6 +779,8 @@ export default function FinanceDashboardView({
                 notes: "Override: 52000-09 (ค่าเช่าโรงงาน), 53200-xx (ซ่อมบำรุงโรงงาน), 53400-xx (ค่าเสื่อมราคาเครื่องจักร) ย้ายจากค่าใช้จ่ายเข้าต้นทุน ตาม Excel CFO"
                   + (financials.inventoryAdj > 0 ? "\n* ปีที่ยังไม่ปิดบัญชี: GL ไม่มี 51200-00/115xx → ใช้ TB 115xx หักแทน" : ""),
                 groups: true, keys: ["cogs:cogs"], normalSide: "debit",
+                inventoryAccounts: financials.inventoryAccounts,
+                inventoryTotal: financials.inventoryAdj,
               }) : undefined}
             />
             <KpiCard
@@ -1388,7 +1390,7 @@ export default function FinanceDashboardView({
       </ChartCard>
 
       {/* KPI Detail Modal */}
-      <Modal isOpen={!!kpiDetail} onClose={() => setKpiDetail(null)} size="2xl" scrollBehavior="inside">
+      <Modal isOpen={!!kpiDetail} onClose={() => setKpiDetail(null)} size="4xl" scrollBehavior="inside">
         <ModalContent>
           {kpiDetail && (() => {
             const accounts = kpiDetail.groups
@@ -1456,11 +1458,57 @@ export default function FinanceDashboardView({
                       </div>
                     ))}
 
+                    {/* Inventory deduction section (for COGS detail) */}
+                    {kpiDetail.inventoryAccounts && Object.keys(kpiDetail.inventoryAccounts).length > 0 && (() => {
+                      const invEntries = Object.entries(kpiDetail.inventoryAccounts).sort((a, b) => a[0].localeCompare(b[0]));
+                      const invTotal = kpiDetail.inventoryTotal || 0;
+                      return (
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-sm font-semibold">หัก: สินค้าคงเหลือ (TB 115xx)</p>
+                            <Chip size="sm" variant="flat" color="warning">{invEntries.length} บัญชี</Chip>
+                          </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-xs">
+                              <thead className="bg-warning-50">
+                                <tr>
+                                  <th className="text-left px-2 py-1.5 font-semibold w-[100px]">เลขบัญชี</th>
+                                  <th className="text-left px-2 py-1.5 font-semibold">ชื่อบัญชี</th>
+                                  <th className="text-right px-2 py-1.5 font-semibold w-[120px]">ยอด</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {invEntries.map(([num, a]) => (
+                                  <tr key={num} className="border-b border-default-100">
+                                    <td className="px-2 py-1 font-mono text-default-500">{num}</td>
+                                    <td className="px-2 py-1">{a.name}</td>
+                                    <td className="px-2 py-1 text-right font-mono text-danger">({fmt(a.balance)})</td>
+                                  </tr>
+                                ))}
+                                <tr className="bg-warning-50 font-semibold">
+                                  <td className="px-2 py-1.5" colSpan={2}>รวมหัก สินค้าคงเหลือ</td>
+                                  <td className="px-2 py-1.5 text-right font-mono text-danger">({fmt(invTotal)})</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {/* Grand total */}
                     {sections.length > 1 && (
                       <div className="rounded-lg bg-primary-50 p-3 flex justify-between items-center">
                         <p className="text-sm font-bold">รวมทั้งสิ้น ({accounts.length} บัญชี)</p>
                         <p className="text-lg font-bold font-mono">{fmt(total)}</p>
+                      </div>
+                    )}
+
+                    {/* COGS net total (after inventory deduction) */}
+                    {kpiDetail.inventoryTotal > 0 && (
+                      <div className="rounded-lg bg-success-50 p-3 flex justify-between items-center">
+                        <p className="text-sm font-bold">ต้นทุนขายสุทธิ (หลังหักสินค้าคงเหลือ)</p>
+                        <p className="text-lg font-bold font-mono">{fmt(total - (kpiDetail.inventoryTotal || 0))}</p>
                       </div>
                     )}
                   </div>

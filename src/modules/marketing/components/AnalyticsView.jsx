@@ -11,6 +11,7 @@ import {
   TrendingDown,
   BarChart3,
   CalendarCheck,
+  Search,
 } from "lucide-react";
 import { Button } from "@heroui/react";
 import RevenueTrendChart from "@/modules/marketing/components/RevenueTrendChart";
@@ -28,6 +29,7 @@ import CustomerInsightsCard from "@/modules/marketing/components/CustomerInsight
 import ChannelDistChart from "@/modules/marketing/components/ChannelDistChart";
 import CustomerGroupChart from "@/modules/marketing/components/CustomerGroupChart";
 import ProjectTypeChart from "@/modules/marketing/components/ProjectTypeChart";
+import YoYComparisonChart from "@/modules/marketing/components/YoYComparisonChart";
 
 const PERIODS = [
   { key: "all", label: "ทั้งหมด" },
@@ -35,6 +37,7 @@ const PERIODS = [
   { key: "week", label: "สัปดาห์นี้" },
   { key: "month", label: "เดือนนี้" },
   { key: "year", label: "ปีนี้" },
+  { key: "custom", label: "กำหนดเอง" },
 ];
 
 function formatCurrency(value) {
@@ -100,7 +103,7 @@ function PeriodCard({ title, revenue, orders, icon: Icon, color, growth, prevLab
   );
 }
 
-export default function AnalyticsView({ stats, loading, reload, period, setPeriod }) {
+export default function AnalyticsView({ stats, loading, reload, period, setPeriod, startDate, endDate, setStartDate, setEndDate, searchCustomRange }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -116,30 +119,60 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
   return (
     <div className="flex flex-col w-full h-full gap-4">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold">วิเคราะห์ยอดขาย</h2>
-          <p className="text-xs text-default-400">ช่องทางออนไลน์ — Business Central</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            {PERIODS.map((p) => (
-              <Button
-                key={p.key}
-                size="md"
-                radius="md"
-                variant={period === p.key ? "solid" : "bordered"}
-                color={period === p.key ? "primary" : "default"}
-                onPress={() => setPeriod(p.key)}
-              >
-                {p.label}
-              </Button>
-            ))}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold">วิเคราะห์ยอดขาย</h2>
+            <p className="text-xs text-default-400">ช่องทางออนไลน์ — Business Central</p>
           </div>
-          <Button variant="bordered" size="md" radius="md" isIconOnly onPress={reload}>
-            <RefreshCw size={14} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="flex flex-wrap gap-1">
+              {PERIODS.map((p) => (
+                <Button
+                  key={p.key}
+                  size="md"
+                  radius="md"
+                  variant={period === p.key ? "solid" : "bordered"}
+                  color={period === p.key ? "primary" : "default"}
+                  onPress={() => setPeriod(p.key)}
+                >
+                  {p.label}
+                </Button>
+              ))}
+            </div>
+            <Button variant="bordered" size="md" radius="md" isIconOnly onPress={reload}>
+              <RefreshCw size={14} />
+            </Button>
+          </div>
         </div>
+        {period === "custom" && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="text-xs text-default-500">ตั้งแต่</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border border-default-300 rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
+            />
+            <label className="text-xs text-default-500">ถึง</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border border-default-300 rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
+            />
+            <Button
+              size="md"
+              radius="md"
+              color="primary"
+              isDisabled={!startDate || !endDate}
+              onPress={searchCustomRange}
+              startContent={<Search size={14} />}
+            >
+              ค้นหา
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* ROW 2: Period KPIs — DTD / WTD / MTD / YTD */}
@@ -228,6 +261,9 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
               </Tab>
               <Tab key="dow" title="ตามวัน">
                 <RevenueByDayChart data={stats.revenueByDayOfWeek} />
+              </Tab>
+              <Tab key="yoy" title="เทียบ YoY">
+                <YoYComparisonChart data={stats.yoyComparison} />
               </Tab>
             </Tabs>
           </CardBody>

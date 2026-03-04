@@ -1,0 +1,692 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import {
+  Card,
+  CardBody,
+  Tabs,
+  Tab,
+  Button,
+  Chip,
+  Select,
+  SelectItem,
+  Spinner,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
+} from "@heroui/react";
+import {
+  Upload,
+  FileText,
+  RefreshCw,
+  Download,
+  Trash2,
+  Search,
+  Link2,
+  X,
+  Check,
+  Ban,
+  Zap,
+} from "lucide-react";
+import DataTable from "@/components/ui/DataTable";
+import FileUpload from "@/components/ui/FileUpload";
+
+const BANK_OPTIONS = [
+  { key: "AUTO", label: "ตรวจจับอัตโนมัติ" },
+  { key: "KBANK", label: "กสิกรไทย (KBank)" },
+  { key: "SCB", label: "ไทยพาณิชย์ (SCB)" },
+  { key: "BBL", label: "กรุงเทพ (BBL)" },
+  { key: "KTB", label: "กรุงไทย (KTB)" },
+];
+
+const STATUS_COLORS = {
+  matched: "success",
+  suggested: "warning",
+  unmatched: "default",
+  excluded: "secondary",
+};
+
+const STATUS_LABELS = {
+  matched: "Match แล้ว",
+  suggested: "แนะนำ",
+  unmatched: "ยังไม่ Match",
+  excluded: "ยกเว้น",
+};
+
+const STMT_STATUS_COLORS = {
+  pending: "default",
+  parsed: "primary",
+  matched: "success",
+  error: "danger",
+};
+
+function fmtNum(n) {
+  return Number(n || 0).toLocaleString("th-TH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+export default function BankReconView({
+  statements,
+  selectedId,
+  detail,
+  loading,
+  parsing,
+  matching,
+  filter,
+  setFilter,
+  kpis,
+  filteredEntries,
+  openInvoices,
+  matchModal,
+  matchEntry,
+  selectStatement,
+  handleUpload,
+  handleParse,
+  handleAutoMatch,
+  handleManualMatch,
+  handleUnmatch,
+  handleExclude,
+  handleDelete,
+  handleExport,
+  openMatchModal,
+}) {
+  const [bankCode, setBankCode] = useState("AUTO");
+  const [invoiceSearch, setInvoiceSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("upload");
+
+  // ─── Statement list columns ───
+  const stmtColumns = [
+    { name: "ไฟล์", uid: "fileName", sortable: true },
+    { name: "ธนาคาร", uid: "bankCode", sortable: true },
+    { name: "เลขบัญชี", uid: "accountNumber" },
+    { name: "ช่วงวันที่", uid: "period" },
+    { name: "ยอดเปิด", uid: "openingBalance" },
+    { name: "ยอดปิด", uid: "closingBalance" },
+    { name: "รายการ", uid: "entryCount", sortable: true },
+    { name: "Match", uid: "matchedCount" },
+    { name: "สถานะ", uid: "status", sortable: true },
+    { name: "อัพโหลดเมื่อ", uid: "createdAt", sortable: true },
+    { name: "จัดการ", uid: "actions" },
+  ];
+
+  const renderStmtCell = (item, col) => {
+    switch (col) {
+      case "period":
+        return item.periodStart && item.periodEnd
+          ? `${item.periodStart} — ${item.periodEnd}`
+          : "-";
+      case "openingBalance":
+      case "closingBalance":
+        return item[col] != null ? fmtNum(item[col]) : "-";
+      case "status":
+        return (
+          <Chip size="sm" color={STMT_STATUS_COLORS[item.status] || "default"} variant="flat">
+            {item.status === "pending" ? "รออ่าน" : item.status === "parsed" ? "อ่านแล้ว" : item.status === "matched" ? "Match แล้ว" : item.status}
+          </Chip>
+        );
+      case "createdAt":
+        return item.createdAt ? new Date(item.createdAt).toLocaleDateString("th-TH") : "-";
+      case "actions":
+        return (
+          <div className="flex gap-1">
+            {item.status === "pending" && (
+              <Button
+                size="sm"
+                color="primary"
+                variant="flat"
+                isLoading={parsing}
+                onPress={() => handleParse(item.id)}
+              >
+                อ่าน PDF
+              </Button>
+            )}
+            <Button
+              size="sm"
+              color="primary"
+              variant="light"
+              onPress={() => { selectStatement(item.id); setActiveTab("recon"); }}
+            >
+              ดูรายละเอียด
+            </Button>
+            <Button
+              size="sm"
+              color="danger"
+              variant="light"
+              isIconOnly
+              onPress={() => {
+                if (confirm("ลบ Statement นี้?")) handleDelete(item.id);
+              }}
+            >
+              <Trash2 size={14} />
+            </Button>
+          </div>
+        );
+      default:
+        return item[col] ?? "-";
+    }
+  };
+
+  // ─── Entry list columns ───
+  const entryColumns = [
+    { name: "วันที่", uid: "txDate", sortable: true },
+    { name: "เวลา", uid: "txTime" },
+    { name: "ช่องทาง", uid: "channel" },
+    { name: "รายละเอียด", uid: "description" },
+    { name: "ประเภท", uid: "txType" },
+    { name: "ฝาก/ถอน", uid: "direction", sortable: true },
+    { name: "จำนวนเงิน", uid: "amount", sortable: true },
+    { name: "ยอดคงเหลือ", uid: "balance" },
+    { name: "สถานะ", uid: "matchStatus", sortable: true },
+    { name: "Invoice", uid: "invoice" },
+    { name: "จัดการ", uid: "actions" },
+  ];
+
+  const renderEntryCell = (item, col) => {
+    switch (col) {
+      case "direction":
+        return (
+          <Chip
+            size="sm"
+            color={item.direction === "credit" ? "success" : "danger"}
+            variant="flat"
+          >
+            {item.direction === "credit" ? "ฝาก" : "ถอน"}
+          </Chip>
+        );
+      case "amount":
+        return (
+          <span className={item.direction === "credit" ? "text-success" : "text-danger"}>
+            {fmtNum(item.amount)}
+          </span>
+        );
+      case "balance":
+        return fmtNum(item.balance);
+      case "matchStatus":
+        return (
+          <div className="flex items-center gap-1">
+            <Chip
+              size="sm"
+              color={STATUS_COLORS[item.matchStatus] || "default"}
+              variant="flat"
+            >
+              {STATUS_LABELS[item.matchStatus] || item.matchStatus}
+            </Chip>
+            {item.matchConfidence && (
+              <span className="text-xs text-default-400">
+                {(item.matchConfidence * 100).toFixed(0)}%
+              </span>
+            )}
+          </div>
+        );
+      case "invoice": {
+        const matches = item.bankMatch || [];
+        if (matches.length === 0) return "-";
+        return (
+          <div className="flex flex-col gap-0.5">
+            {matches.map((m, i) => (
+              <div key={i} className="text-xs">
+                <span className="font-medium">{m.invoiceNumber}</span>
+                <span className="text-default-400 ml-1">({fmtNum(m.matchedAmount)})</span>
+              </div>
+            ))}
+          </div>
+        );
+      }
+      case "actions":
+        if (item.direction !== "credit") return null;
+        return (
+          <div className="flex gap-1">
+            {(item.matchStatus === "unmatched" || item.matchStatus === "suggested") && (
+              <>
+                <Button
+                  size="sm"
+                  color="primary"
+                  variant="flat"
+                  onPress={() => openMatchModal(item)}
+                  startContent={<Link2 size={12} />}
+                >
+                  Match
+                </Button>
+                <Button
+                  size="sm"
+                  color="default"
+                  variant="flat"
+                  onPress={() => handleExclude(item.id, "ยกเว้น — โอนภายใน/ค่าธรรมเนียม")}
+                  isIconOnly
+                  title="ยกเว้น"
+                >
+                  <Ban size={14} />
+                </Button>
+              </>
+            )}
+            {item.matchStatus === "matched" && (
+              <Button
+                size="sm"
+                color="danger"
+                variant="light"
+                onPress={() => handleUnmatch(item.id)}
+                startContent={<X size={12} />}
+              >
+                ยกเลิก
+              </Button>
+            )}
+          </div>
+        );
+      default:
+        return item[col] ?? "-";
+    }
+  };
+
+  // ─── Filter for invoice search in modal ───
+  const filteredInvoices = useMemo(() => {
+    if (!invoiceSearch) return openInvoices.slice(0, 50);
+    const term = invoiceSearch.toLowerCase();
+    return openInvoices
+      .filter(
+        (inv) =>
+          (inv.number || "").toLowerCase().includes(term) ||
+          (inv.customerName || "").toLowerCase().includes(term) ||
+          String(inv.totalAmountIncludingTax || "").includes(term),
+      )
+      .slice(0, 50);
+  }, [openInvoices, invoiceSearch]);
+
+  return (
+    <div className="flex flex-col w-full h-full gap-4">
+      <Tabs aria-label="Bank Recon" color="primary" variant="underlined" selectedKey={activeTab} onSelectionChange={setActiveTab}>
+        {/* ═══ Tab 1: Upload ═══ */}
+        <Tab
+          key="upload"
+          title={
+            <div className="flex items-center gap-2">
+              <Upload size={16} />
+              <span>อัพโหลด</span>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <Card shadow="none" className="border border-default-200">
+              <CardBody className="gap-4">
+                <div className="flex items-end gap-4 flex-wrap">
+                  <Select
+                    label="ธนาคาร"
+                    selectedKeys={new Set([bankCode])}
+                    onChange={(e) => setBankCode(e.target.value)}
+                    className="max-w-xs"
+                  >
+                    {BANK_OPTIONS.map((b) => (
+                      <SelectItem key={b.key}>{b.label}</SelectItem>
+                    ))}
+                  </Select>
+                  <div className="flex-1 min-w-[200px]">
+                    <FileUpload
+                      label="อัพโหลด Bank Statement (PDF)"
+                      accept=".pdf"
+                      folder="bank-statements"
+                      onChange={(url) => {
+                        const fileName = url.split("/").pop() || "statement.pdf";
+                        handleUpload(url, fileName, bankCode);
+                      }}
+                    />
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+
+            <DataTable
+              columns={stmtColumns}
+              data={statements}
+              renderCell={renderStmtCell}
+              rowKey="id"
+              isLoading={loading}
+              searchKeys={["fileName", "bankCode", "accountNumber"]}
+              searchPlaceholder="ค้นหา statement..."
+              defaultSortDescriptor={{ column: "createdAt", direction: "descending" }}
+              emptyContent="ยังไม่มี Statement"
+            />
+          </div>
+        </Tab>
+
+        {/* ═══ Tab 2: Reconciliation ═══ */}
+        <Tab
+          key="recon"
+          title={
+            <div className="flex items-center gap-2">
+              <FileText size={16} />
+              <span>กระทบยอด</span>
+              {kpis.unmatchedCount > 0 && (
+                <Chip size="sm" color="danger" variant="flat">
+                  {kpis.unmatchedCount}
+                </Chip>
+              )}
+            </div>
+          }
+        >
+          {!detail ? (
+            <div className="text-center py-8 text-default-400">
+              เลือก Statement จากแท็บ &quot;อัพโหลด&quot; เพื่อเริ่มกระทบยอด
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {/* Statement info bar */}
+              <Card shadow="none" className="border border-default-200">
+                <CardBody>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold">{detail.bankCode}</span>
+                      <span className="text-default-500">{detail.accountNumber}</span>
+                      <span className="text-default-500">
+                        {detail.periodStart} — {detail.periodEnd}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        color="primary"
+                        onPress={handleAutoMatch}
+                        isLoading={matching}
+                        startContent={<Zap size={14} />}
+                      >
+                        Auto-Match
+                      </Button>
+                      <Button
+                        size="sm"
+                        color="default"
+                        variant="flat"
+                        onPress={handleExport}
+                        startContent={<Download size={14} />}
+                      >
+                        Export Excel
+                      </Button>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+
+              {/* KPI Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <KpiCard label="ยอดฝากทั้งหมด" value={fmtNum(kpis.totalDeposit)} sub={`${kpis.creditCount} รายการ`} color="text-success" />
+                <KpiCard label="Match แล้ว" value={fmtNum(kpis.matchedAmount)} sub={`${kpis.matchedCount} รายการ`} color="text-primary" />
+                <KpiCard label="ยังไม่ Match" value={fmtNum(kpis.unmatchedAmount)} sub={`${kpis.unmatchedCount} รายการ`} color="text-danger" />
+                <KpiCard label="อัตรา Match" value={`${kpis.matchRate}%`} sub={`แนะนำ ${kpis.suggestedCount} / ยกเว้น ${kpis.excludedCount}`} color="text-warning" />
+              </div>
+
+              {/* Filter chips */}
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { key: "all", label: `ทั้งหมด (${detail.entries?.length || 0})` },
+                  { key: "credit", label: `ฝาก (${kpis.creditCount})` },
+                  { key: "debit", label: `ถอน (${kpis.debitCount})` },
+                  { key: "matched", label: `Match (${kpis.matchedCount})` },
+                  { key: "suggested", label: `แนะนำ (${kpis.suggestedCount})` },
+                  { key: "unmatched", label: `ไม่ Match (${kpis.unmatchedCount})` },
+                  { key: "excluded", label: `ยกเว้น (${kpis.excludedCount})` },
+                ].map((f) => (
+                  <Chip
+                    key={f.key}
+                    variant={filter === f.key ? "solid" : "bordered"}
+                    color={filter === f.key ? "primary" : "default"}
+                    className="cursor-pointer"
+                    onClick={() => setFilter(f.key)}
+                  >
+                    {f.label}
+                  </Chip>
+                ))}
+              </div>
+
+              {/* Entries table */}
+              <DataTable
+                columns={entryColumns}
+                data={filteredEntries}
+                renderCell={renderEntryCell}
+                rowKey="id"
+                isLoading={loading}
+                searchKeys={["description", "txType", "channel"]}
+                searchPlaceholder="ค้นหารายการ..."
+                defaultRowsPerPage={20}
+                defaultSortDescriptor={{ column: "txDate", direction: "ascending" }}
+                emptyContent="ไม่มีรายการ"
+                getRowClassName={(item) =>
+                  item.matchStatus === "matched"
+                    ? "bg-success-50"
+                    : item.matchStatus === "suggested"
+                      ? "bg-warning-50"
+                      : ""
+                }
+              />
+            </div>
+          )}
+        </Tab>
+
+        {/* ═══ Tab 3: Summary ═══ */}
+        <Tab
+          key="summary"
+          title={
+            <div className="flex items-center gap-2">
+              <RefreshCw size={16} />
+              <span>สรุป</span>
+            </div>
+          }
+        >
+          {!detail ? (
+            <div className="text-center py-8 text-default-400">เลือก Statement ก่อน</div>
+          ) : (
+            <SummaryTab detail={detail} kpis={kpis} handleExport={handleExport} />
+          )}
+        </Tab>
+      </Tabs>
+
+      {/* ═══ Manual Match Modal ═══ */}
+      <Modal isOpen={matchModal.isOpen} onClose={matchModal.onClose} size="3xl" scrollBehavior="inside">
+        <ModalContent>
+          <ModalHeader>
+            <div className="flex flex-col gap-1">
+              <span>เลือก Invoice สำหรับ Match</span>
+              {matchEntry && (
+                <span className="text-sm font-normal text-default-500">
+                  {matchEntry.txDate} — {matchEntry.description} — ยอด {fmtNum(matchEntry.amount)} บาท
+                </span>
+              )}
+            </div>
+          </ModalHeader>
+          <ModalBody>
+            <Input
+              placeholder="ค้นหาเลข Invoice หรือชื่อลูกค้า..."
+              value={invoiceSearch}
+              onChange={(e) => setInvoiceSearch(e.target.value)}
+              startContent={<Search size={16} />}
+              className="mb-3"
+            />
+
+            {/* Suggested matches from auto-match */}
+            {matchEntry?.bankMatch?.length > 0 && (
+              <div className="mb-4">
+                <p className="text-sm font-semibold mb-2 text-warning">แนะนำจาก Auto-Match:</p>
+                {matchEntry.bankMatch.map((m, i) => (
+                  <Card key={i} shadow="none" className="border border-warning-200 mb-2">
+                    <CardBody className="flex-row items-center justify-between py-2">
+                      <div>
+                        <span className="font-semibold">{m.invoiceNumber}</span>
+                        <span className="text-sm text-default-500 ml-2">{m.customerName}</span>
+                        <span className="text-sm ml-2">ยอด {fmtNum(m.remainingAmount)}</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        color="success"
+                        onPress={() =>
+                          handleManualMatch(matchEntry.id, {
+                            invoiceNumber: m.invoiceNumber,
+                            customerNumber: m.customerNumber,
+                            customerName: m.customerName,
+                            invoiceAmount: m.invoiceAmount,
+                            remainingAmount: m.remainingAmount,
+                            matchedAmount: matchEntry.amount,
+                          })
+                        }
+                        startContent={<Check size={12} />}
+                      >
+                        เลือก
+                      </Button>
+                    </CardBody>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Open invoices list */}
+            <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
+              {filteredInvoices.map((inv) => (
+                <Card key={inv.id || inv.number} shadow="none" className="border border-default-200">
+                  <CardBody className="flex-row items-center justify-between py-2">
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{inv.number}</span>
+                        <span className="text-sm text-default-500">
+                          {inv.customerName}
+                        </span>
+                      </div>
+                      <div className="text-xs text-default-400">
+                        วันที่ {inv.invoiceDate} | ครบ {inv.dueDate} | ยอด{" "}
+                        {fmtNum(inv.totalAmountIncludingTax)} | คงเหลือ{" "}
+                        {fmtNum(inv.remainingAmount)}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      color="primary"
+                      variant="flat"
+                      onPress={() =>
+                        handleManualMatch(matchEntry.id, {
+                          invoiceNumber: inv.number,
+                          customerNumber: inv.customerNumber || "",
+                          customerName: inv.customerName || "",
+                          invoiceAmount: Number(inv.totalAmountIncludingTax || 0),
+                          remainingAmount: Number(inv.remainingAmount || inv.totalAmountIncludingTax || 0),
+                          matchedAmount: matchEntry.amount,
+                        })
+                      }
+                      startContent={<Check size={12} />}
+                    >
+                      Match
+                    </Button>
+                  </CardBody>
+                </Card>
+              ))}
+              {filteredInvoices.length === 0 && (
+                <p className="text-center text-default-400 py-4">ไม่พบ Invoice</p>
+              )}
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="default" onPress={matchModal.onClose}>
+              ปิด
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </div>
+  );
+}
+
+function KpiCard({ label, value, sub, color }) {
+  return (
+    <Card shadow="none" className="border border-default-200">
+      <CardBody className="py-3 px-4">
+        <p className="text-xs text-default-500">{label}</p>
+        <p className={`text-xl font-bold ${color}`}>{value}</p>
+        <p className="text-xs text-default-400">{sub}</p>
+      </CardBody>
+    </Card>
+  );
+}
+
+function SummaryTab({ detail, kpis, handleExport }) {
+  const customerSummary = useMemo(() => {
+    const map = new Map();
+    for (const entry of detail.entries || []) {
+      if (entry.direction !== "credit" || !entry.bankMatch?.length) continue;
+      for (const m of entry.bankMatch) {
+        const key = m.customerNumber || m.customerName;
+        if (!map.has(key)) {
+          map.set(key, {
+            customerNumber: m.customerNumber,
+            customerName: m.customerName,
+            totalMatched: 0,
+            invoiceCount: 0,
+            invoices: [],
+            invoiceDetails: [],
+          });
+        }
+        const s = map.get(key);
+        s.totalMatched += Number(m.matchedAmount);
+        s.invoiceCount++;
+        s.invoices.push(m.invoiceNumber);
+        s.invoiceDetails.push({ number: m.invoiceNumber, amount: Number(m.matchedAmount) });
+      }
+    }
+    return [...map.values()].sort((a, b) => b.totalMatched - a.totalMatched);
+  }, [detail.entries]);
+
+  const summaryColumns = [
+    { name: "เลขลูกค้า", uid: "customerNumber", sortable: true },
+    { name: "ชื่อลูกค้า", uid: "customerName", sortable: true },
+    { name: "จำนวน Invoice", uid: "invoiceCount", sortable: true },
+    { name: "ยอดรวม Match", uid: "totalMatched", sortable: true },
+    { name: "Invoice", uid: "invoices" },
+  ];
+
+  const renderSummaryCell = (item, col) => {
+    if (col === "totalMatched") return fmtNum(item.totalMatched);
+    if (col === "invoices") {
+      return (
+        <div className="flex flex-wrap gap-1">
+          {item.invoiceDetails.map((d, i) => (
+            <Chip key={i} size="sm" variant="flat">
+              {d.number} ({fmtNum(d.amount)})
+            </Chip>
+          ))}
+        </div>
+      );
+    }
+    return item[col] ?? "-";
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Summary KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <KpiCard label="รวมรายการทั้งหมด" value={kpis.totalEntries} sub={`ฝาก ${kpis.creditCount} / ถอน ${kpis.debitCount}`} color="text-default-700" />
+        <KpiCard label="ยอดฝาก" value={fmtNum(kpis.totalDeposit)} sub="บาท" color="text-success" />
+        <KpiCard label="ยอดถอน" value={fmtNum(kpis.totalWithdraw)} sub="บาท" color="text-danger" />
+        <KpiCard label="อัตรา Match" value={`${kpis.matchRate}%`} sub={`${kpis.matchedCount} / ${kpis.creditCount} รายการฝาก`} color="text-primary" />
+      </div>
+
+      {/* Customer summary table */}
+      <DataTable
+        columns={summaryColumns}
+        data={customerSummary}
+        renderCell={renderSummaryCell}
+        rowKey="customerNumber"
+        searchKeys={["customerNumber", "customerName"]}
+        searchPlaceholder="ค้นหาลูกค้า..."
+        emptyContent="ยังไม่มีข้อมูล Match"
+        topEndContent={
+          <Button
+            size="sm"
+            color="primary"
+            variant="flat"
+            onPress={handleExport}
+            startContent={<Download size={14} />}
+          >
+            Export Excel
+          </Button>
+        }
+      />
+    </div>
+  );
+}

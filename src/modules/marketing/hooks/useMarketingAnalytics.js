@@ -9,11 +9,13 @@ export function useMarketingAnalytics() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriodState] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const loadData = useCallback(async (refresh = false, p = "all") => {
+  const loadData = useCallback(async (refresh = false, p = "all", sd, ed) => {
     try {
       setLoading(true);
-      const data = await getMarketingAnalytics(refresh, p);
+      const data = await getMarketingAnalytics(refresh, p, sd, ed);
       setOrders(data.orders || []);
       setStats(data.stats || null);
     } catch (error) {
@@ -25,16 +27,38 @@ export function useMarketingAnalytics() {
   }, []);
 
   useEffect(() => {
-    loadData(false, period);
+    if (period !== "custom") {
+      loadData(false, period);
+    }
   }, [period, loadData]);
 
+  const searchCustomRange = useCallback(() => {
+    if (startDate && endDate) {
+      loadData(false, "custom", startDate, endDate);
+    }
+  }, [startDate, endDate, loadData]);
+
   const setPeriod = useCallback((p) => {
+    if (p !== "custom") {
+      setStartDate("");
+      setEndDate("");
+    }
     setPeriodState(p);
   }, []);
 
-  const reload = useCallback(() => {
-    loadData(true, period);
-  }, [loadData, period]);
+  const setCustomRange = useCallback((sd, ed) => {
+    setStartDate(sd);
+    setEndDate(ed);
+    setPeriodState("custom");
+  }, []);
 
-  return { orders, stats, loading, period, setPeriod, reload };
+  const reload = useCallback(() => {
+    if (period === "custom" && startDate && endDate) {
+      loadData(true, "custom", startDate, endDate);
+    } else {
+      loadData(true, period);
+    }
+  }, [loadData, period, startDate, endDate]);
+
+  return { orders, stats, loading, period, setPeriod, startDate, endDate, setStartDate, setEndDate, setCustomRange, searchCustomRange, reload };
 }

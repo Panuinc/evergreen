@@ -74,6 +74,7 @@ export default function FinanceDashboardPage() {
       grossProfit, sellingExpense, adminExpense, interestExpense,
       operatingProfit, totalExpense, netIncome,
       currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
+      inventoryAccounts: tb.inventoryAccounts,
       groups: tb.groups, totalAccounts: tb.totalAccounts, postingAccounts: tb.postingAccounts,
     };
   }, [hook.financials, gl.monthlyPnL, inventoryAdjustment]);
@@ -172,7 +173,7 @@ export default function FinanceDashboardPage() {
       agingInvoices={hook.agingInvoices}
       aiAnalysis={hook.aiAnalysis}
       aiLoading={hook.aiLoading}
-      runAiAnalysis={hook.runAiAnalysis}
+      runAiAnalysis={() => hook.runAiAnalysis(financials)}
       reload={hook.reload}
       // Year selector
       selectedYear={hook.selectedYear}

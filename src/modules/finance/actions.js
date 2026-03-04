@@ -45,3 +45,35 @@ export async function getCollections(params = {}) {
 export async function createFollowUp(data) {
   return post("/api/finance/collections", data);
 }
+
+// ─── Bank Reconciliation ───
+export async function getBankStatements(params = {}) {
+  const query = new URLSearchParams(
+    Object.fromEntries(Object.entries(params).filter(([, v]) => v)),
+  ).toString();
+  return get(`/api/finance/bankRecon${query ? `?${query}` : ""}`);
+}
+
+export async function createBankStatement(data) {
+  return post("/api/finance/bankRecon", data);
+}
+
+export async function getBankStatementDetail(id) {
+  return get(`/api/finance/bankRecon/${id}`);
+}
+
+export async function parseBankStatement(id) {
+  return post(`/api/finance/bankRecon/${id}/parse`);
+}
+
+export async function runAutoMatch(id) {
+  return post(`/api/finance/bankRecon/${id}/match`);
+}
+
+export async function manualMatchEntry(id, data) {
+  return put(`/api/finance/bankRecon/${id}/match`, data);
+}
+
+export async function deleteBankStatement(id) {
+  return del(`/api/finance/bankRecon/${id}`);
+}

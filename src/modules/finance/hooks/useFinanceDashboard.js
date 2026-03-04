@@ -574,31 +574,32 @@ export function useFinanceDashboard() {
   const [aiAnalysis, setAiAnalysis] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 
-  const runAiAnalysis = useCallback(async () => {
-    if (!financials) return;
+  const runAiAnalysis = useCallback(async (overrideFinancials) => {
+    const fin = overrideFinancials || financials;
+    if (!fin) return;
     setAiLoading(true);
     setAiAnalysis("");
 
     // Build snapshot text for the AI
     const snapshot = {
       financials: [
-        `สินทรัพย์รวม: ${fmt(financials.totalAssets)} (หมุนเวียน ${fmt(financials.currentAssets)}, ไม่หมุนเวียน ${fmt(financials.noncurrentAssets)})`,
-        `หนี้สินรวม: ${fmt(financials.totalLiabilities)} (หมุนเวียน ${fmt(financials.currentLiabilities)}, ไม่หมุนเวียน ${fmt(financials.noncurrentLiabilities)})`,
-        `ส่วนของเจ้าของ: ${fmt(financials.totalEquity)} (ทุน ${fmt(financials.shareCapital)}, กำไรสะสม ${fmt(financials.retainedEarnings)})`,
-        `เงินทุนหมุนเวียน (Working Capital): ${fmt(financials.workingCapital)}`,
-        `รายได้รวม: ${fmt(financials.totalRevenue)} (ขาย ${fmt(financials.salesRevenue)}, บริการ ${fmt(financials.serviceRevenue)}, อื่น ${fmt(financials.otherIncome)})`,
-        `ต้นทุนขาย: ${fmt(financials.cogs)}`,
-        `กำไรขั้นต้น: ${fmt(financials.grossProfit)}`,
-        `ค่าใช้จ่ายขาย: ${fmt(financials.sellingExpense)}, ค่าใช้จ่ายบริหาร: ${fmt(financials.adminExpense)}`,
-        `กำไรก่อนต้นทุนทางการเงิน: ${fmt(financials.operatingProfit)}`,
-        `ดอกเบี้ยจ่าย (ต้นทุนทางการเงิน): ${fmt(financials.interestExpense)}`,
-        `กำไรสุทธิก่อนภาษี: ${fmt(financials.netIncome)}`,
+        `สินทรัพย์รวม: ${fmt(fin.totalAssets)} (หมุนเวียน ${fmt(fin.currentAssets)}, ไม่หมุนเวียน ${fmt(fin.noncurrentAssets)})`,
+        `หนี้สินรวม: ${fmt(fin.totalLiabilities)} (หมุนเวียน ${fmt(fin.currentLiabilities)}, ไม่หมุนเวียน ${fmt(fin.noncurrentLiabilities)})`,
+        `ส่วนของเจ้าของ: ${fmt(fin.totalEquity)} (ทุน ${fmt(fin.shareCapital)}, กำไรสะสม ${fmt(fin.retainedEarnings)})`,
+        `เงินทุนหมุนเวียน (Working Capital): ${fmt(fin.workingCapital)}`,
+        `รายได้รวม: ${fmt(fin.totalRevenue)} (ขาย ${fmt(fin.salesRevenue)}, บริการ ${fmt(fin.serviceRevenue)}, อื่น ${fmt(fin.otherIncome)})`,
+        `ต้นทุนขาย: ${fmt(fin.cogs)}`,
+        `กำไรขั้นต้น: ${fmt(fin.grossProfit)}`,
+        `ค่าใช้จ่ายขาย: ${fmt(fin.sellingExpense)}, ค่าใช้จ่ายบริหาร: ${fmt(fin.adminExpense)}`,
+        `กำไรก่อนต้นทุนทางการเงิน: ${fmt(fin.operatingProfit)}`,
+        `ดอกเบี้ยจ่าย (ต้นทุนทางการเงิน): ${fmt(fin.interestExpense)}`,
+        `กำไรสุทธิก่อนภาษี: ${fmt(fin.netIncome)}`,
       ].join("\n"),
       ratios: [
-        `Current Ratio: ${financials.currentRatio.toFixed(2)} (เกณฑ์: ≥2 ดี, 1-2 พอใช้, <1 เสี่ยง)`,
-        `D/E Ratio: ${financials.debtToEquity.toFixed(2)} (เกณฑ์: ≤1 ดี, 1-2 พอใช้, >2 เสี่ยง)`,
-        `Gross Margin: ${financials.grossMargin.toFixed(1)}% (เกณฑ์: ≥30% ดี, 15-30% พอใช้)`,
-        `Net Margin: ${financials.netMargin.toFixed(1)}% (เกณฑ์: ≥10% ดี, 5-10% พอใช้)`,
+        `Current Ratio: ${fin.currentRatio.toFixed(2)} (เกณฑ์: ≥2 ดี, 1-2 พอใช้, <1 เสี่ยง)`,
+        `D/E Ratio: ${fin.debtToEquity.toFixed(2)} (เกณฑ์: ≤1 ดี, 1-2 พอใช้, >2 เสี่ยง)`,
+        `Gross Margin: ${fin.grossMargin.toFixed(1)}% (เกณฑ์: ≥30% ดี, 15-30% พอใช้)`,
+        `Net Margin: ${fin.netMargin.toFixed(1)}% (เกณฑ์: ≥10% ดี, 5-10% พอใช้)`,
       ].join("\n"),
       ar: arTotals
         ? [

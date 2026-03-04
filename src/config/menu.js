@@ -138,6 +138,11 @@ export const menuData = [
         icon: ClipboardList,
         href: "/finance/collections",
       },
+      {
+        name: "กระทบยอดธนาคาร",
+        icon: Wallet,
+        href: "/finance/bankRecon",
+      },
       // { name: "งบประมาณ", icon: PieChart },
       // { name: "ภาษี", icon: FileCheck },
     ],

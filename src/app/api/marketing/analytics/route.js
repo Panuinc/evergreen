@@ -28,9 +28,13 @@ export async function GET(request) {
   const url = new URL(request.url);
   const refresh = url.searchParams.get("refresh");
   const period = url.searchParams.get("period") || "all";
+  const startDate = url.searchParams.get("startDate");
+  const endDate = url.searchParams.get("endDate");
 
-  if (!refresh && periodCaches[period]?.data && Date.now() - periodCaches[period].ts < CACHE_TTL) {
-    return Response.json(periodCaches[period].data);
+  const cacheKey = startDate && endDate ? `custom:${startDate}:${endDate}` : period;
+
+  if (!refresh && periodCaches[cacheKey]?.data && Date.now() - periodCaches[cacheKey].ts < CACHE_TTL) {
+    return Response.json(periodCaches[cacheKey].data);
   }
 
   try {
@@ -129,6 +133,7 @@ export async function GET(request) {
 
     // === Period filter ===
     const filtered = (() => {
+      if (startDate && endDate) return ordersWithLines.filter((o) => o.Order_Date >= startDate && o.Order_Date <= endDate);
       if (period === "day") return ordersWithLines.filter((o) => o.Order_Date === today);
       if (period === "week") return ordersWithLines.filter((o) => o.Order_Date >= thisWeekStart && o.Order_Date <= today);
       if (period === "month") return ordersWithLines.filter((o) => o.Order_Date?.startsWith(currentMonth));
@@ -417,6 +422,29 @@ export async function GET(request) {
       if (c.phone) customerPhones[no] = c.phone;
     }
 
+    // === YoY Comparison (always based on full dataset) ===
+    const THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    const yoyMap = {};
+    for (let m = 1; m <= 12; m++) {
+      const mm = String(m).padStart(2, "0");
+      yoyMap[mm] = { month: mm, monthLabel: THAI_MONTHS[m - 1], currentRevenue: 0, previousRevenue: 0, currentOrders: 0, previousOrders: 0 };
+    }
+    for (const o of ordersWithLines) {
+      const d = o.Order_Date;
+      if (!d) continue;
+      const y = d.slice(0, 4);
+      const mm = d.slice(5, 7);
+      if (!yoyMap[mm]) continue;
+      if (y === currentYear) {
+        yoyMap[mm].currentRevenue += o.totalAmount;
+        yoyMap[mm].currentOrders++;
+      } else if (y === prevYear) {
+        yoyMap[mm].previousRevenue += o.totalAmount;
+        yoyMap[mm].previousOrders++;
+      }
+    }
+    const yoyComparison = Object.values(yoyMap);
+
     const result = {
       orders: filtered,
       customerPhones,
@@ -449,9 +477,10 @@ export async function GET(request) {
         monthlyComparison,
         locationDist,
         customerSegmentation,
+        yoyComparison,
       },
     };
-    periodCaches[period] = { data: result, ts: Date.now() };
+    periodCaches[cacheKey] = { data: result, ts: Date.now() };
     return Response.json(result);
   } catch (error) {
     console.error("[Marketing Analytics] Error:", error.message);
