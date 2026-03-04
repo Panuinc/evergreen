@@ -152,7 +152,6 @@ export default function FinanceDashboardPage() {
       bsChartData={hook.bsChartData}
       isWaterfallData={isWaterfallData}
       expenseBreakdown={expenseBreakdown}
-      topAccounts={hook.topAccounts}
       arChartData={hook.arChartData}
       arTotals={hook.arTotals}
       arConcentration={hook.arConcentration}

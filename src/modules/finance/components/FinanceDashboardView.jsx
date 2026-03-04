@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   Card, CardBody, CardHeader, Spinner, Chip, Tooltip,
   Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
@@ -53,9 +53,29 @@ function fmtMonth(ym) {
   return `${THAI_MONTHS[parseInt(m) - 1]} ${(parseInt(y) + 543) % 100}`;
 }
 
+// ─── Helpers for account detail modal ───
+
+/**
+ * Extract and sort accounts from financials.groups for modal display.
+ */
+function getGroupAccounts(groups, keys, normalSide = "debit") {
+  if (!groups) return [];
+  const all = [];
+  for (const k of keys) {
+    const g = groups[k];
+    if (!g?.accounts) continue;
+    for (const a of g.accounts) {
+      const bal = normalSide === "debit" ? a.debit - a.credit : a.credit - a.debit;
+      if (Math.abs(bal) > 0.01) all.push({ ...a, bal, groupKey: k, groupName: g.name });
+    }
+  }
+  all.sort((a, b) => Math.abs(b.bal) - Math.abs(a.bal));
+  return all;
+}
+
 // ─── Sub-components ───
 
-function KpiCard({ title, value, unit, color = "default", subtitle, tooltip }) {
+function KpiCard({ title, value, unit, color = "default", subtitle, tooltip, onDetail }) {
   const colorClass = {
     primary: "text-primary",
     success: "text-success",
@@ -64,7 +84,12 @@ function KpiCard({ title, value, unit, color = "default", subtitle, tooltip }) {
     default: "",
   };
   const card = (
-    <Card shadow="none" className={`border border-default-200 ${tooltip ? "cursor-help" : ""}`}>
+    <Card
+      shadow="none"
+      isPressable={!!onDetail}
+      onPress={onDetail}
+      className={`border border-default-200 ${tooltip ? "cursor-help" : ""} ${onDetail ? "hover:border-primary/50 transition-colors" : ""}`}
+    >
       <CardBody className="gap-1">
         <div className="flex items-center gap-1">
           <p className="text-xs text-default-500">{title}</p>
@@ -82,7 +107,7 @@ function KpiCard({ title, value, unit, color = "default", subtitle, tooltip }) {
   return <Tooltip content={tooltip} placement="bottom" delay={200} closeDelay={0}>{card}</Tooltip>;
 }
 
-function RatioCard({ title, value, subtitle, status, tooltip, previousValue }) {
+function RatioCard({ title, value, subtitle, status, tooltip, previousValue, onDetail }) {
   const statusColor = {
     good: "text-success",
     warning: "text-warning",
@@ -90,7 +115,12 @@ function RatioCard({ title, value, subtitle, status, tooltip, previousValue }) {
     neutral: "text-default-500",
   };
   const card = (
-    <Card shadow="none" className={`border border-default-200 ${tooltip ? "cursor-help" : ""}`}>
+    <Card
+      shadow="none"
+      isPressable={!!onDetail}
+      onPress={onDetail}
+      className={`border border-default-200 ${tooltip ? "cursor-help" : ""} ${onDetail ? "hover:border-primary/50 transition-colors" : ""}`}
+    >
       <CardBody className="gap-1">
         <div className="flex items-center gap-1">
           <p className="text-xs text-default-500">{title}</p>
@@ -146,13 +176,6 @@ const apAgingColumns = [
   { name: "ใบแจ้งหนี้", uid: "actions" },
 ];
 
-const topAccountColumns = [
-  { name: "เลขที่", uid: "number", sortable: true },
-  { name: "ชื่อบัญชี", uid: "display", sortable: true },
-  { name: "หมวด", uid: "category", sortable: true },
-  { name: "ยอดเดบิต", uid: "debit", sortable: true },
-  { name: "ยอดเครดิต", uid: "credit", sortable: true },
-];
 
 // ─── Main View Component ───
 
@@ -162,7 +185,6 @@ export default function FinanceDashboardView({
   bsChartData,
   isWaterfallData,
   expenseBreakdown,
-  topAccounts,
   arChartData,
   arTotals,
   arConcentration,
@@ -265,22 +287,8 @@ export default function FinanceDashboardView({
     }
   }, [apInvoiceMap, openAgingDetail]);
 
-  const topAccountRenderCell = useCallback((item, key) => {
-    switch (key) {
-      case "number":
-        return <span className="font-mono">{item.number}</span>;
-      case "display":
-        return <span className="font-medium">{item.display}</span>;
-      case "category":
-        return <Chip size="sm" variant="flat" color="primary">{item.category}</Chip>;
-      case "debit":
-        return <span className={item.debit > 0 ? "text-primary" : "text-default-400"}>{fmt(item.debit)}</span>;
-      case "credit":
-        return <span className={item.credit > 0 ? "text-danger" : "text-default-400"}>{fmt(item.credit)}</span>;
-      default:
-        return item[key];
-    }
-  }, []);
+  // ─── KPI Detail Modal state ───
+  const [kpiDetail, setKpiDetail] = useState(null); // { title, source, formula, calc, notes, groups, keys, normalSide }
 
   // ─── Loading state ───
 
@@ -413,12 +421,20 @@ export default function FinanceDashboardView({
               subtitle={financials ? `หมุนเวียน ${fmt(financials.currentAssets)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-bold">ที่มา: Trial Balance (งบทดลอง)</p>
+                  <p className="text-tiny font-bold">ที่มา: Trial Balance → API: trialBalances</p>
                   <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} + {fmt(financials.noncurrentAssets)}</p>
-                  <p className="text-tiny text-default-400 mt-1">ยอดเดบิต − ยอดเครดิต ของบัญชีหมวด 1</p>
+                  <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
               )}
+              onDetail={financials ? () => setKpiDetail({
+                title: "สินทรัพย์รวม",
+                source: "Trial Balance → API: trialBalances",
+                formula: "สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)",
+                calc: `= ${fmt(financials.currentAssets)} + ${fmt(financials.noncurrentAssets)} = ${fmt(financials.totalAssets)}`,
+                notes: "คำนวณ: ยอดเดบิต − ยอดเครดิต ของบัญชีหมวด 1 (accountType = Posting)",
+                groups: true, keys: ["assets:current", "assets:noncurrent"], normalSide: "debit",
+              }) : undefined}
             />
             <KpiCard
               title="หนี้สินรวม"
@@ -427,12 +443,20 @@ export default function FinanceDashboardView({
               subtitle={financials ? `หมุนเวียน ${fmt(financials.currentLiabilities)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-bold">ที่มา: Trial Balance (งบทดลอง)</p>
+                  <p className="text-tiny font-bold">ที่มา: Trial Balance → API: trialBalances</p>
                   <p className="text-tiny font-semibold mt-1">หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.currentLiabilities)} + {fmt(financials.noncurrentLiabilities)}</p>
-                  <p className="text-tiny text-default-400 mt-1">ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 2</p>
+                  <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
               )}
+              onDetail={financials ? () => setKpiDetail({
+                title: "หนี้สินรวม",
+                source: "Trial Balance → API: trialBalances",
+                formula: "หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)",
+                calc: `= ${fmt(financials.currentLiabilities)} + ${fmt(financials.noncurrentLiabilities)} = ${fmt(financials.totalLiabilities)}`,
+                notes: "คำนวณ: ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 2 (ด้านเครดิต = ปกติ)",
+                groups: true, keys: ["liabilities:current", "liabilities:noncurrent"], normalSide: "credit",
+              }) : undefined}
             />
             <KpiCard
               title="ส่วนของเจ้าของ"
@@ -441,12 +465,20 @@ export default function FinanceDashboardView({
               subtitle={financials ? `ทุน ${fmt(financials.shareCapital)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-bold">ที่มา: Trial Balance (งบทดลอง)</p>
+                  <p className="text-tiny font-bold">ที่มา: Trial Balance → API: trialBalances</p>
                   <p className="text-tiny font-semibold mt-1">ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.shareCapital)} + {fmt(financials.retainedEarnings)}</p>
-                  <p className="text-tiny text-default-400 mt-1">ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 3</p>
+                  <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
               )}
+              onDetail={financials ? () => setKpiDetail({
+                title: "ส่วนของเจ้าของ",
+                source: "Trial Balance → API: trialBalances",
+                formula: "ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)",
+                calc: `= ${fmt(financials.shareCapital)} + ${fmt(financials.retainedEarnings)} = ${fmt(financials.totalEquity)}`,
+                notes: "คำนวณ: ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 3 (ด้านเครดิต = ปกติ)",
+                groups: true, keys: ["equity:capital", "equity:retained"], normalSide: "credit",
+              }) : undefined}
             />
             <KpiCard
               title="เงินทุนหมุนเวียน"
@@ -455,12 +487,20 @@ export default function FinanceDashboardView({
               subtitle="Working Capital"
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-bold">ที่มา: Trial Balance (งบทดลอง)</p>
-                  <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน − หนี้สินหมุนเวียน</p>
+                  <p className="text-tiny font-bold">ที่มา: Trial Balance → API: trialBalances</p>
+                  <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน (11xx) − หนี้สินหมุนเวียน (21xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} − {fmt(financials.currentLiabilities)}</p>
-                  <p className="text-tiny text-default-400 mt-1">ยิ่งมากยิ่งดี แสดงถึงสภาพคล่องของกิจการ</p>
+                  <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
               )}
+              onDetail={financials ? () => setKpiDetail({
+                title: "เงินทุนหมุนเวียน (Working Capital)",
+                source: "Trial Balance → API: trialBalances",
+                formula: "สินทรัพย์หมุนเวียน (11xx) − หนี้สินหมุนเวียน (21xx)",
+                calc: `= ${fmt(financials.currentAssets)} − ${fmt(financials.currentLiabilities)} = ${fmt(financials.workingCapital)}`,
+                notes: "ยิ่งมากยิ่งดี แสดงถึงสภาพคล่องของกิจการ",
+                groups: true, keys: ["assets:current", "liabilities:current"], normalSide: "debit",
+              }) : undefined}
             />
       </div>
 
@@ -473,12 +513,20 @@ export default function FinanceDashboardView({
               subtitle={financials ? `ขาย ${fmt(financials.salesRevenue)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-bold">ที่มา: GL Entries (กรองตามปีที่เลือก)</p>
-                  <p className="text-tiny font-semibold mt-1">รายได้ขาย (41xx) + บริการ (42xx) + อื่น (43xx)</p>
+                  <p className="text-tiny font-bold">ที่มา: GL Entries (กรองตามปี)</p>
+                  <p className="text-tiny font-semibold mt-1">ขาย (41xx) + บริการ (42xx) + อื่น (43xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.salesRevenue)} + {fmt(financials.serviceRevenue)} + {fmt(financials.otherIncome)}</p>
-                  <p className="text-tiny text-default-400 mt-1">ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 4</p>
+                  <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
               )}
+              onDetail={financials ? () => setKpiDetail({
+                title: "รายได้รวม",
+                source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
+                formula: "รายได้ขาย (41xx) + บริการ (42xx) + อื่น (43xx)",
+                calc: `= ${fmt(financials.salesRevenue)} + ${fmt(financials.serviceRevenue)} + ${fmt(financials.otherIncome)} = ${fmt(financials.totalRevenue)}`,
+                notes: "คำนวณ: ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 4",
+                groups: true, keys: ["revenue:sales", "revenue:service", "revenue:other"], normalSide: "credit",
+              }) : undefined}
             />
             <KpiCard
               title="ต้นทุนขาย"
@@ -487,23 +535,21 @@ export default function FinanceDashboardView({
               subtitle={financials ? `${financials.grossMargin.toFixed(1)}% Gross Margin` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-bold">ที่มา: GL Entries + TB Inventory Adjustment</p>
-                  <p className="text-tiny font-semibold mt-1">สูตร: ต้นทุนผลิต (GL) − หัก สินค้าคงเหลือ (TB)</p>
-                  <table className="text-tiny text-default-500 mt-1 w-full">
-                    <tbody>
-                      <tr><td>ต้นทุนจาก GL (51xx + โรงงาน)</td><td className="text-right font-mono">{fmt(financials.rawGlCogs)}</td></tr>
-                      {financials.inventoryAdj > 0 && (
-                        <tr className="text-danger"><td>หัก: สินค้าคงเหลือ (TB 115xx)</td><td className="text-right font-mono">({fmt(financials.inventoryAdj)})</td></tr>
-                      )}
-                      <tr className="font-semibold border-t border-default-200"><td>ต้นทุนขายสุทธิ</td><td className="text-right font-mono">{fmt(financials.cogs)}</td></tr>
-                    </tbody>
-                  </table>
-                  <p className="text-tiny text-default-400 mt-1">GL: 51xxx + ค่าเช่าโรงงาน (52000-09), ซ่อมบำรุง (53200-xx), ค่าเสื่อมราคาเครื่องจักร (53400-xx)</p>
-                  {financials.inventoryAdj > 0 && (
-                    <p className="text-tiny text-warning mt-1">* ปีที่ยังไม่ปิดบัญชี: GL ไม่มี 51200-00/115xx จึงใช้ TB 115xx หักแทน</p>
-                  )}
+                  <p className="text-tiny font-bold">ที่มา: GL + TB Inventory Adjustment</p>
+                  <p className="text-tiny font-semibold mt-1">ต้นทุนผลิต (GL) − สินค้าคงเหลือ (TB)</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.rawGlCogs)} − {fmt(financials.inventoryAdj)}</p>
+                  <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
               )}
+              onDetail={financials ? () => setKpiDetail({
+                title: "ต้นทุนขาย",
+                source: "GL Entries + TB Inventory Adjustment",
+                formula: "ต้นทุนผลิต (51xx + Override) − หัก สินค้าคงเหลือ (TB 115xx)",
+                calc: `= ${fmt(financials.rawGlCogs)} − ${fmt(financials.inventoryAdj)} = ${fmt(financials.cogs)}`,
+                notes: "Override: 52000-09 (ค่าเช่าโรงงาน), 53200-xx (ซ่อมบำรุงโรงงาน), 53400-xx (ค่าเสื่อมราคาเครื่องจักร) ย้ายจากค่าใช้จ่ายเข้าต้นทุน ตาม Excel CFO"
+                  + (financials.inventoryAdj > 0 ? "\n* ปีที่ยังไม่ปิดบัญชี: GL ไม่มี 51200-00/115xx → ใช้ TB 115xx หักแทน" : ""),
+                groups: true, keys: ["cogs:cogs"], normalSide: "debit",
+              }) : undefined}
             />
             <KpiCard
               title="กำไรขั้นต้น"
@@ -511,11 +557,20 @@ export default function FinanceDashboardView({
               color={financials && financials.grossProfit >= 0 ? "success" : "danger"}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-bold">ที่มา: GL Entries (รายได้) − GL+TB (ต้นทุน)</p>
-                  <p className="text-tiny font-semibold mt-1">รายได้รวม − ต้นทุนขาย</p>
-                  <p className="text-tiny text-default-500">= {fmt(financials.totalRevenue)} − {fmt(financials.cogs)}</p>
+                  <p className="text-tiny font-bold">ที่มา: GL (รายได้) − GL+TB (ต้นทุน)</p>
+                  <p className="text-tiny font-semibold mt-1">รายได้รวม − ต้นทุนขายสุทธิ</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.totalRevenue)} − {fmt(financials.cogs)} = {fmt(financials.grossProfit)}</p>
+                  <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
               )}
+              onDetail={financials ? () => setKpiDetail({
+                title: "กำไรขั้นต้น (Gross Profit)",
+                source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
+                formula: "รายได้รวม (41-43xx) − ต้นทุนขาย (51xx + Override)",
+                calc: `= ${fmt(financials.totalRevenue)} − ${fmt(financials.cogs)} = ${fmt(financials.grossProfit)}`,
+                notes: `Gross Margin = ${financials.grossMargin.toFixed(1)}%`,
+                groups: true, keys: ["revenue:sales", "revenue:service", "revenue:other", "cogs:cogs"], normalSide: "credit",
+              }) : undefined}
             />
             <KpiCard
               title="กำไรสุทธิ"
@@ -523,20 +578,28 @@ export default function FinanceDashboardView({
               color={financials && financials.netIncome >= 0 ? "success" : "danger"}
               subtitle={financials ? `${financials.netMargin.toFixed(1)}% Net Margin` : ""}
               tooltip={financials && (
-                <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-bold">ที่มา: GL Entries (กรองตามปีที่เลือก)</p>
-                  <p className="text-tiny font-semibold mt-1">กำไรขั้นต้น − ค่าใช้จ่าย − ดอกเบี้ยจ่าย</p>
+                <div className="px-1 py-1 max-w-sm">
+                  <p className="text-tiny font-bold">ที่มา: GL Entries (กรองตามปี)</p>
                   <table className="text-tiny text-default-500 mt-1 w-full">
                     <tbody>
                       <tr><td>กำไรขั้นต้น</td><td className="text-right font-mono">{fmt(financials.grossProfit)}</td></tr>
-                      <tr><td>ค่าใช้จ่ายขาย (52xx)</td><td className="text-right font-mono">({fmt(financials.sellingExpense)})</td></tr>
-                      <tr><td>ค่าใช้จ่ายบริหาร (53xx)</td><td className="text-right font-mono">({fmt(financials.adminExpense)})</td></tr>
-                      <tr><td>ดอกเบี้ยจ่าย (53710-xx)</td><td className="text-right font-mono">({fmt(financials.interestExpense)})</td></tr>
-                      <tr className="font-semibold border-t border-default-200"><td>กำไรสุทธิก่อนภาษี</td><td className="text-right font-mono">{fmt(financials.netIncome)}</td></tr>
+                      <tr><td>52xx ค่าใช้จ่ายขาย</td><td className="text-right font-mono">({fmt(financials.sellingExpense)})</td></tr>
+                      <tr><td>53xx ค่าใช้จ่ายบริหาร</td><td className="text-right font-mono">({fmt(financials.adminExpense)})</td></tr>
+                      <tr><td>53710 ดอกเบี้ยจ่าย</td><td className="text-right font-mono">({fmt(financials.interestExpense)})</td></tr>
+                      <tr className="font-semibold border-t border-default-200"><td>กำไรสุทธิ</td><td className="text-right font-mono">{fmt(financials.netIncome)}</td></tr>
                     </tbody>
                   </table>
+                  <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
               )}
+              onDetail={financials ? () => setKpiDetail({
+                title: "กำไรสุทธิก่อนภาษี",
+                source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
+                formula: "กำไรขั้นต้น − ค่าใช้จ่ายขาย − ค่าใช้จ่ายบริหาร − ดอกเบี้ยจ่าย",
+                calc: `= ${fmt(financials.grossProfit)} − ${fmt(financials.sellingExpense)} − ${fmt(financials.adminExpense)} − ${fmt(financials.interestExpense)} = ${fmt(financials.netIncome)}`,
+                notes: "Override: 52000-09, 53200-xx, 53400-xx → ย้ายเข้าต้นทุน | 53710-xx → แยกเป็นดอกเบี้ย",
+                groups: true, keys: ["expense:selling", "expense:admin", "expense:interest"], normalSide: "debit",
+              }) : undefined}
             />
       </div>
 
@@ -550,12 +613,20 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-bold">ที่มา: TB (งบดุล)</p>
-              <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน ÷ หนี้สินหมุนเวียน</p>
+              <p className="text-tiny font-bold">ที่มา: TB → API: trialBalances</p>
+              <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน (11xx) ÷ หนี้สินหมุนเวียน (21xx)</p>
               <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} ÷ {fmt(financials.currentLiabilities)}</p>
-              <p className="text-tiny text-default-400 mt-1">≥ 2 = ดี, 1-2 = พอใช้, &lt; 1 = เสี่ยง</p>
+              <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
             </div>
           )}
+          onDetail={financials ? () => setKpiDetail({
+            title: "อัตราส่วนเงินทุนหมุนเวียน (Current Ratio)",
+            source: "Trial Balance → API: trialBalances",
+            formula: "สินทรัพย์หมุนเวียน (11xx) ÷ หนี้สินหมุนเวียน (21xx)",
+            calc: `= ${fmt(financials.currentAssets)} ÷ ${fmt(financials.currentLiabilities)} = ${financials.currentRatio.toFixed(2)}`,
+            notes: "≥ 2 = ดี, 1-2 = พอใช้, < 1 = เสี่ยง",
+            groups: true, keys: ["assets:current", "liabilities:current"], normalSide: "debit",
+          }) : undefined}
         />
         <RatioCard
           title="อัตราส่วนหนี้สินต่อทุน"
@@ -565,12 +636,20 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-bold">ที่มา: TB (งบดุล)</p>
-              <p className="text-tiny font-semibold mt-1">หนี้สินรวม ÷ ส่วนของเจ้าของ</p>
+              <p className="text-tiny font-bold">ที่มา: TB → API: trialBalances</p>
+              <p className="text-tiny font-semibold mt-1">หนี้สินรวม (21xx+22xx) ÷ ส่วนของเจ้าของ (31xx+33xx)</p>
               <p className="text-tiny text-default-500">= {fmt(financials.totalLiabilities)} ÷ {fmt(financials.totalEquity)}</p>
-              <p className="text-tiny text-default-400 mt-1">≤ 1 = ดี, 1-2 = พอใช้, &gt; 2 = เสี่ยง</p>
+              <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
             </div>
           )}
+          onDetail={financials ? () => setKpiDetail({
+            title: "อัตราส่วนหนี้สินต่อทุน (D/E Ratio)",
+            source: "Trial Balance → API: trialBalances",
+            formula: "หนี้สินรวม (21xx+22xx) ÷ ส่วนของเจ้าของ (31xx+33xx)",
+            calc: `= ${fmt(financials.totalLiabilities)} ÷ ${fmt(financials.totalEquity)} = ${financials.debtToEquity.toFixed(2)}`,
+            notes: "≤ 1 = ดี, 1-2 = พอใช้, > 2 = เสี่ยง",
+            groups: true, keys: ["liabilities:current", "liabilities:noncurrent", "equity:capital", "equity:retained"], normalSide: "credit",
+          }) : undefined}
         />
         <RatioCard
           title="อัตรากำไรขั้นต้น"
@@ -580,12 +659,20 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-bold">ที่มา: GL (รายได้, ต้นทุน)</p>
+              <p className="text-tiny font-bold">ที่มา: GL → API: generalLedgerEntries</p>
               <p className="text-tiny font-semibold mt-1">(กำไรขั้นต้น ÷ รายได้รวม) × 100</p>
               <p className="text-tiny text-default-500">= ({fmt(financials.grossProfit)} ÷ {fmt(financials.totalRevenue)}) × 100</p>
-              <p className="text-tiny text-default-400 mt-1">≥ 30% = ดี, 15-30% = พอใช้</p>
+              <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
             </div>
           )}
+          onDetail={financials ? () => setKpiDetail({
+            title: "อัตรากำไรขั้นต้น (Gross Margin)",
+            source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
+            formula: "(กำไรขั้นต้น ÷ รายได้รวม) × 100",
+            calc: `= (${fmt(financials.grossProfit)} ÷ ${fmt(financials.totalRevenue)}) × 100 = ${financials.grossMargin.toFixed(1)}%`,
+            notes: "รายได้: หมวด 4 (41-43xx) | ต้นทุน: หมวด 5 + overrides\n≥ 30% = ดี, 15-30% = พอใช้",
+            groups: true, keys: ["revenue:sales", "revenue:service", "revenue:other", "cogs:cogs"], normalSide: "credit",
+          }) : undefined}
         />
         <RatioCard
           title="อัตรากำไรสุทธิ"
@@ -595,12 +682,20 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-bold">ที่มา: GL (กำไรสุทธิ, รายได้)</p>
+              <p className="text-tiny font-bold">ที่มา: GL → API: generalLedgerEntries</p>
               <p className="text-tiny font-semibold mt-1">(กำไรสุทธิ ÷ รายได้รวม) × 100</p>
               <p className="text-tiny text-default-500">= ({fmt(financials.netIncome)} ÷ {fmt(financials.totalRevenue)}) × 100</p>
-              <p className="text-tiny text-default-400 mt-1">≥ 10% = ดี, 5-10% = พอใช้</p>
+              <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
             </div>
           )}
+          onDetail={financials ? () => setKpiDetail({
+            title: "อัตรากำไรสุทธิ (Net Margin)",
+            source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
+            formula: "(กำไรสุทธิ ÷ รายได้รวม) × 100",
+            calc: `= (${fmt(financials.netIncome)} ÷ ${fmt(financials.totalRevenue)}) × 100 = ${financials.netMargin.toFixed(1)}%`,
+            notes: "กำไรสุทธิ = รายได้ − ต้นทุน − ค่าใช้จ่าย − ดอกเบี้ย\n≥ 10% = ดี, 5-10% = พอใช้",
+            groups: true, keys: ["revenue:sales", "revenue:service", "revenue:other", "cogs:cogs", "expense:selling", "expense:admin", "expense:interest"], normalSide: "credit",
+          }) : undefined}
         />
       </div>
 
@@ -741,51 +836,6 @@ export default function FinanceDashboardView({
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        ) : (
-          <p className="py-10 text-center text-sm text-default-400">ไม่มีข้อมูล</p>
-        )}
-      </ChartCard>
-
-      {/* Section 6: Top 15 Accounts */}
-      <ChartCard title="บัญชีหลัก 15 อันดับ (ตามยอดคงเหลือ)" chip={financials ? { label: `Posting ${financials.postingAccounts} บัญชี`, color: "primary" } : undefined}>
-        {topAccounts.length > 0 ? (
-          <>
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={topAccounts}>
-                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis dataKey="number" tick={{ fontSize: 9 }} angle={-45} textAnchor="end" height={60} />
-                <YAxis tickFormatter={fmtShort} />
-                <RechartsTooltip
-                  content={({ active, payload }) => {
-                    if (!active || !payload?.length) return null;
-                    const d = payload[0]?.payload;
-                    return (
-                      <div className="rounded-lg border border-default-200 bg-background p-3 shadow-lg">
-                        <p className="mb-1 text-xs font-semibold">{d?.number} {d?.display}</p>
-                        <p className="text-xs text-default-400">{d?.category}</p>
-                        <p className="text-xs text-primary">ยอดเดบิต: {fmt(d?.debit)}</p>
-                        <p className="text-xs text-danger">ยอดเครดิต: {fmt(d?.credit)}</p>
-                      </div>
-                    );
-                  }}
-                />
-                <Legend />
-                <Bar dataKey="debit" name="ยอดเดบิต" fill="#006FEE" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="credit" name="ยอดเครดิต" fill="#F31260" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <DataTable
-              columns={topAccountColumns}
-              data={topAccounts}
-              renderCell={topAccountRenderCell}
-              rowKey="number"
-              searchKeys={["number", "display", "category"]}
-              searchPlaceholder="ค้นหาบัญชี..."
-              defaultRowsPerPage={15}
-              defaultSortDescriptor={{ column: "debit", direction: "descending" }}
-              emptyContent="ไม่มีข้อมูล"
-            />
-          </>
         ) : (
           <p className="py-10 text-center text-sm text-default-400">ไม่มีข้อมูล</p>
         )}
@@ -1106,6 +1156,93 @@ export default function FinanceDashboardView({
           <p className="py-10 text-center text-sm text-default-400">ไม่มีข้อมูล</p>
         )}
       </ChartCard>
+
+      {/* KPI Detail Modal */}
+      <Modal isOpen={!!kpiDetail} onClose={() => setKpiDetail(null)} size="2xl" scrollBehavior="inside">
+        <ModalContent>
+          {kpiDetail && (() => {
+            const accounts = kpiDetail.groups
+              ? getGroupAccounts(financials?.groups, kpiDetail.keys, kpiDetail.normalSide)
+              : [];
+            const total = accounts.reduce((s, a) => s + a.bal, 0);
+            // Group accounts by their groupName for sectioned display
+            const sections = [];
+            const seen = new Set();
+            for (const a of accounts) {
+              if (!seen.has(a.groupKey)) {
+                seen.add(a.groupKey);
+                sections.push({ key: a.groupKey, name: a.groupName, accounts: accounts.filter(x => x.groupKey === a.groupKey) });
+              }
+            }
+            return (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  <span>{kpiDetail.title}</span>
+                  <span className="text-sm font-normal text-default-500">{kpiDetail.source}</span>
+                </ModalHeader>
+                <ModalBody>
+                  <div className="space-y-3">
+                    {/* Formula & Calculation */}
+                    <div className="rounded-lg bg-default-50 p-3">
+                      <p className="text-sm font-semibold">{kpiDetail.formula}</p>
+                      <p className="text-sm text-default-500 mt-1">{kpiDetail.calc}</p>
+                      {kpiDetail.notes && <p className="text-xs text-default-400 mt-2">{kpiDetail.notes}</p>}
+                    </div>
+
+                    {/* Extra content (e.g. COGS breakdown table) */}
+                    {kpiDetail.extra}
+
+                    {/* Account sections */}
+                    {sections.map((sec) => (
+                      <div key={sec.key}>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-sm font-semibold">{sec.name}</p>
+                          <Chip size="sm" variant="flat" color="primary">{sec.accounts.length} บัญชี</Chip>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead className="bg-default-100">
+                              <tr>
+                                <th className="text-left px-2 py-1.5 font-semibold w-[100px]">เลขบัญชี</th>
+                                <th className="text-left px-2 py-1.5 font-semibold">ชื่อบัญชี</th>
+                                <th className="text-right px-2 py-1.5 font-semibold w-[120px]">ยอด</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sec.accounts.map((a) => (
+                                <tr key={a.number} className="border-b border-default-100">
+                                  <td className="px-2 py-1 font-mono text-default-500">{a.number}</td>
+                                  <td className="px-2 py-1">{a.display}</td>
+                                  <td className="px-2 py-1 text-right font-mono">{fmt(a.bal)}</td>
+                                </tr>
+                              ))}
+                              <tr className="bg-default-50 font-semibold">
+                                <td className="px-2 py-1.5" colSpan={2}>รวม {sec.name}</td>
+                                <td className="px-2 py-1.5 text-right font-mono">{fmt(sec.accounts.reduce((s, a) => s + a.bal, 0))}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Grand total */}
+                    {sections.length > 1 && (
+                      <div className="rounded-lg bg-primary-50 p-3 flex justify-between items-center">
+                        <p className="text-sm font-bold">รวมทั้งสิ้น ({accounts.length} บัญชี)</p>
+                        <p className="text-lg font-bold font-mono">{fmt(total)}</p>
+                      </div>
+                    )}
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button variant="bordered" size="md" onPress={() => setKpiDetail(null)}>ปิด</Button>
+                </ModalFooter>
+              </>
+            );
+          })()}
+        </ModalContent>
+      </Modal>
 
       {/* Invoice Detail Modal */}
       <Modal isOpen={isAgingOpen} onClose={onAgingClose} size="4xl" scrollBehavior="inside">
