@@ -1408,7 +1408,7 @@ export default function FinanceDashboardView({
               <>
                 <ModalHeader className="flex flex-col gap-1">
                   <span>{kpiDetail.title}</span>
-                  <span className="text-sm font-normal text-default-500">{kpiDetail.source}</span>
+                  <span className="text-sm font-normal text-default-500">ปีงบ พ.ศ. {selectedYear + 543} ({selectedYear}) — {kpiDetail.source}</span>
                 </ModalHeader>
                 <ModalBody>
                   <div className="space-y-3">
