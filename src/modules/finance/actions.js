@@ -1,12 +1,5 @@
 import { get, post } from "@/lib/apiClient";
 
-export async function getBalanceSheet() {
-  return get("/api/finance/balanceSheet");
-}
-
-export async function getIncomeStatement() {
-  return get("/api/finance/incomeStatement");
-}
 
 export async function getTrialBalance() {
   return get("/api/finance/trialBalance");
