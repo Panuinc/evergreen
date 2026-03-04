@@ -355,8 +355,20 @@ async function runSync(supabase, requestedTables, send) {
       label: "ดึงข้อมูลคำสั่งขาย...",
     });
     try {
-      // Fetch each year sequentially to avoid BC API timeout on large datasets
-      const soYears = ["SO25", "SO26"];
+      // Build month prefixes from SO2501 to current month to avoid BC API timeout
+      const soPrefixes = [];
+      const startYear = 25, startMonth = 1;
+      const nowDate = new Date();
+      const endYear = nowDate.getFullYear() % 100;
+      const endMonth = nowDate.getMonth() + 1;
+      for (let y = startYear; y <= endYear; y++) {
+        const mStart = y === startYear ? startMonth : 1;
+        const mEnd = y === endYear ? endMonth : 12;
+        for (let m = mStart; m <= mEnd; m++) {
+          soPrefixes.push(`SO${String(y).padStart(2, "0")}${String(m).padStart(2, "0")}`);
+        }
+      }
+
       const selectOrders =
         "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No";
       const selectLines =
@@ -365,30 +377,30 @@ async function runSync(supabase, requestedTables, send) {
       const orders = [];
       const allLines = [];
 
-      for (const prefix of soYears) {
+      for (const prefix of soPrefixes) {
         send("progress", {
           phase: "salesOrders",
           step: "fetching",
           label: `ดึงคำสั่งขาย ${prefix}...`,
         });
-        const yearOrders = await bcODataGet(
+        const monthOrders = await bcODataGet(
           "Sales_Order_Excel",
           { $filter: `startswith(No,'${prefix}')`, $orderby: "No desc", $select: selectOrders },
           { timeout: 120_000 },
         );
-        orders.push(...yearOrders);
+        orders.push(...monthOrders);
 
         send("progress", {
           phase: "salesOrderLines",
           step: "fetching",
           label: `ดึงรายการ ${prefix}...`,
         });
-        const yearLines = await bcODataGet(
+        const monthLines = await bcODataGet(
           "Sales_Order_Line_Excel",
           { $filter: `startswith(Document_No,'${prefix}')`, $select: selectLines },
           { timeout: 120_000 },
         );
-        allLines.push(...yearLines);
+        allLines.push(...monthLines);
       }
 
       const amountByOrder = {};
@@ -703,33 +715,11 @@ async function runSync(supabase, requestedTables, send) {
   if (syncSuccess.items) {
     cleanupParallel.push(
       (async () => {
-        const { count: staleCount } = await supabase
-          .from("bcItem")
-          .select("*", { count: "exact", head: true })
-          .lt("bcItemSyncedAt", now);
-        if (
-          !isSafeToCleanup(results.items, results.items + (staleCount || 0))
-        ) {
-          cleanup.items = `SKIPPED: sync got ${results.items} but ${staleCount} would be deleted`;
-          return;
-        }
-        const { count: deletedNoRfid, error: err1 } = await supabase
+        const { count, error } = await supabase
           .from("bcItem")
           .delete({ count: "exact" })
-          .lt("bcItemSyncedAt", now)
-          .is("bcItemRfidCode", null);
-        const { count: markedBlocked, error: err2 } = await supabase
-          .from("bcItem")
-          .update({ bcItemBlocked: true, bcItemInventory: 0 })
-          .lt("bcItemSyncedAt", now)
-          .not("bcItemRfidCode", "is", null);
-        cleanup.items =
-          err1 || err2
-            ? `ERROR: ${(err1 || err2).message}`
-            : {
-                deleted: deletedNoRfid || 0,
-                markedBlocked: markedBlocked || 0,
-              };
+          .lt("bcItemSyncedAt", now);
+        cleanup.items = error ? `ERROR: ${error.message}` : count || 0;
       })(),
     );
   }
