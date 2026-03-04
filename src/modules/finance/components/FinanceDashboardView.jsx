@@ -404,7 +404,7 @@ export default function FinanceDashboardView({
 
       {/* ═══ Section: ภาพรวม ═══ */}
 
-      {/* Section 1: Financial Position KPIs */}
+      {/* Section 1: Financial Position KPIs — ข้อมูลจาก Trial Balance (งบทดลอง) */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             <KpiCard
               title="สินทรัพย์รวม"
@@ -413,9 +413,10 @@ export default function FinanceDashboardView({
               subtitle={financials ? `หมุนเวียน ${fmt(financials.currentAssets)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)</p>
+                  <p className="text-tiny font-bold">ที่มา: Trial Balance (งบทดลอง)</p>
+                  <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} + {fmt(financials.noncurrentAssets)}</p>
-                  <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเดบิต - ยอดเครดิต ของบัญชีหมวด 1</p>
+                  <p className="text-tiny text-default-400 mt-1">ยอดเดบิต − ยอดเครดิต ของบัญชีหมวด 1</p>
                 </div>
               )}
             />
@@ -426,9 +427,10 @@ export default function FinanceDashboardView({
               subtitle={financials ? `หมุนเวียน ${fmt(financials.currentLiabilities)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)</p>
+                  <p className="text-tiny font-bold">ที่มา: Trial Balance (งบทดลอง)</p>
+                  <p className="text-tiny font-semibold mt-1">หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.currentLiabilities)} + {fmt(financials.noncurrentLiabilities)}</p>
-                  <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 2</p>
+                  <p className="text-tiny text-default-400 mt-1">ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 2</p>
                 </div>
               )}
             />
@@ -439,9 +441,10 @@ export default function FinanceDashboardView({
               subtitle={financials ? `ทุน ${fmt(financials.shareCapital)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)</p>
+                  <p className="text-tiny font-bold">ที่มา: Trial Balance (งบทดลอง)</p>
+                  <p className="text-tiny font-semibold mt-1">ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.shareCapital)} + {fmt(financials.retainedEarnings)}</p>
-                  <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 3</p>
+                  <p className="text-tiny text-default-400 mt-1">ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 3</p>
                 </div>
               )}
             />
@@ -452,15 +455,16 @@ export default function FinanceDashboardView({
               subtitle="Working Capital"
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">สินทรัพย์หมุนเวียน - หนี้สินหมุนเวียน</p>
-                  <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} - {fmt(financials.currentLiabilities)}</p>
+                  <p className="text-tiny font-bold">ที่มา: Trial Balance (งบทดลอง)</p>
+                  <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน − หนี้สินหมุนเวียน</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} − {fmt(financials.currentLiabilities)}</p>
                   <p className="text-tiny text-default-400 mt-1">ยิ่งมากยิ่งดี แสดงถึงสภาพคล่องของกิจการ</p>
                 </div>
               )}
             />
       </div>
 
-      {/* Section 2: Income Statement KPIs */}
+      {/* Section 2: Income Statement KPIs — ข้อมูลจาก GL Entries (สมุดบัญชีแยกประเภท) กรองตามปี */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             <KpiCard
               title="รายได้รวม"
@@ -469,9 +473,10 @@ export default function FinanceDashboardView({
               subtitle={financials ? `ขาย ${fmt(financials.salesRevenue)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">รายได้ขาย (41xx) + บริการ (42xx) + อื่น (43xx)</p>
+                  <p className="text-tiny font-bold">ที่มา: GL Entries (กรองตามปีที่เลือก)</p>
+                  <p className="text-tiny font-semibold mt-1">รายได้ขาย (41xx) + บริการ (42xx) + อื่น (43xx)</p>
                   <p className="text-tiny text-default-500">= {fmt(financials.salesRevenue)} + {fmt(financials.serviceRevenue)} + {fmt(financials.otherIncome)}</p>
-                  <p className="text-tiny text-default-400 mt-1">คำนวณจาก ยอดเครดิต - ยอดเดบิต ของบัญชีหมวด 4</p>
+                  <p className="text-tiny text-default-400 mt-1">ยอดเครดิต − ยอดเดบิต ของบัญชีหมวด 4</p>
                 </div>
               )}
             />
@@ -482,8 +487,21 @@ export default function FinanceDashboardView({
               subtitle={financials ? `${financials.grossMargin.toFixed(1)}% Gross Margin` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ต้นทุนสินค้าที่ขาย (51xx + ค่าใช้จ่ายโรงงาน)</p>
-                  <p className="text-tiny text-default-500">รวม 51xxx + ค่าเช่าโรงงาน, ซ่อมบำรุง, ค่าเสื่อมราคาเครื่องจักร</p>
+                  <p className="text-tiny font-bold">ที่มา: GL Entries + TB Inventory Adjustment</p>
+                  <p className="text-tiny font-semibold mt-1">สูตร: ต้นทุนผลิต (GL) − หัก สินค้าคงเหลือ (TB)</p>
+                  <table className="text-tiny text-default-500 mt-1 w-full">
+                    <tbody>
+                      <tr><td>ต้นทุนจาก GL (51xx + โรงงาน)</td><td className="text-right font-mono">{fmt(financials.rawGlCogs)}</td></tr>
+                      {financials.inventoryAdj > 0 && (
+                        <tr className="text-danger"><td>หัก: สินค้าคงเหลือ (TB 115xx)</td><td className="text-right font-mono">({fmt(financials.inventoryAdj)})</td></tr>
+                      )}
+                      <tr className="font-semibold border-t border-default-200"><td>ต้นทุนขายสุทธิ</td><td className="text-right font-mono">{fmt(financials.cogs)}</td></tr>
+                    </tbody>
+                  </table>
+                  <p className="text-tiny text-default-400 mt-1">GL: 51xxx + ค่าเช่าโรงงาน (52000-09), ซ่อมบำรุง (53200-xx), ค่าเสื่อมราคาเครื่องจักร (53400-xx)</p>
+                  {financials.inventoryAdj > 0 && (
+                    <p className="text-tiny text-warning mt-1">* ปีที่ยังไม่ปิดบัญชี: GL ไม่มี 51200-00/115xx จึงใช้ TB 115xx หักแทน</p>
+                  )}
                 </div>
               )}
             />
@@ -493,8 +511,9 @@ export default function FinanceDashboardView({
               color={financials && financials.grossProfit >= 0 ? "success" : "danger"}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">รายได้รวม - ต้นทุนขาย</p>
-                  <p className="text-tiny text-default-500">= {fmt(financials.totalRevenue)} - {fmt(financials.cogs)}</p>
+                  <p className="text-tiny font-bold">ที่มา: GL Entries (รายได้) − GL+TB (ต้นทุน)</p>
+                  <p className="text-tiny font-semibold mt-1">รายได้รวม − ต้นทุนขาย</p>
+                  <p className="text-tiny text-default-500">= {fmt(financials.totalRevenue)} − {fmt(financials.cogs)}</p>
                 </div>
               )}
             />
@@ -505,14 +524,23 @@ export default function FinanceDashboardView({
               subtitle={financials ? `${financials.netMargin.toFixed(1)}% Net Margin` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">กำไรขั้นต้น - ค่าใช้จ่ายขาย - ค่าใช้จ่ายบริหาร - ดอกเบี้ยจ่าย</p>
-                  <p className="text-tiny text-default-500">= {fmt(financials.grossProfit)} - {fmt(financials.sellingExpense)} - {fmt(financials.adminExpense)} - {fmt(financials.interestExpense)}</p>
+                  <p className="text-tiny font-bold">ที่มา: GL Entries (กรองตามปีที่เลือก)</p>
+                  <p className="text-tiny font-semibold mt-1">กำไรขั้นต้น − ค่าใช้จ่าย − ดอกเบี้ยจ่าย</p>
+                  <table className="text-tiny text-default-500 mt-1 w-full">
+                    <tbody>
+                      <tr><td>กำไรขั้นต้น</td><td className="text-right font-mono">{fmt(financials.grossProfit)}</td></tr>
+                      <tr><td>ค่าใช้จ่ายขาย (52xx)</td><td className="text-right font-mono">({fmt(financials.sellingExpense)})</td></tr>
+                      <tr><td>ค่าใช้จ่ายบริหาร (53xx)</td><td className="text-right font-mono">({fmt(financials.adminExpense)})</td></tr>
+                      <tr><td>ดอกเบี้ยจ่าย (53710-xx)</td><td className="text-right font-mono">({fmt(financials.interestExpense)})</td></tr>
+                      <tr className="font-semibold border-t border-default-200"><td>กำไรสุทธิก่อนภาษี</td><td className="text-right font-mono">{fmt(financials.netIncome)}</td></tr>
+                    </tbody>
+                  </table>
                 </div>
               )}
             />
       </div>
 
-      {/* Section 3: Financial Ratios */}
+      {/* Section 3: Financial Ratios — ที่มา: TB (งบดุล) + GL (งบกำไรขาดทุน) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <RatioCard
           title="อัตราส่วนเงินทุนหมุนเวียน"
@@ -522,9 +550,10 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">สินทรัพย์หมุนเวียน ÷ หนี้สินหมุนเวียน</p>
+              <p className="text-tiny font-bold">ที่มา: TB (งบดุล)</p>
+              <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน ÷ หนี้สินหมุนเวียน</p>
               <p className="text-tiny text-default-500">= {fmt(financials.currentAssets)} ÷ {fmt(financials.currentLiabilities)}</p>
-              <p className="text-tiny text-default-400 mt-1">วัดความสามารถในการชำระหนี้ระยะสั้น ≥ 2 = ดี, 1-2 = พอใช้, &lt; 1 = เสี่ยง</p>
+              <p className="text-tiny text-default-400 mt-1">≥ 2 = ดี, 1-2 = พอใช้, &lt; 1 = เสี่ยง</p>
             </div>
           )}
         />
@@ -536,9 +565,10 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">หนี้สินรวม ÷ ส่วนของเจ้าของ</p>
+              <p className="text-tiny font-bold">ที่มา: TB (งบดุล)</p>
+              <p className="text-tiny font-semibold mt-1">หนี้สินรวม ÷ ส่วนของเจ้าของ</p>
               <p className="text-tiny text-default-500">= {fmt(financials.totalLiabilities)} ÷ {fmt(financials.totalEquity)}</p>
-              <p className="text-tiny text-default-400 mt-1">วัดสัดส่วนแหล่งเงินทุน ≤ 1 = ดี, 1-2 = พอใช้, &gt; 2 = เสี่ยง</p>
+              <p className="text-tiny text-default-400 mt-1">≤ 1 = ดี, 1-2 = พอใช้, &gt; 2 = เสี่ยง</p>
             </div>
           )}
         />
@@ -550,9 +580,10 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">(กำไรขั้นต้น ÷ รายได้รวม) × 100</p>
+              <p className="text-tiny font-bold">ที่มา: GL (รายได้, ต้นทุน)</p>
+              <p className="text-tiny font-semibold mt-1">(กำไรขั้นต้น ÷ รายได้รวม) × 100</p>
               <p className="text-tiny text-default-500">= ({fmt(financials.grossProfit)} ÷ {fmt(financials.totalRevenue)}) × 100</p>
-              <p className="text-tiny text-default-400 mt-1">วัดประสิทธิภาพการจัดการต้นทุน ≥ 30% = ดี, 15-30% = พอใช้</p>
+              <p className="text-tiny text-default-400 mt-1">≥ 30% = ดี, 15-30% = พอใช้</p>
             </div>
           )}
         />
@@ -564,9 +595,10 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">(กำไรสุทธิ ÷ รายได้รวม) × 100</p>
+              <p className="text-tiny font-bold">ที่มา: GL (กำไรสุทธิ, รายได้)</p>
+              <p className="text-tiny font-semibold mt-1">(กำไรสุทธิ ÷ รายได้รวม) × 100</p>
               <p className="text-tiny text-default-500">= ({fmt(financials.netIncome)} ÷ {fmt(financials.totalRevenue)}) × 100</p>
-              <p className="text-tiny text-default-400 mt-1">วัดความสามารถในการทำกำไรโดยรวม ≥ 10% = ดี, 5-10% = พอใช้</p>
+              <p className="text-tiny text-default-400 mt-1">≥ 10% = ดี, 5-10% = พอใช้</p>
             </div>
           )}
         />

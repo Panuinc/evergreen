@@ -48,7 +48,8 @@ export default function FinanceDashboardPage() {
     const serviceRevenue = pnl.serviceRevenue || 0;
     const otherIncome = pnl.otherIncome || 0;
     const totalRevenue = pnl.totalRevenue || 0;
-    const cogs = (pnl.cogs || 0) - inventoryAdjustment;
+    const rawGlCogs = pnl.cogs || 0;
+    const cogs = rawGlCogs - inventoryAdjustment;
     const grossProfit = totalRevenue - cogs;
     const sellingExpense = pnl.selling || 0;
     const adminExpense = pnl.admin || 0;
@@ -69,7 +70,8 @@ export default function FinanceDashboardPage() {
       currentLiabilities: tb.currentLiabilities, noncurrentLiabilities: tb.noncurrentLiabilities, totalLiabilities: tb.totalLiabilities,
       shareCapital: tb.shareCapital, retainedEarnings: tb.retainedEarnings, totalEquity: tb.totalEquity,
       salesRevenue, serviceRevenue, otherIncome, totalRevenue,
-      cogs, grossProfit, sellingExpense, adminExpense, interestExpense,
+      cogs, rawGlCogs, inventoryAdj: inventoryAdjustment,
+      grossProfit, sellingExpense, adminExpense, interestExpense,
       operatingProfit, totalExpense, netIncome,
       currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
       groups: tb.groups, totalAccounts: tb.totalAccounts, postingAccounts: tb.postingAccounts,
