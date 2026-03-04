@@ -329,7 +329,7 @@ function BcSyncSection({
             <li>Dimensions -- dimensionValues จาก BC API v2.0 (code → ชื่อโครงการ)</li>
             <li>Customers -- ข้อมูลลูกค้าจาก CustomerList</li>
             <li>Items -- สินค้าทั้งหมด + map projectCode/projectName</li>
-            <li>Sales Orders -- คำสั่งซื้อตั้งแต่ SO24*</li>
+            <li>Sales Orders -- คำสั่งซื้อตั้งแต่ SO25*</li>
             <li>SO Lines -- รายการสินค้าในคำสั่งซื้อ</li>
             <li>Production -- ใบสั่งผลิต (bcProductionOrders) + Item Ledger Entries (bcItemLedgerEntries)</li>
           </ul>

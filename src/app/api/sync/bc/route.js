@@ -260,7 +260,7 @@ async function runSync(supabase, requestedTables, send) {
       const items = await bcODataGet(
         "Item_Card_Excel",
         {
-          $filter: "Blocked eq false",
+          $filter: "Blocked eq false and Inventory gt 0",
           $select:
             "No,Description,Type,Inventory,Unit_Price,Unit_Cost,Item_Category_Code,Gen_Prod_Posting_Group,Blocked,Base_Unit_of_Measure",
           $orderby: "No asc",
@@ -356,7 +356,7 @@ async function runSync(supabase, requestedTables, send) {
     });
     try {
       // Fetch each year sequentially to avoid BC API timeout on large datasets
-      const soYears = ["SO24", "SO25", "SO26"];
+      const soYears = ["SO25", "SO26"];
       const selectOrders =
         "No,Sell_to_Customer_No,Sell_to_Customer_Name,Sell_to_Address,Sell_to_City,Sell_to_Post_Code,Ship_to_Name,Ship_to_Address,Ship_to_City,Ship_to_Post_Code,Order_Date,Due_Date,Status,Completely_Shipped,Salesperson_Code,External_Document_No";
       const selectLines =

@@ -7,7 +7,8 @@ import {
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
   Select, SelectItem,
 } from "@heroui/react";
-import { Eye, Info, BotMessageSquare, RefreshCw } from "lucide-react";
+import { Eye, Info, BotMessageSquare, RefreshCw, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import MonthlyPnLTable from "./MonthlyPnLTable";
 import CogsDetailTable from "./CogsDetailTable";
 import ExpenseDetailTable from "./ExpenseDetailTable";
@@ -71,6 +72,224 @@ function getGroupAccounts(groups, keys, normalSide = "debit") {
   }
   all.sort((a, b) => Math.abs(b.bal) - Math.abs(a.bal));
   return all;
+}
+
+// ─── Export Calculation Report ───
+
+function exportCalculationReport(financials, selectedYear) {
+  if (!financials) return;
+  const f = financials;
+  const beYear = selectedYear + 543;
+  const wb = XLSX.utils.book_new();
+
+  // ═══ Sheet 1: KPI Summary ═══
+  const kpiRows = [
+    ["รายงานวิธีคำนวณ KPI — Dashboard การเงิน CHH"],
+    [`ปี ค.ศ. ${selectedYear} (พ.ศ. ${beYear})`],
+    [],
+    ["หมวด", "ชื่อ KPI", "ที่มาข้อมูล", "สูตรคำนวณ", "การคำนวณ", "ค่าที่ได้", "หมายเหตุ"],
+    // Financial Position (from TB)
+    ["ฐานะการเงิน", "สินทรัพย์รวม", "Trial Balance → trialBalances API",
+      "สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)",
+      `${fmt(f.currentAssets)} + ${fmt(f.noncurrentAssets)}`, fmt(f.totalAssets),
+      "ยอดเดบิต − เครดิต ของบัญชีหมวด 1 (Posting)"],
+    ["ฐานะการเงิน", "หนี้สินรวม", "Trial Balance → trialBalances API",
+      "หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)",
+      `${fmt(f.currentLiabilities)} + ${fmt(f.noncurrentLiabilities)}`, fmt(f.totalLiabilities),
+      "ยอดเครดิต − เดบิต ของบัญชีหมวด 2"],
+    ["ฐานะการเงิน", "ส่วนของเจ้าของ", "Trial Balance → trialBalances API",
+      "ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)",
+      `${fmt(f.shareCapital)} + ${fmt(f.retainedEarnings)}`, fmt(f.totalEquity),
+      "ยอดเครดิต − เดบิต ของบัญชีหมวด 3"],
+    ["ฐานะการเงิน", "เงินทุนหมุนเวียน", "Trial Balance → trialBalances API",
+      "สินทรัพย์หมุนเวียน (11xx) − หนี้สินหมุนเวียน (21xx)",
+      `${fmt(f.currentAssets)} − ${fmt(f.currentLiabilities)}`, fmt(f.workingCapital),
+      "Working Capital: ยิ่งมากยิ่งดี"],
+    [],
+    // Income Statement (from TB filtered by year)
+    ["งบกำไรขาดทุน", "รายได้รวม", "Trial Balance (กรองตามปี)",
+      "ขาย (41xx) + บริการ (42xx) + อื่น (43xx)",
+      `${fmt(f.salesRevenue)} + ${fmt(f.serviceRevenue)} + ${fmt(f.otherIncome)}`, fmt(f.totalRevenue),
+      "ยอดเครดิต − เดบิต ของบัญชีหมวด 4"],
+    ["งบกำไรขาดทุน", "ต้นทุนขาย", "Trial Balance + Inventory Adj",
+      "ต้นทุนผลิต (51xx + Override) − หัก สินค้าคงเหลือ (115xx)",
+      `${fmt(f.cogs)}`, fmt(f.cogs),
+      "Override: 52000-09, 53200-xx, 53400-xx → ย้ายเข้าต้นทุน | TB 115xx หักเป็น inventory"],
+    ["งบกำไรขาดทุน", "กำไรขั้นต้น", "คำนวณ",
+      "รายได้รวม − ต้นทุนขาย",
+      `${fmt(f.totalRevenue)} − ${fmt(f.cogs)}`, fmt(f.grossProfit),
+      `Gross Margin = ${f.grossMargin.toFixed(1)}%`],
+    ["งบกำไรขาดทุน", "กำไรสุทธิก่อนภาษี", "คำนวณ",
+      "กำไรขั้นต้น − ค่าใช้จ่ายขาย − ค่าใช้จ่ายบริหาร − ดอกเบี้ย",
+      `${fmt(f.grossProfit)} − ${fmt(f.sellingExpense)} − ${fmt(f.adminExpense)} − ${fmt(f.interestExpense)}`,
+      fmt(f.netIncome), `Net Margin = ${f.netMargin.toFixed(1)}%`],
+    [],
+    // Financial Ratios
+    ["อัตราส่วนทางการเงิน", "Current Ratio", "Trial Balance",
+      "สินทรัพย์หมุนเวียน ÷ หนี้สินหมุนเวียน",
+      `${fmt(f.currentAssets)} ÷ ${fmt(f.currentLiabilities)}`, f.currentRatio.toFixed(2),
+      "≥ 2 = ดี, 1-2 = พอใช้, < 1 = เสี่ยง"],
+    ["อัตราส่วนทางการเงิน", "D/E Ratio", "Trial Balance",
+      "หนี้สินรวม ÷ ส่วนของเจ้าของ",
+      `${fmt(f.totalLiabilities)} ÷ ${fmt(f.totalEquity)}`, f.debtToEquity.toFixed(2),
+      "≤ 1 = ดี, 1-2 = พอใช้, > 2 = เสี่ยง"],
+    ["อัตราส่วนทางการเงิน", "Gross Margin", "GL Entries",
+      "(กำไรขั้นต้น ÷ รายได้รวม) × 100",
+      `(${fmt(f.grossProfit)} ÷ ${fmt(f.totalRevenue)}) × 100`, `${f.grossMargin.toFixed(1)}%`,
+      "≥ 30% = ดี, 15-30% = พอใช้"],
+    ["อัตราส่วนทางการเงิน", "Net Margin", "GL Entries",
+      "(กำไรสุทธิ ÷ รายได้รวม) × 100",
+      `(${fmt(f.netIncome)} ÷ ${fmt(f.totalRevenue)}) × 100`, `${f.netMargin.toFixed(1)}%`,
+      "≥ 10% = ดี, 5-10% = พอใช้"],
+  ];
+
+  const ws1 = XLSX.utils.aoa_to_sheet(kpiRows);
+  ws1["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 32 }, { wch: 48 }, { wch: 48 }, { wch: 20 }, { wch: 55 }];
+  // Merge title row
+  ws1["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }];
+  XLSX.utils.book_append_sheet(wb, ws1, "สรุป KPI");
+
+  // ═══ Sheet 2: Account Details ═══
+  const detailRows = [
+    ["รายบัญชีแยกตามกลุ่ม KPI"],
+    [],
+  ];
+
+  const groupDefs = [
+    { title: "สินทรัพย์หมุนเวียน (11xx)", keys: ["assets:current"], side: "debit" },
+    { title: "สินทรัพย์ไม่หมุนเวียน (12xx)", keys: ["assets:noncurrent"], side: "debit" },
+    { title: "หนี้สินหมุนเวียน (21xx)", keys: ["liabilities:current"], side: "credit" },
+    { title: "หนี้สินไม่หมุนเวียน (22xx)", keys: ["liabilities:noncurrent"], side: "credit" },
+    { title: "ทุนจดทะเบียน (31xx)", keys: ["equity:capital"], side: "credit" },
+    { title: "กำไรสะสม (33xx)", keys: ["equity:retained"], side: "credit" },
+    { title: "รายได้จากการขาย (41xx)", keys: ["revenue:sales"], side: "credit" },
+    { title: "รายได้จากบริการ (42xx)", keys: ["revenue:service"], side: "credit" },
+    { title: "รายได้อื่น (43xx)", keys: ["revenue:other"], side: "credit" },
+    { title: "ต้นทุนขาย (51xx + Override)", keys: ["cogs:cogs"], side: "debit" },
+    { title: "ค่าใช้จ่ายในการขาย (52xx)", keys: ["expense:selling"], side: "debit" },
+    { title: "ค่าใช้จ่ายในการบริหาร (53xx)", keys: ["expense:admin"], side: "debit" },
+    { title: "ดอกเบี้ยจ่าย (53710-xx)", keys: ["expense:interest"], side: "debit" },
+  ];
+
+  for (const gd of groupDefs) {
+    const accounts = getGroupAccounts(f.groups, gd.keys, gd.side);
+    if (!accounts.length) continue;
+    detailRows.push([gd.title]);
+    detailRows.push(["เลขบัญชี", "ชื่อบัญชี", "ยอดเดบิต", "ยอดเครดิต", "ยอดสุทธิ"]);
+    let groupTotal = 0;
+    for (const a of accounts) {
+      detailRows.push([a.number, a.display, a.debit, a.credit, a.bal]);
+      groupTotal += a.bal;
+    }
+    detailRows.push(["", `รวม ${gd.title}`, "", "", groupTotal]);
+    detailRows.push([]);
+  }
+
+  const ws2 = XLSX.utils.aoa_to_sheet(detailRows);
+  ws2["!cols"] = [{ wch: 14 }, { wch: 40 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
+  ws2["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
+  XLSX.utils.book_append_sheet(wb, ws2, "รายบัญชี");
+
+  // ═══ Sheet 3: Override Rules ═══
+  const overrideRows = [
+    ["กฎการจัดหมวดบัญชี (Account Override) — ตาม Excel CFO"],
+    [],
+    ["ประเภท", "เลขบัญชี", "ชื่อบัญชี (ตาม BC)", "จากหมวดเดิม", "ย้ายเข้าหมวด"],
+    // COGS overrides
+    ["ต้นทุนขาย (Override)", "52000-09", "ค่าเช่าโรงงาน", "ค่าใช้จ่ายในการขาย (52xx)", "ต้นทุนขาย"],
+    ["ต้นทุนขาย (Override)", "53200-06", "ซ่อมบำรุง-อาคารและสิ่งปลูกสร้าง", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
+    ["ต้นทุนขาย (Override)", "53200-08", "ซ่อมบำรุง-เครื่องจักร", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
+    ["ต้นทุนขาย (Override)", "53200-13", "ซ่อมบำรุง-อาคารโรงงาน", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
+    ["ต้นทุนขาย (Override)", "53200-14", "ค่าน้ำมันรถโฟล์คลิฟท์", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
+    ["ต้นทุนขาย (Override)", "53400-01", "ค่าเสื่อมราคา-อาคารและสิ่งปลูกสร้าง", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
+    ["ต้นทุนขาย (Override)", "53400-02", "ค่าเสื่อมราคา-เครื่องจักร", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
+    ["ต้นทุนขาย (Override)", "53900-14", "ค่าแรงบวกกลับ", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
+    [],
+    ["ดอกเบี้ยจ่าย (Override)", "53710-01", "ดอกเบี้ยจ่าย-iSupply", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
+    ["ดอกเบี้ยจ่าย (Override)", "53710-02", "ดอกเบี้ยจ่าย-OD", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
+    ["ดอกเบี้ยจ่าย (Override)", "53710-03", "ดอกเบี้ยจ่าย-TR", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
+    ["ดอกเบี้ยจ่าย (Override)", "53710-04", "ดอกเบี้ยจ่ายเงินกู้-Loans", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
+    ["ดอกเบี้ยจ่าย (Override)", "53710-05", "ดอกเบี้ยเช่าซื้อ", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
+    [],
+    ["ค่าใช้จ่ายบริหาร (Override)", "52000-10", "ค่าเช่ายานพาหนะ", "ค่าใช้จ่ายในการขาย (52xx)", "ค่าใช้จ่ายในการบริหาร"],
+    [],
+    [],
+    ["ผังบัญชีหลัก (Thai Chart of Accounts)"],
+    [],
+    ["เลขนำหน้า", "หมวดบัญชี", "ประเภท", "ด้านปกติ"],
+    ["11xx", "สินทรัพย์หมุนเวียน", "สินทรัพย์", "เดบิต"],
+    ["12xx", "สินทรัพย์ไม่หมุนเวียน", "สินทรัพย์", "เดบิต"],
+    ["21xx", "หนี้สินหมุนเวียน", "หนี้สิน", "เครดิต"],
+    ["22xx", "หนี้สินไม่หมุนเวียน", "หนี้สิน", "เครดิต"],
+    ["31xx", "ทุนจดทะเบียน", "ส่วนของเจ้าของ", "เครดิต"],
+    ["33xx", "กำไรสะสม", "ส่วนของเจ้าของ", "เครดิต"],
+    ["41xx", "รายได้จากการขาย", "รายได้", "เครดิต"],
+    ["42xx", "รายได้จากบริการ", "รายได้", "เครดิต"],
+    ["43xx", "รายได้อื่น", "รายได้", "เครดิต"],
+    ["51xx", "ต้นทุนขาย", "ค่าใช้จ่าย", "เดบิต"],
+    ["52xx", "ค่าใช้จ่ายในการขาย", "ค่าใช้จ่าย", "เดบิต"],
+    ["53xx", "ค่าใช้จ่ายในการบริหาร", "ค่าใช้จ่าย", "เดบิต"],
+  ];
+
+  const ws3 = XLSX.utils.aoa_to_sheet(overrideRows);
+  ws3["!cols"] = [{ wch: 22 }, { wch: 16 }, { wch: 40 }, { wch: 36 }, { wch: 28 }];
+  ws3["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
+  XLSX.utils.book_append_sheet(wb, ws3, "กฎจัดหมวด");
+
+  // ═══ Sheet 4: COGS Structure ═══
+  const cogsRows = [
+    ["โครงสร้างต้นทุนขาย (COGS) — ตาม Excel CFO"],
+    [],
+    ["ลำดับ", "รายการ", "เลขบัญชี", "ยอด (ถ้ามี)", "หมายเหตุ"],
+  ];
+  const cogsAccounts = getGroupAccounts(f.groups, ["cogs:cogs"], "debit");
+  const cogsLookup = {};
+  for (const a of cogsAccounts) cogsLookup[a.number] = a;
+
+  const structure = [
+    { label: "สินค้าคงเหลือต้นงวด", account: "51200-00" },
+    { label: "ซื้อวัตถุดิบและอุปกรณ์", account: "51400-01" },
+    { label: "วัสดุสิ้นเปลือง", account: "51400-02" },
+    { label: "ส่วนลดรับ", account: "51400-03" },
+    { label: "ค่าระวางและค่าขนส่ง", account: "51410-01" },
+    { label: "ค่าอากรขาเข้า", account: "51410-02" },
+    { label: "ค่าใช้จ่ายนำเข้าอื่นๆ", account: "51410-03, 51410-04" },
+    { label: "ค่าจ้างแรงงานรายวัน", account: "51420-01" },
+    { label: "ค่าจ้างแรงงานช่างเหมา", account: "51420-02" },
+    { label: "ค่าจ้างแรงงานนอก", account: "51420-03" },
+    { label: "ค่าจ้างแรงงานช่างเหมา (ทำสี)", account: "51420-04" },
+    { label: "ค่าจ้างทำของ", account: "51420-05" },
+    { label: "ค่าบริการ", account: "51430-01" },
+    { label: "── Override (ย้ายจากหมวดอื่น) ──", account: "" },
+    { label: "ค่าเช่าโรงงาน", account: "52000-09", note: "Override จาก 52xx" },
+    { label: "ซ่อมบำรุง-อาคาร", account: "53200-06", note: "Override จาก 53xx" },
+    { label: "ซ่อมบำรุง-เครื่องจักร", account: "53200-08", note: "Override จาก 53xx" },
+    { label: "ซ่อมบำรุง-อาคารโรงงาน", account: "53200-13", note: "Override จาก 53xx" },
+    { label: "ค่าน้ำมันรถโฟล์คลิฟท์", account: "53200-14", note: "Override จาก 53xx" },
+    { label: "ค่าเสื่อมราคา-อาคาร", account: "53400-01", note: "Override จาก 53xx" },
+    { label: "ค่าเสื่อมราคา-เครื่องจักร", account: "53400-02", note: "Override จาก 53xx" },
+    { label: "ค่าแรงบวกกลับ", account: "53900-14", note: "Override จาก 53xx" },
+    { label: "── หัก: สินค้าคงเหลือปลายงวด ──", account: "" },
+    { label: "วัตถุดิบคงเหลือ", account: "11500-01", note: "หักจาก TB" },
+    { label: "สินค้าระหว่างผลิต", account: "11500-02", note: "หักจาก TB" },
+    { label: "สินค้าสำเร็จรูป", account: "11500-03", note: "หักจาก TB" },
+  ];
+
+  structure.forEach((s, i) => {
+    const a = cogsLookup[s.account?.split(",")[0]?.trim()];
+    cogsRows.push([i + 1, s.label, s.account, a ? a.bal : "", s.note || ""]);
+  });
+  cogsRows.push([]);
+  cogsRows.push(["", "สูตรต้นทุนขาย:", "", "", ""]);
+  cogsRows.push(["", "ต้นทุนขาย = (ต้นทุนผลิต − สินค้าคงเหลือต้นงวด 51200) − สินค้าคงเหลือปลายงวด (115xx)", "", "", ""]);
+  cogsRows.push(["", `ต้นทุนขายสุทธิ = ${fmt(f.cogs)}`, "", "", ""]);
+
+  const ws4 = XLSX.utils.aoa_to_sheet(cogsRows);
+  ws4["!cols"] = [{ wch: 8 }, { wch: 40 }, { wch: 22 }, { wch: 18 }, { wch: 24 }];
+  ws4["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
+  XLSX.utils.book_append_sheet(wb, ws4, "โครงสร้างต้นทุน");
+
+  XLSX.writeFile(wb, `วิธีคำนวณ-KPI-${beYear}.xlsx`);
 }
 
 // ─── Sub-components ───
@@ -355,6 +574,17 @@ export default function FinanceDashboardView({
           แสดงข้อมูล 3 ปี: พ.ศ. {(selectedYear - 2) + 543}–{selectedYear + 543}
         </span>
         {glLoading && <Spinner size="sm" />}
+        <div className="ml-auto">
+          <Button
+            variant="bordered"
+            size="sm"
+            isDisabled={!financials}
+            startContent={<Download size={14} />}
+            onPress={() => exportCalculationReport(financials, selectedYear)}
+          >
+            Export วิธีคำนวณ
+          </Button>
+        </div>
       </div>
 
       {/* Revenue & Profit Trend Line Charts */}
@@ -1236,6 +1466,14 @@ export default function FinanceDashboardView({
                   </div>
                 </ModalBody>
                 <ModalFooter>
+                  <Button
+                    variant="bordered"
+                    size="md"
+                    startContent={<Download size={14} />}
+                    onPress={() => exportCalculationReport(financials, selectedYear)}
+                  >
+                    Export ทั้งหมด
+                  </Button>
                   <Button variant="bordered" size="md" onPress={() => setKpiDetail(null)}>ปิด</Button>
                 </ModalFooter>
               </>
