@@ -111,17 +111,25 @@ function exportCalculationReport(financials, selectedYear) {
       "ขาย (41xx) + บริการ (42xx) + อื่น (43xx)",
       `${fmt(f.salesRevenue)} + ${fmt(f.serviceRevenue)} + ${fmt(f.otherIncome)}`, fmt(f.totalRevenue),
       "ยอดเครดิต − เดบิต ของบัญชีหมวด 4"],
-    ["งบกำไรขาดทุน", "ต้นทุนขาย", "Trial Balance + Inventory Adj",
-      "ต้นทุนผลิต (51xx + Override) − หัก สินค้าคงเหลือ (115xx)",
+    ["งบกำไรขาดทุน", "ต้นทุนขาย", "GL Entries + Inventory Adj",
+      "ต้นทุนผลิต (51xx + โสหุ้ย) − หัก สินค้าคงเหลือ (115xx)",
       `${fmt(f.cogs)}`, fmt(f.cogs),
-      "Override: 52000-09, 53200-xx, 53400-xx → ย้ายเข้าต้นทุน | TB 115xx หักเป็น inventory"],
+      "51xx + โสหุ้ยการผลิต (52000-09, 53200-xx, 53400-xx) | TB 115xx หักเป็น inventory"],
     ["งบกำไรขาดทุน", "กำไรขั้นต้น", "คำนวณ",
       "รายได้รวม − ต้นทุนขาย",
       `${fmt(f.totalRevenue)} − ${fmt(f.cogs)}`, fmt(f.grossProfit),
       `Gross Margin = ${f.grossMargin.toFixed(1)}%`],
+    ["งบกำไรขาดทุน", "กำไรก่อนต้นทุนทางการเงิน", "คำนวณ",
+      "กำไรขั้นต้น − ค่าใช้จ่ายขาย − ค่าใช้จ่ายบริหาร",
+      `${fmt(f.grossProfit)} − ${fmt(f.sellingExpense)} − ${fmt(f.adminExpense)}`,
+      fmt(f.operatingProfit), "Operating Profit ก่อนหักดอกเบี้ย"],
+    ["งบกำไรขาดทุน", "ต้นทุนทางการเงิน", "GL Entries",
+      "ดอกเบี้ยจ่าย (53710-xx)",
+      `${fmt(f.interestExpense)}`, fmt(f.interestExpense),
+      "แยกจากค่าใช้จ่ายบริหาร ตาม Manager Account"],
     ["งบกำไรขาดทุน", "กำไรสุทธิก่อนภาษี", "คำนวณ",
-      "กำไรขั้นต้น − ค่าใช้จ่ายขาย − ค่าใช้จ่ายบริหาร − ดอกเบี้ย",
-      `${fmt(f.grossProfit)} − ${fmt(f.sellingExpense)} − ${fmt(f.adminExpense)} − ${fmt(f.interestExpense)}`,
+      "กำไรก่อนต้นทุนทางการเงิน − ดอกเบี้ยจ่าย",
+      `${fmt(f.operatingProfit)} − ${fmt(f.interestExpense)}`,
       fmt(f.netIncome), `Net Margin = ${f.netMargin.toFixed(1)}%`],
     [],
     // Financial Ratios
@@ -165,10 +173,10 @@ function exportCalculationReport(financials, selectedYear) {
     { title: "รายได้จากการขาย (41xx)", keys: ["revenue:sales"], side: "credit" },
     { title: "รายได้จากบริการ (42xx)", keys: ["revenue:service"], side: "credit" },
     { title: "รายได้อื่น (43xx)", keys: ["revenue:other"], side: "credit" },
-    { title: "ต้นทุนขาย (51xx + Override)", keys: ["cogs:cogs"], side: "debit" },
+    { title: "ต้นทุนขาย (51xx + โสหุ้ยการผลิต)", keys: ["cogs:cogs"], side: "debit" },
     { title: "ค่าใช้จ่ายในการขาย (52xx)", keys: ["expense:selling"], side: "debit" },
     { title: "ค่าใช้จ่ายในการบริหาร (53xx)", keys: ["expense:admin"], side: "debit" },
-    { title: "ดอกเบี้ยจ่าย (53710-xx)", keys: ["expense:interest"], side: "debit" },
+    { title: "ต้นทุนทางการเงิน (53710-xx)", keys: ["expense:interest"], side: "debit" },
   ];
 
   for (const gd of groupDefs) {
@@ -190,28 +198,24 @@ function exportCalculationReport(financials, selectedYear) {
   ws2["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
   XLSX.utils.book_append_sheet(wb, ws2, "รายบัญชี");
 
-  // ═══ Sheet 3: Override Rules ═══
+  // ═══ Sheet 3: Account Classification ═══
   const overrideRows = [
-    ["กฎการจัดหมวดบัญชี (Account Override) — ตาม Excel CFO"],
+    ["กฎการจัดหมวดบัญชี (Account Classification)"],
     [],
-    ["ประเภท", "เลขบัญชี", "ชื่อบัญชี (ตาม BC)", "จากหมวดเดิม", "ย้ายเข้าหมวด"],
-    // COGS overrides
-    ["ต้นทุนขาย (Override)", "52000-09", "ค่าเช่าโรงงาน", "ค่าใช้จ่ายในการขาย (52xx)", "ต้นทุนขาย"],
-    ["ต้นทุนขาย (Override)", "53200-06", "ซ่อมบำรุง-อาคารและสิ่งปลูกสร้าง", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
-    ["ต้นทุนขาย (Override)", "53200-08", "ซ่อมบำรุง-เครื่องจักร", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
-    ["ต้นทุนขาย (Override)", "53200-13", "ซ่อมบำรุง-อาคารโรงงาน", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
-    ["ต้นทุนขาย (Override)", "53200-14", "ค่าน้ำมันรถโฟล์คลิฟท์", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
-    ["ต้นทุนขาย (Override)", "53400-01", "ค่าเสื่อมราคา-อาคารและสิ่งปลูกสร้าง", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
-    ["ต้นทุนขาย (Override)", "53400-02", "ค่าเสื่อมราคา-เครื่องจักร", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
-    ["ต้นทุนขาย (Override)", "53900-14", "ค่าแรงบวกกลับ", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนขาย"],
+    ["โสหุ้ยการผลิต → ต้นทุนขาย (Manufacturing Overhead → COGS)"],
     [],
-    ["ดอกเบี้ยจ่าย (Override)", "53710-01", "ดอกเบี้ยจ่าย-iSupply", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
-    ["ดอกเบี้ยจ่าย (Override)", "53710-02", "ดอกเบี้ยจ่าย-OD", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
-    ["ดอกเบี้ยจ่าย (Override)", "53710-03", "ดอกเบี้ยจ่าย-TR", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
-    ["ดอกเบี้ยจ่าย (Override)", "53710-04", "ดอกเบี้ยจ่ายเงินกู้-Loans", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
-    ["ดอกเบี้ยจ่าย (Override)", "53710-05", "ดอกเบี้ยเช่าซื้อ", "ค่าใช้จ่ายในการบริหาร (53xx)", "ต้นทุนทางการเงิน"],
+    ["ประเภท", "เลขบัญชี", "ชื่อบัญชี", "จากหมวดเดิม", "ย้ายเข้าหมวด"],
+    ["โสหุ้ยการผลิต", "52000-09", "ค่าเช่าโรงงาน", "52xx ค่าใช้จ่ายขาย", "ต้นทุนขาย"],
+    ["โสหุ้ยการผลิต", "53200-06", "ซ่อมบำรุง-อาคาร", "53xx ค่าใช้จ่ายบริหาร", "ต้นทุนขาย"],
+    ["โสหุ้ยการผลิต", "53200-08", "ซ่อมบำรุง-เครื่องจักร", "53xx ค่าใช้จ่ายบริหาร", "ต้นทุนขาย"],
+    ["โสหุ้ยการผลิต", "53200-13", "ซ่อมบำรุง-อาคารโรงงาน", "53xx ค่าใช้จ่ายบริหาร", "ต้นทุนขาย"],
+    ["โสหุ้ยการผลิต", "53200-14", "ค่าน้ำมันรถโฟล์คลิฟท์", "53xx ค่าใช้จ่ายบริหาร", "ต้นทุนขาย"],
+    ["โสหุ้ยการผลิต", "53400-01", "ค่าเสื่อมราคา-อาคาร", "53xx ค่าใช้จ่ายบริหาร", "ต้นทุนขาย"],
+    ["โสหุ้ยการผลิต", "53400-02", "ค่าเสื่อมราคา-เครื่องจักร", "53xx ค่าใช้จ่ายบริหาร", "ต้นทุนขาย"],
+    ["โสหุ้ยการผลิต", "53900-14", "ค่าแรงบวกกลับ", "53xx ค่าใช้จ่ายบริหาร", "ต้นทุนขาย"],
     [],
-    ["ค่าใช้จ่ายบริหาร (Override)", "52000-10", "ค่าเช่ายานพาหนะ", "ค่าใช้จ่ายในการขาย (52xx)", "ค่าใช้จ่ายในการบริหาร"],
+    ["หมายเหตุ: 53710-xx ดอกเบี้ยจ่ายแยกเป็น 'ต้นทุนทางการเงิน' ตาม Manager Account"],
+    ["หมายเหตุ: 52000-10 ค่าเช่ายานพาหนะ ย้ายจากค่าใช้จ่ายขาย → ค่าใช้จ่ายบริหาร ตาม Manager Account"],
     [],
     [],
     ["ผังบัญชีหลัก (Thai Chart of Accounts)"],
@@ -260,15 +264,15 @@ function exportCalculationReport(financials, selectedYear) {
     { label: "ค่าจ้างแรงงานช่างเหมา (ทำสี)", account: "51420-04" },
     { label: "ค่าจ้างทำของ", account: "51420-05" },
     { label: "ค่าบริการ", account: "51430-01" },
-    { label: "── Override (ย้ายจากหมวดอื่น) ──", account: "" },
-    { label: "ค่าเช่าโรงงาน", account: "52000-09", note: "Override จาก 52xx" },
-    { label: "ซ่อมบำรุง-อาคาร", account: "53200-06", note: "Override จาก 53xx" },
-    { label: "ซ่อมบำรุง-เครื่องจักร", account: "53200-08", note: "Override จาก 53xx" },
-    { label: "ซ่อมบำรุง-อาคารโรงงาน", account: "53200-13", note: "Override จาก 53xx" },
-    { label: "ค่าน้ำมันรถโฟล์คลิฟท์", account: "53200-14", note: "Override จาก 53xx" },
-    { label: "ค่าเสื่อมราคา-อาคาร", account: "53400-01", note: "Override จาก 53xx" },
-    { label: "ค่าเสื่อมราคา-เครื่องจักร", account: "53400-02", note: "Override จาก 53xx" },
-    { label: "ค่าแรงบวกกลับ", account: "53900-14", note: "Override จาก 53xx" },
+    { label: "── โสหุ้ยการผลิต (Manufacturing Overhead) ──", account: "" },
+    { label: "ค่าเช่าโรงงาน", account: "52000-09", note: "52xx → ต้นทุน" },
+    { label: "ซ่อมบำรุง-อาคารและสิ่งปลูกสร้าง", account: "53200-06", note: "53xx → ต้นทุน" },
+    { label: "ซ่อมบำรุง-เครื่องจักร", account: "53200-08", note: "53xx → ต้นทุน" },
+    { label: "ซ่อมบำรุง-อาคารโรงงาน", account: "53200-13", note: "53xx → ต้นทุน" },
+    { label: "ค่าน้ำมันรถโฟล์คลิฟท์", account: "53200-14", note: "53xx → ต้นทุน" },
+    { label: "ค่าเสื่อมราคา-อาคารและสิ่งปลูกสร้าง", account: "53400-01", note: "53xx → ต้นทุน" },
+    { label: "ค่าเสื่อมราคา-เครื่องจักร", account: "53400-02", note: "53xx → ต้นทุน" },
+    { label: "ค่าแรงบวกกลับ", account: "53900-14", note: "53xx → ต้นทุน" },
     { label: "── หัก: สินค้าคงเหลือปลายงวด ──", account: "" },
     { label: "วัตถุดิบคงเหลือ", account: "11500-01", note: "หักจาก TB" },
     { label: "สินค้าระหว่างผลิต", account: "11500-02", note: "หักจาก TB" },
@@ -429,6 +433,10 @@ export default function FinanceDashboardView({
   // Year selector
   selectedYear,
   setSelectedYear,
+  // Inventory override
+  inventoryOverride,
+  onSaveInventoryOverride,
+  onClearInventoryOverride,
   // GL Monthly Data props
   glLoading,
   glError,
@@ -436,6 +444,7 @@ export default function FinanceDashboardView({
   cogsDetail,
   sellingDetail,
   adminDetail,
+  interestDetail,
   revenueDetail,
   monthlyChartData,
   cogsChartData,
@@ -774,9 +783,9 @@ export default function FinanceDashboardView({
               onDetail={financials ? () => setKpiDetail({
                 title: "ต้นทุนขาย",
                 source: "GL Entries + TB Inventory Adjustment",
-                formula: "ต้นทุนผลิต (51xx + Override) − หัก สินค้าคงเหลือ (TB 115xx)",
+                formula: "ต้นทุนผลิต (51xx + โสหุ้ย) − หัก สินค้าคงเหลือ (TB 115xx)",
                 calc: `= ${fmt(financials.rawGlCogs)} − ${fmt(financials.inventoryAdj)} = ${fmt(financials.cogs)}`,
-                notes: "Override: 52000-09 (ค่าเช่าโรงงาน), 53200-xx (ซ่อมบำรุงโรงงาน), 53400-xx (ค่าเสื่อมราคาเครื่องจักร) ย้ายจากค่าใช้จ่ายเข้าต้นทุน ตาม Excel CFO"
+                notes: "51xx + โสหุ้ยการผลิต (52000-09, 53200-xx, 53400-xx, 53900-14)"
                   + (financials.inventoryAdj > 0 ? "\n* ปีที่ยังไม่ปิดบัญชี: GL ไม่มี 51200-00/115xx → ใช้ TB 115xx หักแทน" : ""),
                 groups: true, keys: ["cogs:cogs"], normalSide: "debit",
                 inventoryAccounts: financials.inventoryAccounts,
@@ -798,7 +807,7 @@ export default function FinanceDashboardView({
               onDetail={financials ? () => setKpiDetail({
                 title: "กำไรขั้นต้น (Gross Profit)",
                 source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
-                formula: "รายได้รวม (41-43xx) − ต้นทุนขาย (51xx + Override)",
+                formula: "รายได้รวม (41-43xx) − ต้นทุนขาย (51xx + โสหุ้ย)",
                 calc: `= ${fmt(financials.totalRevenue)} − ${fmt(financials.cogs)} = ${fmt(financials.grossProfit)}`,
                 notes: `Gross Margin = ${financials.grossMargin.toFixed(1)}%`,
                 groups: true, keys: ["revenue:sales", "revenue:service", "revenue:other", "cogs:cogs"], normalSide: "credit",
@@ -817,7 +826,8 @@ export default function FinanceDashboardView({
                       <tr><td>กำไรขั้นต้น</td><td className="text-right font-mono">{fmt(financials.grossProfit)}</td></tr>
                       <tr><td>52xx ค่าใช้จ่ายขาย</td><td className="text-right font-mono">({fmt(financials.sellingExpense)})</td></tr>
                       <tr><td>53xx ค่าใช้จ่ายบริหาร</td><td className="text-right font-mono">({fmt(financials.adminExpense)})</td></tr>
-                      <tr><td>53710 ดอกเบี้ยจ่าย</td><td className="text-right font-mono">({fmt(financials.interestExpense)})</td></tr>
+                      <tr><td>กำไรก่อนต้นทุนทางการเงิน</td><td className="text-right font-mono">{fmt(financials.operatingProfit)}</td></tr>
+                      <tr><td>53710-xx ดอกเบี้ยจ่าย</td><td className="text-right font-mono">({fmt(financials.interestExpense)})</td></tr>
                       <tr className="font-semibold border-t border-default-200"><td>กำไรสุทธิ</td><td className="text-right font-mono">{fmt(financials.netIncome)}</td></tr>
                     </tbody>
                   </table>
@@ -827,9 +837,9 @@ export default function FinanceDashboardView({
               onDetail={financials ? () => setKpiDetail({
                 title: "กำไรสุทธิก่อนภาษี",
                 source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
-                formula: "กำไรขั้นต้น − ค่าใช้จ่ายขาย − ค่าใช้จ่ายบริหาร − ดอกเบี้ยจ่าย",
-                calc: `= ${fmt(financials.grossProfit)} − ${fmt(financials.sellingExpense)} − ${fmt(financials.adminExpense)} − ${fmt(financials.interestExpense)} = ${fmt(financials.netIncome)}`,
-                notes: "Override: 52000-09, 53200-xx, 53400-xx → ย้ายเข้าต้นทุน | 53710-xx → แยกเป็นดอกเบี้ย",
+                formula: "กำไรก่อนต้นทุนทางการเงิน − ดอกเบี้ยจ่าย (53710-xx)",
+                calc: `= ${fmt(financials.operatingProfit)} − ${fmt(financials.interestExpense)} = ${fmt(financials.netIncome)}`,
+                notes: "53710-xx ดอกเบี้ยจ่ายแยกเป็นต้นทุนทางการเงิน",
                 groups: true, keys: ["expense:selling", "expense:admin", "expense:interest"], normalSide: "debit",
               }) : undefined}
             />
@@ -902,7 +912,7 @@ export default function FinanceDashboardView({
             source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
             formula: "(กำไรขั้นต้น ÷ รายได้รวม) × 100",
             calc: `= (${fmt(financials.grossProfit)} ÷ ${fmt(financials.totalRevenue)}) × 100 = ${financials.grossMargin.toFixed(1)}%`,
-            notes: "รายได้: หมวด 4 (41-43xx) | ต้นทุน: หมวด 5 + overrides\n≥ 30% = ดี, 15-30% = พอใช้",
+            notes: "รายได้: หมวด 4 (41-43xx) | ต้นทุน: หมวด 5 + โสหุ้ย\n≥ 30% = ดี, 15-30% = พอใช้",
             groups: true, keys: ["revenue:sales", "revenue:service", "revenue:other", "cogs:cogs"], normalSide: "credit",
           }) : undefined}
         />
@@ -925,7 +935,7 @@ export default function FinanceDashboardView({
             source: "GL Entries → API: generalLedgerEntries (กรองตามปี)",
             formula: "(กำไรสุทธิ ÷ รายได้รวม) × 100",
             calc: `= (${fmt(financials.netIncome)} ÷ ${fmt(financials.totalRevenue)}) × 100 = ${financials.netMargin.toFixed(1)}%`,
-            notes: "กำไรสุทธิ = รายได้ − ต้นทุน − ค่าใช้จ่าย − ดอกเบี้ย\n≥ 10% = ดี, 5-10% = พอใช้",
+            notes: "กำไรสุทธิ = รายได้ − ต้นทุน − ค่าใช้จ่ายขาย − ค่าใช้จ่ายบริหาร − ดอกเบี้ย\n≥ 10% = ดี, 5-10% = พอใช้",
             groups: true, keys: ["revenue:sales", "revenue:service", "revenue:other", "cogs:cogs", "expense:selling", "expense:admin", "expense:interest"], normalSide: "credit",
           }) : undefined}
         />
@@ -1109,10 +1119,14 @@ export default function FinanceDashboardView({
             loading={glLoading}
             year={selectedYear}
             compYears={compYears}
+            inventoryOverride={inventoryOverride}
+            onSaveInventoryOverride={onSaveInventoryOverride}
+            onClearInventoryOverride={onClearInventoryOverride}
           />
           <ExpenseDetailTable
             sellingDetail={sellingDetail}
             adminDetail={adminDetail}
+            interestDetail={interestDetail}
             loading={glLoading}
             year={selectedYear}
             compYears={compYears}

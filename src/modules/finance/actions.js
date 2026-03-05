@@ -6,6 +6,7 @@ export async function getTrialBalance() {
 }
 
 export async function getGlMonthlySummary(year) {
+  // Calendar year: Jan 1 → Dec 31
   return get(
     `/api/finance/glEntries?start=${year}-01-01&end=${year}-12-31&summarize=monthly`,
   );

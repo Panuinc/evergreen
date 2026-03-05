@@ -11,11 +11,7 @@ import {
   getPurchaseInvoices,
 } from "@/modules/finance/actions";
 import { getFinancePeriodRanges } from "@/lib/comparison";
-import {
-  COGS_OVERRIDE_ACCOUNTS,
-  INTEREST_ACCOUNTS,
-  ADMIN_OVERRIDE_ACCOUNTS,
-} from "@/modules/finance/glAccountMap";
+import { COGS_OVERRIDE_ACCOUNTS, INTEREST_ACCOUNTS, ADMIN_OVERRIDE_ACCOUNTS } from "@/modules/finance/glAccountMap";
 
 // Formatting helpers used by runAiAnalysis snapshot builder
 function fmt(v) {
@@ -52,14 +48,12 @@ const ACCOUNT_CATEGORIES = {
   "53": { name: "ค่าใช้จ่ายในการบริหาร", nameEn: "Admin Expenses", group: "expense", sub: "admin" },
 };
 
-// Override categories for specific accounts (matches CFO's Excel classification)
-const OVERRIDE_COGS = { name: "ต้นทุนขาย", nameEn: "COGS (Override)", group: "cogs", sub: "cogs" };
+const OVERRIDE_COGS = { name: "ต้นทุนขาย (โสหุ้ย)", nameEn: "COGS (Overhead)", group: "cogs", sub: "cogs" };
 const OVERRIDE_INTEREST = { name: "ต้นทุนทางการเงิน", nameEn: "Finance Costs", group: "expense", sub: "interest" };
-const OVERRIDE_ADMIN = { name: "ค่าใช้จ่ายในการบริหาร", nameEn: "Admin (Override)", group: "expense", sub: "admin" };
+const OVERRIDE_ADMIN = { name: "ค่าใช้จ่ายในการบริหาร", nameEn: "Admin Expenses", group: "expense", sub: "admin" };
 
 function getCategory(accountNumber) {
   if (!accountNumber) return null;
-  // Check overrides first (specific accounts reclassified per CFO's Excel)
   if (COGS_OVERRIDE_ACCOUNTS.has(accountNumber)) return OVERRIDE_COGS;
   if (INTEREST_ACCOUNTS.has(accountNumber)) return OVERRIDE_INTEREST;
   if (ADMIN_OVERRIDE_ACCOUNTS.has(accountNumber)) return OVERRIDE_ADMIN;
@@ -129,9 +123,9 @@ function computeFinancials(trialBalanceData) {
   const sellingExpense = g("expense:selling").debit - g("expense:selling").credit;
   const adminExpense = g("expense:admin").debit - g("expense:admin").credit;
   const interestExpense = g("expense:interest").debit - g("expense:interest").credit;
-  const totalExpense = sellingExpense + adminExpense;
-  const operatingProfit = grossProfit - totalExpense;
-  const netIncome = operatingProfit - interestExpense;
+  const operatingProfit = grossProfit - sellingExpense - adminExpense;
+  const totalExpense = sellingExpense + adminExpense + interestExpense;
+  const netIncome = grossProfit - totalExpense;
 
   // Financial Ratios
   const currentRatio = currentLiabilities ? currentAssets / currentLiabilities : 0;
@@ -248,7 +242,6 @@ export function useFinanceDashboard() {
       { name: "ต้นทุนขาย", current: financials.cogs, previous: prevFinancials.cogs },
       { name: "ค่าใช้จ่ายขาย", current: financials.sellingExpense, previous: prevFinancials.sellingExpense },
       { name: "ค่าใช้จ่ายบริหาร", current: financials.adminExpense, previous: prevFinancials.adminExpense },
-      { name: "ดอกเบี้ยจ่าย", current: financials.interestExpense, previous: prevFinancials.interestExpense },
       { name: "กำไรขั้นต้น", current: financials.grossProfit, previous: prevFinancials.grossProfit },
       { name: "กำไรสุทธิ", current: financials.netIncome, previous: prevFinancials.netIncome },
     ];
@@ -288,7 +281,7 @@ export function useFinanceDashboard() {
       { name: "ต้นทุนขาย", value: -financials.cogs, color: "#F31260" },
       { name: "ค่าใช้จ่ายขาย", value: -financials.sellingExpense, color: "#F5A524" },
       { name: "ค่าใช้จ่ายบริหาร", value: -financials.adminExpense, color: "#F97316" },
-      { name: "ดอกเบี้ยจ่าย", value: -financials.interestExpense, color: "#9353D3" },
+      { name: "ดอกเบี้ยจ่าย", value: -financials.interestExpense, color: "#7828C8" },
     ].filter((d) => d.value !== 0);
   }, [financials]);
 
@@ -299,7 +292,7 @@ export function useFinanceDashboard() {
     if (financials.cogs > 0) data.push({ name: "ต้นทุนขาย", value: financials.cogs, color: "#F31260" });
     if (financials.sellingExpense > 0) data.push({ name: "ค่าใช้จ่ายขาย", value: financials.sellingExpense, color: "#F5A524" });
     if (financials.adminExpense > 0) data.push({ name: "ค่าใช้จ่ายบริหาร", value: financials.adminExpense, color: "#F97316" });
-    if (financials.interestExpense > 0) data.push({ name: "ดอกเบี้ยจ่าย", value: financials.interestExpense, color: "#9353D3" });
+    if (financials.interestExpense > 0) data.push({ name: "ดอกเบี้ยจ่าย", value: financials.interestExpense, color: "#7828C8" });
     return data;
   }, [financials]);
 
@@ -592,7 +585,7 @@ export function useFinanceDashboard() {
         `กำไรขั้นต้น: ${fmt(fin.grossProfit)}`,
         `ค่าใช้จ่ายขาย: ${fmt(fin.sellingExpense)}, ค่าใช้จ่ายบริหาร: ${fmt(fin.adminExpense)}`,
         `กำไรก่อนต้นทุนทางการเงิน: ${fmt(fin.operatingProfit)}`,
-        `ดอกเบี้ยจ่าย (ต้นทุนทางการเงิน): ${fmt(fin.interestExpense)}`,
+        `ต้นทุนทางการเงิน (ดอกเบี้ย): ${fmt(fin.interestExpense)}`,
         `กำไรสุทธิก่อนภาษี: ${fmt(fin.netIncome)}`,
       ].join("\n"),
       ratios: [

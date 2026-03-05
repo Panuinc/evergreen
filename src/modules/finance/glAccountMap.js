@@ -6,8 +6,8 @@
  * because they are manufacturing-related (factory rent, maintenance, depreciation)
  */
 
-// ─── COGS Override Accounts ───
-// These accounts have 52xx/53xx prefixes but belong to COGS (manufacturing costs)
+// ─── Manufacturing Overhead → COGS (โสหุ้ยการผลิต) ───
+// These 52xx/53xx accounts are factory costs → classified as COGS per TAS cost accounting
 export const COGS_OVERRIDE_ACCOUNTS = new Set([
   "52000-09",   // ค่าเช่าโรงงาน (Factory Rent)
   "53200-06",   // ซ่อมบำรุง-อาคารและสิ่งปลูกสร้าง
@@ -19,20 +19,20 @@ export const COGS_OVERRIDE_ACCOUNTS = new Set([
   "53900-14",   // ค่าแรงบวกกลับ
 ]);
 
-// ─── Interest (Finance Cost) Accounts ───
-// These 53710-xx accounts are ต้นทุนทางการเงิน, NOT admin expenses
+// ─── Interest (ต้นทุนทางการเงิน) ───
+// 53710-xx accounts are finance costs, separated from admin per Manager Account Excel
 export const INTEREST_ACCOUNTS = new Set([
-  "53710-01",   // ดอกเบี้ยจ่าย-iSupply
-  "53710-02",   // ดอกเบี้ยจ่าย-OD
-  "53710-03",   // ดอกเบี้ยจ่าย-TR
-  "53710-04",   // ดอกเบี้ยจ่ายเงินกู้-Loans
+  "53710-01",   // ดอกเบี้ยจ่าย-เงินกู้ธนาคาร
+  "53710-02",   // ดอกเบี้ยจ่าย-เช่าซื้อ
+  "53710-03",   // ดอกเบี้ยจ่าย-เงินกู้กรรมการ
+  "53710-04",   // ดอกเบี้ยจ่าย-อื่นๆ
   "53710-05",   // ดอกเบี้ยเช่าซื้อ
 ]);
 
-// ─── Admin Override Accounts ───
-// These 52xxx accounts are classified as admin in CFO's Excel (not selling)
+// ─── Admin Override (ค่าใช้จ่ายบริหาร) ───
+// 52000-10 ค่าเช่ายานพาหนะ is admin per Manager Account Excel
 export const ADMIN_OVERRIDE_ACCOUNTS = new Set([
-  "52000-10",   // ค่าเช่ายานพาหนะ (Vehicle Rental → admin per CFO)
+  "52000-10",   // ค่าเช่ายานพาหนะ (Vehicle Rental → Admin)
 ]);
 
 // ─── COGS Structure (matches ต้นทุน_68 sheet) ───
@@ -116,6 +116,7 @@ export const COGS_STRUCTURE = [
     labelEn: "Services",
     accounts: ["51430-01"],
   },
+  // ─── Manufacturing Overhead (โสหุ้ยการผลิต) ───
   {
     key: "factoryRent",
     label: "ค่าเช่าโรงงาน",
@@ -123,19 +124,19 @@ export const COGS_STRUCTURE = [
     accounts: ["52000-09"],
   },
   {
-    key: "factoryMaintBuilding",
-    label: "ซ่อมบำรุง-อาคาร",
+    key: "maintenanceBuilding",
+    label: "ซ่อมบำรุง-อาคารและสิ่งปลูกสร้าง",
     labelEn: "Building Maintenance",
     accounts: ["53200-06"],
   },
   {
-    key: "factoryMaintMachine",
+    key: "maintenanceMachine",
     label: "ซ่อมบำรุง-เครื่องจักร",
-    labelEn: "Machinery Maintenance",
+    labelEn: "Machine Maintenance",
     accounts: ["53200-08"],
   },
   {
-    key: "factoryMaintFactory",
+    key: "maintenanceFactory",
     label: "ซ่อมบำรุง-อาคารโรงงาน",
     labelEn: "Factory Building Maintenance",
     accounts: ["53200-13"],
@@ -147,24 +148,37 @@ export const COGS_STRUCTURE = [
     accounts: ["53200-14"],
   },
   {
-    key: "deprBuilding",
-    label: "ค่าเสื่อมราคา-อาคาร",
-    labelEn: "Depreciation - Buildings",
+    key: "depreciationBuilding",
+    label: "ค่าเสื่อมราคา-อาคารและสิ่งปลูกสร้าง",
+    labelEn: "Building Depreciation",
     accounts: ["53400-01"],
   },
   {
-    key: "deprMachine",
+    key: "depreciationMachine",
     label: "ค่าเสื่อมราคา-เครื่องจักร",
-    labelEn: "Depreciation - Machinery",
+    labelEn: "Machine Depreciation",
     accounts: ["53400-02"],
   },
   {
     key: "laborAdjust",
-    label: "ค่าจ้างแรงงาน-บวกกลับ",
+    label: "ค่าแรงบวกกลับ",
     labelEn: "Labor Adjustment",
     accounts: ["53900-14"],
   },
 ];
+
+// ─── Calendar Year Constants (January–December, ปีปฏิทิน) ───
+export const CAL_MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+export const CAL_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+/**
+ * Get 2-digit BE year suffix for a calendar month column.
+ * @param {number} i - index in CAL_MONTHS (0=Jan, ..., 11=Dec)
+ * @param {number} adYear - the AD year (e.g. 2025 for พ.ศ. 2568)
+ */
+export function calMonthBE(i, adYear) {
+  return String((adYear + 543) % 100).padStart(2, "0");
+}
 
 // ─── Inventory accounts (for ending inventory deduction in COGS) ───
 export const INVENTORY_ACCOUNTS = [
@@ -200,8 +214,6 @@ export const PNL_ROWS = [
   { key: "total_expenses", label: "รวมค่าใช้จ่าย", type: "total", sumGroups: ["cogs", "selling", "admin"] },
   // Profit
   { key: "h_profit", label: "กำไร", type: "header" },
-  { key: "computed_grossProfit", label: "กำไรก่อนต้นทุนทางการเงิน", type: "computed", computeKey: "grossProfit" },
-  { key: "interest", label: "ดอกเบี้ยจ่าย", type: "computed", computeKey: "interest" },
   { key: "computed_netProfit", label: "กำไรสุทธิก่อนภาษี", type: "grandTotal", computeKey: "netProfit" },
 ];
 
@@ -209,9 +221,11 @@ export const PNL_ROWS = [
 
 export function classifyAccount(accountNumber) {
   if (!accountNumber) return "other";
-  // Override checks (specific accounts reclassified per CFO's Excel)
+  // Manufacturing overhead → COGS (โสหุ้ยการผลิต)
   if (COGS_OVERRIDE_ACCOUNTS.has(accountNumber)) return "cogs";
+  // Interest → ต้นทุนทางการเงิน (separated from admin per Manager Account Excel)
   if (INTEREST_ACCOUNTS.has(accountNumber)) return "interest";
+  // Vehicle rental → admin (52000-10)
   if (ADMIN_OVERRIDE_ACCOUNTS.has(accountNumber)) return "admin";
   const prefix = accountNumber.substring(0, 2);
   switch (prefix) {
@@ -224,53 +238,33 @@ export function classifyAccount(accountNumber) {
     case "51": return "cogs";
     case "52": return "selling";
     case "53": return "admin";
-    case "54": return "interest";
     default: return "other";
   }
 }
 
-// ─── Adjusted COGS (with inventory deduction) ───
+// ─── COGS from GL totals ───
 
 const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
 /**
- * Compute COGS adjusted for inventory changes.
+ * Return COGS from GL monthly totals.
  *
- * Raw COGS includes 51200-00 (Beginning Inventory) which represents the
- * opening journal entry: Dr 51200-00 / Cr 115xx. This entry inflates raw
- * COGS and simultaneously reduces the 115xx net movement.  If we only
- * subtract 115xx net from raw COGS, beginning inventory is double-counted.
+ * monthlyTotals["cogs"] includes all 51xxx accounts:
+ *   51200-00 (Beginning Inventory, debit = positive)
+ *   51300-00 (Ending Inventory, credit = negative)
+ *   51400-xx (Purchases), 51420-xx (Labor), 51430-xx (Services)
  *
- * Correct formula:
- *   adjustedCOGS = (rawCOGS − 51200-00) − 115xx_net
- *                = production costs − inventory change during the period
+ * For a closed fiscal year this equals:
+ *   BeginInv + Purchases + Labor + Services + Overhead − EndInv = correct COGS
+ *
+ * No further inventory adjustment is needed here; page.jsx handles
+ * unclosed-year adjustments using trial-balance inventory balances.
  */
 export function computeAdjustedCogs(byAccount, monthlyTotals) {
   const raw = monthlyTotals?.["cogs"] || { months: {}, total: 0 };
   const months = {};
   for (const m of MONTHS) months[m] = raw.months[m] || 0;
-  let total = raw.total;
-
-  // 1. Remove beginning inventory (51200-00) from raw COGS
-  //    so that we work with pure production/purchase costs only.
-  const beginInv = byAccount?.["51200-00"];
-  if (beginInv) {
-    for (const m of MONTHS) months[m] -= beginInv.months[m] || 0;
-    total -= beginInv.total || 0;
-  }
-
-  // 2. Deduct inventory change (115xx net movement during the period).
-  //    Positive net = inventory increased → reduces COGS.
-  //    Negative net = inventory decreased → increases COGS.
-  for (const [acctNo, acct] of Object.entries(byAccount || {})) {
-    if (!acctNo.startsWith("115")) continue;
-    for (const m of MONTHS) {
-      months[m] -= acct.months[m] || 0;
-    }
-    total -= acct.total;
-  }
-
-  return { months, total };
+  return { months, total: raw.total };
 }
 
 // ─── GL Entry Aggregation ───
@@ -306,7 +300,7 @@ export function aggregateGlEntries(entries) {
     // For revenue accounts: net = credit - debit (positive = income)
     const cat = byAccount[acct].category;
     const isCredit = ["salesRevenue", "serviceRevenue", "otherIncome", "liabilities", "equity"].includes(cat);
-    const net = isCredit ? (credit - debit) : (debit - credit);
+    const net = isCredit ? (credit - debit) : (debit - credit); // interest is debit-side (expense)
 
     if (!byAccount[acct].months[mm]) byAccount[acct].months[mm] = 0;
     byAccount[acct].months[mm] += net;
@@ -372,19 +366,21 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
   const sellingTotal = mt("selling").total;
   const adminMonths = mt("admin").months;
   const adminTotal = mt("admin").total;
-  const interestMonths = mt("interest").months || {};
-  const interestTotal = mt("interest").total || 0;
+  const interestMonths = mt("interest").months;
+  const interestTotal = mt("interest").total;
 
-  // Operating profit
+  // Operating profit = Gross Profit - Selling - Admin
   const opMonths = {};
   for (const m of MONTHS) {
     opMonths[m] = (grossMonths[m] || 0) - (sellingMonths[m] || 0) - (adminMonths[m] || 0);
   }
   const opTotal = grossTotal - sellingTotal - adminTotal;
 
-  // Net profit
+  // Net profit = Operating Profit - Interest
   const netMonths = {};
-  for (const m of MONTHS) netMonths[m] = (opMonths[m] || 0) - (interestMonths[m] || 0);
+  for (const m of MONTHS) {
+    netMonths[m] = (opMonths[m] || 0) - (interestMonths[m] || 0);
+  }
   const netTotal = opTotal - interestTotal;
 
   return [
@@ -400,7 +396,7 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
     { key: "admin", label: "ค่าใช้จ่ายในการบริหาร", months: adminMonths, total: adminTotal, type: "item" },
     { key: "operatingProfit", label: "กำไรก่อนต้นทุนทางการเงิน", months: opMonths, total: opTotal, type: "subtotal" },
     { key: "_sep3", type: "separator" },
-    { key: "interest", label: "ดอกเบี้ยจ่าย", months: interestMonths, total: interestTotal, type: "item" },
+    { key: "interest", label: "ต้นทุนทางการเงิน (53710-xx)", months: interestMonths, total: interestTotal, type: "item" },
     { key: "netProfit", label: "กำไรสุทธิก่อนภาษี", months: netMonths, total: netTotal, type: "grandTotal" },
   ];
 }
@@ -529,9 +525,14 @@ export function computeExpenseDetail(byAccount, type) {
     totalAmount += acct.total;
   }
 
+  const totalLabels = {
+    selling: "รวมค่าใช้จ่ายในการขาย",
+    admin: "รวมค่าใช้จ่ายในการบริหาร",
+    interest: "รวมต้นทุนทางการเงิน",
+  };
   rows.push({
     key: `total_${type}`,
-    label: type === "selling" ? "รวมค่าใช้จ่ายในการขาย" : "รวมค่าใช้จ่ายในการบริหาร",
+    label: totalLabels[type] || `รวม ${type}`,
     months: totalMonths,
     total: totalAmount,
     type: "grandTotal",

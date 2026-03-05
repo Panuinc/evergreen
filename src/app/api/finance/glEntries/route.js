@@ -18,7 +18,7 @@ export async function GET(request) {
 
     if (summarize === "monthly") {
       // Fetch GL entries with minimal fields, aggregate server-side
-      glParams.$select = "postingDate,accountNumber,debitAmount,creditAmount";
+      glParams.$select = "postingDate,accountNumber,debitAmount,creditAmount,documentNumber";
 
       const [entries, accounts] = await Promise.all([
         bcApiGet("generalLedgerEntries", glParams, {
@@ -30,15 +30,40 @@ export async function GET(request) {
         }),
       ]);
 
+      // ── Detect & exclude closing journal entry batches ──
+      // BC's "Close Income Statement" batch creates entries with a single
+      // documentNumber that touches many income-statement accounts (4x, 5x).
+      // Regular journals rarely span both revenue + expense with 15+ accounts.
+      const docAcctSets = {};
+      for (const e of entries) {
+        const p = e.accountNumber?.substring(0, 1);
+        if (p !== "4" && p !== "5") continue; // income-statement only
+        const doc = e.documentNumber;
+        if (!doc) continue;
+        if (!docAcctSets[doc]) docAcctSets[doc] = new Set();
+        docAcctSets[doc].add(e.accountNumber);
+      }
+      const closingDocs = new Set();
+      for (const [doc, accts] of Object.entries(docAcctSets)) {
+        const arr = [...accts];
+        const hasRev = arr.some((a) => a.startsWith("4"));
+        const hasExp = arr.some((a) => a.startsWith("5"));
+        if (hasRev && hasExp && accts.size >= 15) closingDocs.add(doc);
+      }
+      if (closingDocs.size) {
+        console.log(`[glEntries] excluded ${closingDocs.size} closing batch(es):`, [...closingDocs]);
+      }
+
       // Build account name lookup
       const nameMap = {};
       if (Array.isArray(accounts)) {
         for (const a of accounts) nameMap[a.number] = a.displayName;
       }
 
-      // Aggregate by account + month
+      // Aggregate by account + month (skip closing entries)
       const summary = {};
       for (const e of entries) {
+        if (closingDocs.has(e.documentNumber)) continue; // skip closing batch
         const acct = e.accountNumber;
         const month = e.postingDate?.substring(5, 7); // "01"–"12"
         if (!acct || !month) continue;

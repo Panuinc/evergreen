@@ -10,10 +10,11 @@ import {
   computeCogsDetail,
   computeExpenseDetail,
   computeRevenueDetail,
+  CAL_MONTHS,
+  CAL_MONTHS_SHORT,
 } from "@/modules/finance/glAccountMap";
 
 const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
 /**
  * Convert GL monthly summary (server-aggregated) → { byAccount, monthlyTotals }.
@@ -72,6 +73,7 @@ function buildCompMaps(byAccount, monthlyTotals) {
     cogs: toMap(computeCogsDetail(byAccount)),
     selling: toMap(computeExpenseDetail(byAccount, "selling")),
     admin: toMap(computeExpenseDetail(byAccount, "admin")),
+    interest: toMap(computeExpenseDetail(byAccount, "interest")),
     revenue: toMap(computeRevenueDetail(byAccount)),
   };
 }
@@ -156,32 +158,37 @@ export function useGlMonthlyData(year, enabled = true) {
     [byAccount],
   );
 
+  const interestDetail = useMemo(
+    () => computeExpenseDetail(byAccount, "interest"),
+    [byAccount],
+  );
+
   const revenueDetail = useMemo(
     () => computeRevenueDetail(byAccount),
     [byAccount],
   );
 
-  // Summary chart data for monthly trend (primary year)
+  // Summary chart data for monthly trend (primary year, fiscal month order)
   const monthlyChartData = useMemo(() => {
     if (!monthlyPnL.length) return [];
     const revRow = monthlyPnL.find((r) => r.key === "totalRevenue");
     const cogsRow = monthlyPnL.find((r) => r.key === "cogs");
     const netRow = monthlyPnL.find((r) => r.key === "netProfit");
-    return MONTHS.map((m, i) => ({
-      month: THAI_MONTHS_SHORT[i],
+    return CAL_MONTHS.map((m, i) => ({
+      month: CAL_MONTHS_SHORT[i],
       revenue: revRow?.months[m] || 0,
       cogs: cogsRow?.months[m] || 0,
       netProfit: netRow?.months[m] || 0,
     }));
   }, [monthlyPnL]);
 
-  // COGS composition chart data (stacked bar)
+  // COGS composition chart data (stacked bar, fiscal month order)
   const cogsChartData = useMemo(() => {
     if (!cogsDetail.length) return [];
     const materialKeys = ["rawMaterials", "supplies", "purchaseDiscounts", "importFreight", "importDuties", "otherImport"];
-    const laborKeys = ["laborDaily", "laborSubcontract", "laborOutsource", "laborPainting", "laborMfg", "laborAdjust"];
+    const laborKeys = ["laborDaily", "laborSubcontract", "laborOutsource", "laborPainting", "laborMfg"];
 
-    return MONTHS.map((m, i) => {
+    return CAL_MONTHS.map((m, i) => {
       let materials = 0, labor = 0, overhead = 0;
       for (const row of cogsDetail) {
         if (row.type !== "item") continue;
@@ -191,7 +198,7 @@ export function useGlMonthlyData(year, enabled = true) {
         else overhead += val;
       }
       return {
-        month: THAI_MONTHS_SHORT[i],
+        month: CAL_MONTHS_SHORT[i],
         วัตถุดิบ: materials,
         แรงงาน: labor,
         โสหุ้ยการผลิต: overhead,
@@ -207,10 +214,10 @@ export function useGlMonthlyData(year, enabled = true) {
     });
   }, [yearlyAggregates, year]);
 
-  // ─── Multi-year trend chart data (for CEO line charts) ───
+  // ─── Multi-year trend chart data (for CEO line charts, fiscal month order) ───
   const { revenueTrend, profitTrend } = useMemo(() => {
-    const revTrend = MONTHS.map((m, i) => {
-      const point = { month: THAI_MONTHS_SHORT[i] };
+    const revTrend = CAL_MONTHS.map((m, i) => {
+      const point = { month: CAL_MONTHS_SHORT[i] };
       for (const y of years) {
         const agg = yearlyAggregates[y];
         if (!agg) continue;
@@ -223,8 +230,8 @@ export function useGlMonthlyData(year, enabled = true) {
       return point;
     });
 
-    const pTrend = MONTHS.map((m, i) => {
-      const point = { month: THAI_MONTHS_SHORT[i] };
+    const pTrend = CAL_MONTHS.map((m, i) => {
+      const point = { month: CAL_MONTHS_SHORT[i] };
       for (const y of years) {
         const agg = yearlyAggregates[y];
         if (!agg) continue;
@@ -277,6 +284,7 @@ export function useGlMonthlyData(year, enabled = true) {
     cogsDetail,
     sellingDetail,
     adminDetail,
+    interestDetail,
     revenueDetail,
     monthlyChartData,
     cogsChartData,

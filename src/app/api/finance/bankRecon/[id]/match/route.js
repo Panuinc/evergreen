@@ -40,8 +40,21 @@ export async function POST(request, { params }) {
       .from("bcCustomer")
       .select("bcCustomerNumber,bcCustomerDisplayName,bcCustomerContact");
 
+    // Fetch aged receivables for AR_BALANCE strategy
+    let arByCustomer = new Map();
+    try {
+      const arData = await bcApiGet("agedAccountsReceivables", {}, { timeout: 15_000 });
+      for (const ar of arData || []) {
+        if (ar.customerNumber && Number(ar.balanceDue || 0) > 0) {
+          arByCustomer.set(ar.customerNumber, ar);
+        }
+      }
+    } catch (arErr) {
+      console.warn("[Match] Could not fetch aged receivables:", arErr.message);
+    }
+
     // Run matching
-    const matchResults = autoMatch(entries, invoices, customers || []);
+    const matchResults = autoMatch(entries, invoices, customers || [], arByCustomer);
 
     // Save matches to DB
     let matchCount = 0;

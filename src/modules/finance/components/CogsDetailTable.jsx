@@ -1,17 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card, CardBody, CardHeader, Spinner, Button, Chip,
+  Popover, PopoverTrigger, PopoverContent, Input,
 } from "@heroui/react";
-import { Download } from "lucide-react";
+import { Download, Pencil, Trash2 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import { exportToExcel } from "@/lib/exportExcel";
-
-const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/modules/finance/glAccountMap";
 
 function fmt(v) {
   if (v === 0 || v == null) return "-";
@@ -34,7 +34,24 @@ function getRowClass(row) {
   }
 }
 
-export default function CogsDetailTable({ data, chartData, loading, year, compYears = [] }) {
+function parseLocaleNum(str) {
+  if (!str) return 0;
+  return Number(String(str).replace(/,/g, "")) || 0;
+}
+
+function fmtInput(v) {
+  if (!v && v !== 0) return "";
+  return Number(v).toLocaleString("th-TH", { minimumFractionDigits: 2 });
+}
+
+export default function CogsDetailTable({
+  data, chartData, loading, year, compYears = [],
+  inventoryOverride, onSaveInventoryOverride, onClearInventoryOverride,
+}) {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [beginInput, setBeginInput] = useState("");
+  const [endInput, setEndInput] = useState("");
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -50,11 +67,29 @@ export default function CogsDetailTable({ data, chartData, loading, year, compYe
   const beYear = (year || 0) + 543;
   const beYear2 = beYear % 100;
 
+  const handleOpenPopover = () => {
+    setBeginInput(inventoryOverride ? fmtInput(inventoryOverride.beginningInventory) : "");
+    setEndInput(inventoryOverride ? fmtInput(inventoryOverride.endingInventory) : "");
+    setIsPopoverOpen(true);
+  };
+
+  const handleSave = () => {
+    const b = parseLocaleNum(beginInput);
+    const e = parseLocaleNum(endInput);
+    onSaveInventoryOverride?.({ beginningInventory: b, endingInventory: e });
+    setIsPopoverOpen(false);
+  };
+
+  const handleClear = () => {
+    onClearInventoryOverride?.();
+    setIsPopoverOpen(false);
+  };
+
   const handleExport = () => {
     const columns = [
       { header: "รายการ", key: "label", width: 30 },
-      ...MONTHS.map((m, i) => ({
-        header: `${THAI_MONTHS_SHORT[i]} ${beYear2}`,
+      ...CAL_MONTHS.map((m, i) => ({
+        header: `${CAL_MONTHS_SHORT[i]} ${calMonthBE(i, year)}`,
         key: `m_${m}`,
         width: 15,
       })),
@@ -67,7 +102,7 @@ export default function CogsDetailTable({ data, chartData, loading, year, compYe
     ];
     const exportData = data.map((r) => {
       const row = { label: r.label || r.labelEn, total: r.total || 0 };
-      MONTHS.forEach((m) => { row[`m_${m}`] = r.months?.[m] || 0; });
+      CAL_MONTHS.forEach((m) => { row[`m_${m}`] = r.months?.[m] || 0; });
       compYears.forEach((cy) => { row[`comp_${cy.year}`] = cy.cogs[r.key] || 0; });
       return row;
     });
@@ -108,19 +143,75 @@ export default function CogsDetailTable({ data, chartData, loading, year, compYe
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">รายละเอียดต้นทุนขาย</h3>
             <Chip size="sm" variant="flat" color="warning">ปี {beYear}</Chip>
+            {inventoryOverride && (
+              <Chip size="sm" variant="flat" color="success">ปรับปรุงสินค้าคงเหลือแล้ว</Chip>
+            )}
           </div>
-          <Button size="sm" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
-            Export Excel
-          </Button>
+          <div className="flex items-center gap-2">
+            <Popover isOpen={isPopoverOpen} onOpenChange={setIsPopoverOpen} placement="bottom-end">
+              <PopoverTrigger>
+                <Button
+                  size="sm"
+                  variant={inventoryOverride ? "flat" : "bordered"}
+                  color={inventoryOverride ? "success" : "default"}
+                  startContent={<Pencil size={14} />}
+                  onPress={handleOpenPopover}
+                >
+                  ปรับปรุงสินค้าคงเหลือ
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4">
+                <div className="flex flex-col gap-3">
+                  <h4 className="text-sm font-semibold">ปรับปรุงสินค้าคงเหลือ (Manual Override)</h4>
+                  <p className="text-xs text-default-500">
+                    กรอกค่าจาก Excel ของ Manager Account เพื่อปรับปรุงต้นทุนขาย
+                  </p>
+                  <Input
+                    label="สินค้าคงเหลือต้นงวด"
+                    placeholder="เช่น 9,896,091.35"
+                    size="sm"
+                    value={beginInput}
+                    onValueChange={setBeginInput}
+                    description="51200-00 Beginning Inventory"
+                  />
+                  <Input
+                    label="สินค้าคงเหลือปลายงวด"
+                    placeholder="เช่น 22,278,335.58"
+                    size="sm"
+                    value={endInput}
+                    onValueChange={setEndInput}
+                    description="115xx Ending Inventory (รวม วัตถุดิบ+WIP+สำเร็จรูป)"
+                  />
+                  <div className="flex justify-between gap-2 mt-1">
+                    {inventoryOverride && (
+                      <Button size="sm" color="danger" variant="flat" startContent={<Trash2 size={14} />} onPress={handleClear}>
+                        ล้าง (ใช้ค่า BC)
+                      </Button>
+                    )}
+                    <div className="flex-1" />
+                    <Button size="sm" variant="flat" onPress={() => setIsPopoverOpen(false)}>
+                      ยกเลิก
+                    </Button>
+                    <Button size="sm" color="primary" onPress={handleSave}>
+                      บันทึก
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button size="sm" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
+              Export Excel
+            </Button>
+          </div>
         </CardHeader>
         <CardBody className="overflow-x-auto p-0">
           <table className="w-full text-xs border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-default-100 border-b border-default-200">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[220px] font-semibold">รายการ</th>
-                {MONTHS.map((m, i) => (
+                {CAL_MONTHS.map((m, i) => (
                   <th key={m} className="text-right px-2 py-2 min-w-[90px] font-semibold">
-                    {THAI_MONTHS_SHORT[i]}
+                    {`${CAL_MONTHS_SHORT[i]} ${calMonthBE(i, year)}`}
                   </th>
                 ))}
                 <th className="text-right px-3 py-2 min-w-[110px] font-bold bg-default-200">รวม {beYear}</th>
@@ -138,7 +229,7 @@ export default function CogsDetailTable({ data, chartData, loading, year, compYe
                     {row.label}
                     {row.labelEn && <span className="text-default-400 ml-1">({row.labelEn})</span>}
                   </td>
-                  {MONTHS.map((m) => {
+                  {CAL_MONTHS.map((m) => {
                     const val = row.months?.[m];
                     return (
                       <td key={m} className={`text-right font-mono text-xs px-2 ${val < 0 ? "text-danger" : ""}`}>

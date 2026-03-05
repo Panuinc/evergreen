@@ -103,15 +103,16 @@ export function getFinancePeriodRanges(periodType, periodValue) {
   const be = (y) => String((y + 543) % 100).padStart(2, "0");
 
   if (periodType === "year") {
+    // Fiscal year ending March 31: Apr (year-1) → Mar (year)
     return {
       current: {
-        start: `${year}-01-01`,
-        end: `${year}-12-31`,
+        start: `${year - 1}-04-01`,
+        end: `${year}-03-31`,
         label: `ปี ${be(year)}`,
       },
       previous: {
-        start: `${year - 1}-01-01`,
-        end: `${year - 1}-12-31`,
+        start: `${year - 2}-04-01`,
+        end: `${year - 1}-03-31`,
         label: `ปี ${be(year - 1)}`,
       },
     };

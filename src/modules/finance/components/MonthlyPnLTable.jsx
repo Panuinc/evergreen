@@ -10,9 +10,7 @@ import {
   Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import { exportToExcel } from "@/lib/exportExcel";
-
-const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/modules/finance/glAccountMap";
 
 function fmt(v) {
   if (v === 0 || v == null) return "-";
@@ -61,8 +59,8 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
   const handleExport = () => {
     const columns = [
       { header: "รายการ", key: "label", width: 30 },
-      ...MONTHS.map((m, i) => ({
-        header: `${THAI_MONTHS_SHORT[i]} ${beYear2}`,
+      ...CAL_MONTHS.map((m, i) => ({
+        header: `${CAL_MONTHS_SHORT[i]} ${calMonthBE(i, year)}`,
         key: `m_${m}`,
         width: 15,
       })),
@@ -77,7 +75,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
       .filter((r) => r.type !== "separator")
       .map((r) => {
         const row = { label: r.label, total: r.total || 0 };
-        MONTHS.forEach((m) => { row[`m_${m}`] = r.months?.[m] || 0; });
+        CAL_MONTHS.forEach((m) => { row[`m_${m}`] = r.months?.[m] || 0; });
         compYears.forEach((cy) => { row[`comp_${cy.year}`] = cy.pnl[r.key] || 0; });
         return row;
       });
@@ -128,9 +126,9 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
             <thead>
               <tr className="bg-default-100 border-b border-default-200">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[200px] font-semibold">รายการ</th>
-                {MONTHS.map((m, i) => (
+                {CAL_MONTHS.map((m, i) => (
                   <th key={m} className="text-right px-2 py-2 min-w-[90px] font-semibold">
-                    {THAI_MONTHS_SHORT[i]}
+                    {CAL_MONTHS_SHORT[i]} {calMonthBE(i, year)}
                   </th>
                 ))}
                 <th className="text-right px-3 py-2 min-w-[110px] font-bold bg-default-200">รวม {beYear}</th>
@@ -151,7 +149,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
                     <td className="sticky left-0 z-10 bg-background px-3 py-1.5">
                       {row.label}
                     </td>
-                    {MONTHS.map((m) => (
+                    {CAL_MONTHS.map((m) => (
                       <td key={m} className={getCellClass(row.months?.[m], row)}>
                         <span className="px-2">{fmt(row.months?.[m])}</span>
                       </td>

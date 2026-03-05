@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useFinanceDashboard } from "@/modules/finance/hooks/useFinanceDashboard";
 import { useGlMonthlyData } from "@/modules/finance/hooks/useGlMonthlyData";
 import FinanceDashboardView from "@/modules/finance/components/FinanceDashboardView";
 import { INVENTORY_ACCOUNTS } from "@/modules/finance/glAccountMap";
+
+const INV_OVERRIDE_KEY = (year) => `chh_inventory_override_${year}`;
 
 /**
  * Extract year totals from monthlyPnL rows (GL-based, year-filtered).
@@ -22,18 +24,48 @@ export default function FinanceDashboardPage() {
   // GL monthly data — uses same selectedYear as period selector
   const gl = useGlMonthlyData(hook.selectedYear);
 
-  // ─── TB Inventory Adjustment (for unclosed fiscal years) ───
-  // For unclosed years, GL has no inventory journal entries (51200-00 = 0, 115xx = 0).
-  // Detect this and compute the adjustment amount from TB inventory balance.
+  // ─── Manual Inventory Override (localStorage per year) ───
+  const [inventoryOverride, setInventoryOverride] = useState(null);
+
+  // Load override from localStorage when year changes
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(INV_OVERRIDE_KEY(hook.selectedYear));
+      setInventoryOverride(stored ? JSON.parse(stored) : null);
+    } catch { setInventoryOverride(null); }
+  }, [hook.selectedYear]);
+
+  const onSaveInventoryOverride = useCallback((values) => {
+    localStorage.setItem(INV_OVERRIDE_KEY(hook.selectedYear), JSON.stringify(values));
+    setInventoryOverride(values);
+  }, [hook.selectedYear]);
+
+  const onClearInventoryOverride = useCallback(() => {
+    localStorage.removeItem(INV_OVERRIDE_KEY(hook.selectedYear));
+    setInventoryOverride(null);
+  }, [hook.selectedYear]);
+
+  // ─── Inventory Adjustment ───
+  // Priority: manual override > automatic (GL vs TB comparison)
   const inventoryAdjustment = useMemo(() => {
-    const glInvNet = gl.glInventoryNet || 0;
-    const glBeginInv = gl.glBeginInvTotal || 0;
-    const tbInventory = hook.financials?.inventoryBalance || 0;
-    const glHasInventoryData = Math.abs(glInvNet) > 1000 || Math.abs(glBeginInv) > 1000;
-    // If GL already has inventory data (closed year), no adjustment needed
-    if (glHasInventoryData || tbInventory <= 0) return 0;
-    return tbInventory;
-  }, [gl.glInventoryNet, gl.glBeginInvTotal, hook.financials]);
+    const pnl = pnlMap(gl.monthlyPnL);
+    const rawGlCogs = pnl.cogs || 0;
+    if (!rawGlCogs) return 0;
+
+    // Manual override: COGS = production + beginInv - endInv
+    if (inventoryOverride) {
+      const { beginningInventory = 0, endingInventory = 0 } = inventoryOverride;
+      const targetCogs = rawGlCogs + beginningInventory - endingInventory;
+      const adj = rawGlCogs - targetCogs;
+      return adj > 0 ? adj : 0;
+    }
+
+    // Automatic: compare GL vs TB
+    const tbCogs = hook.financials?.cogs;
+    if (tbCogs == null) return 0;
+    const diff = rawGlCogs - tbCogs;
+    return diff > 0 ? diff : 0;
+  }, [gl.monthlyPnL, hook.financials, inventoryOverride]);
 
   // ─── Merge financials: balance sheet from TB + income statement from GL ───
   const financials = useMemo(() => {
@@ -54,9 +86,9 @@ export default function FinanceDashboardPage() {
     const sellingExpense = pnl.selling || 0;
     const adminExpense = pnl.admin || 0;
     const interestExpense = pnl.interest || 0;
-    const totalExpense = sellingExpense + adminExpense;
-    const operatingProfit = grossProfit - totalExpense;
-    const netIncome = operatingProfit - interestExpense;
+    const operatingProfit = grossProfit - sellingExpense - adminExpense;
+    const totalExpense = sellingExpense + adminExpense + interestExpense;
+    const netIncome = grossProfit - totalExpense;
 
     // Ratios (GL income + TB balance sheet)
     const currentRatio = tb.currentLiabilities ? tb.currentAssets / tb.currentLiabilities : 0;
@@ -71,8 +103,8 @@ export default function FinanceDashboardPage() {
       shareCapital: tb.shareCapital, retainedEarnings: tb.retainedEarnings, totalEquity: tb.totalEquity,
       salesRevenue, serviceRevenue, otherIncome, totalRevenue,
       cogs, rawGlCogs, inventoryAdj: inventoryAdjustment,
-      grossProfit, sellingExpense, adminExpense, interestExpense,
-      operatingProfit, totalExpense, netIncome,
+      grossProfit, sellingExpense, adminExpense, interestExpense, operatingProfit,
+      totalExpense, netIncome,
       currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
       inventoryAccounts: tb.inventoryAccounts,
       groups: tb.groups, totalAccounts: tb.totalAccounts, postingAccounts: tb.postingAccounts,
@@ -101,15 +133,26 @@ export default function FinanceDashboardPage() {
     if (!gl.cogsDetail.length || !inventoryAdjustment) return gl.cogsDetail;
     const tbInvAccounts = hook.financials?.inventoryAccounts || {};
 
-    return gl.cogsDetail.map((row) => {
-      // Replace 0-value inventory rows with TB balances
+    // First pass: replace inventory rows with TB balances
+    const replaced = gl.cogsDetail.map((row) => {
       for (const inv of INVENTORY_ACCOUNTS) {
         if (row.key === inv.key && tbInvAccounts[inv.account]) {
           return { ...row, total: -tbInvAccounts[inv.account].balance };
         }
       }
+      return row;
+    });
+
+    // Compute sum of all deduction rows (for consistent endingInventory total)
+    let endInvSum = 0;
+    for (const row of replaced) {
+      if (row.type === "deduction") endInvSum += row.total || 0;
+    }
+
+    // Second pass: update endingInventory and cogsTotal
+    return replaced.map((row) => {
       if (row.key === "endingInventory") {
-        return { ...row, total: -inventoryAdjustment };
+        return { ...row, total: endInvSum };
       }
       if (row.key === "cogsTotal") {
         return { ...row, total: row.total - inventoryAdjustment };
@@ -132,7 +175,7 @@ export default function FinanceDashboardPage() {
       { name: "ต้นทุนขาย", value: -financials.cogs, color: "#F31260" },
       { name: "ค่าใช้จ่ายขาย", value: -financials.sellingExpense, color: "#F5A524" },
       { name: "ค่าใช้จ่ายบริหาร", value: -financials.adminExpense, color: "#F97316" },
-      { name: "ดอกเบี้ยจ่าย", value: -financials.interestExpense, color: "#9353D3" },
+      { name: "ดอกเบี้ยจ่าย", value: -financials.interestExpense, color: "#7828C8" },
     ].filter((d) => d.value !== 0);
   }, [financials]);
 
@@ -142,7 +185,7 @@ export default function FinanceDashboardPage() {
     if (financials.cogs > 0) data.push({ name: "ต้นทุนขาย", value: financials.cogs, color: "#F31260" });
     if (financials.sellingExpense > 0) data.push({ name: "ค่าใช้จ่ายขาย", value: financials.sellingExpense, color: "#F5A524" });
     if (financials.adminExpense > 0) data.push({ name: "ค่าใช้จ่ายบริหาร", value: financials.adminExpense, color: "#F97316" });
-    if (financials.interestExpense > 0) data.push({ name: "ดอกเบี้ยจ่าย", value: financials.interestExpense, color: "#9353D3" });
+    if (financials.interestExpense > 0) data.push({ name: "ดอกเบี้ยจ่าย", value: financials.interestExpense, color: "#7828C8" });
     return data;
   }, [financials]);
 
@@ -178,6 +221,10 @@ export default function FinanceDashboardPage() {
       // Year selector
       selectedYear={hook.selectedYear}
       setSelectedYear={hook.setSelectedYear}
+      // Inventory override
+      inventoryOverride={inventoryOverride}
+      onSaveInventoryOverride={onSaveInventoryOverride}
+      onClearInventoryOverride={onClearInventoryOverride}
       // GL Monthly Data props (adjusted for TB inventory)
       glLoading={gl.loading}
       glError={gl.error}
@@ -185,6 +232,7 @@ export default function FinanceDashboardPage() {
       cogsDetail={cogsDetail}
       sellingDetail={gl.sellingDetail}
       adminDetail={gl.adminDetail}
+      interestDetail={gl.interestDetail}
       revenueDetail={gl.revenueDetail}
       monthlyChartData={gl.monthlyChartData}
       cogsChartData={gl.cogsChartData}

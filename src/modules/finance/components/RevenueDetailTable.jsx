@@ -9,9 +9,7 @@ import {
   Legend, ResponsiveContainer,
 } from "recharts";
 import { exportToExcel } from "@/lib/exportExcel";
-
-const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/modules/finance/glAccountMap";
 const COLORS = ["#006FEE", "#17C964", "#F5A524", "#F31260", "#9353D3", "#00B8D9", "#FF6B35", "#7C3AED"];
 
 function fmt(v) {
@@ -45,8 +43,8 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
     const columns = [
       { header: "บัญชี", key: "account", width: 12 },
       { header: "รายการ", key: "label", width: 40 },
-      ...MONTHS.map((m, i) => ({
-        header: `${THAI_MONTHS_SHORT[i]} ${beYear2}`,
+      ...CAL_MONTHS.map((m, i) => ({
+        header: `${CAL_MONTHS_SHORT[i]} ${calMonthBE(i, year)}`,
         key: `m_${m}`,
         width: 14,
       })),
@@ -59,7 +57,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
     ];
     const exportData = data.map((r) => {
       const row = { account: r.account || "", label: r.label, total: r.total || 0 };
-      MONTHS.forEach((m) => { row[`m_${m}`] = r.months?.[m] || 0; });
+      CAL_MONTHS.forEach((m) => { row[`m_${m}`] = r.months?.[m] || 0; });
       compYears.forEach((cy) => { row[`comp_${cy.year}`] = cy.revenue[r.key] || 0; });
       return row;
     });
@@ -112,9 +110,9 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
             <thead>
               <tr className="bg-default-100 border-b border-default-200">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[280px] font-semibold">รายการ</th>
-                {MONTHS.map((m, i) => (
+                {CAL_MONTHS.map((m, i) => (
                   <th key={m} className="text-right px-2 py-2 min-w-[85px] font-semibold">
-                    {THAI_MONTHS_SHORT[i]}
+                    {CAL_MONTHS_SHORT[i]} {calMonthBE(i, year)}
                   </th>
                 ))}
                 <th className="text-right px-3 py-2 min-w-[110px] font-bold bg-default-200">รวม {beYear}</th>
@@ -134,7 +132,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
                       {row.account && <span className="text-default-400 mr-1">{row.account}</span>}
                       {row.label}
                     </td>
-                    {MONTHS.map((m) => {
+                    {CAL_MONTHS.map((m) => {
                       const val = row.months?.[m];
                       return (
                         <td key={m} className={`text-right font-mono text-xs px-2 ${val < 0 ? "text-danger" : ""}`}>

@@ -7,11 +7,12 @@ import { normalizeName } from "./parsers/base";
  * 1. EXACT_AMOUNT_NAME  (0.95) — amount matches + customer name fuzzy match
  * 2. EXACT_AMOUNT_UNIQUE (0.90) — amount matches exactly one invoice
  * 3. CHECK_REF          (0.85) — cheque/ref number matches externalDocumentNumber
- * 4. AMOUNT_SUM         (0.75) — entry amount = sum of multiple invoices for same customer
- * 5. CUSTOMER_FIFO      (0.70) — name match → allocate FIFO from oldest invoices (partial/bulk)
- * 6. EXACT_AMOUNT_MULTI (0.60) — amount matches multiple invoices → suggested
+ * 4. AR_BALANCE         (0.80) — entry amount = customer's total AR balance (aged receivables)
+ * 5. AMOUNT_SUM         (0.75) — entry amount = sum of multiple invoices for same customer
+ * 6. CUSTOMER_FIFO      (0.70) — name match → allocate FIFO from oldest invoices (partial/bulk)
+ * 7. EXACT_AMOUNT_MULTI (0.60) — amount matches multiple invoices → suggested
  */
-export function autoMatch(entries, invoices, customers) {
+export function autoMatch(entries, invoices, customers, arByCustomer = new Map()) {
   // Build customer name lookup: customerNumber → normalized names
   const custNameMap = new Map();
   for (const c of customers) {
@@ -115,7 +116,47 @@ export function autoMatch(entries, invoices, customers) {
       }
     }
 
-    // Strategy 4: AMOUNT_SUM — entry = sum of multiple invoices for same customer
+    // Strategy 4: AR_BALANCE — entry amount = customer's total AR balanceDue
+    if (!bestMatch && entryCustomer && arByCustomer.size > 0) {
+      for (const [custNo, ar] of arByCustomer) {
+        const arBalance = Number(ar.balanceDue || 0);
+        if (arBalance <= 0 || Math.abs(entryAmount - arBalance) > 0.01) continue;
+
+        // Name must match
+        const custNames = custNameMap.get(custNo) || [];
+        const arName = normalizeName(ar.name || "");
+        const allNames = [...custNames, arName].filter(Boolean);
+        if (!fuzzyNameMatch(entryCustomer, allNames)) continue;
+
+        // Match — allocate FIFO across all open invoices for this customer
+        const custInvs = (invoicesByCustomer.get(custNo) || [])
+          .filter((inv) => !matchedInvoiceIds.has(inv.number || inv.id))
+          .sort((a, b) => (a.invoiceDate || "").localeCompare(b.invoiceDate || ""));
+
+        if (custInvs.length > 0) {
+          let remaining = entryAmount;
+          const allocated = [];
+          for (const inv of custInvs) {
+            if (remaining <= 0.01) break;
+            const invRemaining = Number(inv.remainingAmount || inv.totalAmountIncludingTax || 0);
+            const allocate = Math.min(remaining, invRemaining);
+            allocated.push(makeMatchRecord(inv, allocate));
+            remaining -= allocate;
+          }
+          if (allocated.length > 0) {
+            bestMatch = {
+              entryId: entry.id,
+              confidence: 0.80,
+              method: "AR_BALANCE",
+              matches: allocated,
+            };
+            break;
+          }
+        }
+      }
+    }
+
+    // Strategy 5: AMOUNT_SUM — entry = sum of multiple invoices for same customer
     if (!bestMatch && entryCustomer) {
       for (const [custNo, custInvs] of invoicesByCustomer) {
         const custNames = custNameMap.get(custNo) || [];
@@ -137,7 +178,7 @@ export function autoMatch(entries, invoices, customers) {
       }
     }
 
-    // Strategy 5: CUSTOMER_FIFO — name match → allocate from oldest invoices first
+    // Strategy 6: CUSTOMER_FIFO — name match → allocate from oldest invoices first
     if (!bestMatch && entryCustomer) {
       const custMatch = findCustomerByName(entryCustomer, custNameMap, invoicesByCustomer);
       if (custMatch) {
@@ -169,7 +210,7 @@ export function autoMatch(entries, invoices, customers) {
       }
     }
 
-    // Strategy 6: EXACT_AMOUNT_MULTI (suggested — multiple invoices same amount)
+    // Strategy 7: EXACT_AMOUNT_MULTI (suggested — multiple invoices same amount)
     if (!bestMatch && amountMatches.length > 1) {
       bestMatch = {
         entryId: entry.id,

@@ -11,8 +11,9 @@ import {
   runAutoMatch,
   manualMatchEntry,
   deleteBankStatement,
+  getSalesInvoices,
+  getAgedReceivables,
 } from "@/modules/finance/actions";
-import { getSalesInvoices } from "@/modules/finance/actions";
 
 export function useBankRecon() {
   // ─── Data State ───
@@ -24,6 +25,10 @@ export function useBankRecon() {
   const [parsing, setParsing] = useState(false);
   const [matching, setMatching] = useState(false);
   const [filter, setFilter] = useState("all");
+
+  // ─── AR Data ───
+  const [arData, setArData] = useState([]);
+  const [arLoading, setArLoading] = useState(false);
 
   // ─── Modal State ───
   const matchModal = useDisclosure();
@@ -210,6 +215,103 @@ export function useBankRecon() {
     [openInvoices.length, matchModal],
   );
 
+  // ─── Load AR Data ───
+  const loadArData = useCallback(async () => {
+    setArLoading(true);
+    try {
+      const rows = await getAgedReceivables();
+      setArData((rows || []).filter((r) => r.customerNumber && Number(r.balanceDue) !== 0));
+    } catch (err) {
+      console.error("Load AR data error:", err);
+      toast.error("โหลดข้อมูล AR ล้มเหลว");
+    } finally {
+      setArLoading(false);
+    }
+  }, []);
+
+  // ─── AR Comparison ───
+  const arComparison = useMemo(() => {
+    if (!detail?.entries || arData.length === 0) return [];
+
+    // Build matched totals by customer from bank matches
+    const matchedByCustomer = new Map();
+    for (const entry of detail.entries) {
+      if (entry.direction !== "credit" || !entry.bankMatch?.length) continue;
+      for (const m of entry.bankMatch) {
+        const key = m.customerNumber || m.customerName;
+        if (!key) continue;
+        if (!matchedByCustomer.has(key)) {
+          matchedByCustomer.set(key, {
+            customerNumber: m.customerNumber,
+            customerName: m.customerName,
+            matchedTotal: 0,
+            invoiceCount: 0,
+          });
+        }
+        const row = matchedByCustomer.get(key);
+        row.matchedTotal += Number(m.matchedAmount || 0);
+        row.invoiceCount++;
+      }
+    }
+
+    // Build AR lookup by customerNumber
+    const arMap = new Map();
+    for (const ar of arData) {
+      arMap.set(ar.customerNumber, ar);
+    }
+
+    // Merge: start from AR data, enrich with matched totals
+    const result = [];
+    const seen = new Set();
+
+    for (const ar of arData) {
+      const matched = matchedByCustomer.get(ar.customerNumber);
+      const matchedTotal = matched?.matchedTotal || 0;
+      const arBalance = Number(ar.balanceDue || 0);
+      const difference = arBalance - matchedTotal;
+
+      let status;
+      if (Math.abs(difference) < 0.01) status = "จ่ายครบ";
+      else if (difference > 0) status = "ยังค้าง";
+      else status = "จ่ายเกิน";
+
+      result.push({
+        customerNumber: ar.customerNumber,
+        customerName: matched?.customerName || ar.name,
+        matchedTotal,
+        invoiceCount: matched?.invoiceCount || 0,
+        arBalanceDue: arBalance,
+        arCurrent: Number(ar.currentAmount || 0),
+        arPeriod1: Number(ar.period1Amount || 0),
+        arPeriod2: Number(ar.period2Amount || 0),
+        arPeriod3: Number(ar.period3Amount || 0),
+        difference,
+        status,
+      });
+      seen.add(ar.customerNumber);
+    }
+
+    // Add customers that have bank matches but no AR record
+    for (const [key, matched] of matchedByCustomer) {
+      if (seen.has(key)) continue;
+      result.push({
+        customerNumber: matched.customerNumber,
+        customerName: matched.customerName,
+        matchedTotal: matched.matchedTotal,
+        invoiceCount: matched.invoiceCount,
+        arBalanceDue: 0,
+        arCurrent: 0,
+        arPeriod1: 0,
+        arPeriod2: 0,
+        arPeriod3: 0,
+        difference: -matched.matchedTotal,
+        status: "ไม่พบใน AR",
+      });
+    }
+
+    return result.sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
+  }, [detail?.entries, arData]);
+
   // ─── Export ───
   const handleExport = useCallback(async () => {
     if (!selectedId) return;
@@ -298,5 +400,9 @@ export function useBankRecon() {
     handleDelete,
     handleExport,
     openMatchModal,
+    arData,
+    arLoading,
+    arComparison,
+    loadArData,
   };
 }

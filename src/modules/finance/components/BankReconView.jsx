@@ -30,6 +30,7 @@ import {
   Check,
   Ban,
   Zap,
+  Scale,
 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import FileUpload from "@/components/ui/FileUpload";
@@ -94,6 +95,9 @@ export default function BankReconView({
   handleDelete,
   handleExport,
   openMatchModal,
+  arLoading,
+  arComparison,
+  loadArData,
 }) {
   const [bankCode, setBankCode] = useState("AUTO");
   const [invoiceSearch, setInvoiceSearch] = useState("");
@@ -479,6 +483,29 @@ export default function BankReconView({
             <SummaryTab detail={detail} kpis={kpis} handleExport={handleExport} />
           )}
         </Tab>
+        {/* ═══ Tab 4: AR Comparison ═══ */}
+        <Tab
+          key="arCompare"
+          title={
+            <div className="flex items-center gap-2">
+              <Scale size={16} />
+              <span>เปรียบเทียบ AR</span>
+            </div>
+          }
+        >
+          {!detail ? (
+            <div className="text-center py-8 text-default-400">
+              เลือก Statement จากแท็บ &quot;อัพโหลด&quot; แล้วกด Auto-Match ก่อน
+            </div>
+          ) : (
+            <ArCompareTab
+              arComparison={arComparison}
+              arLoading={arLoading}
+              loadArData={loadArData}
+              kpis={kpis}
+            />
+          )}
+        </Tab>
       </Tabs>
 
       {/* ═══ Manual Match Modal ═══ */}
@@ -684,6 +711,105 @@ function SummaryTab({ detail, kpis, handleExport }) {
             startContent={<Download size={14} />}
           >
             Export Excel
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
+const AR_STATUS_COLORS = {
+  "จ่ายครบ": "success",
+  "ยังค้าง": "warning",
+  "จ่ายเกิน": "primary",
+  "ไม่พบใน AR": "default",
+};
+
+function ArCompareTab({ arComparison, arLoading, loadArData, kpis }) {
+  const arColumns = [
+    { name: "รหัสลูกค้า", uid: "customerNumber", sortable: true },
+    { name: "ชื่อลูกค้า", uid: "customerName", sortable: true },
+    { name: "ยอดฝาก Match", uid: "matchedTotal", sortable: true },
+    { name: "ยอดค้าง AR", uid: "arBalanceDue", sortable: true },
+    { name: "ปัจจุบัน", uid: "arCurrent", sortable: true },
+    { name: "ค้าง 1 งวด", uid: "arPeriod1", sortable: true },
+    { name: "ค้าง 2 งวด", uid: "arPeriod2", sortable: true },
+    { name: "ค้าง 3+ งวด", uid: "arPeriod3", sortable: true },
+    { name: "ส่วนต่าง", uid: "difference", sortable: true },
+    { name: "สถานะ", uid: "status", sortable: true },
+  ];
+
+  const renderArCell = (item, col) => {
+    switch (col) {
+      case "matchedTotal":
+        return <span className="text-success font-medium">{fmtNum(item.matchedTotal)}</span>;
+      case "arBalanceDue":
+        return <span className="font-semibold">{fmtNum(item.arBalanceDue)}</span>;
+      case "arCurrent":
+        return <span className="text-success">{fmtNum(item.arCurrent)}</span>;
+      case "arPeriod1":
+        return <span className="text-warning">{fmtNum(item.arPeriod1)}</span>;
+      case "arPeriod2":
+        return <span className="text-warning">{fmtNum(item.arPeriod2)}</span>;
+      case "arPeriod3":
+        return <span className="text-danger">{fmtNum(item.arPeriod3)}</span>;
+      case "difference":
+        return (
+          <span className={item.difference > 0.01 ? "text-danger font-medium" : item.difference < -0.01 ? "text-primary font-medium" : "text-success font-medium"}>
+            {item.difference > 0 ? "+" : ""}{fmtNum(item.difference)}
+          </span>
+        );
+      case "status":
+        return (
+          <Chip size="sm" color={AR_STATUS_COLORS[item.status] || "default"} variant="flat">
+            {item.status}
+          </Chip>
+        );
+      default:
+        return item[col] ?? "-";
+    }
+  };
+
+  const totalMatched = arComparison.reduce((s, r) => s + r.matchedTotal, 0);
+  const totalAr = arComparison.reduce((s, r) => s + r.arBalanceDue, 0);
+  const totalDiff = totalAr - totalMatched;
+  const paidCount = arComparison.filter((r) => r.status === "จ่ายครบ").length;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <KpiCard label="ยอดฝาก Match รวม" value={fmtNum(totalMatched)} sub={`${arComparison.filter((r) => r.matchedTotal > 0).length} ลูกค้า`} color="text-success" />
+        <KpiCard label="ยอดค้าง AR รวม" value={fmtNum(totalAr)} sub={`${arComparison.length} ลูกค้า`} color="text-warning" />
+        <KpiCard label="ส่วนต่างรวม" value={fmtNum(totalDiff)} sub={totalDiff > 0 ? "ยังค้างชำระ" : "ชำระเกิน/ครบ"} color={totalDiff > 0 ? "text-danger" : "text-success"} />
+        <KpiCard label="จ่ายครบ" value={paidCount} sub={`จาก ${arComparison.length} ลูกค้า`} color="text-primary" />
+      </div>
+
+      <DataTable
+        columns={arColumns}
+        data={arComparison}
+        renderCell={renderArCell}
+        rowKey="customerNumber"
+        isLoading={arLoading}
+        searchKeys={["customerNumber", "customerName"]}
+        searchPlaceholder="ค้นหาลูกค้า..."
+        defaultSortDescriptor={{ column: "difference", direction: "descending" }}
+        emptyContent={arComparison.length === 0 ? "กดปุ่ม \"โหลดข้อมูล AR\" เพื่อดึงข้อมูลเปรียบเทียบ" : "ไม่พบข้อมูล"}
+        getRowClassName={(item) =>
+          item.status === "จ่ายครบ"
+            ? "bg-success-50"
+            : item.arPeriod3 > 0
+              ? "bg-danger-50"
+              : ""
+        }
+        topEndContent={
+          <Button
+            size="sm"
+            color="primary"
+            onPress={loadArData}
+            isLoading={arLoading}
+            startContent={<RefreshCw size={14} />}
+          >
+            โหลดข้อมูล AR
           </Button>
         }
       />
