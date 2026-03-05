@@ -9,14 +9,12 @@ import {
   updateFuelLog,
   deleteFuelLog,
   getVehicles,
-  getDrivers,
 } from "@/modules/tms/actions";
 
 const today = new Date().toISOString().split("T")[0];
 
 const emptyForm = {
   tmsFuelLogVehicleId: "",
-  tmsFuelLogDriverId: "",
   tmsFuelLogDate: today,
   tmsFuelLogFuelType: "diesel",
   tmsFuelLogLiters: "",
@@ -31,7 +29,6 @@ const emptyForm = {
 export function useFuelLogs() {
   const [fuelLogs, setFuelLogs] = useState([]);
   const [vehicles, setVehicles] = useState([]);
-  const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingFuelLog, setEditingFuelLog] = useState(null);
@@ -47,14 +44,12 @@ export function useFuelLogs() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [fuelData, vehData, drvData] = await Promise.all([
+      const [fuelData, vehData] = await Promise.all([
         getFuelLogs(),
         getVehicles(),
-        getDrivers(),
       ]);
       setFuelLogs(fuelData);
       setVehicles(vehData);
-      setDrivers(drvData);
     } catch (error) {
       toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
@@ -67,7 +62,6 @@ export function useFuelLogs() {
       setEditingFuelLog(fuelLog);
       setFormData({
         tmsFuelLogVehicleId: fuelLog.tmsFuelLogVehicleId?.toString() || "",
-        tmsFuelLogDriverId: fuelLog.tmsFuelLogDriverId?.toString() || "",
         tmsFuelLogDate: fuelLog.tmsFuelLogDate || today,
         tmsFuelLogFuelType: fuelLog.tmsFuelLogFuelType || "diesel",
         tmsFuelLogLiters: fuelLog.tmsFuelLogLiters?.toString() || "",
@@ -160,7 +154,6 @@ export function useFuelLogs() {
   return {
     fuelLogs,
     vehicles,
-    drivers,
     loading,
     saving,
     editingFuelLog,

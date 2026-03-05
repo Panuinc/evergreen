@@ -10,21 +10,6 @@ import {
   getDeliveryPlanSalesOrders,
   getDeliveryPlanSalesOrderLines,
 } from "@/modules/tms/actions";
-import { COMPANY_HQ } from "@/modules/tms/constants";
-
-function haversine(lat1, lng1, lat2, lng2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * (Math.PI / 180);
-  const dLng = (lng2 - lng1) * (Math.PI / 180);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * (Math.PI / 180)) *
-      Math.cos(lat2 * (Math.PI / 180)) *
-      Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-const PRIORITY_ORDER = { urgent: 0, high: 1, normal: 2, low: 3 };
 
 export function useDeliveryPlans() {
   const today = new Date();
@@ -187,72 +172,6 @@ export function useDeliveryPlans() {
   const getPlansForDate = (dateStr) =>
     plans.filter((p) => p.tmsDeliveryPlanDate === dateStr);
 
-  // Route optimization: sort by priority then nearest-neighbor from HQ
-  const optimizeRoute = async (plansOnDate) => {
-    if (!plansOnDate || plansOnDate.length < 2) return;
-    try {
-      const withCoords = plansOnDate.filter(
-        (p) => p.tmsDeliveryPlanLat && p.tmsDeliveryPlanLng
-      );
-      const noCoords = plansOnDate.filter(
-        (p) => !p.tmsDeliveryPlanLat || !p.tmsDeliveryPlanLng
-      );
-
-      const groups = {};
-      withCoords.forEach((p) => {
-        const key = p.tmsDeliveryPlanPriority || "normal";
-        if (!groups[key]) groups[key] = [];
-        groups[key].push(p);
-      });
-
-      const result = [];
-      const priorityKeys = Object.keys(PRIORITY_ORDER).sort(
-        (a, b) => PRIORITY_ORDER[a] - PRIORITY_ORDER[b]
-      );
-
-      for (const pKey of priorityKeys) {
-        const group = groups[pKey] || [];
-        let cur = { lat: COMPANY_HQ.lat, lng: COMPANY_HQ.lng };
-        const remaining = [...group];
-        while (remaining.length > 0) {
-          let best = 0;
-          let bestDist = Infinity;
-          remaining.forEach((p, i) => {
-            const d = haversine(
-              cur.lat,
-              cur.lng,
-              p.tmsDeliveryPlanLat,
-              p.tmsDeliveryPlanLng
-            );
-            if (d < bestDist) {
-              bestDist = d;
-              best = i;
-            }
-          });
-          const chosen = remaining.splice(best, 1)[0];
-          result.push(chosen);
-          cur = {
-            lat: chosen.tmsDeliveryPlanLat,
-            lng: chosen.tmsDeliveryPlanLng,
-          };
-        }
-      }
-      result.push(...noCoords);
-
-      await Promise.all(
-        result.map((p, i) =>
-          updateDeliveryPlan(p.tmsDeliveryPlanId, {
-            tmsDeliveryPlanSequence: i + 1,
-          })
-        )
-      );
-      await loadPlans(currentDate);
-      toast.success("จัดเส้นทางเสร็จแล้ว");
-    } catch {
-      toast.error("จัดเส้นทางล้มเหลว");
-    }
-  };
-
   return {
     plans,
     loading,
@@ -279,6 +198,5 @@ export function useDeliveryPlans() {
     handleSave,
     handleDelete,
     getPlansForDate,
-    optimizeRoute,
   };
 }

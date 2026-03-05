@@ -8,7 +8,7 @@ export async function GET(request, { params }) {
   const { id } = await params;
   let query = supabase
     .from("tmsDelivery")
-    .select("*")
+    .select("*, tmsDeliveryItem(*)")
     .eq("tmsDeliveryId", id);
   if (!isSuperAdmin) query = query.eq("isActive", true);
   const { data, error } = await query.single();
@@ -24,15 +24,41 @@ export async function PUT(request, { params }) {
 
   const { id } = await params;
   const body = await request.json();
-  const { data, error } = await supabase
+  const { items, ...deliveryData } = body;
+
+  const { error } = await supabase
     .from("tmsDelivery")
-    .update(body)
-    .eq("tmsDeliveryId", id)
-    .select()
-    .single();
+    .update(deliveryData)
+    .eq("tmsDeliveryId", id);
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
-  return Response.json(data);
+
+  if (items !== undefined) {
+    await supabase
+      .from("tmsDeliveryItem")
+      .delete()
+      .eq("tmsDeliveryItemDeliveryId", id);
+
+    if (items.length > 0) {
+      const itemRows = items.map((item) => ({
+        ...item,
+        tmsDeliveryItemDeliveryId: parseInt(id),
+      }));
+      const { error: itemsError } = await supabase
+        .from("tmsDeliveryItem")
+        .insert(itemRows);
+      if (itemsError)
+        return Response.json({ error: itemsError.message }, { status: 400 });
+    }
+  }
+
+  const { data: result } = await supabase
+    .from("tmsDelivery")
+    .select("*, tmsDeliveryItem(*)")
+    .eq("tmsDeliveryId", id)
+    .single();
+
+  return Response.json(result);
 }
 
 export async function DELETE(request, { params }) {

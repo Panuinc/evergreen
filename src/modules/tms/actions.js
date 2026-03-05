@@ -22,28 +22,6 @@ export async function deleteVehicle(id) {
   return del(`/api/tms/vehicles/${id}`);
 }
 
-// ==================== Drivers ====================
-
-export async function getDrivers() {
-  return get("/api/tms/drivers");
-}
-
-export async function getDriverById(id) {
-  return get(`/api/tms/drivers/${id}`);
-}
-
-export async function createDriver(data) {
-  return post("/api/tms/drivers", data);
-}
-
-export async function updateDriver(id, data) {
-  return put(`/api/tms/drivers/${id}`, data);
-}
-
-export async function deleteDriver(id) {
-  return del(`/api/tms/drivers/${id}`);
-}
-
 // ==================== Shipments ====================
 
 export async function getShipments() {
@@ -94,6 +72,10 @@ export async function updateDelivery(id, data) {
 
 export async function deleteDelivery(id) {
   return del(`/api/tms/deliveries/${id}`);
+}
+
+export async function getDeliveryPlanByShipmentId(shipmentId) {
+  return get(`/api/tms/deliveryPlans?shipmentId=${shipmentId}`);
 }
 
 // ==================== Fuel Logs ====================
@@ -184,6 +166,19 @@ export async function getReportData(type, startDate, endDate) {
 
 export async function getAlerts() {
   return get("/api/tms/alerts");
+}
+
+// ==================== Distance ====================
+
+export async function calculateDistance(origin, destination, originLat, originLng) {
+  const params = new URLSearchParams({ destination });
+  if (originLat && originLng) {
+    params.set("originLat", originLat);
+    params.set("originLng", originLng);
+  } else {
+    params.set("origin", origin);
+  }
+  return get(`/api/tms/distance?${params}`);
 }
 
 // ==================== Delivery Plans ====================

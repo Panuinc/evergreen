@@ -1,6 +1,7 @@
 import { withAuth } from "@/app/api/_lib/auth";
 
 const VALID_TRANSITIONS = {
+  pending: ["confirmed", "dispatched", "cancelled", "pod_confirmed"],
   draft: ["confirmed", "cancelled"],
   confirmed: ["dispatched", "cancelled"],
   dispatched: ["in_transit"],
@@ -15,7 +16,8 @@ export async function PUT(request, { params }) {
   const { supabase } = auth;
 
   const { id } = await params;
-  const { status } = await request.json();
+  const body = await request.json();
+  const status = body.tmsShipmentStatus || body.status;
 
   // Fetch current shipment
   const { data: shipment, error: fetchError } = await supabase
@@ -67,6 +69,34 @@ export async function PUT(request, { params }) {
 
   // Side effects
   try {
+    // Propagate status to linked delivery plan
+    const planStatusMap = {
+      dispatched: "in_progress",
+      in_transit: "in_progress",
+      arrived: "in_progress",
+      delivered: "in_progress",
+      pod_confirmed: "completed",
+      cancelled: "planned",
+    };
+    if (planStatusMap[status]) {
+      const { data: linkedPlans } = await supabase
+        .from("tmsDeliveryPlan")
+        .select("tmsDeliveryPlanId")
+        .eq("tmsDeliveryPlanShipmentId", id);
+
+      if (linkedPlans?.length > 0) {
+        for (const plan of linkedPlans) {
+          await supabase
+            .from("tmsDeliveryPlan")
+            .update({
+              tmsDeliveryPlanStatus: planStatusMap[status],
+              tmsDeliveryPlanUpdatedAt: new Date().toISOString(),
+            })
+            .eq("tmsDeliveryPlanId", plan.tmsDeliveryPlanId);
+        }
+      }
+    }
+
     if (status === "dispatched") {
       // Set vehicle to in_use, driver and assistant to on_duty
       if (shipment.tmsShipmentVehicleId) {

@@ -18,7 +18,7 @@ import {
   DropdownItem,
   Switch,
 } from "@heroui/react";
-import { Plus, Edit, Trash2, ChevronDown, Download, ClipboardCheck } from "lucide-react";
+import { Plus, Edit, Trash2, ChevronDown, Download, ClipboardCheck, CalendarDays } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 import { useRBAC } from "@/contexts/RBACContext";
@@ -29,7 +29,7 @@ const shipmentCsvColumns = [
   { header: "ลูกค้า", key: "tmsShipmentCustomerName" },
   { header: "โทรศัพท์", key: "tmsShipmentCustomerPhone" },
   { header: "ปลายทาง", key: "tmsShipmentDestination" },
-  { header: "น้ำหนัก (กก.)", key: "tmsShipmentWeightKg" },
+
   { header: "สถานะ", key: "tmsShipmentStatus" },
 ];
 
@@ -39,7 +39,6 @@ const baseColumns = [
   { name: "ลูกค้า", uid: "tmsShipmentCustomerName", sortable: true },
   { name: "ปลายทาง", uid: "tmsShipmentDestination", sortable: true },
   { name: "ยานพาหนะ", uid: "vehicle" },
-  { name: "พนักงานขับรถ", uid: "driver" },
   { name: "สถานะ", uid: "tmsShipmentStatus", sortable: true },
   { name: "จัดการ", uid: "actions" },
 ];
@@ -99,7 +98,7 @@ const BASE_VISIBLE_COLUMNS = [
 export default function ShipmentsView({
   shipments,
   vehicles,
-  drivers,
+  employees,
   loading,
   saving,
   editingShipment,
@@ -115,6 +114,16 @@ export default function ShipmentsView({
   handleDelete,
   handleStatusChange,
   toggleActive,
+  deliveryPlans,
+  plansLoading,
+  selectedPlanId,
+  selectDeliveryPlan,
+  shipmentItems,
+  updateItemActualQty,
+  distanceLoading,
+  addExtra,
+  updateExtra,
+  removeExtra,
 }) {
   const { isSuperAdmin } = useRBAC();
   const router = useRouter();
@@ -154,10 +163,6 @@ export default function ShipmentsView({
         case "vehicle": {
           const v = vehicles.find((v) => v.tmsVehicleId === item.tmsShipmentVehicleId);
           return v ? v.tmsVehiclePlateNumber : "-";
-        }
-        case "driver": {
-          const d = drivers.find((d) => d.tmsDriverId === item.tmsShipmentDriverId);
-          return d ? `${d.tmsDriverFirstName} ${d.tmsDriverLastName}` : "-";
         }
         case "tmsShipmentStatus":
           return (
@@ -248,12 +253,11 @@ export default function ShipmentsView({
           return item[columnKey] || "-";
       }
     },
-    [vehicles, drivers, handleOpen, confirmDelete, handleStatusChange, toggleActive, isSuperAdmin, router],
+    [vehicles, handleOpen, confirmDelete, handleStatusChange, toggleActive, isSuperAdmin, router],
   );
 
   const availableVehicles = vehicles.filter((v) => v.tmsVehicleStatus === "available");
-  const availableDrivers = drivers.filter((d) => d.tmsDriverStatus === "available" && d.tmsDriverRole === "driver");
-  const availableAssistants = drivers.filter((d) => d.tmsDriverStatus === "available" && d.tmsDriverRole === "assistant");
+  const activeEmployees = (employees || []).filter((e) => e.hrEmployeeStatus === "active");
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -287,6 +291,43 @@ export default function ShipmentsView({
           <ModalHeader>{editingShipment ? "แก้ไขการขนส่ง" : "สร้างการขนส่ง"}</ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
+              {/* Delivery Plan Selector - only for create mode */}
+              {!editingShipment && (
+                <div className="flex items-center w-full h-fit p-2 gap-2">
+                  <Select
+                    label="เลือกแผนส่งของ"
+                    labelPlacement="outside"
+                    placeholder={plansLoading ? "กำลังโหลด..." : "เลือกแผนส่งของเพื่อเติมข้อมูลอัตโนมัติ"}
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    startContent={<CalendarDays size={16} className="text-primary" />}
+                    selectedKeys={selectedPlanId ? [String(selectedPlanId)] : []}
+                    onSelectionChange={(keys) => selectDeliveryPlan(Array.from(keys)[0] || null)}
+                    isLoading={plansLoading}
+                  >
+                    {deliveryPlans.map((plan) => {
+                      const firstItem = plan.tmsDeliveryPlanItem?.[0];
+                      const dateLabel = plan.tmsDeliveryPlanDate
+                        ? new Date(plan.tmsDeliveryPlanDate + "T00:00:00").toLocaleDateString("th-TH", { day: "numeric", month: "short" })
+                        : "";
+                      return (
+                        <SelectItem key={String(plan.tmsDeliveryPlanId)} textValue={`${firstItem?.tmsDeliveryPlanItemSalesOrderNo || ""} ${firstItem?.tmsDeliveryPlanItemCustomerName || ""}`}>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">
+                              {dateLabel} · {firstItem?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"} · {firstItem?.tmsDeliveryPlanItemCustomerName || "-"}
+                            </span>
+                            <span className="text-xs text-default-500">
+                              {plan.tmsDeliveryPlanItem?.length || 0} รายการ
+                              {plan.tmsDeliveryPlanAddress ? ` · ${plan.tmsDeliveryPlanAddress}` : ""}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </Select>
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
@@ -308,28 +349,337 @@ export default function ShipmentsView({
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select label="ยานพาหนะ" labelPlacement="outside" placeholder="เลือกยานพาหนะ" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentVehicleId ? [formData.tmsShipmentVehicleId] : []} onSelectionChange={(keys) => updateField("tmsShipmentVehicleId", Array.from(keys)[0] || "")}>
-                    {(editingShipment ? vehicles : availableVehicles).map((v) => (<SelectItem key={v.tmsVehicleId}>{v.tmsVehicleName} ({v.tmsVehiclePlateNumber})</SelectItem>))}
+                    {(editingShipment ? vehicles : availableVehicles).map((v) => (<SelectItem key={v.tmsVehicleId}>{v.tmsVehiclePlateNumber}</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="พนักงานขับรถ" labelPlacement="outside" placeholder="เลือกพนักงานขับรถ" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentDriverId ? [formData.tmsShipmentDriverId] : []} onSelectionChange={(keys) => updateField("tmsShipmentDriverId", Array.from(keys)[0] || "")}>
-                    {(editingShipment ? drivers.filter(d => d.tmsDriverRole === "driver") : availableDrivers).map((d) => (<SelectItem key={d.tmsDriverId}>{d.tmsDriverFirstName} {d.tmsDriverLastName}</SelectItem>))}
+                  <Select label="คนขับรถ" labelPlacement="outside" placeholder="เลือกคนขับรถ" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentDriverId ? [formData.tmsShipmentDriverId] : []} onSelectionChange={(keys) => updateField("tmsShipmentDriverId", Array.from(keys)[0] || "")}>
+                    {activeEmployees.map((e) => (<SelectItem key={String(e.hrEmployeeId)} textValue={`${e.hrEmployeeFirstName} ${e.hrEmployeeLastName}`}>{e.hrEmployeeFirstName} {e.hrEmployeeLastName}</SelectItem>))}
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select label="ผู้ช่วย" labelPlacement="outside" placeholder="เลือกผู้ช่วย" variant="bordered" size="md" radius="md" selectedKeys={formData.tmsShipmentAssistantId ? [formData.tmsShipmentAssistantId] : []} onSelectionChange={(keys) => updateField("tmsShipmentAssistantId", Array.from(keys)[0] || "")}>
-                    {(editingShipment ? drivers.filter(d => d.tmsDriverRole === "assistant") : availableAssistants).map((d) => (<SelectItem key={d.tmsDriverId}>{d.tmsDriverFirstName} {d.tmsDriverLastName}</SelectItem>))}
-                  </Select>
+                  <Input type="number" label="ค่าแรงคนขับ (บาท)" labelPlacement="outside" placeholder="กรอกค่าแรง" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDriverWage} onChange={(e) => updateField("tmsShipmentDriverWage", e.target.value)} />
+                </div>
+                {/* เด็กติดรถ สูงสุด 3 คน */}
+                <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">เด็กติดรถ</p>
+                    {(formData.tmsShipmentAssistants || []).length < 3 && (
+                      <Button
+                        variant="bordered"
+                        size="sm"
+                        radius="md"
+                        onPress={() => updateField("tmsShipmentAssistants", [...(formData.tmsShipmentAssistants || []), { id: "", wage: "" }])}
+                      >
+                        + เพิ่มเด็กติดรถ
+                      </Button>
+                    )}
+                  </div>
+                  {(formData.tmsShipmentAssistants || []).map((assistant, idx) => (
+                    <div key={idx} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-end">
+                      <Select
+                        label={`เด็กติดรถ ${idx + 1}`}
+                        labelPlacement="outside"
+                        placeholder="เลือกเด็กติดรถ"
+                        variant="bordered"
+                        size="md"
+                        radius="md"
+                        selectedKeys={assistant.id ? [assistant.id] : []}
+                        onSelectionChange={(keys) => {
+                          const updated = [...(formData.tmsShipmentAssistants || [])];
+                          updated[idx] = { ...updated[idx], id: Array.from(keys)[0] || "" };
+                          updateField("tmsShipmentAssistants", updated);
+                        }}
+                      >
+                        {activeEmployees.map((e) => (
+                          <SelectItem key={String(e.hrEmployeeId)} textValue={`${e.hrEmployeeFirstName} ${e.hrEmployeeLastName}`}>
+                            {e.hrEmployeeFirstName} {e.hrEmployeeLastName}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                      <Input
+                        type="number"
+                        label="ค่าแรง (บาท)"
+                        labelPlacement="outside"
+                        placeholder="กรอกค่าแรง"
+                        variant="bordered"
+                        size="md"
+                        radius="md"
+                        value={assistant.wage}
+                        onChange={(e) => {
+                          const updated = [...(formData.tmsShipmentAssistants || [])];
+                          updated[idx] = { ...updated[idx], wage: e.target.value };
+                          updateField("tmsShipmentAssistants", updated);
+                        }}
+                      />
+                      {(formData.tmsShipmentAssistants || []).length > 1 && (
+                        <Button
+                          variant="bordered"
+                          size="md"
+                          radius="md"
+                          isIconOnly
+                          onPress={() => {
+                            const updated = (formData.tmsShipmentAssistants || []).filter((_, i) => i !== idx);
+                            updateField("tmsShipmentAssistants", updated);
+                          }}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {/* รายการพิเศษ */}
+                <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">รายการพิเศษ</p>
+                    <Button variant="bordered" size="sm" radius="md" onPress={addExtra}>
+                      + เพิ่มรายการ
+                    </Button>
+                  </div>
+                  {(formData.tmsShipmentExtras || []).length > 0 && (
+                    <div className="border border-default-200 rounded-xl overflow-hidden overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-default-100">
+                            <th className="text-left px-3 py-2 font-semibold w-36">คน</th>
+                            <th className="text-left px-3 py-2 font-semibold w-32">ประเภท</th>
+                            <th className="text-center px-3 py-2 font-semibold w-20">ชม.</th>
+                            <th className="text-center px-3 py-2 font-semibold w-20">เรท</th>
+                            <th className="text-left px-3 py-2 font-semibold">รายละเอียด</th>
+                            <th className="text-right px-3 py-2 font-semibold w-28">จำนวนเงิน</th>
+                            <th className="w-10"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(formData.tmsShipmentExtras || []).map((ex, idx) => {
+                            const personOptions = [
+                              { key: "driver", label: "คนขับ" },
+                              ...(formData.tmsShipmentAssistants || [])
+                                .map((a, i) => a.id ? { key: `assistant-${i}`, label: `เด็กติดรถ ${i + 1}` } : null)
+                                .filter(Boolean),
+                            ];
+                            return (
+                              <tr key={idx} className="border-t border-default-100">
+                                <td className="px-1 py-1">
+                                  <Select
+                                    size="sm" variant="bordered" radius="md" aria-label="คน"
+                                    selectedKeys={ex.person ? [ex.person] : []}
+                                    onSelectionChange={(keys) => updateExtra(idx, "person", Array.from(keys)[0] || "driver")}
+                                  >
+                                    {personOptions.map((o) => <SelectItem key={o.key}>{o.label}</SelectItem>)}
+                                  </Select>
+                                </td>
+                                <td className="px-1 py-1">
+                                  <Select
+                                    size="sm" variant="bordered" radius="md" aria-label="ประเภท"
+                                    selectedKeys={ex.type ? [ex.type] : []}
+                                    onSelectionChange={(keys) => updateExtra(idx, "type", Array.from(keys)[0] || "ot")}
+                                  >
+                                    <SelectItem key="ot">OT</SelectItem>
+                                    <SelectItem key="trip_allowance">ค่าเที่ยว</SelectItem>
+                                    <SelectItem key="other">อื่นๆ</SelectItem>
+                                  </Select>
+                                </td>
+                                <td className="px-1 py-1">
+                                  {ex.type === "ot" ? (
+                                    <Input
+                                      type="number" size="sm" variant="bordered" radius="md"
+                                      min={0} value={String(ex.hours || "")}
+                                      onChange={(e) => updateExtra(idx, "hours", e.target.value)}
+                                      classNames={{ input: "text-center" }}
+                                    />
+                                  ) : <span className="text-default-300 text-center block">-</span>}
+                                </td>
+                                <td className="px-1 py-1">
+                                  {ex.type === "ot" ? (
+                                    <Input
+                                      type="number" size="sm" variant="bordered" radius="md"
+                                      min={0} step={0.5} value={String(ex.rate || "1.5")}
+                                      onChange={(e) => updateExtra(idx, "rate", e.target.value)}
+                                      classNames={{ input: "text-center" }}
+                                    />
+                                  ) : <span className="text-default-300 text-center block">-</span>}
+                                </td>
+                                <td className="px-1 py-1">
+                                  {ex.type === "other" ? (
+                                    <Input
+                                      size="sm" variant="bordered" radius="md"
+                                      placeholder="ระบุรายละเอียด"
+                                      value={ex.label || ""}
+                                      onChange={(e) => updateExtra(idx, "label", e.target.value)}
+                                    />
+                                  ) : <span className="text-default-400 text-xs px-2">{ex.type === "ot" ? "ค่าแรง/8 × เรท × ชม." : "ค่าเที่ยว"}</span>}
+                                </td>
+                                <td className="px-1 py-1">
+                                  {ex.type === "ot" ? (
+                                    <span className="text-sm font-medium block text-right px-2">
+                                      {ex.amount ? Number(ex.amount).toLocaleString("th-TH", { minimumFractionDigits: 2 }) : "-"}
+                                    </span>
+                                  ) : (
+                                    <Input
+                                      type="number" size="sm" variant="bordered" radius="md"
+                                      min={0} value={String(ex.amount || "")}
+                                      onChange={(e) => updateExtra(idx, "amount", e.target.value)}
+                                      classNames={{ input: "text-right" }}
+                                    />
+                                  )}
+                                </td>
+                                <td className="px-1 py-1">
+                                  <Button size="sm" variant="light" isIconOnly onPress={() => removeExtra(idx)}>
+                                    <Trash2 size={14} />
+                                  </Button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t border-default-200 bg-default-50">
+                            <td colSpan={5} className="px-3 py-2 font-semibold text-right">รวมรายการพิเศษ</td>
+                            <td className="px-3 py-2 font-semibold text-right">
+                              {(formData.tmsShipmentExtras || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  )}
+                </div>
+                {/* ค่าน้ำมัน - คำนวณอัตโนมัติ */}
+                <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
+                  <p className="text-sm font-medium">ค่าน้ำมันโดยประมาณ</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Input
+                      type="number"
+                      label="ระยะทาง (กม.)"
+                      labelPlacement="outside"
+                      placeholder={distanceLoading ? "กำลังคำนวณ..." : "คำนวณจากปลายทาง"}
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      value={formData.tmsShipmentDistance}
+                      onChange={(e) => updateField("tmsShipmentDistance", e.target.value)}
+                      isDisabled={distanceLoading}
+                    />
+                    <Input
+                      type="number"
+                      label="ราคาน้ำมัน (บาท/ลิตร)"
+                      labelPlacement="outside"
+                      placeholder="ราคาน้ำมัน"
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      value={formData.tmsShipmentFuelPricePerLiter}
+                      onChange={(e) => updateField("tmsShipmentFuelPricePerLiter", e.target.value)}
+                    />
+                    {(() => {
+                      const selectedVehicle = vehicles.find((v) => String(v.tmsVehicleId) === String(formData.tmsShipmentVehicleId));
+                      const rate = parseFloat(selectedVehicle?.tmsVehicleFuelConsumptionRate) || 0;
+                      const distance = parseFloat(formData.tmsShipmentDistance) || 0;
+                      const price = parseFloat(formData.tmsShipmentFuelPricePerLiter) || 0;
+                      const liters = rate > 0 ? distance / rate : 0;
+                      const cost = liters * price;
+                      return (
+                        <Input
+                          type="number"
+                          label={`ค่าน้ำมัน (${rate > 0 && distance > 0 ? `${liters.toFixed(1)} ลิตร` : "เลือกรถก่อน"})`}
+                          labelPlacement="outside"
+                          variant="bordered"
+                          size="md"
+                          radius="md"
+                          value={cost > 0 ? cost.toFixed(2) : ""}
+                          placeholder="คำนวณอัตโนมัติ"
+                          isReadOnly
+                        />
+                      );
+                    })()}
+                  </div>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input label="อ้างอิงใบสั่งขาย" labelPlacement="outside" placeholder="เลขที่ใบสั่ง BC" variant="bordered" size="md" radius="md" value={formData.tmsShipmentSalesOrderRef} onChange={(e) => updateField("tmsShipmentSalesOrderRef", e.target.value)} />
                 </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input type="number" label="น้ำหนัก (กก.)" labelPlacement="outside" placeholder="กรอกน้ำหนัก" variant="bordered" size="md" radius="md" value={formData.tmsShipmentWeightKg} onChange={(e) => updateField("tmsShipmentWeightKg", e.target.value)} />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentItemsSummary} onChange={(e) => updateField("tmsShipmentItemsSummary", e.target.value)} />
-                </div>
+
+                {/* Items table or fallback input */}
+                {shipmentItems.length > 0 ? (
+                  <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
+                    <p className="text-sm font-medium">รายการสินค้า</p>
+                    <div className="border border-default-200 rounded-xl overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-default-100">
+                            <th className="text-left px-3 py-2 font-semibold">รายการ</th>
+                            <th className="text-center px-3 py-2 font-semibold w-20">หน่วย</th>
+                            <th className="text-center px-3 py-2 font-semibold w-24">แผน</th>
+                            <th className="text-center px-3 py-2 font-semibold w-28">ส่งจริง</th>
+                            <th className="text-center px-3 py-2 font-semibold w-20">%</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {shipmentItems.map((item) => {
+                            const pct = item.plannedQty > 0 ? Math.round((item.actualQty / item.plannedQty) * 100) : 0;
+                            return (
+                              <tr key={item.id} className="border-t border-default-100">
+                                <td className="px-3 py-2">
+                                  <p className="font-medium">{item.description}</p>
+                                  <p className="text-default-400">{item.soNo}</p>
+                                </td>
+                                <td className="text-center px-3 py-2">{item.uom}</td>
+                                <td className="text-center px-3 py-2 font-medium">{item.plannedQty}</td>
+                                <td className="text-center px-1 py-1">
+                                  <Input
+                                    type="number"
+                                    size="sm"
+                                    variant="bordered"
+                                    radius="md"
+                                    min={0}
+                                    max={item.plannedQty}
+                                    value={String(item.actualQty)}
+                                    onChange={(e) => updateItemActualQty(item.id, e.target.value)}
+                                    classNames={{ input: "text-center" }}
+                                  />
+                                </td>
+                                <td className="text-center px-3 py-2">
+                                  <Chip
+                                    size="sm"
+                                    variant="flat"
+                                    color={pct >= 100 ? "success" : pct >= 50 ? "warning" : "danger"}
+                                  >
+                                    {pct}%
+                                  </Chip>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t border-default-200 bg-default-50">
+                            <td className="px-3 py-2 font-semibold" colSpan={2}>รวม</td>
+                            <td className="text-center px-3 py-2 font-semibold">{shipmentItems.reduce((s, i) => s + i.plannedQty, 0)}</td>
+                            <td className="text-center px-3 py-2 font-semibold">{shipmentItems.reduce((s, i) => s + i.actualQty, 0)}</td>
+                            <td className="text-center px-3 py-2">
+                              {(() => {
+                                const totalPlan = shipmentItems.reduce((s, i) => s + i.plannedQty, 0);
+                                const totalActual = shipmentItems.reduce((s, i) => s + i.actualQty, 0);
+                                const totalPct = totalPlan > 0 ? Math.round((totalActual / totalPlan) * 100) : 0;
+                                return (
+                                  <Chip size="sm" variant="flat" color={totalPct >= 100 ? "success" : totalPct >= 50 ? "warning" : "danger"}>
+                                    {totalPct}%
+                                  </Chip>
+                                );
+                              })()}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
+                    <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentItemsSummary} onChange={(e) => updateField("tmsShipmentItemsSummary", e.target.value)} />
+                  </div>
+                )}
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
                   <Input label="หมายเหตุ" labelPlacement="outside" placeholder="หมายเหตุเพิ่มเติม" variant="bordered" size="md" radius="md" value={formData.tmsShipmentNotes} onChange={(e) => updateField("tmsShipmentNotes", e.target.value)} />
                 </div>

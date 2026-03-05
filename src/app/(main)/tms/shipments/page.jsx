@@ -12,7 +12,7 @@ function ShipmentsPageInner() {
   const {
     shipments,
     vehicles,
-    drivers,
+    employees,
     loading,
     saving,
     editingShipment,
@@ -28,13 +28,23 @@ function ShipmentsPageInner() {
     handleDelete,
     handleStatusChange,
     toggleActive,
+    deliveryPlans,
+    plansLoading,
+    selectedPlanId,
+    selectDeliveryPlan,
+    shipmentItems,
+    updateItemActualQty,
+    distanceLoading,
+    addExtra,
+    updateExtra,
+    removeExtra,
   } = useShipments(fromPlanId);
 
   return (
     <ShipmentsView
       shipments={shipments}
       vehicles={vehicles}
-      drivers={drivers}
+      employees={employees}
       loading={loading}
       saving={saving}
       editingShipment={editingShipment}
@@ -50,6 +60,16 @@ function ShipmentsPageInner() {
       handleDelete={handleDelete}
       handleStatusChange={handleStatusChange}
       toggleActive={toggleActive}
+      deliveryPlans={deliveryPlans}
+      plansLoading={plansLoading}
+      selectedPlanId={selectedPlanId}
+      selectDeliveryPlan={selectDeliveryPlan}
+      shipmentItems={shipmentItems}
+      updateItemActualQty={updateItemActualQty}
+      distanceLoading={distanceLoading}
+      addExtra={addExtra}
+      updateExtra={updateExtra}
+      removeExtra={removeExtra}
     />
   );
 }

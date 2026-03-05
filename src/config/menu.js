@@ -28,7 +28,6 @@ import {
   Boxes,
   ScanLine,
   ClipboardList,
-  Wrench,
   Phone,
   MessageCircle,
   MapPin,
@@ -309,18 +308,8 @@ export const menuData = [
       { name: "ติดตาม GPS", icon: MapPin, href: "/tms/tracking" },
       // ข้อมูลหลัก
       { name: "ยานพาหนะ", icon: Truck, href: "/tms/vehicles" },
-      { name: "พนักงานขับรถ", icon: Users, href: "/tms/drivers" },
       // หลังเสร็จงาน
       { name: "บันทึกน้ำมัน", icon: Boxes, href: "/tms/fuelLogs" },
-      { name: "ซ่อมบำรุง", icon: Wrench, href: "/tms/maintenance" },
-      // สรุป
-      { name: "รายงาน", icon: BarChart3, href: "/tms/reports" },
-      {
-        name: "การแจ้งเตือน",
-        icon: AlertTriangle,
-        href: "/tms/alerts",
-        badgeKey: "tmsAlertCount",
-      },
     ],
   },
   {

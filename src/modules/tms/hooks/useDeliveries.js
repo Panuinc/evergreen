@@ -11,6 +11,7 @@ import {
   getShipments,
   getShipmentById,
   updateShipmentStatus,
+  getDeliveryPlanByShipmentId,
 } from "@/modules/tms/actions";
 
 const emptyForm = {
@@ -18,11 +19,49 @@ const emptyForm = {
   tmsDeliveryReceiverName: "",
   tmsDeliveryReceiverPhone: "",
   tmsDeliveryStatus: "pending",
-  tmsDeliveryDamageNotes: "",
   tmsDeliveryNotes: "",
   tmsDeliverySignatureUrl: "",
   tmsDeliveryPhotoUrls: [],
 };
+
+function parseItemsSummary(summary) {
+  if (!summary) return [];
+  return summary
+    .split(",")
+    .map((part) => {
+      const match = part.trim().match(/^(.+?)\s+x(\d+(?:\.\d+)?)\s*(.*)$/);
+      if (!match) return null;
+      const qty = parseFloat(match[2]) || 0;
+      return {
+        tmsDeliveryItemDescription: match[1].trim(),
+        tmsDeliveryItemUom: match[3].trim(),
+        tmsDeliveryItemSoNo: "",
+        tmsDeliveryItemPlannedQty: qty,
+        tmsDeliveryItemDeliveredQty: qty,
+        tmsDeliveryItemDamagedQty: 0,
+        tmsDeliveryItemReturnedQty: 0,
+        tmsDeliveryItemDamageNotes: "",
+      };
+    })
+    .filter(Boolean);
+}
+
+function determineStatus(items) {
+  if (items.length === 0) return "pending";
+  const allFull = items.every(
+    (i) => parseFloat(i.tmsDeliveryItemDeliveredQty) >= i.tmsDeliveryItemPlannedQty
+  );
+  if (allFull) return "delivered_ok";
+  const allZero = items.every(
+    (i) => parseFloat(i.tmsDeliveryItemDeliveredQty) === 0
+  );
+  if (allZero) return "refused";
+  const hasDamage = items.some(
+    (i) => parseFloat(i.tmsDeliveryItemDamagedQty) > 0
+  );
+  if (hasDamage) return "delivered_damaged";
+  return "delivered_partial";
+}
 
 export function useDeliveries(fromShipmentId = null) {
   const [deliveries, setDeliveries] = useState([]);
@@ -34,6 +73,7 @@ export function useDeliveries(fromShipmentId = null) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
   const [deletingDelivery, setDeletingDelivery] = useState(null);
+  const [deliveryItems, setDeliveryItems] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -43,14 +83,39 @@ export function useDeliveries(fromShipmentId = null) {
   useEffect(() => {
     if (!fromShipmentId) return;
     getShipmentById(fromShipmentId)
-      .then((shipment) => {
+      .then(async (shipment) => {
         if (!shipment) return;
         setFormData({
           ...emptyForm,
-          tmsDeliveryShipmentId: shipment.tmsShipmentId,
+          tmsDeliveryShipmentId: String(shipment.tmsShipmentId),
           tmsDeliveryReceiverName: shipment.tmsShipmentCustomerName || "",
           tmsDeliveryReceiverPhone: shipment.tmsShipmentCustomerPhone || "",
         });
+
+        // Try to get structured items from the linked delivery plan
+        try {
+          const plans = await getDeliveryPlanByShipmentId(fromShipmentId);
+          const plan = plans?.[0];
+          if (plan?.tmsDeliveryPlanItem?.length > 0) {
+            setDeliveryItems(
+              plan.tmsDeliveryPlanItem.map((i) => ({
+                tmsDeliveryItemDescription: i.tmsDeliveryPlanItemDescription || "",
+                tmsDeliveryItemUom: i.tmsDeliveryPlanItemUom || "",
+                tmsDeliveryItemSoNo: i.tmsDeliveryPlanItemSalesOrderNo || "",
+                tmsDeliveryItemPlannedQty: parseFloat(i.tmsDeliveryPlanItemPlannedQty) || 0,
+                tmsDeliveryItemDeliveredQty: parseFloat(i.tmsDeliveryPlanItemPlannedQty) || 0,
+                tmsDeliveryItemDamagedQty: 0,
+                tmsDeliveryItemReturnedQty: 0,
+                tmsDeliveryItemDamageNotes: "",
+              }))
+            );
+          } else {
+            setDeliveryItems(parseItemsSummary(shipment.tmsShipmentItemsSummary));
+          }
+        } catch {
+          setDeliveryItems(parseItemsSummary(shipment.tmsShipmentItemsSummary));
+        }
+
         setEditingDelivery(null);
         onOpen();
       })
@@ -66,7 +131,7 @@ export function useDeliveries(fromShipmentId = null) {
       ]);
       setDeliveries(delData);
       setShipments(shipData);
-    } catch (error) {
+    } catch {
       toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
@@ -81,14 +146,15 @@ export function useDeliveries(fromShipmentId = null) {
         tmsDeliveryReceiverName: delivery.tmsDeliveryReceiverName || "",
         tmsDeliveryReceiverPhone: delivery.tmsDeliveryReceiverPhone || "",
         tmsDeliveryStatus: delivery.tmsDeliveryStatus || "pending",
-        tmsDeliveryDamageNotes: delivery.tmsDeliveryDamageNotes || "",
         tmsDeliveryNotes: delivery.tmsDeliveryNotes || "",
         tmsDeliverySignatureUrl: delivery.tmsDeliverySignatureUrl || "",
         tmsDeliveryPhotoUrls: delivery.tmsDeliveryPhotoUrls || [],
       });
+      setDeliveryItems(delivery.tmsDeliveryItem || []);
     } else {
       setEditingDelivery(null);
       setFormData(emptyForm);
+      setDeliveryItems([]);
     }
     onOpen();
   };
@@ -99,17 +165,50 @@ export function useDeliveries(fromShipmentId = null) {
       return;
     }
 
+    // Validate: discrepancies must have notes
+    if (deliveryItems.length > 0) {
+      const hasUndocumented = deliveryItems.some((item) => {
+        const delivered = parseFloat(item.tmsDeliveryItemDeliveredQty) || 0;
+        const damaged = parseFloat(item.tmsDeliveryItemDamagedQty) || 0;
+        const hasDiscrepancy = delivered < item.tmsDeliveryItemPlannedQty || damaged > 0;
+        return hasDiscrepancy && !item.tmsDeliveryItemDamageNotes?.trim();
+      });
+      if (hasUndocumented) {
+        toast.error("กรุณาระบุหมายเหตุสำหรับรายการที่ส่งไม่ครบหรือเสียหาย");
+        return;
+      }
+    }
+
     try {
       setSaving(true);
+
+      const autoStatus = deliveryItems.length > 0
+        ? determineStatus(deliveryItems)
+        : formData.tmsDeliveryStatus;
+
+      const payload = {
+        ...formData,
+        tmsDeliveryStatus: autoStatus,
+        items: deliveryItems,
+      };
+
       if (editingDelivery) {
-        await updateDelivery(editingDelivery.tmsDeliveryId, formData);
+        await updateDelivery(editingDelivery.tmsDeliveryId, payload);
         toast.success("อัปเดตการส่งมอบสำเร็จ");
       } else {
-        await createDelivery(formData);
+        await createDelivery(payload);
         toast.success("สร้างการส่งมอบสำเร็จ");
-        // Auto-update linked shipment to pod_confirmed
-        if (fromShipmentId) {
-          await updateShipmentStatus(fromShipmentId, "pod_confirmed");
+      }
+
+      // Sync shipment status based on delivery result
+      const shipmentId = fromShipmentId || formData.tmsDeliveryShipmentId;
+      if (shipmentId) {
+        try {
+          const targetStatus =
+            autoStatus === "delivered_ok" ? "pod_confirmed" : "delivered";
+          await updateShipmentStatus(shipmentId, targetStatus);
+        } catch {
+          // Shipment status update is best-effort (may fail if transition is invalid)
         }
       }
       onClose();
@@ -143,6 +242,25 @@ export function useDeliveries(fromShipmentId = null) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const updateDeliveryItem = (index, field, value) => {
+    setDeliveryItems((prev) =>
+      prev.map((item, i) => {
+        if (i !== index) return item;
+        const updated = { ...item, [field]: value };
+        if (
+          field === "tmsDeliveryItemDeliveredQty" ||
+          field === "tmsDeliveryItemDamagedQty"
+        ) {
+          const planned = updated.tmsDeliveryItemPlannedQty;
+          const delivered = parseFloat(updated.tmsDeliveryItemDeliveredQty) || 0;
+          const damaged = parseFloat(updated.tmsDeliveryItemDamagedQty) || 0;
+          updated.tmsDeliveryItemReturnedQty = Math.max(0, planned - delivered - damaged);
+        }
+        return updated;
+      })
+    );
+  };
+
   return {
     deliveries,
     shipments,
@@ -159,5 +277,7 @@ export function useDeliveries(fromShipmentId = null) {
     handleSave,
     confirmDelete,
     handleDelete,
+    deliveryItems,
+    updateDeliveryItem,
   };
 }

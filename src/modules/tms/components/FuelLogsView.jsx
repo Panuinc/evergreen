@@ -52,7 +52,6 @@ const BASE_VISIBLE_COLUMNS = [
 export default function FuelLogsView({
   fuelLogs,
   vehicles,
-  drivers,
   loading,
   saving,
   editingFuelLog,
@@ -244,31 +243,6 @@ export default function FuelLogsView({
                     {vehicles.map((v) => (
                       <SelectItem key={v.tmsVehicleId}>
                         {v.tmsVehicleName} ({v.tmsVehiclePlateNumber})
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select
-                    label="พนักงานขับรถ"
-                    labelPlacement="outside"
-                    placeholder="เลือกพนักงานขับรถ"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={
-                      formData.tmsFuelLogDriverId
-                        ? [formData.tmsFuelLogDriverId]
-                        : []
-                    }
-                    onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
-                      updateField("tmsFuelLogDriverId", val);
-                    }}
-                  >
-                    {drivers.map((d) => (
-                      <SelectItem key={d.tmsDriverId}>
-                        {d.tmsDriverFirstName} {d.tmsDriverLastName}
                       </SelectItem>
                     ))}
                   </Select>

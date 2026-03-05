@@ -19,21 +19,21 @@ import { useRBAC } from "@/contexts/RBACContext";
 
 const vehicleCsvColumns = [
   { header: "ทะเบียนรถ", key: "tmsVehiclePlateNumber" },
-  { header: "ชื่อ", key: "tmsVehicleName" },
-  { header: "ประเภท", key: "tmsVehicleType" },
-  { header: "ยี่ห้อ", key: "tmsVehicleBrand" },
-  { header: "รุ่น", key: "tmsVehicleModel" },
+  { header: "ความกว้าง (ซม.)", key: "tmsVehicleWidth" },
+  { header: "ความยาว (ซม.)", key: "tmsVehicleLength" },
+  { header: "ความสูง (ซม.)", key: "tmsVehicleHeight" },
+  { header: "น้ำหนักบรรทุก (ตัน)", key: "tmsVehicleCapacityKg" },
   { header: "ชนิดเชื้อเพลิง", key: "tmsVehicleFuelType" },
-  { header: "น้ำหนักบรรทุก (กก.)", key: "tmsVehicleCapacityKg" },
-  { header: "เลขไมล์", key: "tmsVehicleCurrentMileage" },
+  { header: "อัตราสิ้นเปลือง (กม./ล.)", key: "tmsVehicleFuelConsumptionRate" },
   { header: "สถานะ", key: "tmsVehicleStatus" },
 ];
 
 const baseColumns = [
-  { name: "ชื่อ", uid: "tmsVehicleName", sortable: true },
   { name: "ทะเบียนรถ", uid: "tmsVehiclePlateNumber", sortable: true },
-  { name: "ประเภท", uid: "tmsVehicleType", sortable: true },
-  { name: "ยี่ห้อ", uid: "tmsVehicleBrand", sortable: true },
+  { name: "ขนาดบรรทุก", uid: "dimensions" },
+  { name: "น้ำหนักบรรทุก (ตัน)", uid: "tmsVehicleCapacityKg", sortable: true },
+  { name: "เชื้อเพลิง", uid: "tmsVehicleFuelType" },
+  { name: "กม./ลิตร", uid: "tmsVehicleFuelConsumptionRate", sortable: true },
   { name: "สถานะ", uid: "tmsVehicleStatus", sortable: true },
   { name: "จัดการ", uid: "actions" },
 ];
@@ -52,11 +52,19 @@ const STATUS_COLORS = {
   retired: "default",
 };
 
+const FUEL_LABELS = {
+  diesel: "ดีเซล",
+  gasoline: "เบนซิน",
+  ngv: "NGV",
+  electric: "ไฟฟ้า",
+};
+
 const BASE_VISIBLE_COLUMNS = [
-  "tmsVehicleName",
   "tmsVehiclePlateNumber",
-  "tmsVehicleType",
-  "tmsVehicleBrand",
+  "dimensions",
+  "tmsVehicleCapacityKg",
+  "tmsVehicleFuelType",
+  "tmsVehicleFuelConsumptionRate",
   "tmsVehicleStatus",
   "actions",
 ];
@@ -103,18 +111,21 @@ export default function VehiclesView({
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "tmsVehicleName":
-          return <span className="font-medium">{item.tmsVehicleName}</span>;
         case "tmsVehiclePlateNumber":
-          return (
-            <span className="text-default-500">
-              {item.tmsVehiclePlateNumber || "-"}
-            </span>
-          );
-        case "tmsVehicleType":
-          return item.tmsVehicleType || "-";
-        case "tmsVehicleBrand":
-          return item.tmsVehicleBrand || "-";
+          return <span className="font-medium">{item.tmsVehiclePlateNumber || "-"}</span>;
+        case "dimensions": {
+          const w = item.tmsVehicleWidth;
+          const l = item.tmsVehicleLength;
+          const h = item.tmsVehicleHeight;
+          if (!w && !l && !h) return "-";
+          return `${w || "-"} x ${l || "-"} x ${h || "-"} ซม.`;
+        }
+        case "tmsVehicleCapacityKg":
+          return item.tmsVehicleCapacityKg ? `${item.tmsVehicleCapacityKg} ตัน` : "-";
+        case "tmsVehicleFuelType":
+          return FUEL_LABELS[item.tmsVehicleFuelType] || item.tmsVehicleFuelType || "-";
+        case "tmsVehicleFuelConsumptionRate":
+          return item.tmsVehicleFuelConsumptionRate ? `${item.tmsVehicleFuelConsumptionRate}` : "-";
         case "tmsVehicleStatus":
           return (
             <Chip
@@ -123,7 +134,7 @@ export default function VehiclesView({
               radius="md"
               color={STATUS_COLORS[item.tmsVehicleStatus] || "default"}
             >
-              {item.tmsVehicleStatus}
+              {statusOptions.find((s) => s.uid === item.tmsVehicleStatus)?.name || item.tmsVehicleStatus}
             </Chip>
           );
         case "isActive":
@@ -185,13 +196,8 @@ export default function VehiclesView({
         rowKey="tmsVehicleId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
-        searchPlaceholder="ค้นหาด้วยทะเบียน, ชื่อ, ยี่ห้อ, รุ่น..."
-        searchKeys={[
-          "tmsVehiclePlateNumber",
-          "tmsVehicleName",
-          "tmsVehicleBrand",
-          "tmsVehicleModel",
-        ]}
+        searchPlaceholder="ค้นหาด้วยทะเบียน..."
+        searchKeys={["tmsVehiclePlateNumber"]}
         statusField="tmsVehicleStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบยานพาหนะ"
@@ -219,134 +225,95 @@ export default function VehiclesView({
             {editingVehicle ? "แก้ไขยานพาหนะ" : "เพิ่มยานพาหนะ"}
           </ModalHeader>
           <ModalBody>
-            <div className="flex flex-col w-full gap-2">
+            <div className="flex flex-col w-full gap-4">
+              {/* 1. ทะเบียนรถ */}
+              <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="ทะเบียนรถ"
+                  labelPlacement="outside"
+                  placeholder="กรอกทะเบียนรถ"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.tmsVehiclePlateNumber}
+                  onChange={(e) =>
+                    updateField("tmsVehiclePlateNumber", e.target.value)
+                  }
+                  isRequired
+                  isInvalid={!!validationErrors?.tmsVehiclePlateNumber}
+                  errorMessage={validationErrors?.tmsVehiclePlateNumber}
+                />
+              </div>
+
+              {/* 2. ความจุที่สามารถบรรทุกได้ */}
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-medium px-2">ความจุที่สามารถบรรทุกได้</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex items-center w-full h-fit p-2 gap-2">
+                    <Input
+                      type="number"
+                      label="ความกว้าง (ซม.)"
+                      labelPlacement="outside"
+                      placeholder="กว้าง"
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      value={formData.tmsVehicleWidth}
+                      onChange={(e) =>
+                        updateField("tmsVehicleWidth", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center w-full h-fit p-2 gap-2">
+                    <Input
+                      type="number"
+                      label="ความยาว (ซม.)"
+                      labelPlacement="outside"
+                      placeholder="ยาว"
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      value={formData.tmsVehicleLength}
+                      onChange={(e) =>
+                        updateField("tmsVehicleLength", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center w-full h-fit p-2 gap-2">
+                    <Input
+                      type="number"
+                      label="ความสูง (ซม.)"
+                      labelPlacement="outside"
+                      placeholder="สูง"
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      value={formData.tmsVehicleHeight}
+                      onChange={(e) =>
+                        updateField("tmsVehicleHeight", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center w-full h-fit p-2 gap-2">
+                    <Input
+                      type="number"
+                      label="น้ำหนัก (ตัน)"
+                      labelPlacement="outside"
+                      placeholder="น้ำหนักบรรทุก"
+                      variant="bordered"
+                      size="md"
+                      radius="md"
+                      value={formData.tmsVehicleCapacityKg}
+                      onChange={(e) =>
+                        updateField("tmsVehicleCapacityKg", e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. ชนิดเชื้อเพลิง & 5. อัตราการกินน้ำมัน */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="ทะเบียนรถ"
-                    labelPlacement="outside"
-                    placeholder="กรอกทะเบียนรถ"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehiclePlateNumber}
-                    onChange={(e) =>
-                      updateField("tmsVehiclePlateNumber", e.target.value)
-                    }
-                    isRequired
-                    isInvalid={!!validationErrors?.tmsVehiclePlateNumber}
-                    errorMessage={validationErrors?.tmsVehiclePlateNumber}
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="ชื่อ"
-                    labelPlacement="outside"
-                    placeholder="กรอกชื่อยานพาหนะ"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleName}
-                    onChange={(e) =>
-                      updateField("tmsVehicleName", e.target.value)
-                    }
-                    isInvalid={!!validationErrors?.tmsVehicleName}
-                    errorMessage={validationErrors?.tmsVehicleName}
-                    isRequired
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select
-                    label="ประเภท"
-                    labelPlacement="outside"
-                    placeholder="เลือกประเภท"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={
-                      formData.tmsVehicleType ? [formData.tmsVehicleType] : []
-                    }
-                    onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
-                      updateField("tmsVehicleType", val);
-                    }}
-                  >
-                    <SelectItem key="truck">รถบรรทุก</SelectItem>
-                    <SelectItem key="pickup">รถกระบะ</SelectItem>
-                    <SelectItem key="van">รถตู้</SelectItem>
-                    <SelectItem key="trailer">รถพ่วง</SelectItem>
-                  </Select>
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="ยี่ห้อ"
-                    labelPlacement="outside"
-                    placeholder="กรอกยี่ห้อ"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleBrand}
-                    onChange={(e) =>
-                      updateField("tmsVehicleBrand", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="รุ่น"
-                    labelPlacement="outside"
-                    placeholder="กรอกรุ่น"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleModel}
-                    onChange={(e) =>
-                      updateField("tmsVehicleModel", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="ปี"
-                    labelPlacement="outside"
-                    placeholder="กรอกปี"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleYear}
-                    onChange={(e) =>
-                      updateField("tmsVehicleYear", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="สี"
-                    labelPlacement="outside"
-                    placeholder="กรอกสี"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleColor}
-                    onChange={(e) =>
-                      updateField("tmsVehicleColor", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="เลข VIN"
-                    labelPlacement="outside"
-                    placeholder="กรอกเลข VIN"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleVin}
-                    onChange={(e) =>
-                      updateField("tmsVehicleVin", e.target.value)
-                    }
-                  />
-                </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
                     label="ชนิดเชื้อเพลิง"
@@ -374,111 +341,39 @@ export default function VehiclesView({
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
                     type="number"
-                    label="น้ำหนักบรรทุก (กก.)"
+                    label="อัตราการกินน้ำมัน (กม./ลิตร)"
                     labelPlacement="outside"
-                    placeholder="กรอกน้ำหนักบรรทุก"
+                    placeholder="กรอกอัตราการกินน้ำมัน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.tmsVehicleCapacity}
+                    value={formData.tmsVehicleFuelConsumptionRate}
                     onChange={(e) =>
-                      updateField("tmsVehicleCapacity", e.target.value)
+                      updateField("tmsVehicleFuelConsumptionRate", e.target.value)
                     }
                   />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    type="number"
-                    label="เลขไมล์ปัจจุบัน"
-                    labelPlacement="outside"
-                    placeholder="กรอกเลขไมล์ปัจจุบัน"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleMileage}
-                    onChange={(e) =>
-                      updateField("tmsVehicleMileage", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    type="date"
-                    label="วันหมดอายุทะเบียน"
-                    labelPlacement="outside"
-                    placeholder="เลือกวันที่"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleRegistrationExpiry}
-                    onChange={(e) =>
-                      updateField("tmsVehicleRegistrationExpiry", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    type="date"
-                    label="วันหมดอายุประกันภัย"
-                    labelPlacement="outside"
-                    placeholder="เลือกวันที่"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleInsuranceExpiry}
-                    onChange={(e) =>
-                      updateField("tmsVehicleInsuranceExpiry", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    type="date"
-                    label="วันหมดอายุ พ.ร.บ."
-                    labelPlacement="outside"
-                    placeholder="เลือกวันที่"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsVehicleActExpiry}
-                    onChange={(e) =>
-                      updateField("tmsVehicleActExpiry", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select
-                    label="สถานะ"
-                    labelPlacement="outside"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={[formData.tmsVehicleStatus]}
-                    onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "available";
-                      updateField("tmsVehicleStatus", val);
-                    }}
-                  >
-                    <SelectItem key="available">พร้อมใช้งาน</SelectItem>
-                    <SelectItem key="in_use">กำลังใช้งาน</SelectItem>
-                    <SelectItem key="maintenance">ซ่อมบำรุง</SelectItem>
-                    <SelectItem key="retired">ปลดระวาง</SelectItem>
-                  </Select>
                 </div>
               </div>
+
+              {/* 4. สถานะ */}
               <div className="flex items-center w-full h-fit p-2 gap-2">
-                <Input
-                  label="หมายเหตุ"
+                <Select
+                  label="สถานะ"
                   labelPlacement="outside"
-                  placeholder="กรอกหมายเหตุ"
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.tmsVehicleNotes}
-                  onChange={(e) =>
-                    updateField("tmsVehicleNotes", e.target.value)
-                  }
-                />
+                  selectedKeys={[formData.tmsVehicleStatus]}
+                  onSelectionChange={(keys) => {
+                    const val = Array.from(keys)[0] || "available";
+                    updateField("tmsVehicleStatus", val);
+                  }}
+                >
+                  <SelectItem key="available">พร้อมใช้งาน</SelectItem>
+                  <SelectItem key="in_use">กำลังใช้งาน</SelectItem>
+                  <SelectItem key="maintenance">ซ่อมบำรุง</SelectItem>
+                  <SelectItem key="retired">ปลดระวาง</SelectItem>
+                </Select>
               </div>
             </div>
           </ModalBody>
@@ -507,9 +402,9 @@ export default function VehiclesView({
             <p>
               คุณต้องการลบ{" "}
               <span className="font-semibold">
-                {deletingVehicle?.tmsVehicleName} ({deletingVehicle?.tmsVehiclePlateNumber})
+                {deletingVehicle?.tmsVehiclePlateNumber}
               </span>
-              หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
+              {" "}หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>
           </ModalBody>
           <ModalFooter>

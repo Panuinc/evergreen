@@ -13,22 +13,13 @@ import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
   tmsVehiclePlateNumber: "",
-  tmsVehicleName: "",
-  tmsVehicleType: "truck",
-  tmsVehicleBrand: "",
-  tmsVehicleModel: "",
-  tmsVehicleYear: "",
-  tmsVehicleColor: "",
-  tmsVehicleVinNumber: "",
-  tmsVehicleRegistrationExpiry: "",
-  tmsVehicleInsuranceExpiry: "",
-  tmsVehicleInsurancePolicy: "",
-  tmsVehicleActExpiry: "",
   tmsVehicleCapacityKg: "",
+  tmsVehicleWidth: "",
+  tmsVehicleLength: "",
+  tmsVehicleHeight: "",
   tmsVehicleFuelType: "diesel",
-  tmsVehicleCurrentMileage: "",
   tmsVehicleStatus: "available",
-  tmsVehicleNotes: "",
+  tmsVehicleFuelConsumptionRate: "",
 };
 
 export function useVehicles() {
@@ -62,22 +53,13 @@ export function useVehicles() {
       setEditingVehicle(vehicle);
       setFormData({
         tmsVehiclePlateNumber: vehicle.tmsVehiclePlateNumber || "",
-        tmsVehicleName: vehicle.tmsVehicleName || "",
-        tmsVehicleType: vehicle.tmsVehicleType || "truck",
-        tmsVehicleBrand: vehicle.tmsVehicleBrand || "",
-        tmsVehicleModel: vehicle.tmsVehicleModel || "",
-        tmsVehicleYear: vehicle.tmsVehicleYear?.toString() || "",
-        tmsVehicleColor: vehicle.tmsVehicleColor || "",
-        tmsVehicleVinNumber: vehicle.tmsVehicleVinNumber || "",
-        tmsVehicleRegistrationExpiry: vehicle.tmsVehicleRegistrationExpiry || "",
-        tmsVehicleInsuranceExpiry: vehicle.tmsVehicleInsuranceExpiry || "",
-        tmsVehicleInsurancePolicy: vehicle.tmsVehicleInsurancePolicy || "",
-        tmsVehicleActExpiry: vehicle.tmsVehicleActExpiry || "",
         tmsVehicleCapacityKg: vehicle.tmsVehicleCapacityKg?.toString() || "",
+        tmsVehicleWidth: vehicle.tmsVehicleWidth?.toString() || "",
+        tmsVehicleLength: vehicle.tmsVehicleLength?.toString() || "",
+        tmsVehicleHeight: vehicle.tmsVehicleHeight?.toString() || "",
         tmsVehicleFuelType: vehicle.tmsVehicleFuelType || "diesel",
-        tmsVehicleCurrentMileage: vehicle.tmsVehicleCurrentMileage?.toString() || "",
         tmsVehicleStatus: vehicle.tmsVehicleStatus || "available",
-        tmsVehicleNotes: vehicle.tmsVehicleNotes || "",
+        tmsVehicleFuelConsumptionRate: vehicle.tmsVehicleFuelConsumptionRate?.toString() || "",
       });
     } else {
       setEditingVehicle(null);
@@ -91,7 +73,6 @@ export function useVehicles() {
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
       tmsVehiclePlateNumber: [(v) => !isRequired(v) && "กรุณาระบุหมายเลขทะเบียน"],
-      tmsVehicleName: [(v) => !isRequired(v) && "กรุณาระบุชื่อยานพาหนะ"],
     });
     if (!isValid) {
       setValidationErrors(errors);

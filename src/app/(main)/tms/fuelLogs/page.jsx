@@ -7,7 +7,6 @@ export default function FuelLogsPage() {
   const {
     fuelLogs,
     vehicles,
-    drivers,
     loading,
     saving,
     editingFuelLog,
@@ -28,7 +27,6 @@ export default function FuelLogsPage() {
     <FuelLogsView
       fuelLogs={fuelLogs}
       vehicles={vehicles}
-      drivers={drivers}
       loading={loading}
       saving={saving}
       editingFuelLog={editingFuelLog}

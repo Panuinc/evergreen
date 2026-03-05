@@ -12,6 +12,11 @@ export async function GET(request) {
     .from("tmsDeliveryPlan")
     .select(`*, tmsDeliveryPlanItem(*)`);
 
+  const shipmentId = searchParams.get("shipmentId");
+  if (shipmentId) {
+    query = query.eq("tmsDeliveryPlanShipmentId", shipmentId);
+  }
+
   if (month) {
     const [year, mon] = month.split("-");
     const start = `${year}-${mon}-01`;

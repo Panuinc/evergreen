@@ -38,6 +38,23 @@ export async function POST(request) {
   const body = await request.json();
   body.tmsShipmentCreatedBy = session.user.id;
 
+  // Auto-generate shipment number: SHP-YYMMDD-NNN
+  if (!body.tmsShipmentNumber) {
+    const today = new Date();
+    const yy = String(today.getFullYear()).slice(-2);
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const prefix = `SHP-${yy}${mm}${dd}`;
+
+    const { count } = await supabase
+      .from("tmsShipment")
+      .select("*", { count: "exact", head: true })
+      .like("tmsShipmentNumber", `${prefix}%`);
+
+    const seq = String((count || 0) + 1).padStart(3, "0");
+    body.tmsShipmentNumber = `${prefix}-${seq}`;
+  }
+
   const { data, error } = await supabase
     .from("tmsShipment")
     .insert([body])

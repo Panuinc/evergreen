@@ -7,12 +7,10 @@ import {
   ModalBody,
   ModalFooter,
   Input,
-  Select,
-  SelectItem,
   Chip,
   useDisclosure,
 } from "@heroui/react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import FileUpload from "@/components/ui/FileUpload";
 import ImagePreviewModal from "@/components/ui/ImagePreviewModal";
@@ -21,7 +19,6 @@ const columns = [
   { name: "การขนส่ง", uid: "shipment", sortable: true },
   { name: "ชื่อผู้รับ", uid: "tmsDeliveryReceiverName", sortable: true },
   { name: "สถานะ", uid: "tmsDeliveryStatus", sortable: true },
-  { name: "ลายเซ็น", uid: "tmsDeliverySignatureUrl" },
   { name: "รูปภาพ", uid: "tmsDeliveryPhotoUrls" },
   { name: "เวลารับสินค้า", uid: "tmsDeliveryReceivedAt", sortable: true },
   { name: "จัดการ", uid: "actions" },
@@ -58,9 +55,8 @@ const INITIAL_VISIBLE_COLUMNS = [
   "shipment",
   "tmsDeliveryReceiverName",
   "tmsDeliveryStatus",
-  "tmsDeliverySignatureUrl",
   "tmsDeliveryPhotoUrls",
-  "deliveryReceivedAt",
+  "tmsDeliveryReceivedAt",
   "actions",
 ];
 
@@ -80,6 +76,8 @@ export default function DeliveriesView({
   handleSave,
   confirmDelete,
   handleDelete,
+  deliveryItems,
+  updateDeliveryItem,
 }) {
   const previewModal = useDisclosure();
   const [previewImages, setPreviewImages] = useState([]);
@@ -95,7 +93,7 @@ export default function DeliveriesView({
     (item, columnKey) => {
       switch (columnKey) {
         case "shipment": {
-          const s = shipments.find(
+          const s = item.tmsShipment || shipments.find(
             (s) => s.tmsShipmentId === item.tmsDeliveryShipmentId,
           );
           return s
@@ -115,15 +113,6 @@ export default function DeliveriesView({
               {STATUS_LABELS[item.tmsDeliveryStatus] || item.tmsDeliveryStatus}
             </Chip>
           );
-        case "tmsDeliverySignatureUrl":
-          return item.tmsDeliverySignatureUrl ? (
-            <img
-              src={item.tmsDeliverySignatureUrl}
-              alt="signature"
-              className="w-10 h-10 object-cover rounded cursor-pointer border border-default-200"
-              onClick={() => openPreview(item.tmsDeliverySignatureUrl)}
-            />
-          ) : "-";
         case "tmsDeliveryPhotoUrls":
           return item.tmsDeliveryPhotoUrls?.length > 0 ? (
             <div className="flex gap-1">
@@ -192,166 +181,167 @@ export default function DeliveriesView({
         statusField="tmsDeliveryStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบการจัดส่ง"
-        topEndContent={
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            startContent={<Plus size={16} />}
-            onPress={() => handleOpen()}
-          >
-            สร้างการจัดส่ง
-          </Button>
-        }
+        topEndContent={null}
       />
 
       {/* Create/Edit Modal */}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        size="2xl"
+        size="4xl"
         scrollBehavior="inside"
       >
         <ModalContent>
           <ModalHeader>
-            {editingDelivery ? "แก้ไขการจัดส่ง" : "สร้างการจัดส่ง"}
+            {editingDelivery ? "แก้ไขการจัดส่ง" : "บันทึกการส่งมอบ"}
           </ModalHeader>
           <ModalBody>
-            <div className="flex flex-col w-full gap-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Select
-                    label="การขนส่ง"
-                    labelPlacement="outside"
-                    placeholder="เลือกการขนส่ง"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={
-                      formData.tmsDeliveryShipmentId
-                        ? [formData.tmsDeliveryShipmentId]
-                        : []
-                    }
-                    onSelectionChange={(keys) =>
-                      updateField(
-                        "tmsDeliveryShipmentId",
-                        Array.from(keys)[0] || "",
-                      )
-                    }
-                    isRequired
-                  >
-                    {shipments.map((s) => (
-                      <SelectItem key={s.tmsShipmentId}>
-                        {s.tmsShipmentNumber} - {s.tmsShipmentCustomerName}
-                      </SelectItem>
-                    ))}
-                  </Select>
+            <div className="flex flex-col w-full gap-4">
+              {/* Shipment Info - read-only */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-default-50 rounded-xl p-4">
+                <div>
+                  <p className="text-xs text-default-400">การขนส่ง</p>
+                  <p className="text-sm font-medium">
+                    {(() => {
+                      const s = shipments.find(
+                        (s) => String(s.tmsShipmentId) === String(formData.tmsDeliveryShipmentId),
+                      );
+                      return s ? `${s.tmsShipmentNumber} - ${s.tmsShipmentCustomerName}` : "-";
+                    })()}
+                  </p>
                 </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="ชื่อผู้รับ"
-                    labelPlacement="outside"
-                    placeholder="กรอกชื่อผู้รับ"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsDeliveryReceiverName}
-                    onChange={(e) =>
-                      updateField("tmsDeliveryReceiverName", e.target.value)
-                    }
-                  />
+                <div>
+                  <p className="text-xs text-default-400">ชื่อผู้รับ</p>
+                  <p className="text-sm font-medium">{formData.tmsDeliveryReceiverName || "-"}</p>
                 </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="เบอร์โทรผู้รับ"
-                    labelPlacement="outside"
-                    placeholder="กรอกเบอร์โทรผู้รับ"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsDeliveryReceiverPhone}
-                    onChange={(e) =>
-                      updateField("tmsDeliveryReceiverPhone", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select
-                    label="สถานะ"
-                    labelPlacement="outside"
-                    placeholder="เลือกสถานะ"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={
-                      formData.tmsDeliveryStatus ? [formData.tmsDeliveryStatus] : []
-                    }
-                    onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "pending";
-                      updateField("tmsDeliveryStatus", val);
-                    }}
-                  >
-                    <SelectItem key="pending">รอดำเนินการ</SelectItem>
-                    <SelectItem key="delivered_ok">ส่งสำเร็จ</SelectItem>
-                    <SelectItem key="delivered_partial">
-                      ส่งบางส่วน
-                    </SelectItem>
-                    <SelectItem key="delivered_damaged">
-                      ส่งชำรุด
-                    </SelectItem>
-                    <SelectItem key="refused">ปฏิเสธ</SelectItem>
-                    <SelectItem key="returned">ส่งคืน</SelectItem>
-                  </Select>
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="หมายเหตุความเสียหาย"
-                    labelPlacement="outside"
-                    placeholder="กรอกหมายเหตุความเสียหาย"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsDeliveryDamageNotes}
-                    onChange={(e) =>
-                      updateField("tmsDeliveryDamageNotes", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input
-                    label="หมายเหตุ"
-                    labelPlacement="outside"
-                    placeholder="หมายเหตุเพิ่มเติม"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsDeliveryNotes}
-                    onChange={(e) =>
-                      updateField("tmsDeliveryNotes", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="p-2 md:col-span-2">
-                  <FileUpload
-                    label="ลายเซ็น"
-                    accept="image/*"
-                    multiple={false}
-                    value={formData.tmsDeliverySignatureUrl}
-                    onChange={(url) => updateField("tmsDeliverySignatureUrl", url)}
-                    folder="delivery-signatures"
-                  />
-                </div>
-                <div className="p-2 md:col-span-2">
-                  <FileUpload
-                    label="รูปภาพการจัดส่ง"
-                    accept="image/*"
-                    multiple={true}
-                    value={formData.tmsDeliveryPhotoUrls}
-                    onChange={(urls) => updateField("tmsDeliveryPhotoUrls", urls)}
-                    folder="delivery-photos"
-                  />
+                <div>
+                  <p className="text-xs text-default-400">เบอร์โทรผู้รับ</p>
+                  <p className="text-sm font-medium">{formData.tmsDeliveryReceiverPhone || "-"}</p>
                 </div>
               </div>
+
+              {/* Delivery Items Table */}
+              {deliveryItems.length > 0 && (
+                <div className="flex flex-col w-full gap-2">
+                  <p className="text-sm font-medium">รายการสินค้า</p>
+                  <div className="border border-default-200 rounded-xl overflow-hidden overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-default-100">
+                          <th className="text-left px-3 py-2 font-semibold">รายการ</th>
+                          <th className="text-center px-3 py-2 font-semibold w-16">หน่วย</th>
+                          <th className="text-center px-3 py-2 font-semibold w-20">แผน</th>
+                          <th className="text-center px-3 py-2 font-semibold w-24">ส่งจริง</th>
+                          <th className="text-center px-3 py-2 font-semibold w-24">เสียหาย</th>
+                          <th className="text-center px-3 py-2 font-semibold w-20">คืน</th>
+                          <th className="text-left px-3 py-2 font-semibold min-w-[140px]">หมายเหตุ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {deliveryItems.map((item, idx) => {
+                          const planned = item.tmsDeliveryItemPlannedQty;
+                          const delivered = parseFloat(item.tmsDeliveryItemDeliveredQty) || 0;
+                          const damaged = parseFloat(item.tmsDeliveryItemDamagedQty) || 0;
+                          const hasDiscrepancy = delivered < planned || damaged > 0;
+                          return (
+                            <tr key={idx} className={`border-t border-default-100 ${hasDiscrepancy ? "bg-warning-50" : ""}`}>
+                              <td className="px-3 py-2">
+                                <p className="font-medium">{item.tmsDeliveryItemDescription}</p>
+                                {item.tmsDeliveryItemSoNo && (
+                                  <p className="text-default-400">{item.tmsDeliveryItemSoNo}</p>
+                                )}
+                              </td>
+                              <td className="text-center px-3 py-2">{item.tmsDeliveryItemUom}</td>
+                              <td className="text-center px-3 py-2 font-medium">{planned}</td>
+                              <td className="text-center px-1 py-1">
+                                <Input
+                                  type="number"
+                                  size="sm"
+                                  variant="bordered"
+                                  radius="md"
+                                  min={0}
+                                  max={planned}
+                                  value={String(delivered)}
+                                  onChange={(e) => updateDeliveryItem(idx, "tmsDeliveryItemDeliveredQty", parseFloat(e.target.value) || 0)}
+                                  classNames={{ input: "text-center" }}
+                                />
+                              </td>
+                              <td className="text-center px-1 py-1">
+                                <Input
+                                  type="number"
+                                  size="sm"
+                                  variant="bordered"
+                                  radius="md"
+                                  min={0}
+                                  value={String(damaged)}
+                                  onChange={(e) => updateDeliveryItem(idx, "tmsDeliveryItemDamagedQty", parseFloat(e.target.value) || 0)}
+                                  classNames={{ input: "text-center" }}
+                                />
+                              </td>
+                              <td className="text-center px-3 py-2 text-default-500 font-medium">
+                                {item.tmsDeliveryItemReturnedQty || 0}
+                              </td>
+                              <td className="px-1 py-1">
+                                <Input
+                                  size="sm"
+                                  variant="bordered"
+                                  radius="md"
+                                  placeholder={hasDiscrepancy ? "ระบุเหตุผล *" : ""}
+                                  value={item.tmsDeliveryItemDamageNotes || ""}
+                                  onChange={(e) => updateDeliveryItem(idx, "tmsDeliveryItemDamageNotes", e.target.value)}
+                                  color={hasDiscrepancy && !item.tmsDeliveryItemDamageNotes ? "danger" : "default"}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                      <tfoot>
+                        <tr className="border-t border-default-200 bg-default-50">
+                          <td className="px-3 py-2 font-semibold" colSpan={2}>รวม</td>
+                          <td className="text-center px-3 py-2 font-semibold">
+                            {deliveryItems.reduce((s, i) => s + i.tmsDeliveryItemPlannedQty, 0)}
+                          </td>
+                          <td className="text-center px-3 py-2 font-semibold">
+                            {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemDeliveredQty) || 0), 0)}
+                          </td>
+                          <td className="text-center px-3 py-2 font-semibold">
+                            {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemDamagedQty) || 0), 0)}
+                          </td>
+                          <td className="text-center px-3 py-2 font-semibold">
+                            {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemReturnedQty) || 0), 0)}
+                          </td>
+                          <td></td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Notes */}
+              <Input
+                label="หมายเหตุ"
+                labelPlacement="outside"
+                placeholder="หมายเหตุเพิ่มเติม"
+                variant="bordered"
+                size="md"
+                radius="md"
+                value={formData.tmsDeliveryNotes}
+                onChange={(e) =>
+                  updateField("tmsDeliveryNotes", e.target.value)
+                }
+              />
+
+              {/* Photos */}
+              <FileUpload
+                label="รูปภาพการจัดส่ง"
+                accept="image/*"
+                multiple={true}
+                value={formData.tmsDeliveryPhotoUrls}
+                onChange={(urls) => updateField("tmsDeliveryPhotoUrls", urls)}
+                folder="delivery-photos"
+              />
             </div>
           </ModalBody>
           <ModalFooter>
@@ -365,7 +355,7 @@ export default function DeliveriesView({
               onPress={handleSave}
               isLoading={saving}
             >
-              {editingDelivery ? "อัปเดต" : "สร้าง"}
+              บันทึก
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -25,6 +25,8 @@ function DeliveriesPageInner() {
     handleSave,
     confirmDelete,
     handleDelete,
+    deliveryItems,
+    updateDeliveryItem,
   } = useDeliveries(fromShipmentId);
 
   return (
@@ -44,6 +46,8 @@ function DeliveriesPageInner() {
       handleSave={handleSave}
       confirmDelete={confirmDelete}
       handleDelete={handleDelete}
+      deliveryItems={deliveryItems}
+      updateDeliveryItem={updateDeliveryItem}
     />
   );
 }
