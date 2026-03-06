@@ -17,8 +17,11 @@ import {
   DropdownMenu,
   DropdownItem,
   Switch,
+  Spinner,
 } from "@heroui/react";
-import { Plus, Edit, Trash2, ChevronDown, Download, ClipboardCheck, CalendarDays } from "lucide-react";
+import { Plus, Edit, Trash2, ChevronDown, Download, ClipboardCheck, CalendarDays, Route, Sparkles, X, MapPin, ExternalLink } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 import { useRBAC } from "@/contexts/RBACContext";
@@ -116,14 +119,20 @@ export default function ShipmentsView({
   toggleActive,
   deliveryPlans,
   plansLoading,
-  selectedPlanId,
-  selectDeliveryPlan,
+  selectedPlanIds,
+  togglePlanSelection,
+  shipmentStops,
   shipmentItems,
   updateItemActualQty,
   distanceLoading,
   addExtra,
   updateExtra,
   removeExtra,
+  routeResult,
+  routeAiAnalysis,
+  routeLoading,
+  optimizeRoute,
+  clearRouteResult,
 }) {
   const { isSuperAdmin } = useRBAC();
   const router = useRouter();
@@ -188,8 +197,26 @@ export default function ShipmentsView({
           );
         case "actions": {
           const nextStatuses = NEXT_STATUS[item.tmsShipmentStatus] || [];
+          const stopsData = item.tmsShipmentStops;
+          const mapsUrl = stopsData?.googleMapsUrl;
           return (
             <div className="flex items-center gap-1">
+              {mapsUrl && (
+                <Button
+                  as="a"
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  color="primary"
+                  isIconOnly
+                  title="เปิด Google Maps"
+                >
+                  <MapPin size={16} />
+                </Button>
+              )}
               {nextStatuses.length > 0 && (
                 <Dropdown>
                   <DropdownTrigger>
@@ -291,31 +318,36 @@ export default function ShipmentsView({
           <ModalHeader>{editingShipment ? "แก้ไขการขนส่ง" : "สร้างการขนส่ง"}</ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
-              {/* Delivery Plan Selector - only for create mode */}
+              {/* Delivery Plan Selector */}
               {!editingShipment && (
-                <div className="flex items-center w-full h-fit p-2 gap-2">
+                <div className="flex flex-col w-full p-2 gap-3">
+                  {/* Dropdown to add plans */}
                   <Select
                     label="เลือกแผนส่งของ"
                     labelPlacement="outside"
-                    placeholder={plansLoading ? "กำลังโหลด..." : "เลือกแผนส่งของเพื่อเติมข้อมูลอัตโนมัติ"}
+                    placeholder={plansLoading ? "กำลังโหลด..." : "เลือกแผนส่งของเพื่อเติมข้อมูล"}
                     variant="bordered"
                     size="md"
                     radius="md"
                     startContent={<CalendarDays size={16} className="text-primary" />}
-                    selectedKeys={selectedPlanId ? [String(selectedPlanId)] : []}
-                    onSelectionChange={(keys) => selectDeliveryPlan(Array.from(keys)[0] || null)}
+                    selectedKeys={[]}
+                    onSelectionChange={(keys) => {
+                      const key = Array.from(keys)[0];
+                      if (key) togglePlanSelection(key);
+                    }}
                     isLoading={plansLoading}
                   >
-                    {deliveryPlans.map((plan) => {
+                    {deliveryPlans.filter((p) => !selectedPlanIds.includes(String(p.tmsDeliveryPlanId))).map((plan) => {
                       const firstItem = plan.tmsDeliveryPlanItem?.[0];
                       const dateLabel = plan.tmsDeliveryPlanDate
                         ? new Date(plan.tmsDeliveryPlanDate + "T00:00:00").toLocaleDateString("th-TH", { day: "numeric", month: "short" })
                         : "";
+                      const pLabel = plan.tmsDeliveryPlanPriority === "urgent" ? " [ด่วนมาก]" : plan.tmsDeliveryPlanPriority === "high" ? " [ด่วน]" : "";
                       return (
                         <SelectItem key={String(plan.tmsDeliveryPlanId)} textValue={`${firstItem?.tmsDeliveryPlanItemSalesOrderNo || ""} ${firstItem?.tmsDeliveryPlanItemCustomerName || ""}`}>
                           <div className="flex flex-col">
                             <span className="text-sm font-medium">
-                              {dateLabel} · {firstItem?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"} · {firstItem?.tmsDeliveryPlanItemCustomerName || "-"}
+                              {dateLabel} · {firstItem?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"} · {firstItem?.tmsDeliveryPlanItemCustomerName || "-"}{pLabel}
                             </span>
                             <span className="text-xs text-default-500">
                               {plan.tmsDeliveryPlanItem?.length || 0} รายการ
@@ -326,24 +358,189 @@ export default function ShipmentsView({
                       );
                     })}
                   </Select>
+
+                  {/* Selected plans as removable chips */}
+                  {selectedPlanIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedPlanIds.map((pid) => {
+                        const plan = deliveryPlans.find((p) => String(p.tmsDeliveryPlanId) === pid);
+                        if (!plan) return null;
+                        const firstItem = plan.tmsDeliveryPlanItem?.[0];
+                        const pColor = plan.tmsDeliveryPlanPriority === "urgent" ? "danger" : plan.tmsDeliveryPlanPriority === "high" ? "warning" : "primary";
+                        return (
+                          <Chip
+                            key={pid}
+                            variant="flat"
+                            color={pColor}
+                            size="sm"
+                            onClose={() => togglePlanSelection(pid)}
+                            endContent={<X size={12} />}
+                          >
+                            {firstItem?.tmsDeliveryPlanItemCustomerName || plan.tmsDeliveryPlanAddress || "แผนส่ง"}
+                          </Chip>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Route Optimize button + result (only when 2+ plans) */}
+                  {selectedPlanIds.length >= 2 && (
+                    <div className="flex flex-col gap-2 border border-default-200 rounded-xl p-3 bg-default-50">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-default-500">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
+                        <Button
+                          variant="bordered"
+                          size="sm"
+                          radius="md"
+                          color="secondary"
+                          startContent={<Route size={14} />}
+                          onPress={optimizeRoute}
+                          isLoading={routeLoading}
+                        >
+                          AI จัดเส้นทาง
+                        </Button>
+                      </div>
+
+                      {/* Compact route result */}
+                      {routeLoading && !routeResult && (
+                        <div className="flex items-center gap-2 text-xs text-default-400 py-2">
+                          <Spinner size="sm" /> กำลังคำนวณเส้นทาง...
+                        </div>
+                      )}
+                      {routeResult && (
+                        <div className="flex flex-col gap-2">
+                          {/* Stop order */}
+                          <div className="flex items-center gap-1 flex-wrap text-xs">
+                            <span className="text-default-500">โรงงาน</span>
+                            {routeResult.optimizedStops?.map((stop, i) => (
+                              <span key={i} className="flex items-center gap-1">
+                                <span className="text-default-300">→</span>
+                                <span className="font-medium">{stop.name}</span>
+                                {stop.priority !== "normal" && (
+                                  <Chip size="sm" variant="dot" color={stop.priority === "urgent" ? "danger" : "warning"} className="h-4" />
+                                )}
+                              </span>
+                            ))}
+                            <span className="text-default-300">→</span>
+                            <span className="text-default-500">โรงงาน</span>
+                          </div>
+                          {/* Stats row */}
+                          <div className="flex items-center gap-4 text-xs flex-wrap">
+                            <span><span className="text-default-500">รวม:</span> <span className="font-semibold">{routeResult.totalDistanceKm} กม.</span></span>
+                            <span><span className="text-default-500">เวลา:</span> <span className="font-semibold">{Math.floor(routeResult.totalDurationMin / 60)} ชม. {routeResult.totalDurationMin % 60} น.</span></span>
+                            {routeResult.savedKm > 0 && (
+                              <span className="text-success-600 font-semibold">ประหยัด {routeResult.savedKm.toFixed(1)} กม.</span>
+                            )}
+                          </div>
+                          {/* Google Maps link */}
+                          {routeResult.googleMapsUrl && (
+                            <a
+                              href={routeResult.googleMapsUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
+                            >
+                              <MapPin size={14} />
+                              เปิด Google Maps
+                              <ExternalLink size={12} />
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      {/* AI analysis (collapsible) */}
+                      {routeAiAnalysis && (
+                        <details className="text-xs">
+                          <summary className="cursor-pointer text-secondary-600 font-medium flex items-center gap-1">
+                            <Sparkles size={12} /> ดูวิเคราะห์ AI
+                          </summary>
+                          <div className="prose prose-sm max-w-none mt-2 bg-white rounded-lg p-3 max-h-40 overflow-y-auto">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{routeAiAnalysis}</ReactMarkdown>
+                          </div>
+                        </details>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="เบอร์โทรลูกค้า" labelPlacement="outside" placeholder="กรอกเบอร์โทร" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerPhone} onChange={(e) => updateField("tmsShipmentCustomerPhone", e.target.value)} />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input label="ที่อยู่ลูกค้า" labelPlacement="outside" placeholder="กรอกที่อยู่" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerAddress} onChange={(e) => updateField("tmsShipmentCustomerAddress", e.target.value)} />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="จุดเริ่มต้น" labelPlacement="outside" variant="bordered" size="md" radius="md" value={COMPANY_HQ.address} isReadOnly />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input label="ปลายทาง" labelPlacement="outside" placeholder="กรอกปลายทาง" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDestination} onChange={(e) => updateField("tmsShipmentDestination", e.target.value)} isRequired />
-                </div>
+                {/* Multi-stop: show stops table */}
+                {shipmentStops.length > 1 ? (
+                  <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
+                    <p className="text-sm font-medium">จุดส่งของ ({shipmentStops.length} จุด)</p>
+                    <div className="border border-default-200 rounded-xl overflow-hidden overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-default-100">
+                            <th className="text-center px-2 py-2 font-semibold w-10">ลำดับ</th>
+                            <th className="text-left px-3 py-2 font-semibold">ลูกค้า</th>
+                            <th className="text-left px-3 py-2 font-semibold">ที่อยู่/ปลายทาง</th>
+                            <th className="text-left px-3 py-2 font-semibold w-24">SO</th>
+                            <th className="text-center px-2 py-2 font-semibold w-16">ความสำคัญ</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {shipmentStops
+                            .sort((a, b) => a.seq - b.seq)
+                            .map((stop, i) => {
+                              const letter = String.fromCharCode(65 + i);
+                              const pColor = stop.priority === "urgent" ? "danger" : stop.priority === "high" ? "warning" : "default";
+                              return (
+                                <tr key={stop.planId || i} className="border-t border-default-100">
+                                  <td className="text-center px-2 py-2">
+                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-bold text-xs">{letter}</span>
+                                  </td>
+                                  <td className="px-3 py-2 font-medium">{stop.customerName || "-"}</td>
+                                  <td className="px-3 py-2 text-default-600 max-w-50 truncate">{stop.address || "-"}</td>
+                                  <td className="px-3 py-2 text-default-500">{stop.soRef || "-"}</td>
+                                  <td className="text-center px-2 py-2">
+                                    {stop.priority !== "normal" ? (
+                                      <Chip size="sm" variant="flat" color={pColor}>
+                                        {stop.priority === "urgent" ? "ด่วนมาก" : "ด่วน"}
+                                      </Chip>
+                                    ) : (
+                                      <span className="text-default-400">ปกติ</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    </div>
+                    {/* Google Maps link for saved shipments */}
+                    {routeResult?.googleMapsUrl && (
+                      <a
+                        href={routeResult.googleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
+                      >
+                        <MapPin size={14} />
+                        เปิด Google Maps — เส้นทางจุด A→B→C
+                        <ExternalLink size={12} />
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    {/* Single stop: original fields */}
+                    <div className="flex items-center w-full h-fit p-2 gap-2">
+                      <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
+                    </div>
+                    <div className="flex items-center w-full h-fit p-2 gap-2">
+                      <Input label="เบอร์โทรลูกค้า" labelPlacement="outside" placeholder="กรอกเบอร์โทร" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerPhone} onChange={(e) => updateField("tmsShipmentCustomerPhone", e.target.value)} />
+                    </div>
+                    <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
+                      <Input label="ที่อยู่ลูกค้า" labelPlacement="outside" placeholder="กรอกที่อยู่" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerAddress} onChange={(e) => updateField("tmsShipmentCustomerAddress", e.target.value)} />
+                    </div>
+                    <div className="flex items-center w-full h-fit p-2 gap-2">
+                      <Input label="จุดเริ่มต้น" labelPlacement="outside" variant="bordered" size="md" radius="md" value={COMPANY_HQ.address} isReadOnly />
+                    </div>
+                    <div className="flex items-center w-full h-fit p-2 gap-2">
+                      <Input label="ปลายทาง" labelPlacement="outside" placeholder="กรอกปลายทาง" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDestination} onChange={(e) => updateField("tmsShipmentDestination", e.target.value)} isRequired />
+                    </div>
+                  </>
+                )}
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input type="date" label="วันที่ส่ง" labelPlacement="outside" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDate} onChange={(e) => updateField("tmsShipmentDate", e.target.value)} isRequired />
                 </div>

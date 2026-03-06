@@ -30,14 +30,20 @@ function ShipmentsPageInner() {
     toggleActive,
     deliveryPlans,
     plansLoading,
-    selectedPlanId,
-    selectDeliveryPlan,
+    selectedPlanIds,
+    togglePlanSelection,
+    shipmentStops,
     shipmentItems,
     updateItemActualQty,
     distanceLoading,
     addExtra,
     updateExtra,
     removeExtra,
+    routeResult,
+    routeAiAnalysis,
+    routeLoading,
+    optimizeRoute,
+    clearRouteResult,
   } = useShipments(fromPlanId);
 
   return (
@@ -62,14 +68,20 @@ function ShipmentsPageInner() {
       toggleActive={toggleActive}
       deliveryPlans={deliveryPlans}
       plansLoading={plansLoading}
-      selectedPlanId={selectedPlanId}
-      selectDeliveryPlan={selectDeliveryPlan}
+      selectedPlanIds={selectedPlanIds}
+      togglePlanSelection={togglePlanSelection}
+      shipmentStops={shipmentStops}
       shipmentItems={shipmentItems}
       updateItemActualQty={updateItemActualQty}
       distanceLoading={distanceLoading}
       addExtra={addExtra}
       updateExtra={updateExtra}
       removeExtra={removeExtra}
+      routeResult={routeResult}
+      routeAiAnalysis={routeAiAnalysis}
+      routeLoading={routeLoading}
+      optimizeRoute={optimizeRoute}
+      clearRouteResult={clearRouteResult}
     />
   );
 }

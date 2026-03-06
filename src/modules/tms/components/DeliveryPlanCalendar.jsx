@@ -59,9 +59,9 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
   for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 overflow-x-auto">
       {/* Day headers */}
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 min-w-125">
         {DAYS_TH.map((d, i) => (
           <div
             key={d}
@@ -75,10 +75,10 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
       </div>
       {/* Rows */}
       {rows.map((row, ri) => (
-        <div key={ri} className="grid grid-cols-7 gap-1">
+        <div key={ri} className="grid grid-cols-7 gap-1 min-w-125">
           {row.map((date, ci) => {
             if (!date)
-              return <div key={ci} className="min-h-20 rounded-xl" />;
+              return <div key={ci} className="h-24 rounded-xl" />;
             const dateStr = toDateString(date);
             const plans = getPlansForDate(dateStr);
             const today = isToday(date);
@@ -86,14 +86,16 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
               <button
                 key={ci}
                 onClick={() => onDateClick(date)}
-                className={`min-h-20 rounded-xl border p-1.5 flex flex-col gap-1 text-left transition-colors hover:border-primary-300 hover:bg-primary-50 ${
+                className={`h-24 rounded-xl border p-1.5 flex flex-col gap-0.5 text-left transition-colors hover:border-primary-300 hover:bg-primary-50 overflow-hidden ${
                   today
                     ? "border-primary-400 bg-primary-50"
+                    : plans.length > 0
+                    ? "border-default-300"
                     : "border-default-200"
                 }`}
               >
                 <span
-                  className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full ${
+                  className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full flex-shrink-0 ${
                     today
                       ? "bg-primary text-white"
                       : ci === 0
@@ -105,8 +107,8 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                 >
                   {date.getDate()}
                 </span>
-                <div className="flex flex-col gap-0.5 overflow-hidden">
-                  {plans.slice(0, 3).map((p) => (
+                <div className="flex flex-col gap-0.5 overflow-hidden flex-1">
+                  {plans.slice(0, 2).map((p) => (
                     <div
                       key={p.tmsDeliveryPlanId}
                       className={`text-[10px] px-1.5 py-0.5 rounded-md truncate font-medium flex items-center gap-1 ${
@@ -129,9 +131,9 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                       </span>
                     </div>
                   ))}
-                  {plans.length > 3 && (
+                  {plans.length > 2 && (
                     <span className="text-[10px] text-default-400 px-1">
-                      +{plans.length - 3} อื่นๆ
+                      +{plans.length - 2} อื่นๆ
                     </span>
                   )}
                 </div>
@@ -156,101 +158,103 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
   });
 
   return (
-    <div className="grid grid-cols-7 gap-2">
-      {days.map((date, i) => {
-        const dateStr = toDateString(date);
-        const plans = getPlansForDate(dateStr);
-        const today = isToday(date);
-        return (
-          <div key={i} className="flex flex-col gap-2">
-            {/* Day header */}
-            <div className="flex flex-col items-center gap-1">
-              <span
-                className={`text-xs font-semibold ${
-                  i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-default-500"
-                }`}
-              >
-                {DAYS_TH[i]}
-              </span>
-              <span
-                className={`text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full ${
-                  today ? "bg-primary text-white" : "text-default-700"
-                }`}
-              >
-                {date.getDate()}
-              </span>
-            </div>
-            {/* Plans */}
-            <div className="flex flex-col gap-1 min-h-32">
-              {plans.map((p) => (
-                <div
-                  key={p.tmsDeliveryPlanId}
-                  className={`p-2 rounded-xl border-l-4 border text-xs cursor-pointer hover:opacity-80 ${
-                    p.tmsDeliveryPlanStatus === "planned"
-                      ? "bg-primary-50 border-primary-200"
-                      : p.tmsDeliveryPlanStatus === "in_progress"
-                      ? "bg-warning-50 border-warning-200"
-                      : p.tmsDeliveryPlanStatus === "completed"
-                      ? "bg-success-50 border-success-200"
-                      : "bg-default-50 border-default-200"
-                  } ${
-                    p.tmsDeliveryPlanPriority === "urgent"
-                      ? "border-l-danger-500"
-                      : p.tmsDeliveryPlanPriority === "high"
-                      ? "border-l-warning-500"
-                      : p.tmsDeliveryPlanPriority === "low"
-                      ? "border-l-default-400"
-                      : "border-l-primary-400"
+    <div className="overflow-x-auto">
+      <div className="grid grid-cols-7 gap-2 min-w-125">
+        {days.map((date, i) => {
+          const dateStr = toDateString(date);
+          const plans = getPlansForDate(dateStr);
+          const today = isToday(date);
+          return (
+            <div key={i} className="flex flex-col gap-2">
+              {/* Day header */}
+              <div className="flex flex-col items-center gap-1">
+                <span
+                  className={`text-xs font-semibold ${
+                    i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-default-500"
                   }`}
-                  onClick={() => onDateClick(date)}
                 >
-                  <p className="font-semibold truncate">
-                    {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"}
-                  </p>
-                  <p className="text-default-500 truncate">
-                    {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemCustomerName}
-                  </p>
-                  <div className="flex items-center gap-1 mt-1 flex-wrap">
-                    <Chip
-                      size="sm"
-                      color={STATUS_COLORS[p.tmsDeliveryPlanStatus]}
-                      variant="flat"
-                    >
-                      {p.tmsDeliveryPlanItem?.length || 0} รายการ
-                    </Chip>
-                    {p.tmsDeliveryPlanPriority && p.tmsDeliveryPlanPriority !== "normal" && (
+                  {DAYS_TH[i]}
+                </span>
+                <span
+                  className={`text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full ${
+                    today ? "bg-primary text-white" : "text-default-700"
+                  }`}
+                >
+                  {date.getDate()}
+                </span>
+              </div>
+              {/* Plans */}
+              <div className="flex flex-col gap-1 max-h-80 overflow-y-auto">
+                {plans.map((p) => (
+                  <div
+                    key={p.tmsDeliveryPlanId}
+                    className={`p-2 rounded-xl border-l-4 border text-xs cursor-pointer hover:opacity-80 shrink-0 ${
+                      p.tmsDeliveryPlanStatus === "planned"
+                        ? "bg-primary-50 border-primary-200"
+                        : p.tmsDeliveryPlanStatus === "in_progress"
+                        ? "bg-warning-50 border-warning-200"
+                        : p.tmsDeliveryPlanStatus === "completed"
+                        ? "bg-success-50 border-success-200"
+                        : "bg-default-50 border-default-200"
+                    } ${
+                      p.tmsDeliveryPlanPriority === "urgent"
+                        ? "border-l-danger-500"
+                        : p.tmsDeliveryPlanPriority === "high"
+                        ? "border-l-warning-500"
+                        : p.tmsDeliveryPlanPriority === "low"
+                        ? "border-l-default-400"
+                        : "border-l-primary-400"
+                    }`}
+                    onClick={() => onDateClick(date)}
+                  >
+                    <p className="font-semibold truncate">
+                      {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"}
+                    </p>
+                    <p className="text-default-500 truncate">
+                      {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemCustomerName}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1 flex-wrap">
                       <Chip
                         size="sm"
-                        color={
-                          p.tmsDeliveryPlanPriority === "urgent"
-                            ? "danger"
-                            : p.tmsDeliveryPlanPriority === "high"
-                            ? "warning"
-                            : "default"
-                        }
+                        color={STATUS_COLORS[p.tmsDeliveryPlanStatus]}
                         variant="flat"
                       >
-                        {p.tmsDeliveryPlanPriority === "urgent"
-                          ? "ด่วนมาก"
-                          : p.tmsDeliveryPlanPriority === "high"
-                          ? "ด่วน"
-                          : "ต่ำ"}
+                        {p.tmsDeliveryPlanItem?.length || 0} รายการ
                       </Chip>
-                    )}
+                      {p.tmsDeliveryPlanPriority && p.tmsDeliveryPlanPriority !== "normal" && (
+                        <Chip
+                          size="sm"
+                          color={
+                            p.tmsDeliveryPlanPriority === "urgent"
+                              ? "danger"
+                              : p.tmsDeliveryPlanPriority === "high"
+                              ? "warning"
+                              : "default"
+                          }
+                          variant="flat"
+                        >
+                          {p.tmsDeliveryPlanPriority === "urgent"
+                            ? "ด่วนมาก"
+                            : p.tmsDeliveryPlanPriority === "high"
+                            ? "ด่วน"
+                            : "ต่ำ"}
+                        </Chip>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {/* Add button for empty days */}
-              <button
-                onClick={() => onDateClick(date)}
-                className="w-full py-2 rounded-xl border border-dashed border-default-200 text-xs text-default-400 hover:border-primary-300 hover:text-primary-500 transition-colors"
-              >
-                + เพิ่มแผน
-              </button>
+                ))}
+                {/* Add button */}
+                <button
+                  onClick={() => onDateClick(date)}
+                  className="w-full py-2 rounded-xl border border-dashed border-default-200 text-xs text-default-400 hover:border-primary-300 hover:text-primary-500 transition-colors shrink-0"
+                >
+                  + เพิ่มแผน
+                </button>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

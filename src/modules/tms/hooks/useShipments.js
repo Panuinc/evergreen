@@ -79,6 +79,20 @@ function fillFormFromPlan(plan) {
   };
 }
 
+function buildStopFromPlan(plan, seq) {
+  const firstItem = (plan.tmsDeliveryPlanItem || [])[0];
+  return {
+    planId: plan.tmsDeliveryPlanId,
+    seq,
+    customerName: firstItem?.tmsDeliveryPlanItemCustomerName || "",
+    customerPhone: firstItem?.tmsDeliveryPlanItemCustomerPhone || "",
+    address: plan.tmsDeliveryPlanAddress || "",
+    soRef: firstItem?.tmsDeliveryPlanItemSalesOrderNo || "",
+    priority: plan.tmsDeliveryPlanPriority || "normal",
+    items: buildPlanItems(plan),
+  };
+}
+
 export function useShipments(fromPlanId = null) {
   const [shipments, setShipments] = useState([]);
   const [vehicles, setVehicles] = useState([]);
@@ -91,15 +105,24 @@ export function useShipments(fromPlanId = null) {
   const deleteModal = useDisclosure();
   const [deletingShipment, setDeletingShipment] = useState(null);
 
-  // Delivery plan selection
+  // Delivery plan selection (multi-select)
   const [deliveryPlans, setDeliveryPlans] = useState([]);
   const [plansLoading, setPlansLoading] = useState(false);
-  const [selectedPlanId, setSelectedPlanId] = useState(null);
+  const [selectedPlanIds, setSelectedPlanIds] = useState([]);
 
   // Shipment items from plan (planned vs actual)
   const [shipmentItems, setShipmentItems] = useState([]);
   const [distanceLoading, setDistanceLoading] = useState(false);
   const distanceTimer = useRef(null);
+
+  // Multi-stop: each stop has customer info
+  // { planId, seq, customerName, customerPhone, address, soRef, priority, items[] }
+  const [shipmentStops, setShipmentStops] = useState([]);
+
+  // Route optimization
+  const [routeResult, setRouteResult] = useState(null);
+  const [routeAiAnalysis, setRouteAiAnalysis] = useState("");
+  const [routeLoading, setRouteLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -154,23 +177,173 @@ export function useShipments(fromPlanId = null) {
     }
   };
 
-  const selectDeliveryPlan = (planId) => {
-    setSelectedPlanId(planId);
-    if (!planId) {
-      setFormData(emptyForm);
-      setShipmentItems([]);
+  const togglePlanSelection = (planId) => {
+    setSelectedPlanIds((prev) => {
+      const id = String(planId);
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+
+      if (next.length === 0) {
+        setFormData(emptyForm);
+        setShipmentItems([]);
+        setShipmentStops([]);
+        setRouteResult(null);
+        setRouteAiAnalysis("");
+        return next;
+      }
+
+      const selected = next.map((pid) => deliveryPlans.find((p) => String(p.tmsDeliveryPlanId) === pid)).filter(Boolean);
+
+      // Build stops array from all selected plans
+      const stops = selected.map((p, i) => buildStopFromPlan(p, i + 1));
+      setShipmentStops(stops);
+
+      // Merge all items
+      const allItems = selected.flatMap((p) => buildPlanItems(p));
+      setShipmentItems(allItems);
+
+      if (selected.length === 1) {
+        // Single plan - fill form normally
+        const filled = fillFormFromPlan(selected[0]);
+        filled.tmsShipmentFuelPricePerLiter = String(DEFAULT_FUEL_PRICE);
+        setFormData(filled);
+        if (filled.tmsShipmentDestination) {
+          fetchDistance(filled.tmsShipmentDestination);
+        }
+      } else {
+        // Multi-plan - set basic form fields, distance from route optimize
+        const firstPlan = selected[0];
+        setFormData((prev) => ({
+          ...prev,
+          tmsShipmentDate: firstPlan.tmsDeliveryPlanDate || "",
+          tmsShipmentCustomerName: stops.map((s) => s.customerName).filter(Boolean).join(", "),
+          tmsShipmentCustomerAddress: "",
+          tmsShipmentDestination: stops.map((s) => s.address).filter(Boolean).join(", "),
+          tmsShipmentSalesOrderRef: stops.map((s) => s.soRef).filter(Boolean).join(", "),
+          tmsShipmentFuelPricePerLiter: String(DEFAULT_FUEL_PRICE),
+          tmsShipmentDistance: "",
+        }));
+      }
+
+      // Clear previous route result when selection changes
+      setRouteResult(null);
+      setRouteAiAnalysis("");
+
+      return next;
+    });
+  };
+
+  const optimizeRoute = async () => {
+    const selected = selectedPlanIds
+      .map((pid) => deliveryPlans.find((p) => String(p.tmsDeliveryPlanId) === pid))
+      .filter(Boolean);
+
+    const stopsWithAddress = selected.filter((p) => p.tmsDeliveryPlanAddress);
+    if (stopsWithAddress.length < 2) {
+      toast.error("ต้องมีจุดส่งอย่างน้อย 2 จุดเพื่อจัดเส้นทาง");
       return;
     }
-    const plan = deliveryPlans.find((p) => String(p.tmsDeliveryPlanId) === String(planId));
-    if (plan) {
-      const filled = fillFormFromPlan(plan);
-      filled.tmsShipmentFuelPricePerLiter = String(DEFAULT_FUEL_PRICE);
-      setFormData(filled);
-      setShipmentItems(buildPlanItems(plan));
-      if (filled.tmsShipmentDestination) {
-        fetchDistance(filled.tmsShipmentDestination);
+
+    setRouteLoading(true);
+    setRouteResult(null);
+    setRouteAiAnalysis("");
+
+    const stops = stopsWithAddress.map((p) => ({
+      name: p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemCustomerName || p.tmsDeliveryPlanAddress,
+      address: p.tmsDeliveryPlanAddress,
+      priority: p.tmsDeliveryPlanPriority || "normal",
+      planId: p.tmsDeliveryPlanId,
+    }));
+
+    // Get vehicle info for AI context
+    const selectedVehicle = vehicles.find((v) => String(v.tmsVehicleId) === String(formData.tmsShipmentVehicleId));
+    const vehicleInfo = selectedVehicle ? `${selectedVehicle.tmsVehiclePlateNumber} (${selectedVehicle.tmsVehicleType || ""})` : "";
+
+    try {
+      const res = await fetch("/api/tms/routeOptimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stops, vehicleInfo, usePriority: true }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || `API error: ${res.status}`);
       }
+
+      const contentType = res.headers.get("content-type") || "";
+
+      if (contentType.includes("text/event-stream")) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          let eventType = null;
+          for (const line of lines) {
+            if (line.startsWith("event: ")) {
+              eventType = line.slice(7).trim();
+              continue;
+            }
+            if (!line.startsWith("data: ") || line === "data: [DONE]") {
+              eventType = null;
+              continue;
+            }
+            try {
+              const json = JSON.parse(line.slice(6));
+              if (eventType === "routeData") {
+                setRouteResult(json);
+                if (json.totalDistanceKm) {
+                  setFormData((prev) => ({
+                    ...prev,
+                    tmsShipmentDistance: String(json.totalDistanceKm),
+                  }));
+                }
+                // Reorder stops based on optimized sequence
+                if (json.optimizedStops) {
+                  setShipmentStops((prev) => {
+                    const reordered = json.optimizedStops.map((os, i) => {
+                      const match = prev.find((s) => s.customerName === os.name || s.address === os.name);
+                      return match ? { ...match, seq: i + 1 } : prev[i] ? { ...prev[i], seq: i + 1 } : null;
+                    }).filter(Boolean);
+                    return reordered.length > 0 ? reordered : prev;
+                  });
+                }
+                eventType = null;
+                continue;
+              }
+              const content = json.choices?.[0]?.delta?.content;
+              if (content) setRouteAiAnalysis((prev) => prev + content);
+            } catch {}
+            eventType = null;
+          }
+        }
+      } else {
+        const data = await res.json();
+        setRouteResult(data);
+        if (data.totalDistanceKm) {
+          setFormData((prev) => ({
+            ...prev,
+            tmsShipmentDistance: String(data.totalDistanceKm),
+          }));
+        }
+      }
+    } catch (err) {
+      toast.error(err.message || "จัดเส้นทางล้มเหลว");
+    } finally {
+      setRouteLoading(false);
     }
+  };
+
+  const clearRouteResult = () => {
+    setRouteResult(null);
+    setRouteAiAnalysis("");
   };
 
   const updateItemActualQty = (itemId, value) => {
@@ -194,7 +367,7 @@ export function useShipments(fromPlanId = null) {
         if (filled.tmsShipmentDestination) {
           fetchDistance(filled.tmsShipmentDestination);
         }
-        setSelectedPlanId(fromPlanId);
+        setSelectedPlanIds([String(fromPlanId)]);
         setEditingShipment(null);
         onOpen();
       })
@@ -222,8 +395,17 @@ export function useShipments(fromPlanId = null) {
   const handleOpen = (shipment = null) => {
     if (shipment) {
       setEditingShipment(shipment);
-      setSelectedPlanId(null);
+      setSelectedPlanIds([]);
       setShipmentItems([]);
+      const stopsData = shipment.tmsShipmentStops;
+      setShipmentStops(stopsData?.stops || stopsData || []);
+      // Restore Google Maps URL if available
+      if (stopsData?.googleMapsUrl) {
+        setRouteResult({ googleMapsUrl: stopsData.googleMapsUrl, totalDistanceKm: stopsData.totalDistanceKm, totalDurationMin: stopsData.totalDurationMin });
+      } else {
+        setRouteResult(null);
+      }
+      setRouteAiAnalysis("");
       setFormData({
         tmsShipmentCustomerName: shipment.tmsShipmentCustomerName || "",
         tmsShipmentCustomerPhone: shipment.tmsShipmentCustomerPhone || "",
@@ -248,8 +430,11 @@ export function useShipments(fromPlanId = null) {
       });
     } else {
       setEditingShipment(null);
-      setSelectedPlanId(null);
+      setSelectedPlanIds([]);
       setShipmentItems([]);
+      setShipmentStops([]);
+      setRouteResult(null);
+      setRouteAiAnalysis("");
       setFormData(emptyForm);
       loadDeliveryPlans();
     }
@@ -288,6 +473,23 @@ export function useShipments(fromPlanId = null) {
       if (shipmentItems.length > 0) {
         saveData.tmsShipmentItemsSummary = itemsToSummary(shipmentItems);
       }
+      // Save multi-stop data as JSONB
+      if (shipmentStops.length > 0) {
+        saveData.tmsShipmentStops = {
+          stops: shipmentStops.map((s) => ({
+            seq: s.seq,
+            planId: s.planId,
+            customerName: s.customerName,
+            customerPhone: s.customerPhone,
+            address: s.address,
+            soRef: s.soRef,
+            priority: s.priority,
+          })),
+          googleMapsUrl: routeResult?.googleMapsUrl || null,
+          totalDistanceKm: routeResult?.totalDistanceKm || null,
+          totalDurationMin: routeResult?.totalDurationMin || null,
+        };
+      }
       // Auto-calculate fuel cost
       const selectedVehicle = vehicles.find((v) => String(v.tmsVehicleId) === String(saveData.tmsShipmentVehicleId));
       const rate = parseFloat(selectedVehicle?.tmsVehicleFuelConsumptionRate) || 0;
@@ -304,14 +506,18 @@ export function useShipments(fromPlanId = null) {
         const newShipment = await createShipment(saveData);
         toast.success("สร้างการจัดส่งสำเร็จ");
 
-        // Link shipment back to the delivery plan
-        const planIdToLink = selectedPlanId || fromPlanId;
-        if (planIdToLink && newShipment?.tmsShipmentId) {
-          await updateDeliveryPlan(planIdToLink, {
-            tmsDeliveryPlanShipmentId: newShipment.tmsShipmentId,
-            tmsDeliveryPlanShipmentNumber: newShipment.tmsShipmentNumber,
-            tmsDeliveryPlanStatus: "in_progress",
-          });
+        // Link shipment back to all selected delivery plans
+        const planIdsToLink = selectedPlanIds.length > 0 ? selectedPlanIds : (fromPlanId ? [String(fromPlanId)] : []);
+        if (planIdsToLink.length > 0 && newShipment?.tmsShipmentId) {
+          await Promise.all(
+            planIdsToLink.map((pid) =>
+              updateDeliveryPlan(pid, {
+                tmsDeliveryPlanShipmentId: newShipment.tmsShipmentId,
+                tmsDeliveryPlanShipmentNumber: newShipment.tmsShipmentNumber,
+                tmsDeliveryPlanStatus: "in_progress",
+              })
+            )
+          );
         }
       }
       onClose();
@@ -426,13 +632,20 @@ export function useShipments(fromPlanId = null) {
     toggleActive,
     deliveryPlans,
     plansLoading,
-    selectedPlanId,
-    selectDeliveryPlan,
+    selectedPlanIds,
+    togglePlanSelection,
+    shipmentStops,
     shipmentItems,
     updateItemActualQty,
     distanceLoading,
     addExtra,
     updateExtra,
     removeExtra,
+    // Route optimization
+    routeResult,
+    routeAiAnalysis,
+    routeLoading,
+    optimizeRoute,
+    clearRouteResult,
   };
 }

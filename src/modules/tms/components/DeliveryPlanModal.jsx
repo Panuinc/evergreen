@@ -250,7 +250,7 @@ export default function DeliveryPlanModal({
                         {plan.tmsDeliveryPlanItem?.length || 0} รายการ
                       </span>
                     </div>
-                    {plan.tmsDeliveryPlanItem?.map((item) => (
+                    {plan.tmsDeliveryPlanItem?.slice(0, 3).map((item) => (
                       <p
                         key={item.tmsDeliveryPlanItemId}
                         className="text-xs text-default-600 truncate"
@@ -261,6 +261,11 @@ export default function DeliveryPlanModal({
                         {item.tmsDeliveryPlanItemUom}
                       </p>
                     ))}
+                    {plan.tmsDeliveryPlanItem?.length > 3 && (
+                      <p className="text-xs text-default-400">
+                        +{plan.tmsDeliveryPlanItem.length - 3} รายการอื่นๆ
+                      </p>
+                    )}
                     {plan.tmsDeliveryPlanAddress && (
                       <p className="text-xs text-default-400 truncate">
                         📍 {plan.tmsDeliveryPlanAddress}
