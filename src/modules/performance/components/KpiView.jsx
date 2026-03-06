@@ -696,7 +696,7 @@ function AssignmentModal({
   definitions,
   employees,
 }) {
-  const activeEmployees = employees.filter((e) => e.hrEmployeeStatus === "active");
+  const activeEmployees = employees.filter((e) => e.isActive);
 
   return (
     <Modal isOpen={assignmentModal.isOpen} onClose={assignmentModal.onClose} size="lg">

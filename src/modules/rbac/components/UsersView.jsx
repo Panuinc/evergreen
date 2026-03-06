@@ -14,7 +14,7 @@ import {
   Chip,
   Checkbox,
 } from "@heroui/react";
-import { Plus, Settings, KeyRound } from "lucide-react";
+import { Plus, Settings, KeyRound, Power } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
 
@@ -177,6 +177,15 @@ export default function UsersView({
         searchPlaceholder="ค้นหาตามอีเมล..."
         searchKeys={["rbacUserProfileEmail"]}
         emptyContent="ไม่พบผู้ใช้"
+        actionMenuItems={(item) =>
+          [
+            { key: "roles", label: "จัดการบทบาท", icon: <Settings size={16} />, onPress: () => openRoleAssignment(item) },
+            { key: "reset", label: "รีเซ็ตรหัสผ่าน", icon: <KeyRound size={16} />, onPress: () => openResetPassword(item) },
+            isSuperAdmin
+              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => handleToggleUserStatus(item) }
+              : null,
+          ].filter(Boolean)
+        }
         topEndContent={
           <Button
             variant="bordered"

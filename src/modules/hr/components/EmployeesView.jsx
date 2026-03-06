@@ -12,7 +12,7 @@ import {
   Chip,
   Switch,
 } from "@heroui/react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Power } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
 
@@ -23,13 +23,13 @@ const baseColumns = [
   { name: "ฝ่าย", uid: "hrEmployeeDivision", sortable: true },
   { name: "แผนก", uid: "hrEmployeeDepartment", sortable: true },
   { name: "ตำแหน่ง", uid: "hrEmployeePosition", sortable: true },
-  { name: "สถานะ", uid: "hrEmployeeStatus", sortable: true },
+  { name: "สถานะ", uid: "isActive", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [
-  { name: "เปิดใช้งาน", uid: "active" },
-  { name: "ปิดใช้งาน", uid: "inactive" },
+  { name: "เปิดใช้งาน", uid: "true" },
+  { name: "ปิดใช้งาน", uid: "false" },
 ];
 
 const BASE_VISIBLE_COLUMNS = [
@@ -38,7 +38,7 @@ const BASE_VISIBLE_COLUMNS = [
   "hrEmployeeDivision",
   "hrEmployeeDepartment",
   "hrEmployeePosition",
-  "hrEmployeeStatus",
+  "isActive",
   "actions",
 ];
 
@@ -64,24 +64,8 @@ export default function EmployeesView({
 }) {
   const { isSuperAdmin } = useRBAC();
 
-  const initialVisibleColumns = useMemo(() => {
-    if (isSuperAdmin) {
-      return [...BASE_VISIBLE_COLUMNS, "isActive"];
-    }
-    return BASE_VISIBLE_COLUMNS;
-  }, [isSuperAdmin]);
-
-  const columns = useMemo(() => {
-    if (isSuperAdmin) {
-      const actionsCol = baseColumns[baseColumns.length - 1];
-      return [
-        ...baseColumns.slice(0, -1),
-        { name: "สถานะใช้งาน", uid: "isActive" },
-        actionsCol,
-      ];
-    }
-    return baseColumns;
-  }, [isSuperAdmin]);
+  const initialVisibleColumns = BASE_VISIBLE_COLUMNS;
+  const columns = baseColumns;
 
   const renderCell = useCallback(
     (emp, columnKey) => {
@@ -106,26 +90,15 @@ export default function EmployeesView({
           return emp.hrEmployeeDepartment || "-";
         case "hrEmployeePosition":
           return emp.hrEmployeePosition || "-";
-        case "hrEmployeeStatus":
-          return (
-            <Chip
-              variant="bordered"
-              size="md"
-              radius="md"
-              color={emp.hrEmployeeStatus === "active" ? "success" : "default"}
-            >
-              {emp.hrEmployeeStatus}
-            </Chip>
-          );
         case "isActive":
           return (
             <Chip
               variant="bordered"
               size="md"
               radius="md"
-              color={emp.isActive ? "success" : "danger"}
+              color={emp.isActive ? "success" : "default"}
             >
-              {emp.isActive ? "Active" : "Inactive"}
+              {emp.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
             </Chip>
           );
         case "actions":
@@ -186,7 +159,7 @@ export default function EmployeesView({
           "hrEmployeeDepartment",
           "hrEmployeePosition",
         ]}
-        statusField="hrEmployeeStatus"
+        statusField="isActive"
         statusOptions={statusOptions}
         emptyContent="ไม่พบพนักงาน"
         topEndContent={
@@ -200,6 +173,12 @@ export default function EmployeesView({
             เพิ่มพนักงาน
           </Button>
         }
+        actionMenuItems={(item) => [
+          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => onOpen(item) },
+          isSuperAdmin
+            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
+            : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => onConfirmDelete(item) },
+        ].filter(Boolean)}
       />
 
       {/* Create/Edit Modal */}
@@ -357,23 +336,6 @@ export default function EmployeesView({
                           {pos.hrPositionTitle}
                         </SelectItem>
                       ))}
-                  </Select>
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select
-                    label="สถานะ"
-                    labelPlacement="outside"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    selectedKeys={[formData.hrEmployeeStatus]}
-                    onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "active";
-                      onUpdateField("hrEmployeeStatus", val);
-                    }}
-                  >
-                    <SelectItem key="active">เปิดใช้งาน</SelectItem>
-                    <SelectItem key="inactive">ปิดใช้งาน</SelectItem>
                   </Select>
                 </div>
               </div>

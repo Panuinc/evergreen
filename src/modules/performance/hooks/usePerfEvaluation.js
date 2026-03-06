@@ -109,11 +109,11 @@ export function usePerfEvaluation() {
 
   // Available employees for evaluation (exclude self)
   const availableEmployees = useMemo(() => {
-    if (!currentEmployee) return employees.filter((e) => e.hrEmployeeStatus === "active");
+    if (!currentEmployee) return employees.filter((e) => e.isActive);
     return employees.filter(
       (e) =>
         e.hrEmployeeId !== currentEmployee.hrEmployeeId &&
-        e.hrEmployeeStatus === "active",
+        e.isActive,
     );
   }, [employees, currentEmployee]);
 

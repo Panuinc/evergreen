@@ -21,7 +21,6 @@ const emptyForm = {
   hrEmployeeDivision: "",
   hrEmployeeDepartment: "",
   hrEmployeePosition: "",
-  hrEmployeeStatus: "active",
 };
 
 export function useEmployees() {
@@ -72,7 +71,6 @@ export function useEmployees() {
         hrEmployeeDivision: employee.hrEmployeeDivision || "",
         hrEmployeeDepartment: employee.hrEmployeeDepartment || "",
         hrEmployeePosition: employee.hrEmployeePosition || "",
-        hrEmployeeStatus: employee.hrEmployeeStatus || "active",
       });
     } else {
       setEditingEmployee(null);

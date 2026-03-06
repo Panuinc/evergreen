@@ -937,7 +937,7 @@ function CycleModal({ cycleModal, editingCycle, cycleForm, onCycleFormChange, sa
 
 function NominationModal({ nominationModal, nominationForm, onNominationFormChange, savingNomination, onSaveNomination, employees }) {
   const activeEmployees = useMemo(
-    () => employees.filter((e) => e.hrEmployeeStatus === "active"),
+    () => employees.filter((e) => e.isActive),
     [employees],
   );
 

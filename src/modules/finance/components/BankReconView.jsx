@@ -31,6 +31,7 @@ import {
   Ban,
   Zap,
   Scale,
+  Eye,
 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import FileUpload from "@/components/ui/FileUpload";
@@ -352,6 +353,13 @@ export default function BankReconView({
               searchPlaceholder="ค้นหา statement..."
               defaultSortDescriptor={{ column: "createdAt", direction: "descending" }}
               emptyContent="ยังไม่มี Statement"
+              actionMenuItems={(item) => [
+                item.status === "pending"
+                  ? { key: "parse", label: "อ่าน PDF", icon: <Eye size={16} />, onPress: () => handleParse(item.id) }
+                  : null,
+                { key: "view", label: "ดูรายละเอียด", icon: <Eye size={16} />, onPress: () => { selectStatement(item.id); setActiveTab("recon"); } },
+                { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => { if (confirm("ลบ Statement นี้?")) handleDelete(item.id); } },
+              ].filter(Boolean)}
             />
           </div>
         </Tab>
@@ -462,6 +470,20 @@ export default function BankReconView({
                       ? "bg-warning-50"
                       : ""
                 }
+                actionMenuItems={(item) => {
+                  if (item.direction !== "credit") return [];
+                  const items = [];
+                  if (item.matchStatus === "unmatched" || item.matchStatus === "suggested") {
+                    items.push(
+                      { key: "match", label: "Match", icon: <Link2 size={16} />, onPress: () => openMatchModal(item) },
+                      { key: "exclude", label: "ยกเว้น", icon: <Ban size={16} />, onPress: () => handleExclude(item.id, "ยกเว้น — โอนภายใน/ค่าธรรมเนียม") },
+                    );
+                  }
+                  if (item.matchStatus === "matched") {
+                    items.push({ key: "unmatch", label: "ยกเลิก Match", icon: <X size={16} />, color: "danger", onPress: () => handleUnmatch(item.id) });
+                  }
+                  return items;
+                }}
               />
             </div>
           )}

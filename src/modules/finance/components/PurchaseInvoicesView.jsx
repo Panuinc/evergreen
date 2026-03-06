@@ -145,6 +145,9 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
           item.daysOverdue > 0 ? "bg-danger-50/50" : undefined
         }
         enableCardView
+        actionMenuItems={(item) => [
+          { key: "view", label: "ดูรายละเอียด", icon: <Eye size={16} />, onPress: () => openLines(item) },
+        ]}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} size="5xl" scrollBehavior="inside">

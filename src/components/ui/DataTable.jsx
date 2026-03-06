@@ -20,7 +20,7 @@ import {
   CardBody,
   CardFooter,
 } from "@heroui/react";
-import { Search, ChevronDown, LayoutGrid, TableProperties } from "lucide-react";
+import { Search, ChevronDown, LayoutGrid, TableProperties, EllipsisVertical } from "lucide-react";
 
 function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -45,6 +45,7 @@ export default function DataTable({
   emptyContent = "ไม่พบข้อมูล",
   enableCardView = false,
   getRowClassName,
+  actionMenuItems,
 }) {
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState(
@@ -93,7 +94,7 @@ export default function DataTable({
       Array.from(statusFilter).length !== statusOptions.length
     ) {
       filtered = filtered.filter((item) =>
-        Array.from(statusFilter).includes(item[statusField]),
+        Array.from(statusFilter).includes(String(item[statusField])),
       );
     }
 
@@ -470,9 +471,40 @@ export default function DataTable({
           <TableRow key={item[rowKey] ?? `row-${sortedItems.indexOf(item)}`} className={getRowClassName ? getRowClassName(item) : undefined}>
             {(columnKey) => (
               <TableCell>
-                {columnKey === "_no"
-                  ? (page - 1) * rowsPerPage + sortedItems.indexOf(item) + 1
-                  : renderCell(item, columnKey)}
+                {columnKey === "_no" ? (
+                  (page - 1) * rowsPerPage + sortedItems.indexOf(item) + 1
+                ) : columnKey === "actions" && actionMenuItems ? (
+                  <div className="flex items-center justify-center">
+                    <Dropdown>
+                      <DropdownTrigger>
+                        <Button variant="light" size="sm" isIconOnly>
+                          <EllipsisVertical />
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu aria-label="Actions" onAction={(key) => {
+                        const action = actionMenuItems(item).find((a) => a.key === key);
+                        action?.onPress?.();
+                      }}>
+                        {actionMenuItems(item).map((action) => (
+                          <DropdownItem
+                            key={action.key}
+                            color={action.color || "default"}
+                            startContent={action.icon}
+                            className={action.color === "danger" ? "text-danger" : ""}
+                          >
+                            {action.label}
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                ) : columnKey === "actions" ? (
+                  <div className="flex items-center justify-center gap-1">
+                    {renderCell(item, columnKey)}
+                  </div>
+                ) : (
+                  renderCell(item, columnKey)
+                )}
               </TableCell>
             )}
           </TableRow>

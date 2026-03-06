@@ -18,7 +18,7 @@ import {
   Divider,
   Switch,
 } from "@heroui/react";
-import { Plus, Edit, Trash2, GitBranch, Clock } from "lucide-react";
+import { Plus, Edit, Trash2, GitBranch, Clock, Power } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
 
@@ -276,6 +276,13 @@ export default function DevelopmentView({
         statusField="itDevRequestStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำขอพัฒนา"
+        actionMenuItems={(item) => [
+          { key: "progress", label: "อัปเดตความคืบหน้า", icon: <GitBranch size={16} />, onPress: () => openProgress(item) },
+          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+          isSuperAdmin
+            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
+            : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+        ].filter(Boolean)}
         topEndContent={
           <Button
             variant="bordered"

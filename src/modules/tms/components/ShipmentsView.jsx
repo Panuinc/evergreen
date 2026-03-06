@@ -19,7 +19,7 @@ import {
   Switch,
   Spinner,
 } from "@heroui/react";
-import { Plus, Edit, Trash2, ChevronDown, Download, ClipboardCheck, CalendarDays, Route, Sparkles, X, MapPin, ExternalLink } from "lucide-react";
+import { Plus, Edit, Trash2, ChevronDown, Download, ClipboardCheck, CalendarDays, Route, Sparkles, X, MapPin, ExternalLink, Power } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import DataTable from "@/components/ui/DataTable";
@@ -284,7 +284,7 @@ export default function ShipmentsView({
   );
 
   const availableVehicles = vehicles.filter((v) => v.tmsVehicleStatus === "available");
-  const activeEmployees = (employees || []).filter((e) => e.hrEmployeeStatus === "active");
+  const activeEmployees = (employees || []).filter((e) => e.isActive);
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -311,6 +311,12 @@ export default function ShipmentsView({
             </Button>
           </div>
         }
+        actionMenuItems={(item) => [
+          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+          isSuperAdmin
+            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
+            : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+        ].filter(Boolean)}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} size="2xl" scrollBehavior="inside">

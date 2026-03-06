@@ -10,7 +10,7 @@ import {
   Chip,
   Switch,
 } from "@heroui/react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Power } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
 
@@ -169,6 +169,14 @@ export default function ContactsView({
           "crmContactPhone",
         ]}
         emptyContent="ไม่พบผู้ติดต่อ"
+        actionMenuItems={(item) =>
+          [
+            { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+            isSuperAdmin
+              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
+              : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+          ].filter(Boolean)
+        }
         topEndContent={
           <Button
             variant="bordered"

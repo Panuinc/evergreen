@@ -4,9 +4,7 @@ import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 function buildDashboard(employees, divisions, departments, positions) {
   // KPI Stats
   const totalEmployees = employees.length;
-  const activeEmployees = employees.filter(
-    (e) => e.hrEmployeeStatus === "active",
-  ).length;
+  const activeEmployees = employees.filter((e) => e.isActive).length;
   const totalDivisions = divisions.length;
   const totalDepartments = departments.length;
   const totalPositions = positions.length;
@@ -49,10 +47,9 @@ function buildDashboard(employees, divisions, departments, positions) {
   }));
 
   // Chart: Employees by Status
-  const statusCounts = {};
+  const statusCounts = { active: 0, inactive: 0 };
   employees.forEach((e) => {
-    const status = e.hrEmployeeStatus || "unknown";
-    statusCounts[status] = (statusCounts[status] || 0) + 1;
+    statusCounts[e.isActive ? "active" : "inactive"]++;
   });
   const byStatus = Object.entries(statusCounts).map(([status, count]) => ({
     status,
@@ -97,7 +94,7 @@ export async function GET(request) {
       supabase
         .from("hrEmployee")
         .select(
-          "hrEmployeeId, hrEmployeeDivision, hrEmployeeDepartment, hrEmployeePosition, hrEmployeeStatus, hrEmployeeCreatedAt",
+          "hrEmployeeId, hrEmployeeDivision, hrEmployeeDepartment, hrEmployeePosition, isActive, hrEmployeeCreatedAt",
         )
         .eq("isActive", true),
       supabase

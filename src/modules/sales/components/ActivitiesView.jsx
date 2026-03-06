@@ -25,6 +25,7 @@ import {
   Calendar,
   Mail,
   ClipboardList,
+  Power,
 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
@@ -255,6 +256,15 @@ export default function ActivitiesView({
         searchPlaceholder="ค้นหากิจกรรม..."
         searchKeys={["crmActivitySubject", "crmActivityAssignedTo"]}
         emptyContent="ไม่พบกิจกรรม"
+        actionMenuItems={(item) =>
+          [
+            { key: "complete", label: item.crmActivityStatus === "completed" ? "ยกเลิกเสร็จสิ้น" : "เสร็จสิ้น", icon: <CheckCircle size={16} />, onPress: () => handleToggleComplete(item) },
+            { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+            isSuperAdmin
+              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
+              : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+          ].filter(Boolean)
+        }
         topEndContent={
           <Button
             variant="bordered"

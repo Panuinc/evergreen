@@ -147,6 +147,9 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
         searchPlaceholder="ค้นหาด้วยรหัสหรือชื่อสินค้า..."
         searchKeys={["number", "displayName", "projectName"]}
         emptyContent="ไม่พบรายการสินค้า"
+        actionMenuItems={(item) => [
+          { key: "print", label: "พิมพ์", icon: <Printer size={16} />, onPress: () => setPrintItem(item) },
+        ]}
       />
 
       <PrintRfidModal

@@ -126,10 +126,10 @@ export default function ProfileView({
                 size="md"
                 radius="md"
                 color={
-                  employee.hrEmployeeStatus === "active" ? "success" : "default"
+                  employee.isActive ? "success" : "default"
                 }
               >
-                {employee.hrEmployeeStatus}
+                {employee.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
               </Chip>
             </div>
           </div>

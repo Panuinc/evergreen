@@ -15,7 +15,7 @@ import {
   Checkbox,
   Spinner,
 } from "@heroui/react";
-import { Plus, Edit, Trash2, Shield } from "lucide-react";
+import { Plus, Edit, Trash2, Shield, Power } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
 
@@ -177,6 +177,17 @@ export default function RolesView({
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
         searchKeys={["rbacRoleName", "rbacRoleDescription"]}
         emptyContent="ไม่พบบทบาท"
+        actionMenuItems={(item) =>
+          [
+            { key: "permissions", label: "จัดการสิทธิ์", icon: <Shield size={16} />, onPress: () => openPermissions(item) },
+            { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+            isSuperAdmin
+              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
+              : !item.rbacRoleIsSuperadmin
+                ? { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => handleDelete(item) }
+                : null,
+          ].filter(Boolean)
+        }
         topEndContent={
           <Button
             variant="bordered"

@@ -258,6 +258,12 @@ export default function CollectionsView({
               return undefined;
             }}
             enableCardView
+            actionMenuItems={(item) => [
+              { key: "add", label: "เพิ่มการติดตาม", icon: <Plus size={16} />, onPress: () => onOpenAdd(item) },
+              item.followUpCount
+                ? { key: "history", label: "ดูประวัติ", icon: <History size={16} />, onPress: () => onOpenHistory(item) }
+                : null,
+            ].filter(Boolean)}
           />
         </Tab>
 

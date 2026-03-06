@@ -129,6 +129,9 @@ export default function BcSalesOrdersView({
         searchPlaceholder="ค้นหาด้วยเลขที่, ลูกค้า..."
         searchKeys={["bcSalesOrderNumber", "bcSalesOrderCustomerName", "bcSalesOrderStatus"]}
         emptyContent="ไม่พบใบสั่งขาย"
+        actionMenuItems={(item) => [
+          { key: "view", label: "ดูรายละเอียด", icon: <Eye size={16} />, onPress: () => openLines(item) },
+        ]}
       />
 
       <Modal

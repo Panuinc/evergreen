@@ -1438,6 +1438,12 @@ export default function FinanceDashboardView({
               searchPlaceholder="ค้นหาลูกค้า..."
               defaultSortDescriptor={{ column: "balanceDue", direction: "descending" }}
               emptyContent="ไม่มีข้อมูล"
+              actionMenuItems={(item) => {
+                const count = (arInvoiceMap[item.customerNumber] || []).length;
+                return count > 0
+                  ? [{ key: "view", label: `ดูรายละเอียด (${count} ใบ)`, icon: <Eye size={16} />, onPress: () => openAgingDetail(item, "ar") }]
+                  : [];
+              }}
             />
           </>
         ) : (
@@ -1473,6 +1479,12 @@ export default function FinanceDashboardView({
               searchKeys={["name", "vendorNumber"]}
               searchPlaceholder="ค้นหาเจ้าหนี้..."
               emptyContent="ไม่มีข้อมูล"
+              actionMenuItems={(item) => {
+                const count = (apInvoiceMap[item.vendorNumber] || []).length;
+                return count > 0
+                  ? [{ key: "view", label: `ดูรายละเอียด (${count} ใบ)`, icon: <Eye size={16} />, onPress: () => openAgingDetail(item, "ap") }]
+                  : [];
+              }}
             />
           </>
         ) : (
