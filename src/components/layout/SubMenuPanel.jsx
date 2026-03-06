@@ -40,7 +40,7 @@ export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }
               onClick={onSubMenuClick}
               className={`flex flex-row items-center justify-start w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
                 isSubActive
-                  ? "bg-default font-medium"
+                  ? "border border-border font-medium"
                   : "hover:bg-default"
               }`}
             >

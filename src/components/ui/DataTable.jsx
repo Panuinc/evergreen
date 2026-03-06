@@ -436,6 +436,7 @@ export default function DataTable({
     <div className="overflow-x-auto w-full">
     <Table
       isHeaderSticky
+      removeWrapper
       aria-label="Data table"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
@@ -443,7 +444,6 @@ export default function DataTable({
       topContent={topContent}
       topContentPlacement="outside"
       onSortChange={setSortDescriptor}
-      shadow="none"
       classNames={{
         th: "border-b border-r border-border last:border-r-0",
         td: "border-b border-r border-border last:border-r-0",

@@ -39,7 +39,7 @@ export default function Sidebar({
               onClick={() => onMenuSelect(menu.id)}
               className={`flex flex-row items-center w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
                 isCollapsed ? "justify-center" : "justify-start"
-              } ${isActive ? "bg-default" : "hover:bg-default"}`}
+              } ${isActive ? "border border-border" : "hover:bg-default"}`}
             >
               <div className="flex items-center justify-center w-fit h-full gap-2">
                 <Icon />
