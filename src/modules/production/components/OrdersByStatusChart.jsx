@@ -6,7 +6,7 @@ const COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6"];
 
 export default function OrdersByStatusChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   return (

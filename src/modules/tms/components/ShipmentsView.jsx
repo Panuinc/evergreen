@@ -349,7 +349,7 @@ export default function ShipmentsView({
                             <span className="text-sm font-medium">
                               {dateLabel} · {firstItem?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"} · {firstItem?.tmsDeliveryPlanItemCustomerName || "-"}{pLabel}
                             </span>
-                            <span className="text-xs text-default-500">
+                            <span className="text-sm text-muted-foreground">
                               {plan.tmsDeliveryPlanItem?.length || 0} รายการ
                               {plan.tmsDeliveryPlanAddress ? ` · ${plan.tmsDeliveryPlanAddress}` : ""}
                             </span>
@@ -385,9 +385,9 @@ export default function ShipmentsView({
 
                   {/* Route Optimize button + result (only when 2+ plans) */}
                   {selectedPlanIds.length >= 2 && (
-                    <div className="flex flex-col gap-2 border border-foreground/15 rounded-xl p-3 bg-default-50">
+                    <div className="flex flex-col gap-2 border border-border rounded-xl p-3 bg-default-50">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs text-default-500">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
+                        <p className="text-sm text-muted-foreground">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
                         <Button
                           variant="bordered"
                           size="sm"
@@ -403,31 +403,31 @@ export default function ShipmentsView({
 
                       {/* Compact route result */}
                       {routeLoading && !routeResult && (
-                        <div className="flex items-center gap-2 text-xs text-default-400 py-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                           <Spinner size="sm" /> กำลังคำนวณเส้นทาง...
                         </div>
                       )}
                       {routeResult && (
                         <div className="flex flex-col gap-2">
                           {/* Stop order */}
-                          <div className="flex items-center gap-1 flex-wrap text-xs">
-                            <span className="text-default-500">โรงงาน</span>
+                          <div className="flex items-center gap-1 flex-wrap text-sm">
+                            <span className="text-muted-foreground">โรงงาน</span>
                             {routeResult.optimizedStops?.map((stop, i) => (
                               <span key={i} className="flex items-center gap-1">
-                                <span className="text-default-300">→</span>
+                                <span className="text-muted-foreground">→</span>
                                 <span className="font-medium">{stop.name}</span>
                                 {stop.priority !== "normal" && (
                                   <Chip size="sm" variant="dot" color={stop.priority === "urgent" ? "danger" : "warning"} className="h-4" />
                                 )}
                               </span>
                             ))}
-                            <span className="text-default-300">→</span>
-                            <span className="text-default-500">โรงงาน</span>
+                            <span className="text-muted-foreground">→</span>
+                            <span className="text-muted-foreground">โรงงาน</span>
                           </div>
                           {/* Stats row */}
-                          <div className="flex items-center gap-4 text-xs flex-wrap">
-                            <span><span className="text-default-500">รวม:</span> <span className="font-semibold">{routeResult.totalDistanceKm} กม.</span></span>
-                            <span><span className="text-default-500">เวลา:</span> <span className="font-semibold">{Math.floor(routeResult.totalDurationMin / 60)} ชม. {routeResult.totalDurationMin % 60} น.</span></span>
+                          <div className="flex items-center gap-4 text-sm flex-wrap">
+                            <span><span className="text-muted-foreground">รวม:</span> <span className="font-semibold">{routeResult.totalDistanceKm} กม.</span></span>
+                            <span><span className="text-muted-foreground">เวลา:</span> <span className="font-semibold">{Math.floor(routeResult.totalDurationMin / 60)} ชม. {routeResult.totalDurationMin % 60} น.</span></span>
                             {routeResult.savedKm > 0 && (
                               <span className="text-success-600 font-semibold">ประหยัด {routeResult.savedKm.toFixed(1)} กม.</span>
                             )}
@@ -438,7 +438,7 @@ export default function ShipmentsView({
                               href={routeResult.googleMapsUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
                             >
                               <MapPin size={14} />
                               เปิด Google Maps
@@ -449,7 +449,7 @@ export default function ShipmentsView({
                       )}
                       {/* AI analysis (collapsible) */}
                       {routeAiAnalysis && (
-                        <details className="text-xs">
+                        <details className="text-sm">
                           <summary className="cursor-pointer text-secondary-600 font-medium flex items-center gap-1">
                             <Sparkles size={12} /> ดูวิเคราะห์ AI
                           </summary>
@@ -467,8 +467,8 @@ export default function ShipmentsView({
                 {shipmentStops.length > 1 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
                     <p className="text-sm font-medium">จุดส่งของ ({shipmentStops.length} จุด)</p>
-                    <div className="border border-foreground/15 rounded-xl overflow-hidden overflow-x-auto">
-                      <table className="w-full text-xs">
+                    <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
+                      <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-default-100">
                             <th className="text-center px-2 py-2 font-semibold w-10">ลำดับ</th>
@@ -485,20 +485,20 @@ export default function ShipmentsView({
                               const letter = String.fromCharCode(65 + i);
                               const pColor = stop.priority === "urgent" ? "danger" : stop.priority === "high" ? "warning" : "default";
                               return (
-                                <tr key={stop.planId || i} className="border-t border-foreground/15">
+                                <tr key={stop.planId || i} className="border-t border-border">
                                   <td className="text-center px-2 py-2">
-                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-bold text-xs">{letter}</span>
+                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-semibold text-sm">{letter}</span>
                                   </td>
                                   <td className="px-3 py-2 font-medium">{stop.customerName || "-"}</td>
-                                  <td className="px-3 py-2 text-default-600 max-w-50 truncate">{stop.address || "-"}</td>
-                                  <td className="px-3 py-2 text-default-500">{stop.soRef || "-"}</td>
+                                  <td className="px-3 py-2 text-foreground max-w-50 truncate">{stop.address || "-"}</td>
+                                  <td className="px-3 py-2 text-muted-foreground">{stop.soRef || "-"}</td>
                                   <td className="text-center px-2 py-2">
                                     {stop.priority !== "normal" ? (
                                       <Chip size="sm" variant="flat" color={pColor}>
                                         {stop.priority === "urgent" ? "ด่วนมาก" : "ด่วน"}
                                       </Chip>
                                     ) : (
-                                      <span className="text-default-400">ปกติ</span>
+                                      <span className="text-muted-foreground">ปกติ</span>
                                     )}
                                   </td>
                                 </tr>
@@ -513,7 +513,7 @@ export default function ShipmentsView({
                         href={routeResult.googleMapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
                       >
                         <MapPin size={14} />
                         เปิด Google Maps — เส้นทางจุด A→B→C
@@ -635,8 +635,8 @@ export default function ShipmentsView({
                     </Button>
                   </div>
                   {(formData.tmsShipmentExtras || []).length > 0 && (
-                    <div className="border border-foreground/15 rounded-xl overflow-hidden overflow-x-auto">
-                      <table className="w-full text-xs">
+                    <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
+                      <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-default-100">
                             <th className="text-left px-3 py-2 font-semibold w-36">คน</th>
@@ -657,7 +657,7 @@ export default function ShipmentsView({
                                 .filter(Boolean),
                             ];
                             return (
-                              <tr key={idx} className="border-t border-foreground/15">
+                              <tr key={idx} className="border-t border-border">
                                 <td className="px-1 py-1">
                                   <Select
                                     size="sm" variant="bordered" radius="md" aria-label="คน"
@@ -686,7 +686,7 @@ export default function ShipmentsView({
                                       onChange={(e) => updateExtra(idx, "hours", e.target.value)}
                                       classNames={{ input: "text-center" }}
                                     />
-                                  ) : <span className="text-default-300 text-center block">-</span>}
+                                  ) : <span className="text-muted-foreground text-center block">-</span>}
                                 </td>
                                 <td className="px-1 py-1">
                                   {ex.type === "ot" ? (
@@ -696,7 +696,7 @@ export default function ShipmentsView({
                                       onChange={(e) => updateExtra(idx, "rate", e.target.value)}
                                       classNames={{ input: "text-center" }}
                                     />
-                                  ) : <span className="text-default-300 text-center block">-</span>}
+                                  ) : <span className="text-muted-foreground text-center block">-</span>}
                                 </td>
                                 <td className="px-1 py-1">
                                   {ex.type === "other" ? (
@@ -706,7 +706,7 @@ export default function ShipmentsView({
                                       value={ex.label || ""}
                                       onChange={(e) => updateExtra(idx, "label", e.target.value)}
                                     />
-                                  ) : <span className="text-default-400 text-xs px-2">{ex.type === "ot" ? "ค่าแรง/8 × เรท × ชม." : "ค่าเที่ยว"}</span>}
+                                  ) : <span className="text-muted-foreground text-sm px-2">{ex.type === "ot" ? "ค่าแรง/8 × เรท × ชม." : "ค่าเที่ยว"}</span>}
                                 </td>
                                 <td className="px-1 py-1">
                                   {ex.type === "ot" ? (
@@ -732,7 +732,7 @@ export default function ShipmentsView({
                           })}
                         </tbody>
                         <tfoot>
-                          <tr className="border-t border-foreground/15 bg-default-50">
+                          <tr className="border-t border-border bg-default-50">
                             <td colSpan={5} className="px-3 py-2 font-semibold text-right">รวมรายการพิเศษ</td>
                             <td className="px-3 py-2 font-semibold text-right">
                               {(formData.tmsShipmentExtras || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -802,8 +802,8 @@ export default function ShipmentsView({
                 {shipmentItems.length > 0 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
                     <p className="text-sm font-medium">รายการสินค้า</p>
-                    <div className="border border-foreground/15 rounded-xl overflow-hidden">
-                      <table className="w-full text-xs">
+                    <div className="border border-border rounded-xl overflow-hidden">
+                      <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-default-100">
                             <th className="text-left px-3 py-2 font-semibold">รายการ</th>
@@ -817,10 +817,10 @@ export default function ShipmentsView({
                           {shipmentItems.map((item) => {
                             const pct = item.plannedQty > 0 ? Math.round((item.actualQty / item.plannedQty) * 100) : 0;
                             return (
-                              <tr key={item.id} className="border-t border-foreground/15">
+                              <tr key={item.id} className="border-t border-border">
                                 <td className="px-3 py-2">
                                   <p className="font-medium">{item.description}</p>
-                                  <p className="text-default-400">{item.soNo}</p>
+                                  <p className="text-muted-foreground">{item.soNo}</p>
                                 </td>
                                 <td className="text-center px-3 py-2">{item.uom}</td>
                                 <td className="text-center px-3 py-2 font-medium">{item.plannedQty}</td>
@@ -851,7 +851,7 @@ export default function ShipmentsView({
                           })}
                         </tbody>
                         <tfoot>
-                          <tr className="border-t border-foreground/15 bg-default-50">
+                          <tr className="border-t border-border bg-default-50">
                             <td className="px-3 py-2 font-semibold" colSpan={2}>รวม</td>
                             <td className="text-center px-3 py-2 font-semibold">{shipmentItems.reduce((s, i) => s + i.plannedQty, 0)}</td>
                             <td className="text-center px-3 py-2 font-semibold">{shipmentItems.reduce((s, i) => s + i.actualQty, 0)}</td>

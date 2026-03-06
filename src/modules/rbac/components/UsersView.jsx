@@ -104,13 +104,13 @@ export default function UsersView({
                   </Chip>
                 ))
               ) : (
-                <span className="text-default-400">ไม่มีบทบาท</span>
+                <span className="text-muted-foreground">ไม่มีบทบาท</span>
               )}
             </div>
           );
         case "rbacUserProfileCreatedAt":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {new Date(user.rbacUserProfileCreatedAt).toLocaleDateString()}
             </span>
           );
@@ -216,7 +216,7 @@ export default function UsersView({
                     )}
                   </div>
                   {role.rbacRoleDescription && (
-                    <p className="text-default-400">{role.rbacRoleDescription}</p>
+                    <p className="text-muted-foreground">{role.rbacRoleDescription}</p>
                   )}
                 </Checkbox>
               ))}

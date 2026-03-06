@@ -55,26 +55,26 @@ export default function WarehouseInventoryView({ items, loading }) {
     <div className="flex flex-col w-full h-full gap-4">
       {/* Total Summary */}
       <div className="grid grid-cols-3 gap-3">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-xs text-default-500">รายการสินค้าทั้งหมด</p>
-            <p className="text-2xl font-bold">
+            <p className="text-sm text-muted-foreground">รายการสินค้าทั้งหมด</p>
+            <p className="text-2xl font-semibold">
               {totalSummary.totalItems.toLocaleString("th-TH")}
             </p>
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-xs text-default-500">จำนวนคงเหลือรวม</p>
-            <p className="text-2xl font-bold text-success">
+            <p className="text-sm text-muted-foreground">จำนวนคงเหลือรวม</p>
+            <p className="text-2xl font-semibold text-success">
               {totalSummary.totalQty.toLocaleString("th-TH")}
             </p>
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-xs text-default-500">มูลค่าคลังสินค้า (ต้นทุน)</p>
-            <p className="text-2xl font-bold text-primary">
+            <p className="text-sm text-muted-foreground">มูลค่าคลังสินค้า (ต้นทุน)</p>
+            <p className="text-2xl font-semibold text-primary">
               {totalSummary.totalValue.toLocaleString("th-TH", {
                 minimumFractionDigits: 2,
               })}
@@ -87,14 +87,14 @@ export default function WarehouseInventoryView({ items, loading }) {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {sortedGroups.map((group) => (
           <Link key={group} href={`/warehouse/inventory/${encodeURIComponent(group)}`}>
-            <Card shadow="none" className="border border-foreground/15 hover:bg-default-100 transition-colors cursor-pointer h-full">
+            <Card shadow="none" className="border border-border hover:bg-default-100 transition-colors cursor-pointer h-full">
               <CardBody className="gap-2">
                 <div className="flex items-center gap-2">
-                  <Package size={16} className="text-default-500" />
+                  <Package size={16} className="text-muted-foreground" />
                   <p className="font-semibold">{group}</p>
                 </div>
                 <div className="flex flex-col gap-0.5 text-sm">
-                  <p className="text-default-500">
+                  <p className="text-muted-foreground">
                     {groupedData[group].count.toLocaleString("th-TH")} รายการ
                   </p>
                   <p className="text-success">

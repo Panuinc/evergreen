@@ -55,19 +55,19 @@ export default function TrialBalanceView({ data, loading }) {
       }
       case "totalDebit": {
         const v = parseNum(item.totalDebit);
-        return <span className={v > 0 ? "text-primary" : "text-default-400"}>{fmt(v)}</span>;
+        return <span className={v > 0 ? "text-primary" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       case "totalCredit": {
         const v = parseNum(item.totalCredit);
-        return <span className={v > 0 ? "text-danger" : "text-default-400"}>{fmt(v)}</span>;
+        return <span className={v > 0 ? "text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       case "balanceAtDateDebit": {
         const v = parseNum(item.balanceAtDateDebit);
-        return <span className={v > 0 ? "font-medium text-primary" : "text-default-400"}>{fmt(v)}</span>;
+        return <span className={v > 0 ? "font-medium text-primary" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       case "balanceAtDateCredit": {
         const v = parseNum(item.balanceAtDateCredit);
-        return <span className={v > 0 ? "font-medium text-danger" : "text-default-400"}>{fmt(v)}</span>;
+        return <span className={v > 0 ? "font-medium text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       default:
         return item[key] || "-";

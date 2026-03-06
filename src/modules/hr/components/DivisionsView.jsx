@@ -74,13 +74,13 @@ export default function DivisionsView({
           return <span className="font-medium">{div.hrDivisionName}</span>;
         case "hrDivisionDescription":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {div.hrDivisionDescription || "-"}
             </span>
           );
         case "hrDivisionCreatedAt":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {new Date(div.hrDivisionCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );

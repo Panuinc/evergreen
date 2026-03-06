@@ -205,7 +205,7 @@ export default function DeliveryPlanModal({
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <p className="text-sm font-semibold">แผนส่งของ</p>
-          <p className="text-xs text-default-500 font-normal">
+          <p className="text-sm text-muted-foreground font-normal">
             {formatDate(dateStr)}
           </p>
         </ModalHeader>
@@ -214,7 +214,7 @@ export default function DeliveryPlanModal({
           {/* Plans on this date */}
           {plansOnDate.length > 0 && !showForm && (
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-semibold text-default-500">
+              <p className="text-sm font-semibold text-muted-foreground">
                 แผนที่มีอยู่ ({plansOnDate.length})
               </p>
               {plansOnDate.map((plan) => (
@@ -228,7 +228,7 @@ export default function DeliveryPlanModal({
                       : plan.tmsDeliveryPlanPriority === "low"
                       ? "border-l-default-300"
                       : "border-l-primary-400"
-                  } border-foreground/15`}
+                  } border-border`}
                 >
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -246,14 +246,14 @@ export default function DeliveryPlanModal({
                       >
                         {PRIORITY_LABELS[plan.tmsDeliveryPlanPriority] || "ปกติ"}
                       </Chip>
-                      <span className="text-xs text-default-500">
+                      <span className="text-sm text-muted-foreground">
                         {plan.tmsDeliveryPlanItem?.length || 0} รายการ
                       </span>
                     </div>
                     {plan.tmsDeliveryPlanItem?.slice(0, 3).map((item) => (
                       <p
                         key={item.tmsDeliveryPlanItemId}
-                        className="text-xs text-default-600 truncate"
+                        className="text-sm text-foreground truncate"
                       >
                         {item.tmsDeliveryPlanItemSalesOrderNo} ·{" "}
                         {item.tmsDeliveryPlanItemDescription} ×{" "}
@@ -262,17 +262,17 @@ export default function DeliveryPlanModal({
                       </p>
                     ))}
                     {plan.tmsDeliveryPlanItem?.length > 3 && (
-                      <p className="text-xs text-default-400">
+                      <p className="text-sm text-muted-foreground">
                         +{plan.tmsDeliveryPlanItem.length - 3} รายการอื่นๆ
                       </p>
                     )}
                     {plan.tmsDeliveryPlanAddress && (
-                      <p className="text-xs text-default-400 truncate">
+                      <p className="text-sm text-muted-foreground truncate">
                         📍 {plan.tmsDeliveryPlanAddress}
                       </p>
                     )}
                     {plan.tmsDeliveryPlanNotes && (
-                      <p className="text-xs text-default-400 italic">
+                      <p className="text-sm text-muted-foreground italic">
                         {plan.tmsDeliveryPlanNotes}
                       </p>
                     )}
@@ -340,28 +340,28 @@ export default function DeliveryPlanModal({
 
                   {editingPlan.tmsDeliveryPlanItem?.length > 0 && (
                     <div className="flex flex-col gap-1.5">
-                      <p className="text-xs font-semibold text-default-500">
+                      <p className="text-sm font-semibold text-muted-foreground">
                         รายการสินค้า ({editingPlan.tmsDeliveryPlanItem.length})
                       </p>
                       {editingPlan.tmsDeliveryPlanItem.map((item) => (
                         <div
                           key={item.tmsDeliveryPlanItemId}
-                          className="flex items-center justify-between p-2.5 rounded-xl border border-foreground/15"
+                          className="flex items-center justify-between p-2.5 rounded-xl border border-border"
                         >
                           <div className="flex flex-col gap-0.5 min-w-0">
-                            <p className="text-xs font-semibold">
+                            <p className="text-sm font-semibold">
                               {item.tmsDeliveryPlanItemSalesOrderNo}
                               {item.tmsDeliveryPlanItemCustomerName && (
-                                <span className="font-normal text-default-500">
+                                <span className="font-normal text-muted-foreground">
                                   {" · "}{item.tmsDeliveryPlanItemCustomerName}
                                 </span>
                               )}
                             </p>
-                            <p className="text-xs text-default-600 truncate">
+                            <p className="text-sm text-foreground truncate">
                               {item.tmsDeliveryPlanItemDescription}
                             </p>
                           </div>
-                          <p className="text-xs font-semibold text-primary whitespace-nowrap pl-2">
+                          <p className="text-sm font-semibold text-primary whitespace-nowrap pl-2">
                             {item.tmsDeliveryPlanItemPlannedQty} {item.tmsDeliveryPlanItemUom}
                           </p>
                         </div>
@@ -370,13 +370,13 @@ export default function DeliveryPlanModal({
                   )}
 
                   {editingPlan.tmsDeliveryPlanNotes && (
-                    <p className="text-xs text-default-500 italic">
+                    <p className="text-sm text-muted-foreground italic">
                       {editingPlan.tmsDeliveryPlanNotes}
                     </p>
                   )}
 
                   <div className="flex flex-col gap-1.5">
-                    <p className="text-xs font-semibold">สถานที่ส่ง</p>
+                    <p className="text-sm font-semibold">สถานที่ส่ง</p>
                     <DeliveryPlanMapPicker
                       lat={lat}
                       lng={lng}
@@ -390,7 +390,7 @@ export default function DeliveryPlanModal({
                   {/* Create mode: full form */}
                   {/* Status selector */}
                   <div className="flex flex-col gap-1.5">
-                    <p className="text-xs font-semibold text-default-500">สถานะ</p>
+                    <p className="text-sm font-semibold text-muted-foreground">สถานะ</p>
                     <div className="flex gap-2 flex-wrap">
                       {Object.entries(STATUS_LABELS).map(([key, label]) => (
                         <Chip
@@ -408,7 +408,7 @@ export default function DeliveryPlanModal({
 
                   {/* Priority selector */}
                   <div className="flex flex-col gap-1.5">
-                    <p className="text-xs font-semibold text-default-500">ความสำคัญ</p>
+                    <p className="text-sm font-semibold text-muted-foreground">ความสำคัญ</p>
                     <div className="flex gap-2 flex-wrap">
                       {Object.entries(PRIORITY_LABELS).map(([key, label]) => (
                         <Chip
@@ -426,7 +426,7 @@ export default function DeliveryPlanModal({
 
                   {/* SO Search */}
                   <div className="flex flex-col gap-2">
-                    <p className="text-xs font-semibold">เลือก Sales Order</p>
+                    <p className="text-sm font-semibold">เลือก Sales Order</p>
                     <Input
                       placeholder="ค้นหาเลขที่ SO หรือชื่อลูกค้า..."
                       value={soSearch}
@@ -436,17 +436,17 @@ export default function DeliveryPlanModal({
                     />
                     {soLoading && <Spinner size="sm" />}
                     {!soLoading && salesOrders.length > 0 && !selectedSO && (
-                      <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-foreground/15 rounded-xl p-1">
+                      <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-border rounded-xl p-1">
                         {salesOrders.map((so) => (
                           <button
                             key={so.bcSalesOrderNumber}
                             className="flex flex-col items-start px-3 py-2 rounded-lg hover:bg-default-100 text-left"
                             onClick={() => onSelectSO(so)}
                           >
-                            <span className="text-xs font-semibold">
+                            <span className="text-sm font-semibold">
                               {so.bcSalesOrderNumber}
                             </span>
-                            <span className="text-xs text-default-500">
+                            <span className="text-sm text-muted-foreground">
                               {so.bcSalesOrderCustomerName}
                             </span>
                           </button>
@@ -456,10 +456,10 @@ export default function DeliveryPlanModal({
                     {selectedSO && (
                       <div className="flex items-center justify-between p-3 rounded-xl bg-primary-50 border border-primary-200">
                         <div>
-                          <p className="text-xs font-semibold text-primary">
+                          <p className="text-sm font-semibold text-primary">
                             {selectedSO.bcSalesOrderNumber}
                           </p>
-                          <p className="text-xs text-default-600">
+                          <p className="text-sm text-foreground">
                             {selectedSO.bcSalesOrderCustomerName}
                           </p>
                         </div>
@@ -479,10 +479,10 @@ export default function DeliveryPlanModal({
                   {/* SO Lines */}
                   {selectedSO && (
                     <div className="flex flex-col gap-2">
-                      <p className="text-xs font-semibold">เลือกรายการสินค้า</p>
+                      <p className="text-sm font-semibold">เลือกรายการสินค้า</p>
                       {soLinesLoading && <Spinner size="sm" />}
                       {!soLinesLoading && soLines.length === 0 && (
-                        <p className="text-xs text-default-400">
+                        <p className="text-sm text-muted-foreground">
                           ไม่มีรายการที่ค้างส่ง
                         </p>
                       )}
@@ -493,7 +493,7 @@ export default function DeliveryPlanModal({
                             className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                               checkedLines[line.bcSalesOrderLineNo]
                                 ? "border-primary-300 bg-primary-50"
-                                : "border-foreground/15 hover:border-foreground/15"
+                                : "border-border hover:border-border"
                             }`}
                             onClick={() => toggleLine(line.bcSalesOrderLineNo)}
                           >
@@ -504,10 +504,10 @@ export default function DeliveryPlanModal({
                               className="w-4 h-4"
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold truncate">
+                              <p className="text-sm font-semibold truncate">
                                 {line.bcSalesOrderLineDescription}
                               </p>
-                              <p className="text-xs text-default-500">
+                              <p className="text-sm text-muted-foreground">
                                 สั่ง {line.bcSalesOrderLineQuantity} · ส่งแล้ว{" "}
                                 {line.bcSalesOrderLineQuantityShipped} · คงเหลือ{" "}
                                 <span className="text-warning-600 font-semibold">
@@ -540,7 +540,7 @@ export default function DeliveryPlanModal({
 
                   {/* Location / Map */}
                   <div className="flex flex-col gap-1.5">
-                    <p className="text-xs font-semibold">สถานที่ส่ง</p>
+                    <p className="text-sm font-semibold">สถานที่ส่ง</p>
                     <DeliveryPlanMapPicker
                       lat={lat}
                       lng={lng}

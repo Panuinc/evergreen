@@ -111,7 +111,7 @@ function SystemStatusTab({ status, loading, refetch }) {
               <Card
                 key={service.key}
                 shadow="none"
-                className="border border-foreground/15"
+                className="border border-border hover:border-primary transition-colors duration-200"
               >
                 <CardBody className="gap-4">
                   <div className="flex items-center justify-between">
@@ -119,7 +119,7 @@ function SystemStatusTab({ status, loading, refetch }) {
                       <Icon size={24} />
                       <div>
                         <p className="font-semibold text-lg">{service.name}</p>
-                        <p className="text-default-400 text-sm">
+                        <p className="text-muted-foreground text-sm">
                           {service.description}
                         </p>
                       </div>
@@ -140,21 +140,21 @@ function SystemStatusTab({ status, loading, refetch }) {
 
                   <div className="flex flex-col gap-1 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-default-400">เวลาตอบสนอง</span>
+                      <span className="text-muted-foreground">เวลาตอบสนอง</span>
                       <span>
                         {data?.latency != null ? `${data.latency} ms` : "-"}
                       </span>
                     </div>
                     {data?.detail && (
                       <div className="flex justify-between">
-                        <span className="text-default-400">บัญชี</span>
+                        <span className="text-muted-foreground">บัญชี</span>
                         <span className="font-medium">{data.detail}</span>
                       </div>
                     )}
                     {data?.error && (
                       <div className="flex flex-col gap-1 mt-2">
-                        <span className="text-default-400">ข้อผิดพลาด</span>
-                        <span className="text-danger text-xs break-all">
+                        <span className="text-muted-foreground">ข้อผิดพลาด</span>
+                        <span className="text-danger text-sm break-all">
                           {data.error}
                         </span>
                       </div>
@@ -231,14 +231,14 @@ function Cp30Settings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
           <p className="font-semibold text-lg">Chainway CP30 (RFID)</p>
         </CardHeader>
         <CardBody className="gap-3">
           <div className="flex gap-2 items-center">
-            <p className="text-sm text-default-500">
+            <p className="text-sm text-muted-foreground">
               Network — 192.168.1.110:9100
             </p>
             {connected === true && (
@@ -265,7 +265,7 @@ function Cp30Settings() {
         </CardBody>
       </Card>
 
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">ตั้งค่าการพิมพ์</p>
         </CardHeader>
@@ -372,7 +372,7 @@ function Cp30Settings() {
         </CardBody>
       </Card>
 
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">เนื้อหา Label</p>
         </CardHeader>
@@ -478,7 +478,7 @@ function TscTeSettings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
           <p className="font-semibold text-lg">TSC TE</p>
@@ -530,7 +530,7 @@ function TscTeSettings() {
         </CardBody>
       </Card>
 
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">ตั้งค่าการพิมพ์</p>
         </CardHeader>

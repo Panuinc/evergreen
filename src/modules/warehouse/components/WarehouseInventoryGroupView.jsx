@@ -54,7 +54,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
             {item.projectName}
           </Chip>
         ) : (
-          <span className="text-default-300">-</span>
+          <span className="text-muted-foreground">-</span>
         );
       case "inventory": {
         const inv = Number(item.inventory);
@@ -108,26 +108,26 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="grid grid-cols-3 gap-3">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-xs text-default-500">รายการสินค้า</p>
-            <p className="text-2xl font-bold">
+            <p className="text-sm text-muted-foreground">รายการสินค้า</p>
+            <p className="text-2xl font-semibold">
               {summary.totalItems.toLocaleString("th-TH")}
             </p>
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-xs text-default-500">จำนวนคงเหลือ</p>
-            <p className="text-2xl font-bold text-success">
+            <p className="text-sm text-muted-foreground">จำนวนคงเหลือ</p>
+            <p className="text-2xl font-semibold text-success">
               {summary.totalQty.toLocaleString("th-TH")}
             </p>
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-xs text-default-500">มูลค่า (ต้นทุน)</p>
-            <p className="text-2xl font-bold text-primary">
+            <p className="text-sm text-muted-foreground">มูลค่า (ต้นทุน)</p>
+            <p className="text-2xl font-semibold text-primary">
               {summary.totalValue.toLocaleString("th-TH", {
                 minimumFractionDigits: 2,
               })}

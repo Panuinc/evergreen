@@ -22,7 +22,7 @@ export default function PermissionsView({
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between w-full">
         <h1 className="text-lg font-semibold">ตารางสิทธิ์</h1>
-        <p className="text-default-400">
+        <p className="text-muted-foreground">
           สลับเพื่อสร้าง/ลบสิทธิ์ทรัพยากร-การดำเนินการ
         </p>
       </div>
@@ -31,13 +31,13 @@ export default function PermissionsView({
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="text-left p-2 border-b border-foreground/15 font-semibold sticky left-0 bg-background">
+              <th className="text-left p-2 border-b border-border font-semibold sticky left-0 bg-background">
                 ทรัพยากร
               </th>
               {actions.map((action) => (
                 <th
                   key={action.rbacActionId}
-                  className="p-2 border-b border-foreground/15 font-semibold text-center capitalize"
+                  className="p-2 border-b border-border font-semibold text-center capitalize"
                 >
                   {action.rbacActionName}
                 </th>
@@ -47,10 +47,10 @@ export default function PermissionsView({
           <tbody>
             {resources.map((resource) => (
               <tr key={resource.rbacResourceId} className="hover:bg-default/50">
-                <td className="p-2 border-b border-foreground/15 font-medium capitalize sticky left-0 bg-background">
+                <td className="p-2 border-b border-border font-medium capitalize sticky left-0 bg-background">
                   {resource.rbacResourceName}
                   {resource.rbacResourceDescription && (
-                    <span className="text-default-400">
+                    <span className="text-muted-foreground">
                       ({resource.rbacResourceDescription})
                     </span>
                   )}
@@ -63,7 +63,7 @@ export default function PermissionsView({
                   return (
                     <td
                       key={action.rbacActionId}
-                      className="p-2 border-b border-foreground/15 text-center"
+                      className="p-2 border-b border-border text-center"
                     >
                       {isToggling ? (
                         <Spinner />

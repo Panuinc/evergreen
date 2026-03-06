@@ -51,11 +51,11 @@ function formatCompact(value) {
 }
 
 function GrowthBadge({ value }) {
-  if (value === null || value === undefined) return <span className="text-xs text-default-400">—</span>;
+  if (value === null || value === undefined) return <span className="text-sm text-muted-foreground">—</span>;
   const isPositive = value >= 0;
   const Icon = isPositive ? TrendingUp : TrendingDown;
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-medium ${isPositive ? "text-success" : "text-danger"}`}>
+    <span className={`inline-flex items-center gap-1 text-sm font-medium ${isPositive ? "text-success" : "text-danger"}`}>
       <Icon size={12} />
       {isPositive ? "+" : ""}{value.toFixed(1)}%
     </span>
@@ -64,18 +64,18 @@ function GrowthBadge({ value }) {
 
 function KpiCard({ title, value, sub, icon: Icon, color, growth }) {
   return (
-    <Card shadow="none" className="border border-foreground/15">
+    <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="p-5 gap-1">
         <div className="flex items-center justify-between">
-          <p className="text-xs text-default-500 uppercase tracking-wide">{title}</p>
+          <p className="text-sm text-muted-foreground uppercase tracking-wide">{title}</p>
           <div className={`p-2 rounded-lg bg-default-100 ${color}`}>
             <Icon size={16} />
           </div>
         </div>
-        <p className="text-2xl font-bold mt-1">{value}</p>
+        <p className="text-2xl font-semibold mt-1">{value}</p>
         <div className="flex items-center gap-2 mt-1">
           {growth !== undefined && <GrowthBadge value={growth} />}
-          <p className="text-xs text-default-400">{sub}</p>
+          <p className="text-sm text-muted-foreground">{sub}</p>
         </div>
       </CardBody>
     </Card>
@@ -84,20 +84,20 @@ function KpiCard({ title, value, sub, icon: Icon, color, growth }) {
 
 function PeriodCard({ title, revenue, orders, icon: Icon, color, growth, prevLabel }) {
   return (
-    <Card shadow="none" className="border border-foreground/15">
+    <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="p-5 gap-1">
         <div className="flex items-center justify-between">
-          <p className="text-xs text-default-500 uppercase tracking-wide">{title}</p>
+          <p className="text-sm text-muted-foreground uppercase tracking-wide">{title}</p>
           <div className={`p-2 rounded-lg bg-default-100 ${color}`}>
             <Icon size={16} />
           </div>
         </div>
-        <p className="text-2xl font-bold mt-1">{formatCurrency(revenue)}</p>
+        <p className="text-2xl font-semibold mt-1">{formatCurrency(revenue)}</p>
         <div className="flex items-center gap-2 mt-1">
           {growth !== undefined && <GrowthBadge value={growth} />}
-          <span className="text-xs text-default-400">{prevLabel}</span>
+          <span className="text-sm text-muted-foreground">{prevLabel}</span>
         </div>
-        <p className="text-xs text-default-400 mt-1">{orders} ออเดอร์</p>
+        <p className="text-sm text-muted-foreground mt-1">{orders} ออเดอร์</p>
       </CardBody>
     </Card>
   );
@@ -113,7 +113,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
   }
 
   if (!stats) {
-    return <p className="text-default-400 text-center py-10">ไม่สามารถโหลดข้อมูลได้</p>;
+    return <p className="text-muted-foreground text-center py-10">ไม่สามารถโหลดข้อมูลได้</p>;
   }
 
   return (
@@ -123,7 +123,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold">วิเคราะห์ยอดขาย</h2>
-            <p className="text-xs text-default-400">ช่องทางออนไลน์ — Business Central</p>
+            <p className="text-sm text-muted-foreground">ช่องทางออนไลน์ — Business Central</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex flex-wrap gap-1">
@@ -147,19 +147,19 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         </div>
         {period === "custom" && (
           <div className="flex items-center gap-2 flex-wrap">
-            <label className="text-xs text-default-500">ตั้งแต่</label>
+            <label className="text-sm text-muted-foreground">ตั้งแต่</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-foreground/15 rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
+              className="border border-border rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
             />
-            <label className="text-xs text-default-500">ถึง</label>
+            <label className="text-sm text-muted-foreground">ถึง</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-foreground/15 rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
+              className="border border-border rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
             />
             <Button
               size="md"
@@ -247,7 +247,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
       {/* ROW 4: Main Charts — Revenue Tabs + Status/Fulfillment/Location Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="none" className="border border-foreground/15 lg:col-span-2">
+        <Card shadow="none" className="border border-border lg:col-span-2">
           <CardBody className="p-5">
             <Tabs variant="bordered" size="md" radius="md" classNames={{ tabList: "mb-3" }}>
               <Tab key="trend" title="แนวโน้มรายได้">
@@ -269,19 +269,19 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
           </CardBody>
         </Card>
 
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <Tabs variant="bordered" size="md" radius="md" classNames={{ tabList: "mb-3" }}>
               <Tab key="status" title="สถานะ">
                 <OrderStatusChart data={stats.orderStatusDist} />
                 <div className="flex justify-center gap-6 mt-2">
                   <div className="text-center">
-                    <p className="text-lg font-bold text-success">{stats.shippedOrders}</p>
-                    <p className="text-xs text-default-400">จัดส่งแล้ว</p>
+                    <p className="text-lg font-semibold text-success">{stats.shippedOrders}</p>
+                    <p className="text-sm text-muted-foreground">จัดส่งแล้ว</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-bold text-warning">{stats.pendingOrders}</p>
-                    <p className="text-xs text-default-400">รอจัดส่ง</p>
+                    <p className="text-lg font-semibold text-warning">{stats.pendingOrders}</p>
+                    <p className="text-sm text-muted-foreground">รอจัดส่ง</p>
                   </div>
                 </div>
               </Tab>
@@ -298,13 +298,13 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
       {/* ROW 5: Analytical Insights — Order Value Dist + Monthly Comparison */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">การกระจายมูลค่าออเดอร์</p>
             <OrderValueDistChart data={stats.orderValueDist} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">เปรียบเทียบรายเดือน</p>
             <MonthlyComparisonTable data={stats.monthlyComparison} />
@@ -314,7 +314,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
       {/* ROW 6: Customer Segmentation — Channel / Group / Type */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">ช่องทางลูกค้า</p>
@@ -323,13 +323,13 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
             <ChannelDistChart data={stats.customerSegmentation?.byChannel} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">กลุ่มลูกค้า</p>
             <CustomerGroupChart data={stats.customerSegmentation?.byGroup} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ประเภทงาน</p>
             <ProjectTypeChart data={stats.customerSegmentation?.byType} />
@@ -339,13 +339,13 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
       {/* ROW 7: Customer & Product Intelligence */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ข้อมูลเชิงลึกลูกค้า</p>
             <CustomerInsightsCard data={stats.customerInsights} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Top 10 ลูกค้า</p>
@@ -354,7 +354,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
             <TopCustomersChart data={stats.topCustomers} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Top 10 SKU</p>

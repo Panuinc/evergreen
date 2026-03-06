@@ -66,7 +66,7 @@ export default function SalesOrderDetailView({
   if (!order) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full gap-4">
-        <p className="text-default-400">ไม่พบออเดอร์</p>
+        <p className="text-muted-foreground">ไม่พบออเดอร์</p>
         <Button variant="bordered" size="md" radius="md" onPress={onBack}>
           กลับ
         </Button>
@@ -110,34 +110,34 @@ export default function SalesOrderDetailView({
 
       {/* Order Info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5 gap-3">
             <p className="text-sm font-semibold">ข้อมูลลูกค้า</p>
             <Divider />
             <div className="space-y-2 text-sm">
               <div className="flex gap-2">
-                <span className="text-default-400 w-24 shrink-0">ลูกค้า</span>
+                <span className="text-muted-foreground w-24 shrink-0">ลูกค้า</span>
                 <span className="font-medium">{order.bcSalesOrderCustomerName}</span>
               </div>
               <div className="flex gap-2">
-                <span className="text-default-400 w-24 shrink-0">รหัสลูกค้า</span>
+                <span className="text-muted-foreground w-24 shrink-0">รหัสลูกค้า</span>
                 <span>{order.bcSalesOrderCustomerNumber}</span>
               </div>
               <div className="flex gap-2 items-start">
-                <span className="text-default-400 w-24 shrink-0">ที่อยู่</span>
+                <span className="text-muted-foreground w-24 shrink-0">ที่อยู่</span>
                 <span>{order.bcSalesOrderSellToAddress || "-"}</span>
               </div>
             </div>
           </CardBody>
         </Card>
 
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5 gap-3">
             <p className="text-sm font-semibold">ข้อมูลออเดอร์</p>
             <Divider />
             <div className="space-y-2 text-sm">
               <div className="flex gap-2">
-                <span className="text-default-400 w-24 shrink-0">วันที่สั่ง</span>
+                <span className="text-muted-foreground w-24 shrink-0">วันที่สั่ง</span>
                 <span>
                   {order.bcSalesOrderDate
                     ? new Date(order.bcSalesOrderDate).toLocaleDateString("th-TH", {
@@ -149,7 +149,7 @@ export default function SalesOrderDetailView({
                 </span>
               </div>
               <div className="flex gap-2">
-                <span className="text-default-400 w-24 shrink-0">ครบกำหนด</span>
+                <span className="text-muted-foreground w-24 shrink-0">ครบกำหนด</span>
                 <span>
                   {order.bcSalesOrderDueDate && order.bcSalesOrderDueDate !== "0001-01-01"
                     ? new Date(order.bcSalesOrderDueDate).toLocaleDateString("th-TH", {
@@ -161,12 +161,12 @@ export default function SalesOrderDetailView({
                 </span>
               </div>
               <div className="flex gap-2">
-                <span className="text-default-400 w-24 shrink-0">เลขที่อ้างอิง</span>
+                <span className="text-muted-foreground w-24 shrink-0">เลขที่อ้างอิง</span>
                 <span>{order.bcSalesOrderExternalDocumentNumber || "-"}</span>
               </div>
               <div className="flex gap-2">
-                <span className="text-default-400 w-24 shrink-0">ยอดรวม</span>
-                <span className="text-lg font-bold text-primary">
+                <span className="text-muted-foreground w-24 shrink-0">ยอดรวม</span>
+                <span className="text-lg font-semibold text-primary">
                   ฿{(order.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
               </div>
@@ -189,7 +189,7 @@ export default function SalesOrderDetailView({
         />
         <div className="flex justify-end mt-2 px-2">
           <span className="font-semibold mr-4">รวมทั้งสิ้น</span>
-          <span className="font-bold">
+          <span className="font-semibold">
             ฿{(order.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
         </div>

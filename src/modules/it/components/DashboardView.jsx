@@ -16,7 +16,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
   }
 
   if (!stats) {
-    return <p className="text-default-400 text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
+    return <p className="text-muted-foreground text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
   }
 
   // Handle comparison data shape
@@ -85,7 +85,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
           <div />
           <div className="flex items-center gap-2">
             {isCompare && stats.labels && (
-              <span className="text-xs text-default-400">
+              <span className="text-sm text-muted-foreground">
                 {stats.labels.current} vs {stats.labels.previous}
               </span>
             )}
@@ -111,19 +111,19 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">แนวโน้มตั๋ว (6 เดือนล่าสุด)</p>
             <TicketTrendChart data={d.ticketTrend} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ทรัพย์สินตามหมวดหมู่</p>
             <AssetByCategoryChart data={d.assetByCategory} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ภาพรวมการหมดอายุไลเซนส์</p>
             <LicenseExpiryChart data={d.licenseExpiry} />

@@ -94,11 +94,11 @@ export default function EmployeesView({
           );
         case "hrEmployeeEmail":
           return (
-            <span className="text-default-500">{emp.hrEmployeeEmail || "-"}</span>
+            <span className="text-muted-foreground">{emp.hrEmployeeEmail || "-"}</span>
           );
         case "hrEmployeePhone":
           return (
-            <span className="text-default-500">{emp.hrEmployeePhone || "-"}</span>
+            <span className="text-muted-foreground">{emp.hrEmployeePhone || "-"}</span>
           );
         case "hrEmployeeDivision":
           return emp.hrEmployeeDivision || "-";

@@ -69,7 +69,7 @@ export default function PinSetupModal({ isOpen, onClose, onSetup }) {
           {step === "enter" ? "ตั้ง PIN ปลดล็อกด่วน" : "ยืนยัน PIN ของคุณ"}
         </ModalHeader>
         <ModalBody>
-          <p className="text-default-500 text-center mb-4">
+          <p className="text-muted-foreground text-center mb-4">
             {step === "enter"
               ? "ตั้ง PIN 6 หลักสำหรับลงชื่อเข้าใช้ด่วน"
               : "ใส่ PIN เดิมอีกครั้งเพื่อยืนยัน"}

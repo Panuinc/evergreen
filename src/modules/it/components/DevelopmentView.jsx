@@ -169,7 +169,7 @@ export default function DevelopmentView({
                 color={color}
                 className="flex-1"
               />
-              <span className="text-xs text-default-500 w-8 text-right">
+              <span className="text-sm text-muted-foreground w-8 text-right">
                 {progress}%
               </span>
             </div>
@@ -495,7 +495,7 @@ export default function DevelopmentView({
                 }
                 className="flex-1"
               />
-              <span className="text-sm font-normal text-default-500">
+              <span className="text-sm font-normal text-muted-foreground">
                 {selectedRequest?.itDevRequestProgress || 0}%
               </span>
             </div>
@@ -503,7 +503,7 @@ export default function DevelopmentView({
           <ModalBody>
             <div className="flex flex-col gap-4">
               {/* Add Progress Form */}
-              <div className="flex flex-col gap-3 p-4 rounded-lg border border-foreground/15 bg-default-50">
+              <div className="flex flex-col gap-3 p-4 rounded-lg border border-border bg-default-50">
                 <p className="text-sm font-semibold">เพิ่มการอัปเดตความคืบหน้า</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="md:col-span-2">
@@ -570,7 +570,7 @@ export default function DevelopmentView({
                     <Spinner />
                   </div>
                 ) : progressLogs.length === 0 ? (
-                  <p className="text-sm text-default-400 text-center py-6">
+                  <p className="text-sm text-muted-foreground text-center py-6">
                     ยังไม่มีการอัปเดตความคืบหน้า
                   </p>
                 ) : (
@@ -578,7 +578,7 @@ export default function DevelopmentView({
                     {progressLogs.map((log) => (
                       <div
                         key={log.itDevProgressLogId}
-                        className="flex gap-3 p-3 rounded-lg border border-foreground/15"
+                        className="flex gap-3 p-3 rounded-lg border border-border"
                       >
                         <div className="flex-shrink-0 mt-0.5">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -590,12 +590,12 @@ export default function DevelopmentView({
                             <span className="text-sm font-medium">
                               {log.itDevProgressLogCreatedBy || "ไม่ทราบ"}
                             </span>
-                            <div className="flex items-center gap-1 text-xs text-default-400">
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
                               <Clock size={12} />
                               {formatDateTime(log.itDevProgressLogCreatedAt)}
                             </div>
                           </div>
-                          <p className="text-sm text-default-600 mt-1 whitespace-pre-wrap">
+                          <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">
                             {log.itDevProgressLogDescription}
                           </p>
                           <div className="flex items-center gap-2 mt-2">
@@ -609,7 +609,7 @@ export default function DevelopmentView({
                               }
                               className="flex-1 max-w-[200px]"
                             />
-                            <span className="text-xs text-default-500">
+                            <span className="text-sm text-muted-foreground">
                               {log.itDevProgressLogProgress}%
                             </span>
                           </div>

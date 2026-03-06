@@ -59,7 +59,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
           <div />
           <div className="flex items-center gap-2">
             {isCompare && data.labels && (
-              <span className="text-xs text-default-400">
+              <span className="text-sm text-muted-foreground">
                 {data.labels.current} vs {data.labels.previous}
               </span>
             )}
@@ -131,7 +131,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Pipeline by Stage */}
-        <Card shadow="none" className="border border-foreground/15 p-4">
+        <Card shadow="none" className="border border-border p-4">
           <p className="text-lg font-semibold mb-4">ไปป์ไลน์ตามขั้นตอน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={pipelineByStage || []}>
@@ -151,7 +151,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         </Card>
 
         {/* Revenue by Month */}
-        <Card shadow="none" className="border border-foreground/15 p-4">
+        <Card shadow="none" className="border border-border p-4">
           <p className="text-lg font-semibold mb-4">รายได้ตามเดือน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={revenueByMonth || []}>
@@ -174,22 +174,22 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
       {/* Bottom Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Top Salespeople */}
-        <Card shadow="none" className="border border-foreground/15 p-4">
+        <Card shadow="none" className="border border-border p-4">
           <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(topSalespeople || []).map((person, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-2 rounded-lg border border-foreground/15"
+                className="flex items-center justify-between p-2 rounded-lg border border-border"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-default-400 w-6">
+                  <span className="text-sm font-semibold text-muted-foreground w-6">
                     #{i + 1}
                   </span>
                   <span className="font-medium">{person.name}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
-                  <span className="text-default-500">
+                  <span className="text-muted-foreground">
                     {person.deals} ดีล
                   </span>
                   <span className="font-semibold">
@@ -199,7 +199,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
               </div>
             ))}
             {(!topSalespeople || topSalespeople.length === 0) && (
-              <p className="text-default-400 text-sm text-center py-4">
+              <p className="text-muted-foreground text-sm text-center py-4">
                 ไม่มีข้อมูล
               </p>
             )}
@@ -207,7 +207,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         </Card>
 
         {/* Recent Activities */}
-        <Card shadow="none" className="border border-foreground/15 p-4">
+        <Card shadow="none" className="border border-border p-4">
           <p className="text-lg font-semibold mb-4">กิจกรรมล่าสุด</p>
           <div className="flex flex-col gap-3">
             {(recentActivities || []).map((activity, i) => {
@@ -216,15 +216,15 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
               return (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-2 rounded-lg border border-foreground/15"
+                  className="flex items-center justify-between p-2 rounded-lg border border-border"
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={16} className="text-default-500" />
+                    <Icon size={16} className="text-muted-foreground" />
                     <span className="font-medium">
                       {activity.crmActivitySubject}
                     </span>
                   </div>
-                  <span className="text-sm text-default-500">
+                  <span className="text-sm text-muted-foreground">
                     {activity.crmActivityDueDate
                       ? new Date(activity.crmActivityDueDate).toLocaleDateString(
                           "th-TH",
@@ -236,7 +236,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
             })}
             {(!recentActivities ||
               recentActivities.length === 0) && (
-              <p className="text-default-400 text-sm text-center py-4">
+              <p className="text-muted-foreground text-sm text-center py-4">
                 ไม่มีกิจกรรมล่าสุด
               </p>
             )}

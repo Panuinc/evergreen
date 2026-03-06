@@ -75,13 +75,13 @@ export default function ResourcesView({
           return <span className="font-medium">{resource.rbacResourceName}</span>;
         case "rbacResourceModuleId":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {resource.rbacResourceModuleId || "-"}
             </span>
           );
         case "rbacResourceDescription":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {resource.rbacResourceDescription || "-"}
             </span>
           );

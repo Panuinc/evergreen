@@ -46,7 +46,7 @@ export default function CompareKpiCard({
 
   // Determine badge color: green = good, red = bad
   // invertColor flips the meaning (lower = good, e.g. costs)
-  let badgeColor = "text-default-400";
+  let badgeColor = "text-muted-foreground";
   let bgColor = "bg-default-100";
   if (!isNeutral && showBadge) {
     const isGood = invertColor ? isNegative : isPositive;
@@ -55,17 +55,17 @@ export default function CompareKpiCard({
   }
 
   return (
-    <Card shadow="none" className="border border-foreground/15">
+    <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="gap-1">
-        <p className="text-xs text-default-500">{title}</p>
+        <p className="text-sm text-muted-foreground">{title}</p>
         <div className="flex items-baseline gap-1">
-          <p className={`text-2xl font-bold ${colorClass[color] || ""}`}>
+          <p className={`text-2xl font-semibold ${colorClass[color] || ""}`}>
             {value}
           </p>
-          {unit && <span className="text-xs text-default-400">{unit}</span>}
+          {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
         </div>
         {showBadge && (
-          <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-xs font-medium w-fit ${badgeColor} ${bgColor}`}>
+          <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-sm font-medium w-fit ${badgeColor} ${bgColor}`}>
             {isPositive && <TrendingUp size={12} />}
             {isNegative && <TrendingDown size={12} />}
             {isNeutral && <Minus size={12} />}
@@ -73,7 +73,7 @@ export default function CompareKpiCard({
           </div>
         )}
         {subtitle && !showBadge && (
-          <p className="text-xs text-default-400">{subtitle}</p>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         )}
       </CardBody>
     </Card>

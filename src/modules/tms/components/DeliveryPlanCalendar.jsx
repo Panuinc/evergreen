@@ -65,8 +65,8 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
         {DAYS_TH.map((d, i) => (
           <div
             key={d}
-            className={`text-center text-xs font-semibold py-2 ${
-              i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-default-500"
+            className={`text-center text-sm font-semibold py-2 ${
+              i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-muted-foreground"
             }`}
           >
             {d}
@@ -90,19 +90,19 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                   today
                     ? "border-primary-400 bg-primary-50"
                     : plans.length > 0
-                    ? "border-foreground/15"
-                    : "border-foreground/15"
+                    ? "border-border"
+                    : "border-border"
                 }`}
               >
                 <span
-                  className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full flex-shrink-0 ${
+                  className={`text-sm font-semibold w-6 h-6 flex items-center justify-center rounded-full flex-shrink-0 ${
                     today
                       ? "bg-primary text-white"
                       : ci === 0
                       ? "text-danger-500"
                       : ci === 6
                       ? "text-primary-500"
-                      : "text-default-700"
+                      : "text-foreground"
                   }`}
                 >
                   {date.getDate()}
@@ -118,7 +118,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                           ? "bg-warning-100 text-warning-700"
                           : p.tmsDeliveryPlanStatus === "completed"
                           ? "bg-success-100 text-success-700"
-                          : "bg-default-100 text-default-600"
+                          : "bg-default-100 text-foreground"
                       }`}
                     >
                       <span
@@ -132,7 +132,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                     </div>
                   ))}
                   {plans.length > 2 && (
-                    <span className="text-[10px] text-default-400 px-1">
+                    <span className="text-[10px] text-muted-foreground px-1">
                       +{plans.length - 2} อื่นๆ
                     </span>
                   )}
@@ -169,15 +169,15 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
               {/* Day header */}
               <div className="flex flex-col items-center gap-1">
                 <span
-                  className={`text-xs font-semibold ${
-                    i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-default-500"
+                  className={`text-sm font-semibold ${
+                    i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-muted-foreground"
                   }`}
                 >
                   {DAYS_TH[i]}
                 </span>
                 <span
-                  className={`text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full ${
-                    today ? "bg-primary text-white" : "text-default-700"
+                  className={`text-sm font-semibold w-8 h-8 flex items-center justify-center rounded-full ${
+                    today ? "bg-primary text-white" : "text-foreground"
                   }`}
                 >
                   {date.getDate()}
@@ -188,14 +188,14 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                 {plans.map((p) => (
                   <div
                     key={p.tmsDeliveryPlanId}
-                    className={`p-2 rounded-xl border-l-4 border text-xs cursor-pointer hover:opacity-80 shrink-0 ${
+                    className={`p-2 rounded-xl border-l-4 border text-sm cursor-pointer hover:opacity-80 shrink-0 ${
                       p.tmsDeliveryPlanStatus === "planned"
                         ? "bg-primary-50 border-primary-200"
                         : p.tmsDeliveryPlanStatus === "in_progress"
                         ? "bg-warning-50 border-warning-200"
                         : p.tmsDeliveryPlanStatus === "completed"
                         ? "bg-success-50 border-success-200"
-                        : "bg-default-50 border-foreground/15"
+                        : "bg-default-50 border-border"
                     } ${
                       p.tmsDeliveryPlanPriority === "urgent"
                         ? "border-l-danger-500"
@@ -210,7 +210,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                     <p className="font-semibold truncate">
                       {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"}
                     </p>
-                    <p className="text-default-500 truncate">
+                    <p className="text-muted-foreground truncate">
                       {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemCustomerName}
                     </p>
                     <div className="flex items-center gap-1 mt-1 flex-wrap">
@@ -246,7 +246,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                 {/* Add button */}
                 <button
                   onClick={() => onDateClick(date)}
-                  className="w-full py-2 rounded-xl border border-dashed border-foreground/15 text-xs text-default-400 hover:border-primary-300 hover:text-primary-500 transition-colors shrink-0"
+                  className="w-full py-2 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:border-primary-300 hover:text-primary-500 transition-colors shrink-0"
                 >
                   + เพิ่มแผน
                 </button>

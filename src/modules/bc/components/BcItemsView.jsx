@@ -54,7 +54,7 @@ export default function BcItemsView({ items, loading }) {
             {item.bcItemProjectName}
           </Chip>
         ) : (
-          <span className="text-default-300">-</span>
+          <span className="text-muted-foreground">-</span>
         );
       case "bcItemInventory": {
         const inv = Number(item.bcItemInventory);

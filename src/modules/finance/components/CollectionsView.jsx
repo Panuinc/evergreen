@@ -148,11 +148,11 @@ export default function CollectionsView({
       case "lastReason":
         return item.lastReason
           ? <Chip size="sm" variant="dot" color={reasonColor(item.lastReason)}>{reasonLabel(item.lastReason)}</Chip>
-          : <span className="text-default-400">-</span>;
+          : <span className="text-muted-foreground">-</span>;
       case "lastContactDate":
         return <span>{item.lastContactDate ? fmtDate(item.lastContactDate) : "-"}</span>;
       case "nextFollowUpDate": {
-        if (!item.nextFollowUpDate) return <span className="text-default-400">-</span>;
+        if (!item.nextFollowUpDate) return <span className="text-muted-foreground">-</span>;
         const overdue = item.nextFollowUpDate <= new Date().toISOString().slice(0, 10);
         return (
           <span className={`font-medium ${overdue ? "text-danger" : "text-primary"}`}>
@@ -200,7 +200,7 @@ export default function CollectionsView({
         return (
           <div>
             <p className="font-medium">{item.customerName}</p>
-            <p className="text-default-400">{item.customerNumber}</p>
+            <p className="text-muted-foreground">{item.customerNumber}</p>
           </div>
         );
       case "contactMethod":
@@ -208,17 +208,17 @@ export default function CollectionsView({
       case "reason":
         return <Chip size="sm" variant="dot" color={reasonColor(item.reason)}>{reasonLabel(item.reason)}</Chip>;
       case "reasonDetail":
-        return <span className="text-default-600 line-clamp-2">{item.reasonDetail || "-"}</span>;
+        return <span className="text-foreground line-clamp-2">{item.reasonDetail || "-"}</span>;
       case "note":
-        return <span className="text-default-600 line-clamp-2">{item.note || "-"}</span>;
+        return <span className="text-foreground line-clamp-2">{item.note || "-"}</span>;
       case "status":
         return <Chip size="sm" variant="flat" color={statusColor(item.status)}>{statusLabel(item.status)}</Chip>;
       case "promiseDate":
         return <span>{item.promiseDate ? fmtDate(item.promiseDate) : "-"}</span>;
       case "promiseAmount":
-        return item.promiseAmount ? <span className="font-medium">{fmt(item.promiseAmount)}</span> : <span className="text-default-400">-</span>;
+        return item.promiseAmount ? <span className="font-medium">{fmt(item.promiseAmount)}</span> : <span className="text-muted-foreground">-</span>;
       case "createdByName":
-        return <span className="text-default-500">{item.createdByName || "-"}</span>;
+        return <span className="text-muted-foreground">{item.createdByName || "-"}</span>;
       default:
         return item[key] ?? "-";
     }
@@ -310,7 +310,7 @@ export default function CollectionsView({
 
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <Card shadow="none" className="border border-foreground/15">
+            <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
               <CardHeader className="pb-0">
                 <p className="text-sm font-semibold">เหตุผลที่ลูกหนี้ยังไม่ชำระ</p>
               </CardHeader>
@@ -330,12 +330,12 @@ export default function CollectionsView({
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="py-10 text-center text-sm text-default-400">ไม่มีข้อมูลในช่วงนี้</p>
+                  <p className="py-10 text-center text-sm text-muted-foreground">ไม่มีข้อมูลในช่วงนี้</p>
                 )}
               </CardBody>
             </Card>
 
-            <Card shadow="none" className="border border-foreground/15">
+            <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
               <CardHeader className="pb-0">
                 <p className="text-sm font-semibold">สถานะการติดตาม</p>
               </CardHeader>
@@ -362,7 +362,7 @@ export default function CollectionsView({
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="py-10 text-center text-sm text-default-400">ไม่มีข้อมูลในช่วงนี้</p>
+                  <p className="py-10 text-center text-sm text-muted-foreground">ไม่มีข้อมูลในช่วงนี้</p>
                 )}
               </CardBody>
             </Card>
@@ -385,7 +385,7 @@ export default function CollectionsView({
       </Tabs>
 
       {/* ═══════════════════ AI Collections Advisor ═══════════════════ */}
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
@@ -408,11 +408,11 @@ export default function CollectionsView({
           {aiLoading && !aiAnalysis && (
             <div className="flex items-center gap-3 py-8 justify-center">
               <Spinner size="sm" />
-              <span className="text-sm text-default-500">AI กำลังวิเคราะห์ข้อมูลลูกหนี้และจัดลำดับความสำคัญ...</span>
+              <span className="text-sm text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลลูกหนี้และจัดลำดับความสำคัญ...</span>
             </div>
           )}
           {!aiAnalysis && !aiLoading && (
-            <p className="text-sm text-default-400 py-4 text-center">
+            <p className="text-sm text-muted-foreground py-4 text-center">
               กดปุ่ม &quot;เริ่มวิเคราะห์&quot; เพื่อให้ AI จัดลำดับลูกหนี้ที่ควรติดตามก่อน วิเคราะห์ความเสี่ยง และแนะนำกลยุทธ์เก็บหนี้
             </p>
           )}
@@ -423,15 +423,15 @@ export default function CollectionsView({
                 components={{
                   table: ({ children }) => (
                     <div className="overflow-x-auto my-2">
-                      <table className="border-collapse w-full text-xs">{children}</table>
+                      <table className="border-collapse w-full text-sm">{children}</table>
                     </div>
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-foreground/15 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
-                    <td className="border border-foreground/15 px-3 py-1.5 text-foreground">{children}</td>
+                    <td className="border border-border px-3 py-1.5 text-foreground">{children}</td>
                   ),
                   tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
                   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -441,10 +441,10 @@ export default function CollectionsView({
                   strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
                   code: ({ inline, children }) =>
                     inline ? (
-                      <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+                      <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">{children}</code>
                     ) : (
                       <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
-                        <code className="text-xs font-mono">{children}</code>
+                        <code className="text-sm font-mono">{children}</code>
                       </pre>
                     ),
                 }}
@@ -463,7 +463,7 @@ export default function CollectionsView({
           <ModalHeader className="flex flex-col gap-1">
             <span>เพิ่มการติดตาม</span>
             {selectedCustomer && (
-              <span className="text-sm font-normal text-default-500">
+              <span className="text-sm font-normal text-muted-foreground">
                 {selectedCustomer.name} ({selectedCustomer.customerNumber}) | ค้างชำระ ฿{fmt(selectedCustomer.balanceDue)}
               </span>
             )}
@@ -535,7 +535,7 @@ export default function CollectionsView({
                 placeholder="0.00"
                 value={form.promiseAmount}
                 onChange={(e) => onFieldChange("promiseAmount", e.target.value)}
-                startContent={<span className="text-default-400">฿</span>}
+                startContent={<span className="text-muted-foreground">฿</span>}
               />
               <Input
                 type="date"
@@ -565,7 +565,7 @@ export default function CollectionsView({
           <ModalHeader className="flex flex-col gap-1">
             <span>ประวัติการติดตาม</span>
             {selectedCustomer && (
-              <span className="text-sm font-normal text-default-500">
+              <span className="text-sm font-normal text-muted-foreground">
                 {selectedCustomer.name} ({selectedCustomer.customerNumber}) | ค้างชำระ ฿{fmt(selectedCustomer.balanceDue)} | ติดตาม {customerHistory.length} ครั้ง
               </span>
             )}
@@ -574,13 +574,13 @@ export default function CollectionsView({
             {customerHistory.length > 0 ? (
               <div className="flex flex-col gap-4">
                 {customerHistory.map((fu, idx) => (
-                  <Card key={fu.id} shadow="none" className={`border ${idx === 0 ? "border-primary-200 bg-primary-50/30" : "border-foreground/15"}`}>
+                  <Card key={fu.id} shadow="none" className={`border ${idx === 0 ? "border-primary-200 bg-primary-50/30" : "border-border"}`}>
                     <CardBody className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">
                           <Chip size="sm" variant="flat" color={statusColor(fu.status)}>{statusLabel(fu.status)}</Chip>
                           <Chip size="sm" variant="dot" color={reasonColor(fu.reason)}>{reasonLabel(fu.reason)}</Chip>
-                          <span className="text-default-500">{contactLabel(fu.contactMethod)}</span>
+                          <span className="text-muted-foreground">{contactLabel(fu.contactMethod)}</span>
                         </div>
                         <div className="text-right">
                           <p className="font-medium">{fmtDate(fu.contactDate)}</p>
@@ -588,16 +588,16 @@ export default function CollectionsView({
                         </div>
                       </div>
                       {fu.reasonDetail && (
-                        <p className="text-default-600 mb-1">
+                        <p className="text-foreground mb-1">
                           <span className="font-medium">เหตุผล:</span> {fu.reasonDetail}
                         </p>
                       )}
                       {fu.note && (
-                        <p className="text-default-600 mb-1">
+                        <p className="text-foreground mb-1">
                           <span className="font-medium">หมายเหตุ:</span> {fu.note}
                         </p>
                       )}
-                      <div className="flex gap-4 mt-2 text-default-400">
+                      <div className="flex gap-4 mt-2 text-muted-foreground">
                         {fu.promiseDate && <span>สัญญาจะชำระ: {fmtDate(fu.promiseDate)}</span>}
                         {fu.promiseAmount && <span>จำนวน: ฿{fmt(fu.promiseAmount)}</span>}
                         {fu.nextFollowUpDate && (
@@ -612,7 +612,7 @@ export default function CollectionsView({
                 ))}
               </div>
             ) : (
-              <p className="py-10 text-center text-default-400">ยังไม่มีประวัติการติดตาม</p>
+              <p className="py-10 text-center text-muted-foreground">ยังไม่มีประวัติการติดตาม</p>
             )}
           </ModalBody>
           <ModalFooter>

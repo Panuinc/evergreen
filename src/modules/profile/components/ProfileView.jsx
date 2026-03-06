@@ -32,7 +32,7 @@ export default function ProfileView({
   return (
     <div className="flex flex-col w-full h-full gap-6">
       {/* ข้อมูลบัญชี */}
-      <div className="flex flex-col gap-4 p-4 border border-foreground/15 rounded-xl">
+      <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
           <User />
           ข้อมูลบัญชี
@@ -40,11 +40,11 @@ export default function ProfileView({
 
         <div className="flex flex-col w-full gap-2">
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-default-500 w-20">อีเมล</span>
+            <span className="text-sm text-muted-foreground w-20">อีเมล</span>
             <span className="font-medium">{user?.email}</span>
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-default-500 w-20">สร้างเมื่อ</span>
+            <span className="text-sm text-muted-foreground w-20">สร้างเมื่อ</span>
             <span className="font-medium">
               {user?.createdAt
                 ? new Date(user.createdAt).toLocaleDateString("th-TH")
@@ -52,7 +52,7 @@ export default function ProfileView({
             </span>
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-default-500 w-20">สิทธิ์</span>
+            <span className="text-sm text-muted-foreground w-20">สิทธิ์</span>
             <div className="flex flex-wrap gap-1">
               {roles?.length > 0 ? (
                 roles.map((role) => (
@@ -67,7 +67,7 @@ export default function ProfileView({
                   </Chip>
                 ))
               ) : (
-                <span className="text-default-400">ยังไม่ได้กำหนดสิทธิ์</span>
+                <span className="text-muted-foreground">ยังไม่ได้กำหนดสิทธิ์</span>
               )}
             </div>
           </div>
@@ -75,7 +75,7 @@ export default function ProfileView({
       </div>
 
       {/* ข้อมูลพนักงาน */}
-      <div className="flex flex-col gap-4 p-4 border border-foreground/15 rounded-xl">
+      <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
           <Briefcase />
           ข้อมูลพนักงาน
@@ -84,43 +84,43 @@ export default function ProfileView({
         {employee ? (
           <div className="flex flex-col w-full gap-2">
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">ชื่อ</span>
+              <span className="text-sm text-muted-foreground w-24">ชื่อ</span>
               <span className="font-medium">
                 {employee.hrEmployeeFirstName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">นามสกุล</span>
+              <span className="text-sm text-muted-foreground w-24">นามสกุล</span>
               <span className="font-medium">
                 {employee.hrEmployeeLastName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">อีเมล</span>
+              <span className="text-sm text-muted-foreground w-24">อีเมล</span>
               <span className="font-medium">
                 {employee.hrEmployeeEmail || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">โทรศัพท์</span>
+              <span className="text-sm text-muted-foreground w-24">โทรศัพท์</span>
               <span className="font-medium">
                 {employee.hrEmployeePhone || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">แผนก</span>
+              <span className="text-sm text-muted-foreground w-24">แผนก</span>
               <span className="font-medium">
                 {employee.hrEmployeeDepartment || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">ตำแหน่ง</span>
+              <span className="text-sm text-muted-foreground w-24">ตำแหน่ง</span>
               <span className="font-medium">
                 {employee.hrEmployeePosition || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-default-500 w-24">สถานะ</span>
+              <span className="text-sm text-muted-foreground w-24">สถานะ</span>
               <Chip
                 variant="bordered"
                 size="md"
@@ -134,14 +134,14 @@ export default function ProfileView({
             </div>
           </div>
         ) : (
-          <div className="flex items-center w-full h-fit p-2 gap-2 text-default-400">
+          <div className="flex items-center w-full h-fit p-2 gap-2 text-muted-foreground">
             ไม่มีข้อมูลพนักงานเชื่อมกับบัญชีนี้
           </div>
         )}
       </div>
 
       {/* PIN ปลดล็อกด่วน */}
-      <div className="flex flex-col gap-4 p-4 border border-foreground/15 rounded-xl">
+      <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-between w-full h-fit p-2">
           <div className="flex items-center gap-2 font-semibold">
             <KeyRound />
@@ -160,7 +160,7 @@ export default function ProfileView({
         </div>
 
         <div className="flex flex-col w-full gap-2">
-          <p className="text-default-500 p-2">
+          <p className="text-muted-foreground p-2">
             ตั้ง PIN 6 หลักเพื่อลงชื่อเข้าใช้ด่วน แทนการใส่รหัสผ่านทุกครั้ง
           </p>
           <div className="flex items-center justify-end w-full h-fit p-2 gap-2">
@@ -200,7 +200,7 @@ export default function ProfileView({
       </div>
 
       {/* เปลี่ยนรหัสผ่าน */}
-      <div className="flex flex-col gap-4 p-4 border border-foreground/15 rounded-xl">
+      <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
           <Lock />
           เปลี่ยนรหัสผ่าน

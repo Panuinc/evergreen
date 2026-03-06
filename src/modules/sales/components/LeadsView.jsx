@@ -91,7 +91,7 @@ export default function LeadsView({
     (item, columnKey) => {
       switch (columnKey) {
         case "crmLeadNo":
-          return <span className="text-default-500">{item.crmLeadNo || "-"}</span>;
+          return <span className="text-muted-foreground">{item.crmLeadNo || "-"}</span>;
         case "crmLeadName":
           return <span className="font-medium">{item.crmLeadName}</span>;
         case "crmLeadCompany":

@@ -30,7 +30,7 @@ const STATUS_LABELS = {
 export default function EmployeeStatusChart({ data = [] }) {
   if (!data.length) {
     return (
-      <p className="text-sm text-default-400 text-center py-8">No data</p>
+      <p className="text-sm text-muted-foreground text-center py-8">No data</p>
     );
   }
 

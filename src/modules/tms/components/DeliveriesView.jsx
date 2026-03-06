@@ -121,12 +121,12 @@ export default function DeliveriesView({
                   key={i}
                   src={url}
                   alt={`photo-${i}`}
-                  className="w-8 h-8 object-cover rounded cursor-pointer border border-foreground/15"
+                  className="w-8 h-8 object-cover rounded cursor-pointer border border-border"
                   onClick={() => openPreview(item.tmsDeliveryPhotoUrls, i)}
                 />
               ))}
               {item.tmsDeliveryPhotoUrls.length > 3 && (
-                <span className="text-xs text-default-400 self-center">
+                <span className="text-sm text-muted-foreground self-center">
                   +{item.tmsDeliveryPhotoUrls.length - 3}
                 </span>
               )}
@@ -200,7 +200,7 @@ export default function DeliveriesView({
               {/* Shipment Info - read-only */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-default-50 rounded-xl p-4">
                 <div>
-                  <p className="text-xs text-default-400">การขนส่ง</p>
+                  <p className="text-sm text-muted-foreground">การขนส่ง</p>
                   <p className="text-sm font-medium">
                     {(() => {
                       const s = shipments.find(
@@ -211,11 +211,11 @@ export default function DeliveriesView({
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-default-400">ชื่อผู้รับ</p>
+                  <p className="text-sm text-muted-foreground">ชื่อผู้รับ</p>
                   <p className="text-sm font-medium">{formData.tmsDeliveryReceiverName || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-default-400">เบอร์โทรผู้รับ</p>
+                  <p className="text-sm text-muted-foreground">เบอร์โทรผู้รับ</p>
                   <p className="text-sm font-medium">{formData.tmsDeliveryReceiverPhone || "-"}</p>
                 </div>
               </div>
@@ -224,8 +224,8 @@ export default function DeliveriesView({
               {deliveryItems.length > 0 && (
                 <div className="flex flex-col w-full gap-2">
                   <p className="text-sm font-medium">รายการสินค้า</p>
-                  <div className="border border-foreground/15 rounded-xl overflow-hidden overflow-x-auto">
-                    <table className="w-full text-xs">
+                  <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
+                    <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-default-100">
                           <th className="text-left px-3 py-2 font-semibold">รายการ</th>
@@ -244,11 +244,11 @@ export default function DeliveriesView({
                           const damaged = parseFloat(item.tmsDeliveryItemDamagedQty) || 0;
                           const hasDiscrepancy = delivered < planned || damaged > 0;
                           return (
-                            <tr key={idx} className={`border-t border-foreground/15 ${hasDiscrepancy ? "bg-warning-50" : ""}`}>
+                            <tr key={idx} className={`border-t border-border ${hasDiscrepancy ? "bg-warning-50" : ""}`}>
                               <td className="px-3 py-2">
                                 <p className="font-medium">{item.tmsDeliveryItemDescription}</p>
                                 {item.tmsDeliveryItemSoNo && (
-                                  <p className="text-default-400">{item.tmsDeliveryItemSoNo}</p>
+                                  <p className="text-muted-foreground">{item.tmsDeliveryItemSoNo}</p>
                                 )}
                               </td>
                               <td className="text-center px-3 py-2">{item.tmsDeliveryItemUom}</td>
@@ -278,7 +278,7 @@ export default function DeliveriesView({
                                   classNames={{ input: "text-center" }}
                                 />
                               </td>
-                              <td className="text-center px-3 py-2 text-default-500 font-medium">
+                              <td className="text-center px-3 py-2 text-muted-foreground font-medium">
                                 {item.tmsDeliveryItemReturnedQty || 0}
                               </td>
                               <td className="px-1 py-1">
@@ -297,7 +297,7 @@ export default function DeliveriesView({
                         })}
                       </tbody>
                       <tfoot>
-                        <tr className="border-t border-foreground/15 bg-default-50">
+                        <tr className="border-t border-border bg-default-50">
                           <td className="px-3 py-2 font-semibold" colSpan={2}>รวม</td>
                           <td className="text-center px-3 py-2 font-semibold">
                             {deliveryItems.reduce((s, i) => s + i.tmsDeliveryItemPlannedQty, 0)}

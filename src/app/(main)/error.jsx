@@ -16,7 +16,7 @@ export default function MainError({ error, reset }) {
           <CircleAlert className="w-12 h-12 text-danger" />
         </div>
         <h2 className="text-[20px] text-foreground">Something went wrong</h2>
-        <p className="text-default-500">
+        <p className="text-muted-foreground">
           An error occurred while loading this page.
         </p>
         <div className="flex flex-row items-center gap-2">
@@ -28,7 +28,7 @@ export default function MainError({ error, reset }) {
           </button>
           <Link
             href="/overview/dashboard"
-            className="px-4 py-2 rounded-xl border border-foreground/15 hover:bg-default-100 transition-colors"
+            className="px-4 py-2 rounded-xl border border-border hover:bg-default-100 transition-colors"
           >
             Back to Home
           </Link>

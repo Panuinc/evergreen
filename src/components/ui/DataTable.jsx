@@ -303,13 +303,13 @@ export default function DataTable({
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">
+          <span className="text-muted-foreground text-small">
             ทั้งหมด {filteredItems.length} รายการ
           </span>
-          <label className="flex items-center text-default-400 text-small gap-1">
+          <label className="flex items-center text-muted-foreground text-small gap-1">
             แถวต่อหน้า:
             <select
-              className="bg-transparent outline-none text-default-400 text-small cursor-pointer"
+              className="bg-transparent outline-none text-muted-foreground text-small cursor-pointer"
               value={rowsPerPage}
               onChange={onRowsPerPageChange}
             >
@@ -346,7 +346,7 @@ export default function DataTable({
   const bottomContent = useMemo(() => {
     return (
       <div className="flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-400" />
+        <span className="w-[30%] text-small text-muted-foreground" />
         <Pagination
           isCompact
           showControls
@@ -389,7 +389,7 @@ export default function DataTable({
             <Spinner />
           </div>
         ) : sortedItems.length === 0 ? (
-          <div className="flex items-center justify-center w-full py-12 text-default-400">
+          <div className="flex items-center justify-center w-full py-12 text-muted-foreground">
             {emptyContent}
           </div>
         ) : (
@@ -400,7 +400,7 @@ export default function DataTable({
                 variant="bordered"
                 radius="md"
                 shadow="none"
-                className="border-2 border-foreground/15"
+                className="border border-border hover:border-primary transition-colors duration-200"
               >
                 <CardBody className="gap-3">
                   {cardColumns.title && (
@@ -411,7 +411,7 @@ export default function DataTable({
                   <div className="flex flex-col gap-1 text-sm">
                     {cardColumns.fields.map((col) => (
                       <div key={col.uid} className="flex justify-between">
-                        <span className="text-default-400">{col.name}</span>
+                        <span className="text-muted-foreground">{col.name}</span>
                         <span>{renderCell(item, col.uid)}</span>
                       </div>
                     ))}
@@ -444,8 +444,8 @@ export default function DataTable({
       onSortChange={setSortDescriptor}
       shadow="none"
       classNames={{
-        th: "border-b-2 border-r-2 border-foreground/15 last:border-r-0",
-        td: "border-b-2 border-r-2 border-foreground/15 last:border-r-0",
+        th: "border-b border-r border-border last:border-r-0",
+        td: "border-b border-r border-border last:border-r-0",
         table: "min-w-[600px]",
       }}
     >

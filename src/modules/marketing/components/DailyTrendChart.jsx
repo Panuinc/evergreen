@@ -8,7 +8,7 @@ function formatCurrency(value) {
 
 export default function DailyTrendChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูลเดือนนี้</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูลเดือนนี้</p>;
   }
 
   const chartData = data.map((d) => ({

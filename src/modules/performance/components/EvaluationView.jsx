@@ -75,7 +75,7 @@ export default function EvaluationView({
     <div className="flex flex-col w-full h-full gap-4">
       <div>
         <h1 className="text-lg font-semibold">ประเมินค่านิยม CHH²</h1>
-        <p className="text-default-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           ประเมินพนักงาน 6 ด้าน พร้อม Spider Chart & ประวัติเปรียบเทียบรายรอบ
         </p>
       </div>
@@ -274,7 +274,7 @@ function EvaluateTab({
             </div>
 
             {currentEmployee && (
-              <p className="text-sm text-default-400">
+              <p className="text-sm text-muted-foreground">
                 ผู้ประเมิน: {currentEmployee.hrEmployeeFirstName}{" "}
                 {currentEmployee.hrEmployeeLastName} | รอบ: {perfEvaluationPeriod}
               </p>
@@ -309,7 +309,7 @@ function EvaluateTab({
               <p className="text-sm font-medium">
                 ตอบแล้ว {answeredCount}/{totalQuestions}
               </p>
-              <p className="text-sm text-default-400">{progress}%</p>
+              <p className="text-sm text-muted-foreground">{progress}%</p>
             </div>
             <Progress
               value={progress}
@@ -318,8 +318,8 @@ function EvaluateTab({
             />
             {overallScore > 0 && (
               <div className="flex items-center gap-3 mt-3">
-                <span className="text-sm text-default-500">คะแนนเฉลี่ย:</span>
-                <span className="text-lg font-bold">
+                <span className="text-sm text-muted-foreground">คะแนนเฉลี่ย:</span>
+                <span className="text-lg font-semibold">
                   {overallScore.toFixed(2)}
                 </span>
                 <Chip size="md" radius="md" color={getGradeColor(grade)}>
@@ -346,7 +346,7 @@ function EvaluateTab({
                     <span className="font-semibold">
                       {catIdx + 1}. {cat.name}
                     </span>
-                    <span className="text-default-400 text-sm">
+                    <span className="text-muted-foreground text-sm">
                       ({cat.nameTh})
                     </span>
                     <Chip size="md" radius="md" variant="bordered" color={answered === 5 ? "success" : "default"}>
@@ -364,7 +364,7 @@ function EvaluateTab({
                   {cat.questions.map((question, qIdx) => (
                     <div key={qIdx}>
                       <p className="text-sm mb-2">
-                        <span className="text-default-400 mr-2">
+                        <span className="text-muted-foreground mr-2">
                           {qIdx + 1}
                         </span>
                         {question}
@@ -552,7 +552,7 @@ function MyResultsTab({
       ) : myResults.length === 0 ? (
         <Card>
           <CardBody>
-            <p className="text-center text-default-400 py-8">
+            <p className="text-center text-muted-foreground py-8">
               ยังไม่มีผลประเมิน
             </p>
           </CardBody>
@@ -585,7 +585,7 @@ function MyResultsTab({
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-foreground/15">
+                    <tr className="border-b border-border">
                       <th className="text-left py-2 px-3">รอบ</th>
                       {EVALUATION_CATEGORIES.map((cat) => (
                         <th key={cat.key} className="text-center py-2 px-2">
@@ -604,7 +604,7 @@ function MyResultsTab({
                       .map((r) => (
                         <tr
                           key={r.period}
-                          className="border-b border-foreground/15"
+                          className="border-b border-border"
                         >
                           <td className="py-2 px-3 font-medium">
                             Q{r.quarter}/{r.year}
@@ -617,7 +617,7 @@ function MyResultsTab({
                               {(r.categoryAverages?.[cat.key] || 0).toFixed(1)}
                             </td>
                           ))}
-                          <td className="text-center py-2 px-3 font-bold">
+                          <td className="text-center py-2 px-3 font-semibold">
                             {r.overallScore?.toFixed(2)}
                           </td>
                           <td className="text-center py-2 px-3">
@@ -625,7 +625,7 @@ function MyResultsTab({
                               {r.grade}
                             </Chip>
                           </td>
-                          <td className="text-center py-2 px-3 text-default-400">
+                          <td className="text-center py-2 px-3 text-muted-foreground">
                             {r.evaluatorCount} คน
                           </td>
                           <td className="text-center py-2 px-3">
@@ -759,7 +759,7 @@ function AdminTab({
       ) : adminSummary.length === 0 ? (
         <Card>
           <CardBody>
-            <p className="text-center text-default-400 py-8">
+            <p className="text-center text-muted-foreground py-8">
               กดปุ่ม "โหลดสรุป" เพื่อดูผลประเมิน หรือยังไม่มีข้อมูลในรอบนี้
             </p>
           </CardBody>
@@ -774,7 +774,7 @@ function AdminTab({
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-foreground/15">
+                  <tr className="border-b border-border">
                     <th className="text-left py-2 px-3">#</th>
                     <th className="text-left py-2 px-3">ชื่อพนักงาน</th>
                     <th className="text-left py-2 px-3">แผนก</th>
@@ -792,7 +792,7 @@ function AdminTab({
                   {adminSummary.map((row, idx) => (
                     <tr
                       key={row.employee?.hrEmployeeId || idx}
-                      className={`border-b border-foreground/15 hover:bg-default-50 cursor-pointer ${selectedAdminEmployee === row.employee?.hrEmployeeId ? "bg-primary-50" : ""}`}
+                      className={`border-b border-border hover:bg-default-50 cursor-pointer ${selectedAdminEmployee === row.employee?.hrEmployeeId ? "bg-primary-50" : ""}`}
                       onClick={() => {
                         if (selectedAdminEmployee === row.employee?.hrEmployeeId) {
                           setSelectedAdminEmployee(null);
@@ -803,14 +803,14 @@ function AdminTab({
                         }
                       }}
                     >
-                      <td className="py-2 px-3 text-default-400">
+                      <td className="py-2 px-3 text-muted-foreground">
                         {idx + 1}
                       </td>
                       <td className="py-2 px-3 font-medium">
                         {row.employee?.hrEmployeeFirstName}{" "}
                         {row.employee?.hrEmployeeLastName}
                       </td>
-                      <td className="py-2 px-3 text-default-500">
+                      <td className="py-2 px-3 text-muted-foreground">
                         {row.employee?.hrEmployeeDepartment || "-"}
                       </td>
                       {EVALUATION_CATEGORIES.map((cat) => (
@@ -818,7 +818,7 @@ function AdminTab({
                           {(row.categoryAverages?.[cat.key] || 0).toFixed(1)}
                         </td>
                       ))}
-                      <td className="text-center py-2 px-3 font-bold">
+                      <td className="text-center py-2 px-3 font-semibold">
                         {row.overallScore?.toFixed(2)}
                       </td>
                       <td className="text-center py-2 px-3">
@@ -826,7 +826,7 @@ function AdminTab({
                           {row.grade}
                         </Chip>
                       </td>
-                      <td className="text-center py-2 px-3 text-default-400">
+                      <td className="text-center py-2 px-3 text-muted-foreground">
                         {row.evaluatorCount} คน
                       </td>
                     </tr>
@@ -835,7 +835,7 @@ function AdminTab({
               </table>
             </div>
             {selectedAdminEmployee && (
-              <p className="text-xs text-default-400 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 คลิกอีกครั้งเพื่อยกเลิกการเลือก
               </p>
             )}

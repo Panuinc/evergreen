@@ -60,7 +60,7 @@ export default async function QuotationPage({ params }) {
   if (!quotation) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-lg text-default-500">ไม่พบใบเสนอราคา</p>
+        <p className="text-lg text-muted-foreground">ไม่พบใบเสนอราคา</p>
       </div>
     );
   }

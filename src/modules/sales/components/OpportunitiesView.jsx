@@ -108,7 +108,7 @@ export default function OpportunitiesView({
       switch (columnKey) {
         case "crmOpportunityNo":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {item.crmOpportunityNo || "-"}
             </span>
           );
@@ -310,7 +310,7 @@ export default function OpportunitiesView({
                       <span className="font-medium text-sm">
                         {stage.name}
                       </span>
-                      <span className="text-xs text-default-500">
+                      <span className="text-sm text-muted-foreground">
                         {stageOpps.length} ดีล &middot; ฿
                         {totalValue.toLocaleString()}
                       </span>
@@ -320,13 +320,13 @@ export default function OpportunitiesView({
                     {stageOpps.map((opp) => (
                       <div
                         key={opp.crmOpportunityId}
-                        className="flex flex-col gap-1 p-3 bg-background rounded-md border border-foreground/15 cursor-pointer hover:border-foreground/15 transition-colors"
+                        className="flex flex-col gap-1 p-3 bg-background rounded-md border border-border cursor-pointer hover:border-border transition-colors"
                         onClick={() => handleOpen(opp)}
                       >
                         <span className="font-medium text-sm">
                           {opp.crmOpportunityName}
                         </span>
-                        <span className="text-xs text-default-500">
+                        <span className="text-sm text-muted-foreground">
                           {opp.crmContact
                             ? `${opp.crmContact.crmContactFirstName} ${opp.crmContact.crmContactLastName}`
                             : "-"}
@@ -338,7 +338,7 @@ export default function OpportunitiesView({
                               opp.crmOpportunityAmount || 0,
                             ).toLocaleString()}
                           </span>
-                          <span className="text-xs text-default-500">
+                          <span className="text-sm text-muted-foreground">
                             {opp.crmOpportunityProbability != null
                               ? `${opp.crmOpportunityProbability}%`
                               : "-"}
@@ -347,7 +347,7 @@ export default function OpportunitiesView({
                       </div>
                     ))}
                     {stageOpps.length === 0 && (
-                      <div className="text-center text-xs text-default-400 py-4">
+                      <div className="text-center text-sm text-muted-foreground py-4">
                         ไม่มีโอกาสขาย
                       </div>
                     )}

@@ -46,17 +46,17 @@ function KpiCard({ title, value, unit, color = "default", subtitle }) {
     default: "",
   };
   return (
-    <Card shadow="none" className="border border-foreground/15">
+    <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="gap-1">
-        <p className="text-xs text-default-500">{title}</p>
+        <p className="text-sm text-muted-foreground">{title}</p>
         <div className="flex items-baseline gap-1">
-          <p className={`text-2xl font-bold ${colorClass[color] || ""}`}>
+          <p className={`text-2xl font-semibold ${colorClass[color] || ""}`}>
             {value}
           </p>
-          {unit && <span className="text-xs text-default-400">{unit}</span>}
+          {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
         </div>
         {subtitle && (
-          <p className="text-xs text-default-400">{subtitle}</p>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         )}
       </CardBody>
     </Card>
@@ -65,7 +65,7 @@ function KpiCard({ title, value, unit, color = "default", subtitle }) {
 
 function ChartCard({ title, children }) {
   return (
-    <Card shadow="none" className="border border-foreground/15">
+    <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardHeader className="pb-0">
         <p className="text-sm font-semibold">{title}</p>
       </CardHeader>
@@ -275,7 +275,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
       </ChartCard>
 
       {/* Section 3.5: Profit by project (detail) */}
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
           <p className="text-sm font-semibold">วิเคราะห์กำไรตามโครงการ (ละเอียดรายสินค้า)</p>
         </CardHeader>
@@ -315,7 +315,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
 
       {/* Section 6.5: WIP Detail Table */}
       {d.wipDetail?.length > 0 && (
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold">
@@ -344,7 +344,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
 
       {/* Section 7: Overdue orders */}
       {d.overdueOrders?.length > 0 && (
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold text-danger">
@@ -371,60 +371,60 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
       )}
 
       {/* Section 8: Dashboard description */}
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
           <p className="text-sm font-semibold">คำอธิบาย Dashboard</p>
         </CardHeader>
-        <CardBody className="text-xs text-default-500 leading-relaxed">
+        <CardBody className="text-sm text-muted-foreground leading-relaxed">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* KPI */}
             <div>
-              <p className="font-semibold text-default-700 mb-2">KPI Cards</p>
+              <p className="font-semibold text-foreground mb-2">KPI Cards</p>
               <ul className="list-disc pl-4 space-y-1">
-                <li><span className="font-medium text-default-600">ใบสั่งผลิตทั้งหมด</span> — จำนวนใบสั่งผลิตในระบบ แยก Released / Finished</li>
-                <li><span className="font-medium text-default-600">อัตราส่งตรงเวลา</span> — % ใบที่เสร็จก่อนหรือตรงกำหนด (finishedDate ≤ dueDate)</li>
-                <li><span className="font-medium text-default-600">ระยะเวลาผลิตเฉลี่ย</span> — เฉลี่ยกี่วันจากเริ่มผลิตจนเสร็จ</li>
-                <li><span className="font-medium text-default-600">ต้นทุนวัตถุดิบ</span> — มูลค่าวัตถุดิบที่เบิกใช้ทั้งหมด (Consumption entries)</li>
-                <li><span className="font-medium text-default-600">รายได้จากการขาย</span> — ราคาขาย/ชิ้น x จำนวนที่ผลิตได้ (ราคาขายจาก Sales Order)</li>
-                <li><span className="font-medium text-default-600">กำไร/ขาดทุน</span> — รายได้ - ต้นทุนวัตถุดิบ</li>
-                <li><span className="font-medium text-default-600">อัตรากำไร</span> — กำไร / รายได้ x 100</li>
-                <li><span className="font-medium text-default-600">WIP (Work In Progress)</span> — ต้นทุนวัตถุดิบที่เบิกไปแล้วในใบที่ยัง Released (เงินจมในงานที่ยังไม่เสร็จ)</li>
-                <li><span className="font-medium text-default-600">ผลผลิต FG</span> — จำนวนสินค้าสำเร็จรูปที่ผลิตได้ทั้งหมด</li>
-                <li><span className="font-medium text-default-600">เกินกำหนดส่ง</span> — ใบ Released ที่เลยกำหนดส่งแล้ว</li>
+                <li><span className="font-medium text-foreground">ใบสั่งผลิตทั้งหมด</span> — จำนวนใบสั่งผลิตในระบบ แยก Released / Finished</li>
+                <li><span className="font-medium text-foreground">อัตราส่งตรงเวลา</span> — % ใบที่เสร็จก่อนหรือตรงกำหนด (finishedDate ≤ dueDate)</li>
+                <li><span className="font-medium text-foreground">ระยะเวลาผลิตเฉลี่ย</span> — เฉลี่ยกี่วันจากเริ่มผลิตจนเสร็จ</li>
+                <li><span className="font-medium text-foreground">ต้นทุนวัตถุดิบ</span> — มูลค่าวัตถุดิบที่เบิกใช้ทั้งหมด (Consumption entries)</li>
+                <li><span className="font-medium text-foreground">รายได้จากการขาย</span> — ราคาขาย/ชิ้น x จำนวนที่ผลิตได้ (ราคาขายจาก Sales Order)</li>
+                <li><span className="font-medium text-foreground">กำไร/ขาดทุน</span> — รายได้ - ต้นทุนวัตถุดิบ</li>
+                <li><span className="font-medium text-foreground">อัตรากำไร</span> — กำไร / รายได้ x 100</li>
+                <li><span className="font-medium text-foreground">WIP (Work In Progress)</span> — ต้นทุนวัตถุดิบที่เบิกไปแล้วในใบที่ยัง Released (เงินจมในงานที่ยังไม่เสร็จ)</li>
+                <li><span className="font-medium text-foreground">ผลผลิต FG</span> — จำนวนสินค้าสำเร็จรูปที่ผลิตได้ทั้งหมด</li>
+                <li><span className="font-medium text-foreground">เกินกำหนดส่ง</span> — ใบ Released ที่เลยกำหนดส่งแล้ว</li>
               </ul>
             </div>
 
             {/* Charts */}
             <div>
-              <p className="font-semibold text-default-700 mb-2">กราฟและตาราง</p>
+              <p className="font-semibold text-foreground mb-2">กราฟและตาราง</p>
               <ul className="list-disc pl-4 space-y-1">
-                <li><span className="font-medium text-default-600">แนวโน้มรายวัน</span> — ต้นทุนวัตถุดิบ vs รายได้ รายวัน (เขียวสูงกว่าเหลือง = กำไร)</li>
-                <li><span className="font-medium text-default-600">อัตราส่งตรงเวลา/ระยะเวลาเฉลี่ย รายเดือน</span> — แนวโน้มประสิทธิภาพการผลิต</li>
-                <li><span className="font-medium text-default-600">ผลผลิต FG ตามประเภท</span> — จำนวนผลิตแยกตามประเภทสินค้า (ประตู, วงกบ, ...)</li>
-                <li><span className="font-medium text-default-600">กำไร/ขาดทุนต่อสินค้า</span> — เขียว = กำไร, แดง = ขาดทุน แต่ละรายการ</li>
-                <li><span className="font-medium text-default-600">วิเคราะห์กำไรตามโครงการ</span> — กดเปิดดูรายละเอียดสินค้าในแต่ละโครงการ</li>
-                <li><span className="font-medium text-default-600">Top 10 วัตถุดิบต้นทุนสูงสุด</span> — วัตถุดิบที่เปลืองเงินมากที่สุด</li>
-                <li><span className="font-medium text-default-600">ต้นทุน vs รายได้ ตามโครงการ</span> — เปรียบเทียบต้นทุนกับรายได้แต่ละโครงการ</li>
-                <li><span className="font-medium text-default-600">ช่างเก่งด้านไหน</span> — จัดอันดับช่างตามผลงาน + ความเร็วผลิต (วัน/ใบ) แยกตามประเภทสินค้า</li>
-                <li><span className="font-medium text-default-600">WIP รายใบสั่งผลิต</span> — แดง = ต้นทุนสูงกว่ารายได้, เขียว = มีกำไร</li>
-                <li><span className="font-medium text-default-600">ความคืบหน้าใบสั่งผลิต</span> — แผนผลิต vs ผลิตแล้ว vs คงเหลือ พร้อม % ความคืบหน้า</li>
+                <li><span className="font-medium text-foreground">แนวโน้มรายวัน</span> — ต้นทุนวัตถุดิบ vs รายได้ รายวัน (เขียวสูงกว่าเหลือง = กำไร)</li>
+                <li><span className="font-medium text-foreground">อัตราส่งตรงเวลา/ระยะเวลาเฉลี่ย รายเดือน</span> — แนวโน้มประสิทธิภาพการผลิต</li>
+                <li><span className="font-medium text-foreground">ผลผลิต FG ตามประเภท</span> — จำนวนผลิตแยกตามประเภทสินค้า (ประตู, วงกบ, ...)</li>
+                <li><span className="font-medium text-foreground">กำไร/ขาดทุนต่อสินค้า</span> — เขียว = กำไร, แดง = ขาดทุน แต่ละรายการ</li>
+                <li><span className="font-medium text-foreground">วิเคราะห์กำไรตามโครงการ</span> — กดเปิดดูรายละเอียดสินค้าในแต่ละโครงการ</li>
+                <li><span className="font-medium text-foreground">Top 10 วัตถุดิบต้นทุนสูงสุด</span> — วัตถุดิบที่เปลืองเงินมากที่สุด</li>
+                <li><span className="font-medium text-foreground">ต้นทุน vs รายได้ ตามโครงการ</span> — เปรียบเทียบต้นทุนกับรายได้แต่ละโครงการ</li>
+                <li><span className="font-medium text-foreground">ช่างเก่งด้านไหน</span> — จัดอันดับช่างตามผลงาน + ความเร็วผลิต (วัน/ใบ) แยกตามประเภทสินค้า</li>
+                <li><span className="font-medium text-foreground">WIP รายใบสั่งผลิต</span> — แดง = ต้นทุนสูงกว่ารายได้, เขียว = มีกำไร</li>
+                <li><span className="font-medium text-foreground">ความคืบหน้าใบสั่งผลิต</span> — แผนผลิต vs ผลิตแล้ว vs คงเหลือ พร้อม % ความคืบหน้า</li>
               </ul>
             </div>
 
             {/* Data sources */}
             <div>
-              <p className="font-semibold text-default-700 mb-2">แหล่งข้อมูล</p>
+              <p className="font-semibold text-foreground mb-2">แหล่งข้อมูล</p>
               <ul className="list-disc pl-4 space-y-1">
-                <li><span className="font-medium text-default-600">bcProductionOrders</span> — ใบสั่งผลิต, สถานะ, วันกำหนดส่ง, วันเริ่ม/เสร็จ, แผนก, โครงการ</li>
-                <li><span className="font-medium text-default-600">bcItemLedgerEntries</span> — รายการเบิกวัตถุดิบ (Consumption) + ผลผลิต (Output), ชื่อช่าง</li>
-                <li><span className="font-medium text-default-600">bcSalesOrderLines</span> — ราคาขาย/ชิ้น สำหรับคำนวณรายได้</li>
-                <li><span className="font-medium text-default-600">bcItems</span> — ประเภทสินค้า (itemCategoryCode)</li>
+                <li><span className="font-medium text-foreground">bcProductionOrders</span> — ใบสั่งผลิต, สถานะ, วันกำหนดส่ง, วันเริ่ม/เสร็จ, แผนก, โครงการ</li>
+                <li><span className="font-medium text-foreground">bcItemLedgerEntries</span> — รายการเบิกวัตถุดิบ (Consumption) + ผลผลิต (Output), ชื่อช่าง</li>
+                <li><span className="font-medium text-foreground">bcSalesOrderLines</span> — ราคาขาย/ชิ้น สำหรับคำนวณรายได้</li>
+                <li><span className="font-medium text-foreground">bcItems</span> — ประเภทสินค้า (itemCategoryCode)</li>
               </ul>
             </div>
 
             {/* Notes */}
             <div>
-              <p className="font-semibold text-default-700 mb-2">หมายเหตุ</p>
+              <p className="font-semibold text-foreground mb-2">หมายเหตุ</p>
               <ul className="list-disc pl-4 space-y-1">
                 <li>Dashboard แบ่งเป็น 2 Tab: <span className="font-medium">WPC</span> (แผนก WPC) และ <span className="font-medium">อื่นๆ</span></li>
                 <li>ทุก KPI และกราฟคำนวณแยกตาม Tab</li>
@@ -477,15 +477,15 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
   const renderWipCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "orderNo":
-        return <span className="font-medium text-xs">{item.orderNo}</span>;
+        return <span className="font-medium text-sm">{item.orderNo}</span>;
       case "description":
         return (
-          <span className="max-w-48 truncate block text-xs">
+          <span className="max-w-48 truncate block text-sm">
             {item.description || "-"}
           </span>
         );
       case "sourceNo":
-        return <span className="text-xs">{item.sourceNo || "-"}</span>;
+        return <span className="text-sm">{item.sourceNo || "-"}</span>;
       case "uom":
         return (
           <Chip size="sm" variant="flat" color="default">
@@ -494,15 +494,15 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         );
       case "plannedQty":
       case "outputQty":
-        return <span className="text-xs">{fmt(item[columnKey])}</span>;
+        return <span className="text-sm">{fmt(item[columnKey])}</span>;
       case "remainQty":
         return (
-          <span className={`text-xs font-medium ${
+          <span className={`text-sm font-medium ${
             item.remainQty < 0
               ? "text-primary"
               : item.remainQty === 0
                 ? "text-success"
-                : "text-default-600"
+                : "text-foreground"
           }`}>
             {item.remainQty < 0
               ? `เกิน ${fmt(Math.abs(item.remainQty))}`
@@ -537,19 +537,19 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
       }
       case "consumptionCost":
       case "revenue":
-        return <span className="text-xs">{fmtCurrency(item[columnKey])}</span>;
+        return <span className="text-sm">{fmtCurrency(item[columnKey])}</span>;
       case "wipValue":
         return (
-          <span className={`text-xs font-semibold ${item.wipValue > 0 ? "text-danger" : "text-success"}`}>
+          <span className={`text-sm font-semibold ${item.wipValue > 0 ? "text-danger" : "text-success"}`}>
             {fmtCurrency(item.wipValue)}
           </span>
         );
       case "dueDate":
         return item.dueDate
-          ? <span className="text-xs">{new Date(item.dueDate).toLocaleDateString("th-TH")}</span>
+          ? <span className="text-sm">{new Date(item.dueDate).toLocaleDateString("th-TH")}</span>
           : "-";
       default:
-        return <span className="text-xs">{item[columnKey] || "-"}</span>;
+        return <span className="text-sm">{item[columnKey] || "-"}</span>;
     }
   }, []);
 
@@ -577,7 +577,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         {setCompareMode && (
           <div className="flex items-center gap-2">
             {isCompare && data.labels && (
-              <span className="text-xs text-default-400">
+              <span className="text-sm text-muted-foreground">
                 {data.labels.current} vs {data.labels.previous}
               </span>
             )}

@@ -85,13 +85,13 @@ export default function PositionsView({
           return pos.hrPositionDepartment || "-";
         case "hrPositionDescription":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {pos.hrPositionDescription || "-"}
             </span>
           );
         case "hrPositionCreatedAt":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {new Date(pos.hrPositionCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );

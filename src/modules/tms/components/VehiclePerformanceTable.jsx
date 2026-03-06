@@ -31,12 +31,12 @@ function StatItem({ icon: Icon, label, value, sub }) {
   return (
     <div className="flex items-start gap-2">
       <div className="p-1.5 rounded-md bg-default-100 mt-0.5">
-        <Icon size={14} className="text-default-500" />
+        <Icon size={14} className="text-muted-foreground" />
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-default-400">{label}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
         <p className="text-sm font-semibold">{value}</p>
-        {sub && <p className="text-xs text-default-400">{sub}</p>}
+        {sub && <p className="text-sm text-muted-foreground">{sub}</p>}
       </div>
     </div>
   );
@@ -57,7 +57,7 @@ function FuelDiffBadge({ estimated, actual }) {
 
 export default function VehiclePerformanceTable({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   const sorted = [...data].sort((a, b) => b.totalDistanceKm - a.totalDistanceKm);
@@ -66,16 +66,16 @@ export default function VehiclePerformanceTable({ data = [] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {sorted.map((v) => (
-        <Card key={v.vehicleId} shadow="none" className="border border-foreground/15">
+        <Card key={v.vehicleId} shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-4 gap-3">
             {/* Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Truck size={16} className="text-default-500" />
+                <Truck size={16} className="text-muted-foreground" />
                 <div>
                   <p className="text-sm font-semibold">{v.vehicleName || v.plateNumber}</p>
                   {v.vehicleName && (
-                    <p className="text-xs text-default-400">{v.plateNumber}</p>
+                    <p className="text-sm text-muted-foreground">{v.plateNumber}</p>
                   )}
                 </div>
               </div>
@@ -88,8 +88,8 @@ export default function VehiclePerformanceTable({ data = [] }) {
             {v.totalDistanceKm > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-default-400">ระยะทาง</span>
-                  <span className="text-xs font-medium">{fmt(v.totalDistanceKm)} กม.</span>
+                  <span className="text-sm text-muted-foreground">ระยะทาง</span>
+                  <span className="text-sm font-medium">{fmt(v.totalDistanceKm)} กม.</span>
                 </div>
                 <Progress
                   size="sm"

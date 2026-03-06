@@ -28,11 +28,11 @@ export default function BcCustomersView({ customers, loading }) {
         return <span className="font-medium">{customer.bcCustomerDisplayName}</span>;
       case "bcCustomerContact":
         return (
-          <span className="text-default-500">{customer.bcCustomerContact || "-"}</span>
+          <span className="text-muted-foreground">{customer.bcCustomerContact || "-"}</span>
         );
       case "bcCustomerPhoneNumber":
         return (
-          <span className="text-default-500">
+          <span className="text-muted-foreground">
             {customer.bcCustomerPhoneNumber || "-"}
           </span>
         );

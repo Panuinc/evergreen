@@ -104,7 +104,7 @@ export default function KpiView({
     <div className="flex flex-col w-full h-full gap-4">
       <div>
         <h1 className="text-lg font-semibold">KPI (Key Performance Indicators)</h1>
-        <p className="text-default-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           วัดผลงานด้วยตัวชี้วัด ติดตามแนวโน้ม และจัดการ KPI ทั้งองค์กร
         </p>
       </div>
@@ -235,7 +235,7 @@ function MyKpiTab({
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : myAssignments.length === 0 ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             ยังไม่มี KPI ที่ถูก assign ให้คุณในปีนี้
           </CardBody>
         </Card>
@@ -322,8 +322,8 @@ function SummaryCard({ label, count, total, color }) {
     <Card>
       <CardBody className="flex flex-row items-center gap-4">
         <div className="flex-1">
-          <p className="text-sm text-default-500">{label}</p>
-          <p className="text-2xl font-bold">{count}</p>
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="text-2xl font-semibold">{count}</p>
         </div>
         <Chip color={color} variant="bordered" size="md" radius="md">
           {total > 0 ? Math.round((count / total) * 100) : 0}%
@@ -348,7 +348,7 @@ function KpiCard({ assignment, onRecord, onTrend }) {
         <div className="flex justify-between items-start">
           <div>
             <h4 className="font-semibold">{def.perfKpiDefinitionName}</h4>
-            <p className="text-xs text-default-400">
+            <p className="text-sm text-muted-foreground">
               {getCategoryLabel(def.perfKpiDefinitionCategory)} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
             </p>
           </div>
@@ -358,10 +358,10 @@ function KpiCard({ assignment, onRecord, onTrend }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-bold">
+          <span className="text-2xl font-semibold">
             {assignment.latestValue != null ? assignment.latestValue : "-"}
           </span>
-          <span className="text-sm text-default-400">
+          <span className="text-sm text-muted-foreground">
             / {assignment.targetValue} {def.perfKpiDefinitionUnit}
           </span>
         </div>
@@ -430,7 +430,7 @@ function DashboardTab({
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : grouped.length === 0 ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             ยังไม่มีข้อมูล KPI ในปีนี้
           </CardBody>
         </Card>
@@ -446,7 +446,7 @@ function DashboardTab({
                 <div className="flex justify-between items-center w-full">
                   <div>
                     <h3 className="font-semibold">{def.perfKpiDefinitionName}</h3>
-                    <p className="text-xs text-default-400">
+                    <p className="text-sm text-muted-foreground">
                       {getCategoryLabel(def.perfKpiDefinitionCategory)} | {def.perfKpiDefinitionUnit} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
                     </p>
                   </div>
@@ -517,7 +517,7 @@ function ManageTab({
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : definitions.length === 0 ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             ยังไม่มี KPI — กดปุ่ม "สร้าง KPI" เพื่อเริ่มต้น
           </CardBody>
         </Card>
@@ -534,8 +534,8 @@ function ManageTab({
                     <Chip size="md" radius="md" variant="bordered">{getFrequencyLabel(def.perfKpiDefinitionFrequency)}</Chip>
                     {!def.perfKpiDefinitionIsActive && <Chip size="md" radius="md" color="danger" variant="bordered">ปิดใช้งาน</Chip>}
                   </div>
-                  {def.perfKpiDefinitionDescription && <p className="text-xs text-default-400 mt-1">{def.perfKpiDefinitionDescription}</p>}
-                  <p className="text-xs text-default-500 mt-1">
+                  {def.perfKpiDefinitionDescription && <p className="text-sm text-muted-foreground mt-1">{def.perfKpiDefinitionDescription}</p>}
+                  <p className="text-sm text-muted-foreground mt-1">
                     เป้าหมาย: {def.perfKpiDefinitionTargetValue ?? "-"} | เตือน: {def.perfKpiDefinitionWarningThreshold ?? "-"} | {def.perfKpiDefinitionHigherIsBetter ? "ยิ่งสูงยิ่งดี" : "ยิ่งต่ำยิ่งดี"}
                   </p>
                 </div>
@@ -795,7 +795,7 @@ function RecordModal({
         <ModalHeader>บันทึกค่า: {def.perfKpiDefinitionName}</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
-            <div className="text-sm text-default-500">
+            <div className="text-sm text-muted-foreground">
               เป้าหมาย: <span className="font-semibold">{recordingAssignment.targetValue} {def.perfKpiDefinitionUnit}</span>
               {recordingAssignment.latestValue != null && (
                 <> | ค่าล่าสุด: <span className="font-semibold">{recordingAssignment.latestValue} {def.perfKpiDefinitionUnit}</span></>

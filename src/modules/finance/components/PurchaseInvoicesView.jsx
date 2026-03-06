@@ -81,7 +81,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
       case "number":
         return <span className="font-mono font-medium">{item.number}</span>;
       case "vendorInvoiceNumber":
-        return <span className="text-default-500">{item.vendorInvoiceNumber || "-"}</span>;
+        return <span className="text-muted-foreground">{item.vendorInvoiceNumber || "-"}</span>;
       case "invoiceDate":
         return fmtDate(item.invoiceDate);
       case "dueDate": {
@@ -97,12 +97,12 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
       case "vendorName":
         return <span className="font-medium">{item.vendorName}</span>;
       case "purchaser":
-        return <span className="text-default-500">{item.purchaser || "-"}</span>;
+        return <span className="text-muted-foreground">{item.purchaser || "-"}</span>;
       case "totalAmountIncludingTax":
         return <span>{fmt(item.totalAmountIncludingTax)}</span>;
       case "daysOverdue": {
         const days = item.daysOverdue || 0;
-        if (item.status !== "Open") return <span className="text-default-400">-</span>;
+        if (item.status !== "Open") return <span className="text-muted-foreground">-</span>;
         return (
           <span className={`font-semibold ${daysColor(days)}`}>
             {days > 0 ? `${days} วัน` : "ยังไม่ถึง"}
@@ -151,7 +151,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <span>รายการสินค้า — {selected?.number}</span>
-            <span className="text-sm font-normal text-default-500">
+            <span className="text-sm font-normal text-muted-foreground">
               {selected?.vendorName} | {selected?.vendorInvoiceNumber ? `Ref: ${selected.vendorInvoiceNumber} | ` : ""}
               ยอดรวม {fmt(selected?.totalAmountIncludingTax)}
             </span>
@@ -180,7 +180,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
                     <TableCell className="font-mono">{line.lineObjectNumber || "-"}</TableCell>
                     <TableCell>{line.description || "-"}</TableCell>
                     <TableCell>{line.quantity ? Number(line.quantity).toLocaleString("th-TH") : "-"}</TableCell>
-                    <TableCell className="text-default-500">{line.unitOfMeasureCode || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{line.unitOfMeasureCode || "-"}</TableCell>
                     <TableCell>{fmt(line.unitCost)}</TableCell>
                     <TableCell className="font-medium">{fmt(line.netAmountIncludingTax)}</TableCell>
                   </TableRow>
@@ -189,7 +189,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
             </Table>
           </ModalBody>
           <ModalFooter>
-            <div className="flex items-center gap-4 text-sm text-default-500">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>ก่อน VAT: {fmt(selected?.totalAmountExcludingTax)}</span>
               <span>VAT: {fmt(selected?.totalTaxAmount)}</span>
               <span className="font-semibold text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>

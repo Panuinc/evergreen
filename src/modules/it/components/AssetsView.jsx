@@ -90,7 +90,7 @@ export default function AssetsView({
         case "itAssetName":
           return <span className="font-medium">{item.itAssetName}</span>;
         case "itAssetTag":
-          return <span className="text-default-500">{item.itAssetTag || "-"}</span>;
+          return <span className="text-muted-foreground">{item.itAssetTag || "-"}</span>;
         case "itAssetCategory":
           return item.itAssetCategory || "-";
         case "itAssetBrand":

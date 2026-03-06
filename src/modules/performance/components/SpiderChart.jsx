@@ -28,7 +28,7 @@ export default function SpiderChart({
 }) {
   if (!datasets.length) {
     return (
-      <p className="text-sm text-default-400 text-center py-8">
+      <p className="text-sm text-muted-foreground text-center py-8">
         ยังไม่มีข้อมูล
       </p>
     );

@@ -21,7 +21,7 @@ export default function LineChart({
 }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center text-default-400" style={{ height }}>
+      <div className="flex items-center justify-center text-muted-foreground" style={{ height }}>
         ยังไม่มีข้อมูล
       </div>
     );

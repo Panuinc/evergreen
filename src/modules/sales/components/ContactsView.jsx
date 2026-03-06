@@ -79,7 +79,7 @@ export default function ContactsView({
     (item, columnKey) => {
       switch (columnKey) {
         case "crmContactNo":
-          return <span className="text-default-500">{item.crmContactNo || "-"}</span>;
+          return <span className="text-muted-foreground">{item.crmContactNo || "-"}</span>;
         case "crmContactName":
           return (
             <span className="font-medium">

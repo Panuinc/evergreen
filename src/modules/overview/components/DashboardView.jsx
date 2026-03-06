@@ -32,7 +32,7 @@ function AssistantMessage({ content, isLoading }) {
   return (
     <div className="flex gap-3 max-w-3xl w-full">
       {/* Avatar */}
-      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold mt-0.5">
+      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold mt-0.5">
         E
       </div>
 
@@ -47,19 +47,19 @@ function AssistantMessage({ content, isLoading }) {
               components={{
                 table: ({ children }) => (
                   <div className="overflow-x-auto my-2">
-                    <table className="border-collapse w-full text-xs">{children}</table>
+                    <table className="border-collapse w-full text-sm">{children}</table>
                   </div>
                 ),
                 thead: ({ children }) => (
                   <thead className="bg-default-100">{children}</thead>
                 ),
                 th: ({ children }) => (
-                  <th className="border border-foreground/15 px-3 py-1.5 text-left font-semibold text-foreground">
+                  <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">
                     {children}
                   </th>
                 ),
                 td: ({ children }) => (
-                  <td className="border border-foreground/15 px-3 py-1.5 text-foreground">
+                  <td className="border border-border px-3 py-1.5 text-foreground">
                     {children}
                   </td>
                 ),
@@ -79,12 +79,12 @@ function AssistantMessage({ content, isLoading }) {
                 ),
                 code: ({ inline, children }) =>
                   inline ? (
-                    <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">
+                    <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">
                       {children}
                     </code>
                   ) : (
                     <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
-                      <code className="text-xs font-mono">{children}</code>
+                      <code className="text-sm font-mono">{children}</code>
                     </pre>
                   ),
               }}
@@ -148,7 +148,7 @@ export default function DashboardView({
                 <h1 className="text-2xl font-semibold text-foreground">
                   Evergreen AI Assistant
                 </h1>
-                <p className="text-default-500 text-sm mt-1">
+                <p className="text-muted-foreground text-sm mt-1">
                   ถามอะไรก็ได้เกี่ยวกับข้อมูลในระบบ
                 </p>
               </div>
@@ -160,7 +160,7 @@ export default function DashboardView({
                 <button
                   key={s}
                   onClick={() => handleSuggestion(s)}
-                  className="text-left px-4 py-3 rounded-xl border border-foreground/15 hover:border-foreground/15 hover:bg-default-50 text-sm text-default-600 transition-colors"
+                  className="text-left px-4 py-3 rounded-xl border border-border hover:border-border hover:bg-default-50 text-sm text-foreground transition-colors"
                 >
                   {s}
                 </button>
@@ -191,16 +191,16 @@ export default function DashboardView({
       {showScrollBtn && (
         <button
           onClick={scrollToBottom}
-          className="absolute bottom-24 right-6 w-8 h-8 rounded-full bg-default-100 border border-foreground/15 flex items-center justify-center shadow-sm hover:bg-default-200 transition-colors z-10"
+          className="absolute bottom-24 right-6 w-8 h-8 rounded-full bg-default-100 border border-border flex items-center justify-center shadow-sm hover:bg-default-200 transition-colors z-10"
         >
-          <ArrowDown size={14} className="text-default-500" />
+          <ArrowDown size={14} className="text-muted-foreground" />
         </button>
       )}
 
       {/* ── Input area ── */}
       <div className="flex-shrink-0 px-4 pb-4 pt-2">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-end gap-2 rounded-2xl border border-foreground/15 bg-background px-3 py-2 focus-within:border-foreground/15 transition-colors shadow-sm">
+          <div className="flex items-end gap-2 rounded-2xl border border-border bg-background px-3 py-2 focus-within:border-border transition-colors shadow-sm">
             <textarea
               ref={textareaRef}
               rows={1}
@@ -209,13 +209,13 @@ export default function DashboardView({
               onKeyDown={handleKeyDown}
               disabled={isLoading}
               placeholder="ถามอะไรก็ได้... (Shift+Enter เพื่อขึ้นบรรทัดใหม่)"
-              className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-default-400 outline-none min-h-[24px] max-h-40 py-1 disabled:opacity-50"
+              className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-h-[24px] max-h-40 py-1 disabled:opacity-50"
             />
             <div className="flex items-center gap-1 flex-shrink-0 pb-0.5">
               {messages.length > 0 && (
                 <button
                   onClick={clearMessages}
-                  className="p-1.5 rounded-lg text-default-400 hover:text-default-600 hover:bg-default-100 transition-colors"
+                  className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-default-100 transition-colors"
                   title="ล้างประวัติ"
                 >
                   <Trash2 size={15} />
@@ -235,7 +235,7 @@ export default function DashboardView({
               </Button>
             </div>
           </div>
-          <p className="text-center text-xs text-default-400 mt-2">
+          <p className="text-center text-sm text-muted-foreground mt-2">
             AI อาจให้ข้อมูลผิดพลาดได้ กรุณาตรวจสอบข้อมูลสำคัญจากระบบโดยตรง
           </p>
         </div>

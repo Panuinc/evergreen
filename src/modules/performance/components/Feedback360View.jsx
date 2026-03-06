@@ -114,7 +114,7 @@ export default function Feedback360View({
     <div className="flex flex-col w-full h-full gap-4">
       <div>
         <h1 className="text-lg font-semibold">ประเมิน 360 องศา</h1>
-        <p className="text-default-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           ประเมินรอบด้านจากหัวหน้า เพื่อนร่วมงาน ลูกน้อง และตนเอง
         </p>
       </div>
@@ -231,7 +231,7 @@ function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : pendingReviews.length === 0 ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             ไม่มีรายการรอประเมิน
           </CardBody>
         </Card>
@@ -252,7 +252,7 @@ function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
                       {relType.label}
                     </Chip>
                   </div>
-                  <p className="text-sm text-default-400">
+                  <p className="text-sm text-muted-foreground">
                     {nom.cycle?.perf360CycleName} | กำหนดส่ง: {nom.cycle?.perf360CycleResponseDeadline ? new Date(nom.cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH") : "-"}
                   </p>
                 </div>
@@ -301,7 +301,7 @@ function MyResultsTab({ cycles, resultCycleId, onResultCycleIdChange, myResults,
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : !myResults ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             เลือกรอบประเมินเพื่อดูผล
           </CardBody>
         </Card>
@@ -323,13 +323,13 @@ function ResultsDisplay({ results }) {
       <Card>
         <CardBody className="flex flex-row items-center gap-6">
           <div className="text-center">
-            <p className="text-sm text-default-500">คะแนนรวม</p>
-            <p className="text-4xl font-bold">{results.overallScore?.toFixed(2) || "0.00"}</p>
+            <p className="text-sm text-muted-foreground">คะแนนรวม</p>
+            <p className="text-4xl font-semibold">{results.overallScore?.toFixed(2) || "0.00"}</p>
           </div>
           <Chip color={gradeColor} variant="bordered" size="md" radius="md">
             {grade}
           </Chip>
-          <div className="text-sm text-default-400">
+          <div className="text-sm text-muted-foreground">
             จำนวนผู้ประเมิน: {results.totalResponses || 0} คน
           </div>
         </CardBody>
@@ -346,8 +346,8 @@ function ResultsDisplay({ results }) {
               return (
                 <div key={rt.key} className="p-3 rounded-lg" style={{ backgroundColor: rt.color + "10" }}>
                   <p className="text-sm font-medium" style={{ color: rt.color }}>{rt.label}</p>
-                  <p className="text-2xl font-bold">{typeData.overallScore?.toFixed(2) || "-"}</p>
-                  <p className="text-xs text-default-400">{typeData.responseCount} คน</p>
+                  <p className="text-2xl font-semibold">{typeData.overallScore?.toFixed(2) || "-"}</p>
+                  <p className="text-sm text-muted-foreground">{typeData.responseCount} คน</p>
                 </div>
               );
             })}
@@ -411,7 +411,7 @@ function ResultsDisplay({ results }) {
                   <h4 className="font-medium mb-2" style={{ color: rt.color }}>{rt.label}</h4>
                   {fb.strengths?.length > 0 && (
                     <div className="mb-2">
-                      <p className="text-xs text-default-500 mb-1">จุดแข็ง:</p>
+                      <p className="text-sm text-muted-foreground mb-1">จุดแข็ง:</p>
                       {fb.strengths.map((s, i) => (
                         <p key={i} className="text-sm ml-2">• {s}</p>
                       ))}
@@ -419,7 +419,7 @@ function ResultsDisplay({ results }) {
                   )}
                   {fb.improvements?.length > 0 && (
                     <div className="mb-2">
-                      <p className="text-xs text-default-500 mb-1">จุดที่ควรพัฒนา:</p>
+                      <p className="text-sm text-muted-foreground mb-1">จุดที่ควรพัฒนา:</p>
                       {fb.improvements.map((s, i) => (
                         <p key={i} className="text-sm ml-2">• {s}</p>
                       ))}
@@ -474,7 +474,7 @@ function AdminTab({
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : cycles.length === 0 ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             ยังไม่มีรอบประเมิน — กดปุ่ม "สร้างรอบประเมิน" เพื่อเริ่มต้น
           </CardBody>
         </Card>
@@ -531,7 +531,7 @@ function CycleCard({ cycle, selectedCycle, onSelectCycle, onOpenCycleForm, onDel
               {statusConfig.label}
             </Chip>
           </div>
-          <p className="text-xs text-default-400">
+          <p className="text-sm text-muted-foreground">
             ปี {cycle.perf360CycleYear} {cycle.perf360CycleQuarter ? `Q${cycle.perf360CycleQuarter}` : ""} | กำหนดส่ง: {cycle.perf360CycleResponseDeadline ? new Date(cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH") : "-"}
           </p>
         </div>
@@ -718,13 +718,13 @@ function CompetenciesPanel({ selectedCycle, competencies, loadingCompetencies, s
           </Button>
         </div>
       ) : competencies.length === 0 ? (
-        <p className="text-default-400 text-sm">ยังไม่มีสมรรถนะ</p>
+        <p className="text-muted-foreground text-sm">ยังไม่มีสมรรถนะ</p>
       ) : (
         competencies.map((comp) => (
           <div key={comp.perf360CompetencyId} className="p-3 rounded-lg bg-default-50">
             <h4 className="font-medium">{comp.perf360CompetencyName}</h4>
-            {comp.perf360CompetencyDescription && <p className="text-xs text-default-400">{comp.perf360CompetencyDescription}</p>}
-            <ul className="mt-1 ml-4 list-disc text-sm text-default-600">
+            {comp.perf360CompetencyDescription && <p className="text-sm text-muted-foreground">{comp.perf360CompetencyDescription}</p>}
+            <ul className="mt-1 ml-4 list-disc text-sm text-foreground">
               {(comp.perf360CompetencyQuestions || []).map((q, i) => (
                 <li key={i}>{q}</li>
               ))}
@@ -772,7 +772,7 @@ function NominationsPanel({ selectedCycle, nominations, loadingNominations, onDe
       {loadingNominations ? (
         <Spinner />
       ) : grouped.length === 0 ? (
-        <p className="text-default-400 text-sm">ยังไม่มีการเสนอชื่อ</p>
+        <p className="text-muted-foreground text-sm">ยังไม่มีการเสนอชื่อ</p>
       ) : (
         grouped.map((group) => {
           const revieweeName = group.reviewee
@@ -827,7 +827,7 @@ function ProgressPanel({ nominations }) {
   return (
     <div className="flex flex-col gap-3 mt-3">
       {grouped.length === 0 ? (
-        <p className="text-default-400 text-sm">ยังไม่มีข้อมูล</p>
+        <p className="text-muted-foreground text-sm">ยังไม่มีข้อมูล</p>
       ) : (
         grouped.map((item) => {
           const name = item.reviewee
@@ -838,7 +838,7 @@ function ProgressPanel({ nominations }) {
             <div key={item.reviewee?.hrEmployeeId} className="flex items-center gap-3">
               <span className="text-sm min-w-[150px]">{name}</span>
               <Progress value={pct} className="flex-1" color={pct === 100 ? "success" : "primary"} size="sm" />
-              <span className="text-xs text-default-500 min-w-[60px] text-right">{item.completed}/{item.total}</span>
+              <span className="text-sm text-muted-foreground min-w-[60px] text-right">{item.completed}/{item.total}</span>
             </div>
           );
         })
@@ -1047,7 +1047,7 @@ function ReviewModal({
         </ModalHeader>
         <ModalBody>
           <Progress value={progress} color="primary" size="sm" className="mb-4" />
-          <p className="text-xs text-default-400 mb-4">{answeredQ}/{totalQ} ข้อ</p>
+          <p className="text-sm text-muted-foreground mb-4">{answeredQ}/{totalQ} ข้อ</p>
 
           <Accordion selectionMode="multiple" defaultExpandedKeys={reviewCompetencies.map((c) => c.perf360CompetencyId)}>
             {reviewCompetencies.map((comp) => (

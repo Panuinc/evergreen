@@ -57,7 +57,7 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
               >
                 <ChevronRight size={20} />
               </Button>
-              <p className="text-center text-sm text-default-400 py-2">
+              <p className="text-center text-sm text-muted-foreground py-2">
                 {currentIndex + 1} / {images.length}
               </p>
             </>

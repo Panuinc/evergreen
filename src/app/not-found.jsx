@@ -16,7 +16,7 @@ export default function NotFound() {
           </h2>
         </div>
 
-        <p className="text-default-500">
+        <p className="text-muted-foreground">
           Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been
           moved, deleted, or you entered the wrong URL.
         </p>

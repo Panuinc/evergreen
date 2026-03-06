@@ -95,8 +95,8 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
           <div className="flex flex-col gap-3">
             <div className="rounded-lg bg-default-50 p-3 text-sm">
               <p className="font-semibold">{item.number}</p>
-              <p className="text-default-500">{item.displayName}</p>
-              <p className="text-default-400">
+              <p className="text-muted-foreground">{item.displayName}</p>
+              <p className="text-muted-foreground">
                 คงเหลือ: {Number(item.inventory || 0).toLocaleString("th-TH")}
               </p>
               <p className={hasRfidCode ? "text-success-600" : "text-danger"}>
@@ -105,10 +105,10 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium text-default-600">
+              <p className="text-sm font-medium text-foreground">
                 ตัวอย่าง Label
               </p>
-              <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-foreground/15 bg-white p-3 min-h-20">
+              <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-border bg-white p-3 min-h-20">
                 {loadingPreview ? (
                   <Skeleton className="w-full h-15 rounded" />
                 ) : previewSrc ? (
@@ -119,7 +119,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
                     style={{ imageRendering: "pixelated" }}
                   />
                 ) : (
-                  <p className="text-xs text-default-400">
+                  <p className="text-sm text-muted-foreground">
                     กดปุ่มด้านล่างเพื่อดูตัวอย่าง
                   </p>
                 )}
@@ -162,7 +162,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
               </div>
             )}
 
-            <p className="text-xs text-default-400">
+            <p className="text-sm text-muted-foreground">
               RFID จะเขียนข้อมูล: RFID Code + ลำดับชิ้น (1/{quantity} ถึง{" "}
               {quantity}/{quantity})
             </p>

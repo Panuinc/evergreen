@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "rechar
 
 export default function FulfillmentChart({ data }) {
   if (!data) {
-    return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   const barData = [
@@ -25,20 +25,20 @@ export default function FulfillmentChart({ data }) {
 
       <div className="grid grid-cols-2 gap-3 text-center">
         <div>
-          <p className="text-lg font-bold text-success">{data.fulfillmentRate}%</p>
-          <p className="text-xs text-default-400">Fulfillment Rate</p>
+          <p className="text-lg font-semibold text-success">{data.fulfillmentRate}%</p>
+          <p className="text-sm text-muted-foreground">Fulfillment Rate</p>
         </div>
         <div>
-          <p className="text-lg font-bold">{data.totalQtyOrdered.toLocaleString()}</p>
-          <p className="text-xs text-default-400">สั่งทั้งหมด (ชิ้น)</p>
+          <p className="text-lg font-semibold">{data.totalQtyOrdered.toLocaleString()}</p>
+          <p className="text-sm text-muted-foreground">สั่งทั้งหมด (ชิ้น)</p>
         </div>
         <div>
-          <p className="text-lg font-bold text-success">{data.totalQtyShipped.toLocaleString()}</p>
-          <p className="text-xs text-default-400">ส่งแล้ว (ชิ้น)</p>
+          <p className="text-lg font-semibold text-success">{data.totalQtyShipped.toLocaleString()}</p>
+          <p className="text-sm text-muted-foreground">ส่งแล้ว (ชิ้น)</p>
         </div>
         <div>
-          <p className="text-lg font-bold text-warning">{data.ordersWithOutstanding}</p>
-          <p className="text-xs text-default-400">ออเดอร์มีค้าง</p>
+          <p className="text-lg font-semibold text-warning">{data.ordersWithOutstanding}</p>
+          <p className="text-sm text-muted-foreground">ออเดอร์มีค้าง</p>
         </div>
       </div>
     </div>

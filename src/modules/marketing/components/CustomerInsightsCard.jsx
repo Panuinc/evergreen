@@ -12,7 +12,7 @@ function formatCurrency(value) {
 
 export default function CustomerInsightsCard({ data }) {
   if (!data) {
-    return <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   const pieData = [
@@ -24,12 +24,12 @@ export default function CustomerInsightsCard({ data }) {
     <div className="flex flex-col items-center gap-3">
       <div className="grid grid-cols-2 gap-4 w-full">
         <div className="text-center">
-          <p className="text-2xl font-bold text-primary">{data.repeatCustomerRate}%</p>
-          <p className="text-xs text-default-400">Repeat Rate</p>
+          <p className="text-2xl font-semibold text-primary">{data.repeatCustomerRate}%</p>
+          <p className="text-sm text-muted-foreground">Repeat Rate</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-warning">{data.top5ConcentrationPct}%</p>
-          <p className="text-xs text-default-400">Top 5% Revenue Share</p>
+          <p className="text-2xl font-semibold text-warning">{data.top5ConcentrationPct}%</p>
+          <p className="text-sm text-muted-foreground">Top 5% Revenue Share</p>
         </div>
       </div>
 
@@ -52,16 +52,16 @@ export default function CustomerInsightsCard({ data }) {
         </PieChart>
       </ResponsiveContainer>
 
-      <div className="grid grid-cols-2 gap-2 w-full text-xs text-center">
+      <div className="grid grid-cols-2 gap-2 w-full text-sm text-center">
         <div>
           <span className="inline-block w-2 h-2 rounded-full bg-primary mr-1" />
-          <span className="text-default-500">ซ้ำ {data.repeatCustomers} ราย</span>
-          <p className="text-default-400">{formatCurrency(data.repeatCustomerRevenue)}</p>
+          <span className="text-muted-foreground">ซ้ำ {data.repeatCustomers} ราย</span>
+          <p className="text-muted-foreground">{formatCurrency(data.repeatCustomerRevenue)}</p>
         </div>
         <div>
           <span className="inline-block w-2 h-2 rounded-full bg-default-300 mr-1" />
-          <span className="text-default-500">ครั้งเดียว {data.singleOrderCustomers} ราย</span>
-          <p className="text-default-400">{formatCurrency(data.singleCustomerRevenue)}</p>
+          <span className="text-muted-foreground">ครั้งเดียว {data.singleOrderCustomers} ราย</span>
+          <p className="text-muted-foreground">{formatCurrency(data.singleCustomerRevenue)}</p>
         </div>
       </div>
     </div>

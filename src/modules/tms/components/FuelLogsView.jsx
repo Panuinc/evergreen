@@ -92,7 +92,7 @@ export default function FuelLogsView({
       switch (columnKey) {
         case "tmsFuelLogDate":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {item.tmsFuelLogDate
                 ? new Date(item.tmsFuelLogDate).toLocaleDateString("th-TH")
                 : "-"}

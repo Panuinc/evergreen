@@ -19,7 +19,7 @@ export default function SignInPinForm({
           width={50}
           height={50}
           alt="logo"
-          className="border-2 border-foreground/15 rounded-full"
+          className="border-2 border-border rounded-full"
         />
         ปลดล็อกด่วน
       </div>
@@ -28,7 +28,7 @@ export default function SignInPinForm({
       </div>
 
       <div className="flex flex-col items-center w-full gap-2">
-        <div className="flex items-center justify-center w-10/12 h-fit p-2 gap-2 text-default-500">
+        <div className="flex items-center justify-center w-10/12 h-fit p-2 gap-2 text-muted-foreground">
           {lastEmail}
         </div>
 

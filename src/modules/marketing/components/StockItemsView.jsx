@@ -94,7 +94,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
           );
         case "bcItemUnitPrice":
           return (
-            <span className="block text-right text-default-400">
+            <span className="block text-right text-muted-foreground">
               {item.bcItemUnitPrice != null
                 ? Number(item.bcItemUnitPrice).toLocaleString("th-TH", {
                     minimumFractionDigits: 2,
@@ -121,7 +121,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
           );
         case "bcItemUnitCost":
           return (
-            <span className="block text-right text-default-400">
+            <span className="block text-right text-muted-foreground">
               {item.bcItemUnitCost != null
                 ? Number(item.bcItemUnitCost).toLocaleString("th-TH", {
                     minimumFractionDigits: 2,
@@ -131,13 +131,13 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
           );
         case "packetCost":
           return (
-            <span className="block text-right text-default-400">
+            <span className="block text-right text-muted-foreground">
               {FIXED_PACKET_COST.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </span>
           );
         case "shippingCost":
           return (
-            <span className="block text-right text-default-400">
+            <span className="block text-right text-muted-foreground">
               {FIXED_SHIPPING_COST.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </span>
           );
@@ -152,7 +152,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
             </span>
           );
         case "profit": {
-          if (item.profit == null) return <span className="block text-right text-default-300">-</span>;
+          if (item.profit == null) return <span className="block text-right text-muted-foreground">-</span>;
           const isPositive = item.profit >= 0;
           return (
             <span className={`block text-right font-medium ${isPositive ? "text-success" : "text-danger"}`}>

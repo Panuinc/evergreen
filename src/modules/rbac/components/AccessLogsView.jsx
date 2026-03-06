@@ -30,7 +30,7 @@ export default function AccessLogsView({ logs, loading }) {
     switch (columnKey) {
       case "rbacAccessLogCreatedAt":
         return (
-          <span className="text-default-500">
+          <span className="text-muted-foreground">
             {new Date(log.rbacAccessLogCreatedAt).toLocaleString()}
           </span>
         );
@@ -64,7 +64,7 @@ export default function AccessLogsView({ logs, loading }) {
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between w-full">
         <h1 className="text-lg font-semibold">บันทึกการเข้าถึง</h1>
-        <p className="text-default-400">200 รายการล่าสุด</p>
+        <p className="text-muted-foreground">200 รายการล่าสุด</p>
       </div>
 
       <DataTable

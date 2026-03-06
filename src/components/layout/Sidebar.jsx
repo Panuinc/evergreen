@@ -25,7 +25,7 @@ export default function Sidebar({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-r-1 border-foreground/15 transition-all duration-300 ${
+      className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-r border-border transition-all duration-300 ${
         isCollapsed ? "w-fit" : "w-6/12"
       }`}
     >
@@ -55,14 +55,14 @@ export default function Sidebar({
       </div>
       <div
         onClick={onToggleCollapse}
-        className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-foreground/15 cursor-pointer hover:bg-default/50"
+        className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t border-border cursor-pointer hover:bg-default/50"
       >
         <FoldHorizontal className={isCollapsed ? "rotate-180" : ""} />
         {!isCollapsed && "ย่อเมนู"}
       </div>
       <div
         onClick={signOut}
-        className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t-2 border-foreground/15 cursor-pointer hover:bg-danger/20 text-danger"
+        className="flex items-center justify-start w-full h-fit px-4 py-2 gap-2 border-t border-border cursor-pointer hover:bg-danger/20 text-danger"
       >
         <LogOut />
         {!isCollapsed && "ออกจากระบบ"}

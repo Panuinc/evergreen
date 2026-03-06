@@ -244,7 +244,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <span>พิมพ์ใบปะหน้าส่งสินค้า</span>
-          <span className="text-sm font-normal text-default-400">{order?.bcSalesOrderNumber}</span>
+          <span className="text-sm font-normal text-muted-foreground">{order?.bcSalesOrderNumber}</span>
         </ModalHeader>
         <ModalBody className="gap-6">
           {/* Recipient Info */}
@@ -287,7 +287,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
               {lines.map((l) => (
                 <div
                   key={l.bcSalesOrderLineNo}
-                  className="flex items-center gap-3 p-3 rounded-lg border border-foreground/15"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-border"
                 >
                   <Checkbox
                     isSelected={selectedLines[l.bcSalesOrderLineNo] || false}
@@ -298,7 +298,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                     <p className="text-sm font-medium truncate">
                       {l.bcSalesOrderLineDescription || l.bcSalesOrderLineObjectNumber}
                     </p>
-                    <p className="text-xs text-default-400">
+                    <p className="text-sm text-muted-foreground">
                       สั่ง {l.bcSalesOrderLineQuantity} / ส่งแล้ว {l.bcSalesOrderLineQuantityShipped || 0} / คงค้าง{" "}
                       {l.bcSalesOrderLineOutstandingQuantity || 0} {l.bcSalesOrderLineUnitOfMeasureCode}
                     </p>
@@ -315,7 +315,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                     onValueChange={(v) => handleQtyChange(l.bcSalesOrderLineNo, v)}
                     isDisabled={!selectedLines[l.bcSalesOrderLineNo]}
                   />
-                  <span className="text-xs text-default-400 w-8">
+                  <span className="text-sm text-muted-foreground w-8">
                     {l.bcSalesOrderLineUnitOfMeasureCode || "PCS"}
                   </span>
                 </div>
@@ -336,8 +336,8 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
             </div>
           )}
           <div className="flex items-center justify-between w-full">
-            <p className="text-sm text-default-500">
-              จำนวนใบปะหน้า: <span className="font-bold text-foreground">{totalLabels}</span> ใบ
+            <p className="text-sm text-muted-foreground">
+              จำนวนใบปะหน้า: <span className="font-semibold text-foreground">{totalLabels}</span> ใบ
             </p>
             <div className="flex gap-2">
               <Button variant="bordered" size="md" radius="md" onPress={onClose}>

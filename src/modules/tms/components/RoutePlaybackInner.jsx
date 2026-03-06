@@ -54,7 +54,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
   };
 
   if (points.length === 0) {
-    return <p className="text-sm text-default-400 text-center py-8">No route data available</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">No route data available</p>;
   }
 
   const traveled = points.slice(0, currentIndex + 1);
@@ -141,7 +141,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
             </Button>
           ))}
         </div>
-        <span className="text-xs text-default-400 ml-auto">
+        <span className="text-sm text-muted-foreground ml-auto">
           {currentIndex + 1} / {points.length} points
         </span>
       </div>

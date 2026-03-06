@@ -85,7 +85,7 @@ export default function ChatWindow({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 p-3 border-b-2 border-foreground/15">
+      <div className="flex items-center gap-3 p-3 border-b border-border">
         {onBack && (
           <Button isIconOnly variant="light" size="md" radius="md" onPress={onBack}>
             <ArrowLeft size={18} />
@@ -163,7 +163,7 @@ export default function ChatWindow({
             <Spinner />
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-default-400">
+          <div className="flex items-center justify-center h-full text-muted-foreground">
             ยังไม่มีข้อความ
           </div>
         ) : (
@@ -199,38 +199,38 @@ export default function ChatWindow({
                         />
                       </a>
                       {msg.omMessageOcrData && (
-                        <div className="bg-default-50 rounded-lg p-2 text-xs space-y-1 border border-foreground/15">
-                          <div className="flex items-center gap-1 font-semibold text-default-600 mb-1">
+                        <div className="bg-default-50 rounded-lg p-2 text-sm space-y-1 border border-border">
+                          <div className="flex items-center gap-1 font-semibold text-foreground mb-1">
                             <Receipt size={12} />
                             <span>ข้อมูลสลิป</span>
                           </div>
                           {msg.omMessageOcrData.amount && (
                             <div className="flex justify-between">
-                              <span className="text-default-400">ยอดเงิน</span>
+                              <span className="text-muted-foreground">ยอดเงิน</span>
                               <span className="font-semibold">{Number(msg.omMessageOcrData.amount).toLocaleString()} บาท</span>
                             </div>
                           )}
                           {msg.omMessageOcrData.fromBank && (
                             <div className="flex justify-between">
-                              <span className="text-default-400">จาก</span>
+                              <span className="text-muted-foreground">จาก</span>
                               <span>{msg.omMessageOcrData.fromBank}</span>
                             </div>
                           )}
                           {msg.omMessageOcrData.toBank && (
                             <div className="flex justify-between">
-                              <span className="text-default-400">ไปยัง</span>
+                              <span className="text-muted-foreground">ไปยัง</span>
                               <span>{msg.omMessageOcrData.toBank}</span>
                             </div>
                           )}
                           {msg.omMessageOcrData.datetime && (
                             <div className="flex justify-between">
-                              <span className="text-default-400">วันเวลา</span>
+                              <span className="text-muted-foreground">วันเวลา</span>
                               <span>{msg.omMessageOcrData.datetime}</span>
                             </div>
                           )}
                           {msg.omMessageOcrData.reference && (
                             <div className="flex justify-between">
-                              <span className="text-default-400">อ้างอิง</span>
+                              <span className="text-muted-foreground">อ้างอิง</span>
                               <span>{msg.omMessageOcrData.reference}</span>
                             </div>
                           )}
@@ -246,7 +246,7 @@ export default function ChatWindow({
                         ? msg.omMessageIsAi
                           ? "text-secondary-foreground/70"
                           : "text-primary-foreground/70"
-                        : "text-default-400"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {formatMessageTime(msg.omMessageCreatedAt)}
@@ -274,7 +274,7 @@ export default function ChatWindow({
           <ModalHeader>ยืนยันการลบ</ModalHeader>
           <ModalBody>
             <p>ต้องการลบการสนทนากับ <strong>{contact?.omContactDisplayName || "ไม่ทราบ"}</strong> หรือไม่?</p>
-            <p className="text-sm text-default-400">ข้อความทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้</p>
+            <p className="text-sm text-muted-foreground">ข้อความทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้</p>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={deleteModal.onClose}>

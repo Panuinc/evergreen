@@ -59,7 +59,7 @@ function getLevel(qty) {
   if (qty >= 200) return { label: "ผู้เชี่ยวชาญ", icon: Zap, color: "text-amber-500" };
   if (qty >= 100) return { label: "มือโปร", icon: Star, color: "text-blue-500" };
   if (qty >= 50) return { label: "ชำนาญ", icon: Star, color: "text-emerald-500" };
-  return { label: "มือใหม่", icon: Star, color: "text-default-400" };
+  return { label: "มือใหม่", icon: Star, color: "text-muted-foreground" };
 }
 
 function getSpeedLabel(avgDays) {
@@ -67,7 +67,7 @@ function getSpeedLabel(avgDays) {
   if (avgDays <= 3) return { label: "สายฟ้า", color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/30" };
   if (avgDays <= 7) return { label: "เร็ว", color: "text-success", bg: "bg-success-50 dark:bg-success-950/30" };
   if (avgDays <= 14) return { label: "ปกติ", color: "text-primary", bg: "bg-primary-50 dark:bg-primary-950/30" };
-  return { label: "ช้า", color: "text-default-400", bg: "" };
+  return { label: "ช้า", color: "text-muted-foreground", bg: "" };
 }
 
 function RankBadge({ rank }) {
@@ -97,7 +97,7 @@ function RankBadge({ rank }) {
   }
   return (
     <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-default-100">
-      <span className="text-sm font-bold text-default-400">#{rank}</span>
+      <span className="text-sm font-semibold text-muted-foreground">#{rank}</span>
     </div>
   );
 }
@@ -105,7 +105,7 @@ function RankBadge({ rank }) {
 export default function EmployeeSpecializationChart({ data = [] }) {
   if (!data.length) {
     return (
-      <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>
+      <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>
     );
   }
 
@@ -130,7 +130,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
         {categories.map((cat, i) => (
           <div key={cat} className="flex items-center gap-1.5">
             <div className={`w-2.5 h-2.5 rounded-sm ${BG_COLORS[i % BG_COLORS.length]}`} />
-            <span className="text-xs text-default-500">{cat}</span>
+            <span className="text-sm text-muted-foreground">{cat}</span>
           </div>
         ))}
       </div>
@@ -163,7 +163,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
             {/* Player Info */}
             <div className="shrink-0 w-28">
               <div className="truncate">
-                <span className={`text-sm font-semibold ${isTop3 ? "text-foreground" : "text-default-600"}`}>
+                <span className={`text-sm font-semibold ${isTop3 ? "text-foreground" : "text-foreground"}`}>
                   {emp.employee}
                 </span>
               </div>
@@ -179,11 +179,11 @@ export default function EmployeeSpecializationChart({ data = [] }) {
             <div className="flex-1 flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-default-400 font-medium">
+                  <span className="text-[10px] text-muted-foreground font-medium">
                     ผลงานรวม
                   </span>
                   {emp.avgLeadTime != null && (
-                    <span className="flex items-center gap-0.5 text-[10px] text-default-400">
+                    <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                       <Timer className="w-3 h-3" />
                       เฉลี่ย {emp.avgLeadTime} วัน/ใบ
                       {speed && (
@@ -194,10 +194,10 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                     </span>
                   )}
                 </div>
-                <span className={`text-xs font-bold ${isTop3 ? "text-foreground" : "text-default-500"}`}>
+                <span className={`text-sm font-semibold ${isTop3 ? "text-foreground" : "text-muted-foreground"}`}>
                   {fmtNum(emp.totalQty)} ชิ้น
                   {emp.orderCount > 0 && (
-                    <span className="text-[10px] font-normal text-default-400 ml-1">
+                    <span className="text-[10px] font-normal text-muted-foreground ml-1">
                       ({emp.orderCount} ใบ)
                     </span>
                   )}
@@ -228,7 +228,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                   const colorIdx = catColorMap[c.category] ?? 0;
                   const catSpeed = getSpeedLabel(c.avgDays);
                   return (
-                    <span key={c.category} className="text-[10px] text-default-400">
+                    <span key={c.category} className="text-[10px] text-muted-foreground">
                       <span className={`font-medium ${TEXT_COLORS[colorIdx]}`}>{c.category}</span>
                       {" "}{fmtNum(c.quantity)}
                       {c.avgDays != null && (

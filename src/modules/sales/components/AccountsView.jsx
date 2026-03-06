@@ -81,7 +81,7 @@ export default function AccountsView({
     (item, columnKey) => {
       switch (columnKey) {
         case "crmAccountNo":
-          return <span className="text-default-500">{item.crmAccountNo || "-"}</span>;
+          return <span className="text-muted-foreground">{item.crmAccountNo || "-"}</span>;
         case "crmAccountName":
           return <span className="font-medium">{item.crmAccountName}</span>;
         case "crmAccountIndustry":

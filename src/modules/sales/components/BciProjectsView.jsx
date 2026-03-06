@@ -161,7 +161,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
               {item.bciProjectName || "-"}
             </span>
             {item.bciProjectType && (
-              <span className="text-xs text-default-400">
+              <span className="text-sm text-muted-foreground">
                 {item.bciProjectType}
               </span>
             )}
@@ -172,7 +172,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
           <div className="flex flex-col">
             <span className="text-sm">{item.bciProjectCityOrTown || "-"}</span>
             {item.bciProjectStateProvince && (
-              <span className="text-xs text-default-400">
+              <span className="text-sm text-muted-foreground">
                 {item.bciProjectStateProvince}
               </span>
             )}
@@ -187,7 +187,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
             M
           </span>
         ) : (
-          <span className="text-default-300">-</span>
+          <span className="text-muted-foreground">-</span>
         );
       case "bciProjectStage": {
         const color = stageColorMap[item.bciProjectStage] || "default";
@@ -228,17 +228,17 @@ export default function BciProjectsView({ projects, loading, reload }) {
           <div className="flex flex-col">
             <span className="text-sm">{company}</span>
             {contact && (
-              <span className="text-xs text-default-400">{contact}</span>
+              <span className="text-sm text-muted-foreground">{contact}</span>
             )}
             {phone && (
-              <span className="text-xs text-default-400">{phone}</span>
+              <span className="text-sm text-muted-foreground">{phone}</span>
             )}
             {email && (
-              <span className="text-xs text-default-400">{email}</span>
+              <span className="text-sm text-muted-foreground">{email}</span>
             )}
           </div>
         ) : (
-          <span className="text-default-300">-</span>
+          <span className="text-muted-foreground">-</span>
         );
       }
       case "bciProjectDescription":
@@ -246,7 +246,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
         return item[columnKey] ? (
           <span className="text-sm line-clamp-2">{item[columnKey]}</span>
         ) : (
-          <span className="text-default-300">-</span>
+          <span className="text-muted-foreground">-</span>
         );
       case "bciProjectStoreys":
         return item.bciProjectStoreys || "-";
@@ -257,7 +257,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
             {Number(item[columnKey]).toLocaleString("th-TH")} m²
           </span>
         ) : (
-          <span className="text-default-300">-</span>
+          <span className="text-muted-foreground">-</span>
         );
       case "bciProjectConstructionStartDate":
         return item.bciProjectConstructionStartString || formatDate(item.bciProjectConstructionStartDate);

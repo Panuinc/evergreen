@@ -17,7 +17,7 @@ function AgentIndicator({ agent }) {
   const Icon = AGENT_ICONS[agent.icon] || Bot;
   return (
     <div className="flex justify-start">
-      <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs bg-default-100 text-default-500 animate-pulse">
+      <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-default-100 text-muted-foreground animate-pulse">
         <Icon size={12} />
         <span>{agent.name} กำลังค้นหา...</span>
       </div>
@@ -73,10 +73,10 @@ export default function ChatBot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-4 left-4 md:left-auto md:right-6 z-50 md:w-96 h-[70vh] md:h-125 flex flex-col bg-background border-2 border-foreground/15 rounded-xl shadow-xl overflow-hidden"
+            className="fixed bottom-24 right-4 left-4 md:left-auto md:right-6 z-50 md:w-96 h-[70vh] md:h-125 flex flex-col bg-background border-2 border-border rounded-xl shadow-xl overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-3 border-b-2 border-foreground/15">
+            <div className="flex items-center justify-between p-3 border-b border-border">
               <span className="font-semibold text-lg">ผู้ช่วย AI</span>
               <Button
                 isIconOnly
@@ -92,7 +92,7 @@ export default function ChatBot() {
             {/* Messages */}
             <ScrollShadow ref={scrollRef} className="flex-1 p-3 overflow-y-auto">
               {messages.length === 0 && !isLoading && (
-                <div className="flex items-center justify-center h-full text-default-400 text-sm">
+                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                   ถามอะไรก็ได้เกี่ยวกับข้อมูลในระบบ
                 </div>
               )}
@@ -120,7 +120,7 @@ export default function ChatBot() {
             </ScrollShadow>
 
             {/* Input */}
-            <div className="flex items-center gap-2 p-3 border-t-2 border-foreground/15">
+            <div className="flex items-center gap-2 p-3 border-t border-border">
               <Input
                 placeholder="พิมพ์ข้อความ..."
                 variant="bordered"

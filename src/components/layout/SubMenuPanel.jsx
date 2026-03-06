@@ -11,11 +11,11 @@ export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }
 
   return (
     <div
-      className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-l-1 border-foreground/15 transition-all duration-300 ${
+      className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 transition-all duration-300 ${
         isCollapsed ? "flex-1" : "w-6/12"
       }`}
     >
-      <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b-2 border-foreground/15 font-semibold">
+      <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b border-border font-semibold">
         {activeMenu.name}
       </div>
       <div className="flex flex-col items-center justify-start w-full h-full p-2 gap-2 overflow-auto">
@@ -51,7 +51,7 @@ export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }
                 {subMenu.name}
               </div>
               {badgeCount > 0 && (
-                <Chip size="sm" color="danger" variant="solid" className="ml-auto min-w-6 h-5 text-xs">
+                <Chip size="sm" color="danger" variant="solid" className="ml-auto min-w-6 h-5 text-sm">
                   {badgeCount}
                 </Chip>
               )}

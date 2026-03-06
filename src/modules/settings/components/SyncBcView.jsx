@@ -54,7 +54,7 @@ function PhaseIcon({ phase, step }) {
   if (step === "error") return <XCircle size={size} className="text-danger shrink-0" />;
   if (step === "fetching" || step === "saving" || step === "cleaning")
     return <Loader2 size={size} className="text-primary shrink-0 animate-spin" />;
-  return <Icon size={size} className="text-default-400 shrink-0" />;
+  return <Icon size={size} className="text-muted-foreground shrink-0" />;
 }
 
 function SyncProgressPanel({ phases }) {
@@ -73,7 +73,7 @@ function SyncProgressPanel({ phases }) {
       <CardBody className="gap-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold">ความคืบหน้า</span>
-          <span className="text-sm text-default-500">{overallPct}%</span>
+          <span className="text-sm text-muted-foreground">{overallPct}%</span>
         </div>
         <Progress
           aria-label="Sync progress"
@@ -99,7 +99,7 @@ function SyncProgressPanel({ phases }) {
                 </div>
               )}
               {e.step === "done" && e.count != null && (
-                <span className="text-xs text-success font-medium">
+                <span className="text-sm text-success font-medium">
                   {e.count.toLocaleString("th-TH")}
                 </span>
               )}
@@ -122,20 +122,20 @@ function ResultCards({ tables, results }) {
           <Card
             key={t.key}
             shadow="none"
-            className={`border ${isError ? "border-danger bg-danger-50" : "border-foreground/15 bg-content1"}`}
+            className={`border ${isError ? "border-danger bg-danger-50" : "border-border bg-content1"}`}
           >
             <CardBody className="gap-1">
               <div className="flex items-center gap-2">
                 <Icon
                   size={14}
-                  className={isError ? "text-danger" : "text-default-500"}
+                  className={isError ? "text-danger" : "text-muted-foreground"}
                 />
-                <p className="text-xs text-default-500">{t.label}</p>
+                <p className="text-sm text-muted-foreground">{t.label}</p>
               </div>
               {isError ? (
-                <p className="text-xs text-danger">{val}</p>
+                <p className="text-sm text-danger">{val}</p>
               ) : (
-                <p className="text-2xl font-bold">
+                <p className="text-2xl font-semibold">
                   {typeof val === "number"
                     ? val.toLocaleString("th-TH")
                     : typeof val === "object" && val !== null
@@ -157,7 +157,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">นำเข้าจากไฟล์ (BCI Export)</h2>
-          <p className="text-sm text-default-500">
+          <p className="text-sm text-muted-foreground">
             อัปโหลดไฟล์ Excel/CSV ที่ export จาก BCI LeadManager
           </p>
         </div>
@@ -184,7 +184,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
       </div>
 
       {fileName && !importing && !error && !result && (
-        <div className="flex items-center gap-2 text-sm text-default-500">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <FileSpreadsheet size={14} />
           <span>{fileName}</span>
         </div>
@@ -207,40 +207,40 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
           </CardHeader>
           <CardBody>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Card shadow="none" className="border border-foreground/15 bg-content1">
+              <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
-                  <p className="text-xs text-default-500">แถวทั้งหมด</p>
-                  <p className="text-2xl font-bold">{result.results.totalRows?.toLocaleString("th-TH")}</p>
+                  <p className="text-sm text-muted-foreground">แถวทั้งหมด</p>
+                  <p className="text-2xl font-semibold">{result.results.totalRows?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-foreground/15 bg-content1">
+              <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
-                  <p className="text-xs text-default-500">นำเข้าแล้ว</p>
-                  <p className="text-2xl font-bold">{result.results.imported?.toLocaleString("th-TH")}</p>
+                  <p className="text-sm text-muted-foreground">นำเข้าแล้ว</p>
+                  <p className="text-2xl font-semibold">{result.results.imported?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-foreground/15 bg-content1">
+              <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
-                  <p className="text-xs text-default-500">Column ที่ map ได้</p>
-                  <p className="text-2xl font-bold">{result.results.columnsMapped}</p>
+                  <p className="text-sm text-muted-foreground">Column ที่ map ได้</p>
+                  <p className="text-2xl font-semibold">{result.results.columnsMapped}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-foreground/15 bg-content1">
+              <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
-                  <p className="text-xs text-default-500">ข้ามไป</p>
-                  <p className="text-2xl font-bold">{result.results.skipped}</p>
+                  <p className="text-sm text-muted-foreground">ข้ามไป</p>
+                  <p className="text-2xl font-semibold">{result.results.skipped}</p>
                 </CardBody>
               </Card>
             </div>
             {result.results.unmapped?.length > 0 && (
-              <p className="text-xs text-default-400 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 Column ที่ไม่รู้จัก: {result.results.unmapped.join(", ")}
               </p>
             )}
             {result.results.errors?.length > 0 && (
               <div className="mt-2">
-                <p className="text-xs text-warning font-medium">ข้อผิดพลาดบางส่วน:</p>
-                <ul className="text-xs text-default-500 list-disc pl-5">
+                <p className="text-sm text-warning font-medium">ข้อผิดพลาดบางส่วน:</p>
+                <ul className="text-sm text-muted-foreground list-disc pl-5">
                   {result.results.errors.map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
@@ -251,9 +251,9 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
         </Card>
       )}
 
-      <Card shadow="none" className="bg-default-50 border border-foreground/15">
+      <Card shadow="none" className="bg-default-50 border border-border">
         <CardBody className="gap-1">
-          <ul className="text-sm text-default-500 list-disc pl-5 space-y-1">
+          <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
             <li>รองรับ .xlsx, .xls, .csv</li>
             <li>ต้องมีคอลัมน์ Project ID (จำเป็น)</li>
             <li>ระบบจะ auto-map ชื่อคอลัมน์จากไฟล์ BCI export</li>
@@ -278,7 +278,7 @@ function BcSyncSection({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Business Central (BC)</h2>
-          <p className="text-sm text-default-500">ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC</p>
+          <p className="text-sm text-muted-foreground">ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC</p>
         </div>
         <Button
           variant="bordered"
@@ -293,7 +293,7 @@ function BcSyncSection({
       </div>
 
       {lastSync && (
-        <div className="flex items-center gap-2 text-sm text-default-500">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock size={14} />
           <span>ซิงค์ล่าสุด: {lastSync}</span>
         </div>
@@ -323,9 +323,9 @@ function BcSyncSection({
         </Card>
       )}
 
-      <Card shadow="none" className="bg-default-50 border border-foreground/15">
+      <Card shadow="none" className="bg-default-50 border border-border">
         <CardBody className="gap-1">
-          <ul className="text-sm text-default-500 list-disc pl-5 space-y-1">
+          <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
             <li>Dimensions -- dimensionValues จาก BC API v2.0 (code → ชื่อโครงการ)</li>
             <li>Customers -- ข้อมูลลูกค้าจาก CustomerList</li>
             <li>Items -- สินค้าทั้งหมด + map projectCode/projectName</li>
@@ -376,7 +376,7 @@ export default function SyncBcView({
         handleFileChange={handleFileChange}
       />
 
-      <p className="text-xs text-default-400">
+      <p className="text-sm text-muted-foreground">
         Production: ซิงค์อัตโนมัติผ่าน Vercel Cron
       </p>
     </div>

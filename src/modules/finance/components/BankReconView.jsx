@@ -221,7 +221,7 @@ export default function BankReconView({
               {STATUS_LABELS[item.matchStatus] || item.matchStatus}
             </Chip>
             {item.matchConfidence && (
-              <span className="text-xs text-default-400">
+              <span className="text-sm text-muted-foreground">
                 {(item.matchConfidence * 100).toFixed(0)}%
               </span>
             )}
@@ -233,9 +233,9 @@ export default function BankReconView({
         return (
           <div className="flex flex-col gap-0.5">
             {matches.map((m, i) => (
-              <div key={i} className="text-xs">
+              <div key={i} className="text-sm">
                 <span className="font-medium">{m.invoiceNumber}</span>
-                <span className="text-default-400 ml-1">({fmtNum(m.matchedAmount)})</span>
+                <span className="text-muted-foreground ml-1">({fmtNum(m.matchedAmount)})</span>
               </div>
             ))}
           </div>
@@ -314,7 +314,7 @@ export default function BankReconView({
           }
         >
           <div className="flex flex-col gap-4">
-            <Card shadow="none" className="border border-foreground/15">
+            <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
               <CardBody className="gap-4">
                 <div className="flex items-end gap-4 flex-wrap">
                   <Select
@@ -372,19 +372,19 @@ export default function BankReconView({
           }
         >
           {!detail ? (
-            <div className="text-center py-8 text-default-400">
+            <div className="text-center py-8 text-muted-foreground">
               เลือก Statement จากแท็บ &quot;อัพโหลด&quot; เพื่อเริ่มกระทบยอด
             </div>
           ) : (
             <div className="flex flex-col gap-4">
               {/* Statement info bar */}
-              <Card shadow="none" className="border border-foreground/15">
+              <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
                 <CardBody>
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-3">
                       <span className="font-semibold">{detail.bankCode}</span>
-                      <span className="text-default-500">{detail.accountNumber}</span>
-                      <span className="text-default-500">
+                      <span className="text-muted-foreground">{detail.accountNumber}</span>
+                      <span className="text-muted-foreground">
                         {detail.periodStart} — {detail.periodEnd}
                       </span>
                     </div>
@@ -478,7 +478,7 @@ export default function BankReconView({
           }
         >
           {!detail ? (
-            <div className="text-center py-8 text-default-400">เลือก Statement ก่อน</div>
+            <div className="text-center py-8 text-muted-foreground">เลือก Statement ก่อน</div>
           ) : (
             <SummaryTab detail={detail} kpis={kpis} handleExport={handleExport} />
           )}
@@ -494,7 +494,7 @@ export default function BankReconView({
           }
         >
           {!detail ? (
-            <div className="text-center py-8 text-default-400">
+            <div className="text-center py-8 text-muted-foreground">
               เลือก Statement จากแท็บ &quot;อัพโหลด&quot; แล้วกด Auto-Match ก่อน
             </div>
           ) : (
@@ -515,7 +515,7 @@ export default function BankReconView({
             <div className="flex flex-col gap-1">
               <span>เลือก Invoice สำหรับ Match</span>
               {matchEntry && (
-                <span className="text-sm font-normal text-default-500">
+                <span className="text-sm font-normal text-muted-foreground">
                   {matchEntry.txDate} — {matchEntry.description} — ยอด {fmtNum(matchEntry.amount)} บาท
                 </span>
               )}
@@ -539,7 +539,7 @@ export default function BankReconView({
                     <CardBody className="flex-row items-center justify-between py-2">
                       <div>
                         <span className="font-semibold">{m.invoiceNumber}</span>
-                        <span className="text-sm text-default-500 ml-2">{m.customerName}</span>
+                        <span className="text-sm text-muted-foreground ml-2">{m.customerName}</span>
                         <span className="text-sm ml-2">ยอด {fmtNum(m.remainingAmount)}</span>
                       </div>
                       <Button
@@ -568,16 +568,16 @@ export default function BankReconView({
             {/* Open invoices list */}
             <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
               {filteredInvoices.map((inv) => (
-                <Card key={inv.id || inv.number} shadow="none" className="border border-foreground/15">
+                <Card key={inv.id || inv.number} shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
                   <CardBody className="flex-row items-center justify-between py-2">
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{inv.number}</span>
-                        <span className="text-sm text-default-500">
+                        <span className="text-sm text-muted-foreground">
                           {inv.customerName}
                         </span>
                       </div>
-                      <div className="text-xs text-default-400">
+                      <div className="text-sm text-muted-foreground">
                         วันที่ {inv.invoiceDate} | ครบ {inv.dueDate} | ยอด{" "}
                         {fmtNum(inv.totalAmountIncludingTax)} | คงเหลือ{" "}
                         {fmtNum(inv.remainingAmount)}
@@ -605,7 +605,7 @@ export default function BankReconView({
                 </Card>
               ))}
               {filteredInvoices.length === 0 && (
-                <p className="text-center text-default-400 py-4">ไม่พบ Invoice</p>
+                <p className="text-center text-muted-foreground py-4">ไม่พบ Invoice</p>
               )}
             </div>
           </ModalBody>
@@ -622,11 +622,11 @@ export default function BankReconView({
 
 function KpiCard({ label, value, sub, color }) {
   return (
-    <Card shadow="none" className="border border-foreground/15">
+    <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="py-3 px-4">
-        <p className="text-xs text-default-500">{label}</p>
-        <p className={`text-xl font-bold ${color}`}>{value}</p>
-        <p className="text-xs text-default-400">{sub}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <p className={`text-xl font-semibold ${color}`}>{value}</p>
+        <p className="text-sm text-muted-foreground">{sub}</p>
       </CardBody>
     </Card>
   );
@@ -687,7 +687,7 @@ function SummaryTab({ detail, kpis, handleExport }) {
     <div className="flex flex-col gap-4">
       {/* Summary KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="รวมรายการทั้งหมด" value={kpis.totalEntries} sub={`ฝาก ${kpis.creditCount} / ถอน ${kpis.debitCount}`} color="text-default-700" />
+        <KpiCard label="รวมรายการทั้งหมด" value={kpis.totalEntries} sub={`ฝาก ${kpis.creditCount} / ถอน ${kpis.debitCount}`} color="text-foreground" />
         <KpiCard label="ยอดฝาก" value={fmtNum(kpis.totalDeposit)} sub="บาท" color="text-success" />
         <KpiCard label="ยอดถอน" value={fmtNum(kpis.totalWithdraw)} sub="บาท" color="text-danger" />
         <KpiCard label="อัตรา Match" value={`${kpis.matchRate}%`} sub={`${kpis.matchedCount} / ${kpis.creditCount} รายการฝาก`} color="text-primary" />

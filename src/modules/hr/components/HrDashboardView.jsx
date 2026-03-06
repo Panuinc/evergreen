@@ -25,7 +25,7 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
 
   if (!stats) {
     return (
-      <p className="text-default-400 text-center py-10">
+      <p className="text-muted-foreground text-center py-10">
         ไม่สามารถโหลดข้อมูลแดชบอร์ดได้
       </p>
     );
@@ -97,7 +97,7 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
           <div />
           <div className="flex items-center gap-2">
             {isCompare && stats.labels && (
-              <span className="text-xs text-default-400">
+              <span className="text-sm text-muted-foreground">
                 {stats.labels.current} vs {stats.labels.previous}
               </span>
             )}
@@ -122,25 +122,25 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">พนักงานตามฝ่าย</p>
             <EmployeeByDivisionChart data={d.byDivision} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">พนักงานตามแผนก</p>
             <EmployeeByDepartmentChart data={d.byDepartment} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">สถานะพนักงาน</p>
             <EmployeeStatusChart data={d.byStatus} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">
               แนวโน้มพนักงานใหม่ (6 เดือนล่าสุด)

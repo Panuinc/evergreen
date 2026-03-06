@@ -98,7 +98,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
       case "customerName":
         return <span className="font-medium">{item.customerName}</span>;
       case "salesperson":
-        return <span className="text-default-500">{item.salesperson || "-"}</span>;
+        return <span className="text-muted-foreground">{item.salesperson || "-"}</span>;
       case "totalAmountIncludingTax":
         return <span>{fmt(item.totalAmountIncludingTax)}</span>;
       case "remainingAmount": {
@@ -107,7 +107,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
       }
       case "daysOverdue": {
         const days = item.daysOverdue || 0;
-        if (item.status !== "Open") return <span className="text-default-400">-</span>;
+        if (item.status !== "Open") return <span className="text-muted-foreground">-</span>;
         return (
           <span className={`font-semibold ${daysColor(days)}`}>
             {days > 0 ? `${days} วัน` : "ยังไม่ถึง"}
@@ -156,7 +156,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <span>รายการสินค้า — {selected?.number}</span>
-            <span className="text-sm font-normal text-default-500">
+            <span className="text-sm font-normal text-muted-foreground">
               {selected?.customerName} | ยอดรวม {fmt(selected?.totalAmountIncludingTax)} | ค้างชำระ {fmt(selected?.remainingAmount)}
             </span>
           </ModalHeader>
@@ -184,7 +184,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
                     <TableCell className="font-mono">{line.lineObjectNumber || "-"}</TableCell>
                     <TableCell>{line.description || "-"}</TableCell>
                     <TableCell>{line.quantity ? Number(line.quantity).toLocaleString("th-TH") : "-"}</TableCell>
-                    <TableCell className="text-default-500">{line.unitOfMeasureCode || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{line.unitOfMeasureCode || "-"}</TableCell>
                     <TableCell>{fmt(line.unitPrice)}</TableCell>
                     <TableCell className="font-medium">{fmt(line.amountIncludingTax)}</TableCell>
                   </TableRow>
@@ -193,7 +193,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
             </Table>
           </ModalBody>
           <ModalFooter>
-            <div className="flex items-center gap-4 text-sm text-default-500">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>ก่อน VAT: {fmt(selected?.totalAmountExcludingTax)}</span>
               <span>VAT: {fmt(selected?.totalTaxAmount)}</span>
               <span className="font-semibold text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>

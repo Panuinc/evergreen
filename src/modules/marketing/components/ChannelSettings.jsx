@@ -157,7 +157,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
             {/* LINE */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-green-500 font-bold text-sm">LINE</span>
+                <span className="text-green-500 font-semibold text-sm">LINE</span>
                 <span className="font-semibold">LINE Official Account</span>
                 <Chip size="sm" variant="flat" color={lineToken ? "success" : "default"}>
                   {lineToken ? "เปิดใช้งาน" : "ปิดใช้งาน"}

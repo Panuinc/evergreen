@@ -81,13 +81,13 @@ export default function DepartmentsView({
           return dept.hrDepartmentDivision || "-";
         case "hrDepartmentDescription":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {dept.hrDepartmentDescription || "-"}
             </span>
           );
         case "hrDepartmentCreatedAt":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {new Date(dept.hrDepartmentCreatedAt).toLocaleDateString("th-TH")}
             </span>
           );

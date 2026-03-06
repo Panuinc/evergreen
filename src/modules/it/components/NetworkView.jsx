@@ -67,9 +67,9 @@ export default function NetworkView({
         case "itNetworkDeviceType":
           return item.itNetworkDeviceType || "-";
         case "itNetworkDeviceIpAddress":
-          return <span className="text-default-500">{item.itNetworkDeviceIpAddress || "-"}</span>;
+          return <span className="text-muted-foreground">{item.itNetworkDeviceIpAddress || "-"}</span>;
         case "itNetworkDeviceMacAddress":
-          return <span className="text-default-500">{item.itNetworkDeviceMacAddress || "-"}</span>;
+          return <span className="text-muted-foreground">{item.itNetworkDeviceMacAddress || "-"}</span>;
         case "itNetworkDeviceLocation":
           return item.itNetworkDeviceLocation || "-";
         case "itNetworkDeviceManufacturer":

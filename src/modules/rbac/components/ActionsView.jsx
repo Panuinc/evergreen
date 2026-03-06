@@ -72,13 +72,13 @@ export default function ActionsView({
           return <span className="font-medium">{action.rbacActionName}</span>;
         case "rbacActionDescription":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {action.rbacActionDescription || "-"}
             </span>
           );
         case "rbacActionCreatedAt":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {new Date(action.rbacActionCreatedAt).toLocaleDateString()}
             </span>
           );

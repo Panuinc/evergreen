@@ -28,7 +28,7 @@ export default function MessageInput({ onSend, onSuggest, sending, suggestLoadin
   };
 
   return (
-    <div className="flex items-center gap-2 p-3 border-t-2 border-foreground/15">
+    <div className="flex items-center gap-2 p-3 border-t border-border">
       {onSuggest && (
         <Tooltip content="AI แนะนำคำตอบ">
           <Button

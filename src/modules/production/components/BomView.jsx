@@ -1285,7 +1285,7 @@ const EnhancedEngineeringDrawing = memo(
 
     return (
       <div className="relative w-full h-full flex flex-col bg-default-100 rounded-lg overflow-hidden">
-        <div className="flex items-center justify-between p-2 bg-default-50 border-b-1 border-foreground/15 gap-2 flex-wrap">
+        <div className="flex items-center justify-between p-2 bg-default-50 border-b border-border gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <Chip size="md" variant="shadow">
               {Math.round(zoomLevel * 100)}%
@@ -1299,7 +1299,7 @@ const EnhancedEngineeringDrawing = memo(
                   variant="bordered"
                   size="md"
                   radius="md"
-                  className="w-full text-foreground border-foreground/15"
+                  className="w-full text-foreground border-border"
                   startContent={<Layers />}
                 >
                   Layers
@@ -1307,7 +1307,7 @@ const EnhancedEngineeringDrawing = memo(
               </PopoverTrigger>
               <PopoverContent className="w-64">
                 <div className="p-2 space-y-2">
-                  <div className="flex justify-between items-center pb-2 border-b-1 border-foreground/15 gap-2">
+                  <div className="flex justify-between items-center pb-2 border-b border-border gap-2">
                     <span className="font-semibold text-[13px]">เลเยอร์</span>
                     <div className="flex gap-2">
                       <Button
@@ -2203,7 +2203,7 @@ const EnhancedEngineeringDrawing = memo(
           </TransformWrapper>
         </div>
 
-        <div className="flex items-center justify-between p-2 bg-default-50 border-t-1 border-foreground/15 text-xs text-default-500">
+        <div className="flex items-center justify-between p-2 bg-default-50 border-t border-border text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <span>
               ประตู: {T}×{W}×{H} มม.
@@ -2376,8 +2376,8 @@ const UIDoorBom = ({
               </Button>
             </div>
           )}
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   1
@@ -2466,8 +2466,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   2
@@ -2514,7 +2514,7 @@ const UIDoorBom = ({
               <div className="flex flex-col gap-2 text-[13px] p-2">
                 <div className="flex justify-between">
                   <span>วัสดุ:</span>
-                  <span className="font-bold text-foreground">
+                  <span className="font-semibold text-foreground">
                     {surfaceMaterial || "ไม่ระบุ"}
                   </span>
                 </div>
@@ -2532,11 +2532,11 @@ const UIDoorBom = ({
                   </span>
                 </div>
                 <Divider className="" />
-                <div className="flex justify-between font-bold">
+                <div className="flex justify-between font-semibold">
                   <span>รวม:</span>
                   <span>{results.totalSurfaceThickness} มม.</span>
                 </div>
-                <div className="flex justify-between font-bold">
+                <div className="flex justify-between font-semibold">
                   <span>ความหนากรอบที่ต้องการ:</span>
                   <span className="text-foreground">
                     {results.frameThickness} มม.
@@ -2546,8 +2546,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   3
@@ -2585,7 +2585,7 @@ const UIDoorBom = ({
                             ? "border-primary bg-primary-50"
                             : isRecommended
                               ? "border-success-300 bg-success-50 hover:border-success-400"
-                              : "border-foreground/15 bg-default-50 hover:border-foreground/15"
+                              : "border-border bg-default-50 hover:border-border"
                         }`}
                         onClick={() => setSelectedFrameCode(f.code)}
                       >
@@ -2601,15 +2601,15 @@ const UIDoorBom = ({
                                 💰 ถูกที่สุด
                               </Chip>
                             )}
-                            <span className="font-bold text-[13px]">
+                            <span className="font-semibold text-[13px]">
                               {candidate.frameTypeLabel}
                             </span>
                           </div>
-                          <span className="text-[13px] font-bold text-foreground">
+                          <span className="text-[13px] font-semibold text-foreground">
                             ฿{(f.unitCost || 0).toLocaleString()}
                           </span>
                         </div>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-default-600">
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-foreground">
                           <span>{f.displaySize}</span>
                           <span>
                             ใช้จริง: {f.useThickness}×{f.useWidth} mm
@@ -2691,13 +2691,13 @@ const UIDoorBom = ({
                         <span className="font-medium">
                           {frameLengthOptions.recommendedOption.frame.displaySize}
                         </span>
-                        <span className="text-default-500">
+                        <span className="text-muted-foreground">
                           {frameLengthOptions.recommendedOption.totalStocks} ท่อน ·{" "}
                           {frameLengthOptions.recommendedOption.efficiency}%
                         </span>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-success-700">
+                        <div className="font-semibold text-success-700">
                           ฿
                           {frameLengthOptions.recommendedOption.totalCost.toLocaleString(
                             undefined,
@@ -2771,8 +2771,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   4
@@ -2787,7 +2787,7 @@ const UIDoorBom = ({
                     ⚠️ ไส้ประเภท {coreCalculation?.coreType?.label || coreType}{" "}
                     ไม่มีคานขวางตรงกลาง
                   </Chip>
-                  <span className="text-default-500">
+                  <span className="text-muted-foreground">
                     ไส้เต็มแผ่น มีกรอบเฉพาะซ้าย ขวา บน ล่าง
                   </span>
                 </div>
@@ -2795,7 +2795,7 @@ const UIDoorBom = ({
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <div className="flex justify-between">
                     <span>จำนวนช่อง:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {results.railSections} ช่อง ({results.railSections - 1}{" "}
                       คานขวาง)
                     </span>
@@ -2815,7 +2815,7 @@ const UIDoorBom = ({
 
                   <div className="flex justify-between">
                     <span>ขนาดคานขวาง:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {coreType === "particle_strips"
                         ? `${coreCalculation.stripThickness || 12} มม. (ตัดจากแผ่นปาร์ติเคิล)`
                         : `${currentFrame.useThickness || 0}×${currentFrame.useWidth || 0} มม.`}
@@ -2823,12 +2823,12 @@ const UIDoorBom = ({
                   </div>
 
                   {coreType !== "particle_strips" && (
-                    <span className="text-xs text-default-500">
+                    <span className="text-sm text-muted-foreground">
                       (ใช้ไม้เดียวกับกรอบ)
                     </span>
                   )}
                   {coreType === "particle_strips" && (
-                    <span className="text-xs text-default-500">
+                    <span className="text-sm text-muted-foreground">
                       (ใช้แผ่นปาร์ติเคิลแทนคานขวาง)
                     </span>
                   )}
@@ -2845,7 +2845,7 @@ const UIDoorBom = ({
                         <span>
                           {pos} มม.{" "}
                           {wasAdjusted && (
-                            <span className="text-xs">
+                            <span className="text-sm">
                               (เดิม {results.railPositionsOriginal[idx]})
                             </span>
                           )}
@@ -2858,8 +2858,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   5
@@ -2918,18 +2918,18 @@ const UIDoorBom = ({
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <div className="flex justify-between">
                     <span>จำนวนรวม:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {results.lockBlockCount} ชิ้น ({lockBlockDesc})
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>ขนาดบล็อกล็อค:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {currentFrame.useThickness || 0}×
                       {currentFrame.useWidth || 0}×{LOCK_BLOCK_HEIGHT} mm
                     </span>
                   </div>
-                  <span className="text-xs text-default-500">
+                  <span className="text-sm text-muted-foreground">
                     (ใช้ไม้เดียวกับกรอบ)
                   </span>
                   <Divider className="" />
@@ -2950,8 +2950,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   6
@@ -3003,25 +3003,25 @@ const UIDoorBom = ({
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-primary-50 rounded-lg">
                   <div className="flex justify-between">
                     <span>รหัส:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {selectedCoreItem.code}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>รายละเอียด:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {selectedCoreItem.desc}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>ราคา:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       ฿{(selectedCoreItem.unitCost || 0).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>สต็อก:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {(selectedCoreItem.inventory || 0).toLocaleString()}
                     </span>
                   </div>
@@ -3032,13 +3032,13 @@ const UIDoorBom = ({
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
                   <div className="flex justify-between">
                     <span>ประเภท:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       {coreCalculation.coreType.label}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>รูปแบบ:</span>
-                    <span className="font-bold">
+                    <span className="font-semibold">
                       {coreCalculation.isSolid ? "เต็มแผ่น" : "แถบ"}
                       {coreCalculation.isFullPanelCore && " (ไม่มีคานขวาง)"}
                     </span>
@@ -3061,12 +3061,12 @@ const UIDoorBom = ({
                       </div>
                       <div className="flex justify-between">
                         <span>คอลัมน์:</span>
-                        <span className="font-bold text-foreground">
+                        <span className="font-semibold text-foreground">
                           {coreCalculation.columns} คอลัมน์
                           {coreCalculation.coreType?.value ===
                             "particle_strips" &&
                             doorWidth && (
-                              <span className="text-xs font-normal text-default-500">
+                              <span className="text-sm font-normal text-muted-foreground">
                                 ({doorWidth}/10+1)
                               </span>
                             )}
@@ -3081,7 +3081,7 @@ const UIDoorBom = ({
                         coreCalculation.damPieces?.length > 0 && (
                           <div className="flex justify-between">
                             <span>คานขวางปาร์ติเคิล:</span>
-                            <span className="font-bold text-foreground">
+                            <span className="font-semibold text-foreground">
                               {coreCalculation.damPieces.length} ชิ้น
                             </span>
                           </div>
@@ -3090,13 +3090,13 @@ const UIDoorBom = ({
                   )}
 
                   <Divider className="" />
-                  <div className="flex justify-between font-bold">
+                  <div className="flex justify-between font-semibold">
                     <span>จำนวนชิ้นรวม:</span>
                     <span className="text-foreground">
                       {coreCalculation.totalPieces} pcs
                     </span>
                   </div>
-                  <div className="flex justify-between text-xs text-default-500">
+                  <div className="flex justify-between text-sm text-muted-foreground">
                     <span>พื้นที่ไส้:</span>
                     <span>
                       {coreCalculation.coreWidth} × {coreCalculation.coreHeight}{" "}
@@ -3108,8 +3108,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   7
@@ -3190,8 +3190,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   8
@@ -3223,7 +3223,7 @@ const UIDoorBom = ({
                       className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors ${
                         drillItems[key].checked
                           ? "border-primary bg-primary-50"
-                          : "border-foreground/15 bg-default-50"
+                          : "border-border bg-default-50"
                       }`}
                     >
                       <Switch
@@ -3270,10 +3270,10 @@ const UIDoorBom = ({
 
         <div className="xl:col-span-2 flex flex-col gap-3">
           {/* Drawing - at top of right column so user sees live updates */}
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50 flex justify-between items-center">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50 flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <span className="text-default-500">📐</span>
+                <span className="text-muted-foreground">📐</span>
                 <span className="font-semibold text-sm">แบบวาด</span>
               </div>
             </CardHeader>
@@ -3286,11 +3286,11 @@ const UIDoorBom = ({
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-96 gap-2">
-                  <RulerDimensionLine className="w-12 h-12 text-default-300" />
-                  <p className="text-base font-medium text-default-600">
+                  <RulerDimensionLine className="w-12 h-12 text-muted-foreground" />
+                  <p className="text-base font-medium text-foreground">
                     กรุณากรอกข้อมูลประตู
                   </p>
-                  <p className="text-[13px] text-default-400">
+                  <p className="text-[13px] text-muted-foreground">
                     กรอก ความหนา (T), ความกว้าง (W), ความสูง (H)
                   </p>
                   <div className="flex gap-2">
@@ -3318,8 +3318,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   9
@@ -3329,7 +3329,7 @@ const UIDoorBom = ({
             </CardHeader>
             <CardBody className="gap-3 p-4">
               <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
-                <span className="font-bold text-foreground">
+                <span className="font-semibold text-foreground">
                   รายละเอียดต้นทุน / บาน
                 </span>
                 <div className="flex justify-between">
@@ -3379,7 +3379,7 @@ const UIDoorBom = ({
                   const sheetsNeeded = Math.ceil(totalStrips / coreStripsPerSheet);
                   const batchTotal = sheetsNeeded * coreUnitCost;
                   return (
-                    <div className="text-xs text-default-400 pl-2 space-y-0.5 mb-1">
+                    <div className="text-sm text-muted-foreground pl-2 space-y-0.5 mb-1">
                       <div>= {qty} บาน × {coreStrips} เส้น = {totalStrips.toLocaleString()} เส้น</div>
                       <div>= ceil({totalStrips.toLocaleString()} ÷ {coreStripsPerSheet}) = {sheetsNeeded.toLocaleString()} แผ่น</div>
                       <div>= {sheetsNeeded.toLocaleString()} × ฿{coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ÷ {qty} บาน = ฿{priceSummary.core.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/บาน</div>
@@ -3411,7 +3411,7 @@ const UIDoorBom = ({
                   </div>
                 )}
                 <Divider />
-                <div className="flex justify-between font-bold text-foreground">
+                <div className="flex justify-between font-semibold text-foreground">
                   <span>ต้นทุนรวม / บาน:</span>
                   <span>
                     ฿
@@ -3423,7 +3423,7 @@ const UIDoorBom = ({
                 </div>
                 <div className="flex justify-between">
                   <span>ต้นทุน + 10% / บาน:</span>
-                  <span className="font-bold">
+                  <span className="font-semibold">
                     ฿
                     {priceSummary.plus10.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -3433,7 +3433,7 @@ const UIDoorBom = ({
                 </div>
                 <div className="flex justify-between">
                   <span>กำไร 20% / บาน:</span>
-                  <span className="font-bold">
+                  <span className="font-semibold">
                     ฿
                     {priceSummary.profit20.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -3452,7 +3452,7 @@ const UIDoorBom = ({
                     value={customMargin}
                     onChange={(e) => setCustomMargin(e.target.value)}
                   />
-                  <span className="font-bold whitespace-nowrap">
+                  <span className="font-semibold whitespace-nowrap">
                     ฿
                     {priceSummary.customPrice.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -3465,7 +3465,7 @@ const UIDoorBom = ({
               {priceSummary.qty > 0 && (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-primary-50 rounded-lg">
                   <div className="flex items-center justify-between flex-wrap gap-1">
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-foreground">
                       รวมทั้งหมด ({priceSummary.qty} บาน)
                     </span>
                     {priceSummary.frameSavings > 0 && (
@@ -3496,7 +3496,7 @@ const UIDoorBom = ({
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between font-bold text-foreground">
+                  <div className="flex justify-between font-semibold text-foreground">
                     <span>ต้นทุนรวม:</span>
                     <span>
                       ฿
@@ -3508,7 +3508,7 @@ const UIDoorBom = ({
                   </div>
                   <div className="flex justify-between">
                     <span>ต้นทุน + 10%:</span>
-                    <span className="font-bold">
+                    <span className="font-semibold">
                       ฿
                       {priceSummary.grandPlus10.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
@@ -3518,7 +3518,7 @@ const UIDoorBom = ({
                   </div>
                   <div className="flex justify-between">
                     <span>กำไร 20%:</span>
-                    <span className="font-bold">
+                    <span className="font-semibold">
                       ฿
                       {priceSummary.grandProfit20.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
@@ -3529,7 +3529,7 @@ const UIDoorBom = ({
                   {customMargin && (
                     <div className="flex justify-between">
                       <span>กำไรตามใจ:</span>
-                      <span className="font-bold">
+                      <span className="font-semibold">
                         ฿
                         {priceSummary.grandCustom.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
@@ -3543,8 +3543,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-foreground/15">
-            <CardHeader className="border-b border-foreground/15 bg-default-50">
+          <Card shadow="none" className="w-full border border-border">
+            <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-sm">📋 สรุปโครงสร้าง</span>
               </div>
@@ -3552,49 +3552,49 @@ const UIDoorBom = ({
             <CardBody className="gap-3 p-4">
               <div className="grid grid-cols-2 gap-2 text-[13px]">
                 <div className="p-2 bg-default-100 rounded-lg">
-                  <span className="block text-default-600">สเปคประตู:</span>
-                  <span className="font-bold">
+                  <span className="block text-foreground">สเปคประตู:</span>
+                  <span className="font-semibold">
                     {formatDimension(doorThickness, doorWidth, doorHeight)} mm
                   </span>
                 </div>
                 <div className="p-2 bg-default-100 rounded-lg">
-                  <span className="block text-default-600">ผิว:</span>
-                  <span className="font-bold text-foreground">
+                  <span className="block text-foreground">ผิว:</span>
+                  <span className="font-semibold text-foreground">
                     {surfaceMaterial || "ไม่ระบุ"} {surfaceThickness || 0}mm +
                     Glue {GLUE_THICKNESS}mm (×2)
                   </span>
                 </div>
                 <div className="p-2 bg-default-50 rounded-lg">
-                  <span className="block text-default-600">กรอบไม้:</span>
-                  <span className="font-bold text-foreground">
+                  <span className="block text-foreground">กรอบไม้:</span>
+                  <span className="font-semibold text-foreground">
                     {currentFrame.useThickness || "-"}×
                     {currentFrame.useWidth || "-"} mm
                   </span>
                   {currentFrame.isFlipped && (
-                    <span className="block text-xs text-foreground">
+                    <span className="block text-sm text-foreground">
                       🔄 พลิก
                     </span>
                   )}
                   {currentFrame.planeAmount > 0 && (
-                    <span className="block text-xs text-foreground">
+                    <span className="block text-sm text-foreground">
                       🪚 ไส {currentFrame.planeAmount}มม.
                     </span>
                   )}
                 </div>
                 <div className="p-2 bg-default-50 rounded-lg">
-                  <span className="block text-default-600">คานขวาง:</span>
+                  <span className="block text-foreground">คานขวาง:</span>
                   {isNoRailCoreType ? (
-                    <span className="font-bold text-default-700">
+                    <span className="font-semibold text-foreground">
                       ไม่มี (ไส้เต็มแผ่น)
                     </span>
                   ) : (
                     <>
-                      <span className="font-bold text-foreground">
+                      <span className="font-semibold text-foreground">
                         {results.railSections - 1} ชิ้น ({results.railSections}{" "}
                         ช่อง)
                       </span>
                       {coreType === "particle_strips" && (
-                        <span className="block text-xs text-foreground">
+                        <span className="block text-sm text-foreground">
                           ใช้แผ่นปาร์ติเคิลแทนคานขวาง
                         </span>
                       )}
@@ -3602,20 +3602,20 @@ const UIDoorBom = ({
                   )}
                 </div>
                 <div className="col-span-2 p-2 bg-default-50 rounded-lg">
-                  <span className="block text-default-600">บล็อกล็อค:</span>
-                  <span className="font-bold text-foreground">
+                  <span className="block text-foreground">บล็อกล็อค:</span>
+                  <span className="font-semibold text-foreground">
                     {results.lockBlockCount} ชิ้น ({lockBlockDesc})
                   </span>
                 </div>
                 {coreType && coreCalculation.coreType && (
                   <div className="col-span-2 p-2 bg-default-50 rounded-lg">
-                    <span className="block text-default-600">ไส้ประตู:</span>
-                    <span className="font-bold text-foreground">
+                    <span className="block text-foreground">ไส้ประตู:</span>
+                    <span className="font-semibold text-foreground">
                       {coreCalculation.coreType.label} (
                       {coreCalculation.totalPieces} ชิ้น)
                     </span>
                     {!coreCalculation.isSolid && (
-                      <span className="block text-xs text-default-600">
+                      <span className="block text-sm text-foreground">
                         {coreCalculation.columns} คอลัมน์ ×{" "}
                         {coreCalculation.rows} แถว, ความหนาแถบ{" "}
                         {coreCalculation.stripThickness}mm spacing{" "}
@@ -3623,7 +3623,7 @@ const UIDoorBom = ({
                       </span>
                     )}
                     {coreCalculation.isFullPanelCore && (
-                      <span className="block text-xs text-default-700">
+                      <span className="block text-sm text-foreground">
                         ⚠️ ไส้เต็มแผ่น ไม่มีคานขวาง
                       </span>
                     )}
@@ -3640,15 +3640,15 @@ const UIDoorBom = ({
                   <span className="font-medium text-foreground">
                     รหัส ERP: {selectedFrameCode}
                   </span>
-                  <span className="block text-xs">{currentFrame.desc}</span>
+                  <span className="block text-sm">{currentFrame.desc}</span>
                 </div>
               )}
             </CardBody>
           </Card>
 
           {isDataComplete ? (
-            <Card shadow="none" className="w-full border border-foreground/15">
-              <CardHeader className="border-b border-foreground/15 bg-default-50">
+            <Card shadow="none" className="w-full border border-border">
+              <CardHeader className="border-b border-border bg-default-50">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-sm">
                     ✂️ แผนตัดไม้ (เพิ่มประสิทธิภาพ)
@@ -3682,7 +3682,7 @@ const UIDoorBom = ({
                       <div>
                         • ระยะทับซ้อน: {cuttingPlan.spliceOverlap} มม. ต่อจุดต่อ
                       </div>
-                      <div className="text-xs opacity-80">
+                      <div className="text-sm opacity-80">
                         ใช้กาว + ตะปูที่จุดต่อ
                       </div>
                     </div>
@@ -3690,26 +3690,26 @@ const UIDoorBom = ({
                 )}
 
                 {/* Single-door stats */}
-                <div className="rounded-lg border border-foreground/15 overflow-hidden">
-                  <div className="px-3 py-1.5 bg-default-100 text-xs font-semibold text-default-600">
+                <div className="rounded-lg border border-border overflow-hidden">
+                  <div className="px-3 py-1.5 bg-default-100 text-sm font-semibold text-foreground">
                     1 บาน
                   </div>
                   <div className="grid grid-cols-4 gap-0 divide-x divide-default-200">
                     <div className="p-2 text-center">
-                      <div className="font-bold text-lg text-foreground">{cuttingPlan.totalStocks}</div>
-                      <div className="text-[11px] text-default-500">ท่อนไม้ที่ใช้</div>
+                      <div className="font-semibold text-lg text-foreground">{cuttingPlan.totalStocks}</div>
+                      <div className="text-[11px] text-muted-foreground">ท่อนไม้ที่ใช้</div>
                     </div>
                     <div className="p-2 text-center">
-                      <div className="font-bold text-lg text-foreground">{cuttingPlan.efficiency}%</div>
-                      <div className="text-[11px] text-default-500">ประสิทธิภาพ</div>
+                      <div className="font-semibold text-lg text-foreground">{cuttingPlan.efficiency}%</div>
+                      <div className="text-[11px] text-muted-foreground">ประสิทธิภาพ</div>
                     </div>
                     <div className="p-2 text-center">
-                      <div className="font-bold text-lg text-foreground">{cuttingPlan.usedLength}</div>
-                      <div className="text-[11px] text-default-500">ใช้จริง (มม.)</div>
+                      <div className="font-semibold text-lg text-foreground">{cuttingPlan.usedLength}</div>
+                      <div className="text-[11px] text-muted-foreground">ใช้จริง (มม.)</div>
                     </div>
                     <div className="p-2 text-center">
-                      <div className="font-bold text-lg text-default-400">{cuttingPlan.totalWaste}</div>
-                      <div className="text-[11px] text-default-500">เศษ (มม.)</div>
+                      <div className="font-semibold text-lg text-muted-foreground">{cuttingPlan.totalWaste}</div>
+                      <div className="text-[11px] text-muted-foreground">เศษ (มม.)</div>
                     </div>
                   </div>
                 </div>
@@ -3717,7 +3717,7 @@ const UIDoorBom = ({
                 {/* Batch stats */}
                 {cuttingPlan.batch && (
                   <div className="rounded-lg border border-success-200 overflow-hidden">
-                    <div className="px-3 py-1.5 bg-success-50 text-xs font-semibold text-success-700 flex items-center justify-between">
+                    <div className="px-3 py-1.5 bg-success-50 text-sm font-semibold text-success-700 flex items-center justify-between">
                       <span>📦 ทั้ง order {cuttingPlan.batch.orderQty} บาน (ตัดรวม)</span>
                       {cuttingPlan.batch.savedStocks > 0 && (
                         <span className="text-success-600">ประหยัดได้ {cuttingPlan.batch.savedStocks} ท่อน</span>
@@ -3725,30 +3725,30 @@ const UIDoorBom = ({
                     </div>
                     <div className="grid grid-cols-3 gap-0 divide-x divide-default-200">
                       <div className="p-2 text-center">
-                        <div className="font-bold text-lg text-success-700">{cuttingPlan.batch.totalStocks}</div>
-                        <div className="text-[11px] text-default-500">ท่อนทั้งหมด (ตัดรวม)</div>
+                        <div className="font-semibold text-lg text-success-700">{cuttingPlan.batch.totalStocks}</div>
+                        <div className="text-[11px] text-muted-foreground">ท่อนทั้งหมด (ตัดรวม)</div>
                       </div>
                       <div className="p-2 text-center">
-                        <div className="font-bold text-lg text-default-400 line-through">{cuttingPlan.batch.naiveStocksTotal}</div>
-                        <div className="text-[11px] text-default-500">ถ้าตัดแยกบาน ({cuttingPlan.totalStocks}×{cuttingPlan.batch.orderQty})</div>
+                        <div className="font-semibold text-lg text-muted-foreground line-through">{cuttingPlan.batch.naiveStocksTotal}</div>
+                        <div className="text-[11px] text-muted-foreground">ถ้าตัดแยกบาน ({cuttingPlan.totalStocks}×{cuttingPlan.batch.orderQty})</div>
                       </div>
                       <div className="p-2 text-center">
-                        <div className="font-bold text-lg text-success-600">{cuttingPlan.batch.efficiency}%</div>
-                        <div className="text-[11px] text-default-500">ประสิทธิภาพรวม</div>
+                        <div className="font-semibold text-lg text-success-600">{cuttingPlan.batch.efficiency}%</div>
+                        <div className="text-[11px] text-muted-foreground">ประสิทธิภาพรวม</div>
                       </div>
                     </div>
                   </div>
                 )}
 
-                <div className="border-1 border-foreground/15 rounded-lg overflow-hidden">
-                  <div className="p-2 text-xs font-semibold bg-default-100">
+                <div className="border-1 border-border rounded-lg overflow-hidden">
+                  <div className="p-2 text-sm font-semibold bg-default-100">
                     📋 รายการชิ้นส่วน (เผื่อรอยเลื่อย {cuttingPlan.sawKerf} มม.)
                   </div>
                   <div>
                     {cuttingPlan.cutPieces.map((piece, idx) => (
                       <div
                         key={idx}
-                        className={`flex items-center justify-between p-2 text-xs ${piece.isSplice ? "bg-default-50" : ""}`}
+                        className={`flex items-center justify-between p-2 text-sm ${piece.isSplice ? "bg-default-50" : ""}`}
                       >
                         <div className="flex items-center gap-2">
                           <Chip
@@ -3767,11 +3767,11 @@ const UIDoorBom = ({
                         <div className="flex items-center gap-2">
                           <span>
                             {piece.length} มม.{" "}
-                            <span className="text-default-500">
+                            <span className="text-muted-foreground">
                               (ตัด {piece.cutLength ?? piece.length} มม.)
                             </span>
                           </span>
-                          <span className="font-bold">×{piece.qty}</span>
+                          <span className="font-semibold">×{piece.qty}</span>
                         </div>
                       </div>
                     ))}
@@ -3795,11 +3795,11 @@ const UIDoorBom = ({
                   };
                   return (
                     <>
-                      <div className="border-1 border-foreground/15 rounded-lg overflow-hidden">
-                        <div className="p-2 text-xs font-semibold bg-default-100 flex items-center justify-between">
+                      <div className="border-1 border-border rounded-lg overflow-hidden">
+                        <div className="p-2 text-sm font-semibold bg-default-100 flex items-center justify-between">
                           <span>🪵 แผนตัดไม้ (ท่อนยาว {cuttingPlan.stockLength}มม. × {totalStocksDisplay} ท่อน)</span>
                           {isBatch && (
-                            <span className="text-default-500 font-normal">📦 {cuttingPlan.batch.orderQty} บาน</span>
+                            <span className="text-muted-foreground font-normal">📦 {cuttingPlan.batch.orderQty} บาน</span>
                           )}
                         </div>
                         <div className="p-2 space-y-3">
@@ -3807,7 +3807,7 @@ const UIDoorBom = ({
                             const stockIdx = (framePage - 1) * FRAME_PAGE_SIZE + idx;
                             return (
                               <div key={stockIdx} className="space-y-1">
-                                <div className="text-xs text-default-600">ท่อนที่ {stockIdx + 1}</div>
+                                <div className="text-sm text-foreground">ท่อนที่ {stockIdx + 1}</div>
                                 <div className="relative h-8 rounded overflow-hidden bg-default-100">
                                   {(() => {
                                     let offset = 0;
@@ -3835,7 +3835,7 @@ const UIDoorBom = ({
                                   })()}
                                   {stock.remaining > 0 && (
                                     <div
-                                      className="absolute right-0 h-full flex items-center justify-center text-[8px] bg-background text-default-600"
+                                      className="absolute right-0 h-full flex items-center justify-center text-[8px] bg-background text-foreground"
                                       style={{ width: `${(stock.remaining / stock.length) * 100}%` }}
                                     >
                                       {stock.remaining > 100 && <span>เศษเหลือ {stock.remaining}</span>}
@@ -3847,17 +3847,17 @@ const UIDoorBom = ({
                           })}
                         </div>
                         {framePageCount > 1 && (
-                          <div className="flex items-center justify-between px-3 py-2 border-t border-foreground/15 bg-default-50">
+                          <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-default-50">
                             <button
-                              className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                              className="text-sm px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
                               onClick={() => setFramePlanPage(p => Math.max(1, p - 1))}
                               disabled={framePage === 1}
                             >← ก่อนหน้า</button>
-                            <span className="text-xs text-default-500">
+                            <span className="text-sm text-muted-foreground">
                               ท่อนที่ {(framePage - 1) * FRAME_PAGE_SIZE + 1}–{Math.min(framePage * FRAME_PAGE_SIZE, displayStocks.length)} / {displayStocks.length}
                             </span>
                             <button
-                              className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                              className="text-sm px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
                               onClick={() => setFramePlanPage(p => Math.min(framePageCount, p + 1))}
                               disabled={framePage === framePageCount}
                             >ถัดไป →</button>
@@ -3866,14 +3866,14 @@ const UIDoorBom = ({
                       </div>
 
                       <div className="p-2">
-                        <div className="flex justify-between text-xs">
+                        <div className="flex justify-between text-sm">
                           <span>ประสิทธิภาพการใช้ไม้</span>
-                          <span className={`font-bold text-${getEfficiencyColor(efficiencyDisplay)}`}>
+                          <span className={`font-semibold text-${getEfficiencyColor(efficiencyDisplay)}`}>
                             {efficiencyDisplay}%
                           </span>
                         </div>
                         <Progress value={parseFloat(efficiencyDisplay)} color={getEfficiencyColor(efficiencyDisplay)} size="md" />
-                        <div className="flex justify-between text-[10px] text-default-500">
+                        <div className="flex justify-between text-[10px] text-muted-foreground">
                           <span>0%</span>
                           <span>ดี: ≥80%</span>
                           <span>100%</span>
@@ -3914,13 +3914,13 @@ const UIDoorBom = ({
                   const corePageSheets = displaySheets.slice((corePage - 1) * CORE_PAGE_SIZE, corePage * CORE_PAGE_SIZE);
 
                   return (
-                    <div className="mt-3 border-1 border-foreground/15 rounded-lg overflow-hidden">
-                      <div className="p-2 text-xs font-semibold bg-default-100 flex items-center justify-between">
+                    <div className="mt-3 border-1 border-border rounded-lg overflow-hidden">
+                      <div className="p-2 text-sm font-semibold bg-default-100 flex items-center justify-between">
                         <span>
                           🧱 แผนตัดใส้ (แผ่น {coreSheetWidth}มม. ÷ {coreStripCutWidth}มม. = {coreStripsPerSheet} เส้น/แผ่น)
                         </span>
                         {orderQty > 1 && (
-                          <span className="text-default-500 font-normal">
+                          <span className="text-muted-foreground font-normal">
                             📦 กลุ่ม {orderQty} บาน: {batchSheets} แผ่น
                           </span>
                         )}
@@ -3932,9 +3932,9 @@ const UIDoorBom = ({
                           const wastePct = (sheet.waste / coreStripsPerSheet) * 100;
                           return (
                             <div key={sheetIdx} className="space-y-0.5">
-                              <div className="text-xs text-default-500">
+                              <div className="text-sm text-muted-foreground">
                                 แผ่นที่ {sheetIdx + 1}
-                                <span className="ml-1 text-default-400">
+                                <span className="ml-1 text-muted-foreground">
                                   ({sheet.used} เส้น{sheet.waste > 0 ? ` · เหลือ ${sheet.waste}` : ""})
                                 </span>
                               </div>
@@ -3948,7 +3948,7 @@ const UIDoorBom = ({
                                 </div>
                                 {sheet.waste > 0 && (
                                   <div
-                                    className="absolute right-0 h-full flex items-center justify-center text-[8px] text-default-500"
+                                    className="absolute right-0 h-full flex items-center justify-center text-[8px] text-muted-foreground"
                                     style={{ width: `${wastePct}%` }}
                                   >
                                     {wastePct > 10 && `เศษ ${sheet.waste}`}
@@ -3960,26 +3960,26 @@ const UIDoorBom = ({
                         })}
                       </div>
                       {corePageCount > 1 && (
-                        <div className="flex items-center justify-between px-3 py-2 border-t border-foreground/15 bg-default-50">
+                        <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-default-50">
                           <button
-                            className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                            className="text-sm px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
                             onClick={() => setCorePlanPage(p => Math.max(1, p - 1))}
                             disabled={corePage === 1}
                           >← ก่อนหน้า</button>
-                          <span className="text-xs text-default-500">
+                          <span className="text-sm text-muted-foreground">
                             แผ่นที่ {(corePage - 1) * CORE_PAGE_SIZE + 1}–{Math.min(corePage * CORE_PAGE_SIZE, displaySheets.length)} / {displaySheets.length}
                           </span>
                           <button
-                            className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                            className="text-sm px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
                             onClick={() => setCorePlanPage(p => Math.min(corePageCount, p + 1))}
                             disabled={corePage === corePageCount}
                           >ถัดไป →</button>
                         </div>
                       )}
                       <div className="px-2 pb-2 space-y-1">
-                        <div className="flex justify-between text-xs">
+                        <div className="flex justify-between text-sm">
                           <span>ประสิทธิภาพการใช้แผ่น</span>
-                          <span className={`font-bold text-${getEfficiencyColor(batchEfficiency)}`}>
+                          <span className={`font-semibold text-${getEfficiencyColor(batchEfficiency)}`}>
                             {batchEfficiency}%
                           </span>
                         </div>
@@ -3995,8 +3995,8 @@ const UIDoorBom = ({
               </CardBody>
             </Card>
           ) : (
-            <Card shadow="none" className="w-full border border-foreground/15">
-              <CardHeader className="border-b border-foreground/15 bg-default-50">
+            <Card shadow="none" className="w-full border border-border">
+              <CardHeader className="border-b border-border bg-default-50">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-sm">
                     ✂️ แผนตัดไม้ (เพิ่มประสิทธิภาพ)
@@ -4005,11 +4005,11 @@ const UIDoorBom = ({
               </CardHeader>
               <CardBody>
                 <div className="flex flex-col items-center justify-center h-48 gap-2">
-                  <Calculator className="w-12 h-12 text-default-300" />
+                  <Calculator className="w-12 h-12 text-muted-foreground" />
                   <p className="text-lg font-medium">
                     กรุณากรอกสเปคประตูให้ครบ
                   </p>
-                  <p className="text-[13px] text-default-400">
+                  <p className="text-[13px] text-muted-foreground">
                     ระบบจะคำนวณแผนตัดไม้ให้อัตโนมัติ
                   </p>
                 </div>

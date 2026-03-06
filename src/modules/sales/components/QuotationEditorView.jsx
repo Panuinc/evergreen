@@ -70,7 +70,7 @@ export default function QuotationEditorView({
 
   if (!quotation) {
     return (
-      <div className="flex items-center justify-center h-full text-default-400">
+      <div className="flex items-center justify-center h-full text-muted-foreground">
         ไม่พบใบเสนอราคา
       </div>
     );
@@ -225,7 +225,7 @@ export default function QuotationEditorView({
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-foreground/15">
+                <tr className="border-b border-border">
                   <th className="text-left p-2 w-10">#</th>
                   <th className="text-left p-2">สินค้า</th>
                   <th className="text-left p-2">รายละเอียด</th>
@@ -240,9 +240,9 @@ export default function QuotationEditorView({
                 {lines.map((line, index) => (
                   <tr
                     key={index}
-                    className="border-b border-foreground/15"
+                    className="border-b border-border"
                   >
-                    <td className="p-2 text-default-500">{index + 1}</td>
+                    <td className="p-2 text-muted-foreground">{index + 1}</td>
                     <td className="p-2">
                       {canEdit ? (
                         <Input
@@ -391,7 +391,7 @@ export default function QuotationEditorView({
           <p className="text-lg font-semibold mb-4">สรุป</p>
           <div className="flex flex-col items-end gap-3 w-full max-w-sm ml-auto">
             <div className="flex items-center justify-between w-full">
-              <span className="text-default-500">ยอดรวมย่อย</span>
+              <span className="text-muted-foreground">ยอดรวมย่อย</span>
               <span>
                 ฿
                 {calcSubtotal().toLocaleString("th-TH", {
@@ -400,7 +400,7 @@ export default function QuotationEditorView({
               </span>
             </div>
             <div className="flex items-center justify-between w-full gap-4">
-              <span className="text-default-500">ส่วนลด</span>
+              <span className="text-muted-foreground">ส่วนลด</span>
               <Input
                 variant="bordered"
                 size="md"
@@ -414,7 +414,7 @@ export default function QuotationEditorView({
               />
             </div>
             <div className="flex items-center justify-between w-full gap-4">
-              <span className="text-default-500">ภาษี</span>
+              <span className="text-muted-foreground">ภาษี</span>
               <Input
                 variant="bordered"
                 size="md"
@@ -427,9 +427,9 @@ export default function QuotationEditorView({
                 isReadOnly={!canEdit}
               />
             </div>
-            <div className="flex items-center justify-between w-full border-t border-foreground/15 pt-2">
-              <span className="font-bold text-lg">ยอดรวม</span>
-              <span className="font-bold text-lg">
+            <div className="flex items-center justify-between w-full border-t border-border pt-2">
+              <span className="font-semibold text-lg">ยอดรวม</span>
+              <span className="font-semibold text-lg">
                 ฿
                 {calcTotal().toLocaleString("th-TH", {
                   minimumFractionDigits: 2,

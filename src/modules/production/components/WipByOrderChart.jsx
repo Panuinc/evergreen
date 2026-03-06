@@ -18,7 +18,7 @@ function formatCurrency(value) {
 export default function WipByOrderChart({ data = [] }) {
   if (!data.length) {
     return (
-      <p className="text-sm text-default-400 text-center py-8">
+      <p className="text-sm text-muted-foreground text-center py-8">
         ไม่มีข้อมูล WIP
       </p>
     );
@@ -52,12 +52,12 @@ export default function WipByOrderChart({ data = [] }) {
             const d = payload[0]?.payload;
             if (!d) return null;
             return (
-              <div className="bg-content1 border border-foreground/15 rounded-lg p-3 shadow-lg text-xs">
+              <div className="bg-content1 border border-border rounded-lg p-3 shadow-lg text-sm">
                 <p className="font-semibold mb-1">{d.orderNo}</p>
-                <p className="text-default-500 mb-1">{d.description}</p>
+                <p className="text-muted-foreground mb-1">{d.description}</p>
                 <p>ต้นทุนวัตถุดิบ: {formatCurrency(d.consumptionCost)}</p>
                 <p>รายได้จากการขาย: {formatCurrency(d.revenue)}</p>
-                <hr className="my-1 border-foreground/15" />
+                <hr className="my-1 border-border" />
                 <p className="font-semibold text-red-500">
                   WIP: {formatCurrency(d.wipValue)}
                 </p>

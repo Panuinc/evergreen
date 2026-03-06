@@ -9,7 +9,7 @@ const MapInner = dynamic(() => import("./DeliveryPlanMapPickerInner"), {
   ssr: false,
   loading: () => (
     <div className="h-[220px] w-full rounded-xl bg-default-100 flex items-center justify-center">
-      <span className="text-xs text-default-400">กำลังโหลดแผนที่...</span>
+      <span className="text-sm text-muted-foreground">กำลังโหลดแผนที่...</span>
     </div>
   ),
 });
@@ -63,7 +63,7 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
           placeholder="ค้นหาสถานที่..."
           value={searchQuery}
           onValueChange={setSearchQuery}
-          startContent={<MapPin size={14} className="text-default-400" />}
+          startContent={<MapPin size={14} className="text-muted-foreground" />}
           size="sm"
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           className="flex-1"
@@ -86,13 +86,13 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
 
       {/* Current address display */}
       {address && (
-        <p className="text-xs text-default-500 truncate px-1">{address}</p>
+        <p className="text-sm text-muted-foreground truncate px-1">{address}</p>
       )}
 
       {/* Map */}
       <MapInner lat={lat} lng={lng} onMapClick={handleMapClick} />
 
-      <p className="text-[10px] text-default-400 text-center">
+      <p className="text-[10px] text-muted-foreground text-center">
         คลิกบนแผนที่เพื่อกำหนดจุดส่ง หรือค้นหาด้วยชื่อสถานที่
       </p>
     </div>

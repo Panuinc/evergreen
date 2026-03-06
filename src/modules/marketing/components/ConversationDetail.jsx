@@ -46,7 +46,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b-2 border-foreground/15">
+      <div className="flex items-center justify-between p-3 border-b border-border">
         <span className="font-semibold">รายละเอียด</span>
         <Button isIconOnly variant="light" size="sm" radius="md" onPress={onClose}>
           <X size={18} />
@@ -60,19 +60,19 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             <p className="font-semibold text-sm">ข้อมูลลูกค้า</p>
             <div className="flex flex-col gap-1 text-sm">
               <div className="flex justify-between">
-                <span className="text-default-400">ชื่อ</span>
+                <span className="text-muted-foreground">ชื่อ</span>
                 <span>{contact.omContactDisplayName || "-"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-default-400">ช่องทาง</span>
+                <span className="text-muted-foreground">ช่องทาง</span>
                 <ChannelBadge channelType={contact.omContactChannelType} />
               </div>
               <div className="flex justify-between">
-                <span className="text-default-400">External ID</span>
+                <span className="text-muted-foreground">External ID</span>
                 <span className="text-[10px] truncate max-w-[150px]">{contact.omContactExternalId}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-default-400">สถานะ</span>
+                <span className="text-muted-foreground">สถานะ</span>
                 <Chip size="sm" variant="flat" color={
                   conversation.omConversationStatus === "open" ? "success" :
                   conversation.omConversationStatus === "waiting" ? "warning" : "default"
@@ -145,7 +145,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             ) : (
               <div
                 onClick={() => setEditingNotes(true)}
-                className="text-sm text-default-400 cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
+                className="text-sm text-muted-foreground cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
               >
                 {contact.omContactNotes || "คลิกเพื่อเพิ่มหมายเหตุ..."}
               </div>
@@ -159,7 +159,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
               <p className="font-semibold text-sm">ใบเสนอราคา</p>
             </div>
             {quotations.length === 0 ? (
-              <p className="text-sm text-default-400">ยังไม่มีใบเสนอราคา</p>
+              <p className="text-sm text-muted-foreground">ยังไม่มีใบเสนอราคา</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {quotations.map((q) => (
@@ -169,7 +169,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                   >
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">{q.omQuotationNumber}</span>
-                      <span className="text-[10px] text-default-400">
+                      <span className="text-[10px] text-muted-foreground">
                         {new Date(q.omQuotationCreatedAt).toLocaleDateString("th-TH")}
                       </span>
                     </div>

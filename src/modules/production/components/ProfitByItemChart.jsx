@@ -19,7 +19,7 @@ function formatCurrency(v) {
 export default function ProfitByItemChart({ data = [] }) {
   if (!data.length) {
     return (
-      <p className="text-sm text-default-400 text-center py-8">ไม่มีข้อมูล</p>
+      <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>
     );
   }
 
@@ -39,7 +39,7 @@ export default function ProfitByItemChart({ data = [] }) {
 
   if (!chartData.length) {
     return (
-      <p className="text-sm text-default-400 text-center py-8">
+      <p className="text-sm text-muted-foreground text-center py-8">
         ไม่มีข้อมูลราคาขาย
       </p>
     );
@@ -64,12 +64,12 @@ export default function ProfitByItemChart({ data = [] }) {
             const d = payload[0]?.payload;
             if (!d) return null;
             return (
-              <div className="bg-content1 border border-foreground/15 rounded-lg p-3 shadow-lg text-xs">
+              <div className="bg-content1 border border-border rounded-lg p-3 shadow-lg text-sm">
                 <p className="font-semibold mb-1">{d.description || d.itemNo}</p>
                 <p>ราคาขาย: {formatCurrency(d.sellingPrice)}/ชิ้น</p>
                 <p>ต้นทุนผลิต: {formatCurrency(d.costPerUnit)}/ชิ้น</p>
                 <p>จำนวนผลิต: {Number(d.outputQty).toLocaleString("th-TH")} ชิ้น</p>
-                <hr className="my-1 border-foreground/15" />
+                <hr className="my-1 border-border" />
                 <p>รายได้รวม: {formatCurrency(d.totalRevenue)}</p>
                 <p>ต้นทุนรวม: {formatCurrency(d.productionCost)}</p>
                 <p className={d.profitAmount >= 0 ? "text-success font-semibold" : "text-danger font-semibold"}>

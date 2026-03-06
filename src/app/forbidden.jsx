@@ -19,7 +19,7 @@ export default function Forbidden() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="text-default-500">
+          <p className="text-muted-foreground">
             Sorry, you don&apos;t have permission to access this page. This area
             is restricted and requires additional privileges.
           </p>
@@ -32,7 +32,7 @@ export default function Forbidden() {
         <div className="flex flex-row items-center justify-center gap-2">
           <button
             onClick={() => window.history.back()}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-foreground/15 hover:bg-default-100 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-border hover:bg-default-100 transition-colors"
           >
             <ArrowLeft />
             Go Back

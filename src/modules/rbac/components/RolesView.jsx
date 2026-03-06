@@ -86,7 +86,7 @@ export default function RolesView({
           return <span className="font-medium">{role.rbacRoleName}</span>;
         case "rbacRoleDescription":
           return (
-            <span className="text-default-500">
+            <span className="text-muted-foreground">
               {role.rbacRoleDescription || "-"}
             </span>
           );

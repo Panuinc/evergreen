@@ -30,7 +30,7 @@ export default function ReportsView({ data, loading }) {
       </div>
 
       {/* Full-width Pipeline Chart */}
-      <Card shadow="none" className="border border-foreground/15 p-4">
+      <Card shadow="none" className="border border-border p-4">
         <p className="text-lg font-semibold mb-4">วิเคราะห์ไปป์ไลน์</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.pipelineByStage || []}>
@@ -48,7 +48,7 @@ export default function ReportsView({ data, loading }) {
       </Card>
 
       {/* Revenue Trend */}
-      <Card shadow="none" className="border border-foreground/15 p-4">
+      <Card shadow="none" className="border border-border p-4">
         <p className="text-lg font-semibold mb-4">แนวโน้มรายได้</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.revenueByMonth || []}>
@@ -67,36 +67,36 @@ export default function ReportsView({ data, loading }) {
 
       {/* Win/Loss and Salespeople side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-foreground/15 p-4">
+        <Card shadow="none" className="border border-border p-4">
           <p className="text-lg font-semibold mb-4">อัตราการชนะ</p>
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <p className="text-5xl font-bold text-success">
+              <p className="text-5xl font-semibold text-success">
                 {kpis.winRate || 0}%
               </p>
-              <p className="text-default-500 mt-2">
+              <p className="text-muted-foreground mt-2">
                 ชนะ: {kpis.wonDeals || 0} | แพ้: {kpis.lostDeals || 0}
               </p>
             </div>
           </div>
         </Card>
 
-        <Card shadow="none" className="border border-foreground/15 p-4">
+        <Card shadow="none" className="border border-border p-4">
           <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(data.topSalespeople || []).map((person, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-2 rounded-lg border border-foreground/15"
+                className="flex items-center justify-between p-2 rounded-lg border border-border"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-default-400 w-6">
+                  <span className="text-sm font-semibold text-muted-foreground w-6">
                     #{i + 1}
                   </span>
                   <span className="font-medium">{person.name}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
-                  <span className="text-default-500">
+                  <span className="text-muted-foreground">
                     {person.deals} ดีล
                   </span>
                   <span className="font-semibold">
@@ -106,7 +106,7 @@ export default function ReportsView({ data, loading }) {
               </div>
             ))}
             {(!data.topSalespeople || data.topSalespeople.length === 0) && (
-              <p className="text-default-400 text-sm text-center py-4">
+              <p className="text-muted-foreground text-sm text-center py-4">
                 ไม่มีข้อมูล
               </p>
             )}

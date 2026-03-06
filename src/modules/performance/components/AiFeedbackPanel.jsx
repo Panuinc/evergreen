@@ -67,12 +67,12 @@ export default function AiFeedbackPanel({
         {isLoading && (
           <div className="flex flex-col items-center gap-3 py-8">
             <Spinner size="lg" color="primary" />
-            <p className="text-sm text-default-400">กำลังวิเคราะห์ผลประเมิน...</p>
+            <p className="text-sm text-muted-foreground">กำลังวิเคราะห์ผลประเมิน...</p>
           </div>
         )}
 
         {!isLoading && !feedback && (
-          <p className="text-sm text-default-400 text-center py-4">
+          <p className="text-sm text-muted-foreground text-center py-4">
             กดปุ่ม "สร้าง AI Feedback" เพื่อรับคำแนะนำจาก AI
           </p>
         )}
@@ -100,7 +100,7 @@ export default function AiFeedbackPanel({
                       <Chip size="sm" color="success" variant="flat">
                         {s.categoryName}
                       </Chip>
-                      <span className="text-xs text-default-500">
+                      <span className="text-sm text-muted-foreground">
                         {s.score?.toFixed(1)}/5.0
                       </span>
                     </div>
@@ -121,7 +121,7 @@ export default function AiFeedbackPanel({
                       <Chip size="sm" color="warning" variant="flat">
                         {w.categoryName}
                       </Chip>
-                      <span className="text-xs text-default-500">
+                      <span className="text-sm text-muted-foreground">
                         {w.score?.toFixed(1)}/5.0
                       </span>
                     </div>
@@ -150,7 +150,7 @@ export default function AiFeedbackPanel({
                         </Chip>
                         <span>{rec.title}</span>
                         {rec.timeframe && (
-                          <span className="text-xs text-default-400">
+                          <span className="text-sm text-muted-foreground">
                             ({rec.timeframe})
                           </span>
                         )}
@@ -177,7 +177,7 @@ export default function AiFeedbackPanel({
                   return (
                     <div
                       key={i}
-                      className="border border-foreground/15 rounded-lg p-3 flex flex-col gap-2"
+                      className="border border-border rounded-lg p-3 flex flex-col gap-2"
                     >
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium flex-1">{course.title}</p>
@@ -185,8 +185,8 @@ export default function AiFeedbackPanel({
                           {typeInfo.label}
                         </Chip>
                       </div>
-                      <p className="text-xs text-default-500">{course.description}</p>
-                      <div className="flex items-center gap-3 text-xs text-default-400">
+                      <p className="text-sm text-muted-foreground">{course.description}</p>
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         {course.provider && <span>{course.provider}</span>}
                         {course.estimatedDuration && <span>{course.estimatedDuration}</span>}
                       </div>

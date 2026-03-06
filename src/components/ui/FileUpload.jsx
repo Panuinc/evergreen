@@ -64,11 +64,11 @@ export default function FileUpload({
                 <img
                   src={url}
                   alt={`upload-${i}`}
-                  className="w-20 h-20 object-cover rounded-md border border-foreground/15"
+                  className="w-20 h-20 object-cover rounded-md border border-border"
                 />
               ) : (
-                <div className="w-20 h-20 flex items-center justify-center rounded-md border border-foreground/15 bg-default-100">
-                  <ImageIcon size={24} className="text-default-400" />
+                <div className="w-20 h-20 flex items-center justify-center rounded-md border border-border bg-default-100">
+                  <ImageIcon size={24} className="text-muted-foreground" />
                 </div>
               )}
               <button
@@ -85,14 +85,14 @@ export default function FileUpload({
 
       <div
         onClick={() => !uploading && inputRef.current?.click()}
-        className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-foreground/15 rounded-md cursor-pointer hover:border-primary transition-colors"
+        className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-border rounded-md cursor-pointer hover:border-primary transition-colors"
       >
         {uploading ? (
           <Spinner />
         ) : (
           <>
-            <Upload size={16} className="text-default-400" />
-            <span className="text-sm text-default-400">
+            <Upload size={16} className="text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
               คลิกเพื่ออัปโหลดไฟล์
             </span>
           </>

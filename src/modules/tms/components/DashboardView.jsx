@@ -20,7 +20,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
   }
 
   if (!stats) {
-    return <p className="text-default-400 text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
+    return <p className="text-muted-foreground text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
   }
 
   // Handle comparison data shape
@@ -44,7 +44,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
           <div />
           <div className="flex items-center gap-2">
             {isCompare && stats.labels && (
-              <span className="text-xs text-default-400">
+              <span className="text-sm text-muted-foreground">
                 {stats.labels.current} vs {stats.labels.previous}
               </span>
             )}
@@ -96,13 +96,13 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">สถานะการขนส่ง</p>
             <ShipmentStatusChart data={d.shipmentStatusDistribution} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">
               {isCompare ? "การขนส่งรายเดือน" : "การขนส่งรายเดือน (6 เดือนล่าสุด)"}
@@ -110,13 +110,13 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
             <MonthlyShipmentChart data={d.monthlyShipmentTrend} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">แนวโน้มค่าน้ำมัน</p>
             <FuelCostChart data={d.fuelCostTrend} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/15">
+        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">
               {isCompare ? "อัตราการใช้ยานพาหนะ" : "อัตราการใช้ยานพาหนะ (30 วัน)"}
@@ -135,7 +135,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       )}
 
       {/* AI Analysis */}
-      <Card shadow="none" className="border border-foreground/15">
+      <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
@@ -158,11 +158,11 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
           {aiLoading && !aiAnalysis && (
             <div className="flex items-center gap-3 py-8 justify-center">
               <Spinner size="sm" />
-              <span className="text-sm text-default-500">AI กำลังวิเคราะห์ข้อมูลขนส่ง...</span>
+              <span className="text-sm text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลขนส่ง...</span>
             </div>
           )}
           {!aiAnalysis && !aiLoading && (
-            <p className="text-sm text-default-400 py-4 text-center">
+            <p className="text-sm text-muted-foreground py-4 text-center">
               กดปุ่ม &quot;เริ่มวิเคราะห์&quot; เพื่อให้ AI วิเคราะห์ประสิทธิภาพขนส่ง ต้นทุนน้ำมัน และคำแนะนำลดค่าใช้จ่าย
             </p>
           )}
@@ -173,15 +173,15 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
                 components={{
                   table: ({ children }) => (
                     <div className="overflow-x-auto my-2">
-                      <table className="border-collapse w-full text-xs">{children}</table>
+                      <table className="border-collapse w-full text-sm">{children}</table>
                     </div>
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-foreground/15 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
-                    <td className="border border-foreground/15 px-3 py-1.5 text-foreground">{children}</td>
+                    <td className="border border-border px-3 py-1.5 text-foreground">{children}</td>
                   ),
                   tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
                   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -191,10 +191,10 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
                   strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
                   code: ({ inline, children }) =>
                     inline ? (
-                      <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+                      <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">{children}</code>
                     ) : (
                       <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
-                        <code className="text-xs font-mono">{children}</code>
+                        <code className="text-sm font-mono">{children}</code>
                       </pre>
                     ),
                 }}

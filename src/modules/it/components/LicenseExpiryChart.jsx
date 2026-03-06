@@ -11,7 +11,7 @@ const BUCKET_COLORS = {
 
 export default function LicenseExpiryChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-default-400 text-center py-8">No data</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">No data</p>;
   }
 
   const chartData = data
@@ -23,7 +23,7 @@ export default function LicenseExpiryChart({ data = [] }) {
     }));
 
   if (!chartData.length) {
-    return <p className="text-sm text-default-400 text-center py-8">No data</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">No data</p>;
   }
 
   return (

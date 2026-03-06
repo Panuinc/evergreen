@@ -43,7 +43,7 @@ export default function ShippingLabelDocument({ orderNo }) {
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-default-400">
+      <div className="flex items-center justify-center min-h-screen text-muted-foreground">
         ไม่พบข้อมูล กรุณากลับไปหน้า Sales Order แล้วลองใหม่
       </div>
     );
@@ -101,7 +101,7 @@ export default function ShippingLabelDocument({ orderNo }) {
 
       {/* ปุ่มสำหรับหน้าจอ */}
       <div className="no-print flex items-center justify-between mb-4 px-4 pt-4">
-        <p className="text-sm text-default-500">
+        <p className="text-sm text-muted-foreground">
           ใบปะหน้าส่งสินค้า — {data.orderNo} ({labels.length} ใบ)
         </p>
         <div className="flex gap-2">

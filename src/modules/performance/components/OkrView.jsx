@@ -132,7 +132,7 @@ function MyOkrTab({
         </div>
       ) : objectives.length === 0 ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             ยังไม่มี OKR ในช่วงเวลานี้ — กดปุ่ม "สร้าง Objective" เพื่อเริ่มต้น
           </CardBody>
         </Card>
@@ -186,7 +186,7 @@ function TeamOkrTab({
         </div>
       ) : teamObjectives.length === 0 ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             ยังไม่มี OKR ระดับทีมในช่วงเวลานี้
           </CardBody>
         </Card>
@@ -240,7 +240,7 @@ function CompanyOkrTab({
         </div>
       ) : companyObjectives.length === 0 ? (
         <Card>
-          <CardBody className="text-center py-12 text-default-400">
+          <CardBody className="text-center py-12 text-muted-foreground">
             ยังไม่มี OKR ระดับบริษัทในช่วงเวลานี้
           </CardBody>
         </Card>
@@ -299,10 +299,10 @@ function ObjectiveCard({
               </Chip>
             </div>
             {showOwner && ownerName && (
-              <p className="text-sm text-default-500">{ownerName} — {objective.employee?.hrEmployeeDepartment}</p>
+              <p className="text-sm text-muted-foreground">{ownerName} — {objective.employee?.hrEmployeeDepartment}</p>
             )}
             {objective.perfOkrObjectiveDescription && (
-              <p className="text-sm text-default-400">{objective.perfOkrObjectiveDescription}</p>
+              <p className="text-sm text-muted-foreground">{objective.perfOkrObjectiveDescription}</p>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -446,7 +446,7 @@ function KeyResultRow({ kr, editable, onOpenCheckin, onOpenKrForm, onDeleteKr })
             size="sm"
             color={progress >= 70 ? "success" : progress >= 40 ? "warning" : "danger"}
           />
-          <span className="text-xs text-default-500">{displayValue}</span>
+          <span className="text-sm text-muted-foreground">{displayValue}</span>
         </div>
       </div>
       {editable && (
@@ -735,7 +735,7 @@ function CheckinModal({
         <ModalHeader>Check-in: {checkinKr.perfOkrKeyResultTitle}</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
-            <div className="text-sm text-default-500">
+            <div className="text-sm text-muted-foreground">
               เป้าหมาย: <span className="font-semibold">{displayTarget}</span>
               {" | "}ค่าปัจจุบัน: <span className="font-semibold">{checkinKr.perfOkrKeyResultCurrentValue}{checkinKr.perfOkrKeyResultUnit ? ` ${checkinKr.perfOkrKeyResultUnit}` : ""}</span>
             </div>
@@ -844,7 +844,7 @@ export default function OkrView({
     <div className="flex flex-col w-full h-full gap-4">
       <div>
         <h1 className="text-lg font-semibold">OKR (Objectives & Key Results)</h1>
-        <p className="text-default-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           ตั้งเป้าหมายและติดตามความคืบหน้าด้วย Key Results
         </p>
       </div>

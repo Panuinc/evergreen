@@ -62,7 +62,7 @@ export default function OmnichannelQuotationEditorView({
 
   if (!quotation) {
     return (
-      <div className="flex items-center justify-center w-full h-full text-default-400">
+      <div className="flex items-center justify-center w-full h-full text-muted-foreground">
         ไม่พบใบเสนอราคา
       </div>
     );
@@ -247,7 +247,7 @@ export default function OmnichannelQuotationEditorView({
           />
           <div className="flex justify-end mt-2 px-2">
             <span className="font-semibold mr-4">รวมทั้งสิ้น</span>
-            <span className="font-bold">
+            <span className="font-semibold">
               {calcTotal().toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท
             </span>
           </div>
@@ -268,7 +268,7 @@ export default function OmnichannelQuotationEditorView({
 
         {/* Payment Slip */}
         {quotation.paymentSlip?.omMessageImageUrl && (
-          <div className="p-4 bg-default-50 rounded-lg border border-foreground/15">
+          <div className="p-4 bg-default-50 rounded-lg border border-border">
             <p className="font-semibold mb-3 flex items-center gap-2">
               <Receipt size={16} />
               หลักฐานการชำระเงิน
@@ -278,7 +278,7 @@ export default function OmnichannelQuotationEditorView({
                 <img
                   src={quotation.paymentSlip.omMessageImageUrl}
                   alt="สลิปการโอนเงิน"
-                  className="rounded-lg border border-foreground/15 cursor-pointer hover:opacity-90 transition-opacity"
+                  className="rounded-lg border border-border cursor-pointer hover:opacity-90 transition-opacity"
                   style={{ maxHeight: 300, maxWidth: 220 }}
                 />
               </a>
@@ -286,31 +286,31 @@ export default function OmnichannelQuotationEditorView({
                 <div className="text-sm space-y-2 flex-1">
                   {quotation.paymentSlip.omMessageOcrData.amount && (
                     <div className="flex justify-between max-w-xs">
-                      <span className="text-default-400">ยอดเงิน</span>
+                      <span className="text-muted-foreground">ยอดเงิน</span>
                       <span className="font-semibold">{Number(quotation.paymentSlip.omMessageOcrData.amount).toLocaleString()} บาท</span>
                     </div>
                   )}
                   {quotation.paymentSlip.omMessageOcrData.fromBank && (
                     <div className="flex justify-between max-w-xs">
-                      <span className="text-default-400">ธนาคารผู้โอน</span>
+                      <span className="text-muted-foreground">ธนาคารผู้โอน</span>
                       <span>{quotation.paymentSlip.omMessageOcrData.fromBank}</span>
                     </div>
                   )}
                   {quotation.paymentSlip.omMessageOcrData.toBank && (
                     <div className="flex justify-between max-w-xs">
-                      <span className="text-default-400">ธนาคารผู้รับ</span>
+                      <span className="text-muted-foreground">ธนาคารผู้รับ</span>
                       <span>{quotation.paymentSlip.omMessageOcrData.toBank}</span>
                     </div>
                   )}
                   {quotation.paymentSlip.omMessageOcrData.datetime && (
                     <div className="flex justify-between max-w-xs">
-                      <span className="text-default-400">วันเวลา</span>
+                      <span className="text-muted-foreground">วันเวลา</span>
                       <span>{quotation.paymentSlip.omMessageOcrData.datetime}</span>
                     </div>
                   )}
                   {quotation.paymentSlip.omMessageOcrData.reference && (
                     <div className="flex justify-between max-w-xs">
-                      <span className="text-default-400">เลขอ้างอิง</span>
+                      <span className="text-muted-foreground">เลขอ้างอิง</span>
                       <span>{quotation.paymentSlip.omMessageOcrData.reference}</span>
                     </div>
                   )}

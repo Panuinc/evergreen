@@ -91,7 +91,7 @@ export default function TrackingView({
               <Card
                 key={vehicle.tmsVehicleId}
                 shadow="none"
-                className={`cursor-pointer ${isSelected ? "border-2 border-primary" : "border border-foreground/15"}`}
+                className={`cursor-pointer ${isSelected ? "border-2 border-primary" : "border border-border"}`}
                 onClick={() => setSelectedVehicleId(vehicle.tmsVehicleId)}
               >
                 <CardBody className="p-3 gap-2">
@@ -105,27 +105,27 @@ export default function TrackingView({
                       {vehicle.tmsVehicleStatus}
                     </Chip>
                   </div>
-                  <p className="text-xs text-default-500">
+                  <p className="text-sm text-muted-foreground">
                     {vehicle.tmsVehiclePlateNumber}
                   </p>
                   {pos ? (
-                    <div className="flex flex-col gap-1 text-xs">
+                    <div className="flex flex-col gap-1 text-sm">
                       <p className="flex items-center gap-1">
                         <MapPin size={12} className="text-primary" />
                         {Number(pos.tmsGpsLogLatitude).toFixed(5)},{" "}
                         {Number(pos.tmsGpsLogLongitude).toFixed(5)}
                       </p>
                       {pos.tmsGpsLogSpeed && (
-                        <p className="text-default-400">
+                        <p className="text-muted-foreground">
                           ความเร็ว: {pos.tmsGpsLogSpeed} km/h
                         </p>
                       )}
-                      <p className="text-default-400">
+                      <p className="text-muted-foreground">
                         {new Date(pos.tmsGpsLogRecordedAt).toLocaleString("th-TH")}
                       </p>
                     </div>
                   ) : (
-                    <p className="text-xs text-default-300">ไม่มีข้อมูล GPS</p>
+                    <p className="text-sm text-muted-foreground">ไม่มีข้อมูล GPS</p>
                   )}
                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                     <Button
@@ -156,7 +156,7 @@ export default function TrackingView({
         </div>
 
         {/* Right Panel - Map */}
-        <div className="flex-1 rounded-xl overflow-hidden border border-foreground/15" style={{ isolation: "isolate" }}>
+        <div className="flex-1 rounded-xl overflow-hidden border border-border" style={{ isolation: "isolate" }}>
           <VehicleMap
             positions={positions}
             vehicles={vehicles}
@@ -166,7 +166,7 @@ export default function TrackingView({
         </div>
       </div>
 
-      <p className="text-xs text-default-400">
+      <p className="text-sm text-muted-foreground">
         รีเฟรชอัตโนมัติทุก 30 วินาที
       </p>
 

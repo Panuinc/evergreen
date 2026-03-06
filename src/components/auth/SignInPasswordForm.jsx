@@ -20,7 +20,7 @@ export default function SignInPasswordForm({
           width={50}
           height={50}
           alt="logo"
-          className="border-2 border-foreground/15 rounded-full"
+          className="border-2 border-border rounded-full"
         />
         ยินดีต้อนรับกลับ
       </div>
@@ -85,7 +85,7 @@ export default function SignInPasswordForm({
             ปลดล็อกด้วย PIN
           </Button>
         )}
-        <span className="text-default-400">
+        <span className="text-muted-foreground">
           ติดต่อผู้ดูแลระบบเพื่อขอเข้าถึงบัญชี
         </span>
       </div>
