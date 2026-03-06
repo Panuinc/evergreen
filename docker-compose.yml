@@ -21,18 +21,41 @@ services:
       - -c
       - |
         apk add --no-cache curl
-        echo "BC Sync cron started — every hour at :00"
+        echo "BC Sync cron started — full sync every hour at :00, items every 5 min"
         while true; do
           # รอจนถึงต้นชั่วโมงถัดไป
           MIN=$(date +%M)
           SEC=$(date +%S)
           WAIT=$(( (60 - MIN) * 60 - SEC ))
           if [ $$WAIT -le 0 ]; then WAIT=3600; fi
-          echo "[$(date)] Next sync in $${WAIT}s (at next :00)"
+          echo "[$(date)] Next full sync in $${WAIT}s (at next :00)"
           sleep $$WAIT
-          echo "[$(date)] Triggering BC sync..."
+          echo "[$(date)] Triggering full BC sync..."
           curl -sf -H "Authorization: Bearer $${CRON_SECRET}" \
             "http://evergreen:3000/api/sync/bc" \
             -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
-            --max-time 290 || echo "[$(date)] Sync failed"
+            --max-time 290 || echo "[$(date)] Full sync failed"
+        done
+
+  bc-sync-items:
+    image: alpine:3.20
+    container_name: evergreen-bc-sync-items
+    restart: unless-stopped
+    depends_on:
+      - evergreen
+    env_file:
+      - .env.local
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache curl
+        echo "BC Items sync cron started — every 5 minutes"
+        while true; do
+          sleep 300
+          echo "[$(date)] Triggering BC items sync..."
+          curl -sf -H "Authorization: Bearer $${CRON_SECRET}" \
+            "http://evergreen:3000/api/sync/bc?tables=items" \
+            -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
+            --max-time 290 || echo "[$(date)] Items sync failed"
         done
