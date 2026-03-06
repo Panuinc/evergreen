@@ -240,6 +240,10 @@ export default function FinanceDashboardPage() {
       revenueTrend={gl.revenueTrend}
       profitTrend={gl.profitTrend}
       trendYearKeys={gl.trendYearKeys}
+      // Cash Flow Forecast
+      cashFlowAnalysis={hook.cashFlowAnalysis}
+      cashFlowLoading={hook.cashFlowLoading}
+      runCashFlowForecast={hook.runCashFlowForecast}
     />
   );
 }

@@ -28,6 +28,9 @@ export default function CollectionsPage() {
       reportData={hook.reportData}
       onReload={hook.loadData}
       followUps={hook.followUps}
+      aiAnalysis={hook.aiAnalysis}
+      aiLoading={hook.aiLoading}
+      runAiAnalysis={hook.runAiAnalysis}
     />
   );
 }

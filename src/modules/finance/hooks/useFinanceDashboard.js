@@ -662,6 +662,91 @@ export function useFinanceDashboard() {
     }
   }, [financials, arTotals, apTotals, arChartData, apChartData, arConcentration, arTrendByMonth, apTrendByMonth, arOverdueBands, apOverdueBands]);
 
+  // ═══════════════════════════════════════
+  // AI Cash Flow Forecast
+  // ═══════════════════════════════════════
+  const [cashFlowAnalysis, setCashFlowAnalysis] = useState("");
+  const [cashFlowLoading, setCashFlowLoading] = useState(false);
+
+  const runCashFlowForecast = useCallback(async () => {
+    if (!financials) return;
+    setCashFlowLoading(true);
+    setCashFlowAnalysis("");
+
+    const snapshot = {
+      financials: [
+        `สินทรัพย์หมุนเวียน: ${fmt(financials.currentAssets)}`,
+        `หนี้สินหมุนเวียน: ${fmt(financials.currentLiabilities)}`,
+        `เงินทุนหมุนเวียน (Working Capital): ${fmt(financials.workingCapital)}`,
+        `รายได้รวม: ${fmt(financials.totalRevenue)}`,
+        `ค่าใช้จ่ายรวม: ${fmt(financials.totalExpense + financials.cogs)}`,
+        `กำไรสุทธิ: ${fmt(financials.netIncome)}`,
+      ].join("\n"),
+      ratios: [
+        `Current Ratio: ${financials.currentRatio.toFixed(2)}`,
+        `D/E Ratio: ${financials.debtToEquity.toFixed(2)}`,
+        `Gross Margin: ${financials.grossMargin.toFixed(1)}%`,
+        `Net Margin: ${financials.netMargin.toFixed(1)}%`,
+      ].join("\n"),
+      ar: arTotals
+        ? `ยอดรวม: ${fmt(arTotals.balanceDue)} | ปัจจุบัน: ${fmt(arTotals.current)} | 1-30วัน: ${fmt(arTotals.period1)} | 31-60วัน: ${fmt(arTotals.period2)} | 60+วัน: ${fmt(arTotals.period3)}`
+        : "ไม่มีข้อมูล",
+      ap: apTotals
+        ? `ยอดรวม: ${fmt(Math.abs(apTotals.balanceDue))} | ปัจจุบัน: ${fmt(Math.abs(apTotals.current))} | 1-30วัน: ${fmt(Math.abs(apTotals.period1))} | 31-60วัน: ${fmt(Math.abs(apTotals.period2))} | 60+วัน: ${fmt(Math.abs(apTotals.period3))}`
+        : "ไม่มีข้อมูล",
+      arBands: arOverdueBands.some((b) => b.count > 0)
+        ? arOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}, ค้าง ${fmt(b.remaining)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      apBands: apOverdueBands.some((b) => b.count > 0)
+        ? apOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      monthlyTrend: [
+        ...(arTrendByMonth.length
+          ? [`AR รายเดือน:`, ...arTrendByMonth.map((m) => `  ${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}, ค้าง ${fmt(m.remaining)}`)]
+          : []),
+        ...(apTrendByMonth.length
+          ? [`AP รายเดือน:`, ...apTrendByMonth.map((m) => `  ${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}`)]
+          : []),
+      ].join("\n") || "ไม่มีข้อมูล",
+    };
+
+    try {
+      const res = await fetch("/api/finance/aiCashFlow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snapshot }),
+      });
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) setCashFlowAnalysis((prev) => prev + content);
+          } catch {}
+        }
+      }
+    } catch (err) {
+      setCashFlowAnalysis(`เกิดข้อผิดพลาด: ${err.message}`);
+    } finally {
+      setCashFlowLoading(false);
+    }
+  }, [financials, arTotals, apTotals, arOverdueBands, apOverdueBands, arTrendByMonth, apTrendByMonth]);
+
   return {
     loading,
     trialBalance,
@@ -675,6 +760,7 @@ export function useFinanceDashboard() {
     arTrendByMonth, apTrendByMonth, arOverdueBands, apOverdueBands,
     selectedAging, isAgingOpen, onAgingClose, openAgingDetail, agingInvoices,
     aiAnalysis, aiLoading, runAiAnalysis,
+    cashFlowAnalysis, cashFlowLoading, runCashFlowForecast,
     reload: loadAll,
     // Comparison features
     periodType, setPeriodType,

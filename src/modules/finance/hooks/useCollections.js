@@ -4,6 +4,10 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { getAgedReceivables, getCollections, createFollowUp } from "@/modules/finance/actions";
 
+function fmt(v) {
+  return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
+}
+
 // BC returns numbers as comma-formatted strings like "4,857.97" or empty strings
 function parseNum(val) {
   if (val === "" || val === null || val === undefined) return 0;
@@ -202,6 +206,91 @@ export function useCollections() {
 
   const setField = useCallback((key, val) => setForm((prev) => ({ ...prev, [key]: val })), []);
 
+  // ─── AI Collections Analysis ───
+  const [aiAnalysis, setAiAnalysis] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const runAiAnalysis = useCallback(async () => {
+    if (!mergedData.length) return;
+    setAiLoading(true);
+    setAiAnalysis("");
+
+    const today = new Date().toISOString().slice(0, 10);
+    const uncontacted = mergedData.filter((c) => c.followUpCount === 0);
+    const dueItems = mergedData.filter((c) => c.nextFollowUpDate && c.nextFollowUpDate <= today);
+
+    const snapshot = {
+      kpis: [
+        `ลูกหนี้ค้างชำระรวม: ${fmt(kpis.totalOverdue)} บาท (${kpis.total} ราย)`,
+        `ติดต่อแล้ว: ${kpis.contacted} ราย, ยังไม่ติดต่อ: ${kpis.uncontacted} ราย`,
+        `ครบกำหนดติดตามวันนี้: ${kpis.dueToday} ราย`,
+        `ยอดที่สัญญาจะชำระ: ${fmt(kpis.promisedTotal)} บาท`,
+      ].join("\n"),
+
+      customers: mergedData.length
+        ? [
+            "| ลูกค้า | รหัส | ยอดค้าง | ปัจจุบัน | 1-30วัน | 31-60วัน | 60+วัน | ติดตามแล้ว | สถานะล่าสุด | นัดติดตาม |",
+            "|---|---|---|---|---|---|---|---|---|---|",
+            ...mergedData.slice(0, 30).map((c) =>
+              `| ${c.name} | ${c.customerNumber} | ${fmt(c.balanceDue)} | ${fmt(c.current)} | ${fmt(c.period1)} | ${fmt(c.period2)} | ${fmt(c.period3)} | ${c.followUpCount} ครั้ง | ${c.lastStatus || "-"} | ${c.nextFollowUpDate || "-"} |`
+            ),
+          ].join("\n")
+        : "ไม่มีข้อมูล",
+
+      followUpSummary: followUps.length
+        ? [
+            `จำนวนการติดตามทั้งหมด: ${followUps.length} ครั้ง`,
+            `สถานะ: pending=${followUps.filter((f) => f.status === "pending").length}, promised=${followUps.filter((f) => f.status === "promised").length}, partial=${followUps.filter((f) => f.status === "partial").length}, escalated=${followUps.filter((f) => f.status === "escalated").length}, resolved=${followUps.filter((f) => f.status === "resolved").length}`,
+            `สาเหตุที่พบบ่อย: ${[...new Set(followUps.map((f) => f.reason))].filter(Boolean).join(", ")}`,
+          ].join("\n")
+        : "ยังไม่มีประวัติติดตาม",
+
+      uncontacted: uncontacted.length
+        ? uncontacted.slice(0, 15).map((c) => `- ${c.name} (${c.customerNumber}): ค้าง ${fmt(c.balanceDue)} บาท (60+ วัน: ${fmt(c.period3)})`).join("\n")
+        : "ไม่มี",
+
+      dueToday: dueItems.length
+        ? dueItems.map((c) => `- ${c.name} (${c.customerNumber}): ค้าง ${fmt(c.balanceDue)} บาท, นัด ${c.nextFollowUpDate}, สถานะ: ${c.lastStatus || "-"}`).join("\n")
+        : "ไม่มี",
+    };
+
+    try {
+      const res = await fetch("/api/finance/aiCollections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snapshot }),
+      });
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) setAiAnalysis((prev) => prev + content);
+          } catch {}
+        }
+      }
+    } catch (err) {
+      setAiAnalysis(`เกิดข้อผิดพลาด: ${err.message}`);
+    } finally {
+      setAiLoading(false);
+    }
+  }, [mergedData, kpis, followUps]);
+
   return {
     loading,
     mergedData,
@@ -223,5 +312,8 @@ export function useCollections() {
     reportData,
     loadData,
     followUps,
+    aiAnalysis,
+    aiLoading,
+    runAiAnalysis,
   };
 }

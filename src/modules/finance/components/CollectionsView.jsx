@@ -2,15 +2,17 @@
 
 import { useMemo, useCallback } from "react";
 import {
-  Chip, Button,
+  Chip, Button, Spinner,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
   Tabs, Tab, Input, Textarea, Select, SelectItem,
   Card, CardBody, CardHeader,
 } from "@heroui/react";
 import {
   Phone, Mail, MapPin, MessageCircle, FileText, Plus, History,
-  Download, Clock, RefreshCw,
+  Download, Clock, RefreshCw, BotMessageSquare,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import DataTable from "@/components/ui/DataTable";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -104,6 +106,7 @@ export default function CollectionsView({
   customerHistory,
   reportSince, onReportSinceChange, reportUntil, onReportUntilChange,
   reportData, onReload, followUps,
+  aiAnalysis, aiLoading, runAiAnalysis,
 }) {
   // ─── DataTable: Tracking columns ───
   const trackingColumns = useMemo(() => [
@@ -380,6 +383,79 @@ export default function CollectionsView({
           />
         </Tab>
       </Tabs>
+
+      {/* ═══════════════════ AI Collections Advisor ═══════════════════ */}
+      <Card shadow="none" className="border border-default-200">
+        <CardHeader className="pb-0 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <BotMessageSquare size={18} className="text-primary" />
+            <p className="text-sm font-semibold">AI วิเคราะห์การติดตามลูกหนี้</p>
+            <Chip size="sm" variant="flat" color="secondary">Collections Advisor</Chip>
+          </div>
+          <Button
+            variant={aiAnalysis ? "bordered" : "solid"}
+            color="primary"
+            size="sm"
+            isLoading={aiLoading}
+            isDisabled={!mergedData?.length || aiLoading}
+            onPress={runAiAnalysis}
+            startContent={!aiLoading && (aiAnalysis ? <RefreshCw size={14} /> : <BotMessageSquare size={14} />)}
+          >
+            {aiAnalysis ? "วิเคราะห์ใหม่" : "เริ่มวิเคราะห์"}
+          </Button>
+        </CardHeader>
+        <CardBody>
+          {aiLoading && !aiAnalysis && (
+            <div className="flex items-center gap-3 py-8 justify-center">
+              <Spinner size="sm" />
+              <span className="text-sm text-default-500">AI กำลังวิเคราะห์ข้อมูลลูกหนี้และจัดลำดับความสำคัญ...</span>
+            </div>
+          )}
+          {!aiAnalysis && !aiLoading && (
+            <p className="text-sm text-default-400 py-4 text-center">
+              กดปุ่ม &quot;เริ่มวิเคราะห์&quot; เพื่อให้ AI จัดลำดับลูกหนี้ที่ควรติดตามก่อน วิเคราะห์ความเสี่ยง และแนะนำกลยุทธ์เก็บหนี้
+            </p>
+          )}
+          {aiAnalysis && (
+            <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-sm leading-relaxed">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  table: ({ children }) => (
+                    <div className="overflow-x-auto my-2">
+                      <table className="border-collapse w-full text-xs">{children}</table>
+                    </div>
+                  ),
+                  thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
+                  th: ({ children }) => (
+                    <th className="border border-default-200 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="border border-default-200 px-3 py-1.5 text-foreground">{children}</td>
+                  ),
+                  tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
+                  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
+                  li: ({ children }) => <li className="text-foreground">{children}</li>,
+                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  code: ({ inline, children }) =>
+                    inline ? (
+                      <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+                    ) : (
+                      <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
+                        <code className="text-xs font-mono">{children}</code>
+                      </pre>
+                    ),
+                }}
+              >
+                {aiAnalysis}
+              </ReactMarkdown>
+              {aiLoading && <Spinner size="sm" className="mt-2" />}
+            </div>
+          )}
+        </CardBody>
+      </Card>
 
       {/* ═══════════════════ Modal: Add Follow-up ═══════════════════ */}
       <Modal isOpen={addModal.isOpen} onClose={addModal.onClose} size="2xl" scrollBehavior="inside">

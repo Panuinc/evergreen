@@ -1,4 +1,7 @@
-import { Card, CardBody, Spinner } from "@heroui/react";
+import { Card, CardBody, CardHeader, Spinner, Chip, Button } from "@heroui/react";
+import { BotMessageSquare, RefreshCw } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import CompareToggle from "@/components/ui/CompareToggle";
 import CompareKpiCard from "@/components/ui/CompareKpiCard";
 import ShipmentStatusChart from "@/modules/tms/components/ShipmentStatusChart";
@@ -7,7 +10,7 @@ import FuelCostChart from "@/modules/tms/components/FuelCostChart";
 import VehicleUtilizationChart from "@/modules/tms/components/VehicleUtilizationChart";
 import VehiclePerformanceTable from "@/modules/tms/components/VehiclePerformanceTable";
 
-export default function DashboardView({ stats, loading, compareMode, setCompareMode }) {
+export default function DashboardView({ stats, loading, compareMode, setCompareMode, aiAnalysis, aiLoading, runAiAnalysis }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -130,6 +133,79 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
           <VehiclePerformanceTable data={stats.vehiclePerformance} />
         </div>
       )}
+
+      {/* AI Analysis */}
+      <Card shadow="none" className="border border-default-200">
+        <CardHeader className="pb-0 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <BotMessageSquare size={18} className="text-primary" />
+            <p className="text-sm font-semibold">AI วิเคราะห์ระบบขนส่ง</p>
+            <Chip size="sm" variant="flat" color="secondary">TMS Advisor</Chip>
+          </div>
+          <Button
+            variant={aiAnalysis ? "bordered" : "solid"}
+            color="primary"
+            size="sm"
+            isLoading={aiLoading}
+            isDisabled={!stats || aiLoading}
+            onPress={runAiAnalysis}
+            startContent={!aiLoading && (aiAnalysis ? <RefreshCw size={14} /> : <BotMessageSquare size={14} />)}
+          >
+            {aiAnalysis ? "วิเคราะห์ใหม่" : "เริ่มวิเคราะห์"}
+          </Button>
+        </CardHeader>
+        <CardBody>
+          {aiLoading && !aiAnalysis && (
+            <div className="flex items-center gap-3 py-8 justify-center">
+              <Spinner size="sm" />
+              <span className="text-sm text-default-500">AI กำลังวิเคราะห์ข้อมูลขนส่ง...</span>
+            </div>
+          )}
+          {!aiAnalysis && !aiLoading && (
+            <p className="text-sm text-default-400 py-4 text-center">
+              กดปุ่ม &quot;เริ่มวิเคราะห์&quot; เพื่อให้ AI วิเคราะห์ประสิทธิภาพขนส่ง ต้นทุนน้ำมัน และคำแนะนำลดค่าใช้จ่าย
+            </p>
+          )}
+          {aiAnalysis && (
+            <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-sm leading-relaxed">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  table: ({ children }) => (
+                    <div className="overflow-x-auto my-2">
+                      <table className="border-collapse w-full text-xs">{children}</table>
+                    </div>
+                  ),
+                  thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
+                  th: ({ children }) => (
+                    <th className="border border-default-200 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="border border-default-200 px-3 py-1.5 text-foreground">{children}</td>
+                  ),
+                  tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
+                  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
+                  li: ({ children }) => <li className="text-foreground">{children}</li>,
+                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  code: ({ inline, children }) =>
+                    inline ? (
+                      <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+                    ) : (
+                      <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
+                        <code className="text-xs font-mono">{children}</code>
+                      </pre>
+                    ),
+                }}
+              >
+                {aiAnalysis}
+              </ReactMarkdown>
+              {aiLoading && <Spinner size="sm" className="mt-2" />}
+            </div>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 }
