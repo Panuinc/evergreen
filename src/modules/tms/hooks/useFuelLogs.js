@@ -19,10 +19,6 @@ const emptyForm = {
   tmsFuelLogFuelType: "diesel",
   tmsFuelLogLiters: "",
   tmsFuelLogPricePerLiter: "",
-  tmsFuelLogTotalCost: "",
-  tmsFuelLogMileage: "",
-  tmsFuelLogStation: "",
-  tmsFuelLogNotes: "",
   tmsFuelLogReceiptUrl: "",
 };
 
@@ -66,10 +62,6 @@ export function useFuelLogs() {
         tmsFuelLogFuelType: fuelLog.tmsFuelLogFuelType || "diesel",
         tmsFuelLogLiters: fuelLog.tmsFuelLogLiters?.toString() || "",
         tmsFuelLogPricePerLiter: fuelLog.tmsFuelLogPricePerLiter?.toString() || "",
-        tmsFuelLogTotalCost: fuelLog.tmsFuelLogTotalCost?.toString() || "",
-        tmsFuelLogMileage: fuelLog.tmsFuelLogMileage?.toString() || "",
-        tmsFuelLogStation: fuelLog.tmsFuelLogStation || "",
-        tmsFuelLogNotes: fuelLog.tmsFuelLogNotes || "",
         tmsFuelLogReceiptUrl: fuelLog.tmsFuelLogReceiptUrl || "",
       });
     } else {
@@ -89,16 +81,14 @@ export function useFuelLogs() {
       return;
     }
 
+    const liters = parseFloat(formData.tmsFuelLogLiters);
+    const pricePerLiter = parseFloat(formData.tmsFuelLogPricePerLiter);
+
     const payload = {
       ...formData,
-      tmsFuelLogLiters: parseFloat(formData.tmsFuelLogLiters),
-      tmsFuelLogPricePerLiter: parseFloat(formData.tmsFuelLogPricePerLiter),
-      tmsFuelLogTotalCost: formData.tmsFuelLogTotalCost
-        ? parseFloat(formData.tmsFuelLogTotalCost)
-        : null,
-      tmsFuelLogMileage: formData.tmsFuelLogMileage
-        ? parseFloat(formData.tmsFuelLogMileage)
-        : null,
+      tmsFuelLogLiters: liters,
+      tmsFuelLogPricePerLiter: pricePerLiter,
+      tmsFuelLogTotalCost: liters * pricePerLiter,
     };
 
     try {

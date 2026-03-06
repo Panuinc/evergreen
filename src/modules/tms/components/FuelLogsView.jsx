@@ -23,8 +23,6 @@ const fuelCsvColumns = [
   { header: "ลิตร", key: "tmsFuelLogLiters" },
   { header: "ราคา/ลิตร", key: "tmsFuelLogPricePerLiter" },
   { header: "ค่าใช้จ่ายรวม", key: "tmsFuelLogTotalCost" },
-  { header: "เลขไมล์", key: "tmsFuelLogMileage" },
-  { header: "สถานี", key: "tmsFuelLogStation" },
 ];
 
 const baseColumns = [
@@ -33,8 +31,6 @@ const baseColumns = [
   { name: "ลิตร", uid: "tmsFuelLogLiters", sortable: true },
   { name: "ราคา/ลิตร", uid: "tmsFuelLogPricePerLiter", sortable: true },
   { name: "ค่าใช้จ่ายรวม", uid: "tmsFuelLogTotalCost", sortable: true },
-  { name: "เลขไมล์", uid: "tmsFuelLogMileage", sortable: true },
-  { name: "สถานี", uid: "tmsFuelLogStation" },
   { name: "จัดการ", uid: "actions" },
 ];
 
@@ -44,8 +40,6 @@ const BASE_VISIBLE_COLUMNS = [
   "tmsFuelLogLiters",
   "tmsFuelLogPricePerLiter",
   "tmsFuelLogTotalCost",
-  "tmsFuelLogMileage",
-  "tmsFuelLogStation",
   "actions",
 ];
 
@@ -89,7 +83,7 @@ export default function FuelLogsView({
   }, [isSuperAdmin]);
 
   const vehicleOptions = vehicles.map((v) => ({
-    name: `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})`,
+    name: v.tmsVehicleName ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})` : v.tmsVehiclePlateNumber,
     uid: v.tmsVehicleId,
   }));
 
@@ -109,7 +103,9 @@ export default function FuelLogsView({
             (v) => v.tmsVehicleId === item.tmsFuelLogVehicleId,
           );
           return vehicle
-            ? `${vehicle.tmsVehicleName} (${vehicle.tmsVehiclePlateNumber})`
+            ? vehicle.tmsVehicleName
+              ? `${vehicle.tmsVehicleName} (${vehicle.tmsVehiclePlateNumber})`
+              : vehicle.tmsVehiclePlateNumber
             : "-";
         }
         case "tmsFuelLogLiters":
@@ -124,12 +120,6 @@ export default function FuelLogsView({
           return item.tmsFuelLogTotalCost
             ? Number(item.tmsFuelLogTotalCost).toLocaleString()
             : "-";
-        case "tmsFuelLogMileage":
-          return item.tmsFuelLogMileage
-            ? Number(item.tmsFuelLogMileage).toLocaleString()
-            : "-";
-        case "tmsFuelLogStation":
-          return item.tmsFuelLogStation || "-";
         case "isActive":
           return (
             <Chip
@@ -189,8 +179,8 @@ export default function FuelLogsView({
         rowKey="tmsFuelLogId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
-        searchPlaceholder="ค้นหาด้วยชื่อสถานี..."
-        searchKeys={["tmsFuelLogStation"]}
+        searchPlaceholder="ค้นหา..."
+        searchKeys={["tmsFuelLogDate"]}
         statusField="tmsFuelLogVehicleId"
         statusOptions={vehicleOptions}
         filterLabel="ยานพาหนะ"
@@ -241,8 +231,8 @@ export default function FuelLogsView({
                     isRequired
                   >
                     {vehicles.map((v) => (
-                      <SelectItem key={v.tmsVehicleId}>
-                        {v.tmsVehicleName} ({v.tmsVehiclePlateNumber})
+                      <SelectItem key={v.tmsVehicleId} textValue={v.tmsVehicleName ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})` : v.tmsVehiclePlateNumber}>
+                        {v.tmsVehicleName ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})` : v.tmsVehiclePlateNumber}
                       </SelectItem>
                     ))}
                   </Select>
@@ -323,58 +313,16 @@ export default function FuelLogsView({
                     type="number"
                     label="ค่าใช้จ่ายรวม"
                     labelPlacement="outside"
-                    placeholder="กรอกค่าใช้จ่ายรวม"
+                    placeholder="คำนวณอัตโนมัติ"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.tmsFuelLogTotalCost}
-                    onChange={(e) =>
-                      updateField("tmsFuelLogTotalCost", e.target.value)
+                    value={
+                      formData.tmsFuelLogLiters && formData.tmsFuelLogPricePerLiter
+                        ? (parseFloat(formData.tmsFuelLogLiters) * parseFloat(formData.tmsFuelLogPricePerLiter)).toFixed(2)
+                        : ""
                     }
-                    isRequired
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    type="number"
-                    label="เลขไมล์"
-                    labelPlacement="outside"
-                    placeholder="กรอกเลขไมล์"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsFuelLogMileage}
-                    onChange={(e) =>
-                      updateField("tmsFuelLogMileage", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="สถานี"
-                    labelPlacement="outside"
-                    placeholder="กรอกชื่อสถานี"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsFuelLogStation}
-                    onChange={(e) =>
-                      updateField("tmsFuelLogStation", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="หมายเหตุ"
-                    labelPlacement="outside"
-                    placeholder="กรอกหมายเหตุ"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.tmsFuelLogNotes}
-                    onChange={(e) =>
-                      updateField("tmsFuelLogNotes", e.target.value)
-                    }
+                    isReadOnly
                   />
                 </div>
               </div>

@@ -5,7 +5,7 @@ import ShipmentStatusChart from "@/modules/tms/components/ShipmentStatusChart";
 import MonthlyShipmentChart from "@/modules/tms/components/MonthlyShipmentChart";
 import FuelCostChart from "@/modules/tms/components/FuelCostChart";
 import VehicleUtilizationChart from "@/modules/tms/components/VehicleUtilizationChart";
-import MaintenanceCostChart from "@/modules/tms/components/MaintenanceCostChart";
+import VehiclePerformanceTable from "@/modules/tms/components/VehiclePerformanceTable";
 
 export default function DashboardView({ stats, loading, compareMode, setCompareMode }) {
   if (loading) {
@@ -32,8 +32,6 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
   const completedPrev = prev ? prev.completedInPeriod : undefined;
   const fuelCostValue = isCompare ? d.fuelCostInPeriod : d.totalFuelCostThisMonth;
   const fuelCostPrev = prev ? prev.fuelCostInPeriod : undefined;
-  const mainCostValue = isCompare ? d.maintenanceCostInPeriod : undefined;
-  const mainCostPrev = prev ? prev.maintenanceCostInPeriod : undefined;
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -86,27 +84,11 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
           invertColor
         />
         <CompareKpiCard
-          title="รอซ่อมบำรุง"
-          value={d.pendingMaintenance}
-          subtitle="นัดหมาย + กำลังดำเนินการ"
-          color="default"
-        />
-        <CompareKpiCard
           title="ยานพาหนะที่ใช้งาน"
           value={d.inUseVehicles}
           subtitle={`จาก ${d.totalVehicles}`}
           color="default"
         />
-        {isCompare && mainCostValue != null && (
-          <CompareKpiCard
-            title="ค่าซ่อมบำรุง (ช่วง)"
-            value={`฿${Number(mainCostValue || 0).toLocaleString("th-TH")}`}
-            color="warning"
-            currentRaw={prev ? mainCostValue : undefined}
-            previousRaw={mainCostPrev}
-            invertColor
-          />
-        )}
       </div>
 
       {/* Charts */}
@@ -139,13 +121,15 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
             <VehicleUtilizationChart data={d.vehicleUtilization} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200 lg:col-span-2">
-          <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">สรุปค่าซ่อมบำรุง</p>
-            <MaintenanceCostChart data={d.maintenanceCostTrend} />
-          </CardBody>
-        </Card>
       </div>
+
+      {/* Vehicle Performance */}
+      {stats.vehiclePerformance && (
+        <div>
+          <p className="text-sm font-semibold mb-3">สรุปประสิทธิภาพยานพาหนะ</p>
+          <VehiclePerformanceTable data={stats.vehiclePerformance} />
+        </div>
+      )}
     </div>
   );
 }

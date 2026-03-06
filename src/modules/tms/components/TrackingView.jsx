@@ -96,7 +96,7 @@ export default function TrackingView({
               >
                 <CardBody className="p-3 gap-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm">{vehicle.tmsVehicleName}</h3>
+                    <h3 className="font-semibold text-sm">{vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}</h3>
                     <Chip
                       variant="bordered"
                       size="sm"
@@ -175,7 +175,7 @@ export default function TrackingView({
         <ModalContent>
           <ModalHeader>
             อัปเดตตำแหน่งยานพาหนะ
-            {selectedVehicle && ` - ${selectedVehicle.tmsVehicleName}`}
+            {selectedVehicle && ` - ${selectedVehicle.tmsVehicleName || selectedVehicle.tmsVehiclePlateNumber}`}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-4">
@@ -196,8 +196,8 @@ export default function TrackingView({
                   isRequired
                 >
                   {vehicles.map((v) => (
-                    <SelectItem key={v.tmsVehicleId}>
-                      {v.tmsVehicleName} ({v.tmsVehiclePlateNumber})
+                    <SelectItem key={v.tmsVehicleId} textValue={v.tmsVehicleName ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})` : v.tmsVehiclePlateNumber}>
+                      {v.tmsVehicleName ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})` : v.tmsVehiclePlateNumber}
                     </SelectItem>
                   ))}
                 </Select>
@@ -267,7 +267,7 @@ export default function TrackingView({
             ประวัติเส้นทาง
             {selectedVehicleId && (() => {
               const v = vehicles.find((v) => v.tmsVehicleId === selectedVehicleId);
-              return v ? ` - ${v.tmsVehicleName}` : "";
+              return v ? ` - ${v.tmsVehicleName || v.tmsVehiclePlateNumber}` : "";
             })()}
           </ModalHeader>
           <ModalBody>

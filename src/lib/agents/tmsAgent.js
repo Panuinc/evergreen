@@ -201,7 +201,7 @@ async function executeTool(name, args, supabase) {
     case "get_fuel_logs": {
       let q = supabase
         .from("tmsFuelLog")
-        .select("tmsFuelLogId, tmsFuelLogDate, tmsFuelLogFuelType, tmsFuelLogLiters, tmsFuelLogPricePerLiter, tmsFuelLogTotalCost, tmsFuelLogMileage, tmsFuelLogStation, tmsFuelLogVehicleId")
+        .select("tmsFuelLogId, tmsFuelLogDate, tmsFuelLogFuelType, tmsFuelLogLiters, tmsFuelLogPricePerLiter, tmsFuelLogTotalCost, tmsFuelLogVehicleId")
         .order("tmsFuelLogDate", { ascending: false })
         .limit(args.limit || 50);
       if (args.vehicleId) q = q.eq("tmsFuelLogVehicleId", args.vehicleId);
