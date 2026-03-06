@@ -287,7 +287,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
               {lines.map((l) => (
                 <div
                   key={l.bcSalesOrderLineNo}
-                  className="flex items-center gap-3 p-3 rounded-lg border border-default-200"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-foreground/15"
                 >
                   <Checkbox
                     isSelected={selectedLines[l.bcSalesOrderLineNo] || false}

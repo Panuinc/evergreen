@@ -19,7 +19,7 @@ export default function SignInPinForm({
           width={50}
           height={50}
           alt="logo"
-          className="border-2 border-default rounded-full"
+          className="border-2 border-foreground/15 rounded-full"
         />
         ปลดล็อกด่วน
       </div>

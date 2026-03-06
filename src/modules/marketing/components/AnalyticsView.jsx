@@ -64,7 +64,7 @@ function GrowthBadge({ value }) {
 
 function KpiCard({ title, value, sub, icon: Icon, color, growth }) {
   return (
-    <Card shadow="none" className="border border-default-200">
+    <Card shadow="none" className="border border-foreground/15">
       <CardBody className="p-5 gap-1">
         <div className="flex items-center justify-between">
           <p className="text-xs text-default-500 uppercase tracking-wide">{title}</p>
@@ -84,7 +84,7 @@ function KpiCard({ title, value, sub, icon: Icon, color, growth }) {
 
 function PeriodCard({ title, revenue, orders, icon: Icon, color, growth, prevLabel }) {
   return (
-    <Card shadow="none" className="border border-default-200">
+    <Card shadow="none" className="border border-foreground/15">
       <CardBody className="p-5 gap-1">
         <div className="flex items-center justify-between">
           <p className="text-xs text-default-500 uppercase tracking-wide">{title}</p>
@@ -152,14 +152,14 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-default-300 rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
+              className="border border-foreground/15 rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
             />
             <label className="text-xs text-default-500">ถึง</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-default-300 rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
+              className="border border-foreground/15 rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
             />
             <Button
               size="md"
@@ -247,7 +247,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
       {/* ROW 4: Main Charts — Revenue Tabs + Status/Fulfillment/Location Tabs */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="none" className="border border-default-200 lg:col-span-2">
+        <Card shadow="none" className="border border-foreground/15 lg:col-span-2">
           <CardBody className="p-5">
             <Tabs variant="bordered" size="md" radius="md" classNames={{ tabList: "mb-3" }}>
               <Tab key="trend" title="แนวโน้มรายได้">
@@ -269,7 +269,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
           </CardBody>
         </Card>
 
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <Tabs variant="bordered" size="md" radius="md" classNames={{ tabList: "mb-3" }}>
               <Tab key="status" title="สถานะ">
@@ -298,13 +298,13 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
       {/* ROW 5: Analytical Insights — Order Value Dist + Monthly Comparison */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">การกระจายมูลค่าออเดอร์</p>
             <OrderValueDistChart data={stats.orderValueDist} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">เปรียบเทียบรายเดือน</p>
             <MonthlyComparisonTable data={stats.monthlyComparison} />
@@ -314,7 +314,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
       {/* ROW 6: Customer Segmentation — Channel / Group / Type */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">ช่องทางลูกค้า</p>
@@ -323,13 +323,13 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
             <ChannelDistChart data={stats.customerSegmentation?.byChannel} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">กลุ่มลูกค้า</p>
             <CustomerGroupChart data={stats.customerSegmentation?.byGroup} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ประเภทงาน</p>
             <ProjectTypeChart data={stats.customerSegmentation?.byType} />
@@ -339,13 +339,13 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
       {/* ROW 7: Customer & Product Intelligence */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">ข้อมูลเชิงลึกลูกค้า</p>
             <CustomerInsightsCard data={stats.customerInsights} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Top 10 ลูกค้า</p>
@@ -354,7 +354,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
             <TopCustomersChart data={stats.topCustomers} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Top 10 SKU</p>

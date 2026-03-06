@@ -61,12 +61,12 @@ export default function OmnichannelView({
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-1 min-h-0 border border-default-200 rounded-xl overflow-hidden">
+      <div className="flex flex-1 min-h-0 border border-foreground/15 rounded-xl overflow-hidden">
         {/* Conversation List - always visible on desktop, conditional on mobile */}
         <div
           className={`${
             mobileView === "list" ? "flex" : "hidden"
-          } md:flex flex-col w-full md:w-4/12 border-r border-default-200`}
+          } md:flex flex-col w-full md:w-4/12 border-r border-foreground/15`}
         >
           <ConversationList
             conversations={conversations}
@@ -108,7 +108,7 @@ export default function OmnichannelView({
                 />
               </div>
               {showDetail && (
-                <div className="hidden md:flex flex-col w-5/12 border-l-2 border-default">
+                <div className="hidden md:flex flex-col w-5/12 border-l-2 border-foreground/15">
                   <ConversationDetail
                     conversation={selectedConversation}
                     onUpdateContact={updateContact}

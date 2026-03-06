@@ -135,7 +135,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
           )}
 
           {/* Field-by-field compare table */}
-          <div className="rounded-lg border border-default-200 overflow-hidden">
+          <div className="rounded-lg border border-foreground/15 overflow-hidden">
             <div className="grid grid-cols-[auto_1fr_1fr] text-[10px] font-semibold bg-default-100 text-default-500 px-2 py-1">
               <span className="w-4" />
               <span>ฟิลด์</span>
@@ -148,7 +148,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
               return (
                 <div
                   key={key}
-                  className={`grid grid-cols-[auto_1fr_1fr] items-center gap-1 px-2 py-1 text-[11px] border-t border-default-100 ${isDiff ? "bg-primary-50/40" : ""}`}
+                  className={`grid grid-cols-[auto_1fr_1fr] items-center gap-1 px-2 py-1 text-[11px] border-t border-foreground/15 ${isDiff ? "bg-primary-50/40" : ""}`}
                 >
                   <Checkbox
                     size="sm"
@@ -408,7 +408,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
         {imagePreview && (
           <div className="relative w-fit">
             {image?.startsWith("data:application/pdf") ? (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-default-100 border border-default-200 text-[12px]">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-default-100 border border-foreground/15 text-[12px]">
                 <span>📄</span>
                 <span className="text-default-600">PDF พร้อมส่ง</span>
               </div>
@@ -416,11 +416,11 @@ export default function BomAIPanel({ bomState, bomAI }) {
               <img
                 src={imagePreview}
                 alt="preview"
-                className="h-16 rounded-lg object-cover border border-default-200"
+                className="h-16 rounded-lg object-cover border border-foreground/15"
               />
             )}
             <button
-              className="absolute -top-1 -right-1 bg-background rounded-full border border-default-200 p-0.5"
+              className="absolute -top-1 -right-1 bg-background rounded-full border border-foreground/15 p-0.5"
               onClick={removeImage}
             >
               <X size={10} />

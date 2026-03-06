@@ -503,7 +503,7 @@ export default function DevelopmentView({
           <ModalBody>
             <div className="flex flex-col gap-4">
               {/* Add Progress Form */}
-              <div className="flex flex-col gap-3 p-4 rounded-lg border border-default-200 bg-default-50">
+              <div className="flex flex-col gap-3 p-4 rounded-lg border border-foreground/15 bg-default-50">
                 <p className="text-sm font-semibold">เพิ่มการอัปเดตความคืบหน้า</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="md:col-span-2">
@@ -578,7 +578,7 @@ export default function DevelopmentView({
                     {progressLogs.map((log) => (
                       <div
                         key={log.itDevProgressLogId}
-                        className="flex gap-3 p-3 rounded-lg border border-default-200"
+                        className="flex gap-3 p-3 rounded-lg border border-foreground/15"
                       >
                         <div className="flex-shrink-0 mt-0.5">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">

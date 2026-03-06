@@ -385,7 +385,7 @@ export default function ShipmentsView({
 
                   {/* Route Optimize button + result (only when 2+ plans) */}
                   {selectedPlanIds.length >= 2 && (
-                    <div className="flex flex-col gap-2 border border-default-200 rounded-xl p-3 bg-default-50">
+                    <div className="flex flex-col gap-2 border border-foreground/15 rounded-xl p-3 bg-default-50">
                       <div className="flex items-center justify-between">
                         <p className="text-xs text-default-500">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
                         <Button
@@ -453,7 +453,7 @@ export default function ShipmentsView({
                           <summary className="cursor-pointer text-secondary-600 font-medium flex items-center gap-1">
                             <Sparkles size={12} /> ดูวิเคราะห์ AI
                           </summary>
-                          <div className="prose prose-sm max-w-none mt-2 bg-white rounded-lg p-3 max-h-40 overflow-y-auto">
+                          <div className="prose prose-sm max-w-none mt-2 bg-content2 rounded-lg p-3 max-h-40 overflow-y-auto">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>{routeAiAnalysis}</ReactMarkdown>
                           </div>
                         </details>
@@ -467,7 +467,7 @@ export default function ShipmentsView({
                 {shipmentStops.length > 1 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
                     <p className="text-sm font-medium">จุดส่งของ ({shipmentStops.length} จุด)</p>
-                    <div className="border border-default-200 rounded-xl overflow-hidden overflow-x-auto">
+                    <div className="border border-foreground/15 rounded-xl overflow-hidden overflow-x-auto">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="bg-default-100">
@@ -485,7 +485,7 @@ export default function ShipmentsView({
                               const letter = String.fromCharCode(65 + i);
                               const pColor = stop.priority === "urgent" ? "danger" : stop.priority === "high" ? "warning" : "default";
                               return (
-                                <tr key={stop.planId || i} className="border-t border-default-100">
+                                <tr key={stop.planId || i} className="border-t border-foreground/15">
                                   <td className="text-center px-2 py-2">
                                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-bold text-xs">{letter}</span>
                                   </td>
@@ -635,7 +635,7 @@ export default function ShipmentsView({
                     </Button>
                   </div>
                   {(formData.tmsShipmentExtras || []).length > 0 && (
-                    <div className="border border-default-200 rounded-xl overflow-hidden overflow-x-auto">
+                    <div className="border border-foreground/15 rounded-xl overflow-hidden overflow-x-auto">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="bg-default-100">
@@ -657,7 +657,7 @@ export default function ShipmentsView({
                                 .filter(Boolean),
                             ];
                             return (
-                              <tr key={idx} className="border-t border-default-100">
+                              <tr key={idx} className="border-t border-foreground/15">
                                 <td className="px-1 py-1">
                                   <Select
                                     size="sm" variant="bordered" radius="md" aria-label="คน"
@@ -732,7 +732,7 @@ export default function ShipmentsView({
                           })}
                         </tbody>
                         <tfoot>
-                          <tr className="border-t border-default-200 bg-default-50">
+                          <tr className="border-t border-foreground/15 bg-default-50">
                             <td colSpan={5} className="px-3 py-2 font-semibold text-right">รวมรายการพิเศษ</td>
                             <td className="px-3 py-2 font-semibold text-right">
                               {(formData.tmsShipmentExtras || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -802,7 +802,7 @@ export default function ShipmentsView({
                 {shipmentItems.length > 0 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
                     <p className="text-sm font-medium">รายการสินค้า</p>
-                    <div className="border border-default-200 rounded-xl overflow-hidden">
+                    <div className="border border-foreground/15 rounded-xl overflow-hidden">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="bg-default-100">
@@ -817,7 +817,7 @@ export default function ShipmentsView({
                           {shipmentItems.map((item) => {
                             const pct = item.plannedQty > 0 ? Math.round((item.actualQty / item.plannedQty) * 100) : 0;
                             return (
-                              <tr key={item.id} className="border-t border-default-100">
+                              <tr key={item.id} className="border-t border-foreground/15">
                                 <td className="px-3 py-2">
                                   <p className="font-medium">{item.description}</p>
                                   <p className="text-default-400">{item.soNo}</p>
@@ -851,7 +851,7 @@ export default function ShipmentsView({
                           })}
                         </tbody>
                         <tfoot>
-                          <tr className="border-t border-default-200 bg-default-50">
+                          <tr className="border-t border-foreground/15 bg-default-50">
                             <td className="px-3 py-2 font-semibold" colSpan={2}>รวม</td>
                             <td className="text-center px-3 py-2 font-semibold">{shipmentItems.reduce((s, i) => s + i.plannedQty, 0)}</td>
                             <td className="text-center px-3 py-2 font-semibold">{shipmentItems.reduce((s, i) => s + i.actualQty, 0)}</td>

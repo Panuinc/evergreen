@@ -55,7 +55,7 @@ export default function CompareKpiCard({
   }
 
   return (
-    <Card shadow="none" className="border border-default-200">
+    <Card shadow="none" className="border border-foreground/15">
       <CardBody className="gap-1">
         <p className="text-xs text-default-500">{title}</p>
         <div className="flex items-baseline gap-1">

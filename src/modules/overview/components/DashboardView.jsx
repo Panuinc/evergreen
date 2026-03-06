@@ -54,12 +54,12 @@ function AssistantMessage({ content, isLoading }) {
                   <thead className="bg-default-100">{children}</thead>
                 ),
                 th: ({ children }) => (
-                  <th className="border border-default-200 px-3 py-1.5 text-left font-semibold text-foreground">
+                  <th className="border border-foreground/15 px-3 py-1.5 text-left font-semibold text-foreground">
                     {children}
                   </th>
                 ),
                 td: ({ children }) => (
-                  <td className="border border-default-200 px-3 py-1.5 text-foreground">
+                  <td className="border border-foreground/15 px-3 py-1.5 text-foreground">
                     {children}
                   </td>
                 ),
@@ -160,7 +160,7 @@ export default function DashboardView({
                 <button
                   key={s}
                   onClick={() => handleSuggestion(s)}
-                  className="text-left px-4 py-3 rounded-xl border border-default-200 hover:border-default-400 hover:bg-default-50 text-sm text-default-600 transition-colors"
+                  className="text-left px-4 py-3 rounded-xl border border-foreground/15 hover:border-foreground/15 hover:bg-default-50 text-sm text-default-600 transition-colors"
                 >
                   {s}
                 </button>
@@ -191,7 +191,7 @@ export default function DashboardView({
       {showScrollBtn && (
         <button
           onClick={scrollToBottom}
-          className="absolute bottom-24 right-6 w-8 h-8 rounded-full bg-default-100 border border-default-200 flex items-center justify-center shadow-sm hover:bg-default-200 transition-colors z-10"
+          className="absolute bottom-24 right-6 w-8 h-8 rounded-full bg-default-100 border border-foreground/15 flex items-center justify-center shadow-sm hover:bg-default-200 transition-colors z-10"
         >
           <ArrowDown size={14} className="text-default-500" />
         </button>
@@ -200,7 +200,7 @@ export default function DashboardView({
       {/* ── Input area ── */}
       <div className="flex-shrink-0 px-4 pb-4 pt-2">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-end gap-2 rounded-2xl border border-default-200 bg-background px-3 py-2 focus-within:border-default-400 transition-colors shadow-sm">
+          <div className="flex items-end gap-2 rounded-2xl border border-foreground/15 bg-background px-3 py-2 focus-within:border-foreground/15 transition-colors shadow-sm">
             <textarea
               ref={textareaRef}
               rows={1}

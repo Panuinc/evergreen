@@ -85,7 +85,7 @@ export default function ChatWindow({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 p-3 border-b-2 border-default">
+      <div className="flex items-center gap-3 p-3 border-b-2 border-foreground/15">
         {onBack && (
           <Button isIconOnly variant="light" size="md" radius="md" onPress={onBack}>
             <ArrowLeft size={18} />
@@ -199,7 +199,7 @@ export default function ChatWindow({
                         />
                       </a>
                       {msg.omMessageOcrData && (
-                        <div className="bg-default-50 rounded-lg p-2 text-xs space-y-1 border border-default-200">
+                        <div className="bg-default-50 rounded-lg p-2 text-xs space-y-1 border border-foreground/15">
                           <div className="flex items-center gap-1 font-semibold text-default-600 mb-1">
                             <Receipt size={12} />
                             <span>ข้อมูลสลิป</span>

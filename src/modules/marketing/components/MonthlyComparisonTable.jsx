@@ -45,7 +45,7 @@ export default function MonthlyComparisonTable({ data }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-default-200">
+          <tr className="border-b border-foreground/15">
             <th className="text-left py-2 pr-3 text-default-500 font-medium">Metric</th>
             <th className="text-right py-2 px-3 text-default-500 font-medium">{formatMonth(p.month)}</th>
             <th className="text-right py-2 px-3 text-default-500 font-medium">{formatMonth(c.month)}</th>
@@ -54,7 +54,7 @@ export default function MonthlyComparisonTable({ data }) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.label} className="border-b border-default-100">
+            <tr key={row.label} className="border-b border-foreground/15">
               <td className="py-2 pr-3 text-default-600">{row.label}</td>
               <td className="py-2 px-3 text-right text-default-400">{row.prev}</td>
               <td className="py-2 px-3 text-right font-medium">{row.curr}</td>

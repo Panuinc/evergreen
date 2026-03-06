@@ -30,7 +30,7 @@ export default function ChannelBadge({ channelType, size = "sm" }) {
       <Chip
         size={size}
         variant="flat"
-        className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+        className="bg-success-100 text-success-700 dark:bg-success-900 dark:text-success-300"
         startContent={<LineIcon size={12} />}
       >
         LINE

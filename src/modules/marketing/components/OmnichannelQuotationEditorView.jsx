@@ -268,7 +268,7 @@ export default function OmnichannelQuotationEditorView({
 
         {/* Payment Slip */}
         {quotation.paymentSlip?.omMessageImageUrl && (
-          <div className="p-4 bg-default-50 rounded-lg border border-default-200">
+          <div className="p-4 bg-default-50 rounded-lg border border-foreground/15">
             <p className="font-semibold mb-3 flex items-center gap-2">
               <Receipt size={16} />
               หลักฐานการชำระเงิน
@@ -278,7 +278,7 @@ export default function OmnichannelQuotationEditorView({
                 <img
                   src={quotation.paymentSlip.omMessageImageUrl}
                   alt="สลิปการโอนเงิน"
-                  className="rounded-lg border border-default-200 cursor-pointer hover:opacity-90 transition-opacity"
+                  className="rounded-lg border border-foreground/15 cursor-pointer hover:opacity-90 transition-opacity"
                   style={{ maxHeight: 300, maxWidth: 220 }}
                 />
               </a>

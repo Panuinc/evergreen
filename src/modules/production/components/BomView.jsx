@@ -1285,7 +1285,7 @@ const EnhancedEngineeringDrawing = memo(
 
     return (
       <div className="relative w-full h-full flex flex-col bg-default-100 rounded-lg overflow-hidden">
-        <div className="flex items-center justify-between p-2 bg-default-50 border-b-1 border-default gap-2 flex-wrap">
+        <div className="flex items-center justify-between p-2 bg-default-50 border-b-1 border-foreground/15 gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <Chip size="md" variant="shadow">
               {Math.round(zoomLevel * 100)}%
@@ -1299,7 +1299,7 @@ const EnhancedEngineeringDrawing = memo(
                   variant="bordered"
                   size="md"
                   radius="md"
-                  className="w-full text-foreground border-default"
+                  className="w-full text-foreground border-foreground/15"
                   startContent={<Layers />}
                 >
                   Layers
@@ -1307,7 +1307,7 @@ const EnhancedEngineeringDrawing = memo(
               </PopoverTrigger>
               <PopoverContent className="w-64">
                 <div className="p-2 space-y-2">
-                  <div className="flex justify-between items-center pb-2 border-b-1 border-default gap-2">
+                  <div className="flex justify-between items-center pb-2 border-b-1 border-foreground/15 gap-2">
                     <span className="font-semibold text-[13px]">เลเยอร์</span>
                     <div className="flex gap-2">
                       <Button
@@ -2203,7 +2203,7 @@ const EnhancedEngineeringDrawing = memo(
           </TransformWrapper>
         </div>
 
-        <div className="flex items-center justify-between p-2 bg-default-50 border-t-1 border-default text-xs text-default-500">
+        <div className="flex items-center justify-between p-2 bg-default-50 border-t-1 border-foreground/15 text-xs text-default-500">
           <div className="flex items-center gap-2">
             <span>
               ประตู: {T}×{W}×{H} มม.
@@ -2376,8 +2376,8 @@ const UIDoorBom = ({
               </Button>
             </div>
           )}
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   1
@@ -2466,8 +2466,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   2
@@ -2546,8 +2546,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   3
@@ -2585,7 +2585,7 @@ const UIDoorBom = ({
                             ? "border-primary bg-primary-50"
                             : isRecommended
                               ? "border-success-300 bg-success-50 hover:border-success-400"
-                              : "border-default-200 bg-default-50 hover:border-default-400"
+                              : "border-foreground/15 bg-default-50 hover:border-foreground/15"
                         }`}
                         onClick={() => setSelectedFrameCode(f.code)}
                       >
@@ -2771,8 +2771,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   4
@@ -2858,8 +2858,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   5
@@ -2950,8 +2950,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   6
@@ -3108,8 +3108,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   7
@@ -3190,8 +3190,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   8
@@ -3223,7 +3223,7 @@ const UIDoorBom = ({
                       className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors ${
                         drillItems[key].checked
                           ? "border-primary bg-primary-50"
-                          : "border-default-200 bg-default-50"
+                          : "border-foreground/15 bg-default-50"
                       }`}
                     >
                       <Switch
@@ -3270,8 +3270,8 @@ const UIDoorBom = ({
 
         <div className="xl:col-span-2 flex flex-col gap-3">
           {/* Drawing - at top of right column so user sees live updates */}
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50 flex justify-between items-center">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <span className="text-default-500">📐</span>
                 <span className="font-semibold text-sm">แบบวาด</span>
@@ -3318,8 +3318,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <Chip color="default" variant="flat" size="sm">
                   9
@@ -3543,8 +3543,8 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="w-full border border-default-200">
-            <CardHeader className="border-b border-default-200 bg-default-50">
+          <Card shadow="none" className="w-full border border-foreground/15">
+            <CardHeader className="border-b border-foreground/15 bg-default-50">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-sm">📋 สรุปโครงสร้าง</span>
               </div>
@@ -3647,8 +3647,8 @@ const UIDoorBom = ({
           </Card>
 
           {isDataComplete ? (
-            <Card shadow="none" className="w-full border border-default-200">
-              <CardHeader className="border-b border-default-200 bg-default-50">
+            <Card shadow="none" className="w-full border border-foreground/15">
+              <CardHeader className="border-b border-foreground/15 bg-default-50">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-sm">
                     ✂️ แผนตัดไม้ (เพิ่มประสิทธิภาพ)
@@ -3690,7 +3690,7 @@ const UIDoorBom = ({
                 )}
 
                 {/* Single-door stats */}
-                <div className="rounded-lg border border-default-200 overflow-hidden">
+                <div className="rounded-lg border border-foreground/15 overflow-hidden">
                   <div className="px-3 py-1.5 bg-default-100 text-xs font-semibold text-default-600">
                     1 บาน
                   </div>
@@ -3740,7 +3740,7 @@ const UIDoorBom = ({
                   </div>
                 )}
 
-                <div className="border-1 border-default rounded-lg overflow-hidden">
+                <div className="border-1 border-foreground/15 rounded-lg overflow-hidden">
                   <div className="p-2 text-xs font-semibold bg-default-100">
                     📋 รายการชิ้นส่วน (เผื่อรอยเลื่อย {cuttingPlan.sawKerf} มม.)
                   </div>
@@ -3795,7 +3795,7 @@ const UIDoorBom = ({
                   };
                   return (
                     <>
-                      <div className="border-1 border-default rounded-lg overflow-hidden">
+                      <div className="border-1 border-foreground/15 rounded-lg overflow-hidden">
                         <div className="p-2 text-xs font-semibold bg-default-100 flex items-center justify-between">
                           <span>🪵 แผนตัดไม้ (ท่อนยาว {cuttingPlan.stockLength}มม. × {totalStocksDisplay} ท่อน)</span>
                           {isBatch && (
@@ -3847,7 +3847,7 @@ const UIDoorBom = ({
                           })}
                         </div>
                         {framePageCount > 1 && (
-                          <div className="flex items-center justify-between px-3 py-2 border-t border-default-200 bg-default-50">
+                          <div className="flex items-center justify-between px-3 py-2 border-t border-foreground/15 bg-default-50">
                             <button
                               className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
                               onClick={() => setFramePlanPage(p => Math.max(1, p - 1))}
@@ -3914,7 +3914,7 @@ const UIDoorBom = ({
                   const corePageSheets = displaySheets.slice((corePage - 1) * CORE_PAGE_SIZE, corePage * CORE_PAGE_SIZE);
 
                   return (
-                    <div className="mt-3 border-1 border-default rounded-lg overflow-hidden">
+                    <div className="mt-3 border-1 border-foreground/15 rounded-lg overflow-hidden">
                       <div className="p-2 text-xs font-semibold bg-default-100 flex items-center justify-between">
                         <span>
                           🧱 แผนตัดใส้ (แผ่น {coreSheetWidth}มม. ÷ {coreStripCutWidth}มม. = {coreStripsPerSheet} เส้น/แผ่น)
@@ -3960,7 +3960,7 @@ const UIDoorBom = ({
                         })}
                       </div>
                       {corePageCount > 1 && (
-                        <div className="flex items-center justify-between px-3 py-2 border-t border-default-200 bg-default-50">
+                        <div className="flex items-center justify-between px-3 py-2 border-t border-foreground/15 bg-default-50">
                           <button
                             className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
                             onClick={() => setCorePlanPage(p => Math.max(1, p - 1))}
@@ -3995,8 +3995,8 @@ const UIDoorBom = ({
               </CardBody>
             </Card>
           ) : (
-            <Card shadow="none" className="w-full border border-default-200">
-              <CardHeader className="border-b border-default-200 bg-default-50">
+            <Card shadow="none" className="w-full border border-foreground/15">
+              <CardHeader className="border-b border-foreground/15 bg-default-50">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-sm">
                     ✂️ แผนตัดไม้ (เพิ่มประสิทธิภาพ)

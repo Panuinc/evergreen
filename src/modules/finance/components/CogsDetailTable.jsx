@@ -113,7 +113,7 @@ export default function CogsDetailTable({
     <div className="flex flex-col gap-4">
       {/* COGS Composition Chart */}
       {chartData && chartData.length > 0 && (
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardHeader className="pb-0">
             <h3 className="text-sm font-semibold">องค์ประกอบต้นทุนรายเดือน</h3>
           </CardHeader>
@@ -138,7 +138,7 @@ export default function CogsDetailTable({
       )}
 
       {/* COGS Detail Table */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">รายละเอียดต้นทุนขาย</h3>
@@ -207,7 +207,7 @@ export default function CogsDetailTable({
         <CardBody className="overflow-x-auto p-0">
           <table className="w-full text-xs border-collapse min-w-[1200px]">
             <thead>
-              <tr className="bg-default-100 border-b border-default-200">
+              <tr className="bg-default-100 border-b border-foreground/15">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[220px] font-semibold">รายการ</th>
                 {CAL_MONTHS.map((m, i) => (
                   <th key={m} className="text-right px-2 py-2 min-w-[90px] font-semibold">
@@ -224,7 +224,7 @@ export default function CogsDetailTable({
             </thead>
             <tbody>
               {data.map((row) => (
-                <tr key={row.key} className={`border-b border-default-100 ${getRowClass(row)}`}>
+                <tr key={row.key} className={`border-b border-foreground/15 ${getRowClass(row)}`}>
                   <td className="sticky left-0 z-10 bg-background px-3 py-1.5">
                     {row.label}
                     {row.labelEn && <span className="text-default-400 ml-1">({row.labelEn})</span>}

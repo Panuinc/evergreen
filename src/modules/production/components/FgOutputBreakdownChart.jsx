@@ -48,7 +48,7 @@ export default function FgOutputBreakdownChart({ data = [] }) {
             const d = payload[0]?.payload;
             if (!d) return null;
             return (
-              <div className="bg-white dark:bg-zinc-800 border border-default-200 rounded-lg p-3 shadow-lg text-xs">
+              <div className="bg-content1 border border-foreground/15 rounded-lg p-3 shadow-lg text-xs">
                 <p className="font-semibold mb-1">{d.category}</p>
                 <p>
                   จำนวน:{" "}

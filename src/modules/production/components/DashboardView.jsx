@@ -46,7 +46,7 @@ function KpiCard({ title, value, unit, color = "default", subtitle }) {
     default: "",
   };
   return (
-    <Card shadow="none" className="border border-default-200">
+    <Card shadow="none" className="border border-foreground/15">
       <CardBody className="gap-1">
         <p className="text-xs text-default-500">{title}</p>
         <div className="flex items-baseline gap-1">
@@ -65,7 +65,7 @@ function KpiCard({ title, value, unit, color = "default", subtitle }) {
 
 function ChartCard({ title, children }) {
   return (
-    <Card shadow="none" className="border border-default-200">
+    <Card shadow="none" className="border border-foreground/15">
       <CardHeader className="pb-0">
         <p className="text-sm font-semibold">{title}</p>
       </CardHeader>
@@ -275,7 +275,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
       </ChartCard>
 
       {/* Section 3.5: Profit by project (detail) */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0">
           <p className="text-sm font-semibold">วิเคราะห์กำไรตามโครงการ (ละเอียดรายสินค้า)</p>
         </CardHeader>
@@ -315,7 +315,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
 
       {/* Section 6.5: WIP Detail Table */}
       {d.wipDetail?.length > 0 && (
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold">
@@ -344,7 +344,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
 
       {/* Section 7: Overdue orders */}
       {d.overdueOrders?.length > 0 && (
-        <Card shadow="none" className="border border-default">
+        <Card shadow="none" className="border border-foreground/15">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold text-danger">
@@ -371,7 +371,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
       )}
 
       {/* Section 8: Dashboard description */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0">
           <p className="text-sm font-semibold">คำอธิบาย Dashboard</p>
         </CardHeader>

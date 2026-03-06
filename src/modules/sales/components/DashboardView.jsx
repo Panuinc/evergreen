@@ -131,7 +131,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Pipeline by Stage */}
-        <Card shadow="none" className="border border-default-200 p-4">
+        <Card shadow="none" className="border border-foreground/15 p-4">
           <p className="text-lg font-semibold mb-4">ไปป์ไลน์ตามขั้นตอน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={pipelineByStage || []}>
@@ -151,7 +151,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         </Card>
 
         {/* Revenue by Month */}
-        <Card shadow="none" className="border border-default-200 p-4">
+        <Card shadow="none" className="border border-foreground/15 p-4">
           <p className="text-lg font-semibold mb-4">รายได้ตามเดือน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={revenueByMonth || []}>
@@ -174,13 +174,13 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
       {/* Bottom Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Top Salespeople */}
-        <Card shadow="none" className="border border-default-200 p-4">
+        <Card shadow="none" className="border border-foreground/15 p-4">
           <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(topSalespeople || []).map((person, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-2 rounded-lg border border-default-100"
+                className="flex items-center justify-between p-2 rounded-lg border border-foreground/15"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-bold text-default-400 w-6">
@@ -207,7 +207,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         </Card>
 
         {/* Recent Activities */}
-        <Card shadow="none" className="border border-default-200 p-4">
+        <Card shadow="none" className="border border-foreground/15 p-4">
           <p className="text-lg font-semibold mb-4">กิจกรรมล่าสุด</p>
           <div className="flex flex-col gap-3">
             {(recentActivities || []).map((activity, i) => {
@@ -216,7 +216,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
               return (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-2 rounded-lg border border-default-100"
+                  className="flex items-center justify-between p-2 rounded-lg border border-foreground/15"
                 >
                   <div className="flex items-center gap-3">
                     <Icon size={16} className="text-default-500" />

@@ -30,13 +30,13 @@ export default function YoYComparisonChart({ data = [] }) {
       <div className="flex gap-2 mb-3">
         <button
           onClick={() => setMetric("revenue")}
-          className={`px-3 py-1 text-xs rounded-md border transition-colors ${metric === "revenue" ? "bg-primary text-white border-primary" : "border-default-300 text-default-600 hover:bg-default-100"}`}
+          className={`px-3 py-1 text-xs rounded-md border transition-colors ${metric === "revenue" ? "bg-primary text-white border-primary" : "border-foreground/15 text-default-600 hover:bg-default-100"}`}
         >
           ยอดขาย
         </button>
         <button
           onClick={() => setMetric("orders")}
-          className={`px-3 py-1 text-xs rounded-md border transition-colors ${metric === "orders" ? "bg-primary text-white border-primary" : "border-default-300 text-default-600 hover:bg-default-100"}`}
+          className={`px-3 py-1 text-xs rounded-md border transition-colors ${metric === "orders" ? "bg-primary text-white border-primary" : "border-foreground/15 text-default-600 hover:bg-default-100"}`}
         >
           ออเดอร์
         </button>

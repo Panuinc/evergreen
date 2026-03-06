@@ -32,7 +32,7 @@ export default function Forbidden() {
         <div className="flex flex-row items-center justify-center gap-2">
           <button
             onClick={() => window.history.back()}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-default-200 hover:bg-default-100 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-foreground/15 hover:bg-default-100 transition-colors"
           >
             <ArrowLeft />
             Go Back

@@ -31,13 +31,13 @@ export default function PermissionsView({
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="text-left p-2 border-b border-default font-semibold sticky left-0 bg-background">
+              <th className="text-left p-2 border-b border-foreground/15 font-semibold sticky left-0 bg-background">
                 ทรัพยากร
               </th>
               {actions.map((action) => (
                 <th
                   key={action.rbacActionId}
-                  className="p-2 border-b border-default font-semibold text-center capitalize"
+                  className="p-2 border-b border-foreground/15 font-semibold text-center capitalize"
                 >
                   {action.rbacActionName}
                 </th>
@@ -47,7 +47,7 @@ export default function PermissionsView({
           <tbody>
             {resources.map((resource) => (
               <tr key={resource.rbacResourceId} className="hover:bg-default/50">
-                <td className="p-2 border-b border-default font-medium capitalize sticky left-0 bg-background">
+                <td className="p-2 border-b border-foreground/15 font-medium capitalize sticky left-0 bg-background">
                   {resource.rbacResourceName}
                   {resource.rbacResourceDescription && (
                     <span className="text-default-400">
@@ -63,7 +63,7 @@ export default function PermissionsView({
                   return (
                     <td
                       key={action.rbacActionId}
-                      className="p-2 border-b border-default text-center"
+                      className="p-2 border-b border-foreground/15 text-center"
                     >
                       {isToggling ? (
                         <Spinner />

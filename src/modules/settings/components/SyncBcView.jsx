@@ -122,7 +122,7 @@ function ResultCards({ tables, results }) {
           <Card
             key={t.key}
             shadow="none"
-            className={`border ${isError ? "border-danger bg-danger-50" : "border-default bg-content1"}`}
+            className={`border ${isError ? "border-danger bg-danger-50" : "border-foreground/15 bg-content1"}`}
           >
             <CardBody className="gap-1">
               <div className="flex items-center gap-2">
@@ -207,25 +207,25 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
           </CardHeader>
           <CardBody>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Card shadow="none" className="border border-default bg-content1">
+              <Card shadow="none" className="border border-foreground/15 bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-xs text-default-500">แถวทั้งหมด</p>
                   <p className="text-2xl font-bold">{result.results.totalRows?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-default bg-content1">
+              <Card shadow="none" className="border border-foreground/15 bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-xs text-default-500">นำเข้าแล้ว</p>
                   <p className="text-2xl font-bold">{result.results.imported?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-default bg-content1">
+              <Card shadow="none" className="border border-foreground/15 bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-xs text-default-500">Column ที่ map ได้</p>
                   <p className="text-2xl font-bold">{result.results.columnsMapped}</p>
                 </CardBody>
               </Card>
-              <Card shadow="none" className="border border-default bg-content1">
+              <Card shadow="none" className="border border-foreground/15 bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-xs text-default-500">ข้ามไป</p>
                   <p className="text-2xl font-bold">{result.results.skipped}</p>
@@ -251,7 +251,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
         </Card>
       )}
 
-      <Card shadow="none" className="bg-default-50 border border-default">
+      <Card shadow="none" className="bg-default-50 border border-foreground/15">
         <CardBody className="gap-1">
           <ul className="text-sm text-default-500 list-disc pl-5 space-y-1">
             <li>รองรับ .xlsx, .xls, .csv</li>
@@ -323,7 +323,7 @@ function BcSyncSection({
         </Card>
       )}
 
-      <Card shadow="none" className="bg-default-50 border border-default">
+      <Card shadow="none" className="bg-default-50 border border-foreground/15">
         <CardBody className="gap-1">
           <ul className="text-sm text-default-500 list-disc pl-5 space-y-1">
             <li>Dimensions -- dimensionValues จาก BC API v2.0 (code → ชื่อโครงการ)</li>

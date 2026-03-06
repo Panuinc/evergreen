@@ -121,7 +121,7 @@ export default function DeliveriesView({
                   key={i}
                   src={url}
                   alt={`photo-${i}`}
-                  className="w-8 h-8 object-cover rounded cursor-pointer border border-default-200"
+                  className="w-8 h-8 object-cover rounded cursor-pointer border border-foreground/15"
                   onClick={() => openPreview(item.tmsDeliveryPhotoUrls, i)}
                 />
               ))}
@@ -224,7 +224,7 @@ export default function DeliveriesView({
               {deliveryItems.length > 0 && (
                 <div className="flex flex-col w-full gap-2">
                   <p className="text-sm font-medium">รายการสินค้า</p>
-                  <div className="border border-default-200 rounded-xl overflow-hidden overflow-x-auto">
+                  <div className="border border-foreground/15 rounded-xl overflow-hidden overflow-x-auto">
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="bg-default-100">
@@ -244,7 +244,7 @@ export default function DeliveriesView({
                           const damaged = parseFloat(item.tmsDeliveryItemDamagedQty) || 0;
                           const hasDiscrepancy = delivered < planned || damaged > 0;
                           return (
-                            <tr key={idx} className={`border-t border-default-100 ${hasDiscrepancy ? "bg-warning-50" : ""}`}>
+                            <tr key={idx} className={`border-t border-foreground/15 ${hasDiscrepancy ? "bg-warning-50" : ""}`}>
                               <td className="px-3 py-2">
                                 <p className="font-medium">{item.tmsDeliveryItemDescription}</p>
                                 {item.tmsDeliveryItemSoNo && (
@@ -297,7 +297,7 @@ export default function DeliveriesView({
                         })}
                       </tbody>
                       <tfoot>
-                        <tr className="border-t border-default-200 bg-default-50">
+                        <tr className="border-t border-foreground/15 bg-default-50">
                           <td className="px-3 py-2 font-semibold" colSpan={2}>รวม</td>
                           <td className="text-center px-3 py-2 font-semibold">
                             {deliveryItems.reduce((s, i) => s + i.tmsDeliveryItemPlannedQty, 0)}

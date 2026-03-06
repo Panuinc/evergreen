@@ -314,7 +314,7 @@ export default function BankReconView({
           }
         >
           <div className="flex flex-col gap-4">
-            <Card shadow="none" className="border border-default-200">
+            <Card shadow="none" className="border border-foreground/15">
               <CardBody className="gap-4">
                 <div className="flex items-end gap-4 flex-wrap">
                   <Select
@@ -378,7 +378,7 @@ export default function BankReconView({
           ) : (
             <div className="flex flex-col gap-4">
               {/* Statement info bar */}
-              <Card shadow="none" className="border border-default-200">
+              <Card shadow="none" className="border border-foreground/15">
                 <CardBody>
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-3">
@@ -568,7 +568,7 @@ export default function BankReconView({
             {/* Open invoices list */}
             <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
               {filteredInvoices.map((inv) => (
-                <Card key={inv.id || inv.number} shadow="none" className="border border-default-200">
+                <Card key={inv.id || inv.number} shadow="none" className="border border-foreground/15">
                   <CardBody className="flex-row items-center justify-between py-2">
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
@@ -622,7 +622,7 @@ export default function BankReconView({
 
 function KpiCard({ label, value, sub, color }) {
   return (
-    <Card shadow="none" className="border border-default-200">
+    <Card shadow="none" className="border border-foreground/15">
       <CardBody className="py-3 px-4">
         <p className="text-xs text-default-500">{label}</p>
         <p className={`text-xl font-bold ${color}`}>{value}</p>

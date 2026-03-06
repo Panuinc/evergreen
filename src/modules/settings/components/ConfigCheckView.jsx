@@ -111,7 +111,7 @@ function SystemStatusTab({ status, loading, refetch }) {
               <Card
                 key={service.key}
                 shadow="none"
-                className="border border-default-200"
+                className="border border-foreground/15"
               >
                 <CardBody className="gap-4">
                   <div className="flex items-center justify-between">
@@ -231,7 +231,7 @@ function Cp30Settings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
           <p className="font-semibold text-lg">Chainway CP30 (RFID)</p>
@@ -265,7 +265,7 @@ function Cp30Settings() {
         </CardBody>
       </Card>
 
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">ตั้งค่าการพิมพ์</p>
         </CardHeader>
@@ -372,7 +372,7 @@ function Cp30Settings() {
         </CardBody>
       </Card>
 
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">เนื้อหา Label</p>
         </CardHeader>
@@ -478,7 +478,7 @@ function TscTeSettings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
           <p className="font-semibold text-lg">TSC TE</p>
@@ -530,7 +530,7 @@ function TscTeSettings() {
         </CardBody>
       </Card>
 
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0">
           <p className="font-semibold text-lg">ตั้งค่าการพิมพ์</p>
         </CardHeader>

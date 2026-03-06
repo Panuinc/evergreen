@@ -47,7 +47,7 @@ export default function ConversationList({
   return (
     <div className="flex flex-col h-full">
       {/* Search */}
-      <div className="p-3 border-b-2 border-default">
+      <div className="p-3 border-b-2 border-foreground/15">
         <Input
           isClearable
           placeholder="ค้นหาการสนทนา..."
@@ -62,7 +62,7 @@ export default function ConversationList({
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-2 p-3 border-b-2 border-default">
+      <div className="flex flex-col gap-2 p-3 border-b-2 border-foreground/15">
         <div className="flex flex-wrap gap-1">
           {STATUS_FILTERS.map((f) => (
             <Chip
@@ -109,7 +109,7 @@ export default function ConversationList({
               <div
                 key={conv.omConversationId}
                 onClick={() => onSelect(conv)}
-                className={`flex items-start gap-3 p-3 cursor-pointer transition-colors border-b border-default ${
+                className={`flex items-start gap-3 p-3 cursor-pointer transition-colors border-b border-foreground/15 ${
                   isSelected ? "bg-default" : "hover:bg-default/50"
                 }`}
               >

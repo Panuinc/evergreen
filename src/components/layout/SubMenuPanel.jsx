@@ -11,11 +11,11 @@ export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }
 
   return (
     <div
-      className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-l-1 border-default transition-all duration-300 ${
+      className={`flex flex-col items-center justify-center min-h-0 h-full gap-2 border-l-1 border-foreground/15 transition-all duration-300 ${
         isCollapsed ? "flex-1" : "w-6/12"
       }`}
     >
-      <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b-2 border-default font-semibold">
+      <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b-2 border-foreground/15 font-semibold">
         {activeMenu.name}
       </div>
       <div className="flex flex-col items-center justify-start w-full h-full p-2 gap-2 overflow-auto">

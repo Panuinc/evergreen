@@ -585,7 +585,7 @@ function MyResultsTab({
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-default-200">
+                    <tr className="border-b border-foreground/15">
                       <th className="text-left py-2 px-3">รอบ</th>
                       {EVALUATION_CATEGORIES.map((cat) => (
                         <th key={cat.key} className="text-center py-2 px-2">
@@ -604,7 +604,7 @@ function MyResultsTab({
                       .map((r) => (
                         <tr
                           key={r.period}
-                          className="border-b border-default-100"
+                          className="border-b border-foreground/15"
                         >
                           <td className="py-2 px-3 font-medium">
                             Q{r.quarter}/{r.year}
@@ -774,7 +774,7 @@ function AdminTab({
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-default-200">
+                  <tr className="border-b border-foreground/15">
                     <th className="text-left py-2 px-3">#</th>
                     <th className="text-left py-2 px-3">ชื่อพนักงาน</th>
                     <th className="text-left py-2 px-3">แผนก</th>
@@ -792,7 +792,7 @@ function AdminTab({
                   {adminSummary.map((row, idx) => (
                     <tr
                       key={row.employee?.hrEmployeeId || idx}
-                      className={`border-b border-default-100 hover:bg-default-50 cursor-pointer ${selectedAdminEmployee === row.employee?.hrEmployeeId ? "bg-primary-50" : ""}`}
+                      className={`border-b border-foreground/15 hover:bg-default-50 cursor-pointer ${selectedAdminEmployee === row.employee?.hrEmployeeId ? "bg-primary-50" : ""}`}
                       onClick={() => {
                         if (selectedAdminEmployee === row.employee?.hrEmployeeId) {
                           setSelectedAdminEmployee(null);

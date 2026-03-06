@@ -30,7 +30,7 @@ export default function ReportsView({ data, loading }) {
       </div>
 
       {/* Full-width Pipeline Chart */}
-      <Card shadow="none" className="border border-default-200 p-4">
+      <Card shadow="none" className="border border-foreground/15 p-4">
         <p className="text-lg font-semibold mb-4">วิเคราะห์ไปป์ไลน์</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.pipelineByStage || []}>
@@ -48,7 +48,7 @@ export default function ReportsView({ data, loading }) {
       </Card>
 
       {/* Revenue Trend */}
-      <Card shadow="none" className="border border-default-200 p-4">
+      <Card shadow="none" className="border border-foreground/15 p-4">
         <p className="text-lg font-semibold mb-4">แนวโน้มรายได้</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.revenueByMonth || []}>
@@ -67,7 +67,7 @@ export default function ReportsView({ data, loading }) {
 
       {/* Win/Loss and Salespeople side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-default-200 p-4">
+        <Card shadow="none" className="border border-foreground/15 p-4">
           <p className="text-lg font-semibold mb-4">อัตราการชนะ</p>
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -81,13 +81,13 @@ export default function ReportsView({ data, loading }) {
           </div>
         </Card>
 
-        <Card shadow="none" className="border border-default-200 p-4">
+        <Card shadow="none" className="border border-foreground/15 p-4">
           <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(data.topSalespeople || []).map((person, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-2 rounded-lg border border-default-100"
+                className="flex items-center justify-between p-2 rounded-lg border border-foreground/15"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-bold text-default-400 w-6">

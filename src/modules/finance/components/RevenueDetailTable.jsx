@@ -68,7 +68,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
     <div className="flex flex-col gap-4">
       {/* Revenue Pie Chart */}
       {pieData.length > 0 && (
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardHeader className="pb-0">
             <h3 className="text-sm font-semibold">สัดส่วนรายได้</h3>
           </CardHeader>
@@ -95,7 +95,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
       )}
 
       {/* Revenue Detail Table */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">รายละเอียดรายได้</h3>
@@ -108,7 +108,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
         <CardBody className="overflow-x-auto p-0">
           <table className="w-full text-xs border-collapse min-w-[1200px]">
             <thead>
-              <tr className="bg-default-100 border-b border-default-200">
+              <tr className="bg-default-100 border-b border-foreground/15">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[280px] font-semibold">รายการ</th>
                 {CAL_MONTHS.map((m, i) => (
                   <th key={m} className="text-right px-2 py-2 min-w-[85px] font-semibold">
@@ -127,7 +127,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
               {data.map((row) => {
                 const isTotal = row.type === "grandTotal";
                 return (
-                  <tr key={row.key} className={`border-b border-default-100 ${isTotal ? "bg-success-50 font-bold text-success-700" : ""}`}>
+                  <tr key={row.key} className={`border-b border-foreground/15 ${isTotal ? "bg-success-50 font-bold text-success-700" : ""}`}>
                     <td className="sticky left-0 z-10 bg-background px-3 py-1.5">
                       {row.account && <span className="text-default-400 mr-1">{row.account}</span>}
                       {row.label}

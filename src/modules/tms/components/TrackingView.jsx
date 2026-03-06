@@ -91,7 +91,7 @@ export default function TrackingView({
               <Card
                 key={vehicle.tmsVehicleId}
                 shadow="none"
-                className={`cursor-pointer ${isSelected ? "border-2 border-primary" : "border border-default-200"}`}
+                className={`cursor-pointer ${isSelected ? "border-2 border-primary" : "border border-foreground/15"}`}
                 onClick={() => setSelectedVehicleId(vehicle.tmsVehicleId)}
               >
                 <CardBody className="p-3 gap-2">
@@ -156,7 +156,7 @@ export default function TrackingView({
         </div>
 
         {/* Right Panel - Map */}
-        <div className="flex-1 rounded-xl overflow-hidden border border-default-200" style={{ isolation: "isolate" }}>
+        <div className="flex-1 rounded-xl overflow-hidden border border-foreground/15" style={{ isolation: "isolate" }}>
           <VehicleMap
             positions={positions}
             vehicles={vehicles}

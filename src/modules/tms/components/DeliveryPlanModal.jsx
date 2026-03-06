@@ -228,7 +228,7 @@ export default function DeliveryPlanModal({
                       : plan.tmsDeliveryPlanPriority === "low"
                       ? "border-l-default-300"
                       : "border-l-primary-400"
-                  } border-default-200`}
+                  } border-foreground/15`}
                 >
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -346,7 +346,7 @@ export default function DeliveryPlanModal({
                       {editingPlan.tmsDeliveryPlanItem.map((item) => (
                         <div
                           key={item.tmsDeliveryPlanItemId}
-                          className="flex items-center justify-between p-2.5 rounded-xl border border-default-200"
+                          className="flex items-center justify-between p-2.5 rounded-xl border border-foreground/15"
                         >
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <p className="text-xs font-semibold">
@@ -436,7 +436,7 @@ export default function DeliveryPlanModal({
                     />
                     {soLoading && <Spinner size="sm" />}
                     {!soLoading && salesOrders.length > 0 && !selectedSO && (
-                      <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-default-200 rounded-xl p-1">
+                      <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-foreground/15 rounded-xl p-1">
                         {salesOrders.map((so) => (
                           <button
                             key={so.bcSalesOrderNumber}
@@ -493,7 +493,7 @@ export default function DeliveryPlanModal({
                             className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                               checkedLines[line.bcSalesOrderLineNo]
                                 ? "border-primary-300 bg-primary-50"
-                                : "border-default-200 hover:border-default-300"
+                                : "border-foreground/15 hover:border-foreground/15"
                             }`}
                             onClick={() => toggleLine(line.bcSalesOrderLineNo)}
                           >

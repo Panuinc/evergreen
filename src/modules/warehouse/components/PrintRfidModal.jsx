@@ -108,7 +108,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
               <p className="text-xs font-medium text-default-600">
                 ตัวอย่าง Label
               </p>
-              <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-default-200 bg-white p-3 min-h-20">
+              <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-foreground/15 bg-white p-3 min-h-20">
                 {loadingPreview ? (
                   <Skeleton className="w-full h-15 rounded" />
                 ) : previewSrc ? (

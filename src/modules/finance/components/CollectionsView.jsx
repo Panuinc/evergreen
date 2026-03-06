@@ -310,7 +310,7 @@ export default function CollectionsView({
 
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <Card shadow="none" className="border border-default-200">
+            <Card shadow="none" className="border border-foreground/15">
               <CardHeader className="pb-0">
                 <p className="text-sm font-semibold">เหตุผลที่ลูกหนี้ยังไม่ชำระ</p>
               </CardHeader>
@@ -335,7 +335,7 @@ export default function CollectionsView({
               </CardBody>
             </Card>
 
-            <Card shadow="none" className="border border-default-200">
+            <Card shadow="none" className="border border-foreground/15">
               <CardHeader className="pb-0">
                 <p className="text-sm font-semibold">สถานะการติดตาม</p>
               </CardHeader>
@@ -385,7 +385,7 @@ export default function CollectionsView({
       </Tabs>
 
       {/* ═══════════════════ AI Collections Advisor ═══════════════════ */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
@@ -428,10 +428,10 @@ export default function CollectionsView({
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-default-200 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-foreground/15 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
-                    <td className="border border-default-200 px-3 py-1.5 text-foreground">{children}</td>
+                    <td className="border border-foreground/15 px-3 py-1.5 text-foreground">{children}</td>
                   ),
                   tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
                   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -574,7 +574,7 @@ export default function CollectionsView({
             {customerHistory.length > 0 ? (
               <div className="flex flex-col gap-4">
                 {customerHistory.map((fu, idx) => (
-                  <Card key={fu.id} shadow="none" className={`border ${idx === 0 ? "border-primary-200 bg-primary-50/30" : "border-default-200"}`}>
+                  <Card key={fu.id} shadow="none" className={`border ${idx === 0 ? "border-primary-200 bg-primary-50/30" : "border-foreground/15"}`}>
                     <CardBody className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">

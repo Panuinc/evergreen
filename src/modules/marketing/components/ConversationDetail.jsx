@@ -46,7 +46,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b-2 border-default">
+      <div className="flex items-center justify-between p-3 border-b-2 border-foreground/15">
         <span className="font-semibold">รายละเอียด</span>
         <Button isIconOnly variant="light" size="sm" radius="md" onPress={onClose}>
           <X size={18} />

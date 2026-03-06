@@ -400,7 +400,7 @@ export default function DataTable({
                 variant="bordered"
                 radius="md"
                 shadow="none"
-                className="border-2 border-default"
+                className="border-2 border-foreground/15"
               >
                 <CardBody className="gap-3">
                   {cardColumns.title && (
@@ -444,8 +444,8 @@ export default function DataTable({
       onSortChange={setSortDescriptor}
       shadow="none"
       classNames={{
-        th: "border-b-2 border-r-2 border-default last:border-r-0",
-        td: "border-b-2 border-r-2 border-default last:border-r-0",
+        th: "border-b-2 border-r-2 border-foreground/15 last:border-r-0",
+        td: "border-b-2 border-r-2 border-foreground/15 last:border-r-0",
         table: "min-w-[600px]",
       }}
     >

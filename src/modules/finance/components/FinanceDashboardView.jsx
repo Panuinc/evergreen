@@ -311,7 +311,7 @@ function KpiCard({ title, value, unit, color = "default", subtitle, tooltip, onD
       shadow="none"
       isPressable={!!onDetail}
       onPress={onDetail}
-      className={`border border-default-200 ${tooltip ? "cursor-help" : ""} ${onDetail ? "hover:border-primary/50 transition-colors" : ""}`}
+      className={`border border-foreground/15 ${tooltip ? "cursor-help" : ""} ${onDetail ? "hover:border-primary/50 transition-colors" : ""}`}
     >
       <CardBody className="gap-1">
         <div className="flex items-center gap-1">
@@ -342,7 +342,7 @@ function RatioCard({ title, value, subtitle, status, tooltip, previousValue, onD
       shadow="none"
       isPressable={!!onDetail}
       onPress={onDetail}
-      className={`border border-default-200 ${tooltip ? "cursor-help" : ""} ${onDetail ? "hover:border-primary/50 transition-colors" : ""}`}
+      className={`border border-foreground/15 ${tooltip ? "cursor-help" : ""} ${onDetail ? "hover:border-primary/50 transition-colors" : ""}`}
     >
       <CardBody className="gap-1">
         <div className="flex items-center gap-1">
@@ -363,7 +363,7 @@ function RatioCard({ title, value, subtitle, status, tooltip, previousValue, onD
 
 function ChartCard({ title, children, chip }) {
   return (
-    <Card shadow="none" className="border border-default-200">
+    <Card shadow="none" className="border border-foreground/15">
       <CardHeader className="pb-0">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold">{title}</p>
@@ -832,7 +832,7 @@ export default function FinanceDashboardView({
                       <tr><td>53xx ค่าใช้จ่ายบริหาร</td><td className="text-right font-mono">({fmt(financials.adminExpense)})</td></tr>
                       <tr><td>กำไรก่อนต้นทุนทางการเงิน</td><td className="text-right font-mono">{fmt(financials.operatingProfit)}</td></tr>
                       <tr><td>53710-xx ดอกเบี้ยจ่าย</td><td className="text-right font-mono">({fmt(financials.interestExpense)})</td></tr>
-                      <tr className="font-semibold border-t border-default-200"><td>กำไรสุทธิ</td><td className="text-right font-mono">{fmt(financials.netIncome)}</td></tr>
+                      <tr className="font-semibold border-t border-foreground/15"><td>กำไรสุทธิ</td><td className="text-right font-mono">{fmt(financials.netIncome)}</td></tr>
                     </tbody>
                   </table>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
@@ -946,7 +946,7 @@ export default function FinanceDashboardView({
       </div>
 
       {/* Section 3.5: AI Analysis */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
@@ -989,10 +989,10 @@ export default function FinanceDashboardView({
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-default-200 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-foreground/15 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
-                    <td className="border border-default-200 px-3 py-1.5 text-foreground">{children}</td>
+                    <td className="border border-foreground/15 px-3 py-1.5 text-foreground">{children}</td>
                   ),
                   tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
                   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -1019,7 +1019,7 @@ export default function FinanceDashboardView({
       </Card>
 
       {/* Section 3.6: AI Cash Flow Forecast */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-success" />
@@ -1062,10 +1062,10 @@ export default function FinanceDashboardView({
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-default-200 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-foreground/15 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
-                    <td className="border border-default-200 px-3 py-1.5 text-foreground">{children}</td>
+                    <td className="border border-foreground/15 px-3 py-1.5 text-foreground">{children}</td>
                   ),
                   tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
                   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -1139,7 +1139,7 @@ export default function FinanceDashboardView({
                   if (!active || !payload?.length) return null;
                   const d = payload[0]?.payload;
                   return (
-                    <div className="rounded-lg border border-default-200 bg-background p-3 shadow-lg">
+                    <div className="rounded-lg border border-foreground/15 bg-background p-3 shadow-lg">
                       <p className="mb-1 text-xs font-semibold">{d?.name}</p>
                       <p className={`text-xs ${d?.value >= 0 ? "text-success" : "text-danger"}`}>
                         {d?.value >= 0 ? "+" : ""}{fmt(d?.value)}
@@ -1299,7 +1299,7 @@ export default function FinanceDashboardView({
                     if (!active || !payload?.length) return null;
                     const d = payload[0]?.payload;
                     return (
-                      <div className="rounded-lg border border-default-200 bg-background p-3 shadow-lg">
+                      <div className="rounded-lg border border-foreground/15 bg-background p-3 shadow-lg">
                         <p className="mb-1 text-xs font-semibold">{fmtMonth(label)}</p>
                         <p className="text-xs">{d?.count} ใบ</p>
                         <p className="text-xs text-primary">ยอดเต็ม: {fmt(d?.total)}</p>
@@ -1333,7 +1333,7 @@ export default function FinanceDashboardView({
                     if (!active || !payload?.length) return null;
                     const d = payload[0]?.payload;
                     return (
-                      <div className="rounded-lg border border-default-200 bg-background p-3 shadow-lg">
+                      <div className="rounded-lg border border-foreground/15 bg-background p-3 shadow-lg">
                         <p className="mb-1 text-xs font-semibold">{fmtMonth(label)}</p>
                         <p className="text-xs">{d?.count} ใบ</p>
                         <p className="text-xs text-danger">ยอดรวม: {fmt(d?.total)}</p>
@@ -1364,7 +1364,7 @@ export default function FinanceDashboardView({
                     if (!active || !payload?.length) return null;
                     const d = payload[0]?.payload;
                     return (
-                      <div className="rounded-lg border border-default-200 bg-background p-3 shadow-lg">
+                      <div className="rounded-lg border border-foreground/15 bg-background p-3 shadow-lg">
                         <p className="mb-1 text-xs font-semibold">{d?.name}</p>
                         <p className="text-xs">{d?.count} ใบ</p>
                         <p className="text-xs text-warning">ค้างชำระ: {fmt(d?.remaining)}</p>
@@ -1395,7 +1395,7 @@ export default function FinanceDashboardView({
                     if (!active || !payload?.length) return null;
                     const d = payload[0]?.payload;
                     return (
-                      <div className="rounded-lg border border-default-200 bg-background p-3 shadow-lg">
+                      <div className="rounded-lg border border-foreground/15 bg-background p-3 shadow-lg">
                         <p className="mb-1 text-xs font-semibold">{d?.name}</p>
                         <p className="text-xs">{d?.count} ใบ</p>
                         <p className="text-xs text-danger">ยอดรวม: {fmt(d?.total)}</p>
@@ -1533,7 +1533,7 @@ export default function FinanceDashboardView({
                             </thead>
                             <tbody>
                               {sec.accounts.map((a) => (
-                                <tr key={a.number} className="border-b border-default-100">
+                                <tr key={a.number} className="border-b border-foreground/15">
                                   <td className="px-2 py-1 font-mono text-default-500">{a.number}</td>
                                   <td className="px-2 py-1">{a.display}</td>
                                   <td className="px-2 py-1 text-right font-mono">{fmt(a.bal)}</td>
@@ -1570,7 +1570,7 @@ export default function FinanceDashboardView({
                               </thead>
                               <tbody>
                                 {invEntries.map(([num, a]) => (
-                                  <tr key={num} className="border-b border-default-100">
+                                  <tr key={num} className="border-b border-foreground/15">
                                     <td className="px-2 py-1 font-mono text-default-500">{num}</td>
                                     <td className="px-2 py-1">{a.name}</td>
                                     <td className="px-2 py-1 text-right font-mono text-danger">({fmt(a.balance)})</td>

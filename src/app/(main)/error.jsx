@@ -28,7 +28,7 @@ export default function MainError({ error, reset }) {
           </button>
           <Link
             href="/overview/dashboard"
-            className="px-4 py-2 rounded-xl border border-default-200 hover:bg-default-100 transition-colors"
+            className="px-4 py-2 rounded-xl border border-foreground/15 hover:bg-default-100 transition-colors"
           >
             Back to Home
           </Link>

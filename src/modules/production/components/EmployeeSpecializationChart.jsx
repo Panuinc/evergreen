@@ -82,7 +82,7 @@ function RankBadge({ rank }) {
   if (rank === 2) {
     return (
       <div className="relative flex items-center justify-center w-10 h-10">
-        <div className="absolute inset-0 bg-linear-to-br from-gray-300 to-gray-400 rounded-xl shadow-md" />
+        <div className="absolute inset-0 bg-linear-to-br from-default-300 to-default-400 rounded-xl shadow-md" />
         <Medal className="relative w-5 h-5 text-white" />
       </div>
     );

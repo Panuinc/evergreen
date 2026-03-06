@@ -96,13 +96,13 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">สถานะการขนส่ง</p>
             <ShipmentStatusChart data={d.shipmentStatusDistribution} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">
               {isCompare ? "การขนส่งรายเดือน" : "การขนส่งรายเดือน (6 เดือนล่าสุด)"}
@@ -110,13 +110,13 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
             <MonthlyShipmentChart data={d.monthlyShipmentTrend} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">แนวโน้มค่าน้ำมัน</p>
             <FuelCostChart data={d.fuelCostTrend} />
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5">
             <p className="text-sm font-semibold mb-3">
               {isCompare ? "อัตราการใช้ยานพาหนะ" : "อัตราการใช้ยานพาหนะ (30 วัน)"}
@@ -135,7 +135,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       )}
 
       {/* AI Analysis */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
@@ -178,10 +178,10 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-default-200 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-foreground/15 px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
-                    <td className="border border-default-200 px-3 py-1.5 text-foreground">{children}</td>
+                    <td className="border border-foreground/15 px-3 py-1.5 text-foreground">{children}</td>
                   ),
                   tr: ({ children }) => <tr className="even:bg-default-50">{children}</tr>,
                   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,

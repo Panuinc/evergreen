@@ -64,10 +64,10 @@ export default function FileUpload({
                 <img
                   src={url}
                   alt={`upload-${i}`}
-                  className="w-20 h-20 object-cover rounded-md border border-default-200"
+                  className="w-20 h-20 object-cover rounded-md border border-foreground/15"
                 />
               ) : (
-                <div className="w-20 h-20 flex items-center justify-center rounded-md border border-default-200 bg-default-100">
+                <div className="w-20 h-20 flex items-center justify-center rounded-md border border-foreground/15 bg-default-100">
                   <ImageIcon size={24} className="text-default-400" />
                 </div>
               )}
@@ -85,7 +85,7 @@ export default function FileUpload({
 
       <div
         onClick={() => !uploading && inputRef.current?.click()}
-        className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-default-300 rounded-md cursor-pointer hover:border-primary transition-colors"
+        className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-foreground/15 rounded-md cursor-pointer hover:border-primary transition-colors"
       >
         {uploading ? (
           <Spinner />

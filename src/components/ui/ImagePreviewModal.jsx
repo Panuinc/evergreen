@@ -27,7 +27,7 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
             <X size={20} />
           </Button>
 
-          <div className="flex items-center justify-center min-h-[400px] bg-black/5">
+          <div className="flex items-center justify-center min-h-[400px] bg-default-100">
             <img
               src={images[currentIndex]}
               alt={`preview-${currentIndex}`}

@@ -90,8 +90,8 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                   today
                     ? "border-primary-400 bg-primary-50"
                     : plans.length > 0
-                    ? "border-default-300"
-                    : "border-default-200"
+                    ? "border-foreground/15"
+                    : "border-foreground/15"
                 }`}
               >
                 <span
@@ -195,7 +195,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                         ? "bg-warning-50 border-warning-200"
                         : p.tmsDeliveryPlanStatus === "completed"
                         ? "bg-success-50 border-success-200"
-                        : "bg-default-50 border-default-200"
+                        : "bg-default-50 border-foreground/15"
                     } ${
                       p.tmsDeliveryPlanPriority === "urgent"
                         ? "border-l-danger-500"
@@ -246,7 +246,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                 {/* Add button */}
                 <button
                   onClick={() => onDateClick(date)}
-                  className="w-full py-2 rounded-xl border border-dashed border-default-200 text-xs text-default-400 hover:border-primary-300 hover:text-primary-500 transition-colors shrink-0"
+                  className="w-full py-2 rounded-xl border border-dashed border-foreground/15 text-xs text-default-400 hover:border-primary-300 hover:text-primary-500 transition-colors shrink-0"
                 >
                   + เพิ่มแผน
                 </button>

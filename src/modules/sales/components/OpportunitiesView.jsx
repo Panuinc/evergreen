@@ -320,7 +320,7 @@ export default function OpportunitiesView({
                     {stageOpps.map((opp) => (
                       <div
                         key={opp.crmOpportunityId}
-                        className="flex flex-col gap-1 p-3 bg-background rounded-md border border-default-200 cursor-pointer hover:border-default-400 transition-colors"
+                        className="flex flex-col gap-1 p-3 bg-background rounded-md border border-foreground/15 cursor-pointer hover:border-foreground/15 transition-colors"
                         onClick={() => handleOpen(opp)}
                       >
                         <span className="font-medium text-sm">

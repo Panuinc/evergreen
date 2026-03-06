@@ -86,7 +86,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
     <div className="flex flex-col gap-4">
       {/* Monthly Trend Chart */}
       {chartData && chartData.length > 0 && (
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardHeader className="pb-0">
             <h3 className="text-sm font-semibold">แนวโน้มรายเดือน ปี {beYear}</h3>
           </CardHeader>
@@ -111,7 +111,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
       )}
 
       {/* P&L Table */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">งบกำไรขาดทุนรายเดือน</h3>
@@ -124,7 +124,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
         <CardBody className="overflow-x-auto p-0">
           <table className="w-full text-xs border-collapse min-w-[1200px]">
             <thead>
-              <tr className="bg-default-100 border-b border-default-200">
+              <tr className="bg-default-100 border-b border-foreground/15">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[200px] font-semibold">รายการ</th>
                 {CAL_MONTHS.map((m, i) => (
                   <th key={m} className="text-right px-2 py-2 min-w-[90px] font-semibold">
@@ -145,7 +145,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
                   return <tr key={row.key} className="h-1"><td colSpan={14 + compYears.length}></td></tr>;
                 }
                 return (
-                  <tr key={row.key} className={`border-b border-default-100 ${getRowClass(row)}`}>
+                  <tr key={row.key} className={`border-b border-foreground/15 ${getRowClass(row)}`}>
                     <td className="sticky left-0 z-10 bg-background px-3 py-1.5">
                       {row.label}
                     </td>

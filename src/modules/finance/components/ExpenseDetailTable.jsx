@@ -65,7 +65,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
     <div className="flex flex-col gap-4">
       {/* Pie Chart - Top expenses */}
       {pieData.length > 0 && (
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardHeader className="pb-0">
             <h3 className="text-sm font-semibold">สัดส่วน{title} (Top 10)</h3>
           </CardHeader>
@@ -91,7 +91,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
       )}
 
       {/* Detail Table */}
-      <Card shadow="none" className="border border-default-200">
+      <Card shadow="none" className="border border-foreground/15">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">{title}</h3>
@@ -104,7 +104,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
         <CardBody className="overflow-x-auto p-0">
           <table className="w-full text-xs border-collapse min-w-[1200px]">
             <thead>
-              <tr className="bg-default-100 border-b border-default-200">
+              <tr className="bg-default-100 border-b border-foreground/15">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[250px] font-semibold">รายการ</th>
                 {CAL_MONTHS.map((m, i) => (
                   <th key={m} className="text-right px-2 py-2 min-w-[85px] font-semibold">
@@ -123,7 +123,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
               {data.map((row) => {
                 const isTotal = row.type === "grandTotal";
                 return (
-                  <tr key={row.key} className={`border-b border-default-100 ${isTotal ? "bg-primary-50 font-bold text-primary" : ""}`}>
+                  <tr key={row.key} className={`border-b border-foreground/15 ${isTotal ? "bg-primary-50 font-bold text-primary" : ""}`}>
                     <td className="sticky left-0 z-10 bg-background px-3 py-1.5">
                       {row.account && <span className="text-default-400 mr-1">{row.account}</span>}
                       {row.label}

@@ -110,7 +110,7 @@ export default function SalesOrderDetailView({
 
       {/* Order Info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5 gap-3">
             <p className="text-sm font-semibold">ข้อมูลลูกค้า</p>
             <Divider />
@@ -131,7 +131,7 @@ export default function SalesOrderDetailView({
           </CardBody>
         </Card>
 
-        <Card shadow="none" className="border border-default-200">
+        <Card shadow="none" className="border border-foreground/15">
           <CardBody className="p-5 gap-3">
             <p className="text-sm font-semibold">ข้อมูลออเดอร์</p>
             <Divider />

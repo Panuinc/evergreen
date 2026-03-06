@@ -225,7 +225,7 @@ export default function QuotationEditorView({
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-default-200">
+                <tr className="border-b border-foreground/15">
                   <th className="text-left p-2 w-10">#</th>
                   <th className="text-left p-2">สินค้า</th>
                   <th className="text-left p-2">รายละเอียด</th>
@@ -240,7 +240,7 @@ export default function QuotationEditorView({
                 {lines.map((line, index) => (
                   <tr
                     key={index}
-                    className="border-b border-default-100"
+                    className="border-b border-foreground/15"
                   >
                     <td className="p-2 text-default-500">{index + 1}</td>
                     <td className="p-2">
@@ -427,7 +427,7 @@ export default function QuotationEditorView({
                 isReadOnly={!canEdit}
               />
             </div>
-            <div className="flex items-center justify-between w-full border-t border-default-200 pt-2">
+            <div className="flex items-center justify-between w-full border-t border-foreground/15 pt-2">
               <span className="font-bold text-lg">ยอดรวม</span>
               <span className="font-bold text-lg">
                 ฿

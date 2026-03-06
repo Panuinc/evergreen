@@ -177,7 +177,7 @@ export default function AiFeedbackPanel({
                   return (
                     <div
                       key={i}
-                      className="border border-default-200 rounded-lg p-3 flex flex-col gap-2"
+                      className="border border-foreground/15 rounded-lg p-3 flex flex-col gap-2"
                     >
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium flex-1">{course.title}</p>
