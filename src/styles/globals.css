@@ -20,9 +20,9 @@
   --secondary: #f9fafb;
   --secondary-foreground: #111827;
   --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
+  --muted-foreground: #5b6370;
   --accent: #f59e0b;
-  --accent-foreground: #fff;
+  --accent-foreground: #451a03;
   --destructive: #ef4444;
   --destructive-foreground: #fff;
   --border: #8b929e;
@@ -38,6 +38,7 @@
   --sidebar-accent: #f4f4f5;
   --sidebar-accent-foreground: #18181b;
   --radius: 0.625rem;
+  --grid-line: rgba(0, 0, 0, 0.01);
 }
 
 .dark {
@@ -54,8 +55,8 @@
   --accent-foreground: #0a0a0a;
   --destructive: #ef4444;
   --destructive-foreground: #ededed;
-  --border: #262626;
-  --input: #262626;
+  --border: #606068;
+  --input: #606068;
   --ring: #d99178;
   --card: #111;
   --card-foreground: #ededed;
@@ -66,12 +67,20 @@
   --sidebar-border: #27272a;
   --sidebar-accent: #27272a;
   --sidebar-accent-foreground: #f4f4f5;
+  --grid-line: rgba(255, 255, 255, 0.02);
 }
 
 *,
 *::before,
 *::after {
   border-color: var(--border);
+}
+
+body {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 svg.lucide {

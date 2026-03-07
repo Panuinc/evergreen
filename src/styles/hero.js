@@ -102,7 +102,7 @@ module.exports = heroui({
           800: "#d4d4d4",
           900: "#ededed",
         },
-        divider: "#262626",
+        divider: "#606068",
         content1: "#111",
         content2: "#1a1a1a",
         content3: "#262626",
