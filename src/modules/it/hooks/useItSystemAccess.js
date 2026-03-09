@@ -9,6 +9,7 @@ import {
   updateSystemAccess,
   deleteSystemAccess,
 } from "@/modules/it/actions";
+import { getEmployees } from "@/modules/hr/actions";
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
@@ -23,6 +24,7 @@ const emptyForm = {
 
 export function useItSystemAccess() {
   const [accessRequests, setAccessRequests] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingAccess, setEditingAccess] = useState(null);
@@ -39,8 +41,9 @@ export function useItSystemAccess() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getSystemAccess();
+      const [data, emps] = await Promise.all([getSystemAccess(), getEmployees().catch(() => [])]);
       setAccessRequests(data);
+      setEmployees(emps);
     } catch (error) {
       toast.error("โหลดคำขอเข้าถึงระบบล้มเหลว");
     } finally {
@@ -131,6 +134,7 @@ export function useItSystemAccess() {
 
   return {
     accessRequests,
+    employees,
     loading,
     saving,
     editingAccess,

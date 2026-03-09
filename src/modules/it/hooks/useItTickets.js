@@ -9,6 +9,7 @@ import {
   updateTicket,
   deleteTicket,
 } from "@/modules/it/actions";
+import { getEmployees } from "@/modules/hr/actions";
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
@@ -24,6 +25,7 @@ const emptyForm = {
 
 export function useItTickets() {
   const [tickets, setTickets] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingTicket, setEditingTicket] = useState(null);
@@ -40,8 +42,9 @@ export function useItTickets() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getTickets();
+      const [data, emps] = await Promise.all([getTickets(), getEmployees().catch(() => [])]);
       setTickets(data);
+      setEmployees(emps);
     } catch (error) {
       toast.error("โหลดตั๋วล้มเหลว");
     } finally {
@@ -133,6 +136,7 @@ export function useItTickets() {
 
   return {
     tickets,
+    employees,
     loading,
     saving,
     editingTicket,

@@ -75,6 +75,7 @@ function formatDateTime(dateStr) {
 
 export default function DevelopmentView({
   requests,
+  employees = [],
   loading,
   saving,
   editingRequest,
@@ -312,33 +313,47 @@ export default function DevelopmentView({
             <div className="flex flex-col w-full gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                  <Input
+                  <Select
                     label="หัวข้อ"
                     labelPlacement="outside"
-                    placeholder="ชื่อระบบหรือฟีเจอร์ที่ต้องการพัฒนา"
+                    placeholder="เลือกระบบ"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itDevRequestTitle}
-                    onChange={(e) => updateField("itDevRequestTitle", e.target.value)}
+                    selectedKeys={formData.itDevRequestTitle ? [formData.itDevRequestTitle] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itDevRequestTitle", val);
+                    }}
                     isRequired
                     isInvalid={!!validationErrors?.itDevRequestTitle}
                     errorMessage={validationErrors?.itDevRequestTitle}
-                  />
+                  >
+                    <SelectItem key="EIS">EIS</SelectItem>
+                    <SelectItem key="CHH_Ticket">CHH_Ticket</SelectItem>
+                    <SelectItem key="Web_Evergreen">Web_Evergreen</SelectItem>
+                  </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
+                  <Select
                     label="ร้องขอโดย"
                     labelPlacement="outside"
-                    placeholder="ชื่อผู้แจ้ง"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itDevRequestRequestedBy}
-                    onChange={(e) =>
-                      updateField("itDevRequestRequestedBy", e.target.value)
-                    }
-                  />
+                    selectedKeys={formData.itDevRequestRequestedBy ? [formData.itDevRequestRequestedBy] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itDevRequestRequestedBy", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
@@ -386,18 +401,25 @@ export default function DevelopmentView({
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
+                  <Select
                     label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
-                    placeholder="ชื่อ Developer"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itDevRequestAssignedTo}
-                    onChange={(e) =>
-                      updateField("itDevRequestAssignedTo", e.target.value)
-                    }
-                  />
+                    selectedKeys={formData.itDevRequestAssignedTo ? [formData.itDevRequestAssignedTo] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itDevRequestAssignedTo", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input
@@ -540,18 +562,25 @@ export default function DevelopmentView({
                       updateProgressField("itDevProgressLogProgress", e.target.value)
                     }
                   />
-                  <Input
+                  <Select
                     label="อัปเดตโดย"
                     labelPlacement="outside"
-                    placeholder="ชื่อ Developer"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={progressForm.itDevProgressLogCreatedBy}
-                    onChange={(e) =>
-                      updateProgressField("itDevProgressLogCreatedBy", e.target.value)
-                    }
-                  />
+                    selectedKeys={progressForm.itDevProgressLogCreatedBy ? [progressForm.itDevProgressLogCreatedBy] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateProgressField("itDevProgressLogCreatedBy", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
                 <div className="flex justify-end">
                   <Button

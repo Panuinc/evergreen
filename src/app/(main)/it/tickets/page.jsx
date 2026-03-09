@@ -9,6 +9,7 @@ export default function HelpDeskPage() {
   return (
     <HelpDeskView
       tickets={hook.tickets}
+      employees={hook.employees}
       loading={hook.loading}
       saving={hook.saving}
       editingTicket={hook.editingTicket}

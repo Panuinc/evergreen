@@ -46,6 +46,7 @@ const BASE_VISIBLE_COLUMNS = [
 
 export default function SystemAccessView({
   accessRequests,
+  employees = [],
   loading,
   saving,
   editingAccess,
@@ -266,28 +267,46 @@ export default function SystemAccessView({
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
+                  <Select
                     label="ร้องขอสำหรับ"
                     labelPlacement="outside"
-                    placeholder="ใส่ชื่อพนักงาน"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itSystemAccessRequestedFor}
-                    onChange={(e) => updateField("itSystemAccessRequestedFor", e.target.value)}
-                  />
+                    selectedKeys={formData.itSystemAccessRequestedFor ? [formData.itSystemAccessRequestedFor] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itSystemAccessRequestedFor", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
+                  <Select
                     label="ร้องขอโดย"
                     labelPlacement="outside"
-                    placeholder="ใส่ชื่อผู้ร้องขอ"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itSystemAccessRequestedBy}
-                    onChange={(e) => updateField("itSystemAccessRequestedBy", e.target.value)}
-                  />
+                    selectedKeys={formData.itSystemAccessRequestedBy ? [formData.itSystemAccessRequestedBy] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itSystemAccessRequestedBy", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
@@ -309,16 +328,25 @@ export default function SystemAccessView({
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
+                  <Select
                     label="อนุมัติโดย"
                     labelPlacement="outside"
-                    placeholder="ใส่ชื่อผู้อนุมัติ"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itSystemAccessApprovedBy}
-                    onChange={(e) => updateField("itSystemAccessApprovedBy", e.target.value)}
-                  />
+                    selectedKeys={formData.itSystemAccessApprovedBy ? [formData.itSystemAccessApprovedBy] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itSystemAccessApprovedBy", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">

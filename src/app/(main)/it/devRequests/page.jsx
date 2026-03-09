@@ -9,6 +9,7 @@ export default function DevelopmentPage() {
   return (
     <DevelopmentView
       requests={hook.requests}
+      employees={hook.employees}
       loading={hook.loading}
       saving={hook.saving}
       editingRequest={hook.editingRequest}

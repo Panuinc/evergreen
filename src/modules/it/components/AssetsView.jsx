@@ -47,6 +47,7 @@ const BASE_VISIBLE_COLUMNS = [
 
 export default function AssetsView({
   assets,
+  employees = [],
   loading,
   saving,
   editingAsset,
@@ -308,16 +309,25 @@ export default function AssetsView({
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
+                  <Select
                     label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
-                    placeholder="ใส่ชื่อพนักงาน"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itAssetAssignedTo}
-                    onChange={(e) => updateField("itAssetAssignedTo", e.target.value)}
-                  />
+                    selectedKeys={formData.itAssetAssignedTo ? [formData.itAssetAssignedTo] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itAssetAssignedTo", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input

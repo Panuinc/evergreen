@@ -9,6 +9,7 @@ export default function SystemAccessPage() {
   return (
     <SystemAccessView
       accessRequests={hook.accessRequests}
+      employees={hook.employees}
       loading={hook.loading}
       saving={hook.saving}
       editingAccess={hook.editingAccess}

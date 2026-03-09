@@ -11,7 +11,9 @@ import {
   getProgressLogs,
   createProgressLog,
 } from "@/modules/it/actions";
+import { getEmployees } from "@/modules/hr/actions";
 import { validateForm, isRequired } from "@/lib/validation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const emptyForm = {
   itDevRequestTitle: "",
@@ -33,7 +35,10 @@ const emptyProgressForm = {
 };
 
 export function useItDevRequests() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [currentEmployeeName, setCurrentEmployeeName] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingRequest, setEditingRequest] = useState(null);
@@ -58,8 +63,13 @@ export function useItDevRequests() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getDevRequests();
+      const [data, emps] = await Promise.all([getDevRequests(), getEmployees().catch(() => [])]);
       setRequests(data);
+      setEmployees(emps);
+      if (user?.id) {
+        const myEmp = emps.find((e) => e.hrEmployeeUserId === user.id);
+        if (myEmp) setCurrentEmployeeName(`${myEmp.hrEmployeeFirstName} ${myEmp.hrEmployeeLastName}`);
+      }
     } catch (error) {
       toast.error("โหลดคำขอพัฒนาระบบล้มเหลว");
     } finally {
@@ -73,7 +83,7 @@ export function useItDevRequests() {
       setFormData({
         itDevRequestTitle: request.itDevRequestTitle || "",
         itDevRequestDescription: request.itDevRequestDescription || "",
-        itDevRequestRequestedBy: request.itDevRequestRequestedBy || "",
+        itDevRequestRequestedBy: request.itDevRequestRequestedBy || currentEmployeeName,
         itDevRequestPriority: request.itDevRequestPriority || "medium",
         itDevRequestStatus: request.itDevRequestStatus || "pending",
         itDevRequestAssignedTo: request.itDevRequestAssignedTo || "",
@@ -84,7 +94,7 @@ export function useItDevRequests() {
       });
     } else {
       setEditingRequest(null);
-      setFormData(emptyForm);
+      setFormData({ ...emptyForm, itDevRequestRequestedBy: currentEmployeeName });
     }
     setValidationErrors({});
     onOpen();
@@ -220,6 +230,7 @@ export function useItDevRequests() {
 
   return {
     requests,
+    employees,
     loading,
     saving,
     editingRequest,

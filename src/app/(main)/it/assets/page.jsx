@@ -9,6 +9,7 @@ export default function AssetsPage() {
   return (
     <AssetsView
       assets={hook.assets}
+      employees={hook.employees}
       loading={hook.loading}
       saving={hook.saving}
       editingAsset={hook.editingAsset}

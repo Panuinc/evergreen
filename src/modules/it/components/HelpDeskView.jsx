@@ -49,6 +49,7 @@ const BASE_VISIBLE_COLUMNS = [
 
 export default function HelpDeskView({
   tickets,
+  employees = [],
   loading,
   saving,
   editingTicket,
@@ -313,28 +314,46 @@ export default function HelpDeskView({
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
+                  <Select
                     label="ร้องขอโดย"
                     labelPlacement="outside"
-                    placeholder="ใส่ชื่อผู้ร้องขอ"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itTicketRequestedBy}
-                    onChange={(e) => updateField("itTicketRequestedBy", e.target.value)}
-                  />
+                    selectedKeys={formData.itTicketRequestedBy ? [formData.itTicketRequestedBy] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itTicketRequestedBy", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
+                  <Select
                     label="ผู้รับผิดชอบ"
                     labelPlacement="outside"
-                    placeholder="ใส่ชื่อผู้รับผิดชอบ"
+                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.itTicketAssignedTo}
-                    onChange={(e) => updateField("itTicketAssignedTo", e.target.value)}
-                  />
+                    selectedKeys={formData.itTicketAssignedTo ? [formData.itTicketAssignedTo] : []}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] || "";
+                      updateField("itTicketAssignedTo", val);
+                    }}
+                  >
+                    {employees.map((emp) => (
+                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
+                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">

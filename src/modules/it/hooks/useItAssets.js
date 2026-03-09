@@ -9,6 +9,7 @@ import {
   updateAsset,
   deleteAsset,
 } from "@/modules/it/actions";
+import { getEmployees } from "@/modules/hr/actions";
 import { validateForm, isRequired } from "@/lib/validation";
 
 const emptyForm = {
@@ -28,6 +29,7 @@ const emptyForm = {
 
 export function useItAssets() {
   const [assets, setAssets] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingAsset, setEditingAsset] = useState(null);
@@ -44,8 +46,9 @@ export function useItAssets() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getAssets();
+      const [data, emps] = await Promise.all([getAssets(), getEmployees().catch(() => [])]);
       setAssets(data);
+      setEmployees(emps);
     } catch (error) {
       toast.error("โหลดทรัพย์สินล้มเหลว");
     } finally {
@@ -141,6 +144,7 @@ export function useItAssets() {
 
   return {
     assets,
+    employees,
     loading,
     saving,
     editingAsset,
