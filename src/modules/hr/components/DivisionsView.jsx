@@ -165,7 +165,7 @@ export default function DivisionsView({
         ].filter(Boolean)}
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
@@ -224,7 +224,7 @@ export default function DivisionsView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบฝ่าย</ModalHeader>

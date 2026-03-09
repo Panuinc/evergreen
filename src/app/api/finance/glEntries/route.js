@@ -6,9 +6,9 @@ export async function GET(request) {
   if (auth.error) return auth.error;
 
   const { searchParams } = new URL(request.url);
-  const start = searchParams.get("start"); // YYYY-MM-DD
-  const end = searchParams.get("end");     // YYYY-MM-DD
-  const summarize = searchParams.get("summarize"); // "monthly" or null
+  const start = searchParams.get("start");
+  const end = searchParams.get("end");
+  const summarize = searchParams.get("summarize");
 
   try {
     const glParams = {};
@@ -17,7 +17,7 @@ export async function GET(request) {
     }
 
     if (summarize === "monthly") {
-      // Fetch GL entries with minimal fields, aggregate server-side
+
       glParams.$select = "postingDate,accountNumber,debitAmount,creditAmount,documentNumber";
 
       const [entries, accounts] = await Promise.all([
@@ -30,14 +30,14 @@ export async function GET(request) {
         }),
       ]);
 
-      // ── Detect & exclude closing journal entry batches ──
-      // BC's "Close Income Statement" batch creates entries with a single
-      // documentNumber that touches many income-statement accounts (4x, 5x).
-      // Regular journals rarely span both revenue + expense with 15+ accounts.
+
+
+
+
       const docAcctSets = {};
       for (const e of entries) {
         const p = e.accountNumber?.substring(0, 1);
-        if (p !== "4" && p !== "5") continue; // income-statement only
+        if (p !== "4" && p !== "5") continue;
         const doc = e.documentNumber;
         if (!doc) continue;
         if (!docAcctSets[doc]) docAcctSets[doc] = new Set();
@@ -54,18 +54,18 @@ export async function GET(request) {
         console.log(`[glEntries] excluded ${closingDocs.size} closing batch(es):`, [...closingDocs]);
       }
 
-      // Build account name lookup
+
       const nameMap = {};
       if (Array.isArray(accounts)) {
         for (const a of accounts) nameMap[a.number] = a.displayName;
       }
 
-      // Aggregate by account + month (skip closing entries)
+
       const summary = {};
       for (const e of entries) {
-        if (closingDocs.has(e.documentNumber)) continue; // skip closing batch
+        if (closingDocs.has(e.documentNumber)) continue;
         const acct = e.accountNumber;
-        const month = e.postingDate?.substring(5, 7); // "01"–"12"
+        const month = e.postingDate?.substring(5, 7);
         if (!acct || !month) continue;
 
         if (!summary[acct]) {
@@ -81,7 +81,7 @@ export async function GET(request) {
       return Response.json(summary);
     }
 
-    // Default: return individual entries with account names
+
     glParams.$select =
       "postingDate,accountNumber,debitAmount,creditAmount,documentNumber";
 

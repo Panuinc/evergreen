@@ -34,6 +34,7 @@ export function useSalesActivities() {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typeFilter, statusFilter]);
 
   const loadData = async () => {

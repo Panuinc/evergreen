@@ -16,7 +16,7 @@ export async function GET(request) {
   const period = searchParams.get("period");
   const evaluateeId = searchParams.get("evaluateeId");
 
-  // Get current user's linked employee
+
   const { data: currentEmployee } = await supabase
     .from("hrEmployee")
     .select("hrEmployeeId")
@@ -24,7 +24,7 @@ export async function GET(request) {
     .maybeSingle();
 
   if (myResults === "true" && currentEmployee) {
-    // Get evaluations where current user is the evaluatee
+
     let query = supabase
       .from("perfEvaluation")
       .select("perfEvaluationPeriod, perfEvaluationYear, perfEvaluationQuarter, perfEvaluationCategoryAverages, perfEvaluationOverallScore, perfEvaluationGrade, perfEvaluationCreatedAt")
@@ -35,7 +35,7 @@ export async function GET(request) {
     const { data, error } = await query.order("perfEvaluationCreatedAt", { ascending: true });
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
-    // Aggregate: average across all evaluators per period
+
     const aggregated = aggregateByPeriod(data);
     return Response.json(aggregated);
   }
@@ -55,7 +55,7 @@ export async function GET(request) {
     return Response.json(aggregated);
   }
 
-  // Default: return evaluations submitted by current user
+
   let query = supabase
     .from("perfEvaluation")
     .select("*, evaluateeEmployee:hrEmployee!perfEvaluationEvaluateeEmployeeId(hrEmployeeId, hrEmployeeFirstName, hrEmployeeLastName, hrEmployeeDepartment)")
@@ -76,12 +76,12 @@ export async function POST(request) {
   const body = await request.json();
   const { evaluateeEmployeeId, period, year, quarter, scores, comment } = body;
 
-  // Validate required fields
+
   if (!evaluateeEmployeeId || !period || !year || !quarter || !scores) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  // Validate self-evaluation prevention
+
   const { data: currentEmployee } = await supabase
     .from("hrEmployee")
     .select("hrEmployeeId")
@@ -92,7 +92,7 @@ export async function POST(request) {
     return Response.json({ error: "ไม่สามารถประเมินตัวเองได้" }, { status: 400 });
   }
 
-  // Validate all 30 scores present and in range 1-5
+
   for (const cat of EVALUATION_CATEGORIES) {
     const catScores = scores[cat.key];
     if (!Array.isArray(catScores) || catScores.length !== cat.questions.length) {
@@ -111,7 +111,7 @@ export async function POST(request) {
     }
   }
 
-  // Compute derived values
+
   const categoryAverages = computeCategoryAverages(scores);
   const overallScore = computeOverallScore(categoryAverages);
   const grade = computeGrade(overallScore);

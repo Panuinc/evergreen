@@ -28,6 +28,7 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
           </Button>
 
           <div className="flex items-center justify-center min-h-[400px] bg-default-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={images[currentIndex]}
               alt={`preview-${currentIndex}`}

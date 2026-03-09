@@ -2330,8 +2330,8 @@ const UIDoorBom = ({
       setCoreType,
       setEdgeBanding,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+
+    [setCustomerPO, setOrderQty, setDoorType, setDoorThickness, setDoorWidth, setDoorHeight, setSurfaceMaterial, setSurfacePrice, setSurfaceThickness, setCoreType, setEdgeBanding],
   );
 
   const bomAI = useBomAI({ bomState, setters: aiSetters });
@@ -2342,7 +2342,7 @@ const UIDoorBom = ({
         <div className="xl:col-span-2 flex flex-col gap-3">
           <BomAIPanel bomState={bomState} bomAI={bomAI} />
 
-          {/* Door type tab bar — shown when PDF has multiple door types */}
+          {}
           {bomAI.pendingDoors.length > 0 && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary-50 border border-primary-200 flex-wrap">
               <span className="text-xs font-light text-primary-700 shrink-0">
@@ -3266,10 +3266,10 @@ const UIDoorBom = ({
             </CardBody>
           </Card>
         </div>
-        {/* end left form column */}
+        {}
 
         <div className="xl:col-span-3 flex flex-col gap-3">
-          {/* Drawing - at top of right column so user sees live updates */}
+          {}
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50 flex justify-between items-center">
               <div className="flex items-center gap-2">
@@ -3689,7 +3689,7 @@ const UIDoorBom = ({
                   </div>
                 )}
 
-                {/* Single-door stats */}
+                {}
                 <div className="rounded-lg border border-border overflow-hidden">
                   <div className="px-3 py-1.5 bg-default-100 text-xs font-light text-foreground">
                     1 บาน
@@ -3714,7 +3714,7 @@ const UIDoorBom = ({
                   </div>
                 </div>
 
-                {/* Batch stats */}
+                {}
                 {cuttingPlan.batch && (
                   <div className="rounded-lg border border-success-200 overflow-hidden">
                     <div className="px-3 py-1.5 bg-success-50 text-xs font-light text-success-700 flex items-center justify-between">
@@ -3883,7 +3883,7 @@ const UIDoorBom = ({
                   );
                 })()}
 
-                {/* Core cutting plan */}
+                {}
                 {priceSummary.coreStripsPerSheet > 0 && (() => {
                   const { coreStrips, coreStripsPerSheet, coreSheetWidth, coreStripCutWidth } = priceSummary;
                   const orderQty = priceSummary.qty || 1;
@@ -3893,7 +3893,7 @@ const UIDoorBom = ({
                     ? ((batchStrips / (batchSheets * coreStripsPerSheet)) * 100).toFixed(1)
                     : "0";
 
-                  // Build sheet data for visualization (cap at 5 sheets for display)
+
                   const buildSheets = (totalStrips, perSheet) => {
                     const sheets = [];
                     let remaining = totalStrips;
@@ -4017,9 +4017,9 @@ const UIDoorBom = ({
             </Card>
           )}
         </div>
-        {/* end right column */}
+        {}
       </div>
-      {/* end main grid */}
+      {}
     </div>
   );
 };

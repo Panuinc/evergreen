@@ -17,14 +17,14 @@ export async function POST(request) {
   const body = JSON.parse(rawBody);
   const events = body.events || [];
 
-  // LINE verification sends empty events — return 200 immediately
+
   if (events.length === 0) {
     return Response.json({ status: "ok" });
   }
 
   const supabase = getServiceSupabase();
 
-  // Process all events sequentially — LINE allows up to 30 seconds
+
   for (const event of events) {
     if (event.type === "message") {
       try {
@@ -38,7 +38,7 @@ export async function POST(request) {
   return Response.json({ status: "ok" });
 }
 
-// Cache profile per userId to avoid repeated API calls
+
 const profileCache = new Map();
 
 async function getLineProfile(supabase, userId) {
@@ -60,7 +60,7 @@ async function getLineProfile(supabase, userId) {
     if (res.ok) {
       const profile = await res.json();
       profileCache.set(userId, profile);
-      // Clear cache after 5 minutes
+
       setTimeout(() => profileCache.delete(userId), 5 * 60 * 1000);
       return profile;
     }
@@ -76,7 +76,7 @@ async function handleMessage(supabase, event) {
   const messageText = message.type === "text" ? message.text : `[${message.type}]`;
   const messageType = message.type === "text" ? "text" : message.type === "sticker" ? "sticker" : "image";
 
-  // Check for duplicate message (LINE may redeliver)
+
   const { data: existing } = await supabase
     .from("omMessage")
     .select("omMessageId")
@@ -84,12 +84,12 @@ async function handleMessage(supabase, event) {
     .limit(1)
     .single();
 
-  if (existing) return; // Already processed
+  if (existing) return;
 
-  // Fetch LINE profile for display name and avatar
+
   const profile = await getLineProfile(supabase, userId);
 
-  // Upsert contact
+
   const { data: contact } = await supabase
     .from("omContact")
     .upsert(
@@ -106,7 +106,7 @@ async function handleMessage(supabase, event) {
 
   if (!contact) return;
 
-  // Find or create conversation
+
   let { data: conversation } = await supabase
     .from("omConversation")
     .select()
@@ -146,7 +146,7 @@ async function handleMessage(supabase, event) {
 
   if (!conversation) return;
 
-  // Download image if applicable
+
   let imageUrl = null;
   if (message.type === "image") {
     try {
@@ -164,7 +164,7 @@ async function handleMessage(supabase, event) {
     }
   }
 
-  // Insert message
+
   await supabase.from("omMessage").insert({
     omMessageConversationId: conversation.omConversationId,
     omMessageSenderType: "customer",
@@ -176,7 +176,7 @@ async function handleMessage(supabase, event) {
     omMessageImageUrl: imageUrl,
   });
 
-  // Trigger AI auto-reply if enabled
+
   if (conversation.omConversationAiAutoReply) {
     triggerAiReply(conversation.omConversationId);
   }

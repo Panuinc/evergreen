@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
 
   const { id } = await params;
 
-  // Fetch quotation with relations
+
   let query = supabase
     .from("salesQuotation")
     .select(
@@ -26,7 +26,7 @@ export async function GET(request, { params }) {
 
   if (error) return Response.json({ error: error.message }, { status: 404 });
 
-  // Fetch lines
+
   let linesQuery = supabase
     .from("salesQuotationLine")
     .select("*")
@@ -46,7 +46,7 @@ export async function PUT(request, { params }) {
   const body = await request.json();
   const { lines, ...quotationData } = body;
 
-  // Update quotation
+
   const { data: quotation, error } = await supabase
     .from("salesQuotation")
     .update(quotationData)
@@ -56,12 +56,12 @@ export async function PUT(request, { params }) {
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
-  // Update lines if provided
+
   if (lines) {
-    // Delete existing lines
+
     await supabase.from("salesQuotationLine").delete().eq("crmQuotationLineQuotationId", id);
 
-    // Insert new lines
+
     if (lines.length > 0) {
       const lineData = lines.map((line, idx) => ({
         crmQuotationLineQuotationId: id,
@@ -94,7 +94,7 @@ export async function POST(request, { params }) {
     return Response.json({ error: "Invalid action" }, { status: 400 });
   }
 
-  // Get current quotation
+
   const { data: quotation, error: fetchError } = await supabase
     .from("salesQuotation")
     .select("*")
@@ -113,7 +113,7 @@ export async function POST(request, { params }) {
     );
   }
 
-  // Handle convert to order
+
   if (action === "convert_order") {
     const { data: order, error: orderError } = await supabase
       .from("salesOrder")
@@ -137,7 +137,7 @@ export async function POST(request, { params }) {
     if (orderError)
       return Response.json({ error: orderError.message }, { status: 400 });
 
-    // Update quotation status
+
     await supabase
       .from("salesQuotation")
       .update({ crmQuotationStatus: "converted" })
@@ -146,7 +146,7 @@ export async function POST(request, { params }) {
     return Response.json(order, { status: 201 });
   }
 
-  // Update status
+
   const updateData = { crmQuotationStatus: transition.to };
   if (action === "approve") {
     updateData.crmQuotationApprovedBy = session.user?.email;
@@ -173,13 +173,13 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
 
-  // Soft-delete quotation lines (cascade)
+
   await supabase
     .from("salesQuotationLine")
     .update({ isActive: false })
     .eq("crmQuotationLineQuotationId", id);
 
-  // Soft-delete quotation
+
   const { error } = await supabase
     .from("salesQuotation")
     .update({ isActive: false })

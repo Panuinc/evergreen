@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { Chip, Tabs, Tab } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
 
-// ── Constants ──
+
 const columns = [
   { name: "Entry No", uid: "bcItemLedgerEntryEntryNo", sortable: true },
   { name: "วันที่ลงบัญชี", uid: "bcItemLedgerEntryPostingDate", sortable: true },
@@ -119,7 +119,7 @@ const statusOptions = [
   { uid: "Output", name: "Output" },
 ];
 
-// ── View ──
+
 export default function EntriesView({ data, loading }) {
   const wpcData = useMemo(
     () => data.filter((r) => r.bcItemLedgerEntryGlobalDimension1Code === "WPC"),

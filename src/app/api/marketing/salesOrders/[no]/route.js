@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
   const totalQty = lines.reduce((s, l) => s + (l.bcSalesOrderLineQuantity || 0), 0);
   const shippedQty = lines.reduce((s, l) => s + (l.bcSalesOrderLineQuantityShipped || 0), 0);
 
-  // Customer phone from bcCustomer cache
+
   const { data: custRows } = await auth.supabase
     .from("bcCustomer")
     .select("bcCustomerPhoneNumber")

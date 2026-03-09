@@ -3,11 +3,11 @@ import net from "net";
 import { createCanvas, loadImage } from "canvas";
 import { SHIPPING_PRINTER_CONFIG } from "@/lib/chainWay/config";
 
-// Target: 100mm x 150mm at 8 dots/mm (203 DPI) = 800 x 1200 dots
+
 const TARGET_W = 800;
 const TARGET_H = 1200;
 
-/* ── TCP send for TSC TE210 (binary-safe) ── */
+
 function sendToTSC(buffer, config = {}) {
   const host = config.host || SHIPPING_PRINTER_CONFIG.host;
   const port = config.port || SHIPPING_PRINTER_CONFIG.port;
@@ -73,12 +73,12 @@ async function sendWithRetry(buffer, config = {}) {
   throw lastError;
 }
 
-/* ── Convert a base64 PNG image to TSPL2 BITMAP command ── */
+
 async function imageToTSPL(base64Png) {
   const imgBuffer = Buffer.from(base64Png, "base64");
   const img = await loadImage(imgBuffer);
 
-  // Draw onto target-size canvas (800x1200 for 203 DPI)
+
   const canvas = createCanvas(TARGET_W, TARGET_H);
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "#ffffff";
@@ -88,7 +88,7 @@ async function imageToTSPL(base64Png) {
   const { data, width, height } = ctx.getImageData(0, 0, TARGET_W, TARGET_H);
 
   const bytesPerRow = Math.ceil(width / 8);
-  // TSPL2 BITMAP: 0 = black (print), 1 = white (no print)
+
   const bitmapData = Buffer.alloc(bytesPerRow * height, 0xFF);
 
   for (let y = 0; y < height; y++) {
@@ -116,7 +116,7 @@ async function imageToTSPL(base64Png) {
   return Buffer.concat([header, bitmapData, footer]);
 }
 
-/* ── API route ── */
+
 export async function POST(request) {
   try {
     const body = await request.json();

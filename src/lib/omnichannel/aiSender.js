@@ -34,7 +34,7 @@ export async function sendMessageToChannel(channelType, channelAccessToken, reci
 }
 
 export async function sendAiMessage(supabase, conversationId, content) {
-  // Get conversation + contact
+
   const { data: conversation } = await supabase
     .from("omConversation")
     .select("*, omContact(*)")
@@ -46,7 +46,7 @@ export async function sendAiMessage(supabase, conversationId, content) {
   const contact = conversation.omContact;
   const channelType = conversation.omConversationChannelType;
 
-  // Get channel credentials
+
   const { data: channel } = await supabase
     .from("omChannel")
     .select()
@@ -56,7 +56,7 @@ export async function sendAiMessage(supabase, conversationId, content) {
 
   if (!channel) throw new Error(`No active ${channelType} channel`);
 
-  // Send to platform
+
   const { success, externalId } = await sendMessageToChannel(
     channelType,
     channel.omChannelAccessToken,
@@ -66,7 +66,7 @@ export async function sendAiMessage(supabase, conversationId, content) {
 
   if (!success) throw new Error("Failed to send to platform");
 
-  // Insert AI message to DB
+
   const { data: message } = await supabase
     .from("omMessage")
     .insert({
@@ -81,7 +81,7 @@ export async function sendAiMessage(supabase, conversationId, content) {
     .select()
     .single();
 
-  // Update conversation
+
   await supabase
     .from("omConversation")
     .update({

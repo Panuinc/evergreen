@@ -23,13 +23,7 @@ export function isPositiveNumber(value) {
   return !isNaN(num) && num > 0;
 }
 
-/**
- * Validate a form against a set of rules.
- * @param {Object} formData - The form data object.
- * @param {Object} rules - An object where keys are field names and values are arrays of rule functions.
- *   Each rule function takes (value, formData) and returns a string error message or false/undefined.
- * @returns {{ isValid: boolean, errors: Object }} - isValid and an errors object { fieldName: "error message" }.
- */
+
 export function validateForm(formData, rules) {
   const errors = {};
   for (const [field, fieldRules] of Object.entries(rules)) {

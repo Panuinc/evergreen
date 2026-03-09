@@ -2,10 +2,7 @@
 
 import { Tabs, Tab } from "@heroui/react";
 
-/**
- * Toggle between normal / YTM / YTY comparison modes
- * @param {{ value: string|null, onChange: (mode: string|null) => void }} props
- */
+
 export default function CompareToggle({ value, onChange }) {
   return (
     <Tabs

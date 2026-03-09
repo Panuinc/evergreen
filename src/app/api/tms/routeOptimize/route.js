@@ -6,7 +6,7 @@ const OSRM_BASE = "https://router.project-osrm.org";
 const AI_URL = "https://openrouter.ai/api/v1/chat/completions";
 const AI_MODEL = "google/gemini-2.5-flash-lite";
 
-// ── Geocode via Nominatim ──
+
 async function geocode(address) {
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=th`;
   const res = await fetch(url, { headers: { "User-Agent": "EverGreenTMS/1.0" } });
@@ -15,7 +15,7 @@ async function geocode(address) {
   return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
 }
 
-// ── OSRM Route: get distance+duration between 2 points ──
+
 async function osrmRoute(from, to) {
   const url = `${OSRM_BASE}/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=false`;
   const res = await fetch(url);
@@ -27,9 +27,9 @@ async function osrmRoute(from, to) {
   };
 }
 
-// ── OSRM Trip: solve TSP for multiple waypoints ──
+
 async function osrmTrip(coords) {
-  // coords = [{ lat, lng }, ...]  first = HQ (start+end)
+
   const coordStr = coords.map((c) => `${c.lng},${c.lat}`).join(";");
   const url = `${OSRM_BASE}/trip/v1/driving/${coordStr}?source=first&destination=last&roundtrip=true&overview=full&geometries=geojson`;
   const res = await fetch(url);
@@ -38,7 +38,7 @@ async function osrmTrip(coords) {
   return data;
 }
 
-// ── Build distance matrix between all points ──
+
 async function buildDistanceMatrix(points) {
   const coordStr = points.map((p) => `${p.lng},${p.lat}`).join(";");
   const url = `${OSRM_BASE}/table/v1/driving/${coordStr}?annotations=distance,duration`;
@@ -46,22 +46,21 @@ async function buildDistanceMatrix(points) {
   const data = await res.json();
   if (data.code !== "Ok") return null;
   return {
-    distances: data.distances, // meters
-    durations: data.durations, // seconds
+    distances: data.distances,
+    durations: data.durations,
   };
 }
 
-// ── Priority weights: higher = must visit earlier ──
+
 const PRIORITY_WEIGHT = { urgent: 100, high: 50, normal: 0, low: -20 };
 
-// ── Priority-aware nearest-neighbor TSP ──
-// Urgent/high priority stops are visited first, then optimize remaining by distance
+
 function priorityAwareTSP(matrix, n, priorities = []) {
-  const visited = new Set([0]); // start at HQ (index 0)
+  const visited = new Set([0]);
   const order = [0];
   let current = 0;
 
-  // Separate stops by priority tier
+
   const urgentStops = [];
   const highStops = [];
   const normalStops = [];
@@ -73,10 +72,10 @@ function priorityAwareTSP(matrix, n, priorities = []) {
     else normalStops.push(i);
   }
 
-  // Visit urgent stops first (nearest-neighbor within tier), then high, then rest
+
   for (const tier of [urgentStops, highStops, normalStops]) {
     const remaining = tier.filter((i) => !visited.has(i));
-    // Sort by distance from current within this tier
+
     while (remaining.length > 0) {
       let nearest = -1;
       let minDist = Infinity;
@@ -95,11 +94,11 @@ function priorityAwareTSP(matrix, n, priorities = []) {
     }
   }
 
-  order.push(0); // return to HQ
+  order.push(0);
   return order;
 }
 
-// ── AI Analysis of optimized route ──
+
 async function callAI(messages) {
   const res = await fetch(AI_URL, {
     method: "POST",
@@ -129,7 +128,7 @@ export async function POST(request) {
       return Response.json({ error: "No stops provided" }, { status: 400 });
     }
 
-    // 1. Geocode all stops
+
     const geocoded = [];
     const failedStops = [];
 
@@ -153,14 +152,14 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // 2. Build all points: [HQ, ...stops] with priorities
+
     const allPoints = [
       { ...COMPANY_HQ, name: "โรงงาน (HQ)", priority: "normal" },
       ...geocoded.map((s) => ({ lat: s.coords.lat, lng: s.coords.lng, name: s.name || s.address, priority: s.priority || "normal" })),
     ];
     const priorities = allPoints.map((p) => p.priority || "normal");
 
-    // 3. Get distance matrix from OSRM
+
     const matrix = await buildDistanceMatrix(allPoints);
 
     let optimizedOrder;
@@ -168,14 +167,14 @@ export async function POST(request) {
     let totalDurationMin = 0;
     let routeGeometry = null;
 
-    // 4. Try OSRM Trip (TSP solver) first
+
     const tripResult = await osrmTrip(allPoints);
 
-    // Check if any stop has priority > normal
+
     const hasPriority = usePriority && priorities.some((p) => p === "urgent" || p === "high");
 
     if (!hasPriority && tripResult && tripResult.waypoints) {
-      // No priority constraints: use OSRM trip (pure distance optimization)
+
       const waypointOrder = tripResult.waypoints
         .sort((a, b) => a.waypoint_index - b.waypoint_index)
         .map((wp) => wp.waypoint_index);
@@ -185,7 +184,7 @@ export async function POST(request) {
       totalDurationMin = Math.round(tripResult.trips[0].duration / 60);
       routeGeometry = tripResult.trips[0].geometry;
     } else if (matrix) {
-      // Priority-aware or fallback: use priority-aware nearest-neighbor
+
       const distMatrix = matrix.distances;
       optimizedOrder = priorityAwareTSP(distMatrix, allPoints.length, priorities);
 
@@ -201,12 +200,12 @@ export async function POST(request) {
       return Response.json({ error: "ไม่สามารถคำนวณเส้นทางได้" }, { status: 500 });
     }
 
-    // 5. Calculate original (unoptimized) distance — sequential as listed
+
     let originalDistanceKm = 0;
     let originalDurationMin = 0;
     if (matrix) {
       const originalOrder = Array.from({ length: allPoints.length }, (_, i) => i);
-      originalOrder.push(0); // return to HQ
+      originalOrder.push(0);
       for (let i = 0; i < originalOrder.length - 1; i++) {
         const from = originalOrder[i];
         const to = originalOrder[i + 1];
@@ -217,9 +216,9 @@ export async function POST(request) {
       originalDurationMin = Math.round(originalDurationMin);
     }
 
-    // 6. Build optimized stops list
+
     const optimizedStops = optimizedOrder
-      .filter((i) => i !== 0) // exclude HQ
+      .filter((i) => i !== 0)
       .map((i, seq) => ({
         sequence: seq + 1,
         name: allPoints[i].name,
@@ -228,18 +227,18 @@ export async function POST(request) {
         priority: allPoints[i].priority || "normal",
       }));
 
-    // Remove duplicate last stop if it's HQ
+
     const uniqueStops = optimizedStops.filter((s, i, arr) =>
       i === 0 || s.name !== arr[i - 1]?.name
     );
 
-    // 7. Build Google Maps directions URL
-    // Format: origin=HQ → waypoints=stop1|stop2|... → destination=HQ (round-trip)
+
+
     const gmapOrigin = `${COMPANY_HQ.lat},${COMPANY_HQ.lng}`;
     const gmapWaypoints = uniqueStops.map((s) => `${s.lat},${s.lng}`).join("|");
     const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${gmapOrigin}&destination=${gmapOrigin}&waypoints=${encodeURIComponent(gmapWaypoints)}&travelmode=driving`;
 
-    // 8. Build leg-by-leg distances
+
     const legs = [];
     for (let i = 0; i < optimizedOrder.length - 1; i++) {
       const fromIdx = optimizedOrder[i];
@@ -256,7 +255,7 @@ export async function POST(request) {
 
     const saved = originalDistanceKm - totalDistanceKm;
 
-    // 8. Generate AI analysis (streaming)
+
     const systemPrompt = `คุณเป็น AI Route Advisor ของบริษัท ชี้อะฮะฮวด อุตสาหกรรม จำกัด
 เชี่ยวชาญการวิเคราะห์เส้นทางขนส่งและให้คำแนะนำการจัดเส้นทางที่ประหยัดเวลาและต้นทุน
 
@@ -296,7 +295,7 @@ ${legs.map((l, i) => `${i + 1}. ${l.from} → ${l.to}: ${l.distanceKm} กม. (
     ]);
 
     if (aiRes) {
-      // Return SSE stream with route data header
+
       const routeData = JSON.stringify({
         optimizedStops: uniqueStops,
         legs,
@@ -311,16 +310,16 @@ ${legs.map((l, i) => `${i + 1}. ${l.from} → ${l.to}: ${l.distanceKm} กม. (
         failedStops,
       });
 
-      // Create a combined stream: first send route data, then AI stream
+
       const encoder = new TextEncoder();
       const aiBody = aiRes.body;
 
       const stream = new ReadableStream({
         async start(controller) {
-          // Send route data as a custom SSE event
+
           controller.enqueue(encoder.encode(`event: routeData\ndata: ${routeData}\n\n`));
 
-          // Then pipe AI stream
+
           const reader = aiBody.getReader();
           try {
             while (true) {
@@ -343,7 +342,7 @@ ${legs.map((l, i) => `${i + 1}. ${l.from} → ${l.to}: ${l.distanceKm} กม. (
       });
     }
 
-    // No AI — return JSON only
+
     return Response.json({
       optimizedStops: uniqueStops,
       legs,

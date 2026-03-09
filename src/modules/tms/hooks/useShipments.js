@@ -18,7 +18,7 @@ import {
 import { getEmployees } from "@/modules/hr/actions";
 import { COMPANY_HQ } from "@/modules/tms/constants";
 
-const DEFAULT_FUEL_PRICE = 30; // ราคาดีเซลเริ่มต้น (บาท/ลิตร)
+const DEFAULT_FUEL_PRICE = 30;
 
 const emptyForm = {
   tmsShipmentCustomerName: "",
@@ -105,21 +105,21 @@ export function useShipments(fromPlanId = null) {
   const deleteModal = useDisclosure();
   const [deletingShipment, setDeletingShipment] = useState(null);
 
-  // Delivery plan selection (multi-select)
+
   const [deliveryPlans, setDeliveryPlans] = useState([]);
   const [plansLoading, setPlansLoading] = useState(false);
   const [selectedPlanIds, setSelectedPlanIds] = useState([]);
 
-  // Shipment items from plan (planned vs actual)
+
   const [shipmentItems, setShipmentItems] = useState([]);
   const [distanceLoading, setDistanceLoading] = useState(false);
   const distanceTimer = useRef(null);
 
-  // Multi-stop: each stop has customer info
-  // { planId, seq, customerName, customerPhone, address, soRef, priority, items[] }
+
+
   const [shipmentStops, setShipmentStops] = useState([]);
 
-  // Route optimization
+
   const [routeResult, setRouteResult] = useState(null);
   const [routeAiAnalysis, setRouteAiAnalysis] = useState("");
   const [routeLoading, setRouteLoading] = useState(false);
@@ -128,7 +128,7 @@ export function useShipments(fromPlanId = null) {
     loadData();
   }, []);
 
-  // Auto-calculate distance when destination changes (debounced)
+
   const fetchDistance = useCallback(async (destination) => {
     if (!destination || destination.trim().length < 5) return;
     try {
@@ -141,7 +141,7 @@ export function useShipments(fromPlanId = null) {
         }));
       }
     } catch {
-      // silent - user can still input manually
+
     } finally {
       setDistanceLoading(false);
     }
@@ -149,7 +149,7 @@ export function useShipments(fromPlanId = null) {
 
   const updateField = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Auto-fetch distance when destination changes
+
     if (field === "tmsShipmentDestination") {
       clearTimeout(distanceTimer.current);
       distanceTimer.current = setTimeout(() => fetchDistance(value), 800);
@@ -159,7 +159,7 @@ export function useShipments(fromPlanId = null) {
   const loadDeliveryPlans = async () => {
     try {
       setPlansLoading(true);
-      // Load current month and next month plans with status "planned"
+
       const now = new Date();
       const nextMonth = new Date(now);
       nextMonth.setMonth(now.getMonth() + 1);
@@ -168,10 +168,10 @@ export function useShipments(fromPlanId = null) {
         getDeliveryPlans(getMonthKey(nextMonth)),
       ]);
       const all = [...(cur || []), ...(next || [])];
-      // Only show plans that are "planned" (not yet in progress/completed)
+
       setDeliveryPlans(all.filter((p) => p.tmsDeliveryPlanStatus === "planned"));
     } catch {
-      // silent
+
     } finally {
       setPlansLoading(false);
     }
@@ -193,16 +193,16 @@ export function useShipments(fromPlanId = null) {
 
       const selected = next.map((pid) => deliveryPlans.find((p) => String(p.tmsDeliveryPlanId) === pid)).filter(Boolean);
 
-      // Build stops array from all selected plans
+
       const stops = selected.map((p, i) => buildStopFromPlan(p, i + 1));
       setShipmentStops(stops);
 
-      // Merge all items
+
       const allItems = selected.flatMap((p) => buildPlanItems(p));
       setShipmentItems(allItems);
 
       if (selected.length === 1) {
-        // Single plan - fill form normally
+
         const filled = fillFormFromPlan(selected[0]);
         filled.tmsShipmentFuelPricePerLiter = String(DEFAULT_FUEL_PRICE);
         setFormData(filled);
@@ -210,7 +210,7 @@ export function useShipments(fromPlanId = null) {
           fetchDistance(filled.tmsShipmentDestination);
         }
       } else {
-        // Multi-plan - set basic form fields, distance from route optimize
+
         const firstPlan = selected[0];
         setFormData((prev) => ({
           ...prev,
@@ -224,7 +224,7 @@ export function useShipments(fromPlanId = null) {
         }));
       }
 
-      // Clear previous route result when selection changes
+
       setRouteResult(null);
       setRouteAiAnalysis("");
 
@@ -254,7 +254,7 @@ export function useShipments(fromPlanId = null) {
       planId: p.tmsDeliveryPlanId,
     }));
 
-    // Get vehicle info for AI context
+
     const selectedVehicle = vehicles.find((v) => String(v.tmsVehicleId) === String(formData.tmsShipmentVehicleId));
     const vehicleInfo = selectedVehicle ? `${selectedVehicle.tmsVehiclePlateNumber} (${selectedVehicle.tmsVehicleType || ""})` : "";
 
@@ -305,7 +305,7 @@ export function useShipments(fromPlanId = null) {
                     tmsShipmentDistance: String(json.totalDistanceKm),
                   }));
                 }
-                // Reorder stops based on optimized sequence
+
                 if (json.optimizedStops) {
                   setShipmentStops((prev) => {
                     const reordered = json.optimizedStops.map((os, i) => {
@@ -354,7 +354,7 @@ export function useShipments(fromPlanId = null) {
     );
   };
 
-  // Pre-fill form from delivery plan when planId is in URL
+
   useEffect(() => {
     if (!fromPlanId) return;
     getDeliveryPlanById(fromPlanId)
@@ -372,6 +372,7 @@ export function useShipments(fromPlanId = null) {
         onOpen();
       })
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromPlanId]);
 
   const loadData = async () => {
@@ -399,7 +400,7 @@ export function useShipments(fromPlanId = null) {
       setShipmentItems([]);
       const stopsData = shipment.tmsShipmentStops;
       setShipmentStops(stopsData?.stops || stopsData || []);
-      // Restore Google Maps URL if available
+
       if (stopsData?.googleMapsUrl) {
         setRouteResult({ googleMapsUrl: stopsData.googleMapsUrl, totalDistanceKm: stopsData.totalDistanceKm, totalDurationMin: stopsData.totalDurationMin });
       } else {
@@ -452,12 +453,12 @@ export function useShipments(fromPlanId = null) {
 
     try {
       setSaving(true);
-      // Generate items summary from shipment items table
+
       const saveData = { ...formData };
-      // Extract assistants as jsonb array
+
       const assistants = (saveData.tmsShipmentAssistants || []).filter((a) => a.id);
       saveData.tmsShipmentAssistants = assistants.length > 0 ? assistants : null;
-      // Auto-calculate OT amounts in extras
+
       const extras = (saveData.tmsShipmentExtras || []).map((ex) => {
         if (ex.type !== "ot") return ex;
         const wage = getWageForPerson(ex.person, saveData);
@@ -466,14 +467,14 @@ export function useShipments(fromPlanId = null) {
         return { ...ex, amount: wage > 0 && hours > 0 ? parseFloat(((wage / 8) * rate * hours).toFixed(2)) : 0 };
       });
       saveData.tmsShipmentExtras = extras.length > 0 ? extras : null;
-      // Convert empty strings to null for non-text fields
+
       for (const key of Object.keys(saveData)) {
         if (saveData[key] === "") saveData[key] = null;
       }
       if (shipmentItems.length > 0) {
         saveData.tmsShipmentItemsSummary = itemsToSummary(shipmentItems);
       }
-      // Save multi-stop data as JSONB
+
       if (shipmentStops.length > 0) {
         saveData.tmsShipmentStops = {
           stops: shipmentStops.map((s) => ({
@@ -490,7 +491,7 @@ export function useShipments(fromPlanId = null) {
           totalDurationMin: routeResult?.totalDurationMin || null,
         };
       }
-      // Auto-calculate fuel cost
+
       const selectedVehicle = vehicles.find((v) => String(v.tmsVehicleId) === String(saveData.tmsShipmentVehicleId));
       const rate = parseFloat(selectedVehicle?.tmsVehicleFuelConsumptionRate) || 0;
       const distance = parseFloat(saveData.tmsShipmentDistance) || 0;
@@ -506,7 +507,7 @@ export function useShipments(fromPlanId = null) {
         const newShipment = await createShipment(saveData);
         toast.success("สร้างการจัดส่งสำเร็จ");
 
-        // Link shipment back to all selected delivery plans
+
         const planIdsToLink = selectedPlanIds.length > 0 ? selectedPlanIds : (fromPlanId ? [String(fromPlanId)] : []);
         if (planIdsToLink.length > 0 && newShipment?.tmsShipmentId) {
           await Promise.all(
@@ -592,7 +593,7 @@ export function useShipments(fromPlanId = null) {
     setFormData((prev) => {
       const extras = [...(prev.tmsShipmentExtras || [])];
       extras[index] = { ...extras[index], [field]: value };
-      // Auto-calc OT amount
+
       const ex = extras[index];
       if (ex.type === "ot") {
         const wage = getWageForPerson(ex.person, prev);
@@ -641,7 +642,7 @@ export function useShipments(fromPlanId = null) {
     addExtra,
     updateExtra,
     removeExtra,
-    // Route optimization
+
     routeResult,
     routeAiAnalysis,
     routeLoading,

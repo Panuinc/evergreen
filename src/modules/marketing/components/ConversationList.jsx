@@ -47,7 +47,7 @@ export default function ConversationList({
 }) {
   return (
     <div className="flex flex-col h-full">
-      {/* Search */}
+      {}
       <div className="p-3 border-b border-border">
         <Input
           isClearable
@@ -62,7 +62,7 @@ export default function ConversationList({
         />
       </div>
 
-      {/* Filters */}
+      {}
       <div className="flex flex-col gap-2 p-3 border-b border-border">
         <div className="flex flex-wrap gap-1">
           {STATUS_FILTERS.map((f) => (
@@ -92,7 +92,7 @@ export default function ConversationList({
         </div>
       </div>
 
-      {/* List */}
+      {}
       <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center py-12">

@@ -65,7 +65,7 @@ export function useOmQuotationEditor(id) {
   const handleAction = async (action, note) => {
     try {
       setSaving(true);
-      // Auto-save before submit
+
       if (action === "submit") {
         await updateQuotation(id, {
           omQuotationCustomerName: quotation.omQuotationCustomerName,

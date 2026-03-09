@@ -31,7 +31,7 @@ export default function OmnichannelView({
   suggestReply,
 }) {
   const [showDetail, setShowDetail] = useState(false);
-  const [mobileView, setMobileView] = useState("list"); // "list" | "chat"
+  const [mobileView, setMobileView] = useState("list");
   const settingsModal = useDisclosure();
 
   const handleSelectConversation = (conv) => {
@@ -46,7 +46,7 @@ export default function OmnichannelView({
 
   return (
     <div className="flex flex-col w-full h-full">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between mb-2">
         <p className="text-xs font-light">แชทรวมช่องทาง</p>
         <Button
@@ -60,9 +60,9 @@ export default function OmnichannelView({
         </Button>
       </div>
 
-      {/* Main Content */}
+      {}
       <div className="flex flex-1 min-h-0 border border-border rounded-xl overflow-hidden">
-        {/* Conversation List - always visible on desktop, conditional on mobile */}
+        {}
         <div
           className={`${
             mobileView === "list" ? "flex" : "hidden"
@@ -82,7 +82,7 @@ export default function OmnichannelView({
           />
         </div>
 
-        {/* Chat Window - always visible on desktop, conditional on mobile */}
+        {}
         <div
           className={`${
             mobileView === "chat" ? "flex" : "hidden"
@@ -123,7 +123,7 @@ export default function OmnichannelView({
         </div>
       </div>
 
-      {/* Channel Settings Modal */}
+      {}
       <ChannelSettings
         isOpen={settingsModal.isOpen}
         onClose={settingsModal.onClose}

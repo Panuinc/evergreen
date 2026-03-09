@@ -72,22 +72,22 @@ export default function AiFeedbackPanel({
 
         {!isLoading && !feedback && (
           <p className="text-xs text-muted-foreground text-center py-4">
-            กดปุ่ม "สร้าง AI Feedback" เพื่อรับคำแนะนำจาก AI
+            กดปุ่ม &quot;สร้าง AI Feedback&quot; เพื่อรับคำแนะนำจาก AI
           </p>
         )}
 
         {!isLoading && feedback && (
           <div className="flex flex-col gap-4">
-            {/* Summary */}
+            {}
             <div className="bg-default-50 rounded-lg p-4">
               <p className="text-xs">{feedback.summary}</p>
             </div>
 
             <Divider />
 
-            {/* Strengths & Weaknesses */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Strengths */}
+              {}
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-success" />
@@ -108,7 +108,7 @@ export default function AiFeedbackPanel({
                 ))}
               </div>
 
-              {/* Weaknesses */}
+              {}
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <TrendingDown className="w-4 h-4 text-warning" />
@@ -132,7 +132,7 @@ export default function AiFeedbackPanel({
 
             <Divider />
 
-            {/* Recommendations */}
+            {}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Target className="w-4 h-4 text-primary" />
@@ -164,7 +164,7 @@ export default function AiFeedbackPanel({
 
             <Divider />
 
-            {/* Courses */}
+            {}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen className="w-4 h-4 text-secondary" />

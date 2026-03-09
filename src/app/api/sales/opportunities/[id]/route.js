@@ -27,7 +27,7 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
 
-  // If closing as won, set actual close date
+
   if (body.crmOpportunityStage === "closed_won" && !body.crmOpportunityActualCloseDate) {
     body.crmOpportunityActualCloseDate = new Date().toISOString().split("T")[0];
     body.crmOpportunityProbability = 100;

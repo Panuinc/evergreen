@@ -42,7 +42,7 @@ import {
 import { testConnection, printTestLabel } from "@/lib/qzPrinter";
 import Loading from "@/components/ui/Loading";
 
-// ── Config Check Services ──────────────────────────────────────────
+
 
 const services = [
   {
@@ -77,7 +77,7 @@ const services = [
   },
 ];
 
-// ── System Status Tab ──────────────────────────────────────────────
+
 
 function SystemStatusTab({ status, loading, refetch }) {
   return (
@@ -169,7 +169,7 @@ function SystemStatusTab({ status, loading, refetch }) {
   );
 }
 
-// ── Printer: CP30 (RFID) ───────────────────────────────────────────
+
 
 const DPI_OPTIONS = [
   { key: "203", label: "203 DPI" },
@@ -425,7 +425,7 @@ function Cp30Settings() {
   );
 }
 
-// ── Printer: TSC TE ─────────────────────────────────────────────────
+
 
 function TscTeSettings() {
   const [config, setConfig] = useState(getTscDefaultConfig);
@@ -647,7 +647,7 @@ function TscTeSettings() {
   );
 }
 
-// ── Printer Tab (wraps CP30 + TSC) ─────────────────────────────────
+
 
 function PrinterTab() {
   return (
@@ -662,7 +662,7 @@ function PrinterTab() {
   );
 }
 
-// ── Main View ───────────────────────────────────────────────────────
+
 
 export default function ConfigCheckView({ status, loading, refetch }) {
   return (

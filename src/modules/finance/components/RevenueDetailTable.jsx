@@ -34,7 +34,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
   const beYear = (year || 0) + 543;
   const beYear2 = beYear % 100;
 
-  // Pie chart from item rows (excluding total)
+
   const pieData = data
     .filter((r) => r.type === "item" && r.total > 0)
     .sort((a, b) => b.total - a.total)
@@ -67,7 +67,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Revenue Pie Chart */}
+      {}
       {pieData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
@@ -95,7 +95,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
         </Card>
       )}
 
-      {/* Revenue Detail Table */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">

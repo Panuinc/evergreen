@@ -22,7 +22,7 @@ export async function GET(request) {
 
   const sb = getServiceSupabase();
 
-  // Get cached feedback
+
   const { data: cached } = await sb
     .from("perfEvaluationFeedback")
     .select("*")
@@ -34,7 +34,7 @@ export async function GET(request) {
     return Response.json({ feedback: null, isStale: false });
   }
 
-  // Check staleness: compare cached categoryAverages with current scores
+
   const currentScores = await getAggregatedScores(sb, employeeId, period);
   let isStale = false;
   if (currentScores) {
@@ -58,16 +58,16 @@ export async function POST(request) {
 
   const sb = getServiceSupabase();
 
-  // Get aggregated evaluation scores for this employee+period
+
   const scores = await getAggregatedScores(sb, employeeId, period);
   if (!scores) {
     return Response.json({ error: "ไม่มีผลประเมินสำหรับรอบนี้" }, { status: 400 });
   }
 
-  // Get company average for the same period
+
   const companyAverages = await getCompanyAverage(sb, period);
 
-  // Call AI agent
+
   const feedback = await generateEvaluationFeedback({
     categoryAverages: scores.categoryAverages,
     overallScore: scores.overallScore,
@@ -77,7 +77,7 @@ export async function POST(request) {
     period,
   });
 
-  // Upsert into cache
+
   const { error: upsertError } = await sb
     .from("perfEvaluationFeedback")
     .upsert(

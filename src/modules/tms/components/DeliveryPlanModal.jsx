@@ -96,6 +96,19 @@ export default function DeliveryPlanModal({
     ? editingPlan.tmsDeliveryPlanDate
     : toDateString(selectedDate);
 
+  const resetForm = () => {
+    setSoSearch("");
+    setCheckedLines({});
+    setPlannedQtys({});
+    setNotes("");
+    setStatus("planned");
+    setPriority("normal");
+    setAddress("");
+    setLat(null);
+    setLng(null);
+    onSelectSO(null);
+  };
+
   useEffect(() => {
     if (editingPlan) {
       setShowForm(true);
@@ -109,20 +122,8 @@ export default function DeliveryPlanModal({
       setShowForm(false);
       resetForm();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingPlan, isOpen]);
-
-  const resetForm = () => {
-    setSoSearch("");
-    setCheckedLines({});
-    setPlannedQtys({});
-    setNotes("");
-    setStatus("planned");
-    setPriority("normal");
-    setAddress("");
-    setLat(null);
-    setLng(null);
-    onSelectSO(null);
-  };
 
   const handleSOSearch = (val) => {
     setSoSearch(val);
@@ -152,7 +153,7 @@ export default function DeliveryPlanModal({
 
   const handleSave = () => {
     if (editingPlan) {
-      // Edit mode: only update location
+
       onSave({
         tmsDeliveryPlanAddress: address || null,
         tmsDeliveryPlanLat: lat || null,
@@ -211,7 +212,7 @@ export default function DeliveryPlanModal({
         </ModalHeader>
 
         <ModalBody className="gap-4">
-          {/* Plans on this date */}
+          {}
           {plansOnDate.length > 0 && !showForm && (
             <div className="flex flex-col gap-2">
               <p className="text-xs font-light text-muted-foreground">
@@ -300,7 +301,7 @@ export default function DeliveryPlanModal({
             </div>
           )}
 
-          {/* Add new plan button */}
+          {}
           {!showForm && (
             <Button
               variant="flat"
@@ -315,12 +316,12 @@ export default function DeliveryPlanModal({
             </Button>
           )}
 
-          {/* Plan Form */}
+          {}
           {showForm && (
             <div className="flex flex-col gap-4">
               {editingPlan ? (
                 <>
-                  {/* Edit mode: show details (read-only) + map */}
+                  {}
                   <div className="flex items-center gap-2 flex-wrap">
                     <Chip
                       size="md"
@@ -387,8 +388,8 @@ export default function DeliveryPlanModal({
                 </>
               ) : (
                 <>
-                  {/* Create mode: full form */}
-                  {/* Status selector */}
+                  {}
+                  {}
                   <div className="flex flex-col gap-1.5">
                     <p className="text-xs font-light text-muted-foreground">สถานะ</p>
                     <div className="flex gap-2 flex-wrap">
@@ -406,7 +407,7 @@ export default function DeliveryPlanModal({
                     </div>
                   </div>
 
-                  {/* Priority selector */}
+                  {}
                   <div className="flex flex-col gap-1.5">
                     <p className="text-xs font-light text-muted-foreground">ความสำคัญ</p>
                     <div className="flex gap-2 flex-wrap">
@@ -424,7 +425,7 @@ export default function DeliveryPlanModal({
                     </div>
                   </div>
 
-                  {/* SO Search */}
+                  {}
                   <div className="flex flex-col gap-2">
                     <p className="text-xs font-light">เลือก Sales Order</p>
                     <Input
@@ -476,7 +477,7 @@ export default function DeliveryPlanModal({
                     )}
                   </div>
 
-                  {/* SO Lines */}
+                  {}
                   {selectedSO && (
                     <div className="flex flex-col gap-2">
                       <p className="text-xs font-light">เลือกรายการสินค้า</p>
@@ -538,7 +539,7 @@ export default function DeliveryPlanModal({
                     </div>
                   )}
 
-                  {/* Location / Map */}
+                  {}
                   <div className="flex flex-col gap-1.5">
                     <p className="text-xs font-light">สถานที่ส่ง</p>
                     <DeliveryPlanMapPicker
@@ -549,7 +550,7 @@ export default function DeliveryPlanModal({
                     />
                   </div>
 
-                  {/* Notes */}
+                  {}
                   <Textarea
                     label="หมายเหตุ"
                     placeholder="หมายเหตุเพิ่มเติม..."

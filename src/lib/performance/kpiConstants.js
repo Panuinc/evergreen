@@ -62,7 +62,7 @@ export function computeKpiProgress(actualValue, targetValue, higherIsBetter) {
   if (higherIsBetter) {
     return Math.min(Math.round((actualValue / targetValue) * 100), 100);
   }
-  // For lower-is-better: invert the ratio
+
   if (actualValue === 0) return 100;
   return Math.min(Math.round((targetValue / actualValue) * 100), 100);
 }

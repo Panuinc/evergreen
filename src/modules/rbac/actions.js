@@ -1,6 +1,6 @@
 import { get, post, put, patch, del } from "@/lib/apiClient";
 
-// ==================== Roles ====================
+
 
 export async function getRoles() {
   return get("/api/rbac/roles");
@@ -22,7 +22,7 @@ export async function deleteRole(id) {
   return del(`/api/rbac/roles/${id}`);
 }
 
-// ==================== Resources ====================
+
 
 export async function getResources() {
   return get("/api/rbac/resources");
@@ -40,7 +40,7 @@ export async function deleteResource(id) {
   return del(`/api/rbac/resources/${id}`);
 }
 
-// ==================== Actions ====================
+
 
 export async function getActions() {
   return get("/api/rbac/actions");
@@ -58,7 +58,7 @@ export async function deleteAction(id) {
   return del(`/api/rbac/actions/${id}`);
 }
 
-// ==================== Permissions ====================
+
 
 export async function getPermissions() {
   return get("/api/rbac/permissions");
@@ -72,7 +72,7 @@ export async function deletePermission(id) {
   return del(`/api/rbac/permissions/${id}`);
 }
 
-// ==================== Role Permissions ====================
+
 
 export async function getRolePermissions(roleId) {
   return get(`/api/rbac/rolePermissions/${roleId}`);
@@ -88,7 +88,7 @@ export async function removePermissionFromRole(roleId, permissionId) {
   );
 }
 
-// ==================== User Roles ====================
+
 
 export async function getUsersWithRoles() {
   return get("/api/rbac/userRoles");
@@ -110,25 +110,25 @@ export async function toggleUserStatus(userId, isActive) {
   return patch(`/api/rbac/userRoles/${userId}`, { isActive });
 }
 
-// ==================== Permission Checking ====================
+
 
 export async function getUserPermissions(userId) {
   return get(`/api/rbac/userPermissions/${userId}`);
 }
 
-// ==================== Create User ====================
+
 
 export async function createUser(userData) {
   return post("/api/admin/createUser", userData);
 }
 
-// ==================== Reset Password ====================
+
 
 export async function resetUserPassword(userId, password) {
   return post("/api/admin/resetPassword", { userId, password });
 }
 
-// ==================== Access Logs ====================
+
 
 export async function getAccessLogs() {
   return get("/api/rbac/accessLogs");

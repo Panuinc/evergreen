@@ -34,19 +34,19 @@ export function useProfilePage() {
   };
 
   return {
-    // profile data
+
     user,
     employee,
     roles,
     loading,
 
-    // password
+
     passwordForm,
     setPasswordForm,
     changing,
     handleChangePassword,
 
-    // pin
+
     pinEnabled,
     pinLoading,
     setupPin,

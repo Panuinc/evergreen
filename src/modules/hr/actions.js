@@ -1,6 +1,6 @@
 import { get, post, put, del } from "@/lib/apiClient";
 
-// ==================== HR Employee CRUD ====================
+
 
 export async function getEmployees() {
   return get("/api/hr/employees");
@@ -26,7 +26,7 @@ export async function searchEmployees(searchTerm) {
   return get(`/api/hr/employees?search=${encodeURIComponent(searchTerm)}`);
 }
 
-// ==================== User Linking ====================
+
 
 export async function getUnlinkedUsers() {
   return get("/api/hr/unlinkedUsers");
@@ -36,7 +36,7 @@ export async function getUnlinkedEmployees() {
   return get("/api/hr/unlinkedEmployees");
 }
 
-// ==================== Divisions ====================
+
 
 export async function getDivisions() {
   return get("/api/hr/divisions");
@@ -54,7 +54,7 @@ export async function deleteDivision(id) {
   return del(`/api/hr/divisions/${id}`);
 }
 
-// ==================== Departments ====================
+
 
 export async function getDepartments() {
   return get("/api/hr/departments");
@@ -72,7 +72,7 @@ export async function deleteDepartment(id) {
   return del(`/api/hr/departments/${id}`);
 }
 
-// ==================== Positions ====================
+
 
 export async function getPositions() {
   return get("/api/hr/positions");

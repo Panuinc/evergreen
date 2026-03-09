@@ -127,7 +127,7 @@ export async function buildThaiRFIDLabel(options) {
   const seqX = w - seqWidth - PAD.right;
   zpl += `^FO${seqX},${row1Y}^A0N,${seqFontSize},${seqFontSize}^FD${sequenceText}^FS`;
 
-  // Row 2: Project name (bold, centered)
+
   const row2Y = PAD.top + mmToDots(8);
   const projectText = projectName || "-";
   const projectFontSize = 36;
@@ -145,7 +145,7 @@ export async function buildThaiRFIDLabel(options) {
     zpl += `^FO${projectX},${row2Y}^A0N,${projectFontSize},${projectFontSize}^FD${sanitizeText(projectText, 30)}^FS`;
   }
 
-  // Row 3: Display name (bold, centered)
+
   const row3Y = PAD.top + mmToDots(14);
   const nameGraphic = await textToGraphic(displayName, {
     fontSize: 30,

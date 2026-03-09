@@ -1,8 +1,4 @@
-/**
- * AI-based bank statement parser.
- * Uses OpenRouter (Gemini Flash) to extract structured data from raw PDF text.
- * Works with any bank format — no need for bank-specific regex parsers.
- */
+
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -51,9 +47,7 @@ const USER_PROMPT = `อ่าน Bank Statement text ด้านล่าง �
 ===== BANK STATEMENT TEXT =====
 `;
 
-/**
- * Call OpenRouter using node:https to bypass Next.js fetch patching.
- */
+
 function openRouterRequest(apiKey, body) {
   return new Promise((resolve, reject) => {
     const https = require("https");
@@ -99,12 +93,7 @@ function openRouterRequest(apiKey, body) {
   });
 }
 
-/**
- * Parse bank statement using AI.
- * @param {string} text - Raw text extracted from PDF
- * @param {string} [bankCodeHint] - Optional bank code hint (KBANK, BBL, etc.)
- * @returns {{ metadata, entries }}
- */
+
 export async function aiParseBankStatement(text, bankCodeHint) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
@@ -127,7 +116,7 @@ export async function aiParseBankStatement(text, bankCodeHint) {
 
   console.log(`[AI Parse] Sending ${text.length} chars to AI (body: ${body.length} bytes)`);
 
-  // Retry up to 3 times
+
   let lastError;
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
@@ -140,7 +129,7 @@ export async function aiParseBankStatement(text, bankCodeHint) {
 
       console.log(`[AI Parse] Got response (${content.length} chars)`);
 
-      // Extract JSON from response (may have markdown code blocks)
+
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error("AI did not return valid JSON");
@@ -157,7 +146,7 @@ export async function aiParseBankStatement(text, bankCodeHint) {
         throw new Error("AI response missing metadata or entries");
       }
 
-      // Normalize entries
+
       const entries = parsed.entries.map((e, i) => ({
         lineNumber: e.lineNumber || i + 1,
         txDate: e.txDate || null,

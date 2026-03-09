@@ -25,7 +25,7 @@ export function useRoles() {
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // Permission assignment state
+
   const [permModalOpen, setPermModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const [allPermissions, setAllPermissions] = useState([]);
@@ -150,7 +150,7 @@ export function useRoles() {
     }
   };
 
-  // Group permissions by resource for display
+
   const groupedPermissions = allPermissions.reduce((acc, perm) => {
     const resourceName = perm.rbacResource?.rbacResourceName || "Unknown";
     if (!acc[resourceName]) acc[resourceName] = [];

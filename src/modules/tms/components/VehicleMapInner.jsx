@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 
-// Fix Leaflet default icon issue
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
@@ -91,7 +91,7 @@ export default function VehicleMapInner({
 
   const center = markerData.length > 0
     ? [markerData[0].lat, markerData[0].lng]
-    : [13.7563, 100.5018]; // Bangkok
+    : [13.7563, 100.5018];
 
   return (
     <MapContainer

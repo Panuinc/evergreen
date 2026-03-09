@@ -27,7 +27,7 @@ function parseDimensionsFromDesc(displayName) {
   let v2 = parseFloat(match[2]);
   let v3 = parseFloat(match[3]);
 
-  // If length < 1000, likely in cm → convert to mm
+
   if (v3 < 1000) v3 = Math.round(v3 * 10);
 
   return {

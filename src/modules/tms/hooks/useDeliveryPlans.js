@@ -17,14 +17,14 @@ export function useDeliveryPlans() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentDate, setCurrentDate] = useState(today);
-  const [viewMode, setViewMode] = useState("month"); // "month" | "week"
+  const [viewMode, setViewMode] = useState("month");
 
-  // Modal state
+
   const [selectedDate, setSelectedDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
 
-  // SO search state
+
   const [salesOrders, setSalesOrders] = useState([]);
   const [soLoading, setSoLoading] = useState(false);
   const [selectedSO, setSelectedSO] = useState(null);
@@ -56,7 +56,7 @@ export function useDeliveryPlans() {
     loadPlans(currentDate);
   }, [currentDate, loadPlans]);
 
-  // Navigation
+
   const goToPrev = () => {
     setCurrentDate((prev) => {
       const d = new Date(prev);
@@ -83,7 +83,7 @@ export function useDeliveryPlans() {
 
   const goToToday = () => setCurrentDate(new Date());
 
-  // Date click → open modal
+
   const handleDateClick = (date) => {
     setSelectedDate(date);
     setEditingPlan(null);
@@ -107,7 +107,7 @@ export function useDeliveryPlans() {
     setSoLines([]);
   };
 
-  // SO search
+
   const searchSalesOrders = async (search) => {
     try {
       setSoLoading(true);
@@ -137,7 +137,7 @@ export function useDeliveryPlans() {
     }
   };
 
-  // Save plan
+
   const handleSave = async (planData) => {
     try {
       setSaving(true);
@@ -157,7 +157,7 @@ export function useDeliveryPlans() {
     }
   };
 
-  // Delete plan
+
   const handleDelete = async (id) => {
     try {
       await deleteDeliveryPlan(id);
@@ -168,7 +168,7 @@ export function useDeliveryPlans() {
     }
   };
 
-  // Get plans for a specific date string (yyyy-mm-dd)
+
   const getPlansForDate = (dateStr) =>
     plans.filter((p) => p.tmsDeliveryPlanDate === dateStr);
 

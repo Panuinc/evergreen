@@ -32,7 +32,7 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
     );
   }
 
-  // Handle comparison data shape
+
   const isCompare = !!stats.compareMode;
   const d = isCompare ? stats.current : stats;
   const prev = isCompare ? stats.previous : null;
@@ -62,7 +62,7 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
       sub: "จำนวนฝ่าย",
       icon: Building2,
       color: "secondary",
-      // Point-in-time stat — no comparison
+
     },
     {
       title: "แผนกทั้งหมด",
@@ -70,7 +70,7 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
       sub: "จำนวนแผนก",
       icon: Layers,
       color: "warning",
-      // Point-in-time stat — no comparison
+
     },
     {
       title: "ตำแหน่งทั้งหมด",
@@ -78,7 +78,7 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
       sub: "จำนวนตำแหน่งงาน",
       icon: Briefcase,
       color: "default",
-      // Point-in-time stat — no comparison
+
     },
     {
       title: "พนักงานใหม่เดือนนี้",

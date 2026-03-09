@@ -285,7 +285,7 @@ export async function runSalesAgent(query) {
     return choice1.message?.content || "";
   }
 
-  // Execute all tool calls in parallel
+
   const toolResults = await Promise.all(
     choice1.message.tool_calls.map(async (tc) => {
       try {

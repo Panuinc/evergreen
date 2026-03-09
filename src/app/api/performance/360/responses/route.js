@@ -10,7 +10,7 @@ export async function GET(request) {
   const pending = searchParams.get("pending");
 
   if (pending === "true") {
-    // Get current employee
+
     const { data: currentEmployee } = await supabase
       .from("hrEmployee")
       .select("hrEmployeeId")
@@ -19,7 +19,7 @@ export async function GET(request) {
 
     if (!currentEmployee) return Response.json([]);
 
-    // Get pending nominations
+
     const { data: nominations, error } = await supabase
       .from("perf360Nomination")
       .select("*")
@@ -29,7 +29,7 @@ export async function GET(request) {
     if (error) return Response.json({ error: error.message }, { status: 500 });
     if (!nominations || nominations.length === 0) return Response.json([]);
 
-    // Fetch cycles separately
+
     const cycleIds = [...new Set(nominations.map((n) => n.perf360NominationCycleId))];
     const { data: cycles } = await supabase
       .from("perf360Cycle")
@@ -39,7 +39,7 @@ export async function GET(request) {
     const cycleMap = {};
     for (const c of (cycles || [])) cycleMap[c.perf360CycleId] = c;
 
-    // Fetch reviewee employees separately
+
     const revieweeIds = [...new Set(nominations.map((n) => n.perf360NominationRevieweeEmployeeId))];
     const { data: emps } = await supabase
       .from("hrEmployee")
@@ -49,7 +49,7 @@ export async function GET(request) {
     const empMap = {};
     for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
 
-    // Enrich and filter for active cycles
+
     const enriched = nominations
       .map((n) => ({
         ...n,
@@ -76,7 +76,7 @@ export async function POST(request) {
     return Response.json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" }, { status: 400 });
   }
 
-  // Get nomination
+
   const { data: nomination, error: nomError } = await supabase
     .from("perf360Nomination")
     .select("*")
@@ -91,13 +91,13 @@ export async function POST(request) {
     return Response.json({ error: "รายการนี้ถูกประเมินแล้ว" }, { status: 400 });
   }
 
-  // Get competencies for score validation
+
   const { data: competencies } = await supabase
     .from("perf360Competency")
     .select("*")
     .eq("perf360CompetencyCycleId", nomination.perf360NominationCycleId);
 
-  // Compute averages
+
   const competencyAverages = {};
   for (const comp of (competencies || [])) {
     const compScores = scores[comp.perf360CompetencyId] || [];
@@ -106,7 +106,7 @@ export async function POST(request) {
 
   const overallScore = parseFloat(computeWeightedOverall(competencyAverages, competencies || []).toFixed(2));
 
-  // Insert response
+
   const { data: response, error: respError } = await supabase
     .from("perf360Response")
     .insert([{
@@ -127,7 +127,7 @@ export async function POST(request) {
 
   if (respError) return Response.json({ error: respError.message }, { status: 400 });
 
-  // Update nomination status
+
   await supabase
     .from("perf360Nomination")
     .update({ perf360NominationStatus: "completed", perf360NominationCompletedAt: new Date().toISOString() })

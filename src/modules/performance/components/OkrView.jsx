@@ -52,8 +52,6 @@ const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
   return { key: String(y), label: String(y) };
 });
 
-// ===================== Filters =====================
-
 function PeriodFilter({ filterYear, onFilterYearChange, filterQuarter, onFilterQuarterChange }) {
   return (
     <div className="flex gap-2 items-center">
@@ -88,8 +86,6 @@ function PeriodFilter({ filterYear, onFilterYearChange, filterQuarter, onFilterQ
     </div>
   );
 }
-
-// ===================== My OKR Tab =====================
 
 function MyOkrTab({
   filterYear,
@@ -132,7 +128,7 @@ function MyOkrTab({
       ) : objectives.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
-            ยังไม่มี OKR ในช่วงเวลานี้ — กดปุ่ม "สร้าง Objective" เพื่อเริ่มต้น
+            ยังไม่มี OKR ในช่วงเวลานี้ — กดปุ่ม &quot;สร้าง Objective&quot; เพื่อเริ่มต้น
           </CardBody>
         </Card>
       ) : (
@@ -153,8 +149,6 @@ function MyOkrTab({
     </div>
   );
 }
-
-// ===================== Team OKR Tab =====================
 
 function TeamOkrTab({
   filterYear,
@@ -208,8 +202,6 @@ function TeamOkrTab({
   );
 }
 
-// ===================== Company OKR Tab =====================
-
 function CompanyOkrTab({
   filterYear,
   onFilterYearChange,
@@ -261,8 +253,6 @@ function CompanyOkrTab({
     </div>
   );
 }
-
-// ===================== Objective Card =====================
 
 function ObjectiveCard({
   objective,
@@ -420,8 +410,6 @@ function ObjectiveCard({
   );
 }
 
-// ===================== Key Result Row =====================
-
 function KeyResultRow({ kr, editable, onOpenCheckin, onOpenKrForm, onDeleteKr }) {
   const progress = computeKrProgress(kr);
   const statusConfig = getStatusConfig(kr.perfOkrKeyResultStatus, KR_STATUSES);
@@ -490,8 +478,6 @@ function KeyResultRow({ kr, editable, onOpenCheckin, onOpenKrForm, onDeleteKr })
     </div>
   );
 }
-
-// ===================== Objective Modal =====================
 
 function ObjectiveModal({
   objectiveModal,
@@ -597,8 +583,6 @@ function ObjectiveModal({
     </Modal>
   );
 }
-
-// ===================== Key Result Modal =====================
 
 function KrModal({
   krModal,
@@ -712,8 +696,6 @@ function KrModal({
   );
 }
 
-// ===================== Check-in Modal =====================
-
 function CheckinModal({
   checkinModal,
   checkinKr,
@@ -781,8 +763,6 @@ function CheckinModal({
   );
 }
 
-// ===================== Main OkrView Component =====================
-
 export default function OkrView({
   activeTab,
   onTabChange,
@@ -821,7 +801,7 @@ export default function OkrView({
   onSaveCheckin,
   onOpenCheckin,
 }) {
-  // Shared props for period filter used across tabs
+
   const periodFilterProps = {
     filterYear,
     onFilterYearChange,
@@ -829,7 +809,7 @@ export default function OkrView({
     onFilterQuarterChange,
   };
 
-  // Shared props for objective card actions used across tabs
+
   const objectiveActionProps = {
     onOpenObjectiveForm,
     onDeleteObjective,
@@ -905,7 +885,7 @@ export default function OkrView({
         </Tab>
       </Tabs>
 
-      {/* Objective Modal */}
+      {}
       <ObjectiveModal
         objectiveModal={objectiveModal}
         editingObjective={editingObjective}
@@ -914,7 +894,7 @@ export default function OkrView({
         savingObjective={savingObjective}
         onSaveObjective={onSaveObjective}
       />
-      {/* Key Result Modal */}
+      {}
       <KrModal
         krModal={krModal}
         editingKr={editingKr}
@@ -923,7 +903,7 @@ export default function OkrView({
         savingKr={savingKr}
         onSaveKr={onSaveKr}
       />
-      {/* Check-in Modal */}
+      {}
       <CheckinModal
         checkinModal={checkinModal}
         checkinKr={checkinKr}

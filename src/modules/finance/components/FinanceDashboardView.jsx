@@ -23,7 +23,7 @@ import {
 } from "recharts";
 import Loading from "@/components/ui/Loading";
 
-// ─── Formatting helpers ───
+
 
 function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
@@ -55,11 +55,9 @@ function fmtMonth(ym) {
   return `${THAI_MONTHS[parseInt(m) - 1]} ${(parseInt(y) + 543) % 100}`;
 }
 
-// ─── Helpers for account detail modal ───
 
-/**
- * Extract and sort accounts from financials.groups for modal display.
- */
+
+
 function getGroupAccounts(groups, keys, normalSide = "debit") {
   if (!groups) return [];
   const all = [];
@@ -75,7 +73,7 @@ function getGroupAccounts(groups, keys, normalSide = "debit") {
   return all;
 }
 
-// ─── Export Calculation Report ───
+
 
 function exportCalculationReport(financials, selectedYear) {
   if (!financials) return;
@@ -83,13 +81,13 @@ function exportCalculationReport(financials, selectedYear) {
   const beYear = selectedYear + 543;
   const wb = XLSX.utils.book_new();
 
-  // ═══ Sheet 1: KPI Summary ═══
+
   const kpiRows = [
     ["รายงานวิธีคำนวณ KPI — Dashboard การเงิน CHH"],
     [`ปี ค.ศ. ${selectedYear} (พ.ศ. ${beYear})`],
     [],
     ["หมวด", "ชื่อ KPI", "ที่มาข้อมูล", "สูตรคำนวณ", "การคำนวณ", "ค่าที่ได้", "หมายเหตุ"],
-    // Financial Position (from TB)
+
     ["ฐานะการเงิน", "สินทรัพย์รวม", "Trial Balance → trialBalances API",
       "สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)",
       `${fmt(f.currentAssets)} + ${fmt(f.noncurrentAssets)}`, fmt(f.totalAssets),
@@ -107,7 +105,7 @@ function exportCalculationReport(financials, selectedYear) {
       `${fmt(f.currentAssets)} − ${fmt(f.currentLiabilities)}`, fmt(f.workingCapital),
       "Working Capital: ยิ่งมากยิ่งดี"],
     [],
-    // Income Statement (from TB filtered by year)
+
     ["งบกำไรขาดทุน", "รายได้รวม", "Trial Balance (กรองตามปี)",
       "ขาย (41xx) + บริการ (42xx) + อื่น (43xx)",
       `${fmt(f.salesRevenue)} + ${fmt(f.serviceRevenue)} + ${fmt(f.otherIncome)}`, fmt(f.totalRevenue),
@@ -133,7 +131,7 @@ function exportCalculationReport(financials, selectedYear) {
       `${fmt(f.operatingProfit)} − ${fmt(f.interestExpense)}`,
       fmt(f.netIncome), `Net Margin = ${f.netMargin.toFixed(1)}%`],
     [],
-    // Financial Ratios
+
     ["อัตราส่วนทางการเงิน", "Current Ratio", "Trial Balance",
       "สินทรัพย์หมุนเวียน ÷ หนี้สินหมุนเวียน",
       `${fmt(f.currentAssets)} ÷ ${fmt(f.currentLiabilities)}`, f.currentRatio.toFixed(2),
@@ -154,11 +152,11 @@ function exportCalculationReport(financials, selectedYear) {
 
   const ws1 = XLSX.utils.aoa_to_sheet(kpiRows);
   ws1["!cols"] = [{ wch: 22 }, { wch: 28 }, { wch: 32 }, { wch: 48 }, { wch: 48 }, { wch: 20 }, { wch: 55 }];
-  // Merge title row
+
   ws1["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }];
   XLSX.utils.book_append_sheet(wb, ws1, "สรุป KPI");
 
-  // ═══ Sheet 2: Account Details ═══
+
   const detailRows = [
     ["รายบัญชีแยกตามกลุ่ม KPI"],
     [],
@@ -199,7 +197,7 @@ function exportCalculationReport(financials, selectedYear) {
   ws2["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
   XLSX.utils.book_append_sheet(wb, ws2, "รายบัญชี");
 
-  // ═══ Sheet 3: Account Classification ═══
+
   const overrideRows = [
     ["กฎการจัดหมวดบัญชี (Account Classification)"],
     [],
@@ -241,7 +239,7 @@ function exportCalculationReport(financials, selectedYear) {
   ws3["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
   XLSX.utils.book_append_sheet(wb, ws3, "กฎจัดหมวด");
 
-  // ═══ Sheet 4: COGS Structure ═══
+
   const cogsRows = [
     ["โครงสร้างต้นทุนขาย (COGS) — ตาม Excel CFO"],
     [],
@@ -297,7 +295,7 @@ function exportCalculationReport(financials, selectedYear) {
   XLSX.writeFile(wb, `วิธีคำนวณ-KPI-${beYear}.xlsx`);
 }
 
-// ─── Sub-components ───
+
 
 function KpiCard({ title, value, unit, color = "default", subtitle, tooltip, onDetail }) {
   const colorClass = {
@@ -376,7 +374,7 @@ function ChartCard({ title, children, chip }) {
   );
 }
 
-// ─── Table column constants ───
+
 
 const arAgingColumns = [
   { name: "ลูกค้า", uid: "name", sortable: true },
@@ -401,7 +399,7 @@ const apAgingColumns = [
 ];
 
 
-// ─── Main View Component ───
+
 
 export default function FinanceDashboardView({
   loading,
@@ -431,14 +429,14 @@ export default function FinanceDashboardView({
   aiLoading,
   runAiAnalysis,
   reload,
-  // Year selector
+
   selectedYear,
   setSelectedYear,
-  // Inventory override
+
   inventoryOverride,
   onSaveInventoryOverride,
   onClearInventoryOverride,
-  // GL Monthly Data props
+
   glLoading,
   glError,
   monthlyPnL,
@@ -450,17 +448,17 @@ export default function FinanceDashboardView({
   monthlyChartData,
   cogsChartData,
   compYears,
-  // CEO trend charts
+
   revenueTrend,
   profitTrend,
   trendYearKeys,
-  // Cash Flow Forecast
+
   cashFlowAnalysis,
   cashFlowLoading,
   runCashFlowForecast,
 }) {
 
-  // ─── renderCell callbacks ───
+
 
   const arAgingRenderCell = useCallback((item, key) => {
     switch (key) {
@@ -520,10 +518,10 @@ export default function FinanceDashboardView({
     }
   }, [apInvoiceMap, openAgingDetail]);
 
-  // ─── KPI Detail Modal state ───
-  const [kpiDetail, setKpiDetail] = useState(null); // { title, source, formula, calc, notes, groups, keys, normalSide }
 
-  // ─── Loading state ───
+  const [kpiDetail, setKpiDetail] = useState(null);
+
+
 
   if (loading) {
     return (
@@ -533,7 +531,7 @@ export default function FinanceDashboardView({
     );
   }
 
-  // ─── Ratio status helpers ───
+
 
   const currentRatioStatus = !financials ? "neutral"
     : financials.currentRatio >= 2 ? "good"
@@ -555,19 +553,19 @@ export default function FinanceDashboardView({
     : financials.netMargin >= 5 ? "warning"
     : "danger";
 
-  // Build year options for dropdown
+
   const yearOptions = [];
   const currentYear = new Date().getFullYear();
   for (let y = currentYear; y >= currentYear - 4; y--) {
     yearOptions.push({ key: String(y), label: `${y + 543} (${y})` });
   }
 
-  // Line chart colors for each year (oldest → newest: light → dark)
-  const TREND_COLORS = ["#A1A1AA", "#F5A524", "#006FEE"]; // gray, amber, blue
+
+  const TREND_COLORS = ["#A1A1AA", "#F5A524", "#006FEE"];
 
   return (
     <div className="flex flex-col w-full gap-4">
-      {/* ═══ Year Selector + Trend Charts ═══ */}
+      {}
       <div className="flex items-center gap-3">
         <Select
           size="md"
@@ -601,7 +599,7 @@ export default function FinanceDashboardView({
         </div>
       </div>
 
-      {/* Revenue & Profit Trend Line Charts */}
+      {}
       {trendYearKeys?.length > 0 && revenueTrend?.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ChartCard title="แนวโน้มรายได้ (3 ปี)" chip={{ label: "Revenue", color: "primary" }}>
@@ -654,9 +652,9 @@ export default function FinanceDashboardView({
         </div>
       )}
 
-      {/* ═══ Section: ภาพรวม ═══ */}
+      {}
 
-      {/* Section 1: Financial Position KPIs — ข้อมูลจาก Trial Balance (งบทดลอง) */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             <KpiCard
               title="สินทรัพย์รวม"
@@ -748,7 +746,7 @@ export default function FinanceDashboardView({
             />
       </div>
 
-      {/* Section 2: Income Statement KPIs — ข้อมูลจาก GL Entries (สมุดบัญชีแยกประเภท) กรองตามปี */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             <KpiCard
               title="รายได้รวม"
@@ -850,7 +848,7 @@ export default function FinanceDashboardView({
             />
       </div>
 
-      {/* Section 3: Financial Ratios — ที่มา: TB (งบดุล) + GL (งบกำไรขาดทุน) */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <RatioCard
           title="อัตราส่วนเงินทุนหมุนเวียน"
@@ -946,7 +944,7 @@ export default function FinanceDashboardView({
         />
       </div>
 
-      {/* Section 3.5: AI Analysis */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -1019,7 +1017,7 @@ export default function FinanceDashboardView({
         </CardBody>
       </Card>
 
-      {/* Section 3.6: AI Cash Flow Forecast */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -1092,7 +1090,7 @@ export default function FinanceDashboardView({
         </CardBody>
       </Card>
 
-      {/* Section 4: Balance Sheet & Expense Charts */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ChartCard title="โครงสร้างทางการเงิน" chip={financials ? { label: `${financials.totalAccounts} บัญชี`, color: "primary" } : undefined}>
           {bsChartData.length > 0 ? (
@@ -1127,7 +1125,7 @@ export default function FinanceDashboardView({
         </ChartCard>
       </div>
 
-      {/* Section 5: Income Statement Waterfall */}
+      {}
       <ChartCard title="งบกำไรขาดทุน (Revenue & Cost Breakdown)" chip={financials ? { label: financials.netIncome >= 0 ? "กำไร" : "ขาดทุน", color: financials.netIncome >= 0 ? "success" : "danger" } : undefined}>
         {isWaterfallData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
@@ -1161,7 +1159,7 @@ export default function FinanceDashboardView({
         )}
       </ChartCard>
 
-      {/* ═══ Section: งบกำไรขาดทุนรายเดือน (GL Data) ═══ */}
+      {}
       <div className="flex items-center gap-3 mt-2">
         <div className="h-px flex-1 bg-default-200" />
         <span className="text-xs font-light text-muted-foreground whitespace-nowrap">
@@ -1212,14 +1210,14 @@ export default function FinanceDashboardView({
         </>
       )}
 
-      {/* ═══ Section: ลูกหนี้/เจ้าหนี้ ═══ */}
+      {}
       <div className="flex items-center gap-3 mt-2">
         <div className="h-px flex-1 bg-default-200" />
         <span className="text-xs font-light text-muted-foreground whitespace-nowrap">ลูกหนี้ / เจ้าหนี้</span>
         <div className="h-px flex-1 bg-default-200" />
       </div>
 
-      {/* Section 7: AR/AP KPIs */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard
           title="ลูกหนี้ค้างชำระ"
@@ -1247,7 +1245,7 @@ export default function FinanceDashboardView({
         />
       </div>
 
-      {/* Section 8: Aging Pie Charts */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ChartCard title="สัดส่วนอายุลูกหนี้">
           {arAgingPie.length > 0 ? (
@@ -1282,7 +1280,7 @@ export default function FinanceDashboardView({
         </ChartCard>
       </div>
 
-      {/* Section 8.5: AR/AP Trend -- Monthly Outstanding */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ChartCard
           title="แนวโน้มลูกหนี้ค้างชำระ (รายเดือน)"
@@ -1351,7 +1349,7 @@ export default function FinanceDashboardView({
         </ChartCard>
       </div>
 
-      {/* Section 8.6: Overdue Aging Band Distribution */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ChartCard title="การกระจายลูกหนี้ตามอายุหนี้ (จากใบแจ้งหนี้)">
           {arOverdueBands.some((b) => b.count > 0) ? (
@@ -1415,7 +1413,7 @@ export default function FinanceDashboardView({
         </ChartCard>
       </div>
 
-      {/* Section 9: Aged Receivables with Expandable Invoices */}
+      {}
       <ChartCard title="อายุหนี้ลูกหนี้ (Aged Receivables)" chip={arTotals ? { label: `฿${fmt(arTotals.balanceDue)}`, color: "warning" } : undefined}>
         {arChartData.length > 0 ? (
           <>
@@ -1452,7 +1450,7 @@ export default function FinanceDashboardView({
         )}
       </ChartCard>
 
-      {/* Section 10: Aged Payables with Expandable Invoices */}
+      {}
       <ChartCard title="อายุหนี้เจ้าหนี้ (Aged Payables)" chip={apTotals ? { label: `฿${fmt(Math.abs(apTotals.balanceDue))}`, color: "danger" } : undefined}>
         {apChartData.length > 0 ? (
           <>
@@ -1493,7 +1491,7 @@ export default function FinanceDashboardView({
         )}
       </ChartCard>
 
-      {/* KPI Detail Modal */}
+      {}
       <Modal isOpen={!!kpiDetail} onClose={() => setKpiDetail(null)} size="4xl" scrollBehavior="inside">
         <ModalContent>
           {kpiDetail && (() => {
@@ -1501,7 +1499,7 @@ export default function FinanceDashboardView({
               ? getGroupAccounts(financials?.groups, kpiDetail.keys, kpiDetail.normalSide)
               : [];
             const total = accounts.reduce((s, a) => s + a.bal, 0);
-            // Group accounts by their groupName for sectioned display
+
             const sections = [];
             const seen = new Set();
             for (const a of accounts) {
@@ -1518,17 +1516,17 @@ export default function FinanceDashboardView({
                 </ModalHeader>
                 <ModalBody>
                   <div className="space-y-3">
-                    {/* Formula & Calculation */}
+                    {}
                     <div className="rounded-lg bg-default-50 p-3">
                       <p className="text-xs font-light">{kpiDetail.formula}</p>
                       <p className="text-xs text-muted-foreground mt-1">{kpiDetail.calc}</p>
                       {kpiDetail.notes && <p className="text-xs text-muted-foreground mt-2">{kpiDetail.notes}</p>}
                     </div>
 
-                    {/* Extra content (e.g. COGS breakdown table) */}
+                    {}
                     {kpiDetail.extra}
 
-                    {/* Account sections */}
+                    {}
                     {sections.map((sec) => (
                       <div key={sec.key}>
                         <div className="flex items-center justify-between mb-1">
@@ -1562,7 +1560,7 @@ export default function FinanceDashboardView({
                       </div>
                     ))}
 
-                    {/* Inventory deduction section (for COGS detail) */}
+                    {}
                     {kpiDetail.inventoryAccounts && Object.keys(kpiDetail.inventoryAccounts).length > 0 && (() => {
                       const invEntries = Object.entries(kpiDetail.inventoryAccounts).sort((a, b) => a[0].localeCompare(b[0]));
                       const invTotal = kpiDetail.inventoryTotal || 0;
@@ -1600,7 +1598,7 @@ export default function FinanceDashboardView({
                       );
                     })()}
 
-                    {/* Grand total */}
+                    {}
                     {sections.length > 1 && (
                       <div className="rounded-lg bg-primary-50 p-3 flex justify-between items-center">
                         <p className="text-xs font-light">รวมทั้งสิ้น ({accounts.length} บัญชี)</p>
@@ -1608,7 +1606,7 @@ export default function FinanceDashboardView({
                       </div>
                     )}
 
-                    {/* COGS net total (after inventory deduction) */}
+                    {}
                     {kpiDetail.inventoryTotal > 0 && (
                       <div className="rounded-lg bg-success-50 p-3 flex justify-between items-center">
                         <p className="text-xs font-light">ต้นทุนขายสุทธิ (หลังหักสินค้าคงเหลือ)</p>
@@ -1634,7 +1632,7 @@ export default function FinanceDashboardView({
         </ModalContent>
       </Modal>
 
-      {/* Invoice Detail Modal */}
+      {}
       <Modal isOpen={isAgingOpen} onClose={onAgingClose} size="4xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">

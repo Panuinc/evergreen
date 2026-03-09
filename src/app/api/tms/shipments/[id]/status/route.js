@@ -19,7 +19,7 @@ export async function PUT(request, { params }) {
   const body = await request.json();
   const status = body.tmsShipmentStatus || body.status;
 
-  // Fetch current shipment
+
   const { data: shipment, error: fetchError } = await supabase
     .from("tmsShipment")
     .select("*")
@@ -31,7 +31,7 @@ export async function PUT(request, { params }) {
     return Response.json({ error: fetchError.message }, { status: 404 });
   }
 
-  // Validate transition
+
   const currentStatus = shipment.tmsShipmentStatus;
   const allowedTransitions = VALID_TRANSITIONS[currentStatus];
 
@@ -44,10 +44,10 @@ export async function PUT(request, { params }) {
     );
   }
 
-  // Build update object
+
   const updateData = { tmsShipmentStatus: status };
 
-  // Set timestamps based on new status
+
   if (status === "dispatched") {
     updateData.tmsShipmentDispatchedAt = new Date().toISOString();
   }
@@ -55,7 +55,7 @@ export async function PUT(request, { params }) {
     updateData.tmsShipmentDeliveredAt = new Date().toISOString();
   }
 
-  // Update shipment status
+
   const { data, error } = await supabase
     .from("tmsShipment")
     .update(updateData)
@@ -67,9 +67,9 @@ export async function PUT(request, { params }) {
     return Response.json({ error: error.message }, { status: 400 });
   }
 
-  // Side effects
+
   try {
-    // Propagate status to linked delivery plan
+
     const planStatusMap = {
       dispatched: "in_progress",
       in_transit: "in_progress",
@@ -98,7 +98,7 @@ export async function PUT(request, { params }) {
     }
 
     if (status === "dispatched") {
-      // Set vehicle to in_use, driver and assistant to on_duty
+
       if (shipment.tmsShipmentVehicleId) {
         await supabase
           .from("tmsVehicle")
@@ -120,7 +120,7 @@ export async function PUT(request, { params }) {
     }
 
     if (status === "pod_confirmed") {
-      // Reset vehicle to available, driver and assistant to available
+
       if (shipment.tmsShipmentVehicleId) {
         await supabase
           .from("tmsVehicle")
@@ -142,7 +142,7 @@ export async function PUT(request, { params }) {
     }
 
     if (status === "cancelled") {
-      // Reset vehicle and drivers to available if assigned
+
       if (shipment.tmsShipmentVehicleId) {
         await supabase
           .from("tmsVehicle")
@@ -163,7 +163,7 @@ export async function PUT(request, { params }) {
       }
     }
   } catch (sideEffectError) {
-    // Side effects failed but status was updated successfully
+
     console.error("Side effect error:", sideEffectError);
   }
 

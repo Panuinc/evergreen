@@ -10,7 +10,7 @@ export async function POST(request, { params }) {
   const body = await request.json();
   const { toStatus } = body;
 
-  // Get current cycle
+
   const { data: cycle, error: cycleError } = await supabase
     .from("perf360Cycle")
     .select("*")
@@ -21,7 +21,7 @@ export async function POST(request, { params }) {
     return Response.json({ error: "ไม่พบรอบประเมิน" }, { status: 404 });
   }
 
-  // Validate transition
+
   const allowed = VALID_TRANSITIONS[cycle.perf360CycleStatus] || [];
   if (!allowed.includes(toStatus)) {
     return Response.json({
@@ -29,7 +29,7 @@ export async function POST(request, { params }) {
     }, { status: 400 });
   }
 
-  // Validation per transition
+
   if (toStatus === "nominating") {
     const { count } = await supabase
       .from("perf360Competency")
@@ -50,7 +50,7 @@ export async function POST(request, { params }) {
     }
   }
 
-  // Update status
+
   const { data, error } = await supabase
     .from("perf360Cycle")
     .update({ perf360CycleStatus: toStatus, perf360CycleUpdatedAt: new Date().toISOString() })

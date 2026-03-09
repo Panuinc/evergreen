@@ -186,7 +186,7 @@ export default function AccountsView({
         }
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -345,7 +345,7 @@ export default function AccountsView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบบัญชี</ModalHeader>

@@ -24,7 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export function usePerfEvaluation() {
   const { user } = useAuth();
 
-  // Form state
+
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [quarter, setQuarter] = useState(String(Math.ceil((new Date().getMonth() + 1) / 3)));
@@ -34,33 +34,34 @@ export function usePerfEvaluation() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Results state
+
   const [myResults, setMyResults] = useState([]);
   const [companyAverage, setCompanyAverage] = useState(null);
   const [mySubmitted, setMySubmitted] = useState([]);
   const [loadingResults, setLoadingResults] = useState(false);
 
-  // Admin summary
+
   const [adminSummary, setAdminSummary] = useState([]);
   const [loadingAdmin, setLoadingAdmin] = useState(false);
 
-  // AI Feedback
+
   const [aiFeedback, setAiFeedback] = useState(null);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackStale, setFeedbackStale] = useState(false);
 
-  // Current user's employee info
+
   const [currentEmployee, setCurrentEmployee] = useState(null);
 
-  // Tab
+
   const [activeTab, setActiveTab] = useState("evaluate");
 
-  // Selected period for results view
+
   const [resultYear, setResultYear] = useState(String(new Date().getFullYear()));
 
-  // Load employees on mount
+
   useEffect(() => {
     loadEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadEmployees = async () => {
@@ -69,7 +70,7 @@ export function usePerfEvaluation() {
       const data = await getEmployees();
       setEmployees(data || []);
 
-      // Find current user's employee record
+
       if (user?.id) {
         const myEmp = (data || []).find((e) => e.hrEmployeeUserId === user.id);
         setCurrentEmployee(myEmp || null);
@@ -81,7 +82,7 @@ export function usePerfEvaluation() {
     }
   };
 
-  // Computed values
+
   const categoryAverages = useMemo(() => computeCategoryAverages(scores), [scores]);
 
   const overallScore = useMemo(
@@ -107,7 +108,7 @@ export function usePerfEvaluation() {
 
   const perfEvaluationPeriod = useMemo(() => `Q${quarter}-${year}`, [quarter, year]);
 
-  // Available employees for evaluation (exclude self)
+
   const availableEmployees = useMemo(() => {
     if (!currentEmployee) return employees.filter((e) => e.isActive);
     return employees.filter(
@@ -117,7 +118,7 @@ export function usePerfEvaluation() {
     );
   }, [employees, currentEmployee]);
 
-  // Set score for a specific question
+
   const setScore = useCallback((categoryKey, questionIndex, value) => {
     setScores((prev) => {
       const updated = { ...prev };
@@ -127,13 +128,13 @@ export function usePerfEvaluation() {
     });
   }, []);
 
-  // Clear all scores
+
   const clearScores = useCallback(() => {
     setScores(createEmptyScores());
     setComment("");
   }, []);
 
-  // Submit evaluation
+
   const handleSubmit = async () => {
     if (!selectedEmployee) {
       toast.error("กรุณาเลือกพนักงานที่ต้องการประเมิน");
@@ -165,7 +166,7 @@ export function usePerfEvaluation() {
     }
   };
 
-  // Load my results (as evaluatee)
+
   const loadMyResults = useCallback(async () => {
     if (!currentEmployee) return;
     setLoadingResults(true);
@@ -183,7 +184,7 @@ export function usePerfEvaluation() {
     }
   }, [currentEmployee]);
 
-  // Load company average for a period
+
   const loadCompanyAverage = useCallback(async (p) => {
     try {
       const data = await getEvaluationSummary({
@@ -192,11 +193,11 @@ export function usePerfEvaluation() {
       });
       setCompanyAverage(data);
     } catch {
-      // silently fail
+
     }
   }, []);
 
-  // Load admin summary
+
   const loadAdminSummary = useCallback(async (p) => {
     setLoadingAdmin(true);
     try {
@@ -209,7 +210,7 @@ export function usePerfEvaluation() {
     }
   }, []);
 
-  // Load AI feedback
+
   const loadAiFeedback = useCallback(async (perfEvaluationEmployeeId, feedbackPeriod, forceRegenerate = false) => {
     setLoadingFeedback(true);
     try {
@@ -238,7 +239,7 @@ export function usePerfEvaluation() {
     setFeedbackStale(false);
   }, []);
 
-  // Load results when switching to results tab
+
   useEffect(() => {
     if (activeTab === "myResults") {
       loadMyResults();
@@ -246,7 +247,7 @@ export function usePerfEvaluation() {
   }, [activeTab, loadMyResults]);
 
   return {
-    // Form
+
     employees: availableEmployees,
     allEmployees: employees,
     selectedEmployee,
@@ -266,7 +267,7 @@ export function usePerfEvaluation() {
     clearScores,
     currentEmployee,
 
-    // Computed
+
     categoryAverages,
     overallScore,
     grade,
@@ -274,7 +275,7 @@ export function usePerfEvaluation() {
     totalQuestions: TOTAL_QUESTIONS,
     progress,
 
-    // Results
+
     myResults,
     companyAverage,
     mySubmitted,
@@ -284,19 +285,19 @@ export function usePerfEvaluation() {
     resultYear,
     setResultYear,
 
-    // Admin
+
     adminSummary,
     loadingAdmin,
     loadAdminSummary,
 
-    // AI Feedback
+
     aiFeedback,
     loadingFeedback,
     feedbackStale,
     loadAiFeedback,
     clearAiFeedback,
 
-    // Tab
+
     activeTab,
     setActiveTab,
   };

@@ -68,7 +68,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
       {sorted.map((v) => (
         <Card key={v.vehicleId} shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-4 gap-3">
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Truck className="text-muted-foreground" />
@@ -84,7 +84,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
               </Chip>
             </div>
 
-            {/* Distance bar */}
+            {}
             {v.totalDistanceKm > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -100,7 +100,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
               </div>
             )}
 
-            {/* Stats grid */}
+            {}
             <div className="grid grid-cols-2 gap-3">
               <StatItem
                 icon={Route}
@@ -125,7 +125,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
               />
             </div>
 
-            {/* Diff badge */}
+            {}
             <div className="flex justify-end">
               <FuelDiffBadge estimated={v.estimatedLiters} actual={v.actualFuelLiters} />
             </div>

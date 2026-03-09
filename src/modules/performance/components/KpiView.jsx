@@ -198,8 +198,6 @@ export default function KpiView({
   );
 }
 
-// ===================== My KPI Tab =====================
-
 function MyKpiTab({
   myAssignments,
   loadingAssignments,
@@ -240,7 +238,7 @@ function MyKpiTab({
         </Card>
       ) : (
         <>
-          {/* Summary cards */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <SummaryCard
               label="ตามเป้า"
@@ -262,7 +260,7 @@ function MyKpiTab({
             />
           </div>
 
-          {/* KPI Cards */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {myAssignments.map((a) => (
               <KpiCard
@@ -277,7 +275,7 @@ function MyKpiTab({
             ))}
           </div>
 
-          {/* Trend chart */}
+          {}
           {selectedTrend && (
             <Card>
               <CardHeader>
@@ -385,8 +383,6 @@ function KpiCard({ assignment, onRecord, onTrend }) {
   );
 }
 
-// ===================== Dashboard Tab =====================
-
 function DashboardTab({
   dashboardData,
   loadingDashboard,
@@ -395,7 +391,7 @@ function DashboardTab({
 }) {
   const [selectedKpi, setSelectedKpi] = useState(null);
 
-  // Group dashboard data by definition
+
   const grouped = useMemo(() => {
     const map = {};
     for (const item of dashboardData) {
@@ -488,8 +484,6 @@ function DashboardTab({
   );
 }
 
-// ===================== Manage Tab =====================
-
 function ManageTab({
   definitions,
   loadingDefinitions,
@@ -517,7 +511,7 @@ function ManageTab({
       ) : definitions.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
-            ยังไม่มี KPI — กดปุ่ม "สร้าง KPI" เพื่อเริ่มต้น
+            ยังไม่มี KPI — กดปุ่ม &quot;สร้าง KPI&quot; เพื่อเริ่มต้น
           </CardBody>
         </Card>
       ) : (
@@ -563,8 +557,6 @@ function ManageTab({
     </div>
   );
 }
-
-// ===================== Modals =====================
 
 function DefinitionModal({
   definitionModal,

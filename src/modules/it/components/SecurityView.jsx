@@ -173,7 +173,7 @@ export default function SecurityView({
         }
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -330,7 +330,7 @@ export default function SecurityView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบเหตุการณ์</ModalHeader>

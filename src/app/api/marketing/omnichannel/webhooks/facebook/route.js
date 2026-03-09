@@ -46,7 +46,7 @@ async function handleMessage(supabase, event) {
   const messageType = event.message.attachments ? "image" : "text";
   const externalId = event.message.mid;
 
-  // Upsert contact
+
   const { data: contact } = await supabase
     .from("omContact")
     .upsert(
@@ -62,7 +62,7 @@ async function handleMessage(supabase, event) {
 
   if (!contact) return;
 
-  // Find or create conversation
+
   let { data: conversation } = await supabase
     .from("omConversation")
     .select()
@@ -102,7 +102,7 @@ async function handleMessage(supabase, event) {
 
   if (!conversation) return;
 
-  // Download image if applicable
+
   let imageUrl = null;
   if (event.message.attachments) {
     const imgAttachment = event.message.attachments.find((a) => a.type === "image");
@@ -115,7 +115,7 @@ async function handleMessage(supabase, event) {
     }
   }
 
-  // Insert message
+
   await supabase.from("omMessage").insert({
     omMessageConversationId: conversation.omConversationId,
     omMessageSenderType: "customer",
@@ -127,7 +127,7 @@ async function handleMessage(supabase, event) {
     omMessageImageUrl: imageUrl,
   });
 
-  // Trigger AI auto-reply if enabled
+
   if (conversation.omConversationAiAutoReply) {
     triggerAiReply(conversation.omConversationId);
   }

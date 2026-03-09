@@ -43,7 +43,7 @@ export function useItDevRequests() {
   const deleteModal = useDisclosure();
   const [deletingRequest, setDeletingRequest] = useState(null);
 
-  // Progress tracking
+
   const progressModal = useDisclosure();
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [progressLogs, setProgressLogs] = useState([]);
@@ -155,7 +155,7 @@ export function useItDevRequests() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Progress modal
+
   const openProgress = async (request) => {
     setSelectedRequest(request);
     setProgressForm({
@@ -193,7 +193,7 @@ export function useItDevRequests() {
       });
       toast.success("อัปเดตความคืบหน้าสำเร็จ");
 
-      // Reload logs and request list
+
       const logs = await getProgressLogs(selectedRequest.itDevRequestId);
       setProgressLogs(logs);
       setProgressForm({
@@ -202,7 +202,7 @@ export function useItDevRequests() {
       });
       loadData();
 
-      // Update selected request locally
+
       setSelectedRequest((prev) => ({
         ...prev,
         itDevRequestProgress: parseInt(progressForm.itDevRequestLogProgress) || 0,
@@ -234,7 +234,7 @@ export function useItDevRequests() {
     handleSave,
     confirmDelete,
     handleDelete,
-    // Progress
+
     progressModal,
     selectedRequest,
     progressLogs,

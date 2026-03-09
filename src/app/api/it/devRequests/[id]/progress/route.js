@@ -24,7 +24,7 @@ export async function POST(request, { params }) {
   const { id } = await params;
   const body = await request.json();
 
-  // Insert progress log
+
   const { data: log, error: logError } = await supabase
     .from("itDevProgressLog")
     .insert([{ ...body, itDevProgressLogRequestId: id }])
@@ -33,7 +33,7 @@ export async function POST(request, { params }) {
 
   if (logError) return Response.json({ error: logError.message }, { status: 400 });
 
-  // Update request progress and status
+
   const updateData = { itDevRequestProgress: body.itDevProgressLogProgress };
   if (body.itDevProgressLogProgress >= 100) {
     updateData.itDevRequestStatus = "completed";

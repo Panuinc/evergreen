@@ -12,7 +12,7 @@ import {
   suggestReply as suggestReplyAction,
 } from "@/modules/marketing/actions";
 
-const POLL_INTERVAL = 3000; // 3 seconds
+const POLL_INTERVAL = 3000;
 
 export function useOmnichannelChat() {
   const [conversations, setConversations] = useState([]);
@@ -30,7 +30,7 @@ export function useOmnichannelChat() {
   const realtimeConnected = useRef(false);
   const pollTimerRef = useRef(null);
 
-  // Load conversations
+
   const loadConversations = useCallback(async () => {
     try {
       setLoading(true);
@@ -51,7 +51,7 @@ export function useOmnichannelChat() {
     loadConversations();
   }, [loadConversations]);
 
-  // Select conversation and load messages
+
   const selectConversation = useCallback(async (conversation) => {
     setSelectedConversation(conversation);
     if (!conversation) {
@@ -64,7 +64,7 @@ export function useOmnichannelChat() {
       const data = await getMessages(conversation.omConversationId);
       setMessages(data);
 
-      // Mark as read
+
       if (conversation.omConversationUnreadCount > 0) {
         await updateConversation(conversation.omConversationId, {
           omConversationUnreadCount: 0,
@@ -84,12 +84,12 @@ export function useOmnichannelChat() {
     }
   }, []);
 
-  // Send message with optimistic update
+
   const handleSendMessage = useCallback(
     async (content) => {
       if (!selectedConversation || !content.trim()) return;
 
-      // Optimistic: add message to UI immediately
+
       const tempId = `temp-${Date.now()}`;
       const optimisticMsg = {
         omMessageId: tempId,
@@ -105,12 +105,12 @@ export function useOmnichannelChat() {
         setSending(true);
         setSuggestedText("");
         const savedMsg = await sendMessageAction(selectedConversation.omConversationId, content);
-        // Replace temp message with real one
+
         setMessages((prev) =>
           prev.map((m) => (m.omMessageId === tempId ? savedMsg : m))
         );
       } catch (error) {
-        // Remove optimistic message on error
+
         setMessages((prev) => prev.filter((m) => m.omMessageId !== tempId));
         toast.error(error.message || "ส่งข้อความล้มเหลว");
       } finally {
@@ -120,7 +120,7 @@ export function useOmnichannelChat() {
     [selectedConversation]
   );
 
-  // Update conversation status
+
   const handleUpdateStatus = useCallback(
     async (conversationId, status) => {
       try {
@@ -141,7 +141,7 @@ export function useOmnichannelChat() {
     [selectedConversation]
   );
 
-  // Update contact tags/notes via conversation's contact
+
   const handleUpdateContact = useCallback(
     async (contactId, updates) => {
       try {
@@ -151,7 +151,7 @@ export function useOmnichannelChat() {
           .eq("omContactId", contactId);
         if (error) throw error;
 
-        // Refresh selected conversation
+
         if (selectedConversation) {
           setSelectedConversation((prev) => ({
             ...prev,
@@ -166,7 +166,7 @@ export function useOmnichannelChat() {
     [selectedConversation]
   );
 
-  // Delete conversation
+
   const handleDeleteConversation = useCallback(
     async (conversationId) => {
       try {
@@ -186,7 +186,7 @@ export function useOmnichannelChat() {
     [selectedConversation]
   );
 
-  // Toggle AI auto-reply for a conversation
+
   const handleToggleAiAutoReply = useCallback(
     async (conversationId, enabled) => {
       try {
@@ -207,7 +207,7 @@ export function useOmnichannelChat() {
     [selectedConversation]
   );
 
-  // Request AI suggestion
+
   const handleSuggestReply = useCallback(async () => {
     if (!selectedConversation) return;
     try {
@@ -222,38 +222,38 @@ export function useOmnichannelChat() {
     }
   }, [selectedConversation]);
 
-  // Keep ref in sync with state
+
   useEffect(() => {
     selectedConvRef.current = selectedConversation;
   }, [selectedConversation]);
 
-  // Polling fallback for messages + conversations
+
   useEffect(() => {
     const poll = async () => {
       const currentConv = selectedConvRef.current;
 
-      // Poll messages for selected conversation
+
       if (currentConv) {
         try {
           const freshMessages = await getMessages(currentConv.omConversationId);
           setMessages((prev) => {
-            // Only update if there are new messages
+
             if (freshMessages.length !== prev.length ||
                 (freshMessages.length > 0 && prev.length > 0 &&
                  freshMessages[freshMessages.length - 1]?.omMessageId !== prev[prev.length - 1]?.omMessageId &&
                  !prev[prev.length - 1]?.omMessageId?.startsWith?.("temp-"))) {
-              // Preserve any optimistic temp messages
+
               const tempMsgs = prev.filter((m) => m.omMessageId?.startsWith?.("temp-"));
               return [...freshMessages, ...tempMsgs];
             }
             return prev;
           });
         } catch {
-          // Silently ignore polling errors
+
         }
       }
 
-      // Poll conversations list
+
       try {
         const params = {};
         if (statusFilter !== "all") params.status = statusFilter;
@@ -262,7 +262,7 @@ export function useOmnichannelChat() {
         const freshConvs = await getConversations(params);
         setConversations(freshConvs);
       } catch {
-        // Silently ignore
+
       }
     };
 
@@ -275,7 +275,7 @@ export function useOmnichannelChat() {
     };
   }, [statusFilter, channelFilter, searchQuery]);
 
-  // Supabase Realtime subscriptions (bonus: instant updates when it works)
+
   useEffect(() => {
     const channelName = `omnichannel-rt-${Date.now()}`;
     const channel = supabase

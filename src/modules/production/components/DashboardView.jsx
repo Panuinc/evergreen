@@ -27,7 +27,7 @@ import ProfitByItemChart from "@/modules/production/components/ProfitByItemChart
 import ProfitByProjectSection from "@/modules/production/components/ProfitByProjectSection";
 import Loading from "@/components/ui/Loading";
 
-// ── Helpers ──
+
 function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH");
 }
@@ -36,7 +36,7 @@ function fmtCurrency(v) {
   return `฿${Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
 }
 
-// ── Sub-components ──
+
 function KpiCard({ title, value, unit, color = "default", subtitle }) {
   const colorClass = {
     primary: "text-primary",
@@ -74,7 +74,7 @@ function ChartCard({ title, children }) {
   );
 }
 
-// ── Overdue Orders DataTable config ──
+
 const overdueColumns = [
   { name: "เลขที่ใบสั่งผลิต", uid: "id", sortable: true },
   { name: "รายละเอียด", uid: "description", sortable: true },
@@ -99,7 +99,7 @@ const overdueInitialColumns = [
   "dimension2Name",
 ];
 
-// ── WIP Detail DataTable config ──
+
 const wipColumns = [
   { name: "เลขที่ใบสั่งผลิต", uid: "orderNo", sortable: true },
   { name: "รายละเอียด", uid: "description", sortable: true },
@@ -128,13 +128,13 @@ const wipInitialColumns = [
   "wipValue",
 ];
 
-// ── Dashboard content for a single tab ──
+
 function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
   if (!d) return null;
 
   return (
     <div className="flex flex-col w-full gap-4">
-      {/* KPI Cards */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         <CompareKpiCard
           title="ใบสั่งผลิตทั้งหมด"
@@ -245,7 +245,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         />
       </div>
 
-      {/* Section 1: Trends */}
+      {}
       <ChartCard title="แนวโน้มการผลิตรายวัน (ต้นทุนวัตถุดิบ vs รายได้จากการขาย)">
         <DailyProductionTrendChart data={d.dailyTrend} />
       </ChartCard>
@@ -259,7 +259,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         </ChartCard>
       </div>
 
-      {/* Section 2: Output & Status */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ChartCard title="ผลผลิต FG ตามประเภท (ประตู, วงกบ, ...)">
           <FgOutputBreakdownChart data={d.fgByProductType} />
@@ -269,12 +269,12 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         </ChartCard>
       </div>
 
-      {/* Section 3: Profit */}
+      {}
       <ChartCard title="กำไร/ขาดทุนต่อสินค้า (เขียว: กำไร / แดง: ขาดทุน)">
         <ProfitByItemChart data={d.profitByItem} />
       </ChartCard>
 
-      {/* Section 3.5: Profit by project (detail) */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
           <p className="text-xs font-light">วิเคราะห์กำไรตามโครงการ (ละเอียดรายสินค้า)</p>
@@ -284,7 +284,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         </CardBody>
       </Card>
 
-      {/* Section 4: Cost analysis */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ChartCard title="Top 10 วัตถุดิบต้นทุนสูงสุด">
           <TopConsumedItemsChart data={d.topConsumedItems} />
@@ -303,17 +303,17 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         </ChartCard>
       </div>
 
-      {/* Section 5: Employee specialization */}
+      {}
       <ChartCard title="ช่างเก่งด้านไหน (ผลผลิตตามประเภทสินค้า)">
         <EmployeeSpecializationChart data={d.employeeSpecialization} />
       </ChartCard>
 
-      {/* Section 6: WIP */}
+      {}
       <ChartCard title="WIP รายใบสั่งผลิต (Released — แดง: ต้นทุน>รายได้ / เขียว: กำไร)">
         <WipByOrderChart data={d.wipByOrder} />
       </ChartCard>
 
-      {/* Section 6.5: WIP Detail Table */}
+      {}
       {d.wipDetail?.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
@@ -342,7 +342,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         </Card>
       )}
 
-      {/* Section 7: Overdue orders */}
+      {}
       {d.overdueOrders?.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
@@ -370,14 +370,14 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         </Card>
       )}
 
-      {/* Section 8: Dashboard description */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
           <p className="text-xs font-light">คำอธิบาย Dashboard</p>
         </CardHeader>
         <CardBody className="text-xs text-muted-foreground leading-relaxed">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* KPI */}
+            {}
             <div>
               <p className="font-light text-foreground mb-2">KPI Cards</p>
               <ul className="list-disc pl-4 space-y-1">
@@ -394,7 +394,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
               </ul>
             </div>
 
-            {/* Charts */}
+            {}
             <div>
               <p className="font-light text-foreground mb-2">กราฟและตาราง</p>
               <ul className="list-disc pl-4 space-y-1">
@@ -411,7 +411,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
               </ul>
             </div>
 
-            {/* Data sources */}
+            {}
             <div>
               <p className="font-light text-foreground mb-2">แหล่งข้อมูล</p>
               <ul className="list-disc pl-4 space-y-1">
@@ -422,7 +422,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
               </ul>
             </div>
 
-            {/* Notes */}
+            {}
             <div>
               <p className="font-light text-foreground mb-2">หมายเหตุ</p>
               <ul className="list-disc pl-4 space-y-1">
@@ -441,7 +441,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
   );
 }
 
-// ── Main View ──
+
 export default function DashboardView({ data, loading, compareMode, setCompareMode }) {
   const renderOverdueCell = useCallback((item, columnKey) => {
     switch (columnKey) {
@@ -563,7 +563,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
 
   if (!data) return null;
 
-  // Handle comparison data shape
+
   const isCompare = !!data.compareMode;
   const wpcData = isCompare ? data.wpc?.current : data.wpc;
   const wpcPrev = isCompare ? data.wpc?.previous : null;

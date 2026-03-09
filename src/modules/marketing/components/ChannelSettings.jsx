@@ -25,7 +25,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
   const [fbPageId, setFbPageId] = useState("");
   const [lineToken, setLineToken] = useState("");
 
-  // AI Settings
+
   const [aiSystemPrompt, setAiSystemPrompt] = useState("");
   const [aiMaxHistory, setAiMaxHistory] = useState("20");
   const [aiBankAccountInfo, setAiBankAccountInfo] = useState("");
@@ -65,7 +65,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
         setAiBankAccountInfo(data.omAiSettingBankAccountInfo || "");
       }
     } catch {
-      // AI settings table may not exist yet
+
     }
   };
 
@@ -73,7 +73,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
     try {
       setSaving(true);
 
-      // Upsert Facebook channel
+
       await supabase.from("omChannel").upsert(
         {
           omChannelType: "facebook",
@@ -85,7 +85,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
         { onConflict: "omChannelType" }
       );
 
-      // Upsert LINE channel
+
       await supabase.from("omChannel").upsert(
         {
           omChannelType: "line",
@@ -96,7 +96,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
         { onConflict: "omChannelType" }
       );
 
-      // Save AI settings
+
       try {
         await updateAiSettings({
           omAiSettingSystemPrompt: aiSystemPrompt,
@@ -104,7 +104,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
           omAiSettingBankAccountInfo: aiBankAccountInfo,
         });
       } catch {
-        // AI settings table may not exist yet
+
       }
 
       toast.success("บันทึกการตั้งค่าเรียบร้อย");
@@ -122,7 +122,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
         <ModalHeader>ตั้งค่าช่องทาง</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-6">
-            {/* Facebook */}
+            {}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Facebook className="text-blue-500" />
@@ -154,7 +154,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
               />
             </div>
 
-            {/* LINE */}
+            {}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-green-500 font-light text-xs">LINE</span>
@@ -176,7 +176,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
               />
             </div>
 
-            {/* AI Agent Settings */}
+            {}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="text-secondary" />

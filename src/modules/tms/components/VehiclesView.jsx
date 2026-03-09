@@ -219,7 +219,7 @@ export default function VehiclesView({
         ].filter(Boolean)}
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -232,7 +232,7 @@ export default function VehiclesView({
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-4">
-              {/* 1. ทะเบียนรถ */}
+              {}
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Input
                   label="ทะเบียนรถ"
@@ -251,7 +251,7 @@ export default function VehiclesView({
                 />
               </div>
 
-              {/* 2. ความจุที่สามารถบรรทุกได้ */}
+              {}
               <div className="flex flex-col gap-2">
                 <p className="text-xs font-light px-2">ความจุที่สามารถบรรทุกได้</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -318,7 +318,7 @@ export default function VehiclesView({
                 </div>
               </div>
 
-              {/* 3. ชนิดเชื้อเพลิง & 5. อัตราการกินน้ำมัน */}
+              {}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Select
@@ -361,7 +361,7 @@ export default function VehiclesView({
                 </div>
               </div>
 
-              {/* 4. สถานะ */}
+              {}
               <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Select
                   label="สถานะ"
@@ -400,7 +400,7 @@ export default function VehiclesView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบยานพาหนะ</ModalHeader>

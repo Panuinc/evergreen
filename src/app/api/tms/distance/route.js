@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-// Geocode address to lat/lng using Nominatim (free, OpenStreetMap)
+
 async function geocode(address) {
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=th`;
   const res = await fetch(url, {
@@ -11,7 +11,7 @@ async function geocode(address) {
   return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
 }
 
-// Get driving distance using OSRM (free, open source)
+
 async function getRouteDistance(originCoords, destCoords) {
   const url = `https://router.project-osrm.org/route/v1/driving/${originCoords.lng},${originCoords.lat};${destCoords.lng},${destCoords.lat}?overview=false`;
   const res = await fetch(url);
@@ -38,7 +38,7 @@ export async function GET(request) {
   }
 
   try {
-    // Use provided origin coords or geocode origin address
+
     let originCoords;
     if (originLat && originLng) {
       originCoords = { lat: parseFloat(originLat), lng: parseFloat(originLng) };
@@ -53,7 +53,7 @@ export async function GET(request) {
       );
     }
 
-    // Geocode destination
+
     const destCoords = await geocode(destination);
     if (!destCoords) {
       return NextResponse.json(
@@ -62,7 +62,7 @@ export async function GET(request) {
       );
     }
 
-    // Get route distance via OSRM
+
     const route = await getRouteDistance(originCoords, destCoords);
     if (!route) {
       return NextResponse.json(

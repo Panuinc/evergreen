@@ -190,7 +190,7 @@ export default function ContactsView({
         }
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -335,7 +335,7 @@ export default function ContactsView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบผู้ติดต่อ</ModalHeader>

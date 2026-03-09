@@ -13,6 +13,7 @@ export function useOmQuotations() {
 
   useEffect(() => {
     loadQuotations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const loadQuotations = async () => {

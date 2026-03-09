@@ -1,6 +1,6 @@
 import { get, post, put, del } from "@/lib/apiClient";
 
-// ==================== Vehicles ====================
+
 
 export async function getVehicles() {
   return get("/api/tms/vehicles");
@@ -22,7 +22,7 @@ export async function deleteVehicle(id) {
   return del(`/api/tms/vehicles/${id}`);
 }
 
-// ==================== Shipments ====================
+
 
 export async function getShipments() {
   return get("/api/tms/shipments");
@@ -48,7 +48,7 @@ export async function updateShipmentStatus(id, status) {
   return put(`/api/tms/shipments/${id}/status`, { tmsShipmentStatus: status });
 }
 
-// ==================== Deliveries ====================
+
 
 export async function getDeliveries(shipmentId) {
   return get(
@@ -78,7 +78,7 @@ export async function getDeliveryPlanByShipmentId(shipmentId) {
   return get(`/api/tms/deliveryPlans?shipmentId=${shipmentId}`);
 }
 
-// ==================== Fuel Logs ====================
+
 
 export async function getFuelLogs(vehicleId) {
   return get(
@@ -104,7 +104,7 @@ export async function deleteFuelLog(id) {
   return del(`/api/tms/fuelLogs/${id}`);
 }
 
-// ==================== Maintenance ====================
+
 
 export async function getMaintenances(vehicleId) {
   return get(
@@ -130,7 +130,7 @@ export async function deleteMaintenance(id) {
   return del(`/api/tms/maintenance/${id}`);
 }
 
-// ==================== GPS Logs ====================
+
 
 export async function getGpsLogs(vehicleId) {
   return get(
@@ -148,27 +148,27 @@ export async function getLatestPositions() {
   return get("/api/tms/gpsLogs/latest");
 }
 
-// ==================== Dashboard ====================
+
 
 export async function getDashboardStats(compareMode) {
   const params = compareMode ? `?compareMode=${compareMode}` : "";
   return get(`/api/tms/dashboard${params}`);
 }
 
-// ==================== Reports ====================
+
 
 export async function getReportData(type, startDate, endDate) {
   const params = new URLSearchParams({ type, startDate, endDate });
   return get(`/api/tms/reports?${params}`);
 }
 
-// ==================== Alerts ====================
+
 
 export async function getAlerts() {
   return get("/api/tms/alerts");
 }
 
-// ==================== Distance ====================
+
 
 export async function calculateDistance(origin, destination, originLat, originLng) {
   const params = new URLSearchParams({ destination });
@@ -181,7 +181,7 @@ export async function calculateDistance(origin, destination, originLat, originLn
   return get(`/api/tms/distance?${params}`);
 }
 
-// ==================== Delivery Plans ====================
+
 
 export async function getDeliveryPlans(month) {
   return get(`/api/tms/deliveryPlans?month=${month}`);

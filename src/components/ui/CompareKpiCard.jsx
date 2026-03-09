@@ -4,19 +4,7 @@ import { Card, CardBody } from "@heroui/react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { pctChange } from "@/lib/comparison";
 
-/**
- * KPI Card with optional YTM/YTY comparison badge
- *
- * @param {object} props
- * @param {string} props.title
- * @param {string|number} props.value - formatted display value
- * @param {string} [props.unit]
- * @param {"primary"|"success"|"warning"|"danger"|"default"} [props.color]
- * @param {string} [props.subtitle]
- * @param {number} [props.currentRaw] - raw numeric value for comparison calc
- * @param {number} [props.previousRaw] - raw numeric value from previous period
- * @param {boolean} [props.invertColor] - true if lower is better (e.g. cost, overdue)
- */
+
 export default function CompareKpiCard({
   title,
   value,
@@ -44,8 +32,8 @@ export default function CompareKpiCard({
   const isNegative = change < 0;
   const isNeutral = change === 0;
 
-  // Determine badge color: green = good, red = bad
-  // invertColor flips the meaning (lower = good, e.g. costs)
+
+
   let badgeColor = "text-muted-foreground";
   let bgColor = "bg-default-100";
   if (!isNeutral && showBadge) {

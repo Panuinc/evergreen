@@ -84,7 +84,7 @@ export default function QuotationEditorView({
 
   return (
     <div className="flex flex-col w-full h-full overflow-auto">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <Button
@@ -166,7 +166,7 @@ export default function QuotationEditorView({
       </div>
 
       <div className="flex flex-col gap-6">
-        {/* Quotation Info */}
+        {}
         <Card className="p-4">
           <p className="text-xs font-light mb-4">ข้อมูลใบเสนอราคา</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -218,7 +218,7 @@ export default function QuotationEditorView({
           </div>
         </Card>
 
-        {/* Line Items */}
+        {}
         <Card className="p-4">
           <p className="text-xs font-light mb-4">รายการสินค้า</p>
           <div className="overflow-x-auto">
@@ -385,7 +385,7 @@ export default function QuotationEditorView({
           )}
         </Card>
 
-        {/* Summary */}
+        {}
         <Card className="p-4">
           <p className="text-xs font-light mb-4">สรุป</p>
           <div className="flex flex-col items-end gap-3 w-full max-w-sm ml-auto">
@@ -438,7 +438,7 @@ export default function QuotationEditorView({
           </div>
         </Card>
 
-        {/* Notes & Terms */}
+        {}
         <Card className="p-4">
           <p className="text-xs font-light mb-4">หมายเหตุและเงื่อนไข</p>
           <div className="flex flex-col gap-4">
@@ -469,7 +469,7 @@ export default function QuotationEditorView({
           </div>
         </Card>
 
-        {/* Approval Info */}
+        {}
         {quotation.crmQuotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
             <p className="text-xs font-light text-danger mb-1">
@@ -480,7 +480,7 @@ export default function QuotationEditorView({
         )}
       </div>
 
-      {/* Reject Modal */}
+      {}
       <Modal isOpen={rejectModal.isOpen} onClose={rejectModal.onClose} size="md">
         <ModalContent>
           <ModalHeader>ปฏิเสธใบเสนอราคา</ModalHeader>

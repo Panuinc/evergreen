@@ -15,7 +15,7 @@ export async function GET(request) {
   const companyAverage = searchParams.get("companyAverage");
   const employeeId = searchParams.get("employeeId");
 
-  // Company-wide average for a period
+
   if (companyAverage === "true" && period) {
     const { data, error } = await supabase
       .from("perfEvaluation")
@@ -44,7 +44,7 @@ export async function GET(request) {
     });
   }
 
-  // All employees summary for a period (admin)
+
   if (period) {
     const { data, error } = await supabase
       .from("perfEvaluation")
@@ -55,7 +55,7 @@ export async function GET(request) {
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
-    // Group by evaluatee and average
+
     const grouped = {};
     for (const ev of data) {
       const eid = ev.perfEvaluationEvaluateeEmployeeId;
@@ -95,7 +95,7 @@ export async function GET(request) {
     return Response.json(summary);
   }
 
-  // Single employee's all periods
+
   if (employeeId) {
     const { data, error } = await supabase
       .from("perfEvaluation")
@@ -106,7 +106,7 @@ export async function GET(request) {
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
-    // Group by period
+
     const grouped = {};
     for (const ev of data) {
       if (!grouped[ev.perfEvaluationPeriod]) {

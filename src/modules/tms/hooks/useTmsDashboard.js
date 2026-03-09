@@ -11,9 +11,9 @@ function fmt(v) {
 export function useTmsDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [compareMode, setCompareMode] = useState(null); // null | "ytm" | "yty"
+  const [compareMode, setCompareMode] = useState(null);
 
-  // AI Analysis state
+
   const [aiAnalysis, setAiAnalysis] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 

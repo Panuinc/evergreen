@@ -108,7 +108,7 @@ async function callAI(messages, retries = 2) {
 }
 
 function parseJsonResponse(text) {
-  // Strip markdown code block if present
+
   let cleaned = text.trim();
   if (cleaned.startsWith("```")) {
     cleaned = cleaned.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
@@ -133,7 +133,7 @@ export async function generateEvaluationFeedback(data) {
   try {
     return parseJsonResponse(content);
   } catch {
-    // Retry once with explicit JSON reinforcement
+
     messages.push({ role: "assistant", content });
     messages.push({ role: "user", content: "ตอบเป็น JSON เท่านั้น ห้ามมี text อื่นนอก JSON" });
 

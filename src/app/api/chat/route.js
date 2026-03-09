@@ -174,7 +174,7 @@ export async function POST(request) {
       ...messages,
     ];
 
-    // Step 1: Orchestrator decides what to do (non-streaming)
+
     const firstRes = await callOrchestrator(allMessages, false);
     const firstData = await firstRes.json();
 
@@ -184,7 +184,7 @@ export async function POST(request) {
     const hasToolCalls =
       choice.finish_reason === "tool_calls" && choice.message?.tool_calls?.length > 0;
 
-    // No tool calls → direct answer (general question)
+
     if (!hasToolCalls) {
       const content = choice.message?.content || "";
       const ssePayload =
@@ -200,7 +200,7 @@ export async function POST(request) {
       });
     }
 
-    // Step 2: Execute ALL specialist agents in PARALLEL
+
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
@@ -209,7 +209,7 @@ export async function POST(request) {
 
     (async () => {
       try {
-        // Notify client which agents are starting (all at once)
+
         await Promise.all(
           choice.message.tool_calls.map(async (toolCall) => {
             const agentEntry = AGENT_MAP[toolCall.function.name];
@@ -223,7 +223,7 @@ export async function POST(request) {
           }),
         );
 
-        // Run all agents in parallel
+
         const agentResults = await Promise.all(
           choice.message.tool_calls.map(async (toolCall) => {
             const toolName = toolCall.function.name;
@@ -255,7 +255,7 @@ export async function POST(request) {
           }),
         );
 
-        // Build messages with all agent results
+
         const toolMessages = [
           ...allMessages,
           choice.message,
@@ -266,7 +266,7 @@ export async function POST(request) {
           })),
         ];
 
-        // Step 3: Orchestrator synthesizes and streams final answer
+
         const finalRes = await callOrchestrator(toolMessages, true);
         const reader = finalRes.body.getReader();
 

@@ -188,7 +188,7 @@ export default function ActivitiesView({
                 onPress={() => handleToggleComplete(item)}
               >
                 <CheckCircle
-                 
+
                   className={
                     item.crmActivityStatus === "completed" ? "text-success" : ""
                   }
@@ -278,7 +278,7 @@ export default function ActivitiesView({
         }
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -466,7 +466,7 @@ export default function ActivitiesView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบกิจกรรม</ModalHeader>

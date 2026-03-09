@@ -5,7 +5,7 @@ export async function GET() {
   if (auth.error) return auth.error;
 
   try {
-    // Fetch from Supabase cache and price list in parallel
+
     const [{ data: bcItems, error: itemErr }, priceResult] = await Promise.all([
       auth.supabase
         .from("bcItem")
@@ -16,7 +16,7 @@ export async function GET() {
 
     if (itemErr) throw new Error(itemErr.message);
 
-    // Build price lookup map
+
     const priceMap = {};
     for (const p of priceResult.data || []) {
       priceMap[p.omPriceItemNumber] = p.omPriceItemUnitPrice;

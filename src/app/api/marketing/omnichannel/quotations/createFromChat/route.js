@@ -26,7 +26,7 @@ export async function POST(request) {
   const supabase = getServiceSupabase();
 
   try {
-    // Check for existing quotation (prevent duplicates)
+
     const { data: existing } = await supabase
       .from("omQuotation")
       .select("omQuotationId")
@@ -40,7 +40,7 @@ export async function POST(request) {
       return Response.json({ status: "skipped", reason: "quotation already exists" });
     }
 
-    // Get conversation to find contactId
+
     const { data: conversation } = await supabase
       .from("omConversation")
       .select("omConversationContactId")
@@ -51,7 +51,7 @@ export async function POST(request) {
       return Response.json({ error: "Conversation not found" }, { status: 404 });
     }
 
-    // Get messages for extraction
+
     const { data: messages } = await supabase
       .from("omMessage")
       .select("omMessageSenderType, omMessageContent")
@@ -62,12 +62,12 @@ export async function POST(request) {
       return Response.json({ error: "No messages found" }, { status: 400 });
     }
 
-    // AI extract order data
+
     console.log("[Quotation] Extracting order data for:", conversationId);
     const orderData = await extractOrderFromChat(messages);
     console.log("[Quotation] Extracted:", JSON.stringify(orderData).slice(0, 200));
 
-    // Create quotation
+
     const { data: quotation, error: qError } = await supabase
       .from("omQuotation")
       .insert({
@@ -85,15 +85,15 @@ export async function POST(request) {
 
     if (qError) throw qError;
 
-    // Create quotation lines with price lookup
+
     if (orderData.items?.length > 0) {
-      // Fetch price list for auto-pricing
+
       const { data: priceList } = await supabase
         .from("omPriceItem")
         .select("omPriceItemName, omPriceItemUnitPrice");
 
       const lines = orderData.items.map((item, i) => {
-        // Try to match product name with price list
+
         let unitPrice = 0;
         const itemName = (item.productName || "").toLowerCase();
         if (priceList?.length && itemName) {

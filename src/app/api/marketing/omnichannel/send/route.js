@@ -11,7 +11,7 @@ export async function POST(request) {
     return Response.json({ error: "conversationId and content are required" }, { status: 400 });
   }
 
-  // Get conversation + contact
+
   const { data: conversation, error: convError } = await supabase
     .from("omConversation")
     .select("*, omContact(*)")
@@ -25,7 +25,7 @@ export async function POST(request) {
   const contact = conversation.omContact;
   const channelType = conversation.omConversationChannelType;
 
-  // Get channel credentials
+
   const { data: channel } = await supabase
     .from("omChannel")
     .select()
@@ -37,7 +37,7 @@ export async function POST(request) {
     return Response.json({ error: `No active ${channelType} channel configured` }, { status: 400 });
   }
 
-  // Send to platform
+
   let sendSuccess = false;
   let externalId = null;
 
@@ -75,7 +75,7 @@ export async function POST(request) {
     return Response.json({ error: "Failed to send message to platform" }, { status: 502 });
   }
 
-  // Insert message to DB
+
   const { data: message, error: msgError } = await supabase
     .from("omMessage")
     .insert({
@@ -93,7 +93,7 @@ export async function POST(request) {
     return Response.json({ error: msgError.message }, { status: 500 });
   }
 
-  // Update conversation
+
   await supabase
     .from("omConversation")
     .update({

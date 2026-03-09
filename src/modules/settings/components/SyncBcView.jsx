@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import Loading from "@/components/ui/Loading";
 
-/* ── BC Tables ── */
 const BC_TABLES = [
   { key: "dimensionValues", label: "มิติ", icon: FolderKanban },
   { key: "customers", label: "ลูกค้า", icon: Users },
@@ -126,7 +125,7 @@ function ResultCards({ tables, results }) {
             <CardBody className="gap-1">
               <div className="flex items-center gap-2">
                 <Icon
-                 
+
                   className={isError ? "text-danger" : "text-muted-foreground"}
                 />
                 <p className="text-xs text-muted-foreground">{t.label}</p>
@@ -298,7 +297,7 @@ function BcSyncSection({
         </div>
       )}
 
-      {/* Progress panel */}
+      {}
       {syncingAll && <SyncProgressPanel phases={phases} />}
 
       {allError && (
@@ -366,7 +365,7 @@ export default function SyncBcView({
 
       <Divider />
 
-      {/* BCI Import from file */}
+      {}
       <BciImportSection
         importing={importing}
         result={importResult}

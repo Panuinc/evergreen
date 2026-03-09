@@ -3,20 +3,14 @@
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 
-/**
- * useBomAI — AI assistant hook for the BOM form.
- *
- * @param {object} params
- * @param {object} params.bomState   – current form values to send as context
- * @param {object} params.setters    – { setCustomerPO, setOrderQty, setDoorThickness, ... }
- */
+
 export function useBomAI({ bomState, setters }) {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [lastAction, setLastAction] = useState(null);
-  const [pendingDoors, setPendingDoors] = useState([]); // extracted doors from file
-  const [selectedDoorIdx, setSelectedDoorIdx] = useState(null); // index in pendingDoors for compare
-  const [appliedDoorIdxs, setAppliedDoorIdxs] = useState([]); // which doors have been applied
+  const [pendingDoors, setPendingDoors] = useState([]);
+  const [selectedDoorIdx, setSelectedDoorIdx] = useState(null);
+  const [appliedDoorIdxs, setAppliedDoorIdxs] = useState([]);
   const abortRef = useRef(null);
 
   const applyFormFields = useCallback(
@@ -25,7 +19,7 @@ export function useBomAI({ bomState, setters }) {
       const map = {
         customerPO: setters.setCustomerPO,
         orderQty: setters.setOrderQty,
-        doorCode: setters.setDoorType,   // D18, D22 → "ประเภทประตู" field
+        doorCode: setters.setDoorType,
         doorThickness: setters.setDoorThickness,
         doorWidth: setters.setDoorWidth,
         doorHeight: setters.setDoorHeight,
@@ -47,7 +41,7 @@ export function useBomAI({ bomState, setters }) {
     [setters],
   );
 
-  // Apply only selected fields from a pending door — keeps remaining doors active
+
   const applyDoorFields = useCallback(
     (door, selectedKeys, doorIdx) => {
       if (!door) return;
@@ -57,25 +51,25 @@ export function useBomAI({ bomState, setters }) {
       applyFormFields(fieldsToApply);
       setLastAction({ fields: fieldsToApply, count: Object.keys(fieldsToApply).length });
 
-      // Mark this door as applied, move to next unapplied door
+
       setAppliedDoorIdxs((prev) => {
         const next = [...prev, doorIdx];
         return next;
       });
       setSelectedDoorIdx((prev) => {
-        // Find next unapplied door after current
-        return prev; // will be recalculated in the component via effect
+
+        return prev;
       });
     },
     [applyFormFields],
   );
 
-  // Select a pending door for compare view
+
   const selectDoor = useCallback((idx) => {
     setSelectedDoorIdx(idx);
   }, []);
 
-  // Dismiss all pending doors
+
   const dismissPendingDoors = useCallback(() => {
     setPendingDoors([]);
     setSelectedDoorIdx(null);
@@ -128,29 +122,29 @@ export function useBomAI({ bomState, setters }) {
             try {
               const parsed = JSON.parse(data);
 
-              // Multi-door extraction from file
+
               if (parsed.type === "bom_action" && parsed.action?.type === "extract_doors") {
                 const doors = parsed.action.doors || [];
                 if (doors.length === 1) {
-                  // Single door — apply directly
+
                   const count = applyFormFields(doors[0]);
                   setLastAction({ fields: doors[0], count });
                 } else if (doors.length > 1) {
-                  // Multiple doors — show selector
+
                   setPendingDoors(doors);
                   setSelectedDoorIdx(0);
                 }
                 continue;
               }
 
-              // Single door fill from text
+
               if (parsed.type === "bom_action" && parsed.action?.type === "fill_form") {
                 const count = applyFormFields(parsed.action.fields);
                 setLastAction({ fields: parsed.action.fields, count });
                 continue;
               }
 
-              // Content delta
+
               const delta = parsed.choices?.[0]?.delta?.content;
               if (delta) {
                 assistantContent += delta;
@@ -160,7 +154,7 @@ export function useBomAI({ bomState, setters }) {
                 ]);
               }
             } catch {
-              // skip malformed chunks
+
             }
           }
         }

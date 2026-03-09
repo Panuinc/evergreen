@@ -50,7 +50,7 @@ export function usePin() {
       throw new Error(data.error || "การยืนยันล้มเหลว");
     }
 
-    // ใช้ token_hash จาก magiclink เพื่อ verify OTP → ได้ session
+
     const { error } = await supabase.auth.verifyOtp({
       token_hash: data.token_hash,
       type: "magiclink",

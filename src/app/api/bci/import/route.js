@@ -2,24 +2,21 @@ import { createClient } from "@supabase/supabase-js";
 import { withAuth } from "@/app/api/_lib/auth";
 import * as XLSX from "xlsx";
 
-/**
- * Column mapping: BCI LeadManager export headers → Supabase bciProject columns.
- * Keys are lowercased + trimmed for flexible matching.
- */
+
 const COLUMN_MAP = {
-  // Project ID (required)
+
   "project id": "bciProjectExternalId",
   "project_id": "bciProjectExternalId",
   "projectid": "bciProjectExternalId",
   "id": "bciProjectExternalId",
-  // Project info
+
   "project name": "bciProjectName",
   "name": "bciProjectName",
   "project type": "bciProjectType",
   "type": "bciProjectType",
   "description": "bciProjectDescription",
   "project description": "bciProjectDescription",
-  // Location
+
   "street": "bciProjectStreetName",
   "street name": "bciProjectStreetName",
   "address": "bciProjectStreetName",
@@ -32,17 +29,17 @@ const COLUMN_MAP = {
   "state province": "bciProjectStateProvince",
   "region": "bciProjectRegion",
   "country": "bciProjectCountry",
-  // Value
+
   "value": "bciProjectValue",
   "project value": "bciProjectValue",
   "currency": "bciProjectCurrency",
-  // Stage & Status
+
   "stage": "bciProjectStage",
   "project stage": "bciProjectStage",
   "status": "bciProjectStageStatus",
   "stage status": "bciProjectStageStatus",
   "project stage status": "bciProjectStageStatus",
-  // Type & Category
+
   "development type": "bciProjectDevelopmentType",
   "dev type": "bciProjectDevelopmentType",
   "ownership type": "bciProjectOwnershipType",
@@ -50,13 +47,13 @@ const COLUMN_MAP = {
   "category": "bciProjectCategory",
   "sub category": "bciProjectSubCategory",
   "subcategory": "bciProjectSubCategory",
-  // Building info
+
   "storeys": "bciProjectStoreys",
   "storey": "bciProjectStoreys",
   "floors": "bciProjectStoreys",
   "floor area": "bciProjectFloorArea",
   "site area": "bciProjectSiteArea",
-  // Dates
+
   "construction start": "bciProjectConstructionStartDate",
   "construction start date": "bciProjectConstructionStartDate",
   "con. start": "bciProjectConstructionStartDate",
@@ -68,41 +65,41 @@ const COLUMN_MAP = {
   "updated": "bciProjectModifiedDate",
   "last updated": "bciProjectModifiedDate",
   "published date": "bciProjectPublishedDate",
-  // Contacts - Owner
+
   "owner": "bciProjectOwnerCompany",
   "owner company": "bciProjectOwnerCompany",
   "owner/developer": "bciProjectOwnerCompany",
   "owner contact": "bciProjectOwnerContact",
   "owner phone": "bciProjectOwnerPhone",
   "owner email": "bciProjectOwnerEmail",
-  // Contacts - Architect
+
   "architect": "bciProjectArchitectCompany",
   "architect company": "bciProjectArchitectCompany",
   "architect contact": "bciProjectArchitectContact",
   "architect phone": "bciProjectArchitectPhone",
   "architect email": "bciProjectArchitectEmail",
-  // Contacts - Contractor
+
   "contractor": "bciProjectContractorCompany",
   "contractor company": "bciProjectContractorCompany",
   "main contractor": "bciProjectContractorCompany",
   "contractor contact": "bciProjectContractorContact",
   "contractor phone": "bciProjectContractorPhone",
   "contractor email": "bciProjectContractorEmail",
-  // Contacts - PM
+
   "pm": "bciProjectPmCompany",
   "pm company": "bciProjectPmCompany",
   "consultant": "bciProjectPmCompany",
   "pm contact": "bciProjectPmContact",
   "pm phone": "bciProjectPmPhone",
   "pm email": "bciProjectPmEmail",
-  // Other
+
   "remarks": "bciProjectRemarks",
   "main contractor method": "bciProjectMainContractorMethod",
 };
 
 function parseDate(val) {
   if (!val) return null;
-  // Handle Excel serial dates
+
   if (typeof val === "number") {
     const d = XLSX.SSF.parse_date_code(val);
     if (d) return new Date(d.y, d.m - 1, d.d).toISOString();
@@ -133,10 +130,7 @@ const NUMBER_FIELDS = new Set([
   "bciProjectLon",
 ]);
 
-/**
- * POST: Import BCI projects from Excel/CSV file upload.
- * Accepts multipart form data with a 'file' field.
- */
+
 export async function POST(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -153,7 +147,7 @@ export async function POST(request) {
       return Response.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Read file
+
     const buffer = Buffer.from(await file.arrayBuffer());
     const workbook = XLSX.read(buffer, { type: "buffer", cellDates: true });
     const sheetName = workbook.SheetNames[0];
@@ -164,7 +158,7 @@ export async function POST(request) {
       return Response.json({ error: "File is empty" }, { status: 400 });
     }
 
-    // Build column mapping from file headers
+
     const fileHeaders = Object.keys(rows[0]);
     const mapping = {};
     const unmapped = [];
@@ -174,7 +168,7 @@ export async function POST(request) {
       if (COLUMN_MAP[key]) {
         mapping[header] = COLUMN_MAP[key];
       } else {
-        // Try partial match
+
         const match = Object.entries(COLUMN_MAP).find(([k]) => key.includes(k) || k.includes(key));
         if (match) {
           mapping[header] = match[1];
@@ -184,7 +178,7 @@ export async function POST(request) {
       }
     }
 
-    // Check if bciProjectExternalId is mapped
+
     const hasProjectId = Object.values(mapping).includes("bciProjectExternalId");
     if (!hasProjectId) {
       return Response.json({
@@ -194,7 +188,7 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // Map rows to Supabase format
+
     const now = new Date().toISOString();
     const mapped = [];
     const errors = [];
@@ -218,7 +212,7 @@ export async function POST(request) {
         }
       }
 
-      // bciProjectExternalId must be a number for BCI
+
       if (record.bciProjectExternalId) {
         const pid = parseNumber(record.bciProjectExternalId);
         if (pid) {
@@ -239,7 +233,7 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // Upsert in batches of 500
+
     let upserted = 0;
     for (let i = 0; i < mapped.length; i += 500) {
       const batch = mapped.slice(i, i + 500);

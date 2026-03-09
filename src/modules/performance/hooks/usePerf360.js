@@ -25,20 +25,20 @@ import { DEFAULT_COMPETENCY_TEMPLATES } from "@/lib/performance/feedback360Const
 export function usePerf360() {
   const { user } = useAuth();
 
-  // Tab
+
   const [activeTab, setActiveTab] = useState("pending");
 
-  // Data
+
   const [employees, setEmployees] = useState([]);
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Cycles
+
   const [cycles, setCycles] = useState([]);
   const [selectedCycle, setSelectedCycle] = useState(null);
   const [loadingCycles, setLoadingCycles] = useState(false);
 
-  // Cycle form
+
   const cycleModal = useDisclosure();
   const [editingCycle, setEditingCycle] = useState(null);
   const [cycleForm, setCycleForm] = useState({
@@ -47,12 +47,12 @@ export function usePerf360() {
   });
   const [savingCycle, setSavingCycle] = useState(false);
 
-  // Competencies
+
   const [competencies, setCompetencies] = useState([]);
   const [loadingCompetencies, setLoadingCompetencies] = useState(false);
   const [savingCompetencies, setSavingCompetencies] = useState(false);
 
-  // Nominations
+
   const [nominations, setNominations] = useState([]);
   const [loadingNominations, setLoadingNominations] = useState(false);
   const nominationModal = useDisclosure();
@@ -61,11 +61,11 @@ export function usePerf360() {
   });
   const [savingNomination, setSavingNomination] = useState(false);
 
-  // Pending reviews
+
   const [pendingReviews, setPendingReviews] = useState([]);
   const [loadingPending, setLoadingPending] = useState(false);
 
-  // Review form
+
   const reviewModal = useDisclosure();
   const [activeReview, setActiveReview] = useState(null);
   const [reviewCompetencies, setReviewCompetencies] = useState([]);
@@ -75,15 +75,16 @@ export function usePerf360() {
   });
   const [submittingReview, setSubmittingReview] = useState(false);
 
-  // Results
+
   const [myResults, setMyResults] = useState(null);
   const [allResults, setAllResults] = useState(null);
   const [loadingResults, setLoadingResults] = useState(false);
   const [resultCycleId, setResultCycleId] = useState("");
 
-  // Load employees
+
   useEffect(() => {
     loadEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadEmployees = async () => {
@@ -102,7 +103,7 @@ export function usePerf360() {
     }
   };
 
-  // Load cycles
+
   const loadCycles = useCallback(async () => {
     setLoadingCycles(true);
     try {
@@ -115,7 +116,7 @@ export function usePerf360() {
     }
   }, []);
 
-  // Load pending reviews
+
   const loadPendingReviews = useCallback(async () => {
     setLoadingPending(true);
     try {
@@ -128,14 +129,14 @@ export function usePerf360() {
     }
   }, []);
 
-  // Load based on tab
+
   useEffect(() => {
     if (activeTab === "pending") loadPendingReviews();
     else if (activeTab === "myResults") loadCycles();
     else if (activeTab === "admin") loadCycles();
   }, [activeTab, loadPendingReviews, loadCycles]);
 
-  // ====== Cycle CRUD ======
+
   const handleOpenCycleForm = useCallback((cycle = null) => {
     if (cycle) {
       setEditingCycle(cycle);
@@ -207,7 +208,7 @@ export function usePerf360() {
     }
   }, [loadCycles]);
 
-  // ====== Competencies ======
+
   const loadCompetencies = useCallback(async (perf360CycleId) => {
     setLoadingCompetencies(true);
     try {
@@ -239,7 +240,7 @@ export function usePerf360() {
     })));
   }, []);
 
-  // ====== Nominations ======
+
   const loadNominations = useCallback(async (perf360CycleId) => {
     setLoadingNominations(true);
     try {
@@ -290,16 +291,16 @@ export function usePerf360() {
     }
   }, [selectedCycle, loadNominations]);
 
-  // ====== Review ======
+
   const handleOpenReview = useCallback(async (nomination) => {
     setActiveReview(nomination);
     setReviewComments({ perf360ResponseStrengthComment: "", perf360ResponseImprovementComment: "", perf360ResponseComment: "" });
 
-    // Load competencies for the cycle
+
     try {
       const comps = await getFeedback360Competencies(nomination.perf360NominationCycleId);
       setReviewCompetencies(comps || []);
-      // Initialize empty scores
+
       const initScores = {};
       for (const comp of (comps || [])) {
         initScores[comp.perf360CompetencyId] = Array(comp.perf360CompetencyQuestions.length).fill(0);
@@ -321,7 +322,7 @@ export function usePerf360() {
   }, []);
 
   const handleSubmitReview = useCallback(async () => {
-    // Validate all questions answered
+
     for (const comp of reviewCompetencies) {
       const scores = reviewScores[comp.perf360CompetencyId] || [];
       if (scores.some((s) => s === 0)) {
@@ -349,7 +350,7 @@ export function usePerf360() {
     }
   }, [activeReview, reviewScores, reviewComments, reviewCompetencies, reviewModal, loadPendingReviews]);
 
-  // ====== Results ======
+
   const loadMyResults = useCallback(async (perf360CycleId) => {
     if (!currentEmployee) return;
     setLoadingResults(true);
@@ -375,7 +376,7 @@ export function usePerf360() {
     }
   }, []);
 
-  // Load cycle details when selected
+
   useEffect(() => {
     if (selectedCycle) {
       loadCompetencies(selectedCycle.perf360CycleId);
@@ -386,25 +387,25 @@ export function usePerf360() {
   return {
     activeTab, setActiveTab,
     employees, currentEmployee, loading,
-    // Cycles
+
     cycles, selectedCycle, setSelectedCycle, loadingCycles, loadCycles,
     cycleModal, editingCycle, cycleForm, setCycleForm,
     savingCycle, handleOpenCycleForm, handleSaveCycle,
     handleDeleteCycle, handleTransition,
-    // Competencies
+
     competencies, setCompetencies, loadingCompetencies,
     savingCompetencies, handleSaveCompetencies, handleLoadTemplates,
-    // Nominations
+
     nominations, loadingNominations,
     nominationModal, nominationForm, setNominationForm,
     savingNomination, handleOpenNominationForm, handleSaveNomination, handleDeleteNomination,
-    // Pending
+
     pendingReviews, loadingPending,
-    // Review
+
     reviewModal, activeReview, reviewCompetencies,
     reviewScores, setReviewScore, reviewComments, setReviewComments,
     submittingReview, handleOpenReview, handleSubmitReview,
-    // Results
+
     myResults, allResults, loadingResults,
     resultCycleId, setResultCycleId,
     loadMyResults, loadAllResults,

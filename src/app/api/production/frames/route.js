@@ -9,7 +9,7 @@ const FRAME_PREFIX_MAP = {
 const KNOWN_PREFIXES = Object.keys(FRAME_PREFIX_MAP);
 
 function parseDimensionsFromDesc(displayName) {
-  // Match "26x30x2040", "29x35x2580", "2.9x3.5x258" etc. in description
+
   const match = displayName?.match(
     /(\d+\.?\d*)\s*x\s*(\d+\.?\d*)\s*x\s*(\d+\.?\d*)/,
   );
@@ -19,7 +19,7 @@ function parseDimensionsFromDesc(displayName) {
   let width = parseFloat(match[2]);
   let length = parseFloat(match[3]);
 
-  // If length < 1000, it's likely in cm → convert to mm
+
   if (length < 1000) length = Math.round(length * 10);
 
   return {

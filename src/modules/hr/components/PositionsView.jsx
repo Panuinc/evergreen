@@ -183,7 +183,7 @@ export default function PositionsView({
         ].filter(Boolean)}
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
@@ -268,7 +268,7 @@ export default function PositionsView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบตำแหน่ง</ModalHeader>

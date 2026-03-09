@@ -96,7 +96,7 @@ export async function GET(request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
 
-  // Non-streaming (cron / backward compat)
+
   if (!stream) {
     try {
       const result = await runSync(supabase, requestedTables, () => {});
@@ -106,7 +106,7 @@ export async function GET(request) {
     }
   }
 
-  // SSE streaming
+
   const encoder = new TextEncoder();
   const readable = new ReadableStream({
     async start(controller) {
@@ -136,9 +136,7 @@ export async function GET(request) {
   });
 }
 
-// ═══════════════════════════════════════════════════
-// Core sync logic (shared by streaming & non-streaming)
-// ═══════════════════════════════════════════════════
+
 
 async function runSync(supabase, requestedTables, send) {
   const shouldSync = (table) => requestedTables.includes(table);
@@ -154,7 +152,7 @@ async function runSync(supabase, requestedTables, send) {
   const results = {};
   const syncSuccess = {};
 
-  // ═══ Phase 1: Dimension Values ═══
+
   let dimMap = {};
   if (needDims) {
     send("progress", {
@@ -190,7 +188,7 @@ async function runSync(supabase, requestedTables, send) {
     }
   }
 
-  // ═══ Phase 2: Customers ═══
+
   if (shouldSync("customers")) {
     send("progress", {
       phase: "customers",
@@ -249,7 +247,7 @@ async function runSync(supabase, requestedTables, send) {
     }
   }
 
-  // ═══ Phase 3: Items ═══
+
   if (shouldSync("items")) {
     send("progress", {
       phase: "items",
@@ -267,7 +265,7 @@ async function runSync(supabase, requestedTables, send) {
         },
         { timeout: 120_000 },
       );
-      // Fetch existing RFID codes so upsert doesn't overwrite them
+
       const itemNos = items.map((i) => i.No);
       const rfidMap = {};
       for (let i = 0; i < itemNos.length; i += 1000) {
@@ -282,13 +280,13 @@ async function runSync(supabase, requestedTables, send) {
         }
       }
 
-      // Auto-assign sequential rfidCode to items that don't have one yet
+
       const maxExisting = Object.values(rfidMap).reduce(
         (max, v) => Math.max(max, parseInt(v) || 0),
         0,
       );
       let nextCode = maxExisting + 1;
-      // Sort items by No to ensure stable assignment order across syncs
+
       const sortedItems = [...items].sort((a, b) => a.No.localeCompare(b.No));
       for (const item of sortedItems) {
         if (!rfidMap[item.No]) {
@@ -347,7 +345,7 @@ async function runSync(supabase, requestedTables, send) {
     }
   }
 
-  // ═══ Phase 4: Sales Orders + Lines ═══
+
   if (needOrders || needLines) {
     send("progress", {
       phase: "salesOrders",
@@ -355,7 +353,7 @@ async function runSync(supabase, requestedTables, send) {
       label: "ดึงข้อมูลคำสั่งขาย...",
     });
     try {
-      // Build month prefixes from SO2501 to current month to avoid BC API timeout
+
       const soPrefixes = [];
       const startYear = 25, startMonth = 1;
       const nowDate = new Date();
@@ -527,7 +525,7 @@ async function runSync(supabase, requestedTables, send) {
   }
 
 
-  // ═══ Phase 5: Production (productionOrder + ItemLedgerEntries → bcProduction) ═══
+
   if (shouldSync("production")) {
     send("progress", {
       phase: "production",
@@ -557,7 +555,7 @@ async function runSync(supabase, requestedTables, send) {
         label: `ดึงข้อมูลเสร็จ: ใบสั่งผลิต ${prodOrders.length.toLocaleString()} / ILE ${ileEntries.length.toLocaleString()} รายการ`,
       });
 
-      // ── Map Production Orders ──
+
       const poRows = prodOrders.map((o) => ({
         bcProductionOrderExternalId: o.No,
         bcProductionOrderStatus: o.Status || null,
@@ -581,7 +579,7 @@ async function runSync(supabase, requestedTables, send) {
         bcProductionOrderSyncedAt: now,
       }));
 
-      // ── Map Item Ledger Entries ──
+
       const ileRows = ileEntries.map((e) => ({
         bcItemLedgerEntryExternalNo: e.Entry_No,
         bcItemLedgerEntryItemNo: e.Item_No || null,
@@ -632,13 +630,13 @@ async function runSync(supabase, requestedTables, send) {
         label: `บันทึก PO ${poRows.length.toLocaleString()} / ILE ${ileRows.length.toLocaleString()} รายการ...`,
       });
 
-      // Delete all then insert (full replace strategy)
+
       await Promise.all([
         supabase.from("bcProductionOrder").delete().neq("bcProductionOrderExternalId", ""),
         supabase.from("bcItemLedgerEntry").delete().gte("bcItemLedgerEntryExternalNo", 0),
       ]);
 
-      // Insert both tables in parallel
+
       await Promise.all([
         batchUpsert(supabase, "bcProductionOrder", poRows, {
           onConflictCol: "bcProductionOrderExternalId",
@@ -678,7 +676,7 @@ async function runSync(supabase, requestedTables, send) {
     }
   }
 
-  // ═══ Phase 6: Cleanup ═══
+
   send("progress", {
     phase: "cleanup",
     step: "cleaning",
@@ -715,8 +713,8 @@ async function runSync(supabase, requestedTables, send) {
   if (syncSuccess.items) {
     cleanupParallel.push(
       (async () => {
-        // Keep items that have RFID codes (just zero out inventory),
-        // only delete items without RFID codes
+
+
         const { count: keptCount, error: keepError } = await supabase
           .from("bcItem")
           .update(

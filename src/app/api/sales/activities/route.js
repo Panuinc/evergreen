@@ -40,7 +40,7 @@ export async function POST(request) {
 
   const body = await request.json();
 
-  // Handle update via POST with id
+
   if (body.crmActivityId) {
     const { crmActivityId, ...updateData } = body;
     const { data, error } = await supabase
@@ -54,7 +54,7 @@ export async function POST(request) {
     return Response.json(data);
   }
 
-  // Handle delete via POST with deleteId
+
   if (body.deleteId) {
     const { error } = await supabase
       .from("salesActivity")
@@ -65,7 +65,7 @@ export async function POST(request) {
     return Response.json({ success: true });
   }
 
-  // Create new activity
+
   const { data, error } = await supabase
     .from("salesActivity")
     .insert([body])

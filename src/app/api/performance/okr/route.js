@@ -11,7 +11,7 @@ export async function GET(request) {
   const quarter = searchParams.get("quarter");
   const employeeId = searchParams.get("employeeId");
 
-  // Get current user's employee
+
   const { data: currentEmployee } = await supabase
     .from("hrEmployee")
     .select("hrEmployeeId, hrEmployeeDepartment")
@@ -34,7 +34,7 @@ export async function GET(request) {
   } else if (visibility === "team") {
     query = query.in("perfOkrObjectiveVisibility", ["team", "company"]);
   } else {
-    // Default: my own objectives
+
     if (currentEmployee) {
       query = query.eq("perfOkrObjectiveEmployeeId", currentEmployee.hrEmployeeId);
     } else {
@@ -47,7 +47,7 @@ export async function GET(request) {
 
   if (!data || data.length === 0) return Response.json([]);
 
-  // Fetch key results separately
+
   const objIds = data.map((o) => o.perfOkrObjectiveId);
   let krQuery = supabase
     .from("perfOkrKeyResult")
@@ -62,7 +62,7 @@ export async function GET(request) {
     krMap[kr.perfOkrKeyResultObjectiveId].push(kr);
   }
 
-  // Fetch employees separately
+
   const empIds = [...new Set(data.map((o) => o.perfOkrObjectiveEmployeeId))];
   const { data: emps } = await supabase
     .from("hrEmployee")
@@ -93,7 +93,7 @@ export async function POST(request) {
     return Response.json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" }, { status: 400 });
   }
 
-  // Get current employee
+
   const { data: currentEmployee } = await supabase
     .from("hrEmployee")
     .select("hrEmployeeId")
@@ -124,7 +124,7 @@ export async function POST(request) {
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
-  // Create key results if provided
+
   if (keyResults && keyResults.length > 0) {
     const krRows = keyResults.map((kr, i) => ({
       perfOkrKeyResultObjectiveId: objective.perfOkrObjectiveId,
@@ -142,7 +142,7 @@ export async function POST(request) {
     if (krError) return Response.json({ error: krError.message }, { status: 400 });
   }
 
-  // Re-fetch with key results
+
   const { data: krs } = await supabase
     .from("perfOkrKeyResult")
     .select("*")

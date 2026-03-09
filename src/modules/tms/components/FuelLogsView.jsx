@@ -203,7 +203,7 @@ export default function FuelLogsView({
         ].filter(Boolean)}
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -361,7 +361,7 @@ export default function FuelLogsView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบบันทึกน้ำมัน</ModalHeader>

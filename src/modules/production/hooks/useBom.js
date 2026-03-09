@@ -448,12 +448,9 @@ const useCalculations = (params) => {
   ]);
 };
 
-// ── Pure helpers for cutting plan optimization ──────────────────────────────
 
-/**
- * First-Fit Decreasing (FFD) bin-packing.
- * Sorts pieces longest-first then greedily fills stocks.
- */
+
+
 function runBinPacking(allPieces, stockLength, sawKerf = 5) {
   const sorted = [...allPieces].sort(
     (a, b) => (b.cutLength ?? b.length) - (a.cutLength ?? a.length),
@@ -476,7 +473,7 @@ function runBinPacking(allPieces, stockLength, sawKerf = 5) {
       });
     }
   });
-  // Correct the last kerf on each stock (last cut has no kerf)
+
   stocks.forEach((s) => {
     s.remaining += sawKerf;
     s.used -= sawKerf;
@@ -484,10 +481,7 @@ function runBinPacking(allPieces, stockLength, sawKerf = 5) {
   return stocks;
 }
 
-/**
- * Expand cutPieces definitions (with qty) into individual pieces,
- * optionally multiplied by orderQty for batch planning.
- */
+
 function expandPieces(cutPieces, orderQty = 1) {
   return cutPieces.flatMap((piece) =>
     Array.from({ length: piece.qty * orderQty }, (_, i) => ({
@@ -497,7 +491,7 @@ function expandPieces(cutPieces, orderQty = 1) {
   );
 }
 
-/** Derive efficiency stats from a stocks array. */
+
 function computeStockStats(stocks, stockLength) {
   const totalStocks = stocks.length;
   const totalStock = totalStocks * stockLength;
@@ -509,7 +503,7 @@ function computeStockStats(stocks, stockLength) {
   return { totalStocks, totalStock, totalWaste, usedLength, efficiency };
 }
 
-// ────────────────────────────────────────────────────────────────────────────
+
 
 const useCuttingPlan = (results, currentFrame, coreType, orderQty) => {
   return useMemo(() => {
@@ -674,7 +668,7 @@ const useCuttingPlan = (results, currentFrame, coreType, orderQty) => {
       );
     }
 
-    // ── Single-door plan (for visualization) ──
+
     const allPieces = expandPieces(cutPieces, 1);
     const stocks = runBinPacking(allPieces, stockLength, sawKerf);
     const { totalStocks, totalStock, totalWaste, usedLength, efficiency } =
@@ -684,7 +678,7 @@ const useCuttingPlan = (results, currentFrame, coreType, orderQty) => {
       cutPieces.filter((p) => p.isSplice).reduce((sum, p) => sum + p.qty, 0) /
       2;
 
-    // ── Batch plan (optimize cutting across the whole order) ──
+
     const batchQty = Math.max(1, parseInt(orderQty) || 1);
     let batch = null;
     if (batchQty > 1) {
@@ -720,11 +714,7 @@ const useCuttingPlan = (results, currentFrame, coreType, orderQty) => {
   }, [results, currentFrame, coreType, orderQty]);
 };
 
-/**
- * For the currently selected frame candidate, compare all available stock
- * lengths (from allFrames) to find the cheapest option for the order.
- * Uses the same cutPieces (same T×W, different length only).
- */
+
 const useFrameLengthOptimizer = (cutPieces, frameCandidates, orderQty, selectedFrameCode) => {
   return useMemo(() => {
     const empty = {
@@ -739,7 +729,7 @@ const useFrameLengthOptimizer = (cutPieces, frameCandidates, orderQty, selectedF
     const batchQty = Math.max(1, parseInt(orderQty) || 1);
     const sawKerf = 5;
 
-    // Evaluate every frame across every candidate
+
     const allOptions = frameCandidates
       .flatMap((candidate) =>
         (candidate.allFrames || []).map((frame) => {
@@ -1319,19 +1309,19 @@ export function useBom() {
     const qty = parseInt(orderQty) || 0;
     const batchQty = Math.max(1, qty);
 
-    // Single-door stocks (for per-door display)
-    const frameStocks = cuttingPlan?.totalStocks || 0;
-    const frameCost = frameUnitCost * frameStocks; // per door (naive)
 
-    // Batch-optimized total stocks for the whole order
+    const frameStocks = cuttingPlan?.totalStocks || 0;
+    const frameCost = frameUnitCost * frameStocks;
+
+
     const frameStocksTotal =
       cuttingPlan?.batch?.totalStocks ?? frameStocks * batchQty;
     const frameCostTotal = frameUnitCost * frameStocksTotal;
 
-    // Per-door cost using batch optimization (may be fractional)
+
     const frameCostPerDoor = qty > 0 ? frameCostTotal / qty : frameCost;
 
-    // Savings: naive (per-door × qty) vs batch
+
     const frameSavings = Math.max(
       0,
       frameCost * (qty || 1) - frameCostTotal,
@@ -1354,7 +1344,7 @@ export function useBom() {
       coreQtyLabel = `${coreQtyUsed} \u0E41\u0E1C\u0E48\u0E19`;
     } else {
       const stripLength = selectedCoreItem?.length || 0;
-      // Use parsed ERP width, fallback to standard sheet width from config (1220mm)
+
       const sheetWidth =
         selectedCoreItem?.width || coreCalculation?.coreType?.sheetWidth || 0;
       const columns = coreCalculation?.columns || 0;
@@ -1382,8 +1372,8 @@ export function useBom() {
         totalStrips = columns + damPieces;
       }
 
-      // Convert strip count → sheets: one sheet yields floor(sheetWidth / doorThickness) strips
-      // Strip cut width = door/frame thickness (core fills the full frame depth)
+
+
       const stripCutWidth = parseInt(doorThickness) || 0;
       const stripsPerSheet =
         sheetWidth > 0 && stripCutWidth > 0
@@ -1404,8 +1394,8 @@ export function useBom() {
       coreStripCutWidth = stripCutWidth;
     }
 
-    // Proportional (batch-amortized) core cost:
-    // e.g. 18 strips from a 27-strip sheet → costs 18/27 of sheet price, not full sheet
+
+
     let core;
     if (!isSolidCore && coreStripsPerSheet > 0 && qty > 0) {
       const coreBatchTotal =
@@ -1423,20 +1413,20 @@ export function useBom() {
     );
     const margin = parseFloat(customMargin) || 0;
 
-    // Per-door total uses batch-optimized frame cost
+
     const nonFramePerDoor = surface + core + edge + drillCost;
     const totalPerDoor = frameCostPerDoor + nonFramePerDoor;
 
-    // Grand totals use batch-optimized frame cost + linear non-frame costs
+
     const grandTotal = qty > 0 ? frameCostTotal + nonFramePerDoor * qty : 0;
 
     return {
-      frameCost: frameCostPerDoor,   // optimized per-door frame cost
-      frameCostNaive: frameCost,     // naive per-door (single-door × 1) for display
-      frameStocks,                   // single-door stock count (for display)
-      frameStocksTotal,              // total stocks for whole order (batch)
+      frameCost: frameCostPerDoor,
+      frameCostNaive: frameCost,
+      frameStocks,
+      frameStocksTotal,
       frameUnitCost,
-      frameSavings,                  // savings from batch vs naive
+      frameSavings,
       surface,
       core,
       coreQtyUsed,

@@ -20,7 +20,7 @@ import {
 } from "recharts";
 import Loading from "@/components/ui/Loading";
 
-/* ═══════════════════ Constants ═══════════════════ */
+
 
 const CONTACT_METHODS = [
   { value: "phone", label: "โทรศัพท์", icon: Phone },
@@ -53,7 +53,7 @@ const STATUSES = [
 
 const PIE_COLORS = ["#F5A524", "#006FEE", "#9353D3", "#F31260", "#17C964", "#71717A", "#F97316", "#0EA5E9"];
 
-/* ═══════════════════ UI Helpers ═══════════════════ */
+
 
 function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
@@ -97,7 +97,7 @@ function exportCSV(data, filename) {
   URL.revokeObjectURL(url);
 }
 
-/* ═══════════════════ CollectionsView ═══════════════════ */
+
 
 export default function CollectionsView({
   loading, mergedData, kpis, selectedCustomer,
@@ -109,7 +109,7 @@ export default function CollectionsView({
   reportData, onReload, followUps,
   aiAnalysis, aiLoading, runAiAnalysis,
 }) {
-  // ─── DataTable: Tracking columns ───
+
   const trackingColumns = useMemo(() => [
     { name: "ลูกค้า", uid: "name", sortable: true },
     { name: "เลขที่", uid: "customerNumber", sortable: true },
@@ -179,7 +179,7 @@ export default function CollectionsView({
     }
   }, [onOpenAdd, onOpenHistory]);
 
-  // ─── DataTable: Report columns ───
+
   const reportColumns = useMemo(() => [
     { name: "วันที่", uid: "contactDate", sortable: true },
     { name: "ลูกค้า", uid: "customerName", sortable: true },
@@ -228,7 +228,7 @@ export default function CollectionsView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <Tabs aria-label="Collections tabs" color="primary" variant="underlined">
-        {/* ═══════════════════ Tab 1: Tracking ═══════════════════ */}
+        {}
         <Tab
           key="tracking"
           title={
@@ -268,7 +268,7 @@ export default function CollectionsView({
           />
         </Tab>
 
-        {/* ═══════════════════ Tab 2: Report ═══════════════════ */}
+        {}
         <Tab
           key="report"
           title={
@@ -278,7 +278,7 @@ export default function CollectionsView({
             </div>
           }
         >
-          {/* Date Filter + Export */}
+          {}
           <div className="flex flex-wrap items-end gap-3 mb-4">
             <Input
               type="date"
@@ -315,7 +315,7 @@ export default function CollectionsView({
             </Button>
           </div>
 
-          {/* Charts */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
               <CardHeader className="pb-0">
@@ -375,7 +375,7 @@ export default function CollectionsView({
             </Card>
           </div>
 
-          {/* Report DataTable */}
+          {}
           <DataTable
             columns={reportColumns}
             data={reportData.filtered}
@@ -391,7 +391,7 @@ export default function CollectionsView({
         </Tab>
       </Tabs>
 
-      {/* ═══════════════════ AI Collections Advisor ═══════════════════ */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -464,7 +464,7 @@ export default function CollectionsView({
         </CardBody>
       </Card>
 
-      {/* ═══════════════════ Modal: Add Follow-up ═══════════════════ */}
+      {}
       <Modal isOpen={addModal.isOpen} onClose={addModal.onClose} size="2xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
@@ -566,7 +566,7 @@ export default function CollectionsView({
         </ModalContent>
       </Modal>
 
-      {/* ═══════════════════ Modal: History ═══════════════════ */}
+      {}
       <Modal isOpen={historyModal.isOpen} onClose={historyModal.onClose} size="4xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">

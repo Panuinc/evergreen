@@ -112,6 +112,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
                 {loadingPreview ? (
                   <Skeleton className="w-full h-15 rounded" />
                 ) : previewSrc ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={previewSrc}
                     alt="Label preview"

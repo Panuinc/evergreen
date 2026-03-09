@@ -35,7 +35,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
 
-  // Try bcSalesOrder first, fall back to bcSalesOrderHeaders
+
   let tableName = "bcSalesOrder";
   let linesTable = "bcSalesOrderLine";
 
@@ -47,7 +47,7 @@ export async function GET(request) {
 
   let { data, error } = await query.order("bcSalesOrderDate", { ascending: false });
 
-  // Fall back to bcSalesOrderHeaders if bcSalesOrder doesn't exist
+
   if (error && error.message.includes("does not exist")) {
     tableName = "bcSalesOrderHeaders";
     query = supabase.from(tableName).select("*");
@@ -63,7 +63,7 @@ export async function GET(request) {
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
-  // Try to include related lines for each order
+
   if (data && data.length > 0) {
     const orderNumbers = data.map((o) => o.bcSalesOrderNumber || o.no).filter(Boolean);
 

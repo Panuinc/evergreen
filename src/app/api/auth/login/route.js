@@ -25,7 +25,7 @@ export async function POST(request) {
       return Response.json({ error: error.message }, { status: 401 });
     }
 
-    // Check if user account is active
+
     const { data: profile } = await supabase
       .from("rbacUserProfile")
       .select("isActive")

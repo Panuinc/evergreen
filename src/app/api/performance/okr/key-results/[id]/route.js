@@ -19,7 +19,7 @@ export async function PUT(request, { params }) {
   if (unit !== undefined) updates.perfOkrKeyResultUnit = unit;
   if (weight !== undefined) updates.perfOkrKeyResultWeight = weight;
 
-  // Auto-compute status if currentValue changed
+
   if (currentValue !== undefined) {
     const { data: kr } = await supabase
       .from("perfOkrKeyResult")
@@ -41,7 +41,7 @@ export async function PUT(request, { params }) {
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
-  // Update objective progress
+
   await updateObjectiveProgress(supabase, data.perfOkrKeyResultObjectiveId);
 
   return Response.json(data);
@@ -53,7 +53,7 @@ export async function DELETE(request, { params }) {
   const { supabase } = auth;
   const { id } = await params;
 
-  // Get objectiveId before soft-deleting
+
   const { data: kr } = await supabase
     .from("perfOkrKeyResult")
     .select("perfOkrKeyResultObjectiveId")
@@ -67,7 +67,7 @@ export async function DELETE(request, { params }) {
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
-  // Update objective progress
+
   if (kr) await updateObjectiveProgress(supabase, kr.perfOkrKeyResultObjectiveId);
 
   return Response.json({ success: true });

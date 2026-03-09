@@ -74,7 +74,7 @@ function buildLabelHTML(data, label, barcodeValue) {
 }
 
 export default function ShippingLabelModal({ isOpen, onClose, order, customerPhone }) {
-  const lines = order?.lines?.filter((l) => l.bcSalesOrderLineType === "Item" && l.bcSalesOrderLineQuantity > 0) || [];
+  const lines = useMemo(() => order?.lines?.filter((l) => l.bcSalesOrderLineType === "Item" && l.bcSalesOrderLineQuantity > 0) || [], [order?.lines]);
 
   const [selectedLines, setSelectedLines] = useState(() =>
     Object.fromEntries(lines.map((l) => [l.bcSalesOrderLineNo, true])),
@@ -156,7 +156,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
     try {
       const html2canvas = (await import("html2canvas")).default;
 
-      // Build label list (same logic as ShippingLabelDocument)
+
       const labels = [];
       let runningNo = 0;
       for (const item of data.items) {
@@ -166,7 +166,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
         }
       }
 
-      // Hidden container for rendering
+
       const container = document.createElement("div");
       container.style.cssText = "position:fixed;left:-9999px;top:0;z-index:-1;";
       document.body.appendChild(container);
@@ -179,7 +179,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
         container.innerHTML = buildLabelHTML(data, label, barcodeValue);
         const labelEl = container.firstChild;
 
-        // Generate barcode (same settings as ShippingLabelDocument)
+
         const svgEl = labelEl.querySelector(".js-barcode");
         if (svgEl) {
           JsBarcode(svgEl, barcodeValue, {
@@ -194,7 +194,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
           });
         }
 
-        // Wait for images to load
+
         const imgs = labelEl.querySelectorAll("img");
         await Promise.all(
           Array.from(imgs).map(
@@ -220,7 +220,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
 
       document.body.removeChild(container);
 
-      // Send captured images to server for TSPL conversion + printing
+
       const res = await fetch("/api/marketing/shippingLabel/print", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -247,7 +247,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
           <span className="text-xs font-light text-muted-foreground">{order?.bcSalesOrderNumber}</span>
         </ModalHeader>
         <ModalBody className="gap-6">
-          {/* Recipient Info */}
+          {}
           <div className="space-y-3">
             <p className="text-xs font-light">ข้อมูลผู้รับ</p>
             <Input
@@ -280,7 +280,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
             />
           </div>
 
-          {/* Line Items Selection */}
+          {}
           <div className="space-y-3">
             <p className="text-xs font-light">เลือกรายการสินค้า</p>
             <div className="space-y-2">

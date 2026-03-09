@@ -1,41 +1,32 @@
-/**
- * GL Account Mapping for CHH Financial Reports
- * Based on CFO's Excel structure (งบการเงิน CHH)
- *
- * Key insight: Some 52xx/53xx accounts are reclassified to COGS
- * because they are manufacturing-related (factory rent, maintenance, depreciation)
- */
 
-// ─── Manufacturing Overhead → COGS (โสหุ้ยการผลิต) ───
-// These 52xx/53xx accounts are factory costs → classified as COGS per TAS cost accounting
+
+
 export const COGS_OVERRIDE_ACCOUNTS = new Set([
-  "52000-09",   // ค่าเช่าโรงงาน (Factory Rent)
-  "53200-06",   // ซ่อมบำรุง-อาคารและสิ่งปลูกสร้าง
-  "53200-08",   // ซ่อมบำรุง-เครื่องจักร
-  "53200-13",   // ซ่อมบำรุง-อาคารโรงงาน
-  "53200-14",   // ค่าน้ำมันรถโฟล์คลิฟท์
-  "53400-01",   // ค่าเสื่อมราคา-อาคารและสิ่งปลูกสร้าง
-  "53400-02",   // ค่าเสื่อมราคา-เครื่องจักร
-  "53900-14",   // ค่าแรงบวกกลับ
+  "52000-09",
+  "53200-06",
+  "53200-08",
+  "53200-13",
+  "53200-14",
+  "53400-01",
+  "53400-02",
+  "53900-14",
 ]);
 
-// ─── Interest (ต้นทุนทางการเงิน) ───
-// 53710-xx accounts are finance costs, separated from admin per Manager Account Excel
+
 export const INTEREST_ACCOUNTS = new Set([
-  "53710-01",   // ดอกเบี้ยจ่าย-เงินกู้ธนาคาร
-  "53710-02",   // ดอกเบี้ยจ่าย-เช่าซื้อ
-  "53710-03",   // ดอกเบี้ยจ่าย-เงินกู้กรรมการ
-  "53710-04",   // ดอกเบี้ยจ่าย-อื่นๆ
-  "53710-05",   // ดอกเบี้ยเช่าซื้อ
+  "53710-01",
+  "53710-02",
+  "53710-03",
+  "53710-04",
+  "53710-05",
 ]);
 
-// ─── Admin Override (ค่าใช้จ่ายบริหาร) ───
-// 52000-10 ค่าเช่ายานพาหนะ is admin per Manager Account Excel
+
 export const ADMIN_OVERRIDE_ACCOUNTS = new Set([
-  "52000-10",   // ค่าเช่ายานพาหนะ (Vehicle Rental → Admin)
+  "52000-10",
 ]);
 
-// ─── COGS Structure (matches ต้นทุน_68 sheet) ───
+
 export const COGS_STRUCTURE = [
   {
     key: "beginningInventory",
@@ -116,7 +107,7 @@ export const COGS_STRUCTURE = [
     labelEn: "Services",
     accounts: ["51430-01"],
   },
-  // ─── Manufacturing Overhead (โสหุ้ยการผลิต) ───
+
   {
     key: "factoryRent",
     label: "ค่าเช่าโรงงาน",
@@ -167,29 +158,25 @@ export const COGS_STRUCTURE = [
   },
 ];
 
-// ─── Calendar Year Constants (January–December, ปีปฏิทิน) ───
+
 export const CAL_MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 export const CAL_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-/**
- * Get 2-digit BE year suffix for a calendar month column.
- * @param {number} i - index in CAL_MONTHS (0=Jan, ..., 11=Dec)
- * @param {number} adYear - the AD year (e.g. 2025 for พ.ศ. 2568)
- */
+
 export function calMonthBE(i, adYear) {
   return String((adYear + 543) % 100).padStart(2, "0");
 }
 
-// ─── Inventory accounts (for ending inventory deduction in COGS) ───
+
 export const INVENTORY_ACCOUNTS = [
   { key: "rawMaterial", label: "วัตถุดิบคงเหลือ", labelEn: "Raw Material", account: "11500-01" },
   { key: "wip", label: "สินค้าระหว่างผลิต", labelEn: "Work-in-Process", account: "11500-02" },
   { key: "finishedGoods", label: "สินค้าสำเร็จรูป", labelEn: "Finished Goods", account: "11500-03" },
 ];
 
-// ─── P&L Row Definitions (for Monthly P&L table) ───
+
 export const PNL_ROWS = [
-  // Revenue
+
   { key: "h_revenue", label: "รายได้", type: "header" },
   { key: "41000-01", label: "รายได้จากการขายสินค้า", type: "account", prefix: "41000-01" },
   { key: "41000-03", label: "ส่วนลดจ่าย", type: "account", prefix: "41000-03" },
@@ -203,29 +190,29 @@ export const PNL_ROWS = [
   { key: "43000-06", label: "รายได้จากการประนอมหนี้", type: "account", prefix: "43000-06" },
   { key: "sub_otherIncome", label: "รวมรายได้อื่น", type: "subtotal", group: "otherIncome" },
   { key: "total_revenue", label: "รวมรายได้", type: "total", sumGroups: ["salesRevenue", "otherIncome"] },
-  // COGS
+
   { key: "h_cogs", label: "ต้นทุนขาย", type: "header" },
   { key: "computed_cogs", label: "ต้นทุนการขาย", type: "computed", computeKey: "cogs" },
-  // Expenses
+
   { key: "h_selling", label: "ค่าใช้จ่ายในการขาย", type: "header" },
   { key: "computed_selling", label: "ค่าใช้จ่ายในการขาย", type: "computed", computeKey: "selling" },
   { key: "h_admin", label: "ค่าใช้จ่ายในการบริหาร", type: "header" },
   { key: "computed_admin", label: "ค่าใช้จ่ายในการบริหาร", type: "computed", computeKey: "admin" },
   { key: "total_expenses", label: "รวมค่าใช้จ่าย", type: "total", sumGroups: ["cogs", "selling", "admin"] },
-  // Profit
+
   { key: "h_profit", label: "กำไร", type: "header" },
   { key: "computed_netProfit", label: "กำไรสุทธิก่อนภาษี", type: "grandTotal", computeKey: "netProfit" },
 ];
 
-// ─── Account Classification ───
+
 
 export function classifyAccount(accountNumber) {
   if (!accountNumber) return "other";
-  // Manufacturing overhead → COGS (โสหุ้ยการผลิต)
+
   if (COGS_OVERRIDE_ACCOUNTS.has(accountNumber)) return "cogs";
-  // Interest → ต้นทุนทางการเงิน (separated from admin per Manager Account Excel)
+
   if (INTEREST_ACCOUNTS.has(accountNumber)) return "interest";
-  // Vehicle rental → admin (52000-10)
+
   if (ADMIN_OVERRIDE_ACCOUNTS.has(accountNumber)) return "admin";
   const prefix = accountNumber.substring(0, 2);
   switch (prefix) {
@@ -242,24 +229,11 @@ export function classifyAccount(accountNumber) {
   }
 }
 
-// ─── COGS from GL totals ───
+
 
 const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
-/**
- * Return COGS from GL monthly totals.
- *
- * monthlyTotals["cogs"] includes all 51xxx accounts:
- *   51200-00 (Beginning Inventory, debit = positive)
- *   51300-00 (Ending Inventory, credit = negative)
- *   51400-xx (Purchases), 51420-xx (Labor), 51430-xx (Services)
- *
- * For a closed fiscal year this equals:
- *   BeginInv + Purchases + Labor + Services + Overhead − EndInv = correct COGS
- *
- * No further inventory adjustment is needed here; page.jsx handles
- * unclosed-year adjustments using trial-balance inventory balances.
- */
+
 export function computeAdjustedCogs(byAccount, monthlyTotals) {
   const raw = monthlyTotals?.["cogs"] || { months: {}, total: 0 };
   const months = {};
@@ -267,20 +241,16 @@ export function computeAdjustedCogs(byAccount, monthlyTotals) {
   return { months, total: raw.total };
 }
 
-// ─── GL Entry Aggregation ───
 
-/**
- * Aggregate raw GL entries into monthly summaries per account.
- * @param {Array} entries - Raw GL entries from BC API
- * @returns {{ byAccount: Object, monthlyTotals: Object }}
- */
+
+
 export function aggregateGlEntries(entries) {
   if (!entries || !entries.length) return { byAccount: {}, monthlyTotals: {} };
 
   const byAccount = {};
 
   for (const entry of entries) {
-    const mm = entry.postingDate?.substring(5, 7); // "01"-"12"
+    const mm = entry.postingDate?.substring(5, 7);
     const acct = entry.accountNumber;
     if (!mm || !acct) continue;
 
@@ -296,18 +266,18 @@ export function aggregateGlEntries(entries) {
 
     const debit = entry.debitAmount || 0;
     const credit = entry.creditAmount || 0;
-    // For expense/COGS accounts: net = debit - credit (positive = expense)
-    // For revenue accounts: net = credit - debit (positive = income)
+
+
     const cat = byAccount[acct].category;
     const isCredit = ["salesRevenue", "serviceRevenue", "otherIncome", "liabilities", "equity"].includes(cat);
-    const net = isCredit ? (credit - debit) : (debit - credit); // interest is debit-side (expense)
+    const net = isCredit ? (credit - debit) : (debit - credit);
 
     if (!byAccount[acct].months[mm]) byAccount[acct].months[mm] = 0;
     byAccount[acct].months[mm] += net;
     byAccount[acct].total += net;
   }
 
-  // Compute monthly totals by category
+
   const monthlyTotals = {};
   for (const acct of Object.values(byAccount)) {
     const cat = acct.category;
@@ -324,10 +294,7 @@ export function aggregateGlEntries(entries) {
   return { byAccount, monthlyTotals };
 }
 
-/**
- * Compute monthly P&L summary from aggregated data.
- * Returns array of rows for the Monthly P&L table.
- */
+
 export function computeMonthlyPnL(byAccount, monthlyTotals) {
   if (!monthlyTotals || !Object.keys(monthlyTotals).length) return [];
 
@@ -341,7 +308,7 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
   };
   const sumTotal = (...cats) => cats.reduce((sum, cat) => sum + (mt(cat).total || 0), 0);
 
-  // Revenue
+
   const salesRevenueMonths = mt("salesRevenue").months;
   const salesRevenueTotal = mt("salesRevenue").total;
   const serviceMonths = mt("serviceRevenue").months;
@@ -351,17 +318,17 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
   const totalRevMonths = sumMonths("salesRevenue", "serviceRevenue", "otherIncome");
   const totalRevTotal = sumTotal("salesRevenue", "serviceRevenue", "otherIncome");
 
-  // COGS (adjusted for inventory change)
+
   const adjustedCogs = computeAdjustedCogs(byAccount, monthlyTotals);
   const cogsMonths = adjustedCogs.months;
   const cogsTotal = adjustedCogs.total;
 
-  // Gross profit
+
   const grossMonths = {};
   for (const m of MONTHS) grossMonths[m] = (totalRevMonths[m] || 0) - (cogsMonths[m] || 0);
   const grossTotal = totalRevTotal - cogsTotal;
 
-  // Expenses
+
   const sellingMonths = mt("selling").months;
   const sellingTotal = mt("selling").total;
   const adminMonths = mt("admin").months;
@@ -369,14 +336,14 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
   const interestMonths = mt("interest").months;
   const interestTotal = mt("interest").total;
 
-  // Operating profit = Gross Profit - Selling - Admin
+
   const opMonths = {};
   for (const m of MONTHS) {
     opMonths[m] = (grossMonths[m] || 0) - (sellingMonths[m] || 0) - (adminMonths[m] || 0);
   }
   const opTotal = grossTotal - sellingTotal - adminTotal;
 
-  // Net profit = Operating Profit - Interest
+
   const netMonths = {};
   for (const m of MONTHS) {
     netMonths[m] = (opMonths[m] || 0) - (interestMonths[m] || 0);
@@ -401,10 +368,7 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
   ];
 }
 
-/**
- * Compute COGS detail from aggregated data.
- * Matches the ต้นทุน_68 sheet structure.
- */
+
 export function computeCogsDetail(byAccount) {
   if (!byAccount || !Object.keys(byAccount).length) return [];
 
@@ -425,7 +389,7 @@ export function computeCogsDetail(byAccount) {
 
   const rows = COGS_STRUCTURE.map(getRow);
 
-  // Compute production total
+
   const prodMonths = {};
   let prodTotal = 0;
   for (const row of rows) {
@@ -437,7 +401,7 @@ export function computeCogsDetail(byAccount) {
   }
   rows.push({ key: "productionTotal", label: "ต้นทุนสินค้าที่ผลิตได้", type: "subtotal", months: prodMonths, total: prodTotal });
 
-  // Ending inventory (deduction) — known accounts as named rows
+
   const knownInvAccounts = new Set(INVENTORY_ACCOUNTS.map((i) => i.account));
   const invRows = INVENTORY_ACCOUNTS.map((inv) => {
     const acct = byAccount[inv.account];
@@ -445,14 +409,14 @@ export function computeCogsDetail(byAccount) {
     let total = 0;
     if (acct) {
       for (const m of MONTHS) {
-        months[m] = -(acct.months[m] || 0); // negate: deduction from COGS
+        months[m] = -(acct.months[m] || 0);
       }
       total = -acct.total;
     }
     return { key: inv.key, label: `หัก: ${inv.label}`, labelEn: `Less: ${inv.labelEn}`, months, total, type: "deduction" };
   });
 
-  // Catch additional 115xx inventory accounts not in the known list
+
   for (const [acctNo, acct] of Object.entries(byAccount)) {
     if (!acctNo.startsWith("115") || knownInvAccounts.has(acctNo)) continue;
     const months = {};
@@ -463,7 +427,7 @@ export function computeCogsDetail(byAccount) {
   }
   rows.push(...invRows);
 
-  // Total ending inventory
+
   const endInvMonths = {};
   let endInvTotal = 0;
   for (const r of invRows) {
@@ -475,8 +439,8 @@ export function computeCogsDetail(byAccount) {
   }
   rows.push({ key: "endingInventory", label: "หัก: สินค้าคงเหลือปลายงวด", type: "subtotal", months: endInvMonths, total: endInvTotal });
 
-  // COGS total — must subtract beginning inventory (51200-00) from production
-  // total to avoid double-counting (same fix as computeAdjustedCogs).
+
+
   const beginInv = byAccount?.["51200-00"];
   const beginInvMonths = {};
   let beginInvTotal = 0;
@@ -495,10 +459,7 @@ export function computeCogsDetail(byAccount) {
   return rows;
 }
 
-/**
- * Compute expense detail from aggregated data.
- * Groups accounts by account number, separated into selling vs admin.
- */
+
 export function computeExpenseDetail(byAccount, type) {
   if (!byAccount) return [];
 
@@ -541,9 +502,7 @@ export function computeExpenseDetail(byAccount, type) {
   return rows;
 }
 
-/**
- * Compute revenue detail from aggregated data.
- */
+
 export function computeRevenueDetail(byAccount) {
   if (!byAccount) return [];
 

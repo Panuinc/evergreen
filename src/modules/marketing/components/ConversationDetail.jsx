@@ -45,7 +45,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between p-3 border-b border-border">
         <span className="font-light">รายละเอียด</span>
         <Button isIconOnly variant="light" size="md" radius="md" onPress={onClose}>
@@ -55,7 +55,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
 
       <div className="flex-1 overflow-y-auto p-3">
         <div className="flex flex-col gap-4">
-          {/* Contact Info */}
+          {}
           <div className="flex flex-col gap-2">
             <p className="font-light text-xs">ข้อมูลลูกค้า</p>
             <div className="flex flex-col gap-1 text-xs">
@@ -83,7 +83,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             </div>
           </div>
 
-          {/* Tags */}
+          {}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Tag />
@@ -117,7 +117,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             </div>
           </div>
 
-          {/* Notes */}
+          {}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <StickyNote />
@@ -152,7 +152,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             )}
           </div>
 
-          {/* Quotations */}
+          {}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <FileText />

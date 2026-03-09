@@ -1,12 +1,12 @@
 import { withAuth } from "@/app/api/_lib/auth";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-// Gemini: vision + document extraction (PDF/image)
+
 const GEMINI_MODEL = "google/gemini-2.5-flash-lite";
-// Claude: BOM analysis, text fill, recommendations, Q&A
+
 const CLAUDE_MODEL = "anthropic/claude-sonnet-4-5";
 
-// Tool: extract multiple doors from a document (for PDF/image uploads)
+
 const extractTool = {
   type: "function",
   function: {
@@ -84,7 +84,7 @@ const extractTool = {
   },
 };
 
-// Tool: fill single door from text (for typed input)
+
 const fillTool = {
   type: "function",
   function: {
@@ -224,7 +224,7 @@ export async function POST(request) {
     const { messages = [], bomState, image } = body;
     const hasImage = !!image;
 
-    // Guard: base64 image too large for inline API (~5MB base64 ≈ 3.75MB file)
+
     if (image && image.length > 5 * 1024 * 1024) {
       return Response.json(
         { error: "ไฟล์ใหญ่เกินไป กรุณาบีบอัดหรือใช้ไฟล์ขนาดไม่เกิน 3.5MB" },
@@ -232,7 +232,7 @@ export async function POST(request) {
       );
     }
 
-    // Build messages — attach file to last user message
+
     const builtMessages = messages.map((m, i) => {
       if (i === messages.length - 1 && m.role === "user" && image) {
         return {
@@ -251,11 +251,11 @@ export async function POST(request) {
       ...builtMessages,
     ];
 
-    // Tools: extract_door_specs for files, fill_bom_form for text, both available
+
     const tools = hasImage ? [extractTool, fillTool] : [fillTool];
 
-    // Step 1: Non-streaming — detect tool calls
-    // Image path: Gemini (superior vision/PDF) | Text path: Claude (superior reasoning)
+
+
     const step1Model = hasImage ? GEMINI_MODEL : CLAUDE_MODEL;
     const firstRes = await callAI(allMessages, tools, false, step1Model);
     const firstData = await firstRes.json();
@@ -279,12 +279,12 @@ export async function POST(request) {
           try { args = JSON.parse(toolCall.function.arguments || "{}"); } catch {}
 
           if (toolCall.function.name === "extract_door_specs") {
-            // ── Dual-model pipeline ──────────────────────────────────────────
-            // Step 1 done: Gemini read the document and extracted raw door specs
+
+
             const geminiDoors = args.doors || [];
 
-            // Step 2: Claude validates Gemini's extraction — corrects mapping
-            // errors, suspicious dimensions, wrong coreType enum values, etc.
+
+
             let finalDoors = geminiDoors;
             try {
               const validateMessages = [
@@ -331,16 +331,16 @@ export async function POST(request) {
                 if (claudeArgs.doors?.length > 0) finalDoors = claudeArgs.doors;
               }
             } catch {
-              // Validation failed — keep Gemini's result as fallback
+
             }
 
-            // Emit final (Gemini+Claude) validated doors
+
             await writeSSE({
               type: "bom_action",
               action: { type: "extract_doors", doors: finalDoors },
             });
 
-            // Step 3: Claude streams summary to the user
+
             const summaryMessages = [
               {
                 role: "system",
@@ -361,7 +361,7 @@ export async function POST(request) {
             }
 
           } else if (toolCall.function.name === "fill_bom_form") {
-            // Direct form fill from text (Claude handled this)
+
             await writeSSE({
               type: "bom_action",
               action: { type: "fill_form", fields: args },
@@ -386,9 +386,9 @@ export async function POST(request) {
           }
 
         } else {
-          // Direct answer
-          // If Gemini answered (image path), stream its reply directly
-          // If Claude answered (text path), it was already streamed by step1
+
+
+
           const content = choice.message?.content || "";
           if (content) {
             await writeSSE({ choices: [{ delta: { content } }] });

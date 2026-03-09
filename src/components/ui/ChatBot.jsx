@@ -53,7 +53,7 @@ export default function ChatBot() {
 
   return (
     <>
-      {/* Floating Button */}
+      {}
       <Button
         isIconOnly
         color="primary"
@@ -65,7 +65,7 @@ export default function ChatBot() {
         {isOpen ? <X /> : <MessageCircle />}
       </Button>
 
-      {/* Chat Panel */}
+      {}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -75,7 +75,7 @@ export default function ChatBot() {
             transition={{ duration: 0.2 }}
             className="fixed bottom-24 right-4 left-4 md:left-auto md:right-6 z-50 md:w-96 h-[70vh] md:h-125 flex flex-col bg-background border-2 border-border rounded-xl shadow-xl overflow-hidden"
           >
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between p-3 border-b border-border">
               <span className="font-light text-xs">ผู้ช่วย AI</span>
               <Button
@@ -89,7 +89,7 @@ export default function ChatBot() {
               </Button>
             </div>
 
-            {/* Messages */}
+            {}
             <ScrollShadow ref={scrollRef} className="flex-1 p-3 overflow-y-auto">
               {messages.length === 0 && !isLoading && (
                 <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
@@ -114,12 +114,12 @@ export default function ChatBot() {
                   </div>
                 ))}
 
-                {/* Active agent indicator */}
+                {}
                 {activeAgent && <AgentIndicator agent={activeAgent} />}
               </div>
             </ScrollShadow>
 
-            {/* Input */}
+            {}
             <div className="flex items-center gap-2 p-3 border-t border-border">
               <Input
                 placeholder="พิมพ์ข้อความ..."

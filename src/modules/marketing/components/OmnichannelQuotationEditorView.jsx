@@ -46,36 +46,20 @@ export default function OmnichannelQuotationEditorView({
   const [rejectNote, setRejectNote] = useState("");
   const rejectModal = useDisclosure();
 
+  const status = STATUS_MAP[quotation?.omQuotationStatus] || STATUS_MAP.draft;
+  const canEdit = ["draft", "rejected"].includes(quotation?.omQuotationStatus);
+  const canSubmit = canEdit;
+  const canApprove = quotation?.omQuotationStatus === "pending_approval";
+  const canConfirmPayment = quotation?.omQuotationStatus === "approved";
+
   const onReject = async () => {
     await handleAction("reject", rejectNote);
     rejectModal.onClose();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center w-full h-full">
-        <Loading />
-      </div>
-    );
-  }
-
-  if (!quotation) {
-    return (
-      <div className="flex items-center justify-center w-full h-full text-muted-foreground">
-        ไม่พบใบเสนอราคา
-      </div>
-    );
-  }
-
-  const status = STATUS_MAP[quotation.omQuotationStatus] || STATUS_MAP.draft;
-  const canEdit = ["draft", "rejected"].includes(quotation.omQuotationStatus);
-  const canSubmit = canEdit;
-  const canApprove = quotation.omQuotationStatus === "pending_approval";
-  const canConfirmPayment = quotation.omQuotationStatus === "approved";
-
   const lineData = useMemo(
     () =>
-      lines.map((line) => ({
+      (lines || []).map((line) => ({
         ...line,
         omQuotationLineTotal: (line.omQuotationLineQuantity || 0) * (line.omQuotationLineUnitPrice || 0),
       })),
@@ -153,9 +137,25 @@ export default function OmnichannelQuotationEditorView({
     [lines, canEdit, updateLine]
   );
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center w-full h-full">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!quotation) {
+    return (
+      <div className="flex items-center justify-center w-full h-full text-muted-foreground">
+        ไม่พบใบเสนอราคา
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full h-full overflow-auto">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <Button
@@ -197,7 +197,7 @@ export default function OmnichannelQuotationEditorView({
       </div>
 
       <div className="flex flex-col gap-6">
-        {/* Customer Info */}
+        {}
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="ชื่อลูกค้า"
@@ -232,7 +232,7 @@ export default function OmnichannelQuotationEditorView({
           />
         </div>
 
-        {/* Lines */}
+        {}
         <div>
           <p className="font-light mb-2">รายการสินค้า</p>
           <DataTable
@@ -252,7 +252,7 @@ export default function OmnichannelQuotationEditorView({
           </div>
         </div>
 
-        {/* Notes */}
+        {}
         <Textarea
           label="หมายเหตุ"
           labelPlacement="outside"
@@ -265,7 +265,7 @@ export default function OmnichannelQuotationEditorView({
           isReadOnly={!canEdit}
         />
 
-        {/* Payment Slip */}
+        {}
         {quotation.paymentSlip?.omMessageImageUrl && (
           <div className="p-4 bg-default-50 rounded-lg border border-border">
             <p className="font-light mb-3 flex items-center gap-2">
@@ -274,6 +274,7 @@ export default function OmnichannelQuotationEditorView({
             </p>
             <div className="flex gap-4">
               <a href={quotation.paymentSlip.omMessageImageUrl} target="_blank" rel="noopener noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={quotation.paymentSlip.omMessageImageUrl}
                   alt="สลิปการโอนเงิน"
@@ -319,7 +320,7 @@ export default function OmnichannelQuotationEditorView({
           </div>
         )}
 
-        {/* Approval Info */}
+        {}
         {quotation.omQuotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
             <p className="text-xs font-light text-danger mb-1">เหตุผลที่ไม่อนุมัติ:</p>
@@ -327,7 +328,7 @@ export default function OmnichannelQuotationEditorView({
           </div>
         )}
 
-        {/* Action Buttons */}
+        {}
         <div className="flex gap-2 justify-end pb-4">
           {canSubmit && (
             <Button
@@ -381,7 +382,7 @@ export default function OmnichannelQuotationEditorView({
         </div>
       </div>
 
-      {/* Reject Modal */}
+      {}
       <Modal isOpen={rejectModal.isOpen} onClose={rejectModal.onClose} size="md">
         <ModalContent>
           <ModalHeader>เหตุผลที่ไม่อนุมัติ</ModalHeader>

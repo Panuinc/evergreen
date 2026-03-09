@@ -35,10 +35,7 @@ function buildMonthOptions(year) {
   }));
 }
 
-/**
- * Finance period selector for comparison dashboard
- * @param {{ periodType: string, onPeriodTypeChange: Function, selectedYear: number, onYearChange: Function, selectedQuarter: number, onQuarterChange: Function, selectedMonth: number, onMonthChange: Function, compareEnabled: boolean, onCompareToggle: Function }} props
- */
+
 export default function FinancePeriodSelector({
   periodType,
   onPeriodTypeChange,
@@ -57,7 +54,7 @@ export default function FinancePeriodSelector({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {/* Period Type Tabs */}
+      {}
       <Tabs
         size="md"
         variant="bordered"
@@ -69,7 +66,7 @@ export default function FinancePeriodSelector({
         <Tab key="month" title="เดือน" />
       </Tabs>
 
-      {/* Year selector (always visible) */}
+      {}
       <Select
         size="md"
         variant="bordered"
@@ -86,7 +83,7 @@ export default function FinancePeriodSelector({
         ))}
       </Select>
 
-      {/* Quarter selector */}
+      {}
       {periodType === "quarter" && (
         <Select
           size="md"
@@ -105,7 +102,7 @@ export default function FinancePeriodSelector({
         </Select>
       )}
 
-      {/* Month selector */}
+      {}
       {periodType === "month" && (
         <Select
           size="md"
@@ -124,7 +121,7 @@ export default function FinancePeriodSelector({
         </Select>
       )}
 
-      {/* Compare toggle */}
+      {}
       <Tabs
         size="md"
         variant="bordered"

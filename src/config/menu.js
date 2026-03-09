@@ -62,10 +62,10 @@ export const menuData = [
     subMenus: [
       { name: "ภาพรวม", icon: Home, href: "/overview/dashboard" },
       { name: "วิเคราะห์", icon: BarChart3, href: "/overview/analytics" },
-      // { name: "กิจกรรม", icon: Activity, href: "/overview/activities" },
-      // { name: "อัปเดตล่าสุด", icon: Clock, href: "/overview/updates" },
-      // { name: "รายการโปรด", icon: Star, href: "/overview/favorites" },
-      // { name: "รายงาน", icon: FileText, href: "/overview/reports" },
+
+
+
+
     ],
   },
   {
@@ -79,9 +79,9 @@ export const menuData = [
       { name: "ฝ่าย", icon: Building2, href: "/hr/divisions" },
       { name: "แผนก", icon: Building2, href: "/hr/departments" },
       { name: "ตำแหน่ง", icon: Briefcase, href: "/hr/positions" },
-      // { name: "สรรหาบุคลากร", icon: Briefcase },
-      // { name: "การลงเวลา", icon: Calendar },
-      // { name: "เงินเดือน", icon: Wallet },
+
+
+
     ],
   },
   {
@@ -142,8 +142,8 @@ export const menuData = [
         icon: Wallet,
         href: "/finance/bankRecon",
       },
-      // { name: "งบประมาณ", icon: PieChart },
-      // { name: "ภาษี", icon: FileCheck },
+
+
     ],
   },
   {
@@ -191,41 +191,41 @@ export const menuData = [
         icon: MessageCircle,
         href: "/marketing/omnichannel",
       },
-      // { name: "แคมเปญ", icon: Target },
-      // { name: "โซเชียลมีเดีย", icon: Globe },
-      // { name: "อีเมลมาร์เก็ตติ้ง", icon: Mail },
-      // { name: "อีเวนต์", icon: Calendar },
-      // { name: "คอนเทนต์", icon: FileText },
+
+
+
+
+
     ],
   },
-  // {
-  //   id: "operations",
-  //   name: "ปฏิบัติการ",
-  //   icon: Settings,
-  //   href: "/operations",
-  //   subMenus: [
-  //     { name: "จัดการกระบวนการ", icon: ClipboardList },
-  //     { name: "วางแผนทรัพยากร", icon: Calendar },
-  //     { name: "แดชบอร์ด KPI", icon: BarChart3 },
-  //     { name: "เวิร์กโฟลว์", icon: List },
-  //     { name: "รายงาน", icon: FileText },
-  //     { name: "ตรวจสอบ", icon: FileCheck },
-  //   ],
-  // },
-  // {
-  //   id: "procurement",
-  //   name: "จัดซื้อจัดจ้าง",
-  //   icon: ShoppingCart,
-  //   href: "/procurement",
-  //   subMenus: [
-  //     { name: "ใบขอซื้อ", icon: FileText },
-  //     { name: "ใบสั่งซื้อ", icon: ClipboardList },
-  //     { name: "ผู้ขาย", icon: Users },
-  //     { name: "สัญญา", icon: FileCheck },
-  //     { name: "การเจรจา", icon: Target },
-  //     { name: "วิเคราะห์การใช้จ่าย", icon: PieChart },
-  //   ],
-  // },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   {
     id: "production",
     name: "การผลิต",
@@ -244,71 +244,71 @@ export const menuData = [
         href: "/production/entries",
       },
       { name: "BOM", icon: List, href: "/production/bom" },
-      // { name: "แผนการผลิต", icon: Calendar },
-      // { name: "ใบสั่งงาน", icon: ClipboardList },
-      // { name: "สถานะเครื่องจักร", icon: Settings },
-      // { name: "ประสิทธิภาพ", icon: TrendingUp },
-      // { name: "ซ่อมบำรุง", icon: Wrench },
+
+
+
+
+
     ],
   },
-  // {
-  //   id: "qa",
-  //   name: "ประกันคุณภาพ",
-  //   icon: BadgeCheck,
-  //   href: "/qa",
-  //   subMenus: [
-  //     { name: "ตรวจสอบ", icon: ScanLine },
-  //     { name: "รายงานทดสอบ", icon: FileText },
-  //     { name: "NCR", icon: AlertTriangle },
-  //     { name: "CAPA", icon: Target },
-  //     { name: "มาตรฐาน", icon: FileCheck },
-  //     { name: "การตรวจสอบ", icon: Shield },
-  //   ],
-  // },
-  // {
-  //   id: "rnd",
-  //   name: "วิจัยและพัฒนา",
-  //   icon: Lightbulb,
-  //   href: "/rnd",
-  //   subMenus: [
-  //     { name: "โปรเจค", icon: Briefcase },
-  //     { name: "การทดลอง", icon: FlaskConical },
-  //     { name: "ต้นแบบ", icon: Settings },
-  //     { name: "สิทธิบัตร", icon: FileCheck },
-  //     { name: "วิจัย", icon: Search },
-  //     { name: "นวัตกรรม", icon: Lightbulb },
-  //   ],
-  // },
-  // {
-  //   id: "cs",
-  //   name: "บริการลูกค้า",
-  //   icon: HeadphonesIcon,
-  //   href: "/cs",
-  //   subMenus: [
-  //     { name: "ตั๋วแจ้งปัญหา", icon: ClipboardList },
-  //     { name: "คอลเซ็นเตอร์", icon: Phone },
-  //     { name: "แชทสด", icon: MessageCircle },
-  //     { name: "ความคิดเห็น", icon: FileText },
-  //     { name: "คำถามที่พบบ่อย", icon: List },
-  //     { name: "SLA", icon: Target },
-  //   ],
-  // },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   {
     id: "logistics",
     name: "ระบบขนส่ง",
     icon: Truck,
     href: "/tms/dashboard",
     subMenus: [
-      // ภาพรวม
+
       { name: "แดชบอร์ด", icon: LayoutDashboard, href: "/tms/dashboard" },
-      // ขั้นตอนการทำงาน
+
       { name: "แผนส่งของ", icon: CalendarDays, href: "/tms/deliveryPlans" },
       { name: "การขนส่ง", icon: Package, href: "/tms/shipments" },
       { name: "การจัดส่ง", icon: FileCheck, href: "/tms/deliveries" },
       { name: "ติดตาม GPS", icon: MapPin, href: "/tms/tracking" },
-      // ข้อมูลหลัก
+
       { name: "ยานพาหนะ", icon: Truck, href: "/tms/vehicles" },
-      // หลังเสร็จงาน
+
       { name: "บันทึกน้ำมัน", icon: Boxes, href: "/tms/fuelLogs" },
     ],
   },

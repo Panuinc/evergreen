@@ -96,8 +96,8 @@ export async function bcApiGet(endpoint, params = {}, { timeout = 60_000, maxPag
   const odataParts = [];
   for (const [key, value] of Object.entries(params)) {
     if (key.startsWith("$")) {
-      // OData system query options ($filter, $select, etc.)
-      // Bypass URLSearchParams which encodes $ → %24 and , → %2C
+
+
       odataParts.push(`${key}=${value}`);
     } else {
       url.searchParams.set(key, value);
@@ -174,7 +174,7 @@ export async function bcProductionODataGet(entity, params = {}, { timeout = 60_0
   if (!BC_TENANT_ID || !BC_ENVIRONMENT) {
     throw new Error("Missing BC_TENANT_ID or BC_ENVIRONMENT");
   }
-  // Production OData ใช้ environment "Production" ตรงๆ (ไม่ต่อกับ BC_ENVIRONMENT)
+
   const baseUrl = `https://api.businesscentral.dynamics.com/v2.0/${BC_TENANT_ID}/Production/ODataV4/Company('C.H.H._Go-Live')`;
 
   const url = new URL(`${baseUrl}/${entity}`);

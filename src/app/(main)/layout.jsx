@@ -39,7 +39,6 @@ export default function MainLayout({ children }) {
       <Header onMobileMenuToggle={openMobileNav} />
 
       <div className="flex flex-row items-center justify-center w-full min-h-0 flex-1 border-border">
-        {/* Desktop sidebar - hidden on mobile */}
         <div
           className={`hidden md:flex flex-row items-center justify-center min-h-0 h-full border-r border-border transition-all duration-300 ${
             isCollapsed ? "w-[15%]" : "w-3/12"
@@ -54,7 +53,6 @@ export default function MainLayout({ children }) {
           <SubMenuPanel activeMenu={activeMenu} isCollapsed={isCollapsed} />
         </div>
 
-        {/* Content area - full width on mobile */}
         <div
           className={`flex flex-col items-center justify-start min-h-0 h-full gap-2 overflow-hidden transition-all duration-300 w-full ${
             isCollapsed ? "md:w-[85%]" : "md:w-9/12"
@@ -72,7 +70,6 @@ export default function MainLayout({ children }) {
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
       <Drawer
         isOpen={isMobileNavOpen}
         onClose={closeMobileNav}

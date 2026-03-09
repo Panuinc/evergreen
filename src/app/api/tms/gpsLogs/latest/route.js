@@ -5,7 +5,7 @@ export async function GET() {
   if (auth.error) return auth.error;
   const { supabase } = auth;
 
-  // Fetch all gpsLogs ordered by recordedAt desc, limit 100
+
   const { data: gpsLogs, error } = await supabase
     .from("tmsGpsLog")
     .select("*, tmsVehicle(tmsVehicleName, tmsVehiclePlateNumber, tmsVehicleStatus)")
@@ -14,7 +14,7 @@ export async function GET() {
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
-  // Deduplicate to get latest entry per vehicle
+
   const latestByVehicle = {};
   for (const log of gpsLogs) {
     if (!latestByVehicle[log.tmsGpsLogVehicleId]) {

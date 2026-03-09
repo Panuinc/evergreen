@@ -16,22 +16,17 @@ function getInitialTheme() {
 }
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(getInitialTheme);
   const [mounted, setMounted] = useState(false);
 
-  // Initialize theme after mount to access localStorage/window
   useEffect(() => {
-    const initialTheme = getInitialTheme();
-    // Sync React state with external storage (localStorage)
-    // This is necessary to avoid hydration mismatch in SSR
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme(initialTheme);
-    if (initialTheme === "dark") {
+    setMounted(true);
+    if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
-    setMounted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

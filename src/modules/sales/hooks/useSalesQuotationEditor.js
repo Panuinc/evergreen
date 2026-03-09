@@ -27,6 +27,7 @@ export function useSalesQuotationEditor(quotationId) {
 
   useEffect(() => {
     if (quotationId) loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quotationId]);
 
   const loadData = async () => {
@@ -56,7 +57,7 @@ export function useSalesQuotationEditor(quotationId) {
     setLines((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
-      // Auto-calc amount
+
       const qty = parseFloat(updated[index].crmQuotationLineQuantity) || 0;
       const price = parseFloat(updated[index].crmQuotationLineUnitPrice) || 0;
       const disc = parseFloat(updated[index].crmQuotationLineDiscount) || 0;
@@ -104,7 +105,7 @@ export function useSalesQuotationEditor(quotationId) {
   const handleAction = async (action, note) => {
     try {
       setSaving(true);
-      // Auto-save before action
+
       if (["submit"].includes(action)) {
         await handleSave();
       }

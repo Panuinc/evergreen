@@ -6,7 +6,7 @@ import { toast } from "sonner";
 export function useHrDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [compareMode, setCompareMode] = useState(null); // null | "ytm" | "yty"
+  const [compareMode, setCompareMode] = useState(null);
 
   const loadData = useCallback(async (mode) => {
     try {

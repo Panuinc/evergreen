@@ -1,13 +1,13 @@
-const EPC_BYTES = 12; /* 96-bit tag */
-const MAX_RFID_CODE = 999999; // 6 digits max for EPC encoding
-const MAX_SEQUENCE = 99; // 2-digit encoding (01-99)
+const EPC_BYTES = 12;
+const MAX_RFID_CODE = 999999;
+const MAX_SEQUENCE = 99;
 
 export function generatePlainEPC(
   rfidCodeOrItemNumber,
   sequenceNumber,
   totalQuantity,
 ) {
-  // Validate rfidCode range
+
   if (typeof rfidCodeOrItemNumber === "number") {
     if (rfidCodeOrItemNumber < 1 || rfidCodeOrItemNumber > MAX_RFID_CODE) {
       throw new Error(
@@ -16,7 +16,7 @@ export function generatePlainEPC(
     }
   }
 
-  // Validate sequence/total range
+
   if (sequenceNumber > MAX_SEQUENCE || totalQuantity > MAX_SEQUENCE) {
     throw new Error(
       `จำนวนต่อ batch ต้องไม่เกิน ${MAX_SEQUENCE} ชิ้น (seq=${sequenceNumber}, total=${totalQuantity})`,
@@ -29,11 +29,11 @@ export function generatePlainEPC(
   let content;
 
   if (typeof rfidCodeOrItemNumber === "number") {
-    /* rfidCode (integer) → zero-padded 6 digits + /seq+total = 11 chars */
+
     const codeStr = String(rfidCodeOrItemNumber).padStart(6, "0");
     content = `${codeStr}/${seqStr}${totalStr}`;
   } else {
-    /* Fallback: compact item number (strip dashes) */
+
     const compact = String(rfidCodeOrItemNumber).replace(/-/g, "");
     const withSeq = `${compact}/${seqStr}${totalStr}`;
     content = withSeq.length <= EPC_BYTES ? withSeq : compact;
@@ -101,11 +101,11 @@ export const EPCService = {
       const afterSlash = raw.substring(slashIndex + 1);
 
       if (afterSlash.length >= 4 && /^\d{4}/.test(afterSlash)) {
-        /* New format: 2-digit seq + 2-digit total (e.g. "0129") */
+
         sequence = parseInt(afterSlash.substring(0, 2), 10);
         total = parseInt(afterSlash.substring(2, 4), 10);
       } else {
-        /* Old format: 1-char seq + 1-char total (e.g. "1P") */
+
         const seqChar = afterSlash[0];
         const totalChar = afterSlash[1];
         sequence =
@@ -118,7 +118,7 @@ export const EPCService = {
 
       sequenceText = `${sequence}/${total}`;
 
-      /* All digits = rfidCode; otherwise = compact item number */
+
       if (/^\d+$/.test(itemCompact)) {
         rfidCode = parseInt(itemCompact, 10);
       }

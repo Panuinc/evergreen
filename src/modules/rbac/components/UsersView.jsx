@@ -199,7 +199,7 @@ export default function UsersView({
         }
       />
 
-      {/* Role Assignment Modal */}
+      {}
       <Modal isOpen={isOpen} onClose={handleCloseRoles}>
         <ModalContent>
           <ModalHeader>
@@ -244,7 +244,7 @@ export default function UsersView({
         </ModalContent>
       </Modal>
 
-      {/* Create Account Modal */}
+      {}
       <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)}>
         <ModalContent>
           <ModalHeader>สร้างบัญชี</ModalHeader>
@@ -338,7 +338,7 @@ export default function UsersView({
         </ModalContent>
       </Modal>
 
-      {/* Reset Password Modal */}
+      {}
       <Modal isOpen={resetOpen} onClose={() => setResetOpen(false)}>
         <ModalContent>
           <ModalHeader>

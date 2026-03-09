@@ -2,7 +2,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
 function buildDashboard(employees, divisions, departments, positions) {
-  // KPI Stats
+
   const totalEmployees = employees.length;
   const activeEmployees = employees.filter((e) => e.isActive).length;
   const totalDivisions = divisions.length;
@@ -16,7 +16,7 @@ function buildDashboard(employees, divisions, departments, positions) {
       e.hrEmployeeCreatedAt && e.hrEmployeeCreatedAt.startsWith(thisMonthKey),
   ).length;
 
-  // Chart: Employees by Division
+
   const divisionMap = {};
   divisions.forEach((d) => {
     divisionMap[d.hrDivisionId] = d.hrDivisionName;
@@ -31,7 +31,7 @@ function buildDashboard(employees, divisions, departments, positions) {
     count,
   }));
 
-  // Chart: Employees by Department
+
   const deptMap = {};
   departments.forEach((d) => {
     deptMap[d.hrDepartmentId] = d.hrDepartmentName;
@@ -46,7 +46,7 @@ function buildDashboard(employees, divisions, departments, positions) {
     count,
   }));
 
-  // Chart: Employees by Status
+
   const statusCounts = { active: 0, inactive: 0 };
   employees.forEach((e) => {
     statusCounts[e.isActive ? "active" : "inactive"]++;
@@ -56,7 +56,7 @@ function buildDashboard(employees, divisions, departments, positions) {
     count,
   }));
 
-  // Chart: New Employee Trend (last 6 months)
+
   const trend = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -87,7 +87,7 @@ export async function GET(request) {
   const { supabase } = auth;
 
   const url = new URL(request.url);
-  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
+  const compareMode = url.searchParams.get("compareMode");
 
   const [employeesRes, divisionsRes, departmentsRes, positionsRes] =
     await Promise.all([
@@ -128,12 +128,12 @@ export async function GET(request) {
   const departments = departmentsRes.data || [];
   const positions = positionsRes.data || [];
 
-  // ── No comparison mode: return as before ──
+
   if (!compareMode) {
     return Response.json(buildDashboard(allEmployees, divisions, departments, positions));
   }
 
-  // ── Comparison mode: filter employees by creation date ──
+
   const ranges = getComparisonRanges(compareMode);
 
   const curEmployees = filterByDateRange(allEmployees, "hrEmployeeCreatedAt", ranges.current.start, ranges.current.end);

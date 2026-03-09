@@ -54,7 +54,7 @@ export default function WarehouseInventoryView({ items, loading }) {
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      {/* Total Summary */}
+      {}
       <div className="grid grid-cols-3 gap-3">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
@@ -84,7 +84,7 @@ export default function WarehouseInventoryView({ items, loading }) {
         </Card>
       </div>
 
-      {/* Group Cards */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {sortedGroups.map((group) => (
           <Link key={group} href={`/warehouse/inventory/${encodeURIComponent(group)}`}>

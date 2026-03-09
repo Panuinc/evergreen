@@ -200,7 +200,7 @@ export default function RolesView({
         }
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>{editingRole ? "แก้ไขบทบาท" : "สร้างบทบาท"}</ModalHeader>
@@ -261,7 +261,7 @@ export default function RolesView({
         </ModalContent>
       </Modal>
 
-      {/* Permission Assignment Modal */}
+      {}
       <Modal
         isOpen={permModalOpen}
         onClose={() => setPermModalOpen(false)}

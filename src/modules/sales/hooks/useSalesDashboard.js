@@ -7,7 +7,7 @@ import { getSalesDashboard } from "@/modules/sales/actions";
 export function useSalesDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [compareMode, setCompareMode] = useState(null); // null | "ytm" | "yty"
+  const [compareMode, setCompareMode] = useState(null);
 
   const loadData = useCallback(async (mode) => {
     try {

@@ -4,12 +4,12 @@ import { useCallback, useMemo } from "react";
 import { Chip, Tabs, Tab } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
 
-// ── Helpers ──
+
 function fmtCurrency(v) {
   return `฿${Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
 }
 
-// ── Constants ──
+
 const columns = [
   { name: "เลขที่ใบสั่งผลิต", uid: "bcProductionOrderExternalId", sortable: true },
   { name: "สถานะ", uid: "bcProductionOrderStatus", sortable: true },
@@ -84,7 +84,7 @@ const statusOptions = [
   { uid: "Firm Planned", name: "Firm Planned" },
 ];
 
-// ── View ──
+
 export default function OrdersView({ data, loading }) {
   const enrichedData = useMemo(
     () =>

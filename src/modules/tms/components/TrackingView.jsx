@@ -80,7 +80,7 @@ export default function TrackingView({
       </div>
 
       <div className="flex gap-4 h-[calc(100vh-220px)]">
-        {/* Left Panel - Vehicle List */}
+        {}
         <div className="w-80 h-fit flex-shrink-0 overflow-y-auto flex flex-col gap-2">
           {vehicles.map((vehicle) => {
             const pos = positions.find(
@@ -155,7 +155,7 @@ export default function TrackingView({
           })}
         </div>
 
-        {/* Right Panel - Map */}
+        {}
         <div className="flex-1 rounded-xl overflow-hidden border border-border" style={{ isolation: "isolate" }}>
           <VehicleMap
             positions={positions}
@@ -170,7 +170,7 @@ export default function TrackingView({
         รีเฟรชอัตโนมัติทุก 30 วินาที
       </p>
 
-      {/* Manual Update Modal */}
+      {}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
@@ -260,7 +260,7 @@ export default function TrackingView({
         </ModalContent>
       </Modal>
 
-      {/* Route History Modal */}
+      {}
       <Modal isOpen={routeModal.isOpen} onClose={routeModal.onClose} size="4xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader>

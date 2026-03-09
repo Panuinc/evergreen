@@ -19,10 +19,10 @@ export async function POST(request) {
   const supabase = getServiceSupabase();
 
   try {
-    // Debounce: wait 1 second for rapid messages
+
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Re-check if auto-reply is still enabled
+
     const { data: conv } = await supabase
       .from("omConversation")
       .select("omConversationAiAutoReply")
@@ -33,7 +33,7 @@ export async function POST(request) {
       return Response.json({ status: "skipped", reason: "auto-reply disabled" });
     }
 
-    // Check if the latest message is still from a customer (agent may have replied)
+
     const { data: latestMsg } = await supabase
       .from("omMessage")
       .select("omMessageSenderType")
@@ -46,28 +46,28 @@ export async function POST(request) {
       return Response.json({ status: "skipped", reason: "agent already replied" });
     }
 
-    // Generate AI reply
+
     const replyContent = await generateAiReply(conversationId, supabase);
     if (!replyContent?.trim()) {
       return Response.json({ status: "skipped", reason: "empty reply" });
     }
 
-    // Send the reply
+
     const message = await sendAiMessage(supabase, conversationId, replyContent);
 
-    // Trigger quotation creation if order confirmed
+
     if (replyContent.includes("รับออเดอร์เรียบร้อยแล้ว")) {
       await triggerQuotationCreation(conversationId);
     }
 
-    // Turn off auto-reply when payment slip received (staff takes over)
+
     if (replyContent.includes("ได้รับหลักฐานการชำระเงิน")) {
       await supabase
         .from("omConversation")
         .update({ omConversationAiAutoReply: false })
         .eq("omConversationId", conversationId);
 
-      // OCR the payment slip image
+
       const { data: imgMsg } = await supabase
         .from("omMessage")
         .select("omMessageId, omMessageImageUrl")

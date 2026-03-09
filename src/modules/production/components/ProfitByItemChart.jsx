@@ -23,7 +23,7 @@ export default function ProfitByItemChart({ data = [] }) {
     );
   }
 
-  // Show items sorted by profitAmount (diverging bar: green=profit, red=loss)
+
   const chartData = data
     .filter((d) => d.totalRevenue > 0)
     .sort((a, b) => b.profitAmount - a.profitAmount)

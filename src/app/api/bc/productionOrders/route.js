@@ -31,7 +31,7 @@ export async function GET() {
       fetchAll(auth.supabase, "bcSalesOrderLine", "bcSalesOrderLineExternalId", true),
     ]);
 
-    // Build sales price map: itemNo → latest unitPrice
+
     const salesPriceMap = {};
     for (const sl of salesLines) {
       if (sl.bcSalesOrderLineObjectNumber && sl.bcSalesOrderLineUnitPrice > 0) {
@@ -39,7 +39,7 @@ export async function GET() {
       }
     }
 
-    // Aggregate cost & output per production order
+
     const orderCostMap = {};
     for (const e of entries) {
       if (!e.bcItemLedgerEntryDocumentNo) continue;
@@ -60,7 +60,7 @@ export async function GET() {
       }
     }
 
-    // Enrich orders with cost, revenue, profit
+
     const enriched = orders.map((o) => {
       const c = orderCostMap[o.bcProductionOrderExternalId] || {
         consumptionCost: 0,

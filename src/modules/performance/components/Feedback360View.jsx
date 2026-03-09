@@ -221,8 +221,6 @@ export default function Feedback360View({
   );
 }
 
-// ===================== Pending Tab =====================
-
 function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
   return (
     <div className="flex flex-col gap-4 mt-4">
@@ -266,8 +264,6 @@ function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
     </div>
   );
 }
-
-// ===================== My Results Tab =====================
 
 function MyResultsTab({ cycles, resultCycleId, onResultCycleIdChange, myResults, loadingResults, onLoadMyResults }) {
   const completedCycles = useMemo(
@@ -318,7 +314,7 @@ function ResultsDisplay({ results }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Overall Score */}
+      {}
       <Card>
         <CardBody className="flex flex-row items-center gap-6">
           <div className="text-center">
@@ -334,7 +330,7 @@ function ResultsDisplay({ results }) {
         </CardBody>
       </Card>
 
-      {/* By Relationship Type */}
+      {}
       <Card>
         <CardHeader><p className="font-light">คะแนนตามกลุ่มผู้ประเมิน</p></CardHeader>
         <CardBody>
@@ -354,7 +350,7 @@ function ResultsDisplay({ results }) {
         </CardBody>
       </Card>
 
-      {/* Competency Breakdown */}
+      {}
       {competencies.length > 0 && (
         <Card>
           <CardHeader><p className="font-light">คะแนนรายสมรรถนะ</p></CardHeader>
@@ -396,7 +392,7 @@ function ResultsDisplay({ results }) {
         </Card>
       )}
 
-      {/* Qualitative Feedback */}
+      {}
       {results.feedback && Object.keys(results.feedback).length > 0 && (
         <Card>
           <CardHeader><p className="font-light">ความคิดเห็น</p></CardHeader>
@@ -435,8 +431,6 @@ function ResultsDisplay({ results }) {
   );
 }
 
-// ===================== Admin Tab =====================
-
 function AdminTab({
   cycles,
   loadingCycles,
@@ -474,7 +468,7 @@ function AdminTab({
       ) : cycles.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
-            ยังไม่มีรอบประเมิน — กดปุ่ม "สร้างรอบประเมิน" เพื่อเริ่มต้น
+            ยังไม่มีรอบประเมิน — กดปุ่ม &quot;สร้างรอบประเมิน&quot; เพื่อเริ่มต้น
           </CardBody>
         </Card>
       ) : (
@@ -493,7 +487,7 @@ function AdminTab({
         </div>
       )}
 
-      {/* Selected Cycle Details */}
+      {}
       {selectedCycle && (
         <CycleDetails
           selectedCycle={selectedCycle}
@@ -738,7 +732,7 @@ function CompetenciesPanel({ selectedCycle, competencies, loadingCompetencies, s
 function NominationsPanel({ selectedCycle, nominations, loadingNominations, onDeleteNomination, onOpenNominationForm }) {
   const canAddNominations = ["nominating", "draft"].includes(selectedCycle?.perf360CycleStatus);
 
-  // Group by reviewee
+
   const grouped = useMemo(() => {
     const map = {};
     for (const nom of nominations) {
@@ -845,8 +839,6 @@ function ProgressPanel({ nominations }) {
     </div>
   );
 }
-
-// ===================== Modals =====================
 
 function CycleModal({ cycleModal, editingCycle, cycleForm, onCycleFormChange, savingCycle, onSaveCycle }) {
   return (
@@ -1023,7 +1015,7 @@ function ReviewModal({
 
   const relType = getRelationshipType(activeReview.perf360NominationRelationshipType);
 
-  // Count answered
+
   let totalQ = 0;
   let answeredQ = 0;
   for (const comp of reviewCompetencies) {

@@ -25,7 +25,7 @@ export default function QuotationDocument({ quotation, lines }) {
         }
       `}</style>
 
-      {/* Print Button */}
+      {}
       <div className="no-print fixed top-4 right-4 z-50">
         <button
           onClick={() => window.print()}
@@ -36,7 +36,7 @@ export default function QuotationDocument({ quotation, lines }) {
       </div>
 
       <div className="max-w-[210mm] mx-auto p-8 text-black text-xs">
-        {/* Header */}
+        {}
         <div className="flex justify-between items-start border-b-2 border-black pb-4 mb-6">
           <div>
             <p className="text-xs font-light">บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด</p>
@@ -48,7 +48,7 @@ export default function QuotationDocument({ quotation, lines }) {
           </div>
         </div>
 
-        {/* Document Info */}
+        {}
         <div className="flex justify-between mb-6">
           <div className="flex flex-col gap-1">
             <div className="flex gap-2">
@@ -84,7 +84,7 @@ export default function QuotationDocument({ quotation, lines }) {
           </div>
         </div>
 
-        {/* Items Table */}
+        {}
         <table className="w-full border-collapse mb-6">
           <thead>
             <tr className="bg-blue-700 text-white">
@@ -124,7 +124,7 @@ export default function QuotationDocument({ quotation, lines }) {
           </tbody>
         </table>
 
-        {/* Notes */}
+        {}
         {quotation.quotationNotes && (
           <div className="mb-6 p-3 bg-gray-50 rounded border border-gray-200">
             <p className="font-light text-xs mb-1">หมายเหตุ:</p>
@@ -132,7 +132,7 @@ export default function QuotationDocument({ quotation, lines }) {
           </div>
         )}
 
-        {/* Footer */}
+        {}
         <div className="border-t border-gray-300 pt-4 mt-8 text-xs text-gray-500 text-center">
           <p>เอกสารนี้สร้างโดยระบบอัตโนมัติ กรุณาติดต่อเจ้าหน้าที่เพื่อยืนยันราคาและรายละเอียด</p>
         </div>

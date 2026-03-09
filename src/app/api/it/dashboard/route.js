@@ -2,7 +2,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
 function buildDashboard(assets, tickets, software, devices, incidents, access) {
-  // KPI Stats
+
   const totalAssets = assets.length;
   const openTickets = tickets.filter(
     (t) => t.itTicketStatus === "open" || t.itTicketStatus === "in_progress"
@@ -21,7 +21,7 @@ function buildDashboard(assets, tickets, software, devices, incidents, access) {
     (a) => a.itSystemAccessStatus === "pending"
   ).length;
 
-  // Chart: Ticket Trend (last 6 months)
+
   const now = new Date();
   const ticketTrend = [];
   for (let i = 5; i >= 0; i--) {
@@ -33,7 +33,7 @@ function buildDashboard(assets, tickets, software, devices, incidents, access) {
     ticketTrend.push({ month: monthKey, count });
   }
 
-  // Chart: Asset by Category
+
   const categoryCounts = {};
   assets.forEach((a) => {
     const cat = a.itAssetCategory || "other";
@@ -43,7 +43,7 @@ function buildDashboard(assets, tickets, software, devices, incidents, access) {
     ([category, count]) => ({ category, count })
   );
 
-  // Chart: License Expiry Overview
+
   const today = now.toISOString().split("T")[0];
   const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -106,7 +106,7 @@ export async function GET(request) {
   const { supabase } = auth;
 
   const url = new URL(request.url);
-  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
+  const compareMode = url.searchParams.get("compareMode");
 
   const [assetsRes, ticketsRes, softwareRes, devicesRes, incidentsRes, accessRes] = await Promise.all([
     supabase.from("itAsset").select("itAssetId, itAssetCategory, itAssetStatus").eq("isActive", true),
@@ -131,12 +131,12 @@ export async function GET(request) {
   const allIncidents = incidentsRes.data || [];
   const access = accessRes.data || [];
 
-  // ── No comparison mode: return as before ──
+
   if (!compareMode) {
     return Response.json(buildDashboard(assets, allTickets, software, devices, allIncidents, access));
   }
 
-  // ── Comparison mode: filter tickets and incidents by creation date ──
+
   const ranges = getComparisonRanges(compareMode);
 
   const curTickets = filterByDateRange(allTickets, "itTicketCreatedAt", ranges.current.start, ranges.current.end);
@@ -144,7 +144,7 @@ export async function GET(request) {
   const curIncidents = filterByDateRange(allIncidents, "itSecurityIncidentCreatedAt", ranges.current.start, ranges.current.end);
   const prevIncidents = filterByDateRange(allIncidents, "itSecurityIncidentCreatedAt", ranges.previous.start, ranges.previous.end);
 
-  // Point-in-time data (assets, software, devices, access) stays the same for both periods
+
   const current = buildDashboard(assets, curTickets, software, devices, curIncidents, access);
   const previous = buildDashboard(assets, prevTickets, software, devices, prevIncidents, access);
 

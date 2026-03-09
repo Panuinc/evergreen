@@ -13,7 +13,7 @@ import {
 import { getFinancePeriodRanges } from "@/lib/comparison";
 import { COGS_OVERRIDE_ACCOUNTS, INTEREST_ACCOUNTS, ADMIN_OVERRIDE_ACCOUNTS } from "@/modules/finance/glAccountMap";
 
-// Formatting helpers used by runAiAnalysis snapshot builder
+
 function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
 }
@@ -25,14 +25,14 @@ function fmtMonth(ym) {
   return `${THAI_MONTHS[parseInt(m) - 1]} ${(parseInt(y) + 543) % 100}`;
 }
 
-// BC returns numbers as comma-formatted strings like "4,857.97" or empty strings
+
 function parseNum(val) {
   if (val === "" || val === null || val === undefined) return 0;
   if (typeof val === "number") return val;
   return Number(String(val).replace(/,/g, "")) || 0;
 }
 
-// Thai Chart of Accounts prefix mapping
+
 const ACCOUNT_CATEGORIES = {
   "11": { name: "สินทรัพย์หมุนเวียน", nameEn: "Current Assets", group: "assets", sub: "current" },
   "12": { name: "สินทรัพย์ไม่หมุนเวียน", nameEn: "Non-current Assets", group: "assets", sub: "noncurrent" },
@@ -61,9 +61,7 @@ function getCategory(accountNumber) {
   return ACCOUNT_CATEGORIES[prefix] || null;
 }
 
-/**
- * Pure function: compute financial metrics from trial balance data
- */
+
 function computeFinancials(trialBalanceData) {
   if (!trialBalanceData || !trialBalanceData.length) return null;
   const posting = trialBalanceData.filter((t) => t.accountType === "Posting");
@@ -85,7 +83,7 @@ function computeFinancials(trialBalanceData) {
 
   const g = (key) => groups[key] || { debit: 0, credit: 0, accounts: [] };
 
-  // Balance Sheet
+
   const currentAssets = g("assets:current").debit - g("assets:current").credit;
   const noncurrentAssets = g("assets:noncurrent").debit - g("assets:noncurrent").credit;
   const totalAssets = currentAssets + noncurrentAssets;
@@ -98,16 +96,16 @@ function computeFinancials(trialBalanceData) {
   const retainedEarnings = g("equity:retained").credit - g("equity:retained").debit;
   const totalEquity = shareCapital + retainedEarnings;
 
-  // Income Statement
+
   const salesRevenue = g("revenue:sales").credit - g("revenue:sales").debit;
   const serviceRevenue = g("revenue:service").credit - g("revenue:service").debit;
   const otherIncome = g("revenue:other").credit - g("revenue:other").debit;
   const totalRevenue = salesRevenue + serviceRevenue + otherIncome;
 
-  // Raw COGS (51xxx + overrides) minus ALL inventory accounts (115xx)
+
   const rawCogs = g("cogs:cogs").debit - g("cogs:cogs").credit;
   let inventoryDeduction = 0;
-  const inventoryAccounts = {}; // individual 115xx balances for COGS detail
+  const inventoryAccounts = {};
   for (const t of posting) {
     if (t.number?.startsWith("115")) {
       const bal = parseNum(t.balanceAtDateDebit) - parseNum(t.balanceAtDateCredit);
@@ -127,7 +125,7 @@ function computeFinancials(trialBalanceData) {
   const totalExpense = sellingExpense + adminExpense + interestExpense;
   const netIncome = grossProfit - totalExpense;
 
-  // Financial Ratios
+
   const currentRatio = currentLiabilities ? currentAssets / currentLiabilities : 0;
   const debtToEquity = totalEquity ? totalLiabilities / totalEquity : 0;
   const grossMargin = totalRevenue ? (grossProfit / totalRevenue) * 100 : 0;
@@ -142,8 +140,8 @@ function computeFinancials(trialBalanceData) {
     cogs, grossProfit,
     sellingExpense, adminExpense, interestExpense, operatingProfit, totalExpense, netIncome,
     currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
-    inventoryBalance: inventoryDeduction, // TB 115xx total for COGS fallback
-    inventoryAccounts, // { "11500-01": { name, balance }, ... }
+    inventoryBalance: inventoryDeduction,
+    inventoryAccounts,
     groups,
     totalAccounts: trialBalanceData.length,
     postingAccounts: posting.length,
@@ -159,25 +157,26 @@ export function useFinanceDashboard() {
   const [purchaseInvoices, setPurchaseInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ═══════════════════════════════════════
-  // Period Comparison State
-  // ═══════════════════════════════════════
+
+
+
   const now = new Date();
-  const [periodType, setPeriodType] = useState("year"); // "year" | "quarter" | "month"
+  const [periodType, setPeriodType] = useState("year");
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState(Math.ceil((now.getMonth() + 1) / 3));
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [compareEnabled, setCompareEnabled] = useState(false);
 
-  // Compute date ranges based on period selection
+
   const periodRanges = useMemo(() => {
     const periodValue = { year: selectedYear, quarter: selectedQuarter, month: selectedMonth };
     return getFinancePeriodRanges(periodType, periodValue);
   }, [periodType, selectedYear, selectedQuarter, selectedMonth]);
 
-  // Load data when period changes
+
   useEffect(() => {
     loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [periodType, selectedYear, selectedQuarter, selectedMonth, compareEnabled]);
 
   const loadAll = async () => {
@@ -185,7 +184,7 @@ export function useFinanceDashboard() {
       setLoading(true);
       const ranges = periodRanges;
 
-      // Always fetch current period trial balance with date range
+
       const fetches = [
         getTrialBalance(ranges.current.start, ranges.current.end).catch(() => []),
         getAgedReceivables().catch(() => []),
@@ -194,7 +193,7 @@ export function useFinanceDashboard() {
         getPurchaseInvoices("Open", false).catch(() => []),
       ];
 
-      // If compare mode is on, also fetch previous period
+
       if (compareEnabled) {
         fetches.push(
           getTrialBalance(ranges.previous.start, ranges.previous.end).catch(() => []),
@@ -217,13 +216,13 @@ export function useFinanceDashboard() {
     }
   };
 
-  // ═══════════════════════════════════════
-  // DIMENSION 1: Financial Statements (derived from Trial Balance)
-  // ═══════════════════════════════════════
+
+
+
   const financials = useMemo(() => computeFinancials(trialBalance), [trialBalance]);
   const prevFinancials = useMemo(() => computeFinancials(prevTrialBalance), [prevTrialBalance]);
 
-  // Comparison data for KPI cards
+
   const comparisonData = useMemo(() => {
     if (!compareEnabled || !financials || !prevFinancials) return null;
     return {
@@ -232,7 +231,7 @@ export function useFinanceDashboard() {
     };
   }, [compareEnabled, financials, prevFinancials, periodRanges]);
 
-  // Income Statement comparison chart (current vs previous)
+
   const incomeComparisonChart = useMemo(() => {
     if (!compareEnabled || !financials || !prevFinancials) return [];
     return [
@@ -247,7 +246,7 @@ export function useFinanceDashboard() {
     ];
   }, [compareEnabled, financials, prevFinancials]);
 
-  // Balance Sheet comparison chart
+
   const bsComparisonChart = useMemo(() => {
     if (!compareEnabled || !financials || !prevFinancials) return [];
     return [
@@ -259,7 +258,7 @@ export function useFinanceDashboard() {
     ];
   }, [compareEnabled, financials, prevFinancials]);
 
-  // Balance Sheet chart (Assets breakdown)
+
   const bsChartData = useMemo(() => {
     if (!financials) return [];
     return [
@@ -271,7 +270,7 @@ export function useFinanceDashboard() {
     ].filter((d) => d.value > 0);
   }, [financials]);
 
-  // Income Statement waterfall
+
   const isWaterfallData = useMemo(() => {
     if (!financials) return [];
     return [
@@ -285,7 +284,7 @@ export function useFinanceDashboard() {
     ].filter((d) => d.value !== 0);
   }, [financials]);
 
-  // Expense breakdown for pie chart
+
   const expenseBreakdown = useMemo(() => {
     if (!financials) return [];
     const data = [];
@@ -296,7 +295,7 @@ export function useFinanceDashboard() {
     return data;
   }, [financials]);
 
-  // Top accounts by balance (for drill-down)
+
   const topAccounts = useMemo(() => {
     if (!trialBalance.length) return [];
     return trialBalance
@@ -312,9 +311,9 @@ export function useFinanceDashboard() {
       .slice(0, 15);
   }, [trialBalance]);
 
-  // ═══════════════════════════════════════
-  // DIMENSION 2: Receivables Analytics
-  // ═══════════════════════════════════════
+
+
+
   const arChartData = useMemo(() => {
     if (!agedReceivables.length) return [];
     return agedReceivables
@@ -349,7 +348,7 @@ export function useFinanceDashboard() {
     );
   }, [agedReceivables, arChartData]);
 
-  // AR concentration risk (top 5 as % of total)
+
   const arConcentration = useMemo(() => {
     if (!arChartData.length || !arTotals) return null;
     const top5 = arChartData.slice(0, 5);
@@ -372,9 +371,9 @@ export function useFinanceDashboard() {
     return data;
   }, [arTotals]);
 
-  // ═══════════════════════════════════════
-  // DIMENSION 3: Payables Analytics
-  // ═══════════════════════════════════════
+
+
+
   const apChartData = useMemo(() => {
     if (!agedPayables.length) return [];
     return agedPayables
@@ -419,9 +418,9 @@ export function useFinanceDashboard() {
     return data;
   }, [apTotals]);
 
-  // ═══════════════════════════════════════
-  // DIMENSION 4: Invoice Details (grouped by customer/vendor)
-  // ═══════════════════════════════════════
+
+
+
   const arInvoiceMap = useMemo(() => {
     const map = {};
     const today = new Date();
@@ -441,7 +440,7 @@ export function useFinanceDashboard() {
         daysOverdue: Math.max(0, daysOverdue),
       });
     }
-    // Sort each customer's invoices by days overdue desc
+
     for (const key of Object.keys(map)) {
       map[key].sort((a, b) => b.daysOverdue - a.daysOverdue);
     }
@@ -472,11 +471,11 @@ export function useFinanceDashboard() {
     return map;
   }, [purchaseInvoices]);
 
-  // ═══════════════════════════════════════
-  // DIMENSION 5: Trend Analysis
-  // ═══════════════════════════════════════
 
-  // AR trend — outstanding invoices grouped by invoice month
+
+
+
+
   const arTrendByMonth = useMemo(() => {
     const map = {};
     for (const inv of salesInvoices) {
@@ -490,7 +489,7 @@ export function useFinanceDashboard() {
     return Object.values(map).sort((a, b) => a.month.localeCompare(b.month));
   }, [salesInvoices]);
 
-  // AP trend — outstanding invoices grouped by invoice month
+
   const apTrendByMonth = useMemo(() => {
     const map = {};
     for (const inv of purchaseInvoices) {
@@ -503,7 +502,7 @@ export function useFinanceDashboard() {
     return Object.values(map).sort((a, b) => a.month.localeCompare(b.month));
   }, [purchaseInvoices]);
 
-  // AR overdue bands (based on due date)
+
   const arOverdueBands = useMemo(() => {
     const bands = [
       { name: "ยังไม่ถึงกำหนด", count: 0, total: 0, remaining: 0, color: "#17C964" },
@@ -524,7 +523,7 @@ export function useFinanceDashboard() {
     return bands;
   }, [salesInvoices]);
 
-  // AP overdue bands
+
   const apOverdueBands = useMemo(() => {
     const bands = [
       { name: "ยังไม่ถึงกำหนด", count: 0, total: 0, color: "#17C964" },
@@ -544,9 +543,9 @@ export function useFinanceDashboard() {
     return bands;
   }, [purchaseInvoices]);
 
-  // ═══════════════════════════════════════
-  // Aging Detail Modal state
-  // ═══════════════════════════════════════
+
+
+
   const [selectedAging, setSelectedAging] = useState(null);
   const { isOpen: isAgingOpen, onOpen: onAgingOpen, onClose: onAgingClose } = useDisclosure();
 
@@ -561,9 +560,9 @@ export function useFinanceDashboard() {
       : apInvoiceMap[selectedAging.item.vendorNumber] || [])
     : [];
 
-  // ═══════════════════════════════════════
-  // AI Analysis
-  // ═══════════════════════════════════════
+
+
+
   const [aiAnalysis, setAiAnalysis] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -573,7 +572,7 @@ export function useFinanceDashboard() {
     setAiLoading(true);
     setAiAnalysis("");
 
-    // Build snapshot text for the AI
+
     const snapshot = {
       financials: [
         `สินทรัพย์รวม: ${fmt(fin.totalAssets)} (หมุนเวียน ${fmt(fin.currentAssets)}, ไม่หมุนเวียน ${fmt(fin.noncurrentAssets)})`,
@@ -662,9 +661,9 @@ export function useFinanceDashboard() {
     }
   }, [financials, arTotals, apTotals, arChartData, apChartData, arConcentration, arTrendByMonth, apTrendByMonth, arOverdueBands, apOverdueBands]);
 
-  // ═══════════════════════════════════════
-  // AI Cash Flow Forecast
-  // ═══════════════════════════════════════
+
+
+
   const [cashFlowAnalysis, setCashFlowAnalysis] = useState("");
   const [cashFlowLoading, setCashFlowLoading] = useState(false);
 
@@ -762,7 +761,7 @@ export function useFinanceDashboard() {
     aiAnalysis, aiLoading, runAiAnalysis,
     cashFlowAnalysis, cashFlowLoading, runCashFlowForecast,
     reload: loadAll,
-    // Comparison features
+
     periodType, setPeriodType,
     selectedYear, setSelectedYear,
     selectedQuarter, setSelectedQuarter,

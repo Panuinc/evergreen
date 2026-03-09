@@ -5,8 +5,8 @@ import { supabase } from "@/lib/supabase/client";
 
 const AuthContext = createContext({});
 
-const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-const SESSION_CHECK_INTERVAL = 60 * 1000; // 1 minute
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000;
+const SESSION_CHECK_INTERVAL = 60 * 1000;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Reset inactivity timer on user activity
+
   const resetInactivityTimer = useCallback(() => {
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     inactivityTimer.current = setTimeout(() => {
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Inactivity tracking
+
   useEffect(() => {
     if (!user) return;
 
@@ -71,7 +71,7 @@ export function AuthProvider({ children }) {
     };
   }, [user, resetInactivityTimer]);
 
-  // Periodic session validation
+
   useEffect(() => {
     if (!user) return;
 

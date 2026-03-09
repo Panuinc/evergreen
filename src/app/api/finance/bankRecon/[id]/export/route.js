@@ -10,7 +10,7 @@ export async function GET(request, { params }) {
     const { id } = await params;
     const supabase = getServiceSupabase();
 
-    // Get statement
+
     const { data: stmt } = await supabase
       .from("bankStatement")
       .select("*")
@@ -19,7 +19,7 @@ export async function GET(request, { params }) {
 
     if (!stmt) return Response.json({ error: "Not found" }, { status: 404 });
 
-    // Get entries with matches
+
     const { data: entries } = await supabase
       .from("bankEntry")
       .select("*, bankMatch(*)")
@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
 
     const wb = XLSX.utils.book_new();
 
-    // Sheet 1: All entries
+
     const allRows = (entries || []).map((e) => ({
       "ลำดับ": e.lineNumber,
       "วันที่": e.txDate,
@@ -56,7 +56,7 @@ export async function GET(request, { params }) {
     ];
     XLSX.utils.book_append_sheet(wb, ws1, "รายการทั้งหมด");
 
-    // Sheet 2: Unmatched deposits
+
     const unmatched = (entries || []).filter(
       (e) => e.direction === "credit" && e.matchStatus === "unmatched",
     );
@@ -73,7 +73,7 @@ export async function GET(request, { params }) {
     );
     XLSX.utils.book_append_sheet(wb, ws2, "ยังไม่ Match");
 
-    // Sheet 3: Summary by customer
+
     const customerSummary = new Map();
     for (const e of entries || []) {
       if (e.direction !== "credit" || !e.bankMatch?.length) continue;
@@ -105,7 +105,7 @@ export async function GET(request, { params }) {
     );
     XLSX.utils.book_append_sheet(wb, ws3, "สรุปตามลูกค้า");
 
-    // Write to buffer
+
     const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 
     const fileName = `bank-recon-${stmt.bankCode}-${stmt.periodStart || "export"}.xlsx`;

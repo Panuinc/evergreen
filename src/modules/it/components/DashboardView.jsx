@@ -20,7 +20,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
     return <p className="text-muted-foreground text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
   }
 
-  // Handle comparison data shape
+
   const isCompare = !!stats.compareMode;
   const d = isCompare ? stats.current : stats;
   const prev = isCompare ? stats.previous : null;
@@ -32,7 +32,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       sub: "ทรัพย์สิน IT ที่ติดตาม",
       icon: Server,
       color: "primary",
-      // Point-in-time stat — no comparison
+
     },
     {
       title: "ตั๋วที่เปิดอยู่",
@@ -50,7 +50,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       sub: "ไลเซนส์ซอฟต์แวร์",
       icon: FileText,
       color: "success",
-      // Point-in-time stat — no comparison
+
     },
     {
       title: "อุปกรณ์เครือข่าย",
@@ -58,7 +58,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       sub: `${d.onlineDevices} ออนไลน์`,
       icon: Globe,
       color: "secondary",
-      // Point-in-time stat — no comparison
+
     },
     {
       title: "เหตุการณ์ด้านความปลอดภัย",

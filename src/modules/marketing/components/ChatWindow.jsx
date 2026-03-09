@@ -83,7 +83,7 @@ export default function ChatWindow({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3 p-3 border-b border-border">
         {onBack && (
           <Button isIconOnly variant="light" size="md" radius="md" onPress={onBack}>
@@ -155,7 +155,7 @@ export default function ChatWindow({
         </div>
       </div>
 
-      {/* Messages */}
+      {}
       <ScrollShadow ref={scrollRef} className="flex-1 p-3 overflow-y-auto">
         {messagesLoading ? (
           <div className="flex items-center justify-center h-full">
@@ -190,6 +190,7 @@ export default function ChatWindow({
                   {msg.omMessageType === "image" && msg.omMessageImageUrl ? (
                     <div className="space-y-2">
                       <a href={msg.omMessageImageUrl} target="_blank" rel="noopener noreferrer">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={msg.omMessageImageUrl}
                           alt="รูปภาพ"
@@ -257,7 +258,7 @@ export default function ChatWindow({
         )}
       </ScrollShadow>
 
-      {/* Input */}
+      {}
       <MessageInput
         onSend={onSendMessage}
         onSuggest={onSuggestReply}
@@ -267,7 +268,7 @@ export default function ChatWindow({
         suggestedText={suggestedText}
       />
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="md">
         <ModalContent>
           <ModalHeader>ยืนยันการลบ</ModalHeader>

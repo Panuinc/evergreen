@@ -32,7 +32,7 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
         onLocationChange(parseFloat(newLat), parseFloat(newLng), display_name);
       }
     } catch {
-      // silent fail
+
     } finally {
       setSearching(false);
     }
@@ -57,7 +57,7 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Address search */}
+      {}
       <div className="flex gap-2">
         <Input
           placeholder="ค้นหาสถานที่..."
@@ -84,12 +84,12 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
         )}
       </div>
 
-      {/* Current address display */}
+      {}
       {address && (
         <p className="text-xs text-muted-foreground truncate px-1">{address}</p>
       )}
 
-      {/* Map */}
+      {}
       <MapInner lat={lat} lng={lng} onMapClick={handleMapClick} />
 
       <p className="text-xs text-muted-foreground text-center">

@@ -17,7 +17,7 @@ export default function PinInput({ value = "", onChange, onComplete, length = 6,
       const newPin = newDigits.join("");
       onChange(newPin);
 
-      // Auto-focus next or auto-submit
+
       if (index < length - 1) {
         inputRefs.current[index + 1]?.focus();
       } else if (newPin.length === length && onComplete) {
@@ -47,7 +47,7 @@ export default function PinInput({ value = "", onChange, onComplete, length = 6,
         }
       }
     },
-    [digits, onChange]
+    [digits, onChange, value, length, onComplete]
   );
 
   const handlePaste = useCallback(

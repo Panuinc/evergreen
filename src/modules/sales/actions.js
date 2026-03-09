@@ -1,6 +1,6 @@
 import { get, post, put, del } from "@/lib/apiClient";
 
-// ==================== Leads ====================
+
 
 export async function getLeads() {
   return get("/api/sales/leads");
@@ -22,7 +22,7 @@ export async function convertLead(id) {
   return post(`/api/sales/leads/${id}`, { action: "convert" });
 }
 
-// ==================== Contacts ====================
+
 
 export async function getContacts() {
   return get("/api/sales/contacts");
@@ -40,7 +40,7 @@ export async function deleteContact(id) {
   return del(`/api/sales/contacts/${id}`);
 }
 
-// ==================== Accounts ====================
+
 
 export async function getAccounts() {
   return get("/api/sales/accounts");
@@ -58,7 +58,7 @@ export async function deleteAccount(id) {
   return del(`/api/sales/accounts/${id}`);
 }
 
-// ==================== Opportunities ====================
+
 
 export async function getOpportunities() {
   return get("/api/sales/opportunities");
@@ -76,7 +76,7 @@ export async function deleteOpportunity(id) {
   return del(`/api/sales/opportunities/${id}`);
 }
 
-// ==================== Quotations ====================
+
 
 export async function getQuotationsList() {
   return get("/api/sales/quotations");
@@ -102,7 +102,7 @@ export async function quotationAction(id, action, note) {
   return post(`/api/sales/quotations/${id}`, { action, note });
 }
 
-// ==================== Orders ====================
+
 
 export async function getOrders() {
   return get("/api/sales/orders");
@@ -120,7 +120,7 @@ export async function deleteOrder(id) {
   return del(`/api/sales/orders/${id}`);
 }
 
-// ==================== Activities ====================
+
 
 export async function getActivities(params) {
   const query = params ? `?${new URLSearchParams(params).toString()}` : "";
@@ -139,7 +139,7 @@ export async function deleteActivity(id) {
   return del(`/api/sales/activities/${id}`);
 }
 
-// ==================== Dashboard ====================
+
 
 export async function getSalesDashboard(compareMode) {
   const params = compareMode ? `?compareMode=${compareMode}` : "";

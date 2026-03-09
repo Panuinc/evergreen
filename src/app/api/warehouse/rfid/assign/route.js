@@ -1,7 +1,7 @@
 import { withAuth } from "@/app/api/_lib/auth";
 
 const MIN_RFID_CODE = 1;
-const MAX_RFID_CODE = 99999999; // 8 digits max for EPC encoding
+const MAX_RFID_CODE = 99999999;
 
 export async function POST(request) {
   const auth = await withAuth();
@@ -13,7 +13,7 @@ export async function POST(request) {
     return Response.json({ error: "กรุณาระบุรหัสสินค้า" }, { status: 400 });
   }
 
-  // Validate rfidCode range
+
   const code = Number(rfidCode);
   if (!Number.isInteger(code) || code < MIN_RFID_CODE || code > MAX_RFID_CODE) {
     return Response.json(
@@ -22,7 +22,7 @@ export async function POST(request) {
     );
   }
 
-  // Check duplicate
+
   const { data: existing } = await auth.supabase
     .from("bcItem")
     .select("bcItemNumber, bcItemDisplayName")
@@ -39,7 +39,7 @@ export async function POST(request) {
     );
   }
 
-  // Assign rfidCode
+
   const { error } = await auth.supabase
     .from("bcItem")
     .update({ bcItemRfidCode: String(code) })

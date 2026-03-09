@@ -8,7 +8,7 @@ function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
 }
 
-// BC returns numbers as comma-formatted strings like "4,857.97" or empty strings
+
 function parseNum(val) {
   if (val === "" || val === null || val === undefined) return 0;
   if (typeof val === "number") return val;
@@ -38,14 +38,14 @@ export function useCollections() {
   const addModal = useDisclosure();
   const historyModal = useDisclosure();
 
-  // Report filters
+
   const [reportSince, setReportSince] = useState(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
   });
   const [reportUntil, setReportUntil] = useState(() => new Date().toISOString().slice(0, 10));
 
-  // ─── Load data ───
+
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -61,7 +61,7 @@ export function useCollections() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // ─── Merge AR + follow-ups ───
+
   const mergedData = useMemo(() => {
     const fuByCustomer = {};
     for (const fu of followUps) {
@@ -95,7 +95,7 @@ export function useCollections() {
       .sort((a, b) => b.balanceDue - a.balanceDue);
   }, [arData, followUps]);
 
-  // ─── KPIs ───
+
   const kpis = useMemo(() => {
     const totalOverdue = mergedData.reduce((s, c) => s + c.balanceDue, 0);
     const contacted = mergedData.filter((c) => c.followUpCount > 0).length;
@@ -108,7 +108,7 @@ export function useCollections() {
     return { totalOverdue, contacted, uncontacted, total: mergedData.length, dueToday, promisedTotal };
   }, [mergedData, followUps]);
 
-  // ─── Report data ───
+
   const reportData = useMemo(() => {
     const filtered = followUps.filter((f) => {
       if (reportSince && f.contactDate < reportSince) return false;
@@ -116,9 +116,9 @@ export function useCollections() {
       return true;
     });
 
-    // reasonLabel/statusLabel are in the view, so we store raw keys and let the view resolve labels.
-    // However, the original code called reasonLabel/statusLabel inside reportData.
-    // We replicate the same aggregation logic here using inline label lookups.
+
+
+
     const REASONS_MAP = {
       cash_flow: "ปัญหาสภาพคล่อง",
       dispute: "ข้อพิพาท/ไม่พอใจสินค้า-บริการ",
@@ -167,13 +167,13 @@ export function useCollections() {
     };
   }, [followUps, reportSince, reportUntil]);
 
-  // ─── Customer follow-up history ───
+
   const customerHistory = useMemo(() => {
     if (!selectedCustomer) return [];
     return followUps.filter((f) => f.customerNumber === selectedCustomer.customerNumber);
   }, [followUps, selectedCustomer]);
 
-  // ─── Handlers ───
+
   const openAdd = useCallback((customer) => {
     setSelectedCustomer(customer);
     setForm({ ...INITIAL_FORM, contactDate: new Date().toISOString().slice(0, 10) });
@@ -206,7 +206,7 @@ export function useCollections() {
 
   const setField = useCallback((key, val) => setForm((prev) => ({ ...prev, [key]: val })), []);
 
-  // ─── AI Collections Analysis ───
+
   const [aiAnalysis, setAiAnalysis] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 

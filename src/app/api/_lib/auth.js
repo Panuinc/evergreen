@@ -24,7 +24,7 @@ async function checkUserAccess(supabase, userId) {
 }
 
 export async function withAuth() {
-  // Try cookie-based session first (web app)
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -39,7 +39,7 @@ export async function withAuth() {
     return { supabase, session: { user }, isSuperAdmin };
   }
 
-  // Fall back to Bearer token (mobile app)
+
   const headersList = await headers();
   const authHeader = headersList.get("authorization") || "";
   const token = authHeader.replace(/^Bearer\s+/i, "");

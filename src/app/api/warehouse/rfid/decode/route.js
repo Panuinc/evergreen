@@ -23,11 +23,11 @@ function decodeEpc(hex) {
 
   let pieceNumber, totalPieces;
   if (afterSlash.length >= 4 && /^\d{4}/.test(afterSlash)) {
-    /* New format: 2-digit seq + 2-digit total (e.g. "0129") */
+
     pieceNumber = parseInt(afterSlash.substring(0, 2), 10);
     totalPieces = parseInt(afterSlash.substring(2, 4), 10);
   } else {
-    /* Old format: 1-char seq + 1-char total (e.g. "1P") */
+
     const seqChar = afterSlash[0];
     const totalChar = afterSlash[1];
     pieceNumber =
@@ -36,7 +36,7 @@ function decodeEpc(hex) {
       totalChar >= "A" ? totalChar.charCodeAt(0) - 55 : parseInt(totalChar) || 0;
   }
 
-  /* All digits = rfidCode mapping; otherwise = compact item number */
+
   if (/^\d+$/.test(itemPart)) {
     return {
       type: "epc",
@@ -89,7 +89,7 @@ export async function POST(request) {
       let item = null;
 
       if (decoded.rfidCode) {
-        /* New format: lookup by rfidCode */
+
         const { data: items } = await auth.supabase
           .from("bcItem")
           .select("*")
@@ -97,7 +97,7 @@ export async function POST(request) {
           .limit(1);
         item = items?.[0] || null;
       } else if (decoded.itemCompact) {
-        /* Old format: ILIKE pattern match on number */
+
         const pattern = `%${decoded.itemCompact.replace(/ /g, "%")}%`;
         const { data: items } = await auth.supabase
           .from("bcItem")

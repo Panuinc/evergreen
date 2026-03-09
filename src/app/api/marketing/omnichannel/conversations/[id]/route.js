@@ -26,7 +26,7 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
 
-  // Only allow updating specific fields
+
   const updateData = {};
   if (body.omConversationStatus !== undefined) updateData.omConversationStatus = body.omConversationStatus;
   if (body.omConversationAssignedTo !== undefined) updateData.omConversationAssignedTo = body.omConversationAssignedTo;
@@ -51,10 +51,10 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
 
-  // Soft-delete messages first (cascade)
+
   await supabase.from("omMessage").update({ isActive: false }).eq("omMessageConversationId", id);
 
-  // Soft-delete conversation
+
   const { error } = await supabase
     .from("omConversation")
     .update({ isActive: false })

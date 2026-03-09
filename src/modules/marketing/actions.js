@@ -1,6 +1,6 @@
 import { get, post, put, del } from "@/lib/apiClient";
 
-// ==================== Conversations ====================
+
 
 export async function getConversations(params = {}) {
   const qs = new URLSearchParams(params).toString();
@@ -19,7 +19,7 @@ export async function deleteConversation(id) {
   return del(`/api/marketing/omnichannel/conversations/${id}`);
 }
 
-// ==================== Messages ====================
+
 
 export async function getMessages(conversationId) {
   return get(`/api/marketing/omnichannel/conversations/${conversationId}/messages`);
@@ -29,7 +29,7 @@ export async function sendMessage(conversationId, content) {
   return post("/api/marketing/omnichannel/send", { conversationId, content });
 }
 
-// ==================== AI Agent ====================
+
 
 export async function suggestReply(conversationId) {
   return post("/api/marketing/omnichannel/ai/suggest", { conversationId });
@@ -43,7 +43,7 @@ export async function updateAiSettings(data) {
   return put("/api/marketing/omnichannel/ai/settings", data);
 }
 
-// ==================== Analytics ====================
+
 
 export async function getMarketingAnalytics(refresh = false, period = "all", startDate, endDate) {
   const params = new URLSearchParams();
@@ -58,7 +58,7 @@ export async function getMarketingAnalytics(refresh = false, period = "all", sta
   return get(`/api/marketing/analytics${qs ? `?${qs}` : ""}`);
 }
 
-// ==================== Sales Orders ====================
+
 
 export async function getSalesOrders() {
   return get("/api/marketing/salesOrders");
@@ -68,7 +68,7 @@ export async function getSalesOrder(no) {
   return get(`/api/marketing/salesOrders/${encodeURIComponent(no)}`);
 }
 
-// ==================== Stock Items / Price List ====================
+
 
 export async function getStockItems() {
   return get("/api/marketing/omnichannel/stockItems");
@@ -78,7 +78,7 @@ export async function saveStockItemPrices(items) {
   return post("/api/marketing/omnichannel/stockItems", { items });
 }
 
-// ==================== Quotations ====================
+
 
 export async function getQuotations(statusFilter) {
   const url =

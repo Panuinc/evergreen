@@ -7,7 +7,7 @@ const adminClient = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// GET — เช็คว่า user มี PIN หรือยัง
+
 export async function GET() {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -21,7 +21,7 @@ export async function GET() {
   });
 }
 
-// POST — ตั้ง PIN ใหม่
+
 export async function POST(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -55,7 +55,7 @@ export async function POST(request) {
   return Response.json({ success: true });
 }
 
-// DELETE — ลบ PIN
+
 export async function DELETE() {
   const auth = await withAuth();
   if (auth.error) return auth.error;

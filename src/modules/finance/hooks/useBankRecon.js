@@ -16,7 +16,7 @@ import {
 } from "@/modules/finance/actions";
 
 export function useBankRecon() {
-  // ─── Data State ───
+
   const [statements, setStatements] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState(null);
@@ -26,15 +26,15 @@ export function useBankRecon() {
   const [matching, setMatching] = useState(false);
   const [filter, setFilter] = useState("all");
 
-  // ─── AR Data ───
+
   const [arData, setArData] = useState([]);
   const [arLoading, setArLoading] = useState(false);
 
-  // ─── Modal State ───
+
   const matchModal = useDisclosure();
   const [matchEntry, setMatchEntry] = useState(null);
 
-  // ─── Load Statements ───
+
   const loadStatements = useCallback(async () => {
     setLoading(true);
     try {
@@ -52,7 +52,7 @@ export function useBankRecon() {
     loadStatements();
   }, [loadStatements]);
 
-  // ─── Select Statement ───
+
   const selectStatement = useCallback(async (id) => {
     setSelectedId(id);
     if (!id) {
@@ -71,7 +71,7 @@ export function useBankRecon() {
     }
   }, []);
 
-  // ─── Upload ───
+
   const handleUpload = useCallback(
     async (fileUrl, fileName, bankCode = "KBANK") => {
       try {
@@ -87,7 +87,7 @@ export function useBankRecon() {
     [],
   );
 
-  // ─── Parse ───
+
   const handleParse = useCallback(
     async (id) => {
       setParsing(true);
@@ -106,7 +106,7 @@ export function useBankRecon() {
     [selectStatement, loadStatements],
   );
 
-  // ─── Auto Match ───
+
   const handleAutoMatch = useCallback(
     async () => {
       if (!selectedId) return;
@@ -129,7 +129,7 @@ export function useBankRecon() {
     [selectedId, selectStatement, loadStatements],
   );
 
-  // ─── Manual Match ───
+
   const handleManualMatch = useCallback(
     async (entryId, invoiceData) => {
       if (!selectedId) return;
@@ -149,7 +149,7 @@ export function useBankRecon() {
     [selectedId, selectStatement, matchModal],
   );
 
-  // ─── Unmatch ───
+
   const handleUnmatch = useCallback(
     async (entryId) => {
       if (!selectedId) return;
@@ -164,7 +164,7 @@ export function useBankRecon() {
     [selectedId, selectStatement],
   );
 
-  // ─── Exclude ───
+
   const handleExclude = useCallback(
     async (entryId, note) => {
       if (!selectedId) return;
@@ -179,7 +179,7 @@ export function useBankRecon() {
     [selectedId, selectStatement],
   );
 
-  // ─── Delete Statement ───
+
   const handleDelete = useCallback(
     async (id) => {
       try {
@@ -197,11 +197,11 @@ export function useBankRecon() {
     [selectedId],
   );
 
-  // ─── Open Match Modal ───
+
   const openMatchModal = useCallback(
     async (entry) => {
       setMatchEntry(entry);
-      // Load open invoices if not loaded
+
       if (openInvoices.length === 0) {
         try {
           const invs = await getSalesInvoices("Open", false);
@@ -215,7 +215,7 @@ export function useBankRecon() {
     [openInvoices.length, matchModal],
   );
 
-  // ─── Load AR Data ───
+
   const loadArData = useCallback(async () => {
     setArLoading(true);
     try {
@@ -229,11 +229,11 @@ export function useBankRecon() {
     }
   }, []);
 
-  // ─── AR Comparison ───
+
   const arComparison = useMemo(() => {
     if (!detail?.entries || arData.length === 0) return [];
 
-    // Build matched totals by customer from bank matches
+
     const matchedByCustomer = new Map();
     for (const entry of detail.entries) {
       if (entry.direction !== "credit" || !entry.bankMatch?.length) continue;
@@ -254,13 +254,13 @@ export function useBankRecon() {
       }
     }
 
-    // Build AR lookup by customerNumber
+
     const arMap = new Map();
     for (const ar of arData) {
       arMap.set(ar.customerNumber, ar);
     }
 
-    // Merge: start from AR data, enrich with matched totals
+
     const result = [];
     const seen = new Set();
 
@@ -291,7 +291,7 @@ export function useBankRecon() {
       seen.add(ar.customerNumber);
     }
 
-    // Add customers that have bank matches but no AR record
+
     for (const [key, matched] of matchedByCustomer) {
       if (seen.has(key)) continue;
       result.push({
@@ -312,7 +312,7 @@ export function useBankRecon() {
     return result.sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
   }, [detail?.entries, arData]);
 
-  // ─── Export ───
+
   const handleExport = useCallback(async () => {
     if (!selectedId) return;
     try {
@@ -331,7 +331,7 @@ export function useBankRecon() {
     }
   }, [selectedId, detail?.bankCode]);
 
-  // ─── Computed: KPIs ───
+
   const kpis = useMemo(() => {
     const entries = detail?.entries || [];
     const credits = entries.filter((e) => e.direction === "credit");
@@ -366,7 +366,7 @@ export function useBankRecon() {
     };
   }, [detail?.entries]);
 
-  // ─── Filtered Entries ───
+
   const filteredEntries = useMemo(() => {
     const entries = detail?.entries || [];
     if (filter === "all") return entries;

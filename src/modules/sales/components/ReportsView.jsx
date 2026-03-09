@@ -30,7 +30,7 @@ export default function ReportsView({ data, loading }) {
         <p className="text-xs font-light">รายงานการขาย</p>
       </div>
 
-      {/* Full-width Pipeline Chart */}
+      {}
       <Card shadow="none" className="border border-border p-4">
         <p className="text-xs font-light mb-4">วิเคราะห์ไปป์ไลน์</p>
         <ResponsiveContainer width="100%" height={400}>
@@ -48,7 +48,7 @@ export default function ReportsView({ data, loading }) {
         </ResponsiveContainer>
       </Card>
 
-      {/* Revenue Trend */}
+      {}
       <Card shadow="none" className="border border-border p-4">
         <p className="text-xs font-light mb-4">แนวโน้มรายได้</p>
         <ResponsiveContainer width="100%" height={400}>
@@ -66,7 +66,7 @@ export default function ReportsView({ data, loading }) {
         </ResponsiveContainer>
       </Card>
 
-      {/* Win/Loss and Salespeople side by side */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border p-4">
           <p className="text-xs font-light mb-4">อัตราการชนะ</p>

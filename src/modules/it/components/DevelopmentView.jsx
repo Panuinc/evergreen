@@ -295,7 +295,7 @@ export default function DevelopmentView({
         }
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -476,7 +476,7 @@ export default function DevelopmentView({
         </ModalContent>
       </Modal>
 
-      {/* Progress Modal */}
+      {}
       <Modal
         isOpen={progressModal.isOpen}
         onClose={progressModal.onClose}
@@ -508,7 +508,7 @@ export default function DevelopmentView({
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-4">
-              {/* Add Progress Form */}
+              {}
               <div className="flex flex-col gap-3 p-4 rounded-lg border border-border bg-default-50">
                 <p className="text-xs font-light">เพิ่มการอัปเดตความคืบหน้า</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -568,7 +568,7 @@ export default function DevelopmentView({
 
               <Divider />
 
-              {/* Progress History */}
+              {}
               <div className="flex flex-col gap-1">
                 <p className="text-xs font-light">ประวัติความคืบหน้า</p>
                 {progressLoading ? (
@@ -640,7 +640,7 @@ export default function DevelopmentView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบคำขอ</ModalHeader>

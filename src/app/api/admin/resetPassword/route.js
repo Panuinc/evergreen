@@ -5,7 +5,7 @@ export async function POST(request) {
   const { supabase, session, error: authError } = await withAuth();
   if (authError) return authError;
 
-  // ตรวจสอบว่า user มี rbac permission (superadmin หรือ rbac:create)
+
   const { data: permissions } = await supabase.rpc(
     "get_user_permissions",
     { p_user_id: session.user.id },

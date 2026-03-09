@@ -79,7 +79,7 @@ export function useDeliveries(fromShipmentId = null) {
     loadData();
   }, []);
 
-  // Pre-fill form from shipment when shipmentId is in URL
+
   useEffect(() => {
     if (!fromShipmentId) return;
     getShipmentById(fromShipmentId)
@@ -92,7 +92,7 @@ export function useDeliveries(fromShipmentId = null) {
           tmsDeliveryReceiverPhone: shipment.tmsShipmentCustomerPhone || "",
         });
 
-        // Try to get structured items from the linked delivery plan
+
         try {
           const plans = await getDeliveryPlanByShipmentId(fromShipmentId);
           const plan = plans?.[0];
@@ -120,6 +120,7 @@ export function useDeliveries(fromShipmentId = null) {
         onOpen();
       })
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromShipmentId]);
 
   const loadData = async () => {
@@ -165,7 +166,7 @@ export function useDeliveries(fromShipmentId = null) {
       return;
     }
 
-    // Validate: discrepancies must have notes
+
     if (deliveryItems.length > 0) {
       const hasUndocumented = deliveryItems.some((item) => {
         const delivered = parseFloat(item.tmsDeliveryItemDeliveredQty) || 0;
@@ -200,7 +201,7 @@ export function useDeliveries(fromShipmentId = null) {
         toast.success("สร้างการส่งมอบสำเร็จ");
       }
 
-      // Sync shipment status based on delivery result
+
       const shipmentId = fromShipmentId || formData.tmsDeliveryShipmentId;
       if (shipmentId) {
         try {
@@ -208,7 +209,7 @@ export function useDeliveries(fromShipmentId = null) {
             autoStatus === "delivered_ok" ? "pod_confirmed" : "delivered";
           await updateShipmentStatus(shipmentId, targetStatus);
         } catch {
-          // Shipment status update is best-effort (may fail if transition is invalid)
+
         }
       }
       onClose();

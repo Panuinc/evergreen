@@ -99,7 +99,7 @@ export default function ShippingLabelDocument({ orderNo }) {
         }}
       />
 
-      {/* ปุ่มสำหรับหน้าจอ */}
+      {}
       <div className="no-print flex items-center justify-between mb-4 px-4 pt-4">
         <p className="text-xs text-muted-foreground">
           ใบปะหน้าส่งสินค้า — {data.orderNo} ({labels.length} ใบ)
@@ -139,7 +139,7 @@ export default function ShippingLabelDocument({ orderNo }) {
               pageBreakAfter: idx < labels.length - 1 ? "always" : "auto",
             }}
           >
-            {/* ── ส่วนที่ 1: ผู้ส่ง + เลขกล่อง ── */}
+            {}
             <div
               style={{
                 display: "flex",
@@ -147,7 +147,7 @@ export default function ShippingLabelDocument({ orderNo }) {
                 marginBottom: "2mm",
               }}
             >
-              {/* โลโก้ */}
+              {}
               <div
                 style={{
                   width: "18mm",
@@ -171,7 +171,7 @@ export default function ShippingLabelDocument({ orderNo }) {
                 />
               </div>
 
-              {/* ข้อมูลผู้ส่ง */}
+              {}
               <div
                 style={{
                   flex: 1,
@@ -194,7 +194,7 @@ export default function ShippingLabelDocument({ orderNo }) {
                 </div>
               </div>
 
-              {/* เลขกล่อง */}
+              {}
               <div
                 style={{
                   width: "16mm",
@@ -218,7 +218,7 @@ export default function ShippingLabelDocument({ orderNo }) {
               </div>
             </div>
 
-            {/* ── ส่วนที่ 2: Barcode ── */}
+            {}
             <div
               style={{
                 border: "0px dashed #aaa",
@@ -234,7 +234,7 @@ export default function ShippingLabelDocument({ orderNo }) {
               <BarcodeImg value={barcodeValue} />
             </div>
 
-            {/* ── ส่วนที่ 3: ผู้รับ ── */}
+            {}
             <div
               style={{
                 border: "1px solid #000",
@@ -262,7 +262,7 @@ export default function ShippingLabelDocument({ orderNo }) {
               )}
             </div>
 
-            {/* ── ส่วนที่ 4: รายการสินค้า ── */}
+            {}
             <div
               style={{
                 border: "1px solid #000",
@@ -327,7 +327,7 @@ export default function ShippingLabelDocument({ orderNo }) {
               </table>
             </div>
 
-            {/* ── ส่วนที่ 5: ข้อความเตือน + QR Code ── */}
+            {}
             <div
               style={{
                 border: "1px solid #000",

@@ -24,14 +24,14 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
     return <p className="text-muted-foreground text-center py-10">ไม่สามารถโหลดข้อมูลแดชบอร์ดได้</p>;
   }
 
-  // Handle comparison data shape
+
   const isCompare = !!stats.compareMode;
   const d = isCompare ? stats.current : stats;
   const prev = isCompare ? stats.previous : null;
 
-  // Map field names for backward compatibility
-  // Non-compare mode uses: completedThisMonth, totalFuelCostThisMonth
-  // Compare mode uses: completedInPeriod, fuelCostInPeriod
+
+
+
   const completedValue = isCompare ? d.completedInPeriod : d.completedThisMonth;
   const completedPrev = prev ? prev.completedInPeriod : undefined;
   const fuelCostValue = isCompare ? d.fuelCostInPeriod : d.totalFuelCostThisMonth;
@@ -39,7 +39,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      {/* Compare Toggle */}
+      {}
       {setCompareMode && (
         <div className="flex items-center justify-between">
           <div />
@@ -54,7 +54,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         </div>
       )}
 
-      {/* KPI Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <CompareKpiCard
           title="ยานพาหนะทั้งหมด"
@@ -95,7 +95,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         />
       </div>
 
-      {/* Charts */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
@@ -127,7 +127,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         </Card>
       </div>
 
-      {/* Vehicle Performance */}
+      {}
       {stats.vehiclePerformance && (
         <div>
           <p className="text-xs font-light mb-3">สรุปประสิทธิภาพยานพาหนะ</p>
@@ -135,7 +135,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         </div>
       )}
 
-      {/* AI Analysis */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">

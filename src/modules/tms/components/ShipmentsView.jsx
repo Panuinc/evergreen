@@ -323,10 +323,10 @@ export default function ShipmentsView({
           <ModalHeader>{editingShipment ? "แก้ไขการขนส่ง" : "สร้างการขนส่ง"}</ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-2">
-              {/* Delivery Plan Selector */}
+              {}
               {!editingShipment && (
                 <div className="flex flex-col w-full p-2 gap-3">
-                  {/* Dropdown to add plans */}
+                  {}
                   <Select
                     label="เลือกแผนส่งของ"
                     labelPlacement="outside"
@@ -364,7 +364,7 @@ export default function ShipmentsView({
                     })}
                   </Select>
 
-                  {/* Selected plans as removable chips */}
+                  {}
                   {selectedPlanIds.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {selectedPlanIds.map((pid) => {
@@ -388,7 +388,7 @@ export default function ShipmentsView({
                     </div>
                   )}
 
-                  {/* Route Optimize button + result (only when 2+ plans) */}
+                  {}
                   {selectedPlanIds.length >= 2 && (
                     <div className="flex flex-col gap-2 border border-border rounded-xl p-3 bg-default-50">
                       <div className="flex items-center justify-between">
@@ -406,7 +406,7 @@ export default function ShipmentsView({
                         </Button>
                       </div>
 
-                      {/* Compact route result */}
+                      {}
                       {routeLoading && !routeResult && (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
                           <Loading /> กำลังคำนวณเส้นทาง...
@@ -414,7 +414,7 @@ export default function ShipmentsView({
                       )}
                       {routeResult && (
                         <div className="flex flex-col gap-2">
-                          {/* Stop order */}
+                          {}
                           <div className="flex items-center gap-1 flex-wrap text-xs">
                             <span className="text-muted-foreground">โรงงาน</span>
                             {routeResult.optimizedStops?.map((stop, i) => (
@@ -429,7 +429,7 @@ export default function ShipmentsView({
                             <span className="text-muted-foreground">→</span>
                             <span className="text-muted-foreground">โรงงาน</span>
                           </div>
-                          {/* Stats row */}
+                          {}
                           <div className="flex items-center gap-4 text-xs flex-wrap">
                             <span><span className="text-muted-foreground">รวม:</span> <span className="font-light">{routeResult.totalDistanceKm} กม.</span></span>
                             <span><span className="text-muted-foreground">เวลา:</span> <span className="font-light">{Math.floor(routeResult.totalDurationMin / 60)} ชม. {routeResult.totalDurationMin % 60} น.</span></span>
@@ -437,7 +437,7 @@ export default function ShipmentsView({
                               <span className="text-success-600 font-light">ประหยัด {routeResult.savedKm.toFixed(1)} กม.</span>
                             )}
                           </div>
-                          {/* Google Maps link */}
+                          {}
                           {routeResult.googleMapsUrl && (
                             <a
                               href={routeResult.googleMapsUrl}
@@ -452,7 +452,7 @@ export default function ShipmentsView({
                           )}
                         </div>
                       )}
-                      {/* AI analysis (collapsible) */}
+                      {}
                       {routeAiAnalysis && (
                         <details className="text-xs">
                           <summary className="cursor-pointer text-secondary-600 font-light flex items-center gap-1">
@@ -468,7 +468,7 @@ export default function ShipmentsView({
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Multi-stop: show stops table */}
+                {}
                 {shipmentStops.length > 1 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
                     <p className="text-xs font-light">จุดส่งของ ({shipmentStops.length} จุด)</p>
@@ -512,7 +512,7 @@ export default function ShipmentsView({
                         </tbody>
                       </table>
                     </div>
-                    {/* Google Maps link for saved shipments */}
+                    {}
                     {routeResult?.googleMapsUrl && (
                       <a
                         href={routeResult.googleMapsUrl}
@@ -528,7 +528,7 @@ export default function ShipmentsView({
                   </div>
                 ) : (
                   <>
-                    {/* Single stop: original fields */}
+                    {}
                     <div className="flex items-center w-full h-fit p-2 gap-2">
                       <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="flat" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
                     </div>
@@ -562,7 +562,7 @@ export default function ShipmentsView({
                 <div className="flex items-center w-full h-fit p-2 gap-2">
                   <Input type="number" label="ค่าแรงคนขับ (บาท)" labelPlacement="outside" placeholder="กรอกค่าแรง" variant="bordered" size="md" radius="md" value={formData.tmsShipmentDriverWage} onChange={(e) => updateField("tmsShipmentDriverWage", e.target.value)} />
                 </div>
-                {/* เด็กติดรถ สูงสุด 3 คน */}
+                {}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-light">เด็กติดรถ</p>
@@ -631,7 +631,7 @@ export default function ShipmentsView({
                     </div>
                   ))}
                 </div>
-                {/* รายการพิเศษ */}
+                {}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-light">รายการพิเศษ</p>
@@ -749,7 +749,7 @@ export default function ShipmentsView({
                     </div>
                   )}
                 </div>
-                {/* ค่าน้ำมัน - คำนวณอัตโนมัติ */}
+                {}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
                   <p className="text-xs font-light">ค่าน้ำมันโดยประมาณ</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -803,7 +803,7 @@ export default function ShipmentsView({
                   <Input label="อ้างอิงใบสั่งขาย" labelPlacement="outside" placeholder="เลขที่ใบสั่ง BC" variant="bordered" size="md" radius="md" value={formData.tmsShipmentSalesOrderRef} onChange={(e) => updateField("tmsShipmentSalesOrderRef", e.target.value)} />
                 </div>
 
-                {/* Items table or fallback input */}
+                {}
                 {shipmentItems.length > 0 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
                     <p className="text-xs font-light">รายการสินค้า</p>

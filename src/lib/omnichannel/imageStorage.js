@@ -1,8 +1,6 @@
 const BUCKET = "omnichannel";
 
-/**
- * Download image from LINE API and upload to Supabase Storage
- */
+
 export async function downloadLineImage(supabase, lineMessageId, channelAccessToken) {
   const res = await fetch(
     `https://api-data.line.me/v2/bot/message/${lineMessageId}/content`,
@@ -25,9 +23,7 @@ export async function downloadLineImage(supabase, lineMessageId, channelAccessTo
   return data.publicUrl;
 }
 
-/**
- * Download image from URL (Facebook) and upload to Supabase Storage
- */
+
 export async function downloadFacebookImage(supabase, imageUrl, messageId) {
   const res = await fetch(imageUrl);
   if (!res.ok) throw new Error(`Facebook image download error: ${res.status}`);

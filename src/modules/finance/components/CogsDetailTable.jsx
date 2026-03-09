@@ -112,7 +112,7 @@ export default function CogsDetailTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* COGS Composition Chart */}
+      {}
       {chartData && chartData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
@@ -138,7 +138,7 @@ export default function CogsDetailTable({
         </Card>
       )}
 
-      {/* COGS Detail Table */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">

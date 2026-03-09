@@ -38,7 +38,7 @@ export async function POST(request) {
   const body = await request.json();
   body.tmsShipmentCreatedBy = session.user.id;
 
-  // Auto-generate shipment number: SHP-YYMMDD-NNN
+
   if (!body.tmsShipmentNumber) {
     const today = new Date();
     const yy = String(today.getFullYear()).slice(-2);

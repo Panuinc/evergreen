@@ -8,24 +8,24 @@ import { supabase } from "@/lib/supabase/client";
 export function useSignIn() {
   const { user, loading } = useAuth();
 
-  // Password auth state
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mode & PIN state
-  const [mode, setMode] = useState("password"); // "password" | "pin"
+
+  const [mode, setMode] = useState("password");
   const [pin, setPin] = useState("");
   const [pinLoading, setPinLoading] = useState(false);
   const [pinError, setPinError] = useState(false);
 
-  // ดึง email จาก localStorage ที่จำไว้ตอน login ครั้งก่อน
+
   const lastEmail =
     typeof window !== "undefined"
       ? localStorage.getItem("lastSignInEmail") || ""
       : "";
 
-  // --- Password sign-in ---
+
   const handleSignIn = async () => {
     if (!email || !password) {
       toast.error("กรุณาใส่อีเมลและรหัสผ่าน");
@@ -50,7 +50,7 @@ export function useSignIn() {
         return;
       }
 
-      // จำ email ไว้สำหรับ PIN quick unlock
+
       try {
         localStorage.setItem("lastSignInEmail", email);
       } catch {}
@@ -62,7 +62,7 @@ export function useSignIn() {
     }
   };
 
-  // --- PIN verify ---
+
   const handlePinVerify = async (pinValue) => {
     const currentPin = pinValue || pin;
     if (!lastEmail) {
@@ -101,7 +101,7 @@ export function useSignIn() {
         return;
       }
 
-      // Verify OTP to get session
+
       const { error } = await supabase.auth.verifyOtp({
         token_hash: data.token_hash,
         type: "magiclink",
@@ -120,7 +120,7 @@ export function useSignIn() {
     }
   };
 
-  // --- Mode switching ---
+
   const switchToPin = () => setMode("pin");
   const switchToPassword = () => {
     setMode("password");
@@ -129,13 +129,13 @@ export function useSignIn() {
   };
 
   return {
-    // Auth status
+
     user,
     loading,
     mode,
     lastEmail,
 
-    // Password
+
     email,
     setEmail,
     password,
@@ -143,14 +143,14 @@ export function useSignIn() {
     isLoading,
     handleSignIn,
 
-    // PIN
+
     pin,
     setPin,
     pinLoading,
     pinError,
     handlePinVerify,
 
-    // Mode switching
+
     switchToPin,
     switchToPassword,
   };

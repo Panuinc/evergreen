@@ -41,7 +41,7 @@ export function useGpsTracking() {
     loadData();
   }, [loadData]);
 
-  // Auto-refresh every 30 seconds
+
   useEffect(() => {
     const interval = setInterval(() => {
       getLatestPositions()
@@ -108,7 +108,7 @@ export function useGpsTracking() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Route history
+
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const [routeHistory, setRouteHistory] = useState([]);
   const [loadingRoute, setLoadingRoute] = useState(false);

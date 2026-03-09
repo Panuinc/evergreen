@@ -43,7 +43,7 @@ function isToday(date) {
   );
 }
 
-// --- Month View ---
+
 function MonthView({ currentDate, getPlansForDate, onDateClick }) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -61,7 +61,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
 
   return (
     <div className="flex flex-col gap-1 overflow-x-auto">
-      {/* Day headers */}
+      {}
       <div className="grid grid-cols-7 min-w-125">
         {DAYS_TH.map((d, i) => (
           <div
@@ -74,7 +74,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
           </div>
         ))}
       </div>
-      {/* Rows */}
+      {}
       {rows.map((row, ri) => (
         <div key={ri} className="grid grid-cols-7 gap-1 min-w-125">
           {row.map((date, ci) => {
@@ -147,7 +147,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
   );
 }
 
-// --- Week View ---
+
 function WeekView({ currentDate, getPlansForDate, onDateClick }) {
   const startOfWeek = new Date(currentDate);
   startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
@@ -167,7 +167,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
           const today = isToday(date);
           return (
             <div key={i} className="flex flex-col gap-2">
-              {/* Day header */}
+              {}
               <div className="flex flex-col items-center gap-1">
                 <span
                   className={`text-xs font-light ${
@@ -184,7 +184,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                   {date.getDate()}
                 </span>
               </div>
-              {/* Plans */}
+              {}
               <div className="flex flex-col gap-1 max-h-80 overflow-y-auto">
                 {plans.map((p) => (
                   <div
@@ -244,7 +244,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                     </div>
                   </div>
                 ))}
-                {/* Add button */}
+                {}
                 <button
                   onClick={() => onDateClick(date)}
                   className="w-full py-2 rounded-xl border border-dashed border-border text-xs text-muted-foreground hover:border-primary-300 hover:text-primary-500 transition-colors shrink-0"
@@ -260,7 +260,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
   );
 }
 
-// --- Main Component ---
+
 export default function DeliveryPlanCalendar() {
   const {
     loading,
@@ -292,7 +292,7 @@ export default function DeliveryPlanCalendar() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  // Title for week view
+
   const startOfWeek = new Date(currentDate);
   startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
   const endOfWeek = new Date(startOfWeek);
@@ -303,7 +303,7 @@ export default function DeliveryPlanCalendar() {
       ? `${MONTHS_TH[month]} ${year + 543}`
       : `${startOfWeek.getDate()} – ${endOfWeek.getDate()} ${MONTHS_TH[endOfWeek.getMonth()]} ${endOfWeek.getFullYear() + 543}`;
 
-  // Plans on selected date
+
   const dateStr = editingPlan
     ? editingPlan.tmsDeliveryPlanDate
     : selectedDate
@@ -313,7 +313,7 @@ export default function DeliveryPlanCalendar() {
 
   return (
     <div className="flex flex-col w-full gap-4 p-2">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <CalendarDays className="text-primary" />
@@ -330,7 +330,7 @@ export default function DeliveryPlanCalendar() {
         </Tabs>
       </div>
 
-      {/* Navigation */}
+      {}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button size="md" variant="flat" isIconOnly onPress={goToPrev}>
@@ -347,7 +347,7 @@ export default function DeliveryPlanCalendar() {
         {loading && <Loading />}
       </div>
 
-      {/* Calendar */}
+      {}
       {viewMode === "month" ? (
         <MonthView
           currentDate={currentDate}
@@ -362,7 +362,7 @@ export default function DeliveryPlanCalendar() {
         />
       )}
 
-      {/* Modal */}
+      {}
       <DeliveryPlanModal
         isOpen={isModalOpen}
         onClose={closeModal}

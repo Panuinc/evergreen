@@ -77,7 +77,7 @@ export default function SalesOrderDetailView({
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3">
         <Button
           isIconOnly
@@ -109,7 +109,7 @@ export default function SalesOrderDetailView({
         </Button>
       </div>
 
-      {/* Order Info */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5 gap-3">
@@ -176,7 +176,7 @@ export default function SalesOrderDetailView({
         </Card>
       </div>
 
-      {/* Lines */}
+      {}
       <div>
         <p className="font-light mb-2">รายการสินค้า ({order.lines?.length || 0} รายการ)</p>
         <DataTable

@@ -43,7 +43,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
     );
   }
 
-  // Handle comparison data shape
+
   const isCompare = !!data.compareMode;
   const kpis = isCompare ? data.current?.kpis || {} : data.kpis || {};
   const prevKpis = isCompare ? data.previous?.kpis || {} : null;
@@ -54,7 +54,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      {/* Compare Toggle */}
+      {}
       {setCompareMode && (
         <div className="flex items-center justify-between">
           <div />
@@ -69,7 +69,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         </div>
       )}
 
-      {/* KPI Cards Row */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <CompareKpiCard
           title="ลีดทั้งหมด"
@@ -129,9 +129,9 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         />
       </div>
 
-      {/* Charts Row */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Pipeline by Stage */}
+        {}
         <Card shadow="none" className="border border-border p-4">
           <p className="text-xs font-light mb-4">ไปป์ไลน์ตามขั้นตอน</p>
           <ResponsiveContainer width="100%" height={300}>
@@ -151,7 +151,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
           </ResponsiveContainer>
         </Card>
 
-        {/* Revenue by Month */}
+        {}
         <Card shadow="none" className="border border-border p-4">
           <p className="text-xs font-light mb-4">รายได้ตามเดือน</p>
           <ResponsiveContainer width="100%" height={300}>
@@ -172,9 +172,9 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         </Card>
       </div>
 
-      {/* Bottom Row */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Top Salespeople */}
+        {}
         <Card shadow="none" className="border border-border p-4">
           <p className="text-xs font-light mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
@@ -207,7 +207,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
           </div>
         </Card>
 
-        {/* Recent Activities */}
+        {}
         <Card shadow="none" className="border border-border p-4">
           <p className="text-xs font-light mb-4">กิจกรรมล่าสุด</p>
           <div className="flex flex-col gap-3">

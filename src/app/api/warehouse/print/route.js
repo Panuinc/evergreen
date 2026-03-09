@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createCanvas } from "canvas";
 import { PrinterService, PrintService } from "@/lib/chainWay/server";
 
-/* ── helpers matching ZPL layout ── */
+
 function getShortItemNumber(fullNumber) {
   if (!fullNumber) return fullNumber;
   const parts = fullNumber.split("-");
@@ -10,9 +10,9 @@ function getShortItemNumber(fullNumber) {
   return fullNumber;
 }
 
-/* ── preview — matches ZPL buildThaiRFIDLabel layout ── */
+
 function renderPreview(item, quantity) {
-  // Label: 73mm x 21mm (same ratio as LABEL_SIZES.RFID)
+
   const PREVIEW_WIDTH = 600;
   const ratio = 21 / 73;
   const previewH = Math.round(PREVIEW_WIDTH * ratio);
@@ -27,7 +27,7 @@ function renderPreview(item, quantity) {
   const ctx = canvas.getContext("2d");
   ctx.scale(retina, retina);
 
-  // Background
+
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0, 0, PREVIEW_WIDTH, previewH);
   ctx.strokeStyle = "#BBBBBB";
@@ -37,7 +37,7 @@ function renderPreview(item, quantity) {
   ctx.fillStyle = "#000000";
   ctx.textBaseline = "top";
 
-  // Row 1: Short item number (left) + sequence (right) — matches ZPL row1
+
   const shortNumber = getShortItemNumber(item.number);
   const fItem = Math.round(3.5 * s);
   ctx.font = `bold ${fItem}px Arial, Tahoma, "Noto Sans Thai", sans-serif`;
@@ -49,7 +49,7 @@ function renderPreview(item, quantity) {
   const seqW = ctx.measureText(seqText).width;
   ctx.fillText(seqText, PREVIEW_WIDTH - seqW - mx, my);
 
-  // Row 2: Project name (bold, centered) — matches ZPL row2
+
   const row2Y = my + Math.round(8 * s);
   const fProject = Math.round(2.8 * s);
   const projectText = item.projectName || "-";
@@ -58,7 +58,7 @@ function renderPreview(item, quantity) {
   const projectX = Math.max(mx, Math.round((PREVIEW_WIDTH - projectW) / 2));
   ctx.fillText(projectText, projectX, row2Y);
 
-  // Row 3: Display name in Thai (bold, centered) — matches ZPL row3
+
   const row3Y = my + Math.round(13 * s);
   const fName = Math.round(2.4 * s);
   if (item.displayName) {
@@ -71,7 +71,7 @@ function renderPreview(item, quantity) {
   return canvas.toBuffer("image/png").toString("base64");
 }
 
-/* ── API route ── */
+
 export async function POST(request) {
   try {
     const body = await request.json();

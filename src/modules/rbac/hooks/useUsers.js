@@ -21,19 +21,19 @@ export function useUsers() {
   const [allRoles, setAllRoles] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Role assignment
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [userRoleIds, setUserRoleIds] = useState([]);
   const [saving, setSaving] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // Reset password
+
   const [resetOpen, setResetOpen] = useState(false);
   const [resetTarget, setResetTarget] = useState(null);
   const [resetPassword, setResetPassword] = useState(defaultPassword);
   const [resetting, setResetting] = useState(false);
 
-  // Create account
+
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState({
     email: "",
@@ -43,7 +43,7 @@ export function useUsers() {
   const [creating, setCreating] = useState(false);
   const [unlinkedEmployees, setUnlinkedEmployees] = useState([]);
 
-  // Toggle user status
+
   const [togglingUserId, setTogglingUserId] = useState(null);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export function useUsers() {
     loadData();
   };
 
-  // Create account
+
   const openCreateAccount = async () => {
     setCreateForm({ email: "", password: defaultPassword, employeeId: "" });
     setCreateOpen(true);

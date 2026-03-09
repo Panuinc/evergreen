@@ -1,6 +1,6 @@
 import { get, post, put, del } from "@/lib/apiClient";
 
-// ==================== Evaluation ====================
+
 
 export async function submitEvaluation(data) {
   return post("/api/performance/evaluation", data);
@@ -22,7 +22,7 @@ export async function getEvaluationSummary(params) {
   return get(`/api/performance/evaluation/summary?${new URLSearchParams(params)}`);
 }
 
-// ==================== Evaluation AI Feedback ====================
+
 
 export async function getEvaluationFeedback(perfEvaluationEmployeeId, perfEvaluationPeriod) {
   return get(`/api/performance/evaluation/feedback?employeeId=${perfEvaluationEmployeeId}&period=${perfEvaluationPeriod}`);
@@ -32,7 +32,7 @@ export async function generateEvaluationFeedbackAction(perfEvaluationEmployeeId,
   return post("/api/performance/evaluation/feedback", { employeeId: perfEvaluationEmployeeId, period: perfEvaluationPeriod });
 }
 
-// ==================== OKR ====================
+
 
 export async function getObjectives(params = {}) {
   const qs = new URLSearchParams(params);
@@ -71,7 +71,7 @@ export async function createCheckin(data) {
   return post("/api/performance/okr/checkins", data);
 }
 
-// ==================== KPI ====================
+
 
 export async function getKpiDefinitions(params = {}) {
   const qs = new URLSearchParams(params);
@@ -120,7 +120,7 @@ export async function getKpiDashboard(params = {}) {
   return get(`/api/performance/kpi/dashboard?${qs}`);
 }
 
-// ==================== 360 Feedback ====================
+
 
 export async function getFeedback360Cycles(params = {}) {
   const qs = new URLSearchParams(params);

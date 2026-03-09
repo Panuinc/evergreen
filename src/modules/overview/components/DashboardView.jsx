@@ -31,12 +31,12 @@ function TypingIndicator() {
 function AssistantMessage({ content, isLoading }) {
   return (
     <div className="flex gap-3 max-w-3xl w-full">
-      {/* Avatar */}
+      {}
       <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-light mt-0.5">
         E
       </div>
 
-      {/* Content */}
+      {}
       <div className="flex-1 min-w-0 pt-0.5">
         {isLoading && !content ? (
           <TypingIndicator />
@@ -127,16 +127,16 @@ export default function DashboardView({
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* ── Messages area ── */}
+      {}
       <ScrollShadow
         ref={scrollRef}
         className="flex-1 overflow-y-auto"
         hideScrollBar
       >
         {isEmpty ? (
-          /* Welcome screen */
+
           <div className="flex flex-col items-center justify-center min-h-full px-4 py-16 gap-8">
-            {/* Logo + Title */}
+            {}
             <div className="flex flex-col items-center gap-4 text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -154,7 +154,7 @@ export default function DashboardView({
               </div>
             </div>
 
-            {/* Suggestion chips */}
+            {}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full max-w-2xl">
               {SUGGESTIONS.map((s) => (
                 <button
@@ -168,7 +168,7 @@ export default function DashboardView({
             </div>
           </div>
         ) : (
-          /* Chat messages */
+
           <div className="flex flex-col items-center gap-6 px-4 py-6">
             {messages.map((msg, i) => (
               <div key={i} className="w-full max-w-3xl">
@@ -187,7 +187,7 @@ export default function DashboardView({
         )}
       </ScrollShadow>
 
-      {/* Scroll to bottom button */}
+      {}
       {showScrollBtn && (
         <button
           onClick={scrollToBottom}
@@ -197,7 +197,7 @@ export default function DashboardView({
         </button>
       )}
 
-      {/* ── Input area ── */}
+      {}
       <div className="flex-shrink-0 px-4 pb-4 pt-2">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-end gap-2 rounded-2xl border border-border bg-background px-3 py-2 focus-within:border-border transition-colors shadow-sm">

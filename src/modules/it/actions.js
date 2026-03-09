@@ -1,6 +1,6 @@
 import { get, post, put, del } from "@/lib/apiClient";
 
-// ==================== Assets ====================
+
 
 export async function getAssets() {
   return get("/api/it/assets");
@@ -18,7 +18,7 @@ export async function deleteAsset(id) {
   return del(`/api/it/assets/${id}`);
 }
 
-// ==================== Tickets ====================
+
 
 export async function getTickets() {
   return get("/api/it/tickets");
@@ -36,7 +36,7 @@ export async function deleteTicket(id) {
   return del(`/api/it/tickets/${id}`);
 }
 
-// ==================== System Access ====================
+
 
 export async function getSystemAccess() {
   return get("/api/it/systemAccess");
@@ -54,7 +54,7 @@ export async function deleteSystemAccess(id) {
   return del(`/api/it/systemAccess/${id}`);
 }
 
-// ==================== Network Devices ====================
+
 
 export async function getNetworkDevices() {
   return get("/api/it/network");
@@ -72,7 +72,7 @@ export async function deleteNetworkDevice(id) {
   return del(`/api/it/network/${id}`);
 }
 
-// ==================== Software ====================
+
 
 export async function getSoftware() {
   return get("/api/it/software");
@@ -90,7 +90,7 @@ export async function deleteSoftware(id) {
   return del(`/api/it/software/${id}`);
 }
 
-// ==================== Security Incidents ====================
+
 
 export async function getSecurityIncidents() {
   return get("/api/it/security");
@@ -108,7 +108,7 @@ export async function deleteSecurityIncident(id) {
   return del(`/api/it/security/${id}`);
 }
 
-// ==================== Development Requests ====================
+
 
 export async function getDevRequests() {
   return get("/api/it/devRequests");
@@ -126,7 +126,7 @@ export async function deleteDevRequest(id) {
   return del(`/api/it/devRequests/${id}`);
 }
 
-// ==================== Progress Logs ====================
+
 
 export async function getProgressLogs(requestId) {
   return get(`/api/it/devRequests/${requestId}/progress`);
@@ -136,7 +136,7 @@ export async function createProgressLog(requestId, data) {
   return post(`/api/it/devRequests/${requestId}/progress`, data);
 }
 
-// ==================== Dashboard ====================
+
 
 export async function getItDashboardStats(compareMode) {
   const params = compareMode ? `?compareMode=${compareMode}` : "";

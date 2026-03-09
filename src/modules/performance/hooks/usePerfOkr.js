@@ -20,25 +20,25 @@ import {
 export function usePerfOkr() {
   const { user } = useAuth();
 
-  // Tab
+
   const [activeTab, setActiveTab] = useState("myOkr");
 
-  // Employee data
+
   const [employees, setEmployees] = useState([]);
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Objectives
+
   const [objectives, setObjectives] = useState([]);
   const [teamObjectives, setTeamObjectives] = useState([]);
   const [companyObjectives, setCompanyObjectives] = useState([]);
   const [loadingObjectives, setLoadingObjectives] = useState(false);
 
-  // Filters
+
   const [filterYear, setFilterYear] = useState(String(new Date().getFullYear()));
   const [filterQuarter, setFilterQuarter] = useState(String(Math.ceil((new Date().getMonth() + 1) / 3)));
 
-  // Objective form modal
+
   const objectiveModal = useDisclosure();
   const [editingObjective, setEditingObjective] = useState(null);
   const [objectiveForm, setObjectiveForm] = useState({
@@ -50,7 +50,7 @@ export function usePerfOkr() {
   });
   const [savingObjective, setSavingObjective] = useState(false);
 
-  // Key Result form
+
   const krModal = useDisclosure();
   const [editingKr, setEditingKr] = useState(null);
   const [krForm, setKrForm] = useState({
@@ -64,20 +64,21 @@ export function usePerfOkr() {
   });
   const [savingKr, setSavingKr] = useState(false);
 
-  // Check-in modal
+
   const checkinModal = useDisclosure();
   const [checkinKr, setCheckinKr] = useState(null);
   const [checkinValue, setCheckinValue] = useState("");
   const [checkinNote, setCheckinNote] = useState("");
   const [savingCheckin, setSavingCheckin] = useState(false);
 
-  // Check-in history
+
   const [checkins, setCheckins] = useState([]);
   const [loadingCheckins, setLoadingCheckins] = useState(false);
 
-  // Load employees
+
   useEffect(() => {
     loadEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadEmployees = async () => {
@@ -96,7 +97,7 @@ export function usePerfOkr() {
     }
   };
 
-  // Load objectives based on tab
+
   const loadMyObjectives = useCallback(async () => {
     setLoadingObjectives(true);
     try {
@@ -133,14 +134,14 @@ export function usePerfOkr() {
     }
   }, [filterYear, filterQuarter]);
 
-  // Reload on tab/filter change
+
   useEffect(() => {
     if (activeTab === "myOkr") loadMyObjectives();
     else if (activeTab === "teamOkr") loadTeamObjectives();
     else if (activeTab === "companyOkr") loadCompanyObjectives();
   }, [activeTab, loadMyObjectives, loadTeamObjectives, loadCompanyObjectives]);
 
-  // Objective CRUD
+
   const handleOpenObjectiveForm = useCallback((obj = null) => {
     if (obj) {
       setEditingObjective(obj);
@@ -217,7 +218,7 @@ export function usePerfOkr() {
     }
   }, [loadMyObjectives]);
 
-  // Key Result CRUD
+
   const handleOpenKrForm = useCallback((perfOkrKeyResultObjectiveId, kr = null) => {
     if (kr) {
       setEditingKr(kr);
@@ -293,7 +294,7 @@ export function usePerfOkr() {
     }
   }, [loadMyObjectives]);
 
-  // Check-in
+
   const handleOpenCheckin = useCallback((kr) => {
     setCheckinKr(kr);
     setCheckinValue(String(kr.perfOkrKeyResultCurrentValue));
@@ -336,22 +337,22 @@ export function usePerfOkr() {
   }, []);
 
   return {
-    // Tab
+
     activeTab, setActiveTab,
-    // Data
+
     employees, currentEmployee, loading,
-    // Objectives
+
     objectives, teamObjectives, companyObjectives, loadingObjectives,
-    // Filters
+
     filterYear, setFilterYear, filterQuarter, setFilterQuarter,
-    // Objective CRUD
+
     objectiveModal, editingObjective, objectiveForm, setObjectiveForm,
     savingObjective, handleOpenObjectiveForm, handleSaveObjective,
     handleDeleteObjective, handleUpdateObjectiveStatus,
-    // KR CRUD
+
     krModal, editingKr, krForm, setKrForm, savingKr,
     handleOpenKrForm, handleSaveKr, handleDeleteKr,
-    // Check-in
+
     checkinModal, checkinKr, checkinValue, setCheckinValue,
     checkinNote, setCheckinNote, savingCheckin,
     handleOpenCheckin, handleSaveCheckin,

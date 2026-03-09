@@ -31,7 +31,7 @@ export async function GET(request, { params }) {
     .eq("omQuotationLineQuotationId", id)
     .order("omQuotationLineOrder", { ascending: true });
 
-  // Fetch payment slip from conversation (latest image with OCR data)
+
   let paymentSlip = null;
   if (quotation.omQuotationConversationId && ["approved", "paid"].includes(quotation.omQuotationStatus)) {
     const { data: slipMsg } = await auth.supabase
@@ -59,7 +59,7 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const body = await request.json();
 
-  // Update quotation fields
+
   const updateData = {};
   if (body.omQuotationCustomerName !== undefined) updateData.omQuotationCustomerName = body.omQuotationCustomerName;
   if (body.omQuotationCustomerPhone !== undefined) updateData.omQuotationCustomerPhone = body.omQuotationCustomerPhone;
@@ -76,7 +76,7 @@ export async function PUT(request, { params }) {
     if (error) return Response.json({ error: error.message }, { status: 500 });
   }
 
-  // Update lines if provided
+
   if (body.lines) {
     for (const line of body.lines) {
       const amount = (line.omQuotationLineQuantity || 0) * (line.omQuotationLineUnitPrice || 0);
@@ -108,7 +108,7 @@ export async function PATCH(request, { params }) {
     return Response.json({ error: "Invalid action" }, { status: 400 });
   }
 
-  // Get current quotation
+
   const { data: quotation } = await auth.supabase
     .from("omQuotation")
     .select("omQuotationStatus, omQuotationConversationId")
@@ -148,21 +148,21 @@ export async function PATCH(request, { params }) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 
-  // On approve: send quotation link + bank account info to customer
+
   if (action === "approve") {
     try {
       const serviceSupabase = getServiceSupabase();
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const quotationUrl = `${baseUrl}/quotation/${id}`;
 
-      // Send quotation link
+
       await sendAiMessage(
         serviceSupabase,
         quotation.omQuotationConversationId,
         `ใบเสนอราคาของท่าน: ${quotationUrl}`
       );
 
-      // Send bank account info if configured
+
       const { data: aiSettings } = await serviceSupabase
         .from("omAiSetting")
         .select("omAiSettingBankAccountInfo")
@@ -181,7 +181,7 @@ export async function PATCH(request, { params }) {
     }
   }
 
-  // On confirm payment: send confirmation message to customer
+
   if (action === "confirm_payment") {
     try {
       const serviceSupabase = getServiceSupabase();

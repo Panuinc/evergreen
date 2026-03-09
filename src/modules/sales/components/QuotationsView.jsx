@@ -178,7 +178,7 @@ export default function QuotationsView({
         }
       />
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบใบเสนอราคา</ModalHeader>

@@ -104,7 +104,7 @@ export default function BankReconView({
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const [activeTab, setActiveTab] = useState("upload");
 
-  // ─── Statement list columns ───
+
   const stmtColumns = [
     { name: "ไฟล์", uid: "fileName", sortable: true },
     { name: "ธนาคาร", uid: "bankCode", sortable: true },
@@ -176,7 +176,7 @@ export default function BankReconView({
     }
   };
 
-  // ─── Entry list columns ───
+
   const entryColumns = [
     { name: "วันที่", uid: "txDate", sortable: true },
     { name: "เวลา", uid: "txTime" },
@@ -287,7 +287,7 @@ export default function BankReconView({
     }
   };
 
-  // ─── Filter for invoice search in modal ───
+
   const filteredInvoices = useMemo(() => {
     if (!invoiceSearch) return openInvoices.slice(0, 50);
     const term = invoiceSearch.toLowerCase();
@@ -304,7 +304,7 @@ export default function BankReconView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <Tabs aria-label="Bank Recon" color="primary" variant="underlined" selectedKey={activeTab} onSelectionChange={setActiveTab}>
-        {/* ═══ Tab 1: Upload ═══ */}
+        {}
         <Tab
           key="upload"
           title={
@@ -364,7 +364,7 @@ export default function BankReconView({
           </div>
         </Tab>
 
-        {/* ═══ Tab 2: Reconciliation ═══ */}
+        {}
         <Tab
           key="recon"
           title={
@@ -385,7 +385,7 @@ export default function BankReconView({
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {/* Statement info bar */}
+              {}
               <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
                 <CardBody>
                   <div className="flex items-center justify-between flex-wrap gap-2">
@@ -420,7 +420,7 @@ export default function BankReconView({
                 </CardBody>
               </Card>
 
-              {/* KPI Cards */}
+              {}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <KpiCard label="ยอดฝากทั้งหมด" value={fmtNum(kpis.totalDeposit)} sub={`${kpis.creditCount} รายการ`} color="text-success" />
                 <KpiCard label="Match แล้ว" value={fmtNum(kpis.matchedAmount)} sub={`${kpis.matchedCount} รายการ`} color="text-primary" />
@@ -428,7 +428,7 @@ export default function BankReconView({
                 <KpiCard label="อัตรา Match" value={`${kpis.matchRate}%`} sub={`แนะนำ ${kpis.suggestedCount} / ยกเว้น ${kpis.excludedCount}`} color="text-warning" />
               </div>
 
-              {/* Filter chips */}
+              {}
               <div className="flex gap-2 flex-wrap">
                 {[
                   { key: "all", label: `ทั้งหมด (${detail.entries?.length || 0})` },
@@ -451,7 +451,7 @@ export default function BankReconView({
                 ))}
               </div>
 
-              {/* Entries table */}
+              {}
               <DataTable
                 columns={entryColumns}
                 data={filteredEntries}
@@ -489,7 +489,7 @@ export default function BankReconView({
           )}
         </Tab>
 
-        {/* ═══ Tab 3: Summary ═══ */}
+        {}
         <Tab
           key="summary"
           title={
@@ -505,7 +505,7 @@ export default function BankReconView({
             <SummaryTab detail={detail} kpis={kpis} handleExport={handleExport} />
           )}
         </Tab>
-        {/* ═══ Tab 4: AR Comparison ═══ */}
+        {}
         <Tab
           key="arCompare"
           title={
@@ -530,7 +530,7 @@ export default function BankReconView({
         </Tab>
       </Tabs>
 
-      {/* ═══ Manual Match Modal ═══ */}
+      {}
       <Modal isOpen={matchModal.isOpen} onClose={matchModal.onClose} size="3xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader>
@@ -552,7 +552,7 @@ export default function BankReconView({
               className="mb-3"
             />
 
-            {/* Suggested matches from auto-match */}
+            {}
             {matchEntry?.bankMatch?.length > 0 && (
               <div className="mb-4">
                 <p className="text-xs font-light mb-2 text-warning">แนะนำจาก Auto-Match:</p>
@@ -587,7 +587,7 @@ export default function BankReconView({
               </div>
             )}
 
-            {/* Open invoices list */}
+            {}
             <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
               {filteredInvoices.map((inv) => (
                 <Card key={inv.id || inv.number} shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
@@ -707,7 +707,7 @@ function SummaryTab({ detail, kpis, handleExport }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Summary KPIs */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard label="รวมรายการทั้งหมด" value={kpis.totalEntries} sub={`ฝาก ${kpis.creditCount} / ถอน ${kpis.debitCount}`} color="text-foreground" />
         <KpiCard label="ยอดฝาก" value={fmtNum(kpis.totalDeposit)} sub="บาท" color="text-success" />
@@ -715,7 +715,7 @@ function SummaryTab({ detail, kpis, handleExport }) {
         <KpiCard label="อัตรา Match" value={`${kpis.matchRate}%`} sub={`${kpis.matchedCount} / ${kpis.creditCount} รายการฝาก`} color="text-primary" />
       </div>
 
-      {/* Customer summary table */}
+      {}
       <DataTable
         columns={summaryColumns}
         data={customerSummary}

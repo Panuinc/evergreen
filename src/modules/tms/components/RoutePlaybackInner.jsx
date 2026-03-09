@@ -73,13 +73,13 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
         />
         <FitRoute points={points} />
 
-        {/* Full route path (light) */}
+        {}
         <Polyline positions={points} color="#94a3b8" weight={2} dashArray="5,5" />
 
-        {/* Traveled path */}
+        {}
         <Polyline positions={traveled} color="#3b82f6" weight={3} />
 
-        {/* Current position */}
+        {}
         <CircleMarker
           center={points[currentIndex]}
           radius={8}
@@ -98,16 +98,16 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
           </Popup>
         </CircleMarker>
 
-        {/* Start marker */}
+        {}
         <CircleMarker center={points[0]} radius={6} fillColor="#22c55e" fillOpacity={1} color="white" weight={2} />
 
-        {/* End marker */}
+        {}
         {points.length > 1 && (
           <CircleMarker center={points[points.length - 1]} radius={6} fillColor="#ef4444" fillOpacity={1} color="white" weight={2} />
         )}
       </MapContainer>
 
-      {/* Controls */}
+      {}
       <div className="flex items-center gap-3">
         <Button
           isIconOnly
@@ -146,7 +146,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
         </span>
       </div>
 
-      {/* Timeline slider */}
+      {}
       <input
         type="range"
         min={0}

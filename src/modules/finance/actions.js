@@ -6,7 +6,7 @@ export async function getTrialBalance() {
 }
 
 export async function getGlMonthlySummary(year) {
-  // Calendar year: Jan 1 → Dec 31
+
   return get(
     `/api/finance/glEntries?start=${year}-01-01&end=${year}-12-31&summarize=monthly`,
   );
@@ -47,7 +47,7 @@ export async function createFollowUp(data) {
   return post("/api/finance/collections", data);
 }
 
-// ─── Bank Reconciliation ───
+
 export async function getBankStatements(params = {}) {
   const query = new URLSearchParams(
     Object.fromEntries(Object.entries(params).filter(([, v]) => v)),

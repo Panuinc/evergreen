@@ -8,10 +8,7 @@ import { INVENTORY_ACCOUNTS } from "@/modules/finance/glAccountMap";
 
 const INV_OVERRIDE_KEY = (year) => `chh_inventory_override_${year}`;
 
-/**
- * Extract year totals from monthlyPnL rows (GL-based, year-filtered).
- * Returns a map: key → total (e.g. "salesRevenue" → 1234567.89)
- */
+
 function pnlMap(rows) {
   const m = {};
   for (const r of rows) if (r.key) m[r.key] = r.total || 0;
@@ -21,16 +18,21 @@ function pnlMap(rows) {
 export default function FinanceDashboardPage() {
   const hook = useFinanceDashboard();
 
-  // GL monthly data — uses same selectedYear as period selector
+
   const gl = useGlMonthlyData(hook.selectedYear);
 
-  // ─── Manual Inventory Override (localStorage per year) ───
-  const [inventoryOverride, setInventoryOverride] = useState(null);
 
-  // Load override from localStorage when year changes
+  const [inventoryOverride, setInventoryOverride] = useState(() => {
+    try {
+      const stored = localStorage.getItem(INV_OVERRIDE_KEY(hook.selectedYear));
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  });
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem(INV_OVERRIDE_KEY(hook.selectedYear));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInventoryOverride(stored ? JSON.parse(stored) : null);
     } catch { setInventoryOverride(null); }
   }, [hook.selectedYear]);
@@ -45,14 +47,14 @@ export default function FinanceDashboardPage() {
     setInventoryOverride(null);
   }, [hook.selectedYear]);
 
-  // ─── Inventory Adjustment ───
-  // Priority: manual override > automatic (GL vs TB comparison)
+
+
   const inventoryAdjustment = useMemo(() => {
     const pnl = pnlMap(gl.monthlyPnL);
     const rawGlCogs = pnl.cogs || 0;
     if (!rawGlCogs) return 0;
 
-    // Manual override: COGS = production + beginInv - endInv
+
     if (inventoryOverride) {
       const { beginningInventory = 0, endingInventory = 0 } = inventoryOverride;
       const targetCogs = rawGlCogs + beginningInventory - endingInventory;
@@ -60,14 +62,14 @@ export default function FinanceDashboardPage() {
       return adj > 0 ? adj : 0;
     }
 
-    // Automatic: compare GL vs TB
+
     const tbCogs = hook.financials?.cogs;
     if (tbCogs == null) return 0;
     const diff = rawGlCogs - tbCogs;
     return diff > 0 ? diff : 0;
   }, [gl.monthlyPnL, hook.financials, inventoryOverride]);
 
-  // ─── Merge financials: balance sheet from TB + income statement from GL ───
+
   const financials = useMemo(() => {
     const tb = hook.financials;
     if (!tb) return null;
@@ -75,7 +77,7 @@ export default function FinanceDashboardPage() {
     const pnl = pnlMap(gl.monthlyPnL);
     if (!gl.monthlyPnL.length) return tb;
 
-    // Income statement from GL
+
     const salesRevenue = pnl.salesRevenue || 0;
     const serviceRevenue = pnl.serviceRevenue || 0;
     const otherIncome = pnl.otherIncome || 0;
@@ -90,7 +92,7 @@ export default function FinanceDashboardPage() {
     const totalExpense = sellingExpense + adminExpense + interestExpense;
     const netIncome = grossProfit - totalExpense;
 
-    // Ratios (GL income + TB balance sheet)
+
     const currentRatio = tb.currentLiabilities ? tb.currentAssets / tb.currentLiabilities : 0;
     const debtToEquity = tb.totalEquity ? tb.totalLiabilities / tb.totalEquity : 0;
     const grossMargin = totalRevenue ? (grossProfit / totalRevenue) * 100 : 0;
@@ -111,7 +113,7 @@ export default function FinanceDashboardPage() {
     };
   }, [hook.financials, gl.monthlyPnL, inventoryAdjustment]);
 
-  // ─── Adjusted monthlyPnL: totals include TB inventory deduction ───
+
   const monthlyPnL = useMemo(() => {
     if (!gl.monthlyPnL.length || !inventoryAdjustment) return gl.monthlyPnL;
     return gl.monthlyPnL.map((row) => {
@@ -128,12 +130,12 @@ export default function FinanceDashboardPage() {
     });
   }, [gl.monthlyPnL, inventoryAdjustment]);
 
-  // ─── Adjusted cogsDetail: inject TB inventory as deduction rows ───
+
   const cogsDetail = useMemo(() => {
     if (!gl.cogsDetail.length || !inventoryAdjustment) return gl.cogsDetail;
     const tbInvAccounts = hook.financials?.inventoryAccounts || {};
 
-    // First pass: replace inventory rows with TB balances
+
     const replaced = gl.cogsDetail.map((row) => {
       for (const inv of INVENTORY_ACCOUNTS) {
         if (row.key === inv.key && tbInvAccounts[inv.account]) {
@@ -143,13 +145,13 @@ export default function FinanceDashboardPage() {
       return row;
     });
 
-    // Compute sum of all deduction rows (for consistent endingInventory total)
+
     let endInvSum = 0;
     for (const row of replaced) {
       if (row.type === "deduction") endInvSum += row.total || 0;
     }
 
-    // Second pass: update endingInventory and cogsTotal
+
     return replaced.map((row) => {
       if (row.key === "endingInventory") {
         return { ...row, total: endInvSum };
@@ -161,11 +163,11 @@ export default function FinanceDashboardPage() {
     });
   }, [gl.cogsDetail, inventoryAdjustment, hook.financials]);
 
-  // ─── Adjusted monthly chart: note totals in monthlyPnL are adjusted ───
-  // Monthly columns stay as raw GL (actual activity per month).
-  // The annual total column reflects the inventory adjustment.
 
-  // ─── Derived visualizations from merged financials ───
+
+
+
+
   const isWaterfallData = useMemo(() => {
     if (!financials) return [];
     return [
@@ -218,14 +220,14 @@ export default function FinanceDashboardPage() {
       aiLoading={hook.aiLoading}
       runAiAnalysis={() => hook.runAiAnalysis(financials)}
       reload={hook.reload}
-      // Year selector
+
       selectedYear={hook.selectedYear}
       setSelectedYear={hook.setSelectedYear}
-      // Inventory override
+
       inventoryOverride={inventoryOverride}
       onSaveInventoryOverride={onSaveInventoryOverride}
       onClearInventoryOverride={onClearInventoryOverride}
-      // GL Monthly Data props (adjusted for TB inventory)
+
       glLoading={gl.loading}
       glError={gl.error}
       monthlyPnL={monthlyPnL}
@@ -240,7 +242,7 @@ export default function FinanceDashboardPage() {
       revenueTrend={gl.revenueTrend}
       profitTrend={gl.profitTrend}
       trendYearKeys={gl.trendYearKeys}
-      // Cash Flow Forecast
+
       cashFlowAnalysis={hook.cashFlowAnalysis}
       cashFlowLoading={hook.cashFlowLoading}
       runCashFlowForecast={hook.runCashFlowForecast}

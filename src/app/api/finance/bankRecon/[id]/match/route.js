@@ -3,7 +3,7 @@ import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
 import { bcApiGet } from "@/lib/bcClient";
 import { autoMatch } from "@/lib/bankStatement/matching";
 
-// POST: run auto-match
+
 export async function POST(request, { params }) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -12,7 +12,7 @@ export async function POST(request, { params }) {
     const { id } = await params;
     const supabase = getServiceSupabase();
 
-    // Get unmatched credit entries
+
     const { data: entries, error: entErr } = await supabase
       .from("bankEntry")
       .select("*")
@@ -25,7 +25,7 @@ export async function POST(request, { params }) {
       return Response.json({ ok: true, matchCount: 0, message: "No unmatched credit entries" });
     }
 
-    // Fetch posted sales invoices (status=Open means posted+unpaid in BC API v2.0)
+
     const rawInvoices = await bcApiGet("salesInvoices", {
       $filter: "status eq 'Open'",
       $select:
@@ -35,12 +35,12 @@ export async function POST(request, { params }) {
       (inv) => Number(inv.remainingAmount || 0) > 0,
     );
 
-    // Fetch customer list for name matching
+
     const { data: customers } = await supabase
       .from("bcCustomer")
       .select("bcCustomerNumber,bcCustomerDisplayName,bcCustomerContact");
 
-    // Fetch aged receivables for AR_BALANCE strategy
+
     let arByCustomer = new Map();
     try {
       const arData = await bcApiGet("agedAccountsReceivables", {}, { timeout: 15_000 });
@@ -53,10 +53,10 @@ export async function POST(request, { params }) {
       console.warn("[Match] Could not fetch aged receivables:", arErr.message);
     }
 
-    // Run matching
+
     const matchResults = autoMatch(entries, invoices, customers || [], arByCustomer);
 
-    // Save matches to DB
+
     let matchCount = 0;
     for (const result of matchResults) {
       const status =
@@ -64,7 +64,7 @@ export async function POST(request, { params }) {
           ? "suggested"
           : "matched";
 
-      // Insert match records
+
       const matchRows = result.matches.map((m) => ({
         entryId: result.entryId,
         invoiceNumber: m.invoiceNumber,
@@ -81,7 +81,7 @@ export async function POST(request, { params }) {
         continue;
       }
 
-      // Update entry status
+
       await supabase
         .from("bankEntry")
         .update({
@@ -96,7 +96,7 @@ export async function POST(request, { params }) {
       if (status === "matched") matchCount++;
     }
 
-    // Update statement counts
+
     const { data: counts } = await supabase
       .from("bankEntry")
       .select("matchStatus")
@@ -120,7 +120,7 @@ export async function POST(request, { params }) {
   }
 }
 
-// PUT: manual match/unmatch/exclude
+
 export async function PUT(request, { params }) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
@@ -137,7 +137,7 @@ export async function PUT(request, { params }) {
 
     switch (action) {
       case "match": {
-        // Manual match: { invoiceNumber, matchedAmount, note }
+
         if (!body.invoiceNumber || !body.matchedAmount) {
           return Response.json({ error: "Missing invoiceNumber or matchedAmount" }, { status: 400 });
         }
@@ -200,7 +200,7 @@ export async function PUT(request, { params }) {
         return Response.json({ error: `Unknown action: ${action}` }, { status: 400 });
     }
 
-    // Update counts
+
     const { data: counts } = await supabase
       .from("bankEntry")
       .select("matchStatus")

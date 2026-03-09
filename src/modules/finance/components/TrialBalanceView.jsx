@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { Chip } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
 
-// BC returns numbers as comma-formatted strings like "4,857.97"
+
 function parseNum(val) {
   if (val === "" || val === null || val === undefined) return 0;
   if (typeof val === "number") return val;

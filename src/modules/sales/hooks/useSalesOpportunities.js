@@ -40,7 +40,7 @@ export function useSalesOpportunities() {
   const [editingOpp, setEditingOpp] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
   const [validationErrors, setValidationErrors] = useState({});
-  const [viewMode, setViewMode] = useState("table"); // table | kanban
+  const [viewMode, setViewMode] = useState("table");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
   const [deletingOpp, setDeletingOpp] = useState(null);
@@ -185,7 +185,7 @@ export function useSalesOpportunities() {
   const updateField = (field, value) => {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
-      // Auto-update probability when stage changes
+
       if (field === "crmOpportunityStage" && STAGE_PROBABILITY[value] !== undefined) {
         updated.crmOpportunityProbability = STAGE_PROBABILITY[value].toString();
       }

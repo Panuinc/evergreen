@@ -172,7 +172,7 @@ export default function DepartmentsView({
         ].filter(Boolean)}
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
@@ -256,7 +256,7 @@ export default function DepartmentsView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบแผนก</ModalHeader>

@@ -83,7 +83,7 @@ export async function getConversationContext(conversationId, supabase, limit = 2
 }
 
 export async function generateAiReply(conversationId, supabase) {
-  // Fetch settings, history, and products in parallel
+
   const [settings, history, products] = await Promise.all([
     getAiSettings(supabase),
     getConversationContext(conversationId, supabase),
@@ -106,7 +106,7 @@ export async function generateAiReply(conversationId, supabase) {
     })),
   ];
 
-  // Single API call - no tool-calling needed
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
 

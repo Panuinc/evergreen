@@ -10,11 +10,7 @@ const OCR_PROMPT = `วิเคราะห์สลิปการโอนเ
 ตอบเป็น JSON เท่านั้น ไม่ต้องมีคำอธิบาย ถ้าอ่านข้อมูลไม่ได้ให้ใส่ null
 ตัวอย่าง: {"amount":5000,"fromBank":"กสิกรไทย","toBank":"ไทยพาณิชย์","datetime":"17/02/2026 14:30","reference":"2024021712345"}`;
 
-/**
- * OCR payment slip using AI vision model
- * @param {string} imageUrl - Public URL of the slip image
- * @returns {object} - { amount, fromBank, toBank, datetime, reference }
- */
+
 export async function ocrPaymentSlip(imageUrl) {
   try {
     const res = await fetch(API_URL, {
@@ -47,7 +43,7 @@ export async function ocrPaymentSlip(imageUrl) {
     const data = await res.json();
     const content = data.choices?.[0]?.message?.content || "";
 
-    // Parse JSON from response (may have markdown code blocks)
+
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return null;
 

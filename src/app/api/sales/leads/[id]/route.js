@@ -44,7 +44,7 @@ export async function POST(request, { params }) {
   const body = await request.json();
 
   if (body.action === "convert") {
-    // Get the lead
+
     const { data: lead, error: leadError } = await supabase
       .from("salesLead")
       .select("*")
@@ -61,7 +61,7 @@ export async function POST(request, { params }) {
       );
     }
 
-    // Create contact from lead
+
     const { data: contact, error: contactError } = await supabase
       .from("salesContact")
       .insert([
@@ -80,7 +80,7 @@ export async function POST(request, { params }) {
     if (contactError)
       return Response.json({ error: contactError.message }, { status: 400 });
 
-    // Create opportunity from lead
+
     const { data: opportunity, error: oppError } = await supabase
       .from("salesOpportunity")
       .insert([
@@ -99,7 +99,7 @@ export async function POST(request, { params }) {
     if (oppError)
       return Response.json({ error: oppError.message }, { status: 400 });
 
-    // Update lead status
+
     await supabase
       .from("salesLead")
       .update({

@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
     const { id } = await params;
     const supabase = getServiceSupabase();
 
-    // Get statement
+
     const { data: stmt, error: stmtErr } = await supabase
       .from("bankStatement")
       .select("*")
@@ -19,7 +19,7 @@ export async function GET(request, { params }) {
     if (stmtErr) throw new Error(stmtErr.message);
     if (!stmt) return Response.json({ error: "Not found" }, { status: 404 });
 
-    // Get entries with matches
+
     const { data: entries, error: entErr } = await supabase
       .from("bankEntry")
       .select("*, bankMatch(*)")

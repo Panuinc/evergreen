@@ -16,10 +16,7 @@ import {
 
 const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
-/**
- * Convert GL monthly summary (server-aggregated) → { byAccount, monthlyTotals }.
- * Input format: { "41000-01": { name, months: { "01": { debit, credit }, ... } }, ... }
- */
+
 function aggregateGlSummary(summary) {
   const byAccount = {};
 
@@ -42,7 +39,7 @@ function aggregateGlSummary(summary) {
     }
   }
 
-  // Compute monthly totals by category
+
   const monthlyTotals = {};
   for (const acctData of Object.values(byAccount)) {
     const cat = acctData.category;
@@ -59,9 +56,7 @@ function aggregateGlSummary(summary) {
   return { byAccount, monthlyTotals };
 }
 
-/**
- * Build key→total maps from compute functions for comparison columns.
- */
+
 function buildCompMaps(byAccount, monthlyTotals) {
   const toMap = (rows) => {
     const m = {};
@@ -78,12 +73,7 @@ function buildCompMaps(byAccount, monthlyTotals) {
   };
 }
 
-/**
- * Hook to fetch monthly GL entry summaries for 3 years and compute financial breakdowns.
- * Fetches 3 API calls (1 per year) instead of 36 monthly TBs.
- * @param {number} year - Primary fiscal year (AD)
- * @param {boolean} enabled - Only fetch when true
- */
+
 export function useGlMonthlyData(year, enabled = true) {
   const [allYearsData, setAllYearsData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -99,7 +89,7 @@ export function useGlMonthlyData(year, enabled = true) {
       setLoading(true);
       setError(null);
       try {
-        // Fetch GL monthly summary for each of 3 years (3 parallel calls)
+
         const results = await Promise.all(
           years.map((y) => getGlMonthlySummary(y)),
         );
@@ -122,7 +112,7 @@ export function useGlMonthlyData(year, enabled = true) {
     return () => { cancelled = true; };
   }, [year, years, enabled]);
 
-  // Aggregate each year's data
+
   const yearlyAggregates = useMemo(() => {
     const result = {};
     for (const y of years) {
@@ -135,7 +125,7 @@ export function useGlMonthlyData(year, enabled = true) {
     return result;
   }, [allYearsData, years]);
 
-  // Primary year data
+
   const { byAccount, monthlyTotals } = yearlyAggregates[year] || { byAccount: {}, monthlyTotals: {} };
 
   const monthlyPnL = useMemo(
@@ -168,7 +158,7 @@ export function useGlMonthlyData(year, enabled = true) {
     [byAccount],
   );
 
-  // Summary chart data for monthly trend (primary year, fiscal month order)
+
   const monthlyChartData = useMemo(() => {
     if (!monthlyPnL.length) return [];
     const revRow = monthlyPnL.find((r) => r.key === "totalRevenue");
@@ -182,7 +172,7 @@ export function useGlMonthlyData(year, enabled = true) {
     }));
   }, [monthlyPnL]);
 
-  // COGS composition chart data (stacked bar, fiscal month order)
+
   const cogsChartData = useMemo(() => {
     if (!cogsDetail.length) return [];
     const materialKeys = ["rawMaterials", "supplies", "purchaseDiscounts", "importFreight", "importDuties", "otherImport"];
@@ -206,7 +196,7 @@ export function useGlMonthlyData(year, enabled = true) {
     });
   }, [cogsDetail]);
 
-  // Comparison years: key→total maps for table comparison columns
+
   const compYears = useMemo(() => {
     return [year - 1, year - 2].map((y) => {
       const agg = yearlyAggregates[y] || { byAccount: {}, monthlyTotals: {} };
@@ -214,7 +204,7 @@ export function useGlMonthlyData(year, enabled = true) {
     });
   }, [yearlyAggregates, year]);
 
-  // ─── Multi-year trend chart data (for CEO line charts, fiscal month order) ───
+
   const { revenueTrend, profitTrend } = useMemo(() => {
     const revTrend = CAL_MONTHS.map((m, i) => {
       const point = { month: CAL_MONTHS_SHORT[i] };
@@ -258,7 +248,7 @@ export function useGlMonthlyData(year, enabled = true) {
     [years],
   );
 
-  // Sum of 115xx account totals from GL (0 if unclosed year has no inventory entries)
+
   const glInventoryNet = useMemo(() => {
     let total = 0;
     for (const [acct, data] of Object.entries(byAccount)) {
@@ -267,7 +257,7 @@ export function useGlMonthlyData(year, enabled = true) {
     return total;
   }, [byAccount]);
 
-  // 51200-00 (beginning inventory) total from GL
+
   const glBeginInvTotal = useMemo(
     () => byAccount["51200-00"]?.total || 0,
     [byAccount],

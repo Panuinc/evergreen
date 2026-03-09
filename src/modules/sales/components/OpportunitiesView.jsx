@@ -367,7 +367,7 @@ export default function OpportunitiesView({
         </>
       )}
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -577,7 +577,7 @@ export default function OpportunitiesView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบโอกาสขาย</ModalHeader>
@@ -611,7 +611,7 @@ export default function OpportunitiesView({
         </ModalContent>
       </Modal>
 
-      {/* Lost Reason Modal */}
+      {}
       <Modal isOpen={lostReasonModal.isOpen} onClose={lostReasonModal.onClose}>
         <ModalContent>
           <ModalHeader>ปิดเป็นแพ้</ModalHeader>

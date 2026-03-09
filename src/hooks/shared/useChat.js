@@ -52,13 +52,13 @@ export function useChat() {
           try {
             const parsed = JSON.parse(data);
 
-            // Agent notification event
+
             if (parsed.type === "agent_start") {
               setActiveAgent({ name: parsed.agentName, icon: parsed.agentIcon });
               continue;
             }
 
-            // Content delta
+
             const delta = parsed.choices?.[0]?.delta?.content;
             if (delta) {
               assistantContent += delta;
@@ -68,7 +68,7 @@ export function useChat() {
               ]);
             }
           } catch {
-            // skip malformed JSON chunks
+
           }
         }
       }

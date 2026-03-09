@@ -27,7 +27,7 @@ export default function Header({ onMobileMenuToggle }) {
   return (
     <div className="flex flex-row items-center justify-center w-full h-fit gap-2 border-b border-border">
       <div className="flex flex-row items-center justify-start w-full h-full p-2 gap-2">
-        {/* Hamburger menu - mobile only */}
+        {}
         <button
           onClick={onMobileMenuToggle}
           className="flex md:hidden items-center justify-center w-9 h-9 border border-border rounded-full hover:bg-default/50 transition-colors cursor-pointer"

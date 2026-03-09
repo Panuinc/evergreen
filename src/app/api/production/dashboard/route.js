@@ -22,13 +22,13 @@ async function fetchAll(supabase, table, orderBy = "bcProductionOrderExternalId"
 }
 
 function getDept(order) {
-  // bcProductionOrderDimension1Code on the production ORDER = department (e.g. "WPC")
-  // DO NOT fallback to entry.bcItemLedgerEntryGlobalDimension1Code — that's the worker name
+
+
   return order?.bcProductionOrderDimension1Code || "";
 }
 
 function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, salesLines, today) {
-  // ── KPI: Orders by Status ──
+
   const totalOrders = orders.length;
   let releasedOrders = 0;
   let finishedOrders = 0;
@@ -37,8 +37,8 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     else if (o.bcProductionOrderStatus === "Finished") finishedOrders++;
   }
 
-  // ── KPI: Entry totals ──
-  // Cost = consumption (raw materials), Revenue = selling price × output qty
+
+
   let totalOutputQty = 0;
   let totalConsumptionCost = 0;
   let totalRevenue = 0;
@@ -57,7 +57,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     ? Math.round((totalProfit / totalRevenue) * 100)
     : null;
 
-  // ── KPI: WIP ──
+
   let wipValue = 0;
   for (const e of entries) {
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
@@ -66,7 +66,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     }
   }
 
-  // ── KPI: On-Time Rate ──
+
   let onTimeCount = 0;
   let finishedWithDueDateCount = 0;
   for (const o of orders) {
@@ -80,7 +80,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       ? Math.round((onTimeCount / finishedWithDueDateCount) * 100)
       : null;
 
-  // ── KPI: Avg Lead Time ──
+
   const leadTimes = [];
   for (const o of orders) {
     if (o.bcProductionOrderStatus === "Finished" && o.bcProductionOrderStartingDateTime && o.bcProductionOrderFinishedDate) {
@@ -95,7 +95,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       ? Math.round(leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length)
       : null;
 
-  // ── KPI: Cost Variance ──
+
   let totalCostExpected = 0;
   let totalCostActual = 0;
   for (const e of entries) {
@@ -111,7 +111,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         )
       : null;
 
-  // ── KPI: Overdue count ──
+
   let overdueCount = 0;
   for (const o of orders) {
     if (o.bcProductionOrderStatus === "Released" && o.bcProductionOrderDueDate && o.bcProductionOrderDueDate < today) {
@@ -119,7 +119,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     }
   }
 
-  // ── Chart: Orders by Status ──
+
   const statusCount = {};
   for (const o of orders) {
     const s = o.bcProductionOrderStatus || "ไม่ระบุ";
@@ -129,7 +129,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     ([status, count]) => ({ status, count }),
   );
 
-  // ── Chart: Cost vs Revenue by Project ──
+
   const projectMap = {};
   for (const e of entries) {
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
@@ -158,7 +158,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 15);
 
-  // ── Chart: Daily Trend (ต้นทุน vs รายได้) ──
+
   const dailyMap = {};
   for (const e of entries) {
     if (!e.bcItemLedgerEntryPostingDate) continue;
@@ -176,7 +176,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .map(([date, v]) => ({ date, ...v }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  // ── Chart: Top 10 Output Items ──
+
   const itemMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Output") continue;
@@ -189,13 +189,13 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .sort((a, b) => b.quantity - a.quantity)
     .slice(0, 10);
 
-  // ── Chart & Table: WIP by Order (ต้นทุน vs รายได้ + ความคืบหน้า) ──
+
   const wipMap = {};
   for (const e of entries) {
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
     if (!order || order.bcProductionOrderStatus !== "Released") continue;
     const orderNo = e.bcItemLedgerEntryDocumentNo;
-    // Group by orderNo + unitOfMeasureCode so different UOMs stay separate
+
     const uom = e.bcItemLedgerEntryUnitOfMeasureCode || "-";
     const key = `${orderNo}::${uom}`;
     if (!wipMap[key])
@@ -241,7 +241,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   const wipDetail = wipDetailAll
     .sort((a, b) => a.completionPct - b.completionPct);
 
-  // ── Chart: Top 10 Consumed Items ──
+
   const consumedMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Consumption") continue;
@@ -255,8 +255,8 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .sort((a, b) => b.cost - a.cost)
     .slice(0, 10);
 
-  // ── Chart: Cost by Department ──
-  // bcProductionOrderDimension1Code on order = department, NOT entry.bcItemLedgerEntryGlobalDimension1Code (= worker name)
+
+
   const deptMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Consumption") continue;
@@ -271,7 +271,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .sort((a, b) => b.cost - a.cost)
     .slice(0, 10);
 
-  // ── Chart: On-Time Trend ──
+
   const monthlyOnTime = {};
   for (const o of orders) {
     if (o.bcProductionOrderStatus !== "Finished" || !o.bcProductionOrderFinishedDate || !o.bcProductionOrderDueDate) continue;
@@ -289,7 +289,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     }))
     .sort((a, b) => a.month.localeCompare(b.month));
 
-  // ── Chart: Lead Time Trend ──
+
   const monthlyLeadTime = {};
   for (const o of orders) {
     if (o.bcProductionOrderStatus !== "Finished" || !o.bcProductionOrderStartingDateTime || !o.bcProductionOrderFinishedDate) continue;
@@ -310,7 +310,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     }))
     .sort((a, b) => a.month.localeCompare(b.month));
 
-  // ── Table: Overdue Orders ──
+
   const overdueOrders = orders
     .filter((o) => o.bcProductionOrderStatus === "Released" && o.bcProductionOrderDueDate && o.bcProductionOrderDueDate < today)
     .map((o) => {
@@ -332,11 +332,11 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     })
     .sort((a, b) => b.overdueDays - a.overdueDays);
 
-  // ── Chart: Employee (Worker) Specialization ──
-  // entry.bcItemLedgerEntryGlobalDimension1Code = worker names joined by "/" (e.g. "ป.เสริฐ/สีมาซู")
-  // Split by "/" to credit each worker individually
-  // bcItemCategoryCode = product type skill (ประตู, วงกบ, etc.)
-  // Include lead time from production order (bcProductionOrderStartingDateTime → bcProductionOrderFinishedDate)
+
+
+
+
+
   const empSpecMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Output") continue;
@@ -346,7 +346,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     const cat = itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemCategoryCode || "ไม่ระบุ";
     const qty = Number(e.bcItemLedgerEntryQuantity) || 0;
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
-    // Calculate lead time in days for this order
+
     let leadDays = null;
     if (order?.bcProductionOrderStartingDateTime && order?.bcProductionOrderFinishedDate) {
       const start = new Date(order.bcProductionOrderStartingDateTime);
@@ -361,7 +361,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         empSpecMap[worker].categories[cat] = { quantity: 0, leadDays: [], orderNos: new Set() };
       empSpecMap[worker].categories[cat].quantity += qty;
       empSpecMap[worker].totalQty += qty;
-      // Track lead time per order (avoid counting same order twice per worker+cat)
+
       if (leadDays !== null && !empSpecMap[worker].categories[cat].orderNos.has(e.bcItemLedgerEntryDocumentNo)) {
         empSpecMap[worker].categories[cat].leadDays.push(leadDays);
         empSpecMap[worker].categories[cat].orderNos.add(e.bcItemLedgerEntryDocumentNo);
@@ -395,7 +395,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       };
     });
 
-  // ── Chart: FG by Product Type ──
+
   const fgTypeMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Output") continue;
@@ -411,8 +411,8 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   const fgByProductType = Object.values(fgTypeMap)
     .sort((a, b) => b.quantity - a.quantity);
 
-  // ── Chart: Profit/Loss per Item ──
-  // Cost = consumption only (raw materials), Revenue = selling price × qty
+
+
   const profitMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Output") continue;
@@ -459,8 +459,8 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     .sort((a, b) => b.totalRevenue - a.totalRevenue)
     .slice(0, 20);
 
-  // ── Detail: Profit by Project (ละเอียด) ──
-  // Cost = consumption only, Revenue = selling price × qty
+
+
   const projItemMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Output") continue;
@@ -481,7 +481,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       };
     projItemMap[key].outputQty += Number(e.bcItemLedgerEntryQuantity) || 0;
   }
-  // Add consumption cost per project per FG item
+
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Consumption") continue;
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
@@ -494,7 +494,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     }
   }
 
-  // Build sales revenue per project per item from salesLines
+
   const salesByProjItem = {};
   for (const sl of salesLines) {
     if (!sl.bcSalesOrderLineObjectNumber || !sl.bcSalesOrderLineUnitPrice) continue;
@@ -510,13 +510,13 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     salesByProjItem[key].soQty += Number(sl.bcSalesOrderLineQuantity) || 0;
     salesByProjItem[key].soRevenue += (Number(sl.bcSalesOrderLineUnitPrice) || 0) * (Number(sl.bcSalesOrderLineQuantity) || 0);
     salesByProjItem[key].shippedQty += Number(sl.bcSalesOrderLineQuantityShipped) || 0;
-    // Keep the latest unitPrice
+
     if ((Number(sl.bcSalesOrderLineUnitPrice) || 0) > 0) {
       salesByProjItem[key].unitPrice = Number(sl.bcSalesOrderLineUnitPrice);
     }
   }
 
-  // Merge into profitByProject
+
   const projSummary = {};
   for (const pi of Object.values(projItemMap)) {
     const salesKey = `${pi.projectCode}::${pi.itemNo}`;
@@ -601,7 +601,7 @@ export async function GET(request) {
   if (auth.error) return auth.error;
 
   const url = new URL(request.url);
-  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
+  const compareMode = url.searchParams.get("compareMode");
 
   try {
     const [allOrders, allEntries, salesLines, items] = await Promise.all([
@@ -630,7 +630,7 @@ export async function GET(request) {
 
     const today = new Date().toISOString().slice(0, 10);
 
-    // ── Helper: split by WPC and build dashboard ──
+
     const splitAndBuild = (orders, entries) => {
       const wpcOrders = orders.filter((o) => o.bcProductionOrderDimension1Code === "WPC");
       const otherOrders = orders.filter((o) => o.bcProductionOrderDimension1Code !== "WPC");
@@ -642,13 +642,13 @@ export async function GET(request) {
       };
     };
 
-    // ── No comparison mode: return as before ──
+
     if (!compareMode) {
       const { wpc, other } = splitAndBuild(allOrders, allEntries);
       return Response.json({ wpc, other });
     }
 
-    // ── Comparison mode: filter by date range ──
+
     const ranges = getComparisonRanges(compareMode);
 
     const curOrders = filterByDateRange(allOrders, "bcProductionOrderDueDate", ranges.current.start, ranges.current.end);

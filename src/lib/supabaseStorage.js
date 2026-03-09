@@ -23,6 +23,6 @@ export async function deleteFile(publicUrl) {
     if (pathParts.length < 2) return;
     await supabase.storage.from(BUCKET).remove([pathParts[1]]);
   } catch {
-    // Silent fail - file may already be deleted
+
   }
 }

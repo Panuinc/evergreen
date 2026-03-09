@@ -10,7 +10,7 @@ export async function GET(request) {
   const employeeId = searchParams.get("employeeId");
 
   try {
-    // Get assignments
+
     let query = supabase
       .from("perfKpiAssignment")
       .select("*")
@@ -28,7 +28,7 @@ export async function GET(request) {
       return Response.json([]);
     }
 
-    // Fetch definitions separately
+
     const defIds = [...new Set(assignments.map((a) => a.perfKpiAssignmentDefinitionId))];
     const { data: definitions } = await supabase
       .from("perfKpiDefinition")
@@ -37,7 +37,7 @@ export async function GET(request) {
     const defMap = {};
     for (const d of (definitions || [])) defMap[d.perfKpiDefinitionId] = d;
 
-    // Fetch employees separately
+
     const empIds = [...new Set(assignments.map((a) => a.perfKpiAssignmentEmployeeId))];
     const { data: emps } = await supabase
       .from("hrEmployee")
@@ -46,7 +46,7 @@ export async function GET(request) {
     const empMap = {};
     for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
 
-    // Fetch records separately
+
     const assignmentIds = assignments.map((a) => a.perfKpiAssignmentId);
     const { data: allRecords } = await supabase
       .from("perfKpiRecord")
@@ -59,7 +59,7 @@ export async function GET(request) {
       recordsMap[r.perfKpiRecordAssignmentId].push(r);
     }
 
-    // Process dashboard data
+
     const dashboard = assignments.map((a) => {
       const records = recordsMap[a.perfKpiAssignmentId] || [];
       const latestRecord = records.length > 0 ? records[records.length - 1] : null;

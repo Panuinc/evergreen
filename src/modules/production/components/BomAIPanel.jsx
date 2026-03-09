@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Input,
@@ -47,8 +47,8 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
   const door = doors[selectedIdx] ?? doors[0];
   const [checkedKeys, setCheckedKeys] = useState(APPLY_FIELDS);
 
-  // Reset checkboxes when switching doors
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCheckedKeys(APPLY_FIELDS);
   }, [selectedIdx]);
 
@@ -63,7 +63,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Header: progress */}
+      {}
       <div className="flex items-center justify-between">
         <span className="text-xs font-light text-foreground">
           พบ {doors.length} ประตู
@@ -79,7 +79,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
         </Button>
       </div>
 
-      {/* Door selector tabs */}
+      {}
       {doors.length > 1 && (
         <div className="flex items-center gap-1">
           <Button
@@ -118,7 +118,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
         </div>
       )}
 
-      {/* Applied banner */}
+      {}
       {isApplied ? (
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success-50 border border-success-200 text-xs text-success-700">
           <CheckCheck />
@@ -126,7 +126,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
         </div>
       ) : (
         <>
-          {/* Door name + notes */}
+          {}
           {(door.doorName || door.notes) && (
             <div className="text-xs text-muted-foreground px-1">
               {door.doorName && <span className="font-light text-foreground">{door.doorName}</span>}
@@ -134,7 +134,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
             </div>
           )}
 
-          {/* Field-by-field compare table */}
+          {}
           <div className="rounded-lg border border-border overflow-hidden">
             <div className="grid grid-cols-[auto_1fr_1fr] text-xs font-light bg-default-100 text-muted-foreground px-2 py-1">
               <span className="w-4" />
@@ -170,7 +170,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
             })}
           </div>
 
-          {/* Apply action */}
+          {}
           <Button
             size="md" color="primary" variant="solid" fullWidth className="text-xs"
             startContent={<CheckCheck />}
@@ -191,8 +191,8 @@ export default function BomAIPanel({ bomState, bomAI }) {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const scrollRef = useRef(null);
-  const fileRef = useRef(null);        // for upload-first zone (auto-analyze)
-  const fileInputRef = useRef(null);   // for chat attach button
+  const fileRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const {
     messages,
@@ -214,14 +214,14 @@ export default function BomAIPanel({ bomState, bomAI }) {
     }
   }, [messages, pendingDoors]);
 
-  // Auto-advance to next unapplied door after applying one
+
   useEffect(() => {
     if (!pendingDoors.length || !appliedDoorIdxs.length) return;
     const nextIdx = pendingDoors.findIndex((_, i) => !appliedDoorIdxs.includes(i));
     if (nextIdx !== -1 && nextIdx !== selectedDoorIdx) {
       selectDoor(nextIdx);
     }
-  }, [appliedDoorIdxs]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [appliedDoorIdxs, pendingDoors, selectedDoorIdx, selectDoor]);
 
   const handleSend = (text) => {
     const msg = (text || input).trim();
@@ -256,7 +256,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
     e.target.value = "";
   };
 
-  // Auto-analyze on file select: if no text in input, send with default prompt
+
   const handleAutoAnalyze = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -268,7 +268,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const dataUrl = ev.target.result;
-      // Send immediately with auto-prompt
+
       sendMessage("อ่านแบบขยายประตูนี้แล้วดึงสเปคมากรอกฟอร์มให้ด้วย", dataUrl);
     };
     reader.readAsDataURL(file);
@@ -302,10 +302,10 @@ export default function BomAIPanel({ bomState, bomAI }) {
       </CardHeader>
 
       <CardBody className="gap-3 p-3">
-        {/* Upload-first zone (show when no messages) */}
+        {}
         {messages.length === 0 && !hasPendingDoors && (
           <div className="flex flex-col gap-2">
-            {/* Drop zone */}
+            {}
             <button
               type="button"
               className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-primary-200 bg-primary-50/50 py-4 hover:border-primary-400 hover:bg-primary-50 transition-colors cursor-pointer"
@@ -342,7 +342,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
           </div>
         )}
 
-        {/* Chat messages */}
+        {}
         {messages.length > 0 && (
           <ScrollShadow ref={scrollRef} className="max-h-48 overflow-y-auto">
             <div className="flex flex-col gap-2">
@@ -375,7 +375,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
           </ScrollShadow>
         )}
 
-        {/* Compare view: multi-door selector */}
+        {}
         {hasPendingDoors && (
           <DoorCompareView
             doors={pendingDoors}
@@ -388,7 +388,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
           />
         )}
 
-        {/* Last action badge */}
+        {}
         {!hasPendingDoors && lastAction && (
           <div className="flex items-center gap-1 flex-wrap">
             <Chip color="success" variant="flat" size="md">
@@ -404,7 +404,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
           </div>
         )}
 
-        {/* File preview (when attached but not yet sent) */}
+        {}
         {imagePreview && (
           <div className="relative w-fit">
             {image?.startsWith("data:application/pdf") ? (
@@ -413,6 +413,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
                 <span className="text-foreground">PDF พร้อมส่ง</span>
               </div>
             ) : (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={imagePreview}
                 alt="preview"
@@ -428,7 +429,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
           </div>
         )}
 
-        {/* Input row */}
+        {}
         {!hasPendingDoors && (
           <div className="flex items-center gap-1">
             <input

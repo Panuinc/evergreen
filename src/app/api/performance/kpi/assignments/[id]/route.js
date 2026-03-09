@@ -20,7 +20,7 @@ export async function PUT(request, { params }) {
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
-  // Fetch definition separately
+
   const { data: definition } = await supabase
     .from("perfKpiDefinition").select("*")
     .eq("perfKpiDefinitionId", data.perfKpiAssignmentDefinitionId).maybeSingle();

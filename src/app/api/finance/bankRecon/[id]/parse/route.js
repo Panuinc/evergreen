@@ -10,7 +10,7 @@ export async function POST(request, { params }) {
     const { id } = await params;
     const supabase = getServiceSupabase();
 
-    // Get statement record
+
     const { data: stmt, error: stmtErr } = await supabase
       .from("bankStatement")
       .select("*")
@@ -20,23 +20,23 @@ export async function POST(request, { params }) {
     if (stmtErr) throw new Error(stmtErr.message);
     if (!stmt) return Response.json({ error: "Not found" }, { status: 404 });
 
-    // Download PDF
+
     const pdfRes = await fetch(stmt.fileUrl);
     if (!pdfRes.ok) throw new Error(`Failed to download PDF: ${pdfRes.status}`);
     const pdfBuffer = Buffer.from(await pdfRes.arrayBuffer());
 
-    // Extract text with pdf-parse
+
     const pdfParse = (await import("pdf-parse")).default;
     const pdfData = await pdfParse(pdfBuffer);
     const text = pdfData.text;
 
-    // Parse using AI agent
+
     const { metadata, entries } = await aiParseBankStatement(text, stmt.bankCode);
 
-    // Delete existing entries (re-parse)
+
     await supabase.from("bankEntry").delete().eq("statementId", id);
 
-    // Insert parsed entries in batches (Supabase has row limits)
+
     if (entries.length > 0) {
       const batchSize = 100;
       for (let start = 0; start < entries.length; start += batchSize) {
@@ -59,7 +59,7 @@ export async function POST(request, { params }) {
       }
     }
 
-    // Update statement metadata
+
     const { error: updErr } = await supabase
       .from("bankStatement")
       .update({
@@ -85,7 +85,7 @@ export async function POST(request, { params }) {
   } catch (e) {
     console.error("BankRecon parse error:", e);
 
-    // Update statement with error
+
     try {
       const supabase = getServiceSupabase();
       const { id } = await params;

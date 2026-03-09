@@ -7,7 +7,7 @@ import { getItDashboardStats } from "@/modules/it/actions";
 export function useItDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [compareMode, setCompareMode] = useState(null); // null | "ytm" | "yty"
+  const [compareMode, setCompareMode] = useState(null);
 
   const loadData = useCallback(async (mode) => {
     try {

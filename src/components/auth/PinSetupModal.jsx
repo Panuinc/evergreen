@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import PinInput from "./PinInput";
 
 export default function PinSetupModal({ isOpen, onClose, onSetup }) {
-  const [step, setStep] = useState("enter"); // "enter" | "confirm"
+  const [step, setStep] = useState("enter");
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [error, setError] = useState(false);

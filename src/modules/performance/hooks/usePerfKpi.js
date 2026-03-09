@@ -21,30 +21,30 @@ import {
 export function usePerfKpi() {
   const { user } = useAuth();
 
-  // Tab
+
   const [activeTab, setActiveTab] = useState("myKpi");
 
-  // Data
+
   const [employees, setEmployees] = useState([]);
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Definitions (admin)
+
   const [definitions, setDefinitions] = useState([]);
   const [loadingDefinitions, setLoadingDefinitions] = useState(false);
 
-  // Assignments
+
   const [myAssignments, setMyAssignments] = useState([]);
   const [loadingAssignments, setLoadingAssignments] = useState(false);
 
-  // Dashboard
+
   const [dashboardData, setDashboardData] = useState([]);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
 
-  // Filters
+
   const [filterYear, setFilterYear] = useState(String(new Date().getFullYear()));
 
-  // Definition form modal
+
   const definitionModal = useDisclosure();
   const [editingDefinition, setEditingDefinition] = useState(null);
   const [definitionForm, setDefinitionForm] = useState({
@@ -54,7 +54,7 @@ export function usePerfKpi() {
   });
   const [savingDefinition, setSavingDefinition] = useState(false);
 
-  // Assignment modal
+
   const assignmentModal = useDisclosure();
   const [assignForm, setAssignForm] = useState({
     perfKpiAssignmentDefinitionId: "", perfKpiAssignmentEmployeeId: "", perfKpiAssignmentYear: String(new Date().getFullYear()),
@@ -62,7 +62,7 @@ export function usePerfKpi() {
   });
   const [savingAssignment, setSavingAssignment] = useState(false);
 
-  // Record modal
+
   const recordModal = useDisclosure();
   const [recordingAssignment, setRecordingAssignment] = useState(null);
   const [recordForm, setRecordForm] = useState({
@@ -70,13 +70,14 @@ export function usePerfKpi() {
   });
   const [savingRecord, setSavingRecord] = useState(false);
 
-  // Records for trend
+
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
 
-  // Load employees
+
   useEffect(() => {
     loadEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadEmployees = async () => {
@@ -95,7 +96,7 @@ export function usePerfKpi() {
     }
   };
 
-  // Load definitions
+
   const loadDefinitions = useCallback(async () => {
     setLoadingDefinitions(true);
     try {
@@ -108,7 +109,7 @@ export function usePerfKpi() {
     }
   }, []);
 
-  // Load my assignments with dashboard data
+
   const loadMyAssignments = useCallback(async () => {
     setLoadingAssignments(true);
     try {
@@ -124,7 +125,7 @@ export function usePerfKpi() {
     }
   }, [filterYear, currentEmployee]);
 
-  // Load dashboard (all employees)
+
   const loadDashboard = useCallback(async () => {
     setLoadingDashboard(true);
     try {
@@ -137,14 +138,14 @@ export function usePerfKpi() {
     }
   }, [filterYear]);
 
-  // Load based on tab
+
   useEffect(() => {
     if (activeTab === "myKpi" && currentEmployee) loadMyAssignments();
     else if (activeTab === "dashboard") loadDashboard();
     else if (activeTab === "manage") loadDefinitions();
   }, [activeTab, loadMyAssignments, loadDashboard, loadDefinitions, currentEmployee]);
 
-  // Definition CRUD
+
   const handleOpenDefinitionForm = useCallback((def = null) => {
     if (def) {
       setEditingDefinition(def);
@@ -211,13 +212,13 @@ export function usePerfKpi() {
     }
   }, [loadDefinitions]);
 
-  // Assignment
+
   const handleOpenAssignForm = useCallback((perfKpiAssignmentDefinitionId = "") => {
     setAssignForm({
       perfKpiAssignmentDefinitionId, perfKpiAssignmentEmployeeId: "", perfKpiAssignmentYear: filterYear,
       perfKpiAssignmentTargetValue: "", perfKpiAssignmentWeight: "1",
     });
-    // Pre-fill target from definition
+
     if (perfKpiAssignmentDefinitionId) {
       const def = definitions.find((d) => d.perfKpiDefinitionId === perfKpiAssignmentDefinitionId);
       if (def?.perfKpiDefinitionTargetValue) setAssignForm((f) => ({ ...f, perfKpiAssignmentTargetValue: String(def.perfKpiDefinitionTargetValue) }));
@@ -259,10 +260,10 @@ export function usePerfKpi() {
     }
   }, [loadMyAssignments]);
 
-  // Record value
+
   const handleOpenRecordForm = useCallback((assignment) => {
     setRecordingAssignment(assignment);
-    // Default period label: current month
+
     const now = new Date();
     const defaultPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     setRecordForm({ perfKpiRecordPeriodLabel: defaultPeriod, perfKpiRecordActualValue: "", perfKpiRecordNote: "" });
@@ -292,7 +293,7 @@ export function usePerfKpi() {
     }
   }, [recordingAssignment, recordForm, recordModal, loadMyAssignments]);
 
-  // Load records for trend
+
   const loadRecords = useCallback(async (perfKpiAssignmentId) => {
     setLoadingRecords(true);
     try {
@@ -308,21 +309,21 @@ export function usePerfKpi() {
   return {
     activeTab, setActiveTab,
     employees, currentEmployee, loading,
-    // Definitions
+
     definitions, loadingDefinitions, loadDefinitions,
     definitionModal, editingDefinition, definitionForm, setDefinitionForm,
     savingDefinition, handleOpenDefinitionForm, handleSaveDefinition, handleDeleteDefinition,
-    // Assignments
+
     myAssignments, loadingAssignments,
     assignmentModal, assignForm, setAssignForm,
     savingAssignment, handleOpenAssignForm, handleSaveAssignment, handleDeleteAssignment,
-    // Records
+
     recordModal, recordingAssignment, recordForm, setRecordForm,
     savingRecord, handleOpenRecordForm, handleSaveRecord,
     selectedRecords, loadingRecords, loadRecords,
-    // Dashboard
+
     dashboardData, loadingDashboard,
-    // Filters
+
     filterYear, setFilterYear,
   };
 }

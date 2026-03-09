@@ -62,6 +62,7 @@ export default function FileUpload({
           {urls.map((url, i) => (
             <div key={i} className="relative group">
               {accept.includes("image") ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={url}
                   alt={`upload-${i}`}

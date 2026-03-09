@@ -34,7 +34,7 @@ export default function SpiderChart({
     );
   }
 
-  // Transform data for Recharts RadarChart format
+
   const radarData = EVALUATION_CATEGORIES.map((cat) => {
     const point = {
       label: `${cat.emoji} ${cat.name}`,

@@ -13,7 +13,7 @@ export async function GET(request) {
     return Response.json({ error: "กรุณาระบุ cycleId" }, { status: 400 });
   }
 
-  // Get cycle info
+
   const { data: cycle } = await supabase
     .from("perf360Cycle")
     .select("*")
@@ -24,7 +24,7 @@ export async function GET(request) {
     return Response.json({ error: "ไม่พบรอบประเมิน" }, { status: 404 });
   }
 
-  // Get competencies
+
   const { data: competencies } = await supabase
     .from("perf360Competency")
     .select("*")
@@ -32,7 +32,7 @@ export async function GET(request) {
     .order("perf360CompetencySortOrder");
 
   if (employeeId) {
-    // Get results for specific employee
+
     const { data: responses } = await supabase
       .from("perf360Response")
       .select("*")
@@ -43,13 +43,13 @@ export async function GET(request) {
     return Response.json({ cycle, competencies, ...result });
   }
 
-  // Get all results for the cycle (admin view)
+
   const { data: responses } = await supabase
     .from("perf360Response")
     .select("*")
     .eq("perf360ResponseCycleId", cycleId);
 
-  // Fetch reviewee employees separately
+
   const revieweeIds = [...new Set((responses || []).map((r) => r.perf360ResponseRevieweeEmployeeId))];
   const empMap = {};
   if (revieweeIds.length > 0) {
@@ -60,7 +60,7 @@ export async function GET(request) {
     for (const e of (emps || [])) empMap[e.hrEmployeeId] = e;
   }
 
-  // Group by reviewee
+
   const byReviewee = {};
   for (const resp of (responses || [])) {
     const eid = resp.perf360ResponseRevieweeEmployeeId;
@@ -116,13 +116,13 @@ function aggregateResults(responses, competencies, anonymous) {
     };
   }
 
-  // Overall across all types
+
   const allOverallScores = responses.map((r) => r.perf360ResponseOverallScore).filter((v) => v > 0);
   const overallScore = allOverallScores.length > 0
     ? parseFloat((allOverallScores.reduce((a, b) => a + b, 0) / allOverallScores.length).toFixed(2))
     : 0;
 
-  // Qualitative feedback (anonymous grouping)
+
   const feedback = {};
   for (const [type, resps] of Object.entries(byType)) {
     feedback[type] = {

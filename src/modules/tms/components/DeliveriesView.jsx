@@ -83,11 +83,11 @@ export default function DeliveriesView({
   const [previewImages, setPreviewImages] = useState([]);
   const [previewIndex, setPreviewIndex] = useState(0);
 
-  const openPreview = (images, index = 0) => {
+  const openPreview = useCallback((images, index = 0) => {
     setPreviewImages(Array.isArray(images) ? images : [images]);
     setPreviewIndex(index);
     previewModal.onOpen();
-  };
+  }, [previewModal]);
 
   const renderCell = useCallback(
     (item, columnKey) => {
@@ -117,6 +117,7 @@ export default function DeliveriesView({
           return item.tmsDeliveryPhotoUrls?.length > 0 ? (
             <div className="flex gap-1">
               {item.tmsDeliveryPhotoUrls.slice(0, 3).map((url, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   key={i}
                   src={url}
@@ -163,7 +164,7 @@ export default function DeliveriesView({
           return item[columnKey] || "-";
       }
     },
-    [shipments, handleOpen, confirmDelete],
+    [shipments, handleOpen, confirmDelete, openPreview],
   );
 
   return (
@@ -188,7 +189,7 @@ export default function DeliveriesView({
         ]}
       />
 
-      {/* Create/Edit Modal */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -201,7 +202,7 @@ export default function DeliveriesView({
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col w-full gap-4">
-              {/* Shipment Info - read-only */}
+              {}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-default-50 rounded-xl p-4">
                 <div>
                   <p className="text-xs text-muted-foreground">การขนส่ง</p>
@@ -224,7 +225,7 @@ export default function DeliveriesView({
                 </div>
               </div>
 
-              {/* Delivery Items Table */}
+              {}
               {deliveryItems.length > 0 && (
                 <div className="flex flex-col w-full gap-2">
                   <p className="text-xs font-light">รายการสินค้า</p>
@@ -323,7 +324,7 @@ export default function DeliveriesView({
                 </div>
               )}
 
-              {/* Notes */}
+              {}
               <Input
                 label="หมายเหตุ"
                 labelPlacement="outside"
@@ -337,7 +338,7 @@ export default function DeliveriesView({
                 }
               />
 
-              {/* Photos */}
+              {}
               <FileUpload
                 label="รูปภาพการจัดส่ง"
                 accept="image/*"
@@ -365,7 +366,7 @@ export default function DeliveriesView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบการจัดส่ง</ModalHeader>
@@ -399,7 +400,7 @@ export default function DeliveriesView({
         </ModalContent>
       </Modal>
 
-      {/* Image Preview Modal */}
+      {}
       <ImagePreviewModal
         isOpen={previewModal.isOpen}
         onClose={previewModal.onClose}

@@ -10,6 +10,7 @@ export function useWarehouseInventory(group) {
 
   useEffect(() => {
     loadItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [group]);
 
   const loadItems = async () => {

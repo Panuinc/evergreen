@@ -2,7 +2,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
 function buildStats(vehicles, shipments, fuelLogs) {
-  // Vehicle stats
+
   const totalVehicles = vehicles.length;
   const availableVehicles = vehicles.filter(
     (v) => v.tmsVehicleStatus === "available"
@@ -11,7 +11,7 @@ function buildStats(vehicles, shipments, fuelLogs) {
     (v) => v.tmsVehicleStatus === "in_use"
   ).length;
 
-  // Shipment stats
+
   const totalShipments = shipments.length;
   const activeStatuses = ["confirmed", "dispatched", "in_transit", "arrived", "delivered"];
   const activeShipments = shipments.filter((s) =>
@@ -22,15 +22,15 @@ function buildStats(vehicles, shipments, fuelLogs) {
     (s) => s.tmsShipmentStatus === "pod_confirmed"
   ).length;
 
-  // Fuel cost in period
+
   const fuelCostInPeriod = fuelLogs.reduce(
     (sum, f) => sum + (parseFloat(f.tmsFuelLogTotalCost) || 0),
     0
   );
 
-  // --- Chart Data ---
 
-  // Shipment status distribution
+
+
   const statusCounts = {};
   shipments.forEach((s) => {
     statusCounts[s.tmsShipmentStatus] = (statusCounts[s.tmsShipmentStatus] || 0) + 1;
@@ -39,7 +39,7 @@ function buildStats(vehicles, shipments, fuelLogs) {
     ([status, count]) => ({ status, count })
   );
 
-  // Monthly shipment trend
+
   const monthlyMap = {};
   shipments.forEach((s) => {
     if (!s.tmsShipmentDate) return;
@@ -50,7 +50,7 @@ function buildStats(vehicles, shipments, fuelLogs) {
     .map(([month, count]) => ({ month, count }))
     .sort((a, b) => a.month.localeCompare(b.month));
 
-  // Fuel cost trend
+
   const fuelMonthlyMap = {};
   fuelLogs.forEach((f) => {
     if (!f.tmsFuelLogDate) return;
@@ -61,7 +61,7 @@ function buildStats(vehicles, shipments, fuelLogs) {
     .map(([month, totalCost]) => ({ month, totalCost }))
     .sort((a, b) => a.month.localeCompare(b.month));
 
-  // Vehicle utilization (shipments per vehicle across all filtered data)
+
   const vehicleUtilization = vehicles.map((v) => ({
     vehicleName: v.tmsVehicleName || v.tmsVehiclePlateNumber,
     shipmentCount: shipments.filter(
@@ -90,7 +90,7 @@ export async function GET(request) {
   const { supabase } = auth;
 
   const url = new URL(request.url);
-  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
+  const compareMode = url.searchParams.get("compareMode");
 
   const [vehiclesRes, shipmentsRes, fuelRes] = await Promise.all([
     supabase.from("tmsVehicle").select("tmsVehicleId, tmsVehicleName, tmsVehiclePlateNumber, tmsVehicleStatus, tmsVehicleFuelConsumptionRate").eq("isActive", true),
@@ -110,7 +110,7 @@ export async function GET(request) {
   const allShipments = shipmentsRes.data || [];
   const allFuelLogs = fuelRes.data || [];
 
-  // ── Vehicle Performance Summary ──
+
   const vehiclePerformance = vehicles.map((v) => {
     const vShipments = allShipments.filter((s) => s.tmsShipmentVehicleId === v.tmsVehicleId);
     const vFuelLogs = allFuelLogs.filter((f) => f.tmsFuelLogVehicleId === v.tmsVehicleId);
@@ -125,7 +125,7 @@ export async function GET(request) {
     const rate = parseFloat(v.tmsVehicleFuelConsumptionRate) || 0;
     const estimatedLiters = rate > 0 ? totalDistanceKm / rate : 0;
 
-    // Actual consumption rate (km per liter from fuel logs)
+
     const actualRate = actualFuelLiters > 0 && totalDistanceKm > 0
       ? totalDistanceKm / actualFuelLiters
       : null;
@@ -146,14 +146,14 @@ export async function GET(request) {
     };
   });
 
-  // ── No comparison mode: return backward-compatible response ──
+
   if (!compareMode) {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       .toISOString()
       .split("T")[0];
 
-    // Vehicle stats
+
     const totalVehicles = vehicles.length;
     const availableVehicles = vehicles.filter(
       (v) => v.tmsVehicleStatus === "available"
@@ -162,7 +162,7 @@ export async function GET(request) {
       (v) => v.tmsVehicleStatus === "in_use"
     ).length;
 
-    // Shipment stats
+
     const totalShipments = allShipments.length;
     const activeStatuses = ["confirmed", "dispatched", "in_transit", "arrived", "delivered"];
     const activeShipments = allShipments.filter((s) =>
@@ -174,14 +174,14 @@ export async function GET(request) {
         s.tmsShipmentDate >= startOfMonth
     ).length;
 
-    // Fuel cost this month
+
     const totalFuelCostThisMonth = allFuelLogs
       .filter((f) => f.tmsFuelLogDate >= startOfMonth)
       .reduce((sum, f) => sum + (parseFloat(f.tmsFuelLogTotalCost) || 0), 0);
 
-    // --- Chart Data ---
 
-    // Shipment status distribution
+
+
     const statusCounts = {};
     allShipments.forEach((s) => {
       statusCounts[s.tmsShipmentStatus] = (statusCounts[s.tmsShipmentStatus] || 0) + 1;
@@ -190,7 +190,7 @@ export async function GET(request) {
       ([status, count]) => ({ status, count })
     );
 
-    // Monthly shipment trend (last 6 months)
+
     const monthlyShipmentTrend = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -199,7 +199,7 @@ export async function GET(request) {
       monthlyShipmentTrend.push({ month: monthKey, count });
     }
 
-    // Fuel cost trend (last 6 months)
+
     const fuelCostTrend = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -210,7 +210,7 @@ export async function GET(request) {
       fuelCostTrend.push({ month: monthKey, totalCost });
     }
 
-    // Vehicle utilization (shipments per vehicle in last 30 days)
+
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
       .toISOString()
       .split("T")[0];
@@ -237,7 +237,7 @@ export async function GET(request) {
     });
   }
 
-  // ── Comparison mode: filter by date ranges ──
+
   const ranges = getComparisonRanges(compareMode);
 
   const curShipments = filterByDateRange(allShipments, "tmsShipmentDate", ranges.current.start, ranges.current.end);
@@ -246,7 +246,7 @@ export async function GET(request) {
   const prevShipments = filterByDateRange(allShipments, "tmsShipmentDate", ranges.previous.start, ranges.previous.end);
   const prevFuelLogs = filterByDateRange(allFuelLogs, "tmsFuelLogDate", ranges.previous.start, ranges.previous.end);
 
-  // Point-in-time stats use same vehicles for both periods (no comparison)
+
   const current = buildStats(vehicles, curShipments, curFuelLogs);
   const previous = buildStats(vehicles, prevShipments, prevFuelLogs);
 

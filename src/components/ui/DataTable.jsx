@@ -61,7 +61,7 @@ export default function DataTable({
 
   const hasSearchFilter = Boolean(filterValue);
 
-  const noColumn = { name: "ลำดับ", uid: "_no", sortable: false };
+  const noColumn = useMemo(() => ({ name: "ลำดับ", uid: "_no", sortable: false }), []);
 
   const headerColumns = useMemo(() => {
     const visible =
@@ -71,7 +71,7 @@ export default function DataTable({
             Array.from(visibleColumns).includes(column.uid),
           );
     return [noColumn, ...visible];
-  }, [columns, visibleColumns]);
+  }, [columns, visibleColumns, noColumn]);
 
   const filteredItems = useMemo(() => {
     let filtered = [...data];
@@ -97,7 +97,7 @@ export default function DataTable({
       );
     }
 
-    // Apply filterColumns filters
+
     for (const fc of filterColumns) {
       const selected = columnFilters[fc.uid];
       if (selected && selected !== "all" && Array.from(selected).length !== fc.options.length) {

@@ -125,7 +125,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
 
   return (
     <div className="flex flex-col gap-1">
-      {/* Legend */}
+      {}
       <div className="flex flex-wrap gap-2 mb-2 px-1">
         {categories.map((cat, i) => (
           <div key={cat} className="flex items-center gap-1.5">
@@ -135,7 +135,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
         ))}
       </div>
 
-      {/* Leaderboard */}
+      {}
       {data.map((emp, idx) => {
         const rank = idx + 1;
         const isTop3 = rank <= 3;
@@ -157,10 +157,10 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                     : "hover:bg-default-50 border border-transparent"
             }`}
           >
-            {/* Rank Badge */}
+            {}
             <RankBadge rank={rank} />
 
-            {/* Player Info */}
+            {}
             <div className="shrink-0 w-28">
               <div className="truncate">
                 <span className={`text-xs font-light ${isTop3 ? "text-foreground" : "text-foreground"}`}>
@@ -175,7 +175,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
               </div>
             </div>
 
-            {/* XP Bar + Stats */}
+            {}
             <div className="flex-1 flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                   })}
                 </div>
               </div>
-              {/* Category breakdown with speed */}
+              {}
               <div className="flex flex-wrap gap-x-3 gap-y-0.5">
                 {emp.categories.slice(0, 4).map((c) => {
                   const colorIdx = catColorMap[c.category] ?? 0;
@@ -242,7 +242,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
               </div>
             </div>
 
-            {/* Specialty Badge */}
+            {}
             <div className="shrink-0 flex flex-col items-end gap-1">
               <Chip
                 size="md"

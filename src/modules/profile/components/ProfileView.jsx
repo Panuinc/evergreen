@@ -32,7 +32,7 @@ export default function ProfileView({
 
   return (
     <div className="flex flex-col w-full h-full gap-6">
-      {/* ข้อมูลบัญชี */}
+      {}
       <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-light">
           <User />
@@ -75,7 +75,7 @@ export default function ProfileView({
         </div>
       </div>
 
-      {/* ข้อมูลพนักงาน */}
+      {}
       <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-light">
           <Briefcase />
@@ -141,7 +141,7 @@ export default function ProfileView({
         )}
       </div>
 
-      {/* PIN ปลดล็อกด่วน */}
+      {}
       <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-between w-full h-fit p-2">
           <div className="flex items-center gap-2 font-light">
@@ -200,7 +200,7 @@ export default function ProfileView({
         </div>
       </div>
 
-      {/* เปลี่ยนรหัสผ่าน */}
+      {}
       <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-light">
           <Lock />
@@ -276,7 +276,7 @@ export default function ProfileView({
         </div>
       </div>
 
-      {/* โมดอลตั้ง PIN */}
+      {}
       <PinSetupModal
         isOpen={showPinSetup}
         onClose={() => setShowPinSetup(false)}

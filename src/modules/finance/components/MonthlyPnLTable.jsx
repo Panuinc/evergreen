@@ -85,7 +85,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Monthly Trend Chart */}
+      {}
       {chartData && chartData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
@@ -111,7 +111,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
         </Card>
       )}
 
-      {/* P&L Table */}
+      {}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">

@@ -2,7 +2,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
 function buildDashboard(leads, opportunities, orders, activities, stages) {
-  // KPIs
+
   const totalLeads = leads?.length || 0;
   const newLeads = leads?.filter((l) => l.crmLeadStatus === "new").length || 0;
   const openOpportunities =
@@ -41,7 +41,7 @@ function buildDashboard(leads, opportunities, orders, activities, stages) {
         0
       ) || 0;
 
-  // Pipeline by stage
+
   const pipelineByStage = (stages || []).map((stage) => {
     const stageOpps = opportunities?.filter(
       (o) => o.crmOpportunityStage === stage.crmPipelineStageName.toLowerCase().replace(/ /g, "_")
@@ -57,7 +57,7 @@ function buildDashboard(leads, opportunities, orders, activities, stages) {
     };
   });
 
-  // Revenue by month (last 6 months)
+
   const now = new Date();
   const revenueByMonth = [];
   for (let i = 5; i >= 0; i--) {
@@ -82,7 +82,7 @@ function buildDashboard(leads, opportunities, orders, activities, stages) {
     });
   }
 
-  // Top salespeople
+
   const salesByPerson = {};
   opportunities
     ?.filter((o) => o.crmOpportunityStage === "closed_won" && o.crmOpportunityAssignedTo)
@@ -122,9 +122,9 @@ export async function GET(request) {
   const { supabase } = auth;
 
   const url = new URL(request.url);
-  const compareMode = url.searchParams.get("compareMode"); // "ytm" | "yty" | null
+  const compareMode = url.searchParams.get("compareMode");
 
-  // Fetch all data in parallel
+
   const [
     { data: leads },
     { data: opportunities },
@@ -155,7 +155,7 @@ export async function GET(request) {
       .order("crmPipelineStageOrder", { ascending: true }),
   ]);
 
-  // ── No comparison mode: return as before ──
+
   if (!compareMode) {
     const result = buildDashboard(leads, opportunities, orders, activities, stages);
     return Response.json({
@@ -164,7 +164,7 @@ export async function GET(request) {
     });
   }
 
-  // ── Comparison mode: filter by date range ──
+
   const ranges = getComparisonRanges(compareMode);
 
   const curLeads = filterByDateRange(leads || [], "crmLeadCreatedAt", ranges.current.start, ranges.current.end);

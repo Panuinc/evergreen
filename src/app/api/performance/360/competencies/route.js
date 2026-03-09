@@ -34,13 +34,13 @@ export async function POST(request) {
     return Response.json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" }, { status: 400 });
   }
 
-  // Delete existing competencies for this cycle
+
   await supabase
     .from("perf360Competency")
     .delete()
     .eq("perf360CompetencyCycleId", cycleId);
 
-  // Insert new ones
+
   const rows = competencies.map((c, i) => ({
     perf360CompetencyCycleId: cycleId,
     perf360CompetencyName: c.name,

@@ -119,7 +119,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      {/* Header */}
+      {}
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -176,7 +176,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         )}
       </div>
 
-      {/* ROW 2: Period KPIs — DTD / WTD / MTD / YTD */}
+      {}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <PeriodCard
           title="วันนี้ (DTD)"
@@ -214,7 +214,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         />
       </div>
 
-      {/* ROW 3: Summary KPIs */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
           title="ออเดอร์ทั้งหมด"
@@ -246,7 +246,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         />
       </div>
 
-      {/* ROW 4: Main Charts — Revenue Tabs + Status/Fulfillment/Location Tabs */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card shadow="none" className="border border-border lg:col-span-2">
           <CardBody className="p-5">
@@ -297,7 +297,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         </Card>
       </div>
 
-      {/* ROW 5: Analytical Insights — Order Value Dist + Monthly Comparison */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
@@ -313,7 +313,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         </Card>
       </div>
 
-      {/* ROW 6: Customer Segmentation — Channel / Group / Type */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
@@ -338,7 +338,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         </Card>
       </div>
 
-      {/* ROW 7: Customer & Product Intelligence */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">

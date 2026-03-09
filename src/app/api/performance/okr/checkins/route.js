@@ -35,7 +35,7 @@ export async function POST(request) {
     return Response.json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" }, { status: 400 });
   }
 
-  // Get current key result
+
   const { data: kr, error: krError } = await supabase
     .from("perfOkrKeyResult")
     .select("*")
@@ -46,7 +46,7 @@ export async function POST(request) {
     return Response.json({ error: "ไม่พบ Key Result" }, { status: 404 });
   }
 
-  // Create check-in record
+
   const { data: checkin, error: checkinError } = await supabase
     .from("perfOkrCheckin")
     .insert([{
@@ -61,7 +61,7 @@ export async function POST(request) {
 
   if (checkinError) return Response.json({ error: checkinError.message }, { status: 400 });
 
-  // Update key result currentValue and status
+
   const updatedKr = { ...kr, perfOkrKeyResultCurrentValue: parseFloat(newValue) };
   const newStatus = autoKrStatus(updatedKr);
 
@@ -74,14 +74,14 @@ export async function POST(request) {
     })
     .eq("perfOkrKeyResultId", keyResultId);
 
-  // Update objective progress
+
   const { data: allKrs } = await supabase
     .from("perfOkrKeyResult")
     .select("*")
     .eq("perfOkrKeyResultObjectiveId", kr.perfOkrKeyResultObjectiveId)
     .eq("isActive", true);
 
-  // Replace the updated KR in the list for accurate calculation
+
   const krsForCalc = (allKrs || []).map((k) =>
     k.perfOkrKeyResultId === keyResultId ? { ...k, perfOkrKeyResultCurrentValue: parseFloat(newValue) } : k,
   );

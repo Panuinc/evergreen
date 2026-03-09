@@ -54,7 +54,7 @@ export async function extractOrderFromChat(messages) {
     const data = await res.json();
     const content = data.choices?.[0]?.message?.content || "";
 
-    // Clean markdown code block if present
+
     const cleaned = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
     return JSON.parse(cleaned);
   } finally {

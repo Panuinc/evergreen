@@ -6,7 +6,7 @@ export async function GET(request) {
   const { supabase } = auth;
 
   const { searchParams } = new URL(request.url);
-  const month = searchParams.get("month"); // format: 2026-03
+  const month = searchParams.get("month");
 
   let query = supabase
     .from("tmsDeliveryPlan")

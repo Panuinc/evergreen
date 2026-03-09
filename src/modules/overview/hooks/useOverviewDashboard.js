@@ -11,12 +11,12 @@ export function useOverviewDashboard() {
   const textareaRef = useRef(null);
   const bottomRef = useRef(null);
 
-  // Auto-scroll to bottom on new messages
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Show scroll-to-bottom button
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -28,7 +28,7 @@ export function useOverviewDashboard() {
     return () => el.removeEventListener("scroll", handler);
   }, []);
 
-  // Auto-resize textarea
+
   useEffect(() => {
     const ta = textareaRef.current;
     if (!ta) return;
@@ -36,7 +36,7 @@ export function useOverviewDashboard() {
     ta.style.height = Math.min(ta.scrollHeight, 160) + "px";
   }, [input]);
 
-  // Refocus textarea when AI finishes responding
+
   useEffect(() => {
     if (!isLoading) {
       textareaRef.current?.focus();

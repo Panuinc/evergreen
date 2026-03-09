@@ -9,6 +9,7 @@ export default function MessageInput({ onSend, onSuggest, sending, suggestLoadin
 
   useEffect(() => {
     if (suggestedText) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInput(suggestedText);
     }
   }, [suggestedText]);

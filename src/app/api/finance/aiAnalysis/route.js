@@ -62,7 +62,7 @@ async function callAI(messages, retries = 2) {
 
     if (!res.ok) {
       const text = await res.text();
-      // Retry on 401/5xx (transient OpenRouter issues)
+
       if (retries > 0 && (res.status === 401 || res.status >= 500)) {
         await new Promise((r) => setTimeout(r, 800));
         return callAI(messages, retries - 1);
@@ -131,7 +131,7 @@ ${snapshot.apBands || "ไม่มีข้อมูล"}
 
     const res = await callAI(messages);
 
-    // Forward the SSE stream directly
+
     return new Response(res.body, {
       headers: {
         "Content-Type": "text/event-stream",

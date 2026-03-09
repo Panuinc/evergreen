@@ -191,7 +191,7 @@ export default function OrdersView({
         ]}
       />
 
-      {/* Detail Modal */}
+      {}
       <Modal
         isOpen={detailModal.isOpen}
         onClose={detailModal.onClose}
@@ -324,7 +324,7 @@ export default function OrdersView({
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
         <ModalContent>
           <ModalHeader>ลบคำสั่งซื้อ</ModalHeader>

@@ -169,8 +169,6 @@ export default function EvaluationView({
   );
 }
 
-// ==================== Tab 1: Evaluate ====================
-
 function EvaluateTab({
   employees,
   selectedEmployee,
@@ -210,9 +208,9 @@ function EvaluateTab({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-      {/* Left: Form */}
+      {}
       <div className="lg:col-span-2 flex flex-col gap-4">
-        {/* Info Card */}
+        {}
         <Card>
           <CardBody className="gap-4">
             <p className="font-light">ข้อมูลการประเมิน</p>
@@ -281,7 +279,7 @@ function EvaluateTab({
           </CardBody>
         </Card>
 
-        {/* Score Legend */}
+        {}
         <Card>
           <CardBody>
             <p className="font-light mb-2">เกณฑ์คะแนน (1-5)</p>
@@ -301,7 +299,7 @@ function EvaluateTab({
           </CardBody>
         </Card>
 
-        {/* Progress */}
+        {}
         <Card>
           <CardBody>
             <div className="flex items-center justify-between mb-2">
@@ -329,7 +327,7 @@ function EvaluateTab({
           </CardBody>
         </Card>
 
-        {/* Evaluation Sections */}
+        {}
         <Accordion variant="flat" selectionMode="multiple" defaultExpandedKeys={["0"]}>
           {EVALUATION_CATEGORIES.map((cat, catIdx) => {
             const catScores = scores[cat.key] || [];
@@ -390,7 +388,7 @@ function EvaluateTab({
           })}
         </Accordion>
 
-        {/* Comment */}
+        {}
         <Card>
           <CardBody>
             <Textarea
@@ -407,7 +405,7 @@ function EvaluateTab({
           </CardBody>
         </Card>
 
-        {/* Actions */}
+        {}
         <div className="flex gap-3">
           <Button
             color="primary"
@@ -432,7 +430,7 @@ function EvaluateTab({
         </div>
       </div>
 
-      {/* Right: Spider Chart Preview */}
+      {}
       <div className="flex flex-col gap-4">
         <Card className="sticky top-4">
           <CardBody>
@@ -450,8 +448,6 @@ function EvaluateTab({
     </div>
   );
 }
-
-// ==================== Tab 2: My Results ====================
 
 function MyResultsTab({
   myResults,
@@ -673,8 +669,6 @@ function MyResultsTab({
   );
 }
 
-// ==================== Tab 3: Admin Summary ====================
-
 function AdminTab({
   adminSummary,
   loadingAdmin,
@@ -759,7 +753,7 @@ function AdminTab({
         <Card>
           <CardBody>
             <p className="text-center text-muted-foreground py-8">
-              กดปุ่ม "โหลดสรุป" เพื่อดูผลประเมิน หรือยังไม่มีข้อมูลในรอบนี้
+              กดปุ่ม &quot;โหลดสรุป&quot; เพื่อดูผลประเมิน หรือยังไม่มีข้อมูลในรอบนี้
             </p>
           </CardBody>
         </Card>

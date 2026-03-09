@@ -13,7 +13,7 @@ export async function POST(request) {
     return Response.json({ error: "กรุณากรอกข้อมูลให้ครบถ้วน" }, { status: 400 });
   }
 
-  // Get current max sortOrder
+
   const { data: existing } = await supabase
     .from("perfOkrKeyResult")
     .select("perfOkrKeyResultSortOrder")
@@ -41,7 +41,7 @@ export async function POST(request) {
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
 
-  // Update objective progress
+
   await updateObjectiveProgress(supabase, objectiveId);
 
   return Response.json(data, { status: 201 });
