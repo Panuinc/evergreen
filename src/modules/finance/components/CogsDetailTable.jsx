@@ -143,16 +143,16 @@ export default function CogsDetailTable({
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <p className="text-sm font-light">รายละเอียดต้นทุนขาย</p>
-            <Chip size="sm" variant="flat" color="warning">ปี {beYear}</Chip>
+            <Chip size="md" variant="flat" color="warning">ปี {beYear}</Chip>
             {inventoryOverride && (
-              <Chip size="sm" variant="flat" color="success">ปรับปรุงสินค้าคงเหลือแล้ว</Chip>
+              <Chip size="md" variant="flat" color="success">ปรับปรุงสินค้าคงเหลือแล้ว</Chip>
             )}
           </div>
           <div className="flex items-center gap-2">
             <Popover isOpen={isPopoverOpen} onOpenChange={setIsPopoverOpen} placement="bottom-end">
               <PopoverTrigger>
                 <Button
-                  size="sm"
+                  size="md"
                   variant={inventoryOverride ? "flat" : "bordered"}
                   color={inventoryOverride ? "success" : "default"}
                   startContent={<Pencil size={14} />}
@@ -170,7 +170,7 @@ export default function CogsDetailTable({
                   <Input
                     label="สินค้าคงเหลือต้นงวด"
                     placeholder="เช่น 9,896,091.35"
-                    size="sm"
+                    size="md"
                     value={beginInput}
                     onValueChange={setBeginInput}
                     description="51200-00 Beginning Inventory"
@@ -178,29 +178,29 @@ export default function CogsDetailTable({
                   <Input
                     label="สินค้าคงเหลือปลายงวด"
                     placeholder="เช่น 22,278,335.58"
-                    size="sm"
+                    size="md"
                     value={endInput}
                     onValueChange={setEndInput}
                     description="115xx Ending Inventory (รวม วัตถุดิบ+WIP+สำเร็จรูป)"
                   />
                   <div className="flex justify-between gap-2 mt-1">
                     {inventoryOverride && (
-                      <Button size="sm" color="danger" variant="flat" startContent={<Trash2 size={14} />} onPress={handleClear}>
+                      <Button size="md" color="danger" variant="flat" startContent={<Trash2 size={14} />} onPress={handleClear}>
                         ล้าง (ใช้ค่า BC)
                       </Button>
                     )}
                     <div className="flex-1" />
-                    <Button size="sm" variant="flat" onPress={() => setIsPopoverOpen(false)}>
+                    <Button size="md" variant="flat" onPress={() => setIsPopoverOpen(false)}>
                       ยกเลิก
                     </Button>
-                    <Button size="sm" color="primary" onPress={handleSave}>
+                    <Button size="md" color="primary" onPress={handleSave}>
                       บันทึก
                     </Button>
                   </div>
                 </div>
               </PopoverContent>
             </Popover>
-            <Button size="sm" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
+            <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
               Export Excel
             </Button>
           </div>

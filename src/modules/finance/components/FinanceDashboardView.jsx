@@ -368,7 +368,7 @@ function ChartCard({ title, children, chip }) {
       <CardHeader className="pb-0">
         <div className="flex items-center gap-2">
           <p className="text-sm font-light">{title}</p>
-          {chip && <Chip size="sm" variant="flat" color={chip.color}>{chip.label}</Chip>}
+          {chip && <Chip size="md" variant="flat" color={chip.color}>{chip.label}</Chip>}
         </div>
       </CardHeader>
       <CardBody>{children}</CardBody>
@@ -481,7 +481,7 @@ export default function FinanceDashboardView({
       case "actions": {
         const count = (arInvoiceMap[item.customerNumber] || []).length;
         return count > 0 ? (
-          <Button variant="flat" size="sm" onPress={() => openAgingDetail(item, "ar")}>
+          <Button variant="flat" size="md" onPress={() => openAgingDetail(item, "ar")}>
             <Eye size={14} /> {count} ใบ
           </Button>
         ) : <span className="text-muted-foreground">-</span>;
@@ -510,7 +510,7 @@ export default function FinanceDashboardView({
       case "actions": {
         const count = (apInvoiceMap[item.vendorNumber] || []).length;
         return count > 0 ? (
-          <Button variant="bordered" size="sm" onPress={() => openAgingDetail(item, "ap")}>
+          <Button variant="bordered" size="md" onPress={() => openAgingDetail(item, "ap")}>
             <Eye size={14} /> {count} ใบ
           </Button>
         ) : <span className="text-muted-foreground">-</span>;
@@ -570,7 +570,7 @@ export default function FinanceDashboardView({
       {/* ═══ Year Selector + Trend Charts ═══ */}
       <div className="flex items-center gap-3">
         <Select
-          size="sm"
+          size="md"
           variant="bordered"
           className="w-44"
           aria-label="เลือกปีงบ"
@@ -591,7 +591,7 @@ export default function FinanceDashboardView({
         <div className="ml-auto">
           <Button
             variant="bordered"
-            size="sm"
+            size="md"
             isDisabled={!financials}
             startContent={<Download size={14} />}
             onPress={() => exportCalculationReport(financials, selectedYear)}
@@ -952,12 +952,12 @@ export default function FinanceDashboardView({
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
             <p className="text-sm font-light">AI วิเคราะห์สถานะการเงิน</p>
-            <Chip size="sm" variant="flat" color="secondary">CFO Advisor</Chip>
+            <Chip size="md" variant="flat" color="secondary">CFO Advisor</Chip>
           </div>
           <Button
             variant={aiAnalysis ? "bordered" : "solid"}
             color="primary"
-            size="sm"
+            size="md"
             isLoading={aiLoading}
             isDisabled={!financials || aiLoading}
             onPress={runAiAnalysis}
@@ -1025,12 +1025,12 @@ export default function FinanceDashboardView({
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-success" />
             <p className="text-sm font-light">AI พยากรณ์กระแสเงินสด</p>
-            <Chip size="sm" variant="flat" color="success">Cash Flow Advisor</Chip>
+            <Chip size="md" variant="flat" color="success">Cash Flow Advisor</Chip>
           </div>
           <Button
             variant={cashFlowAnalysis ? "bordered" : "solid"}
             color="success"
-            size="sm"
+            size="md"
             isLoading={cashFlowLoading}
             isDisabled={!financials || cashFlowLoading}
             onPress={runCashFlowForecast}
@@ -1533,7 +1533,7 @@ export default function FinanceDashboardView({
                       <div key={sec.key}>
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-sm font-light">{sec.name}</p>
-                          <Chip size="sm" variant="flat" color="primary">{sec.accounts.length} บัญชี</Chip>
+                          <Chip size="md" variant="flat" color="primary">{sec.accounts.length} บัญชี</Chip>
                         </div>
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm">
@@ -1570,7 +1570,7 @@ export default function FinanceDashboardView({
                         <div>
                           <div className="flex items-center justify-between mb-1">
                             <p className="text-sm font-light">หัก: สินค้าคงเหลือ (TB 115xx)</p>
-                            <Chip size="sm" variant="flat" color="warning">{invEntries.length} บัญชี</Chip>
+                            <Chip size="md" variant="flat" color="warning">{invEntries.length} บัญชี</Chip>
                           </div>
                           <div className="overflow-x-auto">
                             <table className="w-full text-sm">

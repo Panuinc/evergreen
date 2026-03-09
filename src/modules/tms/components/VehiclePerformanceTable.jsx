@@ -46,10 +46,10 @@ function FuelDiffBadge({ estimated, actual }) {
   if (!actual || !estimated) return null;
   const diff = actual - estimated;
   const pct = Math.round((diff / estimated) * 100);
-  if (pct === 0) return <Chip size="sm" variant="flat" color="default">0%</Chip>;
+  if (pct === 0) return <Chip size="md" variant="flat" color="default">0%</Chip>;
   const isOver = pct > 0;
   return (
-    <Chip size="sm" variant="flat" color={isOver ? "danger" : "success"}>
+    <Chip size="md" variant="flat" color={isOver ? "danger" : "success"}>
       {isOver ? "เกิน" : "ประหยัด"} {Math.abs(pct)}%
     </Chip>
   );
@@ -79,7 +79,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
                   )}
                 </div>
               </div>
-              <Chip size="sm" variant="flat" color={STATUS_COLORS[v.status] || "default"}>
+              <Chip size="md" variant="flat" color={STATUS_COLORS[v.status] || "default"}>
                 {STATUS_LABELS[v.status] || v.status}
               </Chip>
             </div>
@@ -92,7 +92,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
                   <span className="text-sm font-light">{fmt(v.totalDistanceKm)} กม.</span>
                 </div>
                 <Progress
-                  size="sm"
+                  size="md"
                   value={(v.totalDistanceKm / maxDistance) * 100}
                   color="primary"
                   className="max-w-full"

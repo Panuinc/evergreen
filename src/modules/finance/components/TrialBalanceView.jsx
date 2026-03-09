@@ -48,7 +48,7 @@ export default function TrialBalanceView({ data, loading }) {
       case "accountType": {
         const cleaned = cleanAccountType(item.accountType);
         return (
-          <Chip size="sm" variant="flat" color={item.accountType === "Posting" ? "primary" : "default"}>
+          <Chip size="md" variant="flat" color={item.accountType === "Posting" ? "primary" : "default"}>
             {cleaned}
           </Chip>
         );

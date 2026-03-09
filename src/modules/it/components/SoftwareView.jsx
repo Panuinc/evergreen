@@ -141,7 +141,7 @@ export default function SoftwareView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={item.isActive}
                   onValueChange={() => toggleActive(item)}
                 />

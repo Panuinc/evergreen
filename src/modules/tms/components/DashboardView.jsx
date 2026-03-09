@@ -141,12 +141,12 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
             <p className="text-sm font-light">AI วิเคราะห์ระบบขนส่ง</p>
-            <Chip size="sm" variant="flat" color="secondary">TMS Advisor</Chip>
+            <Chip size="md" variant="flat" color="secondary">TMS Advisor</Chip>
           </div>
           <Button
             variant={aiAnalysis ? "bordered" : "solid"}
             color="primary"
-            size="sm"
+            size="md"
             isLoading={aiLoading}
             isDisabled={!stats || aiLoading}
             onPress={runAiAnalysis}

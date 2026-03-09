@@ -127,7 +127,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
               <div className="flex items-center gap-2">
                 <Facebook size={18} className="text-blue-500" />
                 <span className="font-light">Facebook Messenger</span>
-                <Chip size="sm" variant="flat" color={fbToken ? "success" : "default"}>
+                <Chip size="md" variant="flat" color={fbToken ? "success" : "default"}>
                   {fbToken ? "เปิดใช้งาน" : "ปิดใช้งาน"}
                 </Chip>
               </div>
@@ -159,7 +159,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
               <div className="flex items-center gap-2">
                 <span className="text-green-500 font-light text-sm">LINE</span>
                 <span className="font-light">LINE Official Account</span>
-                <Chip size="sm" variant="flat" color={lineToken ? "success" : "default"}>
+                <Chip size="md" variant="flat" color={lineToken ? "success" : "default"}>
                   {lineToken ? "เปิดใช้งาน" : "ปิดใช้งาน"}
                 </Chip>
               </div>

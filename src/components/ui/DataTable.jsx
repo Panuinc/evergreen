@@ -476,7 +476,7 @@ export default function DataTable({
                   <div className="flex items-center justify-center">
                     <Dropdown>
                       <DropdownTrigger>
-                        <Button variant="light" size="sm" isIconOnly>
+                        <Button variant="light" size="md" isIconOnly>
                           <EllipsisVertical />
                         </Button>
                       </DropdownTrigger>

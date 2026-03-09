@@ -442,7 +442,7 @@ function KeyResultRow({ kr, editable, onOpenCheckin, onOpenKrForm, onDeleteKr })
           <Progress
             value={progress}
             className="flex-1 max-w-xs"
-            size="sm"
+            size="md"
             color={progress >= 70 ? "success" : progress >= 40 ? "warning" : "danger"}
           />
           <span className="text-sm text-muted-foreground">{displayValue}</span>

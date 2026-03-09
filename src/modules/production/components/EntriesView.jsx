@@ -148,7 +148,7 @@ export default function EntriesView({ data, loading }) {
       case "bcItemLedgerEntryEntryType":
         return row.bcItemLedgerEntryEntryType ? (
           <Chip
-            size="sm"
+            size="md"
             variant="flat"
             color={entryTypeColorMap[row.bcItemLedgerEntryEntryType] || "default"}
           >

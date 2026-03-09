@@ -53,7 +53,7 @@ function MarginChip({ margin }) {
   if (margin == null) return <span className="text-muted-foreground">-</span>;
   const color = margin >= 20 ? "success" : margin >= 0 ? "warning" : "danger";
   return (
-    <Chip size="sm" color={color} variant="flat">
+    <Chip size="md" color={color} variant="flat">
       {margin}%
     </Chip>
   );
@@ -130,7 +130,7 @@ export default function ProfitByProjectSection({ data = [] }) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <Input
-          size="sm"
+          size="md"
           className="max-w-xs"
           placeholder="ค้นหาโครงการ..."
           startContent={<Search className="w-4 h-4 text-muted-foreground" />}
@@ -197,7 +197,7 @@ export default function ProfitByProjectSection({ data = [] }) {
             total={totalPages}
             page={page}
             onChange={setPage}
-            size="sm"
+            size="md"
             showControls
           />
         </div>

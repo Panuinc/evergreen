@@ -77,7 +77,7 @@ export default function MainLayout({ children }) {
         isOpen={isMobileNavOpen}
         onClose={closeMobileNav}
         placement="left"
-        size="sm"
+        size="md"
         hideCloseButton
       >
         <DrawerContent>

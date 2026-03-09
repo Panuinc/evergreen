@@ -59,7 +59,7 @@ export default function FinancePeriodSelector({
     <div className="flex flex-wrap items-center gap-3">
       {/* Period Type Tabs */}
       <Tabs
-        size="sm"
+        size="md"
         variant="bordered"
         selectedKey={periodType}
         onSelectionChange={onPeriodTypeChange}
@@ -71,7 +71,7 @@ export default function FinancePeriodSelector({
 
       {/* Year selector (always visible) */}
       <Select
-        size="sm"
+        size="md"
         variant="bordered"
         className="w-40"
         aria-label="เลือกปี"
@@ -89,7 +89,7 @@ export default function FinancePeriodSelector({
       {/* Quarter selector */}
       {periodType === "quarter" && (
         <Select
-          size="sm"
+          size="md"
           variant="bordered"
           className="w-48"
           aria-label="เลือกไตรมาส"
@@ -108,7 +108,7 @@ export default function FinancePeriodSelector({
       {/* Month selector */}
       {periodType === "month" && (
         <Select
-          size="sm"
+          size="md"
           variant="bordered"
           className="w-44"
           aria-label="เลือกเดือน"
@@ -126,7 +126,7 @@ export default function FinancePeriodSelector({
 
       {/* Compare toggle */}
       <Tabs
-        size="sm"
+        size="md"
         variant="bordered"
         selectedKey={compareEnabled ? "on" : "off"}
         onSelectionChange={(key) => onCompareToggle(key === "on")}

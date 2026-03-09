@@ -100,9 +100,9 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <p className="text-sm font-light">รายละเอียดรายได้</p>
-            <Chip size="sm" variant="flat" color="success">ปี {beYear}</Chip>
+            <Chip size="md" variant="flat" color="success">ปี {beYear}</Chip>
           </div>
-          <Button size="sm" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
+          <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
             Export Excel
           </Button>
         </CardHeader>

@@ -138,7 +138,7 @@ export default function RolesView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={role.isActive}
                   onValueChange={() => toggleActive(role)}
                 />

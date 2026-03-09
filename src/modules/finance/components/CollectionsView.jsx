@@ -144,11 +144,11 @@ export default function CollectionsView({
         return <span className="text-danger">{fmt(item.period3)}</span>;
       case "lastStatus":
         return item.lastStatus
-          ? <Chip size="sm" variant="flat" color={statusColor(item.lastStatus)}>{statusLabel(item.lastStatus)}</Chip>
-          : <Chip size="sm" variant="flat" color="default">ยังไม่ติดตาม</Chip>;
+          ? <Chip size="md" variant="flat" color={statusColor(item.lastStatus)}>{statusLabel(item.lastStatus)}</Chip>
+          : <Chip size="md" variant="flat" color="default">ยังไม่ติดตาม</Chip>;
       case "lastReason":
         return item.lastReason
-          ? <Chip size="sm" variant="flat" color={reasonColor(item.lastReason)}>{reasonLabel(item.lastReason)}</Chip>
+          ? <Chip size="md" variant="flat" color={reasonColor(item.lastReason)}>{reasonLabel(item.lastReason)}</Chip>
           : <span className="text-muted-foreground">-</span>;
       case "lastContactDate":
         return <span>{item.lastContactDate ? fmtDate(item.lastContactDate) : "-"}</span>;
@@ -166,10 +166,10 @@ export default function CollectionsView({
       case "actions":
         return (
           <div className="flex gap-1">
-            <Button isIconOnly size="sm" variant="flat" color="primary" onPress={() => onOpenAdd(item)} title="เพิ่มการติดตาม">
+            <Button isIconOnly size="md" variant="flat" color="primary" onPress={() => onOpenAdd(item)} title="เพิ่มการติดตาม">
               <Plus size={14} />
             </Button>
-            <Button isIconOnly size="sm" variant="flat" color="default" onPress={() => onOpenHistory(item)} title="ดูประวัติ" isDisabled={!item.followUpCount}>
+            <Button isIconOnly size="md" variant="flat" color="default" onPress={() => onOpenHistory(item)} title="ดูประวัติ" isDisabled={!item.followUpCount}>
               <History size={14} />
             </Button>
           </div>
@@ -207,13 +207,13 @@ export default function CollectionsView({
       case "contactMethod":
         return <span>{contactLabel(item.contactMethod)}</span>;
       case "reason":
-        return <Chip size="sm" variant="flat" color={reasonColor(item.reason)}>{reasonLabel(item.reason)}</Chip>;
+        return <Chip size="md" variant="flat" color={reasonColor(item.reason)}>{reasonLabel(item.reason)}</Chip>;
       case "reasonDetail":
         return <span className="text-foreground line-clamp-2">{item.reasonDetail || "-"}</span>;
       case "note":
         return <span className="text-foreground line-clamp-2">{item.note || "-"}</span>;
       case "status":
-        return <Chip size="sm" variant="flat" color={statusColor(item.status)}>{statusLabel(item.status)}</Chip>;
+        return <Chip size="md" variant="flat" color={statusColor(item.status)}>{statusLabel(item.status)}</Chip>;
       case "promiseDate":
         return <span>{item.promiseDate ? fmtDate(item.promiseDate) : "-"}</span>;
       case "promiseAmount":
@@ -236,7 +236,7 @@ export default function CollectionsView({
               <Phone size={16} />
               <span>ติดตามลูกหนี้</span>
               {kpis.uncontacted > 0 && (
-                <Chip size="sm" color="danger" variant="solid">{kpis.uncontacted}</Chip>
+                <Chip size="md" color="danger" variant="solid">{kpis.uncontacted}</Chip>
               )}
             </div>
           }
@@ -283,7 +283,7 @@ export default function CollectionsView({
             <Input
               type="date"
               label="ตั้งแต่"
-              size="sm"
+              size="md"
               className="w-40"
               value={reportSince}
               onChange={(e) => onReportSinceChange(e.target.value)}
@@ -291,14 +291,14 @@ export default function CollectionsView({
             <Input
               type="date"
               label="ถึง"
-              size="sm"
+              size="md"
               className="w-40"
               value={reportUntil}
               onChange={(e) => onReportUntilChange(e.target.value)}
             />
             <Button
               variant="flat"
-              size="sm"
+              size="md"
               startContent={<Download size={14} />}
               onPress={() => exportCSV(reportData.filtered, `ar-collections-${reportSince}-${reportUntil}.csv`)}
               isDisabled={!reportData.filtered.length}
@@ -307,7 +307,7 @@ export default function CollectionsView({
             </Button>
             <Button
               variant="light"
-              size="sm"
+              size="md"
               startContent={<RefreshCw size={14} />}
               onPress={onReload}
             >
@@ -397,12 +397,12 @@ export default function CollectionsView({
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
             <p className="text-sm font-light">AI วิเคราะห์การติดตามลูกหนี้</p>
-            <Chip size="sm" variant="flat" color="secondary">Collections Advisor</Chip>
+            <Chip size="md" variant="flat" color="secondary">Collections Advisor</Chip>
           </div>
           <Button
             variant={aiAnalysis ? "bordered" : "solid"}
             color="primary"
-            size="sm"
+            size="md"
             isLoading={aiLoading}
             isDisabled={!mergedData?.length || aiLoading}
             onPress={runAiAnalysis}
@@ -585,13 +585,13 @@ export default function CollectionsView({
                     <CardBody className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">
-                          <Chip size="sm" variant="flat" color={statusColor(fu.status)}>{statusLabel(fu.status)}</Chip>
-                          <Chip size="sm" variant="flat" color={reasonColor(fu.reason)}>{reasonLabel(fu.reason)}</Chip>
+                          <Chip size="md" variant="flat" color={statusColor(fu.status)}>{statusLabel(fu.status)}</Chip>
+                          <Chip size="md" variant="flat" color={reasonColor(fu.reason)}>{reasonLabel(fu.reason)}</Chip>
                           <span className="text-muted-foreground">{contactLabel(fu.contactMethod)}</span>
                         </div>
                         <div className="text-right">
                           <p className="font-light">{fmtDate(fu.contactDate)}</p>
-                          {idx === 0 && <Chip size="sm" variant="flat" color="primary" className="mt-1">ล่าสุด</Chip>}
+                          {idx === 0 && <Chip size="md" variant="flat" color="primary" className="mt-1">ล่าสุด</Chip>}
                         </div>
                       </div>
                       {fu.reasonDetail && (

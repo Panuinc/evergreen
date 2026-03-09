@@ -115,7 +115,7 @@ export default function EmployeesView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={emp.isActive}
                   onValueChange={() => toggleActive(emp)}
                 />

@@ -120,7 +120,7 @@ export default function PositionsView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={pos.isActive}
                   onValueChange={() => toggleActive(pos)}
                 />

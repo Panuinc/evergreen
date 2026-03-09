@@ -836,7 +836,7 @@ function ProgressPanel({ nominations }) {
           return (
             <div key={item.reviewee?.hrEmployeeId} className="flex items-center gap-3">
               <span className="text-sm min-w-[150px]">{name}</span>
-              <Progress value={pct} className="flex-1" color={pct === 100 ? "success" : "primary"} size="sm" />
+              <Progress value={pct} className="flex-1" color={pct === 100 ? "success" : "primary"} size="md" />
               <span className="text-sm text-muted-foreground min-w-[60px] text-right">{item.completed}/{item.total}</span>
             </div>
           );
@@ -1045,7 +1045,7 @@ function ReviewModal({
           </div>
         </ModalHeader>
         <ModalBody>
-          <Progress value={progress} color="primary" size="sm" className="mb-4" />
+          <Progress value={progress} color="primary" size="md" className="mb-4" />
           <p className="text-sm text-muted-foreground mb-4">{answeredQ}/{totalQ} ข้อ</p>
 
           <Accordion selectionMode="multiple" defaultExpandedKeys={reviewCompetencies.map((c) => c.perf360CompetencyId)}>

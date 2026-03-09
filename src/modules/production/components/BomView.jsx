@@ -2354,7 +2354,7 @@ const UIDoorBom = ({
                 return (
                   <Chip
                     key={i}
-                    size="sm"
+                    size="md"
                     variant={isActive ? "solid" : "flat"}
                     color={isApplied ? "success" : isActive ? "primary" : "default"}
                     className="cursor-pointer text-[12px] font-light"
@@ -2368,7 +2368,7 @@ const UIDoorBom = ({
                 );
               })}
               <Button
-                size="sm" variant="light" color="default"
+                size="md" variant="light" color="default"
                 className="ml-auto text-[11px] h-6 min-w-0 px-2"
                 onPress={bomAI.dismissPendingDoors}
               >
@@ -2379,7 +2379,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   1
                 </Chip>
                 <span className="font-light text-sm">📝 ข้อมูลลูกค้า</span>
@@ -2393,7 +2393,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="กรอก PO"
                   variant="flat"
-                  size="sm"
+                  size="md"
                   value={customerPO}
                   onChange={(e) => setCustomerPO(e.target.value)}
                 />
@@ -2404,7 +2404,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="กรอกจำนวน"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   value={orderQty}
                   onChange={(e) => setOrderQty(e.target.value)}
                 />
@@ -2414,7 +2414,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="กรอกประเภท"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   value={doorType}
                   onChange={(e) => setDoorType(e.target.value)}
                 />
@@ -2427,7 +2427,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="หนา"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   value={doorThickness}
                   onChange={(e) => setDoorThickness(e.target.value)}
                 />
@@ -2438,7 +2438,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="กว้าง"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   value={doorWidth}
                   onChange={(e) => setDoorWidth(e.target.value)}
                 />
@@ -2449,7 +2449,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="สูง"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   value={doorHeight}
                   onChange={(e) => setDoorHeight(e.target.value)}
                 />
@@ -2457,7 +2457,7 @@ const UIDoorBom = ({
               <Chip
                 color="default"
                 variant="flat"
-                size="sm"
+                size="md"
                 className="w-full justify-center"
               >
                 สเปค: {formatDimension(doorThickness, doorWidth, doorHeight)}{" "}
@@ -2469,7 +2469,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   2
                 </Chip>
                 <span className="font-light text-sm">🎨 วัสดุผิว</span>
@@ -2483,7 +2483,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="กรอกประเภทวัสดุ"
                   variant="flat"
-                  size="sm"
+                  size="md"
                   value={surfaceMaterial}
                   onChange={(e) => setSurfaceMaterial(e.target.value)}
                 />
@@ -2494,7 +2494,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="หนา"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   value={surfaceThickness}
                   onChange={(e) => setSurfaceThickness(e.target.value)}
                 />
@@ -2505,7 +2505,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="ราคา"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   value={surfacePrice}
                   onChange={(e) => setSurfacePrice(e.target.value)}
                 />
@@ -2549,7 +2549,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   3
                 </Chip>
                 <span className="font-light text-sm">🪵 กรอบไม้ (ERP)</span>
@@ -2592,12 +2592,12 @@ const UIDoorBom = ({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 flex-wrap">
                             {isSelected && (
-                              <Chip color="primary" variant="solid" size="sm">
+                              <Chip color="primary" variant="solid" size="md">
                                 เลือก
                               </Chip>
                             )}
                             {isRecommended && (
-                              <Chip color="success" variant="flat" size="sm">
+                              <Chip color="success" variant="flat" size="md">
                                 💰 ถูกที่สุด
                               </Chip>
                             )}
@@ -2620,17 +2620,17 @@ const UIDoorBom = ({
                         </div>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {f.isFlipped && (
-                            <Chip color="warning" variant="flat" size="sm">
+                            <Chip color="warning" variant="flat" size="md">
                               พลิก
                             </Chip>
                           )}
                           {f.planeAmount > 0 && (
-                            <Chip color="secondary" variant="flat" size="sm">
+                            <Chip color="secondary" variant="flat" size="md">
                               ไส {f.planeAmount} มม.
                             </Chip>
                           )}
                           {f.needSplice && (
-                            <Chip color="danger" variant="flat" size="sm">
+                            <Chip color="danger" variant="flat" size="md">
                               ต่อ {f.spliceCount} ชิ้น
                             </Chip>
                           )}
@@ -2639,7 +2639,7 @@ const UIDoorBom = ({
                           <div className="mt-2">
                             <Select
                               label="เลือกขนาดอื่น"
-                              size="sm"
+                              size="md"
                               variant="flat"
                               selectedKeys={
                                 selectedFrameCode ? [selectedFrameCode] : []
@@ -2678,7 +2678,7 @@ const UIDoorBom = ({
                       <span className="text-[12px] font-light text-success-700">
                         💡 พบตัวเลือกที่ถูกกว่า
                       </span>
-                      <Chip color="success" variant="flat" size="sm">
+                      <Chip color="success" variant="flat" size="md">
                         ประหยัด ฿
                         {frameLengthOptions.potentialSavings.toLocaleString(
                           undefined,
@@ -2712,7 +2712,7 @@ const UIDoorBom = ({
                       </div>
                     </div>
                     <Button
-                      size="sm"
+                      size="md"
                       color="success"
                       variant="flat"
                       onPress={() =>
@@ -2752,7 +2752,7 @@ const UIDoorBom = ({
                 labelPlacement="outside"
                 placeholder="กรุณาเลือก"
                 variant="flat"
-                size="sm"
+                size="md"
                 selectedKeys={doubleFrameCount ? [doubleFrameCount] : []}
                 onSelectionChange={(keys) =>
                   setDoubleFrameCount([...keys][0] || "")
@@ -2774,7 +2774,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   4
                 </Chip>
                 <span className="font-light text-sm">➖ คานขวาง</span>
@@ -2861,7 +2861,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   5
                 </Chip>
                 <span className="font-light text-sm">🔒 บล็อกล็อค</span>
@@ -2875,7 +2875,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="กรุณาเลือก"
                   variant="flat"
-                  size="sm"
+                  size="md"
                   selectedKeys={
                     lockBlockPiecesPerSide ? [lockBlockPiecesPerSide] : []
                   }
@@ -2893,7 +2893,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="กรุณาเลือก"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   selectedKeys={lockBlockPosition ? [lockBlockPosition] : []}
                   onSelectionChange={(keys) =>
                     setLockBlockPosition([...keys][0] || "")
@@ -2953,7 +2953,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   6
                 </Chip>
                 <span className="font-light text-sm">🧱 วัสดุไส้ประตู</span>
@@ -2966,7 +2966,7 @@ const UIDoorBom = ({
                 labelPlacement="outside"
                 placeholder="กรุณาเลือก"
                 variant="flat"
-                size="sm"
+                size="md"
                 selectedKeys={coreType ? [coreType] : []}
                 onSelectionChange={(keys) => setCoreType([...keys][0] || "")}
               >
@@ -2982,7 +2982,7 @@ const UIDoorBom = ({
                   labelPlacement="outside"
                   placeholder="กรุณาเลือก"
                   variant="bordered"
-                  size="sm"
+                  size="md"
                   selectedKeys={selectedCoreCode ? [selectedCoreCode] : []}
                   onSelectionChange={(keys) =>
                     setSelectedCoreCode([...keys][0] || "")
@@ -3111,7 +3111,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   7
                 </Chip>
                 <span className="font-light text-sm">📐 การทำขอบประตู</span>
@@ -3123,7 +3123,7 @@ const UIDoorBom = ({
                 <Switch
                   isSelected={edgeBanding}
                   onValueChange={setEdgeBanding}
-                  size="sm"
+                  size="md"
                 />
               </div>
 
@@ -3193,7 +3193,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   8
                 </Chip>
                 <span className="font-light text-sm">🔩 เจาะใส่อุปกรณ์</span>
@@ -3205,7 +3205,7 @@ const UIDoorBom = ({
                 <Switch
                   isSelected={drilling}
                   onValueChange={setDrilling}
-                  size="sm"
+                  size="md"
                 />
               </div>
 
@@ -3234,7 +3234,7 @@ const UIDoorBom = ({
                             [key]: { ...prev[key], checked: val },
                           }))
                         }
-                        size="sm"
+                        size="md"
                       />
                       <span className="text-[13px] font-light min-w-[60px]">
                         {label}
@@ -3247,7 +3247,7 @@ const UIDoorBom = ({
                           placeholder="0"
                           color="default"
                           variant="flat"
-                          size="sm"
+                          size="md"
                           radius="md"
                           className="max-w-[150px]"
                           value={drillItems[key].price}
@@ -3321,7 +3321,7 @@ const UIDoorBom = ({
           <Card shadow="none" className="w-full border border-border">
             <CardHeader className="border-b border-border bg-default-50">
               <div className="flex items-center gap-2">
-                <Chip color="default" variant="flat" size="sm">
+                <Chip color="default" variant="flat" size="md">
                   9
                 </Chip>
                 <span className="font-light text-sm">💰 สรุปราคา</span>
@@ -3446,7 +3446,7 @@ const UIDoorBom = ({
                   <Input
                     type="number"
                     placeholder="กรอกกำไร (บาท)"
-                    size="sm"
+                    size="md"
                     variant="flat"
                     className="max-w-[140px]"
                     value={customMargin}
@@ -3469,7 +3469,7 @@ const UIDoorBom = ({
                       รวมทั้งหมด ({priceSummary.qty} บาน)
                     </span>
                     {priceSummary.frameSavings > 0 && (
-                      <Chip color="success" variant="flat" size="sm">
+                      <Chip color="success" variant="flat" size="md">
                         ✂️ ประหยัดไม้ ฿
                         {priceSummary.frameSavings.toLocaleString(undefined, {
                           maximumFractionDigits: 0,
@@ -3986,7 +3986,7 @@ const UIDoorBom = ({
                         <Progress
                           value={parseFloat(batchEfficiency)}
                           color={getEfficiencyColor(batchEfficiency)}
-                          size="sm"
+                          size="md"
                         />
                       </div>
                     </div>

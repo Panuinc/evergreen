@@ -163,7 +163,7 @@ export default function DevelopmentView({
           return (
             <div className="flex items-center gap-2 min-w-[120px]">
               <Progress
-                size="sm"
+                size="md"
                 value={progress}
                 color={color}
                 className="flex-1"
@@ -231,7 +231,7 @@ export default function DevelopmentView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={item.isActive}
                   onValueChange={() => toggleActive(item)}
                 />
@@ -606,7 +606,7 @@ export default function DevelopmentView({
                           </p>
                           <div className="flex items-center gap-2 mt-2">
                             <Progress
-                              size="sm"
+                              size="md"
                               value={log.itDevProgressLogProgress || 0}
                               color={
                                 (log.itDevProgressLogProgress || 0) >= 100

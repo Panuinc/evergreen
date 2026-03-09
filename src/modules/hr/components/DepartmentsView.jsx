@@ -116,7 +116,7 @@ export default function DepartmentsView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={dept.isActive}
                   onValueChange={() => toggleActive(dept)}
                 />

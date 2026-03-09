@@ -39,7 +39,7 @@ export default function AiFeedbackPanel({
 
           <div className="flex items-center gap-2">
             {isStale && (
-              <Chip size="sm" color="warning" variant="flat">
+              <Chip size="md" color="warning" variant="flat">
                 คะแนนมีการเปลี่ยนแปลง
               </Chip>
             )}
@@ -96,7 +96,7 @@ export default function AiFeedbackPanel({
                 {feedback.strengths?.map((s, i) => (
                   <div key={i} className="bg-success-50 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <Chip size="sm" color="success" variant="flat">
+                      <Chip size="md" color="success" variant="flat">
                         {s.categoryName}
                       </Chip>
                       <span className="text-sm text-muted-foreground">
@@ -117,7 +117,7 @@ export default function AiFeedbackPanel({
                 {feedback.weaknesses?.map((w, i) => (
                   <div key={i} className="bg-warning-50 rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <Chip size="sm" color="warning" variant="flat">
+                      <Chip size="md" color="warning" variant="flat">
                         {w.categoryName}
                       </Chip>
                       <span className="text-sm text-muted-foreground">
@@ -144,7 +144,7 @@ export default function AiFeedbackPanel({
                     key={i}
                     title={
                       <div className="flex items-center gap-2 text-sm">
-                        <Chip size="sm" variant="flat" color="primary">
+                        <Chip size="md" variant="flat" color="primary">
                           #{rec.priority}
                         </Chip>
                         <span>{rec.title}</span>
@@ -180,7 +180,7 @@ export default function AiFeedbackPanel({
                     >
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-light flex-1">{course.title}</p>
-                        <Chip size="sm" variant="flat" color={typeInfo.color}>
+                        <Chip size="md" variant="flat" color={typeInfo.color}>
                           {typeInfo.label}
                         </Chip>
                       </div>

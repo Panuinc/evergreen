@@ -97,7 +97,7 @@ export default function ChatWindow({
             </span>
             <ChannelBadge channelType={conversation?.omConversationChannelType} />
             <Chip
-              size="sm"
+              size="md"
               color={STATUS_COLORS[conversation?.omConversationStatus] || "default"}
               variant="flat"
             >
@@ -110,7 +110,7 @@ export default function ChatWindow({
             <div className="flex items-center gap-1 px-2">
               <Bot size={14} className="text-secondary" />
               <Switch
-                size="sm"
+                size="md"
                 color="secondary"
                 isSelected={conversation?.omConversationAiAutoReply || false}
                 onValueChange={(val) => onToggleAiAutoReply(conversation.omConversationId, val)}
@@ -268,7 +268,7 @@ export default function ChatWindow({
       />
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="sm">
+      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose} size="md">
         <ModalContent>
           <ModalHeader>ยืนยันการลบ</ModalHeader>
           <ModalBody>

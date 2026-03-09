@@ -313,7 +313,7 @@ function EvaluateTab({
             <Progress
               value={progress}
               color={progress === 100 ? "success" : "primary"}
-              size="sm"
+              size="md"
             />
             {overallScore > 0 && (
               <div className="flex items-center gap-3 mt-3">
@@ -374,7 +374,7 @@ function EvaluateTab({
                         onValueChange={(val) =>
                           onSetScore(cat.key, qIdx, parseInt(val))
                         }
-                        size="sm"
+                        size="md"
                       >
                         {[1, 2, 3, 4, 5].map((v) => (
                           <Radio key={v} value={String(v)}>

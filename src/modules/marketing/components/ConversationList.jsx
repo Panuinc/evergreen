@@ -68,7 +68,7 @@ export default function ConversationList({
           {STATUS_FILTERS.map((f) => (
             <Chip
               key={f.key}
-              size="sm"
+              size="md"
               variant={statusFilter === f.key ? "solid" : "bordered"}
               className="cursor-pointer"
               onClick={() => onStatusFilterChange(f.key)}
@@ -81,7 +81,7 @@ export default function ConversationList({
           {CHANNEL_FILTERS.map((f) => (
             <Chip
               key={f.key}
-              size="sm"
+              size="md"
               variant={channelFilter === f.key ? "solid" : "bordered"}
               className="cursor-pointer"
               onClick={() => onChannelFilterChange(f.key)}
@@ -117,7 +117,7 @@ export default function ConversationList({
                 <Avatar
                   src={contact?.omContactAvatarUrl}
                   name={contact?.omContactDisplayName?.charAt(0) || "?"}
-                  size="sm"
+                  size="md"
                   className="flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
@@ -136,7 +136,7 @@ export default function ConversationList({
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <ChannelBadge channelType={conv.omConversationChannelType} />
                       {conv.omConversationUnreadCount > 0 && (
-                        <Chip size="sm" color="danger" variant="solid" className="min-w-5 h-5 text-[10px]">
+                        <Chip size="md" color="danger" variant="solid" className="min-w-5 h-5 text-[10px]">
                           {conv.omConversationUnreadCount}
                         </Chip>
                       )}

@@ -58,7 +58,7 @@ export default function SignInPinForm({
       </div>
 
       <div className="flex items-center justify-center w-10/12 h-fit p-2 gap-2">
-        <Button variant="light" size="sm" onPress={onSwitchToPassword}>
+        <Button variant="light" size="md" onPress={onSwitchToPassword}>
           ลงชื่อเข้าใช้ด้วยรหัสผ่านแทน
         </Button>
       </div>

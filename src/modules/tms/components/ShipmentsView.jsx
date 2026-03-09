@@ -257,7 +257,7 @@ export default function ShipmentsView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={item.isActive}
                   onValueChange={() => toggleActive(item)}
                 />
@@ -377,7 +377,7 @@ export default function ShipmentsView({
                             key={pid}
                             variant="flat"
                             color={pColor}
-                            size="sm"
+                            size="md"
                             onClose={() => togglePlanSelection(pid)}
                             endContent={<X size={12} />}
                           >
@@ -395,7 +395,7 @@ export default function ShipmentsView({
                         <p className="text-sm text-muted-foreground">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
                         <Button
                           variant="flat"
-                          size="sm"
+                          size="md"
                           radius="md"
                           color="secondary"
                           startContent={<Route size={14} />}
@@ -422,7 +422,7 @@ export default function ShipmentsView({
                                 <span className="text-muted-foreground">→</span>
                                 <span className="font-light">{stop.name}</span>
                                 {stop.priority !== "normal" && (
-                                  <Chip size="sm" variant="flat" color={stop.priority === "urgent" ? "danger" : "warning"} className="h-4" />
+                                  <Chip size="md" variant="flat" color={stop.priority === "urgent" ? "danger" : "warning"} className="h-4" />
                                 )}
                               </span>
                             ))}
@@ -499,7 +499,7 @@ export default function ShipmentsView({
                                   <td className="px-3 py-2 text-muted-foreground">{stop.soRef || "-"}</td>
                                   <td className="text-center px-2 py-2">
                                     {stop.priority !== "normal" ? (
-                                      <Chip size="sm" variant="flat" color={pColor}>
+                                      <Chip size="md" variant="flat" color={pColor}>
                                         {stop.priority === "urgent" ? "ด่วนมาก" : "ด่วน"}
                                       </Chip>
                                     ) : (
@@ -569,7 +569,7 @@ export default function ShipmentsView({
                     {(formData.tmsShipmentAssistants || []).length < 3 && (
                       <Button
                         variant="bordered"
-                        size="sm"
+                        size="md"
                         radius="md"
                         onPress={() => updateField("tmsShipmentAssistants", [...(formData.tmsShipmentAssistants || []), { id: "", wage: "" }])}
                       >
@@ -635,7 +635,7 @@ export default function ShipmentsView({
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-light">รายการพิเศษ</p>
-                    <Button variant="bordered" size="sm" radius="md" onPress={addExtra}>
+                    <Button variant="bordered" size="md" radius="md" onPress={addExtra}>
                       + เพิ่มรายการ
                     </Button>
                   </div>
@@ -665,7 +665,7 @@ export default function ShipmentsView({
                               <tr key={idx} className="border-t border-border">
                                 <td className="px-1 py-1">
                                   <Select
-                                    size="sm" variant="bordered" radius="md" aria-label="คน"
+                                    size="md" variant="bordered" radius="md" aria-label="คน"
                                     selectedKeys={ex.person ? [ex.person] : []}
                                     onSelectionChange={(keys) => updateExtra(idx, "person", Array.from(keys)[0] || "driver")}
                                   >
@@ -674,7 +674,7 @@ export default function ShipmentsView({
                                 </td>
                                 <td className="px-1 py-1">
                                   <Select
-                                    size="sm" variant="bordered" radius="md" aria-label="ประเภท"
+                                    size="md" variant="bordered" radius="md" aria-label="ประเภท"
                                     selectedKeys={ex.type ? [ex.type] : []}
                                     onSelectionChange={(keys) => updateExtra(idx, "type", Array.from(keys)[0] || "ot")}
                                   >
@@ -686,7 +686,7 @@ export default function ShipmentsView({
                                 <td className="px-1 py-1">
                                   {ex.type === "ot" ? (
                                     <Input
-                                      type="number" size="sm" variant="bordered" radius="md"
+                                      type="number" size="md" variant="bordered" radius="md"
                                       min={0} value={String(ex.hours || "")}
                                       onChange={(e) => updateExtra(idx, "hours", e.target.value)}
                                       classNames={{ input: "text-center" }}
@@ -696,7 +696,7 @@ export default function ShipmentsView({
                                 <td className="px-1 py-1">
                                   {ex.type === "ot" ? (
                                     <Input
-                                      type="number" size="sm" variant="bordered" radius="md"
+                                      type="number" size="md" variant="bordered" radius="md"
                                       min={0} step={0.5} value={String(ex.rate || "1.5")}
                                       onChange={(e) => updateExtra(idx, "rate", e.target.value)}
                                       classNames={{ input: "text-center" }}
@@ -706,7 +706,7 @@ export default function ShipmentsView({
                                 <td className="px-1 py-1">
                                   {ex.type === "other" ? (
                                     <Input
-                                      size="sm" variant="bordered" radius="md"
+                                      size="md" variant="bordered" radius="md"
                                       placeholder="ระบุรายละเอียด"
                                       value={ex.label || ""}
                                       onChange={(e) => updateExtra(idx, "label", e.target.value)}
@@ -720,7 +720,7 @@ export default function ShipmentsView({
                                     </span>
                                   ) : (
                                     <Input
-                                      type="number" size="sm" variant="bordered" radius="md"
+                                      type="number" size="md" variant="bordered" radius="md"
                                       min={0} value={String(ex.amount || "")}
                                       onChange={(e) => updateExtra(idx, "amount", e.target.value)}
                                       classNames={{ input: "text-right" }}
@@ -728,7 +728,7 @@ export default function ShipmentsView({
                                   )}
                                 </td>
                                 <td className="px-1 py-1">
-                                  <Button size="sm" variant="light" isIconOnly onPress={() => removeExtra(idx)}>
+                                  <Button size="md" variant="light" isIconOnly onPress={() => removeExtra(idx)}>
                                     <Trash2 size={14} />
                                   </Button>
                                 </td>
@@ -832,7 +832,7 @@ export default function ShipmentsView({
                                 <td className="text-center px-1 py-1">
                                   <Input
                                     type="number"
-                                    size="sm"
+                                    size="md"
                                     variant="bordered"
                                     radius="md"
                                     min={0}
@@ -844,7 +844,7 @@ export default function ShipmentsView({
                                 </td>
                                 <td className="text-center px-3 py-2">
                                   <Chip
-                                    size="sm"
+                                    size="md"
                                     variant="flat"
                                     color={pct >= 100 ? "success" : pct >= 50 ? "warning" : "danger"}
                                   >
@@ -866,7 +866,7 @@ export default function ShipmentsView({
                                 const totalActual = shipmentItems.reduce((s, i) => s + i.actualQty, 0);
                                 const totalPct = totalPlan > 0 ? Math.round((totalActual / totalPlan) * 100) : 0;
                                 return (
-                                  <Chip size="sm" variant="flat" color={totalPct >= 100 ? "success" : totalPct >= 50 ? "warning" : "danger"}>
+                                  <Chip size="md" variant="flat" color={totalPct >= 100 ? "success" : totalPct >= 50 ? "warning" : "danger"}>
                                     {totalPct}%
                                   </Chip>
                                 );

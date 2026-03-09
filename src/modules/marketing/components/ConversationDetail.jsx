@@ -48,7 +48,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-border">
         <span className="font-light">รายละเอียด</span>
-        <Button isIconOnly variant="light" size="sm" radius="md" onPress={onClose}>
+        <Button isIconOnly variant="light" size="md" radius="md" onPress={onClose}>
           <X size={18} />
         </Button>
       </div>
@@ -73,7 +73,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">สถานะ</span>
-                <Chip size="sm" variant="flat" color={
+                <Chip size="md" variant="flat" color={
                   conversation.omConversationStatus === "open" ? "success" :
                   conversation.omConversationStatus === "waiting" ? "warning" : "default"
                 }>
@@ -93,7 +93,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
               {(contact.omContactTags || []).map((tag) => (
                 <Chip
                   key={tag}
-                  size="sm"
+                  size="md"
                   variant="flat"
                   onClose={() => handleRemoveTag(tag)}
                 >
@@ -174,12 +174,12 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Chip size="sm" variant="flat" color={q.omQuotationStatus === "draft" ? "warning" : "success"}>
+                      <Chip size="md" variant="flat" color={q.omQuotationStatus === "draft" ? "warning" : "success"}>
                         {q.omQuotationStatus === "draft" ? "ร่าง" : q.omQuotationStatus}
                       </Chip>
                       <Button
                         isIconOnly
-                        size="sm"
+                        size="md"
                         variant="light"
                         radius="md"
                         onPress={() => window.open(`/marketing/omnichannel/quotations/${q.omQuotationId}`, "_self")}

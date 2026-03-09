@@ -111,13 +111,13 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
       }
       case "status":
         return (
-          <Chip size="sm" variant="flat" color={statusColorMap[item.status] || "default"}>
+          <Chip size="md" variant="flat" color={statusColorMap[item.status] || "default"}>
             {statusLabelMap[item.status] || item.status}
           </Chip>
         );
       case "actions":
         return (
-          <Button variant="flat" size="sm" isIconOnly onPress={() => openLines(item)}>
+          <Button variant="flat" size="md" isIconOnly onPress={() => openLines(item)}>
             <Eye size={16} />
           </Button>
         );
@@ -176,7 +176,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
                   <TableRow key={line.id || idx}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
-                      <Chip size="sm" variant="flat" color={line.lineType === "Item" ? "primary" : "default"}>
+                      <Chip size="md" variant="flat" color={line.lineType === "Item" ? "primary" : "default"}>
                         {line.lineType}
                       </Chip>
                     </TableCell>

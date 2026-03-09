@@ -64,12 +64,12 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
           value={searchQuery}
           onValueChange={setSearchQuery}
           startContent={<MapPin size={14} className="text-muted-foreground" />}
-          size="sm"
+          size="md"
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           className="flex-1"
         />
         <Button
-          size="sm"
+          size="md"
           variant="flat"
           isIconOnly
           onPress={handleSearch}
@@ -78,7 +78,7 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
           <Search size={14} />
         </Button>
         {(lat || address) && (
-          <Button size="sm" variant="flat" color="danger" isIconOnly onPress={handleClear}>
+          <Button size="md" variant="flat" color="danger" isIconOnly onPress={handleClear}>
             <X size={14} />
           </Button>
         )}

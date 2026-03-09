@@ -466,7 +466,7 @@ function DashboardTab({
                         <Progress
                           value={emp.latestValue != null ? computeKpiProgress(emp.latestValue, emp.targetValue, def.perfKpiDefinitionHigherIsBetter !== false) : 0}
                           color={getKpiStatusColor(emp.status)}
-                          size="sm"
+                          size="md"
                           className="flex-1"
                         />
                         <span className="text-sm min-w-[80px] text-right">

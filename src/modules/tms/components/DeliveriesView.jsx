@@ -260,7 +260,7 @@ export default function DeliveriesView({
                               <td className="text-center px-1 py-1">
                                 <Input
                                   type="number"
-                                  size="sm"
+                                  size="md"
                                   variant="bordered"
                                   radius="md"
                                   min={0}
@@ -273,7 +273,7 @@ export default function DeliveriesView({
                               <td className="text-center px-1 py-1">
                                 <Input
                                   type="number"
-                                  size="sm"
+                                  size="md"
                                   variant="bordered"
                                   radius="md"
                                   min={0}
@@ -287,7 +287,7 @@ export default function DeliveriesView({
                               </td>
                               <td className="px-1 py-1">
                                 <Input
-                                  size="sm"
+                                  size="md"
                                   variant="bordered"
                                   radius="md"
                                   placeholder={hasDiscrepancy ? "ระบุเหตุผล *" : ""}

@@ -216,7 +216,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                     </p>
                     <div className="flex items-center gap-1 mt-1 flex-wrap">
                       <Chip
-                        size="sm"
+                        size="md"
                         color={STATUS_COLORS[p.tmsDeliveryPlanStatus]}
                         variant="flat"
                       >
@@ -224,7 +224,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                       </Chip>
                       {p.tmsDeliveryPlanPriority && p.tmsDeliveryPlanPriority !== "normal" && (
                         <Chip
-                          size="sm"
+                          size="md"
                           color={
                             p.tmsDeliveryPlanPriority === "urgent"
                               ? "danger"
@@ -322,7 +322,7 @@ export default function DeliveryPlanCalendar() {
         <Tabs
           selectedKey={viewMode}
           onSelectionChange={(k) => setViewMode(k)}
-          size="sm"
+          size="md"
           variant="flat"
         >
           <Tab key="month" title="รายเดือน" />
@@ -333,13 +333,13 @@ export default function DeliveryPlanCalendar() {
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="flat" isIconOnly onPress={goToPrev}>
+          <Button size="md" variant="flat" isIconOnly onPress={goToPrev}>
             <ChevronLeft size={16} />
           </Button>
-          <Button size="sm" variant="flat" isIconOnly onPress={goToNext}>
+          <Button size="md" variant="flat" isIconOnly onPress={goToNext}>
             <ChevronRight size={16} />
           </Button>
-          <Button size="sm" variant="flat" onPress={goToToday}>
+          <Button size="md" variant="flat" onPress={goToToday}>
             วันนี้
           </Button>
         </div>

@@ -98,7 +98,7 @@ export default function TrackingView({
                     <p className="font-light text-sm">{vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}</p>
                     <Chip
                       variant="flat"
-                      size="sm"
+                      size="md"
                       color={STATUS_COLORS[vehicle.tmsVehicleStatus] || "default"}
                     >
                       {vehicle.tmsVehicleStatus}

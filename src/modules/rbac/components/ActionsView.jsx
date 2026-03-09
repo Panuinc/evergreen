@@ -107,7 +107,7 @@ export default function ActionsView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={action.isActive}
                   onValueChange={() => toggleActive(action)}
                 />

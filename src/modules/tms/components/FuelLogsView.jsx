@@ -145,7 +145,7 @@ export default function FuelLogsView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={item.isActive}
                   onValueChange={() => toggleActive(item)}
                 />

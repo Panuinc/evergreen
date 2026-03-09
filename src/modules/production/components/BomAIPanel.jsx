@@ -74,7 +74,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
             <span className="text-muted-foreground ml-1">· เหลือ {remainingCount}</span>
           )}
         </span>
-        <Button size="sm" variant="light" color="default" onPress={onDismiss} className="text-[11px] h-6 min-w-0 px-2">
+        <Button size="md" variant="light" color="default" onPress={onDismiss} className="text-[11px] h-6 min-w-0 px-2">
           ปิด
         </Button>
       </div>
@@ -83,7 +83,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
       {doors.length > 1 && (
         <div className="flex items-center gap-1">
           <Button
-            isIconOnly variant="light" size="sm"
+            isIconOnly variant="light" size="md"
             onPress={() => onSelectDoor(Math.max(0, selectedIdx - 1))}
             isDisabled={selectedIdx === 0}
           >
@@ -96,7 +96,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
                 return (
                   <Chip
                     key={i}
-                    size="sm"
+                    size="md"
                     variant={i === selectedIdx ? "solid" : "flat"}
                     color={done ? "success" : i === selectedIdx ? "primary" : "default"}
                     className="cursor-pointer shrink-0 text-[11px]"
@@ -109,7 +109,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
             </div>
           </ScrollShadow>
           <Button
-            isIconOnly variant="light" size="sm"
+            isIconOnly variant="light" size="md"
             onPress={() => onSelectDoor(Math.min(doors.length - 1, selectedIdx + 1))}
             isDisabled={selectedIdx === doors.length - 1}
           >
@@ -151,7 +151,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
                   className={`grid grid-cols-[auto_1fr_1fr] items-center gap-1 px-2 py-1 text-[11px] border-t border-border ${isDiff ? "bg-primary-50/40" : ""}`}
                 >
                   <Checkbox
-                    size="sm"
+                    size="md"
                     isSelected={checkedKeys.includes(key)}
                     onValueChange={() => toggleKey(key)}
                     className="min-w-0"
@@ -172,7 +172,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
 
           {/* Apply action */}
           <Button
-            size="sm" color="primary" variant="solid" fullWidth className="text-[12px]"
+            size="md" color="primary" variant="solid" fullWidth className="text-[12px]"
             startContent={<CheckCheck size={12} />}
             onPress={() => onApply(door, checkedKeys, selectedIdx)}
             isDisabled={checkedKeys.length === 0}
@@ -294,7 +294,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
             </span>
           </div>
           {messages.length > 0 && (
-            <Button isIconOnly variant="light" size="sm" onPress={clearMessages}>
+            <Button isIconOnly variant="light" size="md" onPress={clearMessages}>
               <Trash2 size={13} />
             </Button>
           )}
@@ -329,7 +329,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
               ].map((p) => (
                 <Chip
                   key={p.label}
-                  size="sm"
+                  size="md"
                   variant="flat"
                   color="primary"
                   className="cursor-pointer text-[11px]"
@@ -391,13 +391,13 @@ export default function BomAIPanel({ bomState, bomAI }) {
         {/* Last action badge */}
         {!hasPendingDoors && lastAction && (
           <div className="flex items-center gap-1 flex-wrap">
-            <Chip color="success" variant="flat" size="sm">
+            <Chip color="success" variant="flat" size="md">
               ✓ กรอก {lastAction.count} ฟิลด์
             </Chip>
             {Object.keys(lastAction.fields)
               .filter((k) => APPLY_FIELDS.includes(k))
               .map((k) => (
-                <Chip key={k} color="default" variant="flat" size="sm" className="text-[10px]">
+                <Chip key={k} color="default" variant="flat" size="md" className="text-[10px]">
                   {FIELD_LABELS[k] || k}
                 </Chip>
               ))}
@@ -442,7 +442,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
               <Button
                 isIconOnly
                 variant="flat"
-                size="sm"
+                size="md"
                 color={imagePreview ? "success" : "default"}
                 onPress={() => fileInputRef.current?.click()}
                 title="แนบไฟล์"
@@ -453,7 +453,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
             <Input
               placeholder='พิมพ์ "45×90×200 ไส้โฟม" หรืออัปโหลดไฟล์'
               variant="flat"
-              size="sm"
+              size="md"
               value={input}
               onValueChange={setInput}
               onKeyDown={handleKeyDown}
@@ -463,7 +463,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
             <Button
               isIconOnly
               color="primary"
-              size="sm"
+              size="md"
               onPress={() => handleSend()}
               isLoading={isLoading}
               isDisabled={!input.trim() && !image}

@@ -233,14 +233,14 @@ export default function DeliveryPlanModal({
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Chip
-                        size="sm"
+                        size="md"
                         color={STATUS_COLORS[plan.tmsDeliveryPlanStatus]}
                         variant="flat"
                       >
                         {STATUS_LABELS[plan.tmsDeliveryPlanStatus]}
                       </Chip>
                       <Chip
-                        size="sm"
+                        size="md"
                         color={PRIORITY_COLORS[plan.tmsDeliveryPlanPriority] || "primary"}
                         variant="flat"
                       >
@@ -279,14 +279,14 @@ export default function DeliveryPlanModal({
                   </div>
                   <div className="flex gap-1 items-start">
                     <Button
-                      size="sm"
+                      size="md"
                       variant="flat"
                       onPress={() => onEditPlan(plan)}
                     >
                       แก้ไข
                     </Button>
                     <Button
-                      size="sm"
+                      size="md"
                       variant="flat"
                       color="danger"
                       isIconOnly
@@ -323,14 +323,14 @@ export default function DeliveryPlanModal({
                   {/* Edit mode: show details (read-only) + map */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <Chip
-                      size="sm"
+                      size="md"
                       color={STATUS_COLORS[editingPlan.tmsDeliveryPlanStatus]}
                       variant="flat"
                     >
                       {STATUS_LABELS[editingPlan.tmsDeliveryPlanStatus]}
                     </Chip>
                     <Chip
-                      size="sm"
+                      size="md"
                       color={PRIORITY_COLORS[editingPlan.tmsDeliveryPlanPriority] || "primary"}
                       variant="flat"
                     >
@@ -432,7 +432,7 @@ export default function DeliveryPlanModal({
                       value={soSearch}
                       onValueChange={handleSOSearch}
                       startContent={<Search size={14} />}
-                      size="sm"
+                      size="md"
                     />
                     {soLoading && <Loading />}
                     {!soLoading && salesOrders.length > 0 && !selectedSO && (
@@ -464,7 +464,7 @@ export default function DeliveryPlanModal({
                           </p>
                         </div>
                         <Button
-                          size="sm"
+                          size="md"
                           variant="light"
                           color="danger"
                           isIconOnly
@@ -518,7 +518,7 @@ export default function DeliveryPlanModal({
                             </div>
                             {checkedLines[line.bcSalesOrderLineNo] && (
                               <Input
-                                size="sm"
+                                size="md"
                                 type="number"
                                 label="จำนวนที่ส่ง"
                                 className="w-28"
@@ -556,7 +556,7 @@ export default function DeliveryPlanModal({
                     value={notes}
                     onValueChange={setNotes}
                     minRows={2}
-                    size="sm"
+                    size="md"
                   />
                 </>
               )}

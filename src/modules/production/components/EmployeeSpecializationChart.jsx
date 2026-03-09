@@ -245,7 +245,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
             {/* Specialty Badge */}
             <div className="shrink-0 flex flex-col items-end gap-1">
               <Chip
-                size="sm"
+                size="md"
                 variant={isTop3 ? "solid" : "flat"}
                 color={CHIP_COLORS[(catColorMap[emp.topCategory] ?? 0) % CHIP_COLORS.length]}
                 className={isTop3 ? "shadow-sm" : ""}

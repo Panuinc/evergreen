@@ -123,7 +123,7 @@ export default function AccountsView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={item.isActive}
                   onValueChange={() => toggleActive(item)}
                 />

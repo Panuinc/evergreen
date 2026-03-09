@@ -110,7 +110,7 @@ export default function ResourcesView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={resource.isActive}
                   onValueChange={() => toggleActive(resource)}
                 />

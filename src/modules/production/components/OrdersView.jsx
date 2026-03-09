@@ -120,7 +120,7 @@ export default function OrdersView({ data, loading }) {
       case "bcProductionOrderStatus":
         return row.bcProductionOrderStatus ? (
           <Chip
-            size="sm"
+            size="md"
             variant="flat"
             color={statusColorMap[row.bcProductionOrderStatus] || "default"}
           >
@@ -171,7 +171,7 @@ export default function OrdersView({ data, loading }) {
         if (row.profitMargin == null) return "-";
         return (
           <Chip
-            size="sm"
+            size="md"
             variant="flat"
             color={
               row.profitMargin >= 20

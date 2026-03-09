@@ -78,7 +78,7 @@ export default function SignInPasswordForm({
         {lastEmail && (
           <Button
             variant="light"
-            size="sm"
+            size="md"
             startContent={<KeyRound className="w-4 h-4" />}
             onPress={onSwitchToPin}
           >

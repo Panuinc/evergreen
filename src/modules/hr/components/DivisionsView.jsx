@@ -109,7 +109,7 @@ export default function DivisionsView({
               </Button>
               {isSuperAdmin ? (
                 <Switch
-                  size="sm"
+                  size="md"
                   isSelected={div.isActive}
                   onValueChange={() => toggleActive(div)}
                 />

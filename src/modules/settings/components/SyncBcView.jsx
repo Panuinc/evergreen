@@ -93,7 +93,7 @@ function SyncProgressPanel({ phases }) {
                     aria-label={`${e.key} progress`}
                     value={Math.round((e.done / e.total) * 100)}
                     color="primary"
-                    size="sm"
+                    size="md"
                   />
                 </div>
               )}

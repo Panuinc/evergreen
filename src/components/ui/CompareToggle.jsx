@@ -9,7 +9,7 @@ import { Tabs, Tab } from "@heroui/react";
 export default function CompareToggle({ value, onChange }) {
   return (
     <Tabs
-      size="sm"
+      size="md"
       variant="bordered"
       selectedKey={value || "off"}
       onSelectionChange={(key) => onChange(key === "off" ? null : key)}

@@ -321,7 +321,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
               <p className="text-sm font-light">
                 ความคืบหน้าใบสั่งผลิต (Released)
               </p>
-              <Chip size="sm" color="warning" variant="flat">
+              <Chip size="md" color="warning" variant="flat">
                 {d.wipDetail.length} ใบ
               </Chip>
             </div>
@@ -350,7 +350,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
               <p className="text-sm font-light text-danger">
                 ใบสั่งผลิตเกินกำหนดส่ง
               </p>
-              <Chip size="sm" color="danger" variant="flat">
+              <Chip size="md" color="danger" variant="flat">
                 {d.overdueOrders.length}
               </Chip>
             </div>
@@ -465,7 +465,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
           : "-";
       case "overdueDays":
         return (
-          <Chip size="sm" color="danger" variant="flat">
+          <Chip size="md" color="danger" variant="flat">
             {item.overdueDays} วัน
           </Chip>
         );
@@ -488,7 +488,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         return <span className="text-sm">{item.sourceNo || "-"}</span>;
       case "uom":
         return (
-          <Chip size="sm" variant="flat" color="default">
+          <Chip size="md" variant="flat" color="default">
             {item.uom || "-"}
           </Chip>
         );
@@ -528,7 +528,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
                 style={{ width: `${Math.min(100, item.completionPct)}%` }}
               />
             </div>
-            <Chip size="sm" variant="flat" color={color}>
+            <Chip size="md" variant="flat" color={color}>
               {item.completionPct}%
               {isOver ? " เกิน" : ""}
             </Chip>

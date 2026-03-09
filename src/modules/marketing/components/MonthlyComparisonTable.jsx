@@ -20,7 +20,7 @@ function ChangeCell({ current, previous, suffix = "", isPercent = false }) {
   const diff = isPercent ? current - previous : ((current - previous) / previous) * 100;
   const isPositive = diff >= 0;
   return (
-    <Chip size="sm" variant="flat" color={isPositive ? "success" : "danger"}>
+    <Chip size="md" variant="flat" color={isPositive ? "success" : "danger"}>
       {isPositive ? "+" : ""}{diff.toFixed(1)}{isPercent ? "pp" : "%"}
     </Chip>
   );

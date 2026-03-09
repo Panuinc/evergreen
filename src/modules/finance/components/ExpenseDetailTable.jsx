@@ -96,9 +96,9 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <p className="text-sm font-light">{title}</p>
-            <Chip size="sm" variant="flat" color={color}>{chipLabel}</Chip>
+            <Chip size="md" variant="flat" color={color}>{chipLabel}</Chip>
           </div>
-          <Button size="sm" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
+          <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
             Export Excel
           </Button>
         </CardHeader>

@@ -81,7 +81,7 @@ export default function ChatBot() {
               <Button
                 isIconOnly
                 variant="light"
-                size="sm"
+                size="md"
                 radius="md"
                 onPress={clearMessages}
               >

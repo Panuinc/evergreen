@@ -292,7 +292,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                   <Checkbox
                     isSelected={selectedLines[l.bcSalesOrderLineNo] || false}
                     onValueChange={() => handleToggle(l.bcSalesOrderLineNo)}
-                    size="sm"
+                    size="md"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-light truncate">

@@ -130,7 +130,7 @@ export default function BankReconView({
         return item[col] != null ? fmtNum(item[col]) : "-";
       case "status":
         return (
-          <Chip size="sm" color={STMT_STATUS_COLORS[item.status] || "default"} variant="flat">
+          <Chip size="md" color={STMT_STATUS_COLORS[item.status] || "default"} variant="flat">
             {item.status === "pending" ? "รออ่าน" : item.status === "parsed" ? "อ่านแล้ว" : item.status === "matched" ? "Match แล้ว" : item.status}
           </Chip>
         );
@@ -141,7 +141,7 @@ export default function BankReconView({
           <div className="flex gap-1">
             {item.status === "pending" && (
               <Button
-                size="sm"
+                size="md"
                 color="primary"
                 variant="flat"
                 isLoading={parsing}
@@ -151,7 +151,7 @@ export default function BankReconView({
               </Button>
             )}
             <Button
-              size="sm"
+              size="md"
               color="primary"
               variant="light"
               onPress={() => { selectStatement(item.id); setActiveTab("recon"); }}
@@ -159,7 +159,7 @@ export default function BankReconView({
               ดูรายละเอียด
             </Button>
             <Button
-              size="sm"
+              size="md"
               color="danger"
               variant="light"
               isIconOnly
@@ -196,7 +196,7 @@ export default function BankReconView({
       case "direction":
         return (
           <Chip
-            size="sm"
+            size="md"
             color={item.direction === "credit" ? "success" : "danger"}
             variant="flat"
           >
@@ -215,7 +215,7 @@ export default function BankReconView({
         return (
           <div className="flex items-center gap-1">
             <Chip
-              size="sm"
+              size="md"
               color={STATUS_COLORS[item.matchStatus] || "default"}
               variant="flat"
             >
@@ -249,7 +249,7 @@ export default function BankReconView({
             {(item.matchStatus === "unmatched" || item.matchStatus === "suggested") && (
               <>
                 <Button
-                  size="sm"
+                  size="md"
                   color="primary"
                   variant="flat"
                   onPress={() => openMatchModal(item)}
@@ -258,7 +258,7 @@ export default function BankReconView({
                   Match
                 </Button>
                 <Button
-                  size="sm"
+                  size="md"
                   color="default"
                   variant="flat"
                   onPress={() => handleExclude(item.id, "ยกเว้น — โอนภายใน/ค่าธรรมเนียม")}
@@ -271,7 +271,7 @@ export default function BankReconView({
             )}
             {item.matchStatus === "matched" && (
               <Button
-                size="sm"
+                size="md"
                 color="danger"
                 variant="light"
                 onPress={() => handleUnmatch(item.id)}
@@ -372,7 +372,7 @@ export default function BankReconView({
               <FileText size={16} />
               <span>กระทบยอด</span>
               {kpis.unmatchedCount > 0 && (
-                <Chip size="sm" color="danger" variant="flat">
+                <Chip size="md" color="danger" variant="flat">
                   {kpis.unmatchedCount}
                 </Chip>
               )}
@@ -398,7 +398,7 @@ export default function BankReconView({
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        size="sm"
+                        size="md"
                         color="primary"
                         onPress={handleAutoMatch}
                         isLoading={matching}
@@ -407,7 +407,7 @@ export default function BankReconView({
                         Auto-Match
                       </Button>
                       <Button
-                        size="sm"
+                        size="md"
                         color="default"
                         variant="flat"
                         onPress={handleExport}
@@ -565,7 +565,7 @@ export default function BankReconView({
                         <span className="text-sm ml-2">ยอด {fmtNum(m.remainingAmount)}</span>
                       </div>
                       <Button
-                        size="sm"
+                        size="md"
                         color="success"
                         onPress={() =>
                           handleManualMatch(matchEntry.id, {
@@ -606,7 +606,7 @@ export default function BankReconView({
                       </div>
                     </div>
                     <Button
-                      size="sm"
+                      size="md"
                       color="primary"
                       variant="flat"
                       onPress={() =>
@@ -695,7 +695,7 @@ function SummaryTab({ detail, kpis, handleExport }) {
       return (
         <div className="flex flex-wrap gap-1">
           {item.invoiceDetails.map((d, i) => (
-            <Chip key={i} size="sm" variant="flat">
+            <Chip key={i} size="md" variant="flat">
               {d.number} ({fmtNum(d.amount)})
             </Chip>
           ))}
@@ -726,7 +726,7 @@ function SummaryTab({ detail, kpis, handleExport }) {
         emptyContent="ยังไม่มีข้อมูล Match"
         topEndContent={
           <Button
-            size="sm"
+            size="md"
             color="primary"
             variant="flat"
             onPress={handleExport}
@@ -783,7 +783,7 @@ function ArCompareTab({ arComparison, arLoading, loadArData, kpis }) {
         );
       case "status":
         return (
-          <Chip size="sm" color={AR_STATUS_COLORS[item.status] || "default"} variant="flat">
+          <Chip size="md" color={AR_STATUS_COLORS[item.status] || "default"} variant="flat">
             {item.status}
           </Chip>
         );
@@ -825,7 +825,7 @@ function ArCompareTab({ arComparison, arLoading, loadArData, kpis }) {
         }
         topEndContent={
           <Button
-            size="sm"
+            size="md"
             color="primary"
             onPress={loadArData}
             isLoading={arLoading}
