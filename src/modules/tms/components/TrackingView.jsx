@@ -10,7 +10,8 @@ import {
   ModalFooter,
   Input,
   Select,
-  SelectItem,} from "@heroui/react";
+  SelectItem,
+} from "@heroui/react";
 import { MapPin, RefreshCw, Navigation, History } from "lucide-react";
 import VehicleMap from "@/modules/tms/components/VehicleMap";
 import RoutePlayback from "@/modules/tms/components/RoutePlayback";
@@ -80,7 +81,7 @@ export default function TrackingView({
 
       <div className="flex gap-4 h-[calc(100vh-220px)]">
         {/* Left Panel - Vehicle List */}
-        <div className="w-80 flex-shrink-0 overflow-y-auto flex flex-col gap-2">
+        <div className="w-80 h-fit flex-shrink-0 overflow-y-auto flex flex-col gap-2">
           {vehicles.map((vehicle) => {
             const pos = positions.find(
               (p) => p.tmsGpsLogVehicleId === vehicle.tmsVehicleId,
