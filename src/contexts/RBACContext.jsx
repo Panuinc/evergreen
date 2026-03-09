@@ -17,6 +17,7 @@ export function RBACProvider({ children }) {
     if (!userId) {
       setPermissions([]);
       setIsSuperAdmin(false);
+      setRbacLoading(false);
       return;
     }
 

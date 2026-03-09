@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Settings,
   Sun,
   Moon,
   Bell,
@@ -44,9 +43,7 @@ export default function Header({ onMobileMenuToggle }) {
         <button
           onClick={toggleTheme}
           className="flex items-center justify-center w-9 h-9 border border-border rounded-full hover:bg-default/50 transition-colors cursor-pointer"
-          title={
-            theme === "light" ? "สลับเป็นโหมดมืด" : "สลับเป็นโหมดสว่าง"
-          }
+          title={theme === "light" ? "สลับเป็นโหมดมืด" : "สลับเป็นโหมดสว่าง"}
         >
           {theme === "light" ? <Moon /> : <Sun />}
         </button>
@@ -63,10 +60,6 @@ export default function Header({ onMobileMenuToggle }) {
           <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-primary text-background rounded-full px-1">
             5
           </span>
-        </button>
-
-        <button className="hidden md:flex items-center justify-center w-9 h-9 border border-border rounded-full hover:bg-default/50 transition-colors cursor-pointer">
-          <Settings />
         </button>
 
         <Dropdown placement="bottom-end">
