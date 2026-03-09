@@ -12,7 +12,7 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { MapPin, RefreshCw, Navigation, History } from "lucide-react";
+import { MapPin, RefreshCw, Navigation, History, Fuel, Thermometer, Wifi } from "lucide-react";
 import VehicleMap from "@/modules/tms/components/VehicleMap";
 import RoutePlayback from "@/modules/tms/components/RoutePlayback";
 import Loading from "@/components/ui/Loading";
@@ -110,19 +110,80 @@ export default function TrackingView({
                   </p>
                   {pos ? (
                     <div className="flex flex-col gap-1 text-xs">
+                      {/* Location */}
                       <p className="flex items-center gap-1">
-                        <MapPin className="text-primary" />
+                        <MapPin size={12} className="text-primary shrink-0" />
                         {Number(pos.tmsGpsLogLatitude).toFixed(5)},{" "}
                         {Number(pos.tmsGpsLogLongitude).toFixed(5)}
                       </p>
-                      {pos.tmsGpsLogSpeed && (
-                        <p className="text-muted-foreground">
-                          ความเร็ว: {pos.tmsGpsLogSpeed} km/h
+                      {pos.ftAddress && (
+                        <p className="text-muted-foreground truncate" title={pos.ftAddress}>
+                          {pos.ftAddress}
                         </p>
+                      )}
+                      {pos.ftPoi && (
+                        <p className="text-muted-foreground">📍 {pos.ftPoi}</p>
+                      )}
+                      {/* Status row */}
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground">
+                        {pos.tmsGpsLogSpeed != null && (
+                          <span>🚗 {pos.tmsGpsLogSpeed} km/h</span>
+                        )}
+                        {pos.ftEngine && (
+                          <span>
+                            เครื่อง:{" "}
+                            <span className={pos.ftEngine === "ON" ? "text-success" : "text-danger"}>
+                              {pos.ftEngine}
+                            </span>
+                          </span>
+                        )}
+                        {pos.ftPowerStatus && (
+                          <span className={pos.ftPowerStatus === "ON" ? "text-success" : "text-muted-foreground"}>
+                            ⚡ {pos.ftPowerStatus}
+                          </span>
+                        )}
+                      </div>
+                      {/* Sensor row */}
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground">
+                        {pos.ftFuel != null && (
+                          <span className="flex items-center gap-0.5">
+                            <Fuel size={10} /> {pos.ftFuel}%
+                          </span>
+                        )}
+                        {pos.ftTemperature != null && pos.ftTemperature !== 0 && (
+                          <span className="flex items-center gap-0.5">
+                            <Thermometer size={10} /> {pos.ftTemperature}°C
+                          </span>
+                        )}
+                        {pos.ftExternalBatt && (
+                          <span>🔋 {pos.ftExternalBatt}V</span>
+                        )}
+                      </div>
+                      {/* Signal row */}
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground">
+                        {pos.ftGPS && (
+                          <span className={pos.ftGPS === "ON" ? "text-success" : "text-danger"}>
+                            GPS: {pos.ftGPS}
+                          </span>
+                        )}
+                        {pos.ftGPRS && (
+                          <span className="flex items-center gap-0.5">
+                            <Wifi size={10} /> {pos.ftGPRS}
+                          </span>
+                        )}
+                        {pos.ftPositionSource && (
+                          <span className="text-muted-foreground/60">{pos.ftPositionSource}</span>
+                        )}
+                      </div>
+                      {pos.ftDriver && (
+                        <p className="text-muted-foreground">👤 {pos.ftDriver}</p>
                       )}
                       <p className="text-muted-foreground">
                         {new Date(pos.tmsGpsLogRecordedAt).toLocaleString("th-TH")}
                       </p>
+                      {pos.tmsGpsLogSource === "forthtrack" && (
+                        <p className="text-[10px] text-primary/60">● Live GPS</p>
+                      )}
                     </div>
                   ) : (
                     <p className="text-xs text-muted-foreground">ไม่มีข้อมูล GPS</p>

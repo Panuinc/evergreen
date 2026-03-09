@@ -29,8 +29,8 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
   const intervalRef = useRef(null);
 
   const points = gpsLogs.map((l) => [
-    Number(l.gpsLogLatitude),
-    Number(l.gpsLogLongitude),
+    Number(l.tmsGpsLogLatitude ?? l.gpsLogLatitude),
+    Number(l.tmsGpsLogLongitude ?? l.gpsLogLongitude),
   ]);
 
   useEffect(() => {
@@ -90,9 +90,11 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
         >
           <Popup>
             <div className="text-xs">
-              {currentLog?.gpsLogSpeed && <p>Speed: {currentLog.gpsLogSpeed} km/h</p>}
-              {currentLog?.gpsLogRecordedAt && (
-                <p>{new Date(currentLog.gpsLogRecordedAt).toLocaleString("th-TH")}</p>
+              {(currentLog?.tmsGpsLogSpeed ?? currentLog?.gpsLogSpeed) != null && (
+                <p>Speed: {currentLog.tmsGpsLogSpeed ?? currentLog.gpsLogSpeed} km/h</p>
+              )}
+              {(currentLog?.tmsGpsLogRecordedAt ?? currentLog?.gpsLogRecordedAt) && (
+                <p>{new Date(currentLog.tmsGpsLogRecordedAt ?? currentLog.gpsLogRecordedAt).toLocaleString("th-TH")}</p>
               )}
             </div>
           </Popup>

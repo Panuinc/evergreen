@@ -74,17 +74,20 @@ export default function VehicleMapInner({
 }) {
   const markerData = vehicles
     .map((v) => {
-      const pos = positions.find((p) => p.gpsLogVehicleId === v.vehicleId);
+      const vId = v.tmsVehicleId ?? v.vehicleId;
+      const pos = positions.find(
+        (p) => (p.tmsGpsLogVehicleId ?? p.gpsLogVehicleId) === vId
+      );
       if (!pos) return null;
       return {
-        vehicleId: v.vehicleId,
-        lat: Number(pos.gpsLogLatitude),
-        lng: Number(pos.gpsLogLongitude),
-        speed: pos.gpsLogSpeed,
-        updatedAt: pos.gpsLogRecordedAt,
-        name: v.vehicleName,
-        plate: v.vehiclePlateNumber,
-        status: v.vehicleStatus,
+        vehicleId: vId,
+        lat: Number(pos.tmsGpsLogLatitude ?? pos.gpsLogLatitude),
+        lng: Number(pos.tmsGpsLogLongitude ?? pos.gpsLogLongitude),
+        speed: pos.tmsGpsLogSpeed ?? pos.gpsLogSpeed,
+        updatedAt: pos.tmsGpsLogRecordedAt ?? pos.gpsLogRecordedAt,
+        name: v.tmsVehicleName ?? v.vehicleName,
+        plate: v.tmsVehiclePlateNumber ?? v.vehiclePlateNumber,
+        status: v.tmsVehicleStatus ?? v.vehicleStatus,
       };
     })
     .filter(Boolean);

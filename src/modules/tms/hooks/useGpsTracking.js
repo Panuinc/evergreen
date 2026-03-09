@@ -21,21 +21,88 @@ export function useGpsTracking() {
     tmsGpsLogSource: "manual",
   });
 
+  // Merge Forth Track live positions over internal DB positions
+  // Matched by tmsVehicleForthtrackId (gpsID) with plate number as fallback
+  const mergeForthTrack = useCallback((internalPositions, internalVehicles, ftData) => {
+    if (!Array.isArray(ftData) || ftData.length === 0) return internalPositions;
+
+    // Build gpsID → internal vehicle map (primary)
+    const gpsIdMap = {};
+    for (const v of internalVehicles) {
+      if (v.tmsVehicleForthtrackId) gpsIdMap[v.tmsVehicleForthtrackId] = v;
+    }
+    // Build plate → internal vehicle map (fallback)
+    const plateMap = {};
+    for (const v of internalVehicles) {
+      if (v.tmsVehiclePlateNumber) plateMap[v.tmsVehiclePlateNumber] = v;
+    }
+
+    const ftPositions = ftData
+      .filter((ft) => ft.Latitude && ft.Longitude)
+      .map((ft) => {
+        const matched = gpsIdMap[ft.gpsID] ?? plateMap[ft.plateNumber];
+        if (!matched) return null;
+        // Parse "DD-MM-YYYY HH:MM:SS" → ISO
+        let recordedAt = new Date().toISOString();
+        if (ft.dateTime) {
+          const [datePart, timePart] = ft.dateTime.split(" ");
+          const [dd, mm, yyyy] = datePart.split("-");
+          recordedAt = `${yyyy}-${mm}-${dd}T${timePart}.000Z`;
+        }
+        return {
+          tmsGpsLogVehicleId:      matched.tmsVehicleId,
+          tmsGpsLogLatitude:       ft.Latitude,
+          tmsGpsLogLongitude:      ft.Longitude,
+          tmsGpsLogSpeed:          ft.Speed ?? null,
+          tmsGpsLogRecordedAt:     recordedAt,
+          tmsGpsLogSource:         "forthtrack",
+          ftGpsId:                 ft.gpsID,
+          ftEngine:                ft.Engine,
+          ftDriver:                ft.driver || null,
+          ftAddress:               ft.addressT || ft.addressE || null,
+          ftFuel:                  ft.Fuel ?? null,
+          ftTemperature:           ft.Temperature ?? null,
+          ftCOG:                   ft.COG ?? null,
+          ftPowerStatus:           ft.powerStatus ?? null,
+          ftExternalBatt:          ft.externalBatt ?? null,
+          ftPositionSource:        ft.positionSource ?? null,
+          ftPoi:                   ft.poi || null,
+          ftGPS:                   ft.GPS,
+          ftGPRS:                  ft.GPRS,
+          ftVehicleType:           ft.vehicleType ?? null,
+          ftVehicleName:           ft.vehicleName ?? null,
+          ftPlateNumber:           ft.plateNumber,
+        };
+      })
+      .filter(Boolean);
+
+    // Build merged map: start with internal positions, override with Forth Track where matched
+    const merged = {};
+    for (const p of internalPositions) {
+      merged[p.tmsGpsLogVehicleId] = p;
+    }
+    for (const p of ftPositions) {
+      merged[p.tmsGpsLogVehicleId] = p;
+    }
+    return Object.values(merged);
+  }, []);
+
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [posData, vehData] = await Promise.all([
+      const [posData, vehData, ftData] = await Promise.all([
         getLatestPositions(),
         getVehicles(),
+        fetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
       ]);
-      setPositions(posData);
       setVehicles(vehData);
+      setPositions(mergeForthTrack(posData, vehData, Array.isArray(ftData) ? ftData : []));
     } catch {
       toast.error("โหลดข้อมูล GPS ล้มเหลว");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mergeForthTrack]);
 
   useEffect(() => {
     loadData();
@@ -43,13 +110,22 @@ export function useGpsTracking() {
 
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      getLatestPositions()
-        .then(setPositions)
-        .catch(() => {});
+    const interval = setInterval(async () => {
+      try {
+        const [posData, ftData] = await Promise.all([
+          getLatestPositions(),
+          fetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
+        ]);
+        setVehicles((prev) => {
+          setPositions(mergeForthTrack(posData, prev, Array.isArray(ftData) ? ftData : []));
+          return prev;
+        });
+      } catch {
+        // silent refresh failure
+      }
     }, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [mergeForthTrack]);
 
   const handleOpenManualUpdate = (vehicle = null) => {
     setSelectedVehicle(vehicle);

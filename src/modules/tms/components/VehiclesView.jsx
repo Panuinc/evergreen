@@ -363,6 +363,21 @@ export default function VehiclesView({
 
               {}
               <div className="flex items-center w-full h-fit p-2 gap-2">
+                <Input
+                  label="Forth Track GPS ID"
+                  labelPlacement="outside"
+                  placeholder="กรอก gpsID จาก Forth Track (เช่น 505649)"
+                  description="ดูได้จากข้อมูล Forth Track → ช่อง gpsID"
+                  variant="bordered"
+                  size="md"
+                  radius="md"
+                  value={formData.tmsVehicleForthtrackId}
+                  onChange={(e) => updateField("tmsVehicleForthtrackId", e.target.value)}
+                />
+              </div>
+
+              {}
+              <div className="flex items-center w-full h-fit p-2 gap-2">
                 <Select
                   label="สถานะ"
                   labelPlacement="outside"
