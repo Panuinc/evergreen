@@ -553,6 +553,7 @@ class ScanResultAdapter(
         val item = items[position]
         val decoded = item.decodeResult
 
+        val ctx = holder.itemView.context
         if (decoded?.item != null) {
             holder.binding.tvItemNumber.text = decoded.item.number
             holder.binding.tvItemName.text = decoded.item.displayName
@@ -564,17 +565,32 @@ class ScanResultAdapter(
             }
             holder.binding.tvPiece.text = if (decoded.decoded?.pieceNumber != null)
                 "Piece ${decoded.decoded.pieceNumber}/${decoded.decoded.totalPieces}" else ""
-            holder.binding.tvInventory.text = "Stock: ${decoded.item.inventory.toInt()} ${decoded.item.baseUnitOfMeasure}"
             holder.binding.tvPrice.text = "฿${String.format("%,.2f", decoded.item.unitPrice)}"
             holder.binding.tvHex.text = item.epc
+
+            // Show stock status with color coding
+            val isShipped = decoded.item.inventory.toInt() <= 0
+            if (isShipped) {
+                holder.binding.tvInventory.text = decoded.message ?: "สินค้าถูกตัดสต็อกแล้ว"
+                holder.binding.tvInventory.setTextColor(ContextCompat.getColor(ctx, R.color.warning_text))
+                (holder.binding.root as? com.google.android.material.card.MaterialCardView)
+                    ?.setStrokeColor(ContextCompat.getColor(ctx, R.color.warning_text))
+            } else {
+                holder.binding.tvInventory.text = "Stock: ${decoded.item.inventory.toInt()} ${decoded.item.baseUnitOfMeasure}"
+                holder.binding.tvInventory.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+                (holder.binding.root as? com.google.android.material.card.MaterialCardView)
+                    ?.setStrokeColor(ContextCompat.getColor(ctx, R.color.divider))
+            }
         } else {
-            holder.binding.tvItemNumber.text = decoded?.message ?: holder.itemView.context.getString(R.string.scan_searching)
+            holder.binding.tvItemNumber.text = decoded?.message ?: ctx.getString(R.string.scan_searching)
             holder.binding.tvItemName.text = ""
             holder.binding.tvProjectName.visibility = android.view.View.GONE
             holder.binding.tvPiece.text = ""
             holder.binding.tvInventory.text = ""
             holder.binding.tvPrice.text = ""
             holder.binding.tvHex.text = item.epc
+            (holder.binding.root as? com.google.android.material.card.MaterialCardView)
+                ?.setStrokeColor(ContextCompat.getColor(ctx, R.color.divider))
         }
 
         holder.binding.tvReadCount.text = "×${item.readCount}"

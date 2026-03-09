@@ -715,11 +715,25 @@ async function runSync(supabase, requestedTables, send) {
   if (syncSuccess.items) {
     cleanupParallel.push(
       (async () => {
+        // Keep items that have RFID codes (just zero out inventory),
+        // only delete items without RFID codes
+        const { count: keptCount, error: keepError } = await supabase
+          .from("bcItem")
+          .update(
+            { bcItemInventory: 0, bcItemSyncedAt: now },
+            { count: "exact" },
+          )
+          .lt("bcItemSyncedAt", now)
+          .not("bcItemRfidCode", "is", null);
         const { count, error } = await supabase
           .from("bcItem")
           .delete({ count: "exact" })
           .lt("bcItemSyncedAt", now);
-        cleanup.items = error ? `ERROR: ${error.message}` : count || 0;
+        cleanup.items = error
+          ? `ERROR: ${error.message}`
+          : `deleted ${count || 0}, kept ${keptCount || 0} (have RFID)`;
+        if (keepError)
+          cleanup.items += ` (keep error: ${keepError.message})`;
       })(),
     );
   }

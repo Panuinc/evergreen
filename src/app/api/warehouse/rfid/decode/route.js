@@ -107,11 +107,22 @@ export async function POST(request) {
         item = items?.[0] || null;
       }
 
+      let message;
+      if (!item) {
+        message = "ไม่พบสินค้าในระบบ";
+      } else if (
+        item.bcItemInventory !== null &&
+        item.bcItemInventory !== undefined &&
+        Number(item.bcItemInventory) <= 0
+      ) {
+        message = "สินค้าถูกตัดสต็อกแล้ว (Inventory: 0)";
+      }
+
       return NextResponse.json({
         success: true,
         decoded,
         item: item ? formatItem(item) : null,
-        message: item ? undefined : "ไม่พบสินค้าในระบบ",
+        message,
       });
     }
 

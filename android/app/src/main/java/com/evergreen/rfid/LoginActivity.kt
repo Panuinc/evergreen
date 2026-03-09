@@ -39,7 +39,13 @@ class LoginActivity : AppCompatActivity() {
 
         setupPasswordMode()
         setupPinMode()
-        showPasswordMode()
+
+        // Default to PIN mode if user has logged in before
+        if (!auth.email.isNullOrEmpty()) {
+            showPinMode()
+        } else {
+            showPasswordMode()
+        }
     }
 
     // ═══ Password Mode ═══
