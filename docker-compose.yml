@@ -21,15 +21,9 @@ services:
       - -c
       - |
         apk add --no-cache curl
-        echo "BC Sync cron started — full sync every hour at :00, items every 5 min"
+        echo "BC Sync cron started — full sync every 15 minutes"
         while true; do
-          # รอจนถึงต้นชั่วโมงถัดไป
-          MIN=$(date +%M)
-          SEC=$(date +%S)
-          WAIT=$(( (60 - MIN) * 60 - SEC ))
-          if [ $$WAIT -le 0 ]; then WAIT=3600; fi
-          echo "[$(date)] Next full sync in $${WAIT}s (at next :00)"
-          sleep $$WAIT
+          sleep 900
           echo "[$(date)] Triggering full BC sync..."
           curl -sf -H "Authorization: Bearer $${CRON_SECRET}" \
             "http://evergreen:3000/api/sync/bc" \
