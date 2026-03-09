@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Card, CardBody, CardHeader, Spinner, Button, Chip,
+  Card, CardBody, CardHeader, Button, Chip,
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
 } from "@heroui/react";
 import { Download } from "lucide-react";
@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { exportToExcel } from "@/lib/exportExcel";
 import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/modules/finance/glAccountMap";
+import Loading from "@/components/ui/Loading";
 
 function fmt(v) {
   if (v === 0 || v == null) return "-";
@@ -44,7 +45,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Spinner label="กำลังโหลดข้อมูล GL..." />
+        <Loading />
       </div>
     );
   }

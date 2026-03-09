@@ -47,7 +47,7 @@ export default function AccessLogsView({ logs, loading }) {
       case "rbacAccessLogGranted":
         return (
           <Chip
-            variant="shadow"
+            variant="flat"
             size="md"
             radius="md"
             color={log.rbacAccessLogGranted ? "success" : "danger"}

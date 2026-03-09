@@ -3,9 +3,7 @@
 import { useEffect, useRef } from "react";
 import {
   Button,
-  Chip,
-  Spinner,
-  ScrollShadow,
+  Chip,  ScrollShadow,
   Switch,
   Tooltip,
   Modal,
@@ -18,6 +16,7 @@ import {
 import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles, Receipt } from "lucide-react";
 import ChannelBadge from "./ChannelBadge";
 import MessageInput from "./MessageInput";
+import Loading from "@/components/ui/Loading";
 
 const STATUS_COLORS = {
   open: "success",
@@ -121,7 +120,7 @@ export default function ChatWindow({
           {isClosed ? (
             <Button
               size="md"
-              variant="shadow"
+              variant="flat"
               radius="md"
               startContent={<RotateCcw size={14} />}
               onPress={() => onUpdateStatus(conversation.omConversationId, "open")}
@@ -160,7 +159,7 @@ export default function ChatWindow({
       <ScrollShadow ref={scrollRef} className="flex-1 p-3 overflow-y-auto">
         {messagesLoading ? (
           <div className="flex items-center justify-center h-full">
-            <Spinner />
+            <Loading />
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-muted-foreground">

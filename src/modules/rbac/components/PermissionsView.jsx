@@ -1,6 +1,7 @@
 "use client";
 
-import { Checkbox, Spinner } from "@heroui/react";
+import { Checkbox} from "@heroui/react";
+import Loading from "@/components/ui/Loading";
 
 export default function PermissionsView({
   resources,
@@ -13,7 +14,7 @@ export default function PermissionsView({
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }
@@ -66,7 +67,7 @@ export default function PermissionsView({
                       className="p-2 border-b border-border text-center"
                     >
                       {isToggling ? (
-                        <Spinner />
+                        <Loading />
                       ) : (
                         <Checkbox
                           size="md"

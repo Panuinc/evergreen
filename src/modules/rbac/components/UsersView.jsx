@@ -95,7 +95,7 @@ export default function UsersView({
                 user.roles.map((role) => (
                   <Chip
                     key={role.rbacRoleId}
-                    variant="shadow"
+                    variant="flat"
                     size="md"
                     radius="md"
                     color={role.rbacRoleIsSuperadmin ? "danger" : "primary"}
@@ -117,7 +117,7 @@ export default function UsersView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={user.isActive ? "success" : "danger"}
@@ -219,7 +219,7 @@ export default function UsersView({
                   <div className="flex items-center gap-2">
                     <span>{role.rbacRoleName}</span>
                     {role.rbacRoleIsSuperadmin && (
-                      <Chip variant="shadow" size="md" radius="md">
+                      <Chip variant="flat" size="md" radius="md">
                         Superadmin
                       </Chip>
                     )}
@@ -233,7 +233,7 @@ export default function UsersView({
           </ModalBody>
           <ModalFooter>
             <Button
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               onPress={handleCloseRoles}

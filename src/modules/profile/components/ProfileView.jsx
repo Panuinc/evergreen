@@ -1,8 +1,9 @@
 "use client";
 
-import { Input, Button, Chip, Spinner } from "@heroui/react";
+import { Input, Button, Chip} from "@heroui/react";
 import { User, Lock, Briefcase, KeyRound } from "lucide-react";
 import PinSetupModal from "@/components/auth/PinSetupModal";
+import Loading from "@/components/ui/Loading";
 
 export default function ProfileView({
   user,
@@ -24,7 +25,7 @@ export default function ProfileView({
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }
@@ -58,7 +59,7 @@ export default function ProfileView({
                 roles.map((role) => (
                   <Chip
                     key={role.rbacRoleId}
-                    variant="shadow"
+                    variant="flat"
                     size="md"
                     radius="md"
                     color={role.rbacRoleIsSuperadmin ? "danger" : "primary"}
@@ -122,7 +123,7 @@ export default function ProfileView({
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-muted-foreground w-24">สถานะ</span>
               <Chip
-                variant="shadow"
+                variant="flat"
                 size="md"
                 radius="md"
                 color={
@@ -149,7 +150,7 @@ export default function ProfileView({
           </div>
           {!pinLoading && (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={pinEnabled ? "success" : "default"}

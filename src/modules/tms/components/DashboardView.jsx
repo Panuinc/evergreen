@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, Spinner, Chip, Button } from "@heroui/react";
+import { Card, CardBody, CardHeader, Chip, Button } from "@heroui/react";
 import { BotMessageSquare, RefreshCw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -9,12 +9,13 @@ import MonthlyShipmentChart from "@/modules/tms/components/MonthlyShipmentChart"
 import FuelCostChart from "@/modules/tms/components/FuelCostChart";
 import VehicleUtilizationChart from "@/modules/tms/components/VehicleUtilizationChart";
 import VehiclePerformanceTable from "@/modules/tms/components/VehiclePerformanceTable";
+import Loading from "@/components/ui/Loading";
 
 export default function DashboardView({ stats, loading, compareMode, setCompareMode, aiAnalysis, aiLoading, runAiAnalysis }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }
@@ -157,7 +158,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         <CardBody>
           {aiLoading && !aiAnalysis && (
             <div className="flex items-center gap-3 py-8 justify-center">
-              <Spinner size="sm" />
+              <Loading />
               <span className="text-sm text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลขนส่ง...</span>
             </div>
           )}
@@ -201,7 +202,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
               >
                 {aiAnalysis}
               </ReactMarkdown>
-              {aiLoading && <Spinner size="sm" className="mt-2" />}
+              {aiLoading && <Loading />}
             </div>
           )}
         </CardBody>

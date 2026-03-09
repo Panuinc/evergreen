@@ -6,9 +6,7 @@ import {
   CardBody,
   CardHeader,
   Chip,
-  Button,
-  Spinner,
-  Input,
+  Button,  Input,
   Select,
   SelectItem,
   Switch,
@@ -42,6 +40,7 @@ import {
   getTscDefaultConfig,
 } from "@/lib/tscPrinterConfig";
 import { testConnection, printTestLabel } from "@/lib/qzPrinter";
+import Loading from "@/components/ui/Loading";
 
 // ── Config Check Services ──────────────────────────────────────────
 
@@ -98,7 +97,7 @@ function SystemStatusTab({ status, loading, refetch }) {
 
       {loading && !status ? (
         <div className="flex items-center justify-center py-12">
-          <Spinner />
+          <Loading />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -125,7 +124,7 @@ function SystemStatusTab({ status, loading, refetch }) {
                       </div>
                     </div>
                     <Chip
-                      variant="shadow"
+                      variant="flat"
                       size="md"
                       radius="md"
                       color={isConnected ? "success" : "danger"}
@@ -242,18 +241,18 @@ function Cp30Settings() {
               Network — 192.168.1.110:9100
             </p>
             {connected === true && (
-              <Chip variant="shadow" size="md" radius="md" color="success">
+              <Chip variant="flat" size="md" radius="md" color="success">
                 เชื่อมต่อแล้ว
               </Chip>
             )}
             {connected === false && (
-              <Chip variant="shadow" size="md" radius="md" color="danger">
+              <Chip variant="flat" size="md" radius="md" color="danger">
                 ไม่พบเครื่องพิมพ์
               </Chip>
             )}
           </div>
           <Button
-            variant="shadow"
+            variant="flat"
             size="md"
             radius="md"
             onPress={handleTestConnection}
@@ -517,12 +516,12 @@ function TscTeSettings() {
               ทดสอบการเชื่อมต่อ
             </Button>
             {connected === true && (
-              <Chip variant="shadow" size="md" radius="md" color="success">
+              <Chip variant="flat" size="md" radius="md" color="success">
                 เชื่อมต่อแล้ว
               </Chip>
             )}
             {connected === false && (
-              <Chip variant="shadow" size="md" radius="md" color="danger">
+              <Chip variant="flat" size="md" radius="md" color="danger">
                 ไม่พบเครื่องพิมพ์
               </Chip>
             )}
@@ -539,7 +538,7 @@ function TscTeSettings() {
             <Select
               label="DPI"
               labelPlacement="outside"
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               selectedKeys={[String(config.dpi)]}

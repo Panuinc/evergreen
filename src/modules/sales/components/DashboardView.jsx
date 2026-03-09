@@ -1,4 +1,4 @@
-import { Card, Spinner } from "@heroui/react";
+import { Card} from "@heroui/react";
 import {
   Users,
   Briefcase,
@@ -25,6 +25,7 @@ import {
 } from "recharts";
 import CompareToggle from "@/components/ui/CompareToggle";
 import CompareKpiCard from "@/components/ui/CompareKpiCard";
+import Loading from "@/components/ui/Loading";
 
 const TYPE_ICON_MAP = {
   task: ClipboardList,
@@ -37,7 +38,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
   if (loading || !data) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }

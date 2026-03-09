@@ -1287,7 +1287,7 @@ const EnhancedEngineeringDrawing = memo(
       <div className="relative w-full h-full flex flex-col bg-default-100 rounded-lg overflow-hidden">
         <div className="flex items-center justify-between p-2 bg-default-50 border-b border-border gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <Chip size="md" variant="shadow">
+            <Chip size="md" variant="flat">
               {Math.round(zoomLevel * 100)}%
             </Chip>
           </div>
@@ -1296,7 +1296,7 @@ const EnhancedEngineeringDrawing = memo(
               <PopoverTrigger>
                 <Button
                   color="default"
-                  variant="shadow"
+                  variant="flat"
                   size="md"
                   radius="md"
                   className="w-full text-foreground border-border"
@@ -1361,7 +1361,7 @@ const EnhancedEngineeringDrawing = memo(
               <DropdownTrigger>
                 <Button
                   color="default"
-                  variant="shadow"
+                  variant="flat"
                   size="md"
                   radius="md"
                   className="w-full bg-foreground text-background"
@@ -2392,7 +2392,7 @@ const UIDoorBom = ({
                   label="PO ลูกค้า"
                   labelPlacement="outside"
                   placeholder="กรอก PO"
-                  variant="shadow"
+                  variant="flat"
                   size="sm"
                   value={customerPO}
                   onChange={(e) => setCustomerPO(e.target.value)}
@@ -2482,7 +2482,7 @@ const UIDoorBom = ({
                   label="ประเภทวัสดุ"
                   labelPlacement="outside"
                   placeholder="กรอกประเภทวัสดุ"
-                  variant="shadow"
+                  variant="flat"
                   size="sm"
                   value={surfaceMaterial}
                   onChange={(e) => setSurfaceMaterial(e.target.value)}
@@ -2557,7 +2557,7 @@ const UIDoorBom = ({
             </CardHeader>
             <CardBody className="gap-3 p-4">
               {frameCandidates.length === 0 && results.frameThickness > 0 && (
-                <Chip color="default" variant="shadow" className="w-full">
+                <Chip color="default" variant="flat" className="w-full">
                   ⚠️ ไม่พบไม้ที่เหมาะสมสำหรับความหนา {results.frameThickness}มม.
                 </Chip>
               )}
@@ -2640,7 +2640,7 @@ const UIDoorBom = ({
                             <Select
                               label="เลือกขนาดอื่น"
                               size="sm"
-                              variant="shadow"
+                              variant="flat"
                               selectedKeys={
                                 selectedFrameCode ? [selectedFrameCode] : []
                               }
@@ -2751,7 +2751,7 @@ const UIDoorBom = ({
                 label="จำนวนชั้นซ้อน/ด้าน"
                 labelPlacement="outside"
                 placeholder="กรุณาเลือก"
-                variant="shadow"
+                variant="flat"
                 size="sm"
                 selectedKeys={doubleFrameCount ? [doubleFrameCount] : []}
                 onSelectionChange={(keys) =>
@@ -2764,7 +2764,7 @@ const UIDoorBom = ({
               </Select>
 
               {doubleConfigSummary && (
-                <Chip color="default" variant="shadow" className="w-full">
+                <Chip color="default" variant="flat" className="w-full">
                   {doubleConfigSummary}
                 </Chip>
               )}
@@ -2783,7 +2783,7 @@ const UIDoorBom = ({
             <CardBody className="gap-3 p-4">
               {isNoRailCoreType ? (
                 <div className="flex flex-col gap-2 text-[13px] p-2 bg-default-50 rounded-lg">
-                  <Chip color="default" variant="shadow" size="md">
+                  <Chip color="default" variant="flat" size="md">
                     ⚠️ ไส้ประเภท {coreCalculation?.coreType?.label || coreType}{" "}
                     ไม่มีคานขวางตรงกลาง
                   </Chip>
@@ -2802,13 +2802,13 @@ const UIDoorBom = ({
                   </div>
 
                   {doorHeight && parseFloat(doorHeight) >= 2400 && (
-                    <Chip color="default" variant="shadow" size="md">
+                    <Chip color="default" variant="flat" size="md">
                       ⚡ ความสูงประตูเกิน 2400มม. → แบ่งอัตโนมัติเป็น 4 ช่อง
                     </Chip>
                   )}
 
                   {results.railsAdjusted && (
-                    <Chip color="default" variant="shadow" size="md">
+                    <Chip color="default" variant="flat" size="md">
                       🔄 ปรับตำแหน่งคานขวางอัตโนมัติเพื่อหลีกเลี่ยงบล็อกล็อค
                     </Chip>
                   )}
@@ -2874,7 +2874,7 @@ const UIDoorBom = ({
                   label="จำนวนชิ้น/ด้าน"
                   labelPlacement="outside"
                   placeholder="กรุณาเลือก"
-                  variant="shadow"
+                  variant="flat"
                   size="sm"
                   selectedKeys={
                     lockBlockPiecesPerSide ? [lockBlockPiecesPerSide] : []
@@ -2965,7 +2965,7 @@ const UIDoorBom = ({
                 label="ประเภทไส้"
                 labelPlacement="outside"
                 placeholder="กรุณาเลือก"
-                variant="shadow"
+                variant="flat"
                 size="sm"
                 selectedKeys={coreType ? [coreType] : []}
                 onSelectionChange={(keys) => setCoreType([...keys][0] || "")}
@@ -3136,7 +3136,7 @@ const UIDoorBom = ({
                       labelPlacement="outside"
                       placeholder="กรอกประเภทวัสดุขอบ"
                       color="default"
-                      variant="shadow"
+                      variant="flat"
                       size="md"
                       radius="md"
                       value={edgeMaterial}
@@ -3246,7 +3246,7 @@ const UIDoorBom = ({
                           labelPlacement="inside"
                           placeholder="0"
                           color="default"
-                          variant="shadow"
+                          variant="flat"
                           size="sm"
                           radius="md"
                           className="max-w-[150px]"
@@ -3447,7 +3447,7 @@ const UIDoorBom = ({
                     type="number"
                     placeholder="กรอกกำไร (บาท)"
                     size="sm"
-                    variant="shadow"
+                    variant="flat"
                     className="max-w-[140px]"
                     value={customMargin}
                     onChange={(e) => setCustomMargin(e.target.value)}
@@ -3657,14 +3657,14 @@ const UIDoorBom = ({
               </CardHeader>
               <CardBody className="gap-3 p-4">
                 {isNoRailCoreType && (
-                  <Chip color="default" variant="shadow" className="w-full">
+                  <Chip color="default" variant="flat" className="w-full">
                     ⚠️ ไส้ {coreCalculation?.coreType?.label}: ไม่มีคานขวาง
                     (ไส้เต็มแผ่น)
                   </Chip>
                 )}
 
                 {coreType === "particle_strips" && (
-                  <Chip color="default" variant="shadow" className="w-full">
+                  <Chip color="default" variant="flat" className="w-full">
                     คานขวาง: ใช้แผ่นปาร์ติเคิลแทน (ไม่รวมในแผนตัดไม้กรอบ)
                   </Chip>
                 )}
@@ -3753,13 +3753,13 @@ const UIDoorBom = ({
                         <div className="flex items-center gap-2">
                           <Chip
                             color={piece.color}
-                            variant="shadow"
+                            variant="flat"
                             size="md"
                             className="w-4 h-4 p-2"
                           />
                           <span className="font-light">{piece.name}</span>
                           {piece.isSplice && (
-                            <Chip color="default" variant="shadow" size="md">
+                            <Chip color="default" variant="flat" size="md">
                               Splice
                             </Chip>
                           )}

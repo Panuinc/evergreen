@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Spinner } from "@heroui/react";
+import { Card} from "@heroui/react";
 import {
   BarChart,
   Bar,
@@ -11,12 +11,13 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
+import Loading from "@/components/ui/Loading";
 
 export default function ReportsView({ data, loading }) {
   if (loading || !data) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }

@@ -107,7 +107,7 @@ export default function SoftwareView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itSoftwareStatus] || "default"}
@@ -119,7 +119,7 @@ export default function SoftwareView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

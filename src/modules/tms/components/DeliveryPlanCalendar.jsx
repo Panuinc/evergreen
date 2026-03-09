@@ -1,9 +1,10 @@
 "use client";
 
-import { Tabs, Tab, Button, Chip, Spinner } from "@heroui/react";
+import { Tabs, Tab, Button, Chip} from "@heroui/react";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { useDeliveryPlans } from "@/modules/tms/hooks/useDeliveryPlans";
 import DeliveryPlanModal from "./DeliveryPlanModal";
+import Loading from "@/components/ui/Loading";
 
 const DAYS_TH = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
 const MONTHS_TH = [
@@ -322,7 +323,7 @@ export default function DeliveryPlanCalendar() {
           selectedKey={viewMode}
           onSelectionChange={(k) => setViewMode(k)}
           size="sm"
-          variant="shadow"
+          variant="flat"
         >
           <Tab key="month" title="รายเดือน" />
           <Tab key="week" title="รายสัปดาห์" />
@@ -343,7 +344,7 @@ export default function DeliveryPlanCalendar() {
           </Button>
         </div>
         <p className="text-sm font-light">{title}</p>
-        {loading && <Spinner size="sm" />}
+        {loading && <Loading />}
       </div>
 
       {/* Calendar */}

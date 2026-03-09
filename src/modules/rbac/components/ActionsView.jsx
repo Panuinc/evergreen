@@ -85,7 +85,7 @@ export default function ActionsView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={action.isActive ? "success" : "danger"}

@@ -14,13 +14,12 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  Pagination,
-  Spinner,
-  Card,
+  Pagination,  Card,
   CardBody,
   CardFooter,
 } from "@heroui/react";
 import { Search, ChevronDown, LayoutGrid, TableProperties, EllipsisVertical } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 
 function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -387,7 +386,7 @@ export default function DataTable({
         {topContent}
         {isLoading ? (
           <div className="flex items-center justify-center w-full py-12">
-            <Spinner />
+            <Loading />
           </div>
         ) : sortedItems.length === 0 ? (
           <div className="flex items-center justify-center w-full py-12 text-muted-foreground">
@@ -465,7 +464,7 @@ export default function DataTable({
         emptyContent={emptyContent}
         items={sortedItems}
         isLoading={isLoading}
-        loadingContent={<Spinner />}
+        loadingContent={<Loading />}
       >
         {(item) => (
           <TableRow key={item[rowKey] ?? `row-${sortedItems.indexOf(item)}`} className={getRowClassName ? getRowClassName(item) : undefined}>

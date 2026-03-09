@@ -13,14 +13,13 @@ import {
   SelectItem,
   Chip,
   Textarea,
-  Progress,
-  Spinner,
-  Divider,
+  Progress,  Divider,
   Switch,
 } from "@heroui/react";
 import { Plus, Edit, Trash2, GitBranch, Clock, Power } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
+import Loading from "@/components/ui/Loading";
 
 const baseColumns = [
   { name: "เลขที่คำขอ", uid: "itDevRequestNo", sortable: true },
@@ -140,7 +139,7 @@ export default function DevelopmentView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itDevRequestPriority] || "default"}
@@ -186,7 +185,7 @@ export default function DevelopmentView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itDevRequestStatus] || "default"}
@@ -200,7 +199,7 @@ export default function DevelopmentView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -574,7 +573,7 @@ export default function DevelopmentView({
                 <p className="text-sm font-light">ประวัติความคืบหน้า</p>
                 {progressLoading ? (
                   <div className="flex justify-center py-6">
-                    <Spinner />
+                    <Loading />
                   </div>
                 ) : progressLogs.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-6">

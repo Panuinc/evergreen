@@ -1,13 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Spinner } from "@heroui/react";
-
+import Loading from "@/components/ui/Loading";
 const VehicleMapInner = dynamic(() => import("./VehicleMapInner"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full min-h-[400px]">
-      <Spinner />
+      <Loading />
     </div>
   ),
 });

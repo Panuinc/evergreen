@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Card, CardBody, CardHeader, Spinner, Button, Chip,
+  Card, CardBody, CardHeader, Button, Chip,
 } from "@heroui/react";
 import { Download } from "lucide-react";
 import {
@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { exportToExcel } from "@/lib/exportExcel";
 import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/modules/finance/glAccountMap";
+import Loading from "@/components/ui/Loading";
 const COLORS = ["#006FEE", "#17C964", "#F5A524", "#F31260", "#9353D3", "#00B8D9", "#FF6B35", "#7C3AED"];
 
 function fmt(v) {
@@ -21,7 +22,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Spinner label="กำลังโหลดข้อมูล..." />
+        <Loading />
       </div>
     );
   }

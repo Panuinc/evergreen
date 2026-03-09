@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import {
-  Card, CardBody, CardHeader, Spinner, Chip, Tooltip,
+  Card, CardBody, CardHeader, Chip, Tooltip,
   Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
   Select, SelectItem,
@@ -21,6 +21,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
   PieChart, Pie, Cell, ResponsiveContainer,
 } from "recharts";
+import Loading from "@/components/ui/Loading";
 
 // ─── Formatting helpers ───
 
@@ -480,7 +481,7 @@ export default function FinanceDashboardView({
       case "actions": {
         const count = (arInvoiceMap[item.customerNumber] || []).length;
         return count > 0 ? (
-          <Button variant="shadow" size="sm" onPress={() => openAgingDetail(item, "ar")}>
+          <Button variant="flat" size="sm" onPress={() => openAgingDetail(item, "ar")}>
             <Eye size={14} /> {count} ใบ
           </Button>
         ) : <span className="text-muted-foreground">-</span>;
@@ -527,7 +528,7 @@ export default function FinanceDashboardView({
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Spinner size="lg" />
+        <Loading />
       </div>
     );
   }
@@ -586,7 +587,7 @@ export default function FinanceDashboardView({
         <span className="text-sm text-muted-foreground">
           แสดงข้อมูล 3 ปี: พ.ศ. {(selectedYear - 2) + 543}–{selectedYear + 543}
         </span>
-        {glLoading && <Spinner size="sm" />}
+        {glLoading && <Loading />}
         <div className="ml-auto">
           <Button
             variant="bordered"
@@ -968,7 +969,7 @@ export default function FinanceDashboardView({
         <CardBody>
           {aiLoading && !aiAnalysis && (
             <div className="flex items-center gap-3 py-8 justify-center">
-              <Spinner size="sm" />
+              <Loading />
               <span className="text-sm text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลการเงิน...</span>
             </div>
           )}
@@ -1012,7 +1013,7 @@ export default function FinanceDashboardView({
               >
                 {aiAnalysis}
               </ReactMarkdown>
-              {aiLoading && <Spinner size="sm" className="mt-2" />}
+              {aiLoading && <Loading />}
             </div>
           )}
         </CardBody>
@@ -1041,7 +1042,7 @@ export default function FinanceDashboardView({
         <CardBody>
           {cashFlowLoading && !cashFlowAnalysis && (
             <div className="flex items-center gap-3 py-8 justify-center">
-              <Spinner size="sm" />
+              <Loading />
               <span className="text-sm text-muted-foreground">AI กำลังพยากรณ์กระแสเงินสด...</span>
             </div>
           )}
@@ -1085,7 +1086,7 @@ export default function FinanceDashboardView({
               >
                 {cashFlowAnalysis}
               </ReactMarkdown>
-              {cashFlowLoading && <Spinner size="sm" className="mt-2" />}
+              {cashFlowLoading && <Loading />}
             </div>
           )}
         </CardBody>
@@ -1618,7 +1619,7 @@ export default function FinanceDashboardView({
                 </ModalBody>
                 <ModalFooter>
                   <Button
-                    variant="shadow"
+                    variant="flat"
                     size="md"
                     startContent={<Download size={14} />}
                     onPress={() => exportCalculationReport(financials, selectedYear)}

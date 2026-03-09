@@ -96,7 +96,7 @@ export default function SystemAccessView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itSystemAccessType] || "default"}
@@ -118,7 +118,7 @@ export default function SystemAccessView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itSystemAccessStatus] || "default"}
@@ -132,7 +132,7 @@ export default function SystemAccessView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

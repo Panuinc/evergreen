@@ -1,16 +1,17 @@
-import { Card, CardBody, Spinner } from "@heroui/react";
+import { Card, CardBody} from "@heroui/react";
 import { Server, HeadphonesIcon, FileText, Globe, Shield, Clock } from "lucide-react";
 import CompareToggle from "@/components/ui/CompareToggle";
 import CompareKpiCard from "@/components/ui/CompareKpiCard";
 import TicketTrendChart from "@/modules/it/components/TicketTrendChart";
 import AssetByCategoryChart from "@/modules/it/components/AssetByCategoryChart";
 import LicenseExpiryChart from "@/modules/it/components/LicenseExpiryChart";
+import Loading from "@/components/ui/Loading";
 
 export default function DashboardView({ stats, loading, compareMode, setCompareMode }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }

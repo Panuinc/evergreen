@@ -192,7 +192,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       case "bciProjectStage": {
         const color = stageColorMap[item.bciProjectStage] || "default";
         return item.bciProjectStage ? (
-          <Chip variant="shadow" size="md" radius="md" color={color}>
+          <Chip variant="flat" size="md" radius="md" color={color}>
             {item.bciProjectStage}
           </Chip>
         ) : (
@@ -201,7 +201,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       }
       case "bciProjectStatus":
         return item.bciProjectStatus ? (
-          <Chip variant="shadow" size="md" radius="md" color="primary">
+          <Chip variant="flat" size="md" radius="md" color="primary">
             {item.bciProjectStatus}
           </Chip>
         ) : (
@@ -209,7 +209,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
         );
       case "bciProjectCategory":
         return item.bciProjectCategory ? (
-          <Chip variant="shadow" size="md" radius="md" color="secondary">
+          <Chip variant="flat" size="md" radius="md" color="secondary">
             {item.bciProjectCategory}
           </Chip>
         ) : (
@@ -304,7 +304,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
         <div className="flex gap-2">
           <Button
             as="label"
-            variant="shadow"
+            variant="flat"
             size="md"
             radius="md"
             startContent={<Upload size={16} />}

@@ -1,8 +1,8 @@
 "use client";
 
-import { Spinner } from "@heroui/react";
 import { usePerfOkr } from "@/modules/performance/hooks/usePerfOkr";
 import OkrView from "@/modules/performance/components/OkrView";
+import Loading from "@/components/ui/Loading";
 
 export default function OkrPage() {
   const hook = usePerfOkr();
@@ -10,7 +10,7 @@ export default function OkrPage() {
   if (hook.loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Spinner size="lg" />
+        <Loading />
       </div>
     );
   }

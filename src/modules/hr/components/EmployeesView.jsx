@@ -93,7 +93,7 @@ export default function EmployeesView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={emp.isActive ? "success" : "default"}

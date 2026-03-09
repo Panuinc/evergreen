@@ -94,7 +94,7 @@ export default function DepartmentsView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={dept.isActive ? "success" : "danger"}

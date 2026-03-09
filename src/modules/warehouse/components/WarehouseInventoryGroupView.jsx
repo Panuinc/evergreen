@@ -50,7 +50,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
         return <span className="font-light">{item.displayName}</span>;
       case "projectName":
         return item.projectName ? (
-          <Chip variant="shadow" size="md" radius="md" color="secondary">
+          <Chip variant="flat" size="md" radius="md" color="secondary">
             {item.projectName}
           </Chip>
         ) : (
@@ -84,7 +84,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
       }
       case "type":
         return (
-          <Chip variant="shadow" size="md" radius="md" color="default">
+          <Chip variant="flat" size="md" radius="md" color="default">
             {item.type || "-"}
           </Chip>
         );
@@ -94,7 +94,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
             isIconOnly
             size="md"
             radius="md"
-            variant="shadow"
+            variant="flat"
             onPress={() => setPrintItem(item)}
           >
             <Printer size={16} />

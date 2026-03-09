@@ -88,7 +88,7 @@ export default function ResourcesView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={resource.isActive ? "success" : "danger"}

@@ -5,9 +5,7 @@ import {
   CardBody,
   CardHeader,
   Button,
-  Divider,
-  Spinner,
-  Progress,
+  Divider,  Progress,
 } from "@heroui/react";
 import {
   RefreshCw,
@@ -24,6 +22,7 @@ import {
   FileSpreadsheet,
   Loader2,
 } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 
 /* ── BC Tables ── */
 const BC_TABLES = [
@@ -168,7 +167,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
           size="md"
           radius="md"
           startContent={
-            importing ? <Spinner size="sm" /> : <Upload size={16} />
+            importing ? <Loading /> : <Upload size={16} />
           }
           isDisabled={importing}
           className="cursor-pointer"

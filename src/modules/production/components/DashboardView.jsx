@@ -5,7 +5,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Spinner,
   Chip,
   Tabs,
   Tab,
@@ -26,6 +25,7 @@ import EmployeeSpecializationChart from "@/modules/production/components/Employe
 import FgOutputBreakdownChart from "@/modules/production/components/FgOutputBreakdownChart";
 import ProfitByItemChart from "@/modules/production/components/ProfitByItemChart";
 import ProfitByProjectSection from "@/modules/production/components/ProfitByProjectSection";
+import Loading from "@/components/ui/Loading";
 
 // ── Helpers ──
 function fmt(v) {
@@ -556,7 +556,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Spinner size="lg" />
+        <Loading />
       </div>
     );
   }

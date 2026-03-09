@@ -140,7 +140,7 @@ export default function ActivitiesView({
         case "crmActivityPriority": {
           const color = PRIORITY_COLOR_MAP[item.crmActivityPriority] || "default";
           return (
-            <Chip variant="shadow" size="md" radius="md" color={color}>
+            <Chip variant="flat" size="md" radius="md" color={color}>
               {item.crmActivityPriority}
             </Chip>
           );
@@ -148,7 +148,7 @@ export default function ActivitiesView({
         case "crmActivityStatus": {
           const color = STATUS_COLOR_MAP[item.crmActivityStatus] || "default";
           return (
-            <Chip variant="shadow" size="md" radius="md" color={color}>
+            <Chip variant="flat" size="md" radius="md" color={color}>
               {item.crmActivityStatus}
             </Chip>
           );
@@ -169,7 +169,7 @@ export default function ActivitiesView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

@@ -135,7 +135,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 label="โทเค็นการเข้าถึงเพจ"
                 labelPlacement="outside"
                 placeholder="ใส่ Facebook Page Access Token"
-                variant="shadow"
+                variant="flat"
                 size="md"
                 radius="md"
                 value={fbToken}
@@ -167,7 +167,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 label="Channel Access Token"
                 labelPlacement="outside"
                 placeholder="ใส่ LINE Channel Access Token"
-                variant="shadow"
+                variant="flat"
                 size="md"
                 radius="md"
                 value={lineToken}

@@ -83,7 +83,7 @@ export default function BcSalesOrdersView({
         case "bcSalesOrderStatus":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={statusColorMap[order.bcSalesOrderStatus] || "default"}
@@ -163,7 +163,7 @@ export default function BcSalesOrdersView({
                     <TableCell>{line.bcSalesOrderLineDescription || "-"}</TableCell>
                     <TableCell>
                       {line.bcSalesOrderLineProjectName ? (
-                        <Chip variant="shadow" size="md" radius="md" color="secondary">
+                        <Chip variant="flat" size="md" radius="md" color="secondary">
                           {line.bcSalesOrderLineProjectName}
                         </Chip>
                       ) : (
@@ -196,7 +196,7 @@ export default function BcSalesOrdersView({
             </Table>
           </ModalBody>
           <ModalFooter>
-            <Button variant="shadow" size="md" radius="md" onPress={onClose}>
+            <Button variant="flat" size="md" radius="md" onPress={onClose}>
               ปิด
             </Button>
           </ModalFooter>

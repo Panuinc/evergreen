@@ -5,9 +5,7 @@ import {
   Button,
   Input,
   Textarea,
-  Chip,
-  Spinner,
-  Card,
+  Chip,  Card,
   Modal,
   ModalContent,
   ModalHeader,
@@ -24,6 +22,7 @@ import {
   Trash2,
   ShoppingCart,
 } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 
 const STATUS_COLOR_MAP = {
   draft: "default",
@@ -63,7 +62,7 @@ export default function QuotationEditorView({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }
@@ -100,14 +99,14 @@ export default function QuotationEditorView({
           <p className="text-sm font-light">
             {quotation.crmQuotationNo || "ใบเสนอราคาใหม่"}
           </p>
-          <Chip variant="shadow" size="md" radius="md" color={statusColor}>
+          <Chip variant="flat" size="md" radius="md" color={statusColor}>
             {status}
           </Chip>
         </div>
         <div className="flex items-center gap-2">
           {canSubmit && (
             <Button
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               startContent={<Send size={14} />}

@@ -50,7 +50,7 @@ export default function BcItemsView({ items, loading }) {
         return <span className="font-light">{item.bcItemDisplayName}</span>;
       case "bcItemProjectName":
         return item.bcItemProjectName ? (
-          <Chip variant="shadow" size="md" radius="md" color="secondary">
+          <Chip variant="flat" size="md" radius="md" color="secondary">
             {item.bcItemProjectName}
           </Chip>
         ) : (
@@ -85,7 +85,7 @@ export default function BcItemsView({ items, loading }) {
       case "bcItemBlocked":
         return (
           <Chip
-            variant="shadow"
+            variant="flat"
             size="md"
             radius="md"
             color={!item.bcItemBlocked ? "success" : "danger"}

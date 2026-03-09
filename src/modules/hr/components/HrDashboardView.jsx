@@ -1,4 +1,4 @@
-import { Card, CardBody, Spinner } from "@heroui/react";
+import { Card, CardBody} from "@heroui/react";
 import {
   Users,
   UserCheck,
@@ -13,12 +13,13 @@ import EmployeeByDivisionChart from "@/modules/hr/components/EmployeeByDivisionC
 import EmployeeByDepartmentChart from "@/modules/hr/components/EmployeeByDepartmentChart";
 import EmployeeStatusChart from "@/modules/hr/components/EmployeeStatusChart";
 import NewEmployeeTrendChart from "@/modules/hr/components/NewEmployeeTrendChart";
+import Loading from "@/components/ui/Loading";
 
 export default function HrDashboardView({ stats, loading, compareMode, setCompareMode }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }

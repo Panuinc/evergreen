@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button, Spinner } from "@heroui/react";
+import { Button} from "@heroui/react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { uploadFile, uploadFiles, deleteFile } from "@/lib/supabaseStorage";
 import { toast } from "sonner";
+import Loading from "@/components/ui/Loading";
 
 export default function FileUpload({
   label = "อัปโหลดไฟล์",
@@ -88,7 +89,7 @@ export default function FileUpload({
         className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-border rounded-md cursor-pointer hover:border-primary transition-colors"
       >
         {uploading ? (
-          <Spinner />
+          <Loading />
         ) : (
           <>
             <Upload size={16} className="text-muted-foreground" />

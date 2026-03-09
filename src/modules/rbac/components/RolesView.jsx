@@ -12,12 +12,11 @@ import {
   Textarea,
   Switch,
   Chip,
-  Checkbox,
-  Spinner,
-} from "@heroui/react";
+  Checkbox,} from "@heroui/react";
 import { Plus, Edit, Trash2, Shield, Power } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
+import Loading from "@/components/ui/Loading";
 
 const baseColumns = [
   { name: "ชื่อ", uid: "rbacRoleName", sortable: true },
@@ -92,11 +91,11 @@ export default function RolesView({
           );
         case "roleType":
           return role.rbacRoleIsSuperadmin ? (
-            <Chip variant="shadow" size="md" radius="md">
+            <Chip variant="flat" size="md" radius="md">
               Superadmin
             </Chip>
           ) : (
-            <Chip variant="shadow" size="md" radius="md">
+            <Chip variant="flat" size="md" radius="md">
               มาตรฐาน
             </Chip>
           );
@@ -107,7 +106,7 @@ export default function RolesView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={role.isActive ? "success" : "danger"}
@@ -276,7 +275,7 @@ export default function RolesView({
           <ModalBody>
             {permLoading ? (
               <div className="flex justify-center p-4">
-                <Spinner />
+                <Loading />
               </div>
             ) : (
               <div className="flex flex-col gap-4">

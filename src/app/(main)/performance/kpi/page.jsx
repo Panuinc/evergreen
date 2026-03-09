@@ -1,8 +1,8 @@
 "use client";
 
-import { Spinner } from "@heroui/react";
 import { usePerfKpi } from "@/modules/performance/hooks/usePerfKpi";
 import KpiView from "@/modules/performance/components/KpiView";
+import Loading from "@/components/ui/Loading";
 
 export default function KpiPage() {
   const hook = usePerfKpi();
@@ -10,7 +10,7 @@ export default function KpiPage() {
   if (hook.loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Spinner size="lg" />
+        <Loading />
       </div>
     );
   }

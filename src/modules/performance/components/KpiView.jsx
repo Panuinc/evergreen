@@ -9,9 +9,7 @@ import {
   CardHeader,
   Button,
   Progress,
-  Chip,
-  Spinner,
-  Modal,
+  Chip,  Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
@@ -48,6 +46,7 @@ import {
   getCategoryLabel,
   getFrequencyLabel,
 } from "@/lib/performance/kpiConstants";
+import Loading from "@/components/ui/Loading";
 
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
   const y = new Date().getFullYear() - 2 + i;
@@ -95,7 +94,7 @@ export default function KpiView({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Spinner size="lg" />
+        <Loading />
       </div>
     );
   }
@@ -232,7 +231,7 @@ function MyKpiTab({
       </div>
 
       {loadingAssignments ? (
-        <div className="flex justify-center py-8"><Spinner /></div>
+        <div className="flex justify-center py-8"><Loading /></div>
       ) : myAssignments.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
@@ -293,7 +292,7 @@ function MyKpiTab({
               </CardHeader>
               <CardBody>
                 {loadingRecords ? (
-                  <div className="flex justify-center py-8"><Spinner /></div>
+                  <div className="flex justify-center py-8"><Loading /></div>
                 ) : (
                   <LineChart
                     data={(selectedTrend.records || []).map((r) => ({
@@ -325,7 +324,7 @@ function SummaryCard({ label, count, total, color }) {
           <p className="text-sm text-muted-foreground">{label}</p>
           <p className="text-sm font-light">{count}</p>
         </div>
-        <Chip color={color} variant="shadow" size="md" radius="md">
+        <Chip color={color} variant="flat" size="md" radius="md">
           {total > 0 ? Math.round((count / total) * 100) : 0}%
         </Chip>
       </CardBody>
@@ -352,7 +351,7 @@ function KpiCard({ assignment, onRecord, onTrend }) {
               {getCategoryLabel(def.perfKpiDefinitionCategory)} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
             </p>
           </div>
-          <Chip size="md" radius="md" color={statusColor} variant="shadow">
+          <Chip size="md" radius="md" color={statusColor} variant="flat">
             {statusLabel}
           </Chip>
         </div>
@@ -374,7 +373,7 @@ function KpiCard({ assignment, onRecord, onTrend }) {
         />
 
         <div className="flex gap-2">
-          <Button size="md" radius="md" color="primary" variant="shadow" onPress={onRecord} startContent={<Plus className="w-3 h-3" />}>
+          <Button size="md" radius="md" color="primary" variant="flat" onPress={onRecord} startContent={<Plus className="w-3 h-3" />}>
             บันทึกค่า
           </Button>
           <Button size="md" radius="md" variant="bordered" onPress={onTrend} startContent={<TrendingUp className="w-3 h-3" />}>
@@ -427,7 +426,7 @@ function DashboardTab({
       </Select>
 
       {loadingDashboard ? (
-        <div className="flex justify-center py-8"><Spinner /></div>
+        <div className="flex justify-center py-8"><Loading /></div>
       ) : grouped.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
@@ -450,7 +449,7 @@ function DashboardTab({
                       {getCategoryLabel(def.perfKpiDefinitionCategory)} | {def.perfKpiDefinitionUnit} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
                     </p>
                   </div>
-                  <Chip size="md" radius="md" color={successCount === total ? "success" : "warning"} variant="shadow">
+                  <Chip size="md" radius="md" color={successCount === total ? "success" : "warning"} variant="flat">
                     {successCount}/{total} ตามเป้า
                   </Chip>
                 </div>
@@ -473,7 +472,7 @@ function DashboardTab({
                         <span className="text-sm min-w-[80px] text-right">
                           {emp.latestValue != null ? `${emp.latestValue} / ${emp.targetValue}` : "-"}
                         </span>
-                        <Chip size="md" radius="md" color={getKpiStatusColor(emp.status)} variant="shadow">
+                        <Chip size="md" radius="md" color={getKpiStatusColor(emp.status)} variant="flat">
                           {getKpiStatusLabel(emp.status)}
                         </Chip>
                       </div>
@@ -514,7 +513,7 @@ function ManageTab({
       </div>
 
       {loadingDefinitions ? (
-        <div className="flex justify-center py-8"><Spinner /></div>
+        <div className="flex justify-center py-8"><Loading /></div>
       ) : definitions.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
@@ -529,10 +528,10 @@ function ManageTab({
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="font-light">{def.perfKpiDefinitionName}</p>
-                    <Chip size="md" radius="md" variant="shadow">{getCategoryLabel(def.perfKpiDefinitionCategory)}</Chip>
-                    <Chip size="md" radius="md" variant="shadow">{def.perfKpiDefinitionUnit}</Chip>
-                    <Chip size="md" radius="md" variant="shadow">{getFrequencyLabel(def.perfKpiDefinitionFrequency)}</Chip>
-                    {!def.perfKpiDefinitionIsActive && <Chip size="md" radius="md" color="danger" variant="shadow">ปิดใช้งาน</Chip>}
+                    <Chip size="md" radius="md" variant="flat">{getCategoryLabel(def.perfKpiDefinitionCategory)}</Chip>
+                    <Chip size="md" radius="md" variant="flat">{def.perfKpiDefinitionUnit}</Chip>
+                    <Chip size="md" radius="md" variant="flat">{getFrequencyLabel(def.perfKpiDefinitionFrequency)}</Chip>
+                    {!def.perfKpiDefinitionIsActive && <Chip size="md" radius="md" color="danger" variant="flat">ปิดใช้งาน</Chip>}
                   </div>
                   {def.perfKpiDefinitionDescription && <p className="text-sm text-muted-foreground mt-1">{def.perfKpiDefinitionDescription}</p>}
                   <p className="text-sm text-muted-foreground mt-1">
@@ -541,7 +540,7 @@ function ManageTab({
                 </div>
                 <div className="flex gap-1">
                   <Tooltip content="Assign ให้พนักงาน">
-                    <Button isIconOnly size="md" radius="md" variant="shadow" color="primary" onPress={() => onOpenAssignForm(def.perfKpiDefinitionId)}>
+                    <Button isIconOnly size="md" radius="md" variant="flat" color="primary" onPress={() => onOpenAssignForm(def.perfKpiDefinitionId)}>
                       <Users className="w-4 h-4" />
                     </Button>
                   </Tooltip>

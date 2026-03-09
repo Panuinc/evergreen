@@ -10,7 +10,6 @@ import {
   Chip,
   Select,
   SelectItem,
-  Spinner,
   Modal,
   ModalContent,
   ModalHeader,
@@ -35,6 +34,7 @@ import {
 } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import FileUpload from "@/components/ui/FileUpload";
+import Loading from "@/components/ui/Loading";
 
 const BANK_OPTIONS = [
   { key: "AUTO", label: "ตรวจจับอัตโนมัติ" },

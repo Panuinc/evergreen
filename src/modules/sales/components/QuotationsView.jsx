@@ -87,7 +87,7 @@ export default function QuotationsView({
         case "crmQuotationStatus": {
           const color = STATUS_COLOR_MAP[item.crmQuotationStatus] || "default";
           return (
-            <Chip variant="shadow" size="md" radius="md" color={color}>
+            <Chip variant="flat" size="md" radius="md" color={color}>
               {item.crmQuotationStatus}
             </Chip>
           );
@@ -108,7 +108,7 @@ export default function QuotationsView({
           return (
             <div className="flex items-center gap-1">
               <Button
-                variant="shadow"
+                variant="flat"
                 size="md"
                 radius="md"
                 isIconOnly

@@ -2,15 +2,14 @@
 
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Spinner } from "@heroui/react";
-
+import Loading from "@/components/ui/Loading";
 const ShippingLabelDocument = dynamic(
   () => import("./ShippingLabelDocument"),
   {
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center py-20">
-        <Spinner />
+        <Loading />
       </div>
     ),
   },

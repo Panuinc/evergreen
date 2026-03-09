@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  Card, CardBody, CardHeader, Spinner, Button, Chip,
+  Card, CardBody, CardHeader, Button, Chip,
   Popover, PopoverTrigger, PopoverContent, Input,
 } from "@heroui/react";
 import { Download, Pencil, Trash2 } from "lucide-react";
@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { exportToExcel } from "@/lib/exportExcel";
 import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/modules/finance/glAccountMap";
+import Loading from "@/components/ui/Loading";
 
 function fmt(v) {
   if (v === 0 || v == null) return "-";
@@ -55,7 +56,7 @@ export default function CogsDetailTable({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Spinner label="กำลังโหลดข้อมูล..." />
+        <Loading />
       </div>
     );
   }

@@ -9,9 +9,7 @@ import {
   CardHeader,
   Button,
   Progress,
-  Chip,
-  Spinner,
-  Modal,
+  Chip,  Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
@@ -47,6 +45,7 @@ import {
   getStatusConfig,
   computeKrProgress,
 } from "@/lib/performance/okrConstants";
+import Loading from "@/components/ui/Loading";
 
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
   const y = new Date().getFullYear() - 2 + i;
@@ -128,7 +127,7 @@ function MyOkrTab({
 
       {loadingObjectives ? (
         <div className="flex justify-center py-8">
-          <Spinner />
+          <Loading />
         </div>
       ) : objectives.length === 0 ? (
         <Card>
@@ -182,7 +181,7 @@ function TeamOkrTab({
 
       {loadingObjectives ? (
         <div className="flex justify-center py-8">
-          <Spinner />
+          <Loading />
         </div>
       ) : teamObjectives.length === 0 ? (
         <Card>
@@ -236,7 +235,7 @@ function CompanyOkrTab({
 
       {loadingObjectives ? (
         <div className="flex justify-center py-8">
-          <Spinner />
+          <Loading />
         </div>
       ) : companyObjectives.length === 0 ? (
         <Card>
@@ -291,10 +290,10 @@ function ObjectiveCard({
           <div className="flex flex-col gap-1 flex-1">
             <div className="flex items-center gap-2">
               <p className="text-sm font-light">{objective.perfOkrObjectiveTitle}</p>
-              <Chip size="md" radius="md" color={statusConfig.color} variant="shadow">
+              <Chip size="md" radius="md" color={statusConfig.color} variant="flat">
                 {statusConfig.label}
               </Chip>
-              <Chip size="md" radius="md" variant="shadow">
+              <Chip size="md" radius="md" variant="flat">
                 {objective.perfOkrObjectivePeriod}
               </Chip>
             </div>
@@ -313,7 +312,7 @@ function ObjectiveCard({
                     isIconOnly
                     size="md"
                     radius="md"
-                    variant="shadow"
+                    variant="flat"
                     onPress={() => onOpenObjectiveForm(objective)}
                   >
                     <Pencil className="w-4 h-4" />
@@ -435,7 +434,7 @@ function KeyResultRow({ kr, editable, onOpenCheckin, onOpenKrForm, onDeleteKr })
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-light">{kr.perfOkrKeyResultTitle}</span>
-          <Chip size="md" radius="md" color={statusConfig.color} variant="shadow">
+          <Chip size="md" radius="md" color={statusConfig.color} variant="flat">
             {statusConfig.label}
           </Chip>
         </div>
@@ -456,7 +455,7 @@ function KeyResultRow({ kr, editable, onOpenCheckin, onOpenKrForm, onDeleteKr })
               isIconOnly
               size="md"
               radius="md"
-              variant="shadow"
+              variant="flat"
               color="primary"
               onPress={() => onOpenCheckin(kr)}
             >

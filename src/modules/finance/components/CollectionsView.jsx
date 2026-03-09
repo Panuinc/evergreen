@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback } from "react";
 import {
-  Chip, Button, Spinner,
+  Chip, Button,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
   Tabs, Tab, Input, Textarea, Select, SelectItem,
   Card, CardBody, CardHeader,
@@ -18,6 +18,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   PieChart, Pie, Cell, ResponsiveContainer, Legend,
 } from "recharts";
+import Loading from "@/components/ui/Loading";
 
 /* ═══════════════════ Constants ═══════════════════ */
 
@@ -147,7 +148,7 @@ export default function CollectionsView({
           : <Chip size="sm" variant="flat" color="default">ยังไม่ติดตาม</Chip>;
       case "lastReason":
         return item.lastReason
-          ? <Chip size="sm" variant="dot" color={reasonColor(item.lastReason)}>{reasonLabel(item.lastReason)}</Chip>
+          ? <Chip size="sm" variant="flat" color={reasonColor(item.lastReason)}>{reasonLabel(item.lastReason)}</Chip>
           : <span className="text-muted-foreground">-</span>;
       case "lastContactDate":
         return <span>{item.lastContactDate ? fmtDate(item.lastContactDate) : "-"}</span>;
@@ -206,7 +207,7 @@ export default function CollectionsView({
       case "contactMethod":
         return <span>{contactLabel(item.contactMethod)}</span>;
       case "reason":
-        return <Chip size="sm" variant="dot" color={reasonColor(item.reason)}>{reasonLabel(item.reason)}</Chip>;
+        return <Chip size="sm" variant="flat" color={reasonColor(item.reason)}>{reasonLabel(item.reason)}</Chip>;
       case "reasonDetail":
         return <span className="text-foreground line-clamp-2">{item.reasonDetail || "-"}</span>;
       case "note":
@@ -296,7 +297,7 @@ export default function CollectionsView({
               onChange={(e) => onReportUntilChange(e.target.value)}
             />
             <Button
-              variant="shadow"
+              variant="flat"
               size="sm"
               startContent={<Download size={14} />}
               onPress={() => exportCSV(reportData.filtered, `ar-collections-${reportSince}-${reportUntil}.csv`)}
@@ -413,7 +414,7 @@ export default function CollectionsView({
         <CardBody>
           {aiLoading && !aiAnalysis && (
             <div className="flex items-center gap-3 py-8 justify-center">
-              <Spinner size="sm" />
+              <Loading />
               <span className="text-sm text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลลูกหนี้และจัดลำดับความสำคัญ...</span>
             </div>
           )}
@@ -457,7 +458,7 @@ export default function CollectionsView({
               >
                 {aiAnalysis}
               </ReactMarkdown>
-              {aiLoading && <Spinner size="sm" className="mt-2" />}
+              {aiLoading && <Loading />}
             </div>
           )}
         </CardBody>
@@ -552,7 +553,7 @@ export default function CollectionsView({
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="shadow" onPress={addModal.onClose}>ยกเลิก</Button>
+            <Button variant="flat" onPress={addModal.onClose}>ยกเลิก</Button>
             <Button
               color="primary"
               onPress={onSubmit}
@@ -585,7 +586,7 @@ export default function CollectionsView({
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">
                           <Chip size="sm" variant="flat" color={statusColor(fu.status)}>{statusLabel(fu.status)}</Chip>
-                          <Chip size="sm" variant="dot" color={reasonColor(fu.reason)}>{reasonLabel(fu.reason)}</Chip>
+                          <Chip size="sm" variant="flat" color={reasonColor(fu.reason)}>{reasonLabel(fu.reason)}</Chip>
                           <span className="text-muted-foreground">{contactLabel(fu.contactMethod)}</span>
                         </div>
                         <div className="text-right">
@@ -622,7 +623,7 @@ export default function CollectionsView({
             )}
           </ModalBody>
           <ModalFooter>
-            <Button variant="shadow" onPress={historyModal.onClose}>ปิด</Button>
+            <Button variant="flat" onPress={historyModal.onClose}>ปิด</Button>
             <Button
               color="primary"
               startContent={<Plus size={14} />}

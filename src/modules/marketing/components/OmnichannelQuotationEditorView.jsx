@@ -3,9 +3,7 @@ import {
   Button,
   Input,
   Textarea,
-  Chip,
-  Spinner,
-  Modal,
+  Chip,  Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
@@ -14,6 +12,7 @@ import {
 } from "@heroui/react";
 import { ArrowLeft, ExternalLink, Send, Check, X, Banknote, Receipt } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
+import Loading from "@/components/ui/Loading";
 
 const STATUS_MAP = {
   draft: { label: "ร่าง", color: "default" },
@@ -55,7 +54,7 @@ export default function OmnichannelQuotationEditorView({
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }
@@ -169,13 +168,13 @@ export default function OmnichannelQuotationEditorView({
             <ArrowLeft size={18} />
           </Button>
           <p className="text-sm font-light">{quotation.omQuotationNumber}</p>
-          <Chip variant="shadow" size="md" radius="md" color={status.color}>
+          <Chip variant="flat" size="md" radius="md" color={status.color}>
             {status.label}
           </Chip>
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant="shadow"
+            variant="flat"
             size="md"
             radius="md"
             startContent={<ExternalLink size={14} />}

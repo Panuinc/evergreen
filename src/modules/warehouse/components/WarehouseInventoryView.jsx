@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { Card, CardBody, Spinner } from "@heroui/react";
+import { Card, CardBody} from "@heroui/react";
 import { Package } from "lucide-react";
 import Link from "next/link";
+import Loading from "@/components/ui/Loading";
 
 const GROUP_ORDER = [
   "Ap", "Bp", "Fa", "Fg", "Is", "Pk", "Rm", "Sm",
@@ -46,7 +47,7 @@ export default function WarehouseInventoryView({ items, loading }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }

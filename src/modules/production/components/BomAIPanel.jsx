@@ -452,7 +452,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
             )}
             <Input
               placeholder='พิมพ์ "45×90×200 ไส้โฟม" หรืออัปโหลดไฟล์'
-              variant="shadow"
+              variant="flat"
               size="sm"
               value={input}
               onValueChange={setInput}

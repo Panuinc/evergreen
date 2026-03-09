@@ -102,7 +102,7 @@ export default function LeadsView({
           return item.crmLeadPhone || "-";
         case "crmLeadSource":
           return item.crmLeadSource ? (
-            <Chip variant="shadow" size="md" radius="md">
+            <Chip variant="flat" size="md" radius="md">
               {item.crmLeadSource}
             </Chip>
           ) : (
@@ -116,7 +116,7 @@ export default function LeadsView({
           };
           return item.crmLeadScore ? (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={scoreColorMap[item.crmLeadScore] || "default"}
@@ -137,7 +137,7 @@ export default function LeadsView({
           };
           return item.crmLeadStatus ? (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={statusColorMap[item.crmLeadStatus] || "default"}
@@ -153,7 +153,7 @@ export default function LeadsView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

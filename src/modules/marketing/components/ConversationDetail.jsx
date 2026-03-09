@@ -104,7 +104,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             <div className="flex gap-1">
               <Input
                 size="md"
-                variant="shadow"
+                variant="flat"
                 radius="md"
                 placeholder="เพิ่ม tag..."
                 value={newTag}

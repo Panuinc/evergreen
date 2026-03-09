@@ -105,7 +105,7 @@ export default function DeliveriesView({
         case "tmsDeliveryStatus":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={STATUS_COLORS[item.tmsDeliveryStatus] || "default"}

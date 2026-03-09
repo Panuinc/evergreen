@@ -96,7 +96,7 @@ export default function ContactsView({
           return item.salesAccount?.crmAccountName || "-";
         case "crmContactTags":
           return item.crmContactTags ? (
-            <Chip variant="shadow" size="md" radius="md" color="primary">
+            <Chip variant="flat" size="md" radius="md" color="primary">
               {item.crmContactTags}
             </Chip>
           ) : (
@@ -105,7 +105,7 @@ export default function ContactsView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

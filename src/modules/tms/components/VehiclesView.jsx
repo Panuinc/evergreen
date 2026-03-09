@@ -129,7 +129,7 @@ export default function VehiclesView({
         case "tmsVehicleStatus":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={STATUS_COLORS[item.tmsVehicleStatus] || "default"}
@@ -140,7 +140,7 @@ export default function VehiclesView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

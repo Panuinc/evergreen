@@ -6,11 +6,10 @@ import {
   Button,
   Chip,
   Accordion,
-  AccordionItem,
-  Spinner,
-  Divider,
+  AccordionItem,  Divider,
 } from "@heroui/react";
 import { Sparkles, RefreshCw, TrendingUp, TrendingDown, BookOpen, Target } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 
 const COURSE_TYPE_MAP = {
   workshop: { label: "Workshop", color: "primary" },
@@ -66,7 +65,7 @@ export default function AiFeedbackPanel({
 
         {isLoading && (
           <div className="flex flex-col items-center gap-3 py-8">
-            <Spinner size="lg" color="primary" />
+            <Loading />
             <p className="text-sm text-muted-foreground">กำลังวิเคราะห์ผลประเมิน...</p>
           </div>
         )}
@@ -139,7 +138,7 @@ export default function AiFeedbackPanel({
                 <Target className="w-4 h-4 text-primary" />
                 <p className="font-light text-sm">คำแนะนำเชิงปฏิบัติ</p>
               </div>
-              <Accordion variant="shadow" isCompact>
+              <Accordion variant="flat" isCompact>
                 {(feedback.recommendations || []).map((rec, i) => (
                   <AccordionItem
                     key={i}

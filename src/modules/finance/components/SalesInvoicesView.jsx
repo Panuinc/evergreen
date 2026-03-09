@@ -122,7 +122,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
         );
       case "actions":
         return (
-          <Button variant="shadow" size="sm" isIconOnly onPress={() => openLines(item)}>
+          <Button variant="flat" size="sm" isIconOnly onPress={() => openLines(item)}>
             <Eye size={16} />
           </Button>
         );
@@ -201,7 +201,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
               <span>VAT: {fmt(selected?.totalTaxAmount)}</span>
               <span className="font-light text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>
             </div>
-            <Button variant="shadow" size="md" onPress={onClose}>ปิด</Button>
+            <Button variant="flat" size="md" onPress={onClose}>ปิด</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

@@ -11,10 +11,10 @@ import {
   Input,
   Textarea,
   Chip,
-  Spinner,
 } from "@heroui/react";
 import { Plus, Trash2, Search } from "lucide-react";
 import DeliveryPlanMapPicker from "./DeliveryPlanMapPicker";
+import Loading from "@/components/ui/Loading";
 
 const STATUS_COLORS = {
   planned: "primary",
@@ -242,7 +242,7 @@ export default function DeliveryPlanModal({
                       <Chip
                         size="sm"
                         color={PRIORITY_COLORS[plan.tmsDeliveryPlanPriority] || "primary"}
-                        variant="dot"
+                        variant="flat"
                       >
                         {PRIORITY_LABELS[plan.tmsDeliveryPlanPriority] || "ปกติ"}
                       </Chip>
@@ -332,7 +332,7 @@ export default function DeliveryPlanModal({
                     <Chip
                       size="sm"
                       color={PRIORITY_COLORS[editingPlan.tmsDeliveryPlanPriority] || "primary"}
-                      variant="dot"
+                      variant="flat"
                     >
                       {PRIORITY_LABELS[editingPlan.tmsDeliveryPlanPriority] || "ปกติ"}
                     </Chip>
@@ -434,7 +434,7 @@ export default function DeliveryPlanModal({
                       startContent={<Search size={14} />}
                       size="sm"
                     />
-                    {soLoading && <Spinner size="sm" />}
+                    {soLoading && <Loading />}
                     {!soLoading && salesOrders.length > 0 && !selectedSO && (
                       <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-border rounded-xl p-1">
                         {salesOrders.map((so) => (
@@ -480,7 +480,7 @@ export default function DeliveryPlanModal({
                   {selectedSO && (
                     <div className="flex flex-col gap-2">
                       <p className="text-sm font-light">เลือกรายการสินค้า</p>
-                      {soLinesLoading && <Spinner size="sm" />}
+                      {soLinesLoading && <Loading />}
                       {!soLinesLoading && soLines.length === 0 && (
                         <p className="text-sm text-muted-foreground">
                           ไม่มีรายการที่ค้างส่ง

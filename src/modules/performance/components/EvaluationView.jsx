@@ -12,9 +12,7 @@ import {
   AccordionItem,
   RadioGroup,
   Radio,
-  Chip,
-  Spinner,
-  Textarea,
+  Chip,  Textarea,
 } from "@heroui/react";
 import { ClipboardList, BarChart3, Shield, Trash2, Save, Sparkles } from "lucide-react";
 import SpiderChart from "@/modules/performance/components/SpiderChart";
@@ -25,6 +23,7 @@ import {
   QUARTER_OPTIONS,
   getGradeColor,
 } from "@/lib/performance/evaluationCriteria";
+import Loading from "@/components/ui/Loading";
 
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => {
   const y = new Date().getFullYear() - 2 + i;
@@ -292,7 +291,7 @@ function EvaluateTab({
                   key={s}
                   size="md"
                   radius="md"
-                  variant="shadow"
+                  variant="flat"
                   color={SCORE_LABELS[s].color}
                 >
                   {s} — {SCORE_LABELS[s].label} ({SCORE_LABELS[s].description})
@@ -331,7 +330,7 @@ function EvaluateTab({
         </Card>
 
         {/* Evaluation Sections */}
-        <Accordion variant="shadow" selectionMode="multiple" defaultExpandedKeys={["0"]}>
+        <Accordion variant="flat" selectionMode="multiple" defaultExpandedKeys={["0"]}>
           {EVALUATION_CATEGORIES.map((cat, catIdx) => {
             const catScores = scores[cat.key] || [];
             const answered = catScores.filter((s) => s > 0).length;
@@ -349,11 +348,11 @@ function EvaluateTab({
                     <span className="text-muted-foreground text-sm">
                       ({cat.nameTh})
                     </span>
-                    <Chip size="md" radius="md" variant="shadow" color={answered === 5 ? "success" : "default"}>
+                    <Chip size="md" radius="md" variant="flat" color={answered === 5 ? "success" : "default"}>
                       {answered}/5
                     </Chip>
                     {avg > 0 && (
-                      <Chip size="md" radius="md" variant="shadow" color="primary">
+                      <Chip size="md" radius="md" variant="flat" color="primary">
                         {avg.toFixed(1)}
                       </Chip>
                     )}
@@ -398,7 +397,7 @@ function EvaluateTab({
               label="ความคิดเห็นเพิ่มเติม (ไม่บังคับ)"
               labelPlacement="outside"
               placeholder="พิมพ์ความคิดเห็นเพิ่มเติม..."
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               value={comment}
@@ -547,7 +546,7 @@ function MyResultsTab({
 
       {loadingResults ? (
         <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+          <Loading />
         </div>
       ) : myResults.length === 0 ? (
         <Card>
@@ -706,7 +705,7 @@ function AdminTab({
             <Select
               label="รอบประเมิน"
               labelPlacement="outside"
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               className="max-w-[200px]"
@@ -754,7 +753,7 @@ function AdminTab({
 
       {loadingAdmin ? (
         <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+          <Loading />
         </div>
       ) : adminSummary.length === 0 ? (
         <Card>

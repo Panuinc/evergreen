@@ -87,7 +87,7 @@ export default function DivisionsView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={div.isActive ? "success" : "danger"}

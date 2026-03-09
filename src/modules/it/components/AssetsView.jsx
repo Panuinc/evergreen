@@ -110,7 +110,7 @@ export default function AssetsView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itAssetStatus] || "default"}
@@ -122,7 +122,7 @@ export default function AssetsView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

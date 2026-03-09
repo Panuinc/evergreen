@@ -1,8 +1,8 @@
 "use client";
 
-import { Spinner } from "@heroui/react";
 import { usePerfEvaluation } from "@/modules/performance/hooks/usePerfEvaluation";
 import EvaluationView from "@/modules/performance/components/EvaluationView";
+import Loading from "@/components/ui/Loading";
 
 export default function EvaluationPage() {
   const hook = usePerfEvaluation();
@@ -10,7 +10,7 @@ export default function EvaluationPage() {
   if (hook.loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Spinner size="lg" />
+        <Loading />
       </div>
     );
   }

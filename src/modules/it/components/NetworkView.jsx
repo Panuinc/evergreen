@@ -82,7 +82,7 @@ export default function NetworkView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itNetworkDeviceStatus] || "default"}

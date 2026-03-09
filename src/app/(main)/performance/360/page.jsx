@@ -1,8 +1,8 @@
 "use client";
 
-import { Spinner } from "@heroui/react";
 import { usePerf360 } from "@/modules/performance/hooks/usePerf360";
 import Feedback360View from "@/modules/performance/components/Feedback360View";
+import Loading from "@/components/ui/Loading";
 
 export default function Feedback360Page() {
   const hook = usePerf360();
@@ -10,7 +10,7 @@ export default function Feedback360Page() {
   if (hook.loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Spinner size="lg" />
+        <Loading />
       </div>
     );
   }

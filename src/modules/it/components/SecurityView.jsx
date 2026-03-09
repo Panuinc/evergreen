@@ -76,7 +76,7 @@ export default function SecurityView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itSecurityIncidentSeverity] || "default"}
@@ -94,7 +94,7 @@ export default function SecurityView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itSecurityIncidentStatus] || "default"}

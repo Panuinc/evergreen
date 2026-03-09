@@ -8,9 +8,7 @@ import {
   CardBody,
   CardHeader,
   Button,
-  Chip,
-  Spinner,
-  Modal,
+  Chip,  Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
@@ -54,6 +52,7 @@ import {
   computeGrade,
   getGradeColor,
 } from "@/lib/performance/feedback360Constants";
+import Loading from "@/components/ui/Loading";
 
 const QUARTER_OPTIONS = [
   { key: "1", label: "Q1" },
@@ -133,7 +132,7 @@ export default function Feedback360View({
               <ClipboardList className="w-4 h-4" />
               <span>รอดำเนินการ</span>
               {pendingReviews.length > 0 && (
-                <Chip size="md" radius="md" color="danger" variant="shadow">{pendingReviews.length}</Chip>
+                <Chip size="md" radius="md" color="danger" variant="flat">{pendingReviews.length}</Chip>
               )}
             </div>
           }
@@ -228,7 +227,7 @@ function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
   return (
     <div className="flex flex-col gap-4 mt-4">
       {loadingPending ? (
-        <div className="flex justify-center py-8"><Spinner /></div>
+        <div className="flex justify-center py-8"><Loading /></div>
       ) : pendingReviews.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
@@ -248,7 +247,7 @@ function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="font-light">{revieweeName}</p>
-                    <Chip size="md" radius="md" variant="shadow" style={{ backgroundColor: relType.color + "20", color: relType.color }}>
+                    <Chip size="md" radius="md" variant="flat" style={{ backgroundColor: relType.color + "20", color: relType.color }}>
                       {relType.label}
                     </Chip>
                   </div>
@@ -280,7 +279,7 @@ function MyResultsTab({ cycles, resultCycleId, onResultCycleIdChange, myResults,
     <div className="flex flex-col gap-4 mt-4">
       <Select
         label="เลือกรอบประเมิน"
-        variant="shadow"
+        variant="flat"
         size="md"
         radius="md"
         labelPlacement="outside"
@@ -298,7 +297,7 @@ function MyResultsTab({ cycles, resultCycleId, onResultCycleIdChange, myResults,
       </Select>
 
       {loadingResults ? (
-        <div className="flex justify-center py-8"><Spinner /></div>
+        <div className="flex justify-center py-8"><Loading /></div>
       ) : !myResults ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
@@ -326,7 +325,7 @@ function ResultsDisplay({ results }) {
             <p className="text-sm text-muted-foreground">คะแนนรวม</p>
             <p className="text-sm font-light">{results.overallScore?.toFixed(2) || "0.00"}</p>
           </div>
-          <Chip color={gradeColor} variant="shadow" size="md" radius="md">
+          <Chip color={gradeColor} variant="flat" size="md" radius="md">
             {grade}
           </Chip>
           <div className="text-sm text-muted-foreground">
@@ -471,7 +470,7 @@ function AdminTab({
       </div>
 
       {loadingCycles ? (
-        <div className="flex justify-center py-8"><Spinner /></div>
+        <div className="flex justify-center py-8"><Loading /></div>
       ) : cycles.length === 0 ? (
         <Card>
           <CardBody className="text-center py-12 text-muted-foreground">
@@ -527,7 +526,7 @@ function CycleCard({ cycle, selectedCycle, onSelectCycle, onOpenCycleForm, onDel
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <p className="font-light">{cycle.perf360CycleName}</p>
-            <Chip size="md" radius="md" color={statusConfig.color} variant="shadow">
+            <Chip size="md" radius="md" color={statusConfig.color} variant="flat">
               {statusConfig.label}
             </Chip>
           </div>
@@ -537,7 +536,7 @@ function CycleCard({ cycle, selectedCycle, onSelectCycle, onOpenCycleForm, onDel
         </div>
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           {transitions.filter((t) => t !== "cancelled").map((t) => (
-            <Button key={t} size="md" radius="md" color="primary" variant="shadow" onPress={() => onTransition(cycle.perf360CycleId, t)}>
+            <Button key={t} size="md" radius="md" color="primary" variant="flat" onPress={() => onTransition(cycle.perf360CycleId, t)}>
               {TRANSITION_LABELS[t]}
             </Button>
           ))}
@@ -662,7 +661,7 @@ function CompetenciesPanel({ selectedCycle, competencies, loadingCompetencies, s
       )}
 
       {loadingCompetencies ? (
-        <Spinner />
+        <Loading />
       ) : editMode ? (
         <div className="flex flex-col gap-3">
           {localComps.map((comp, i) => (
@@ -770,7 +769,7 @@ function NominationsPanel({ selectedCycle, nominations, loadingNominations, onDe
       )}
 
       {loadingNominations ? (
-        <Spinner />
+        <Loading />
       ) : grouped.length === 0 ? (
         <p className="text-muted-foreground text-sm">ยังไม่มีการเสนอชื่อ</p>
       ) : (
@@ -791,7 +790,7 @@ function NominationsPanel({ selectedCycle, nominations, loadingNominations, onDe
                   return (
                     <Chip
                       key={nom.perf360NominationId}
-                      variant="shadow"
+                      variant="flat"
                       size="md"
                       radius="md"
                       style={{ backgroundColor: relType.color + "20", color: relType.color }}
@@ -1084,7 +1083,7 @@ function ReviewModal({
           <div className="flex flex-col gap-3">
             <Textarea
               label="จุดแข็ง"
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               labelPlacement="outside"

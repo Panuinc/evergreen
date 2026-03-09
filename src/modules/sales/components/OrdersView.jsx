@@ -84,7 +84,7 @@ export default function OrdersView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.crmOrderStatus] || "default"}
@@ -244,7 +244,7 @@ export default function OrdersView({
                         };
                         return (
                           <Chip
-                            variant="shadow"
+                            variant="flat"
                             size="md"
                             radius="md"
                             color={

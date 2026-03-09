@@ -1,9 +1,10 @@
 import { useCallback } from "react";
-import { Card, CardBody, Chip, Spinner, Divider } from "@heroui/react";
+import { Card, CardBody, Chip, Divider } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { ArrowLeft, Printer } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 import ShippingLabelModal from "@/modules/marketing/components/ShippingLabelModal";
+import Loading from "@/components/ui/Loading";
 
 const STATUS_COLORS = {
   Open: "warning",
@@ -33,7 +34,7 @@ export default function SalesOrderDetailView({
     switch (columnKey) {
       case "bcSalesOrderLineProjectName":
         return item.bcSalesOrderLineProjectName ? (
-          <Chip variant="shadow" size="md" radius="md" color="secondary">
+          <Chip variant="flat" size="md" radius="md" color="secondary">
             {item.bcSalesOrderLineProjectName}
           </Chip>
         ) : (
@@ -58,7 +59,7 @@ export default function SalesOrderDetailView({
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }
@@ -67,7 +68,7 @@ export default function SalesOrderDetailView({
     return (
       <div className="flex flex-col items-center justify-center w-full h-full gap-4">
         <p className="text-muted-foreground">ไม่พบออเดอร์</p>
-        <Button variant="shadow" size="md" radius="md" onPress={onBack}>
+        <Button variant="flat" size="md" radius="md" onPress={onBack}>
           กลับ
         </Button>
       </div>
@@ -88,17 +89,17 @@ export default function SalesOrderDetailView({
           <ArrowLeft size={18} />
         </Button>
         <p className="text-sm font-light">{order.bcSalesOrderNumber}</p>
-        <Chip variant="shadow" size="md" radius="md" color={STATUS_COLORS[order.bcSalesOrderStatus] || "default"}>
+        <Chip variant="flat" size="md" radius="md" color={STATUS_COLORS[order.bcSalesOrderStatus] || "default"}>
           {order.bcSalesOrderStatus}
         </Chip>
         {order.bcSalesOrderCompletelyShipped ? (
-          <Chip variant="shadow" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
+          <Chip variant="flat" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
-          <Chip variant="shadow" size="md" radius="md" color="default">รอจัดส่ง</Chip>
+          <Chip variant="flat" size="md" radius="md" color="default">รอจัดส่ง</Chip>
         )}
         <div className="flex-1" />
         <Button
-          variant="shadow"
+          variant="flat"
           size="md"
           radius="md"
           startContent={<Printer size={14} />}

@@ -16,15 +16,14 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Switch,
-  Spinner,
-} from "@heroui/react";
+  Switch,} from "@heroui/react";
 import { Plus, Edit, Trash2, ChevronDown, Download, ClipboardCheck, CalendarDays, Route, Sparkles, X, MapPin, ExternalLink, Power } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import DataTable from "@/components/ui/DataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 import { useRBAC } from "@/contexts/RBACContext";
+import Loading from "@/components/ui/Loading";
 
 const shipmentCsvColumns = [
   { header: "เลขที่", key: "tmsShipmentNumber" },
@@ -176,7 +175,7 @@ export default function ShipmentsView({
         case "tmsShipmentStatus":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={STATUS_COLORS[item.tmsShipmentStatus] || "default"}
@@ -187,7 +186,7 @@ export default function ShipmentsView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -395,7 +394,7 @@ export default function ShipmentsView({
                       <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
                         <Button
-                          variant="shadow"
+                          variant="flat"
                           size="sm"
                           radius="md"
                           color="secondary"
@@ -410,7 +409,7 @@ export default function ShipmentsView({
                       {/* Compact route result */}
                       {routeLoading && !routeResult && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
-                          <Spinner size="sm" /> กำลังคำนวณเส้นทาง...
+                          <Loading /> กำลังคำนวณเส้นทาง...
                         </div>
                       )}
                       {routeResult && (
@@ -423,7 +422,7 @@ export default function ShipmentsView({
                                 <span className="text-muted-foreground">→</span>
                                 <span className="font-light">{stop.name}</span>
                                 {stop.priority !== "normal" && (
-                                  <Chip size="sm" variant="dot" color={stop.priority === "urgent" ? "danger" : "warning"} className="h-4" />
+                                  <Chip size="sm" variant="flat" color={stop.priority === "urgent" ? "danger" : "warning"} className="h-4" />
                                 )}
                               </span>
                             ))}
@@ -531,7 +530,7 @@ export default function ShipmentsView({
                   <>
                     {/* Single stop: original fields */}
                     <div className="flex items-center w-full h-fit p-2 gap-2">
-                      <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="shadow" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
+                      <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="flat" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
                     </div>
                     <div className="flex items-center w-full h-fit p-2 gap-2">
                       <Input label="เบอร์โทรลูกค้า" labelPlacement="outside" placeholder="กรอกเบอร์โทร" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerPhone} onChange={(e) => updateField("tmsShipmentCustomerPhone", e.target.value)} />
@@ -880,7 +879,7 @@ export default function ShipmentsView({
                   </div>
                 ) : (
                   <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                    <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="shadow" size="md" radius="md" value={formData.tmsShipmentItemsSummary} onChange={(e) => updateField("tmsShipmentItemsSummary", e.target.value)} />
+                    <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="flat" size="md" radius="md" value={formData.tmsShipmentItemsSummary} onChange={(e) => updateField("tmsShipmentItemsSummary", e.target.value)} />
                   </div>
                 )}
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">

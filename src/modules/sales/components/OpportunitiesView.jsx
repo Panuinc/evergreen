@@ -133,7 +133,7 @@ export default function OpportunitiesView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.crmOpportunityStage] || "default"}
@@ -161,7 +161,7 @@ export default function OpportunitiesView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

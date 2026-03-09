@@ -1,8 +1,9 @@
 "use client";
 
-import { Input, Chip, Avatar, Spinner } from "@heroui/react";
+import { Input, Chip, Avatar} from "@heroui/react";
 import { Search } from "lucide-react";
 import ChannelBadge from "./ChannelBadge";
+import Loading from "@/components/ui/Loading";
 
 const STATUS_FILTERS = [
   { key: "all", label: "ทั้งหมด" },
@@ -95,7 +96,7 @@ export default function ConversationList({
       <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Spinner />
+            <Loading />
           </div>
         ) : conversations.length === 0 ? (
           <div className="flex items-center justify-center py-12 text-muted-foreground">

@@ -104,7 +104,7 @@ export default function HelpDeskView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itTicketPriority] || "default"}
@@ -122,7 +122,7 @@ export default function HelpDeskView({
           };
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={colorMap[item.itTicketStatus] || "default"}
@@ -138,7 +138,7 @@ export default function HelpDeskView({
         case "isActive":
           return (
             <Chip
-              variant="shadow"
+              variant="flat"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}

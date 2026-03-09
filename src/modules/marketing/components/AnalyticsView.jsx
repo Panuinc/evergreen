@@ -1,4 +1,4 @@
-import { Card, CardBody, Chip, Spinner, Tabs, Tab } from "@heroui/react";
+import { Card, CardBody, Chip, Tabs, Tab } from "@heroui/react";
 import {
   ShoppingCart,
   DollarSign,
@@ -30,6 +30,7 @@ import ChannelDistChart from "@/modules/marketing/components/ChannelDistChart";
 import CustomerGroupChart from "@/modules/marketing/components/CustomerGroupChart";
 import ProjectTypeChart from "@/modules/marketing/components/ProjectTypeChart";
 import YoYComparisonChart from "@/modules/marketing/components/YoYComparisonChart";
+import Loading from "@/components/ui/Loading";
 
 const PERIODS = [
   { key: "all", label: "ทั้งหมด" },
@@ -107,7 +108,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }
@@ -318,7 +319,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-light">ช่องทางลูกค้า</p>
-              <Chip variant="shadow" size="md" radius="md">{stats.customerSegmentation?.totalCustomers || 0} ราย</Chip>
+              <Chip variant="flat" size="md" radius="md">{stats.customerSegmentation?.totalCustomers || 0} ราย</Chip>
             </div>
             <ChannelDistChart data={stats.customerSegmentation?.byChannel} />
           </CardBody>
@@ -349,7 +350,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-light">Top 10 ลูกค้า</p>
-              <Chip variant="shadow" size="md" radius="md">ตามยอดขาย</Chip>
+              <Chip variant="flat" size="md" radius="md">ตามยอดขาย</Chip>
             </div>
             <TopCustomersChart data={stats.topCustomers} />
           </CardBody>
@@ -358,7 +359,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-light">Top 10 SKU</p>
-              <Chip variant="shadow" size="md" radius="md">ตามยอดขาย</Chip>
+              <Chip variant="flat" size="md" radius="md">ตามยอดขาย</Chip>
             </div>
             <TopSkuChart data={stats.topSkus} />
           </CardBody>

@@ -1,9 +1,10 @@
 import { useCallback, useMemo } from "react";
-import { Chip, Spinner, Tabs, Tab } from "@heroui/react";
+import { Chip, Tabs, Tab } from "@heroui/react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
 import { useRBAC } from "@/contexts/RBACContext";
+import Loading from "@/components/ui/Loading";
 
 const STATUS_COLORS = {
   Open: "warning",
@@ -62,7 +63,7 @@ export default function SalesOrdersView({
           : "-";
       case "bcSalesOrderStatus":
         return (
-          <Chip variant="shadow" size="md" radius="md" color={STATUS_COLORS[item.bcSalesOrderStatus] || "default"}>
+          <Chip variant="flat" size="md" radius="md" color={STATUS_COLORS[item.bcSalesOrderStatus] || "default"}>
             {item.bcSalesOrderStatus}
           </Chip>
         );
@@ -74,14 +75,14 @@ export default function SalesOrdersView({
         );
       case "bcSalesOrderCompletelyShipped":
         return item.bcSalesOrderCompletelyShipped ? (
-          <Chip variant="shadow" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
+          <Chip variant="flat" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
-          <Chip variant="shadow" size="md" radius="md" color="default">รอจัดส่ง</Chip>
+          <Chip variant="flat" size="md" radius="md" color="default">รอจัดส่ง</Chip>
         );
       case "isActive":
         return (
           <Chip
-            variant="shadow"
+            variant="flat"
             size="md"
             radius="md"
             color={item.isActive ? "success" : "danger"}
@@ -97,7 +98,7 @@ export default function SalesOrdersView({
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
-        <Spinner />
+        <Loading />
       </div>
     );
   }

@@ -10,12 +10,11 @@ import {
   ModalFooter,
   Input,
   Select,
-  SelectItem,
-  Spinner,
-} from "@heroui/react";
+  SelectItem,} from "@heroui/react";
 import { MapPin, RefreshCw, Navigation, History } from "lucide-react";
 import VehicleMap from "@/modules/tms/components/VehicleMap";
 import RoutePlayback from "@/modules/tms/components/RoutePlayback";
+import Loading from "@/components/ui/Loading";
 
 const STATUS_COLORS = {
   available: "success",
@@ -48,7 +47,7 @@ export default function TrackingView({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Spinner />
+        <Loading />
       </div>
     );
   }
@@ -98,7 +97,7 @@ export default function TrackingView({
                   <div className="flex items-center justify-between">
                     <p className="font-light text-sm">{vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}</p>
                     <Chip
-                      variant="shadow"
+                      variant="flat"
                       size="sm"
                       color={STATUS_COLORS[vehicle.tmsVehicleStatus] || "default"}
                     >
@@ -273,7 +272,7 @@ export default function TrackingView({
           <ModalBody>
             {loadingRoute ? (
               <div className="flex items-center justify-center py-10">
-                <Spinner />
+                <Loading />
               </div>
             ) : (
               <RoutePlayback gpsLogs={routeHistory} />
