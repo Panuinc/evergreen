@@ -94,7 +94,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
                 <p>Speed: {currentLog.tmsGpsLogSpeed ?? currentLog.gpsLogSpeed} km/h</p>
               )}
               {(currentLog?.tmsGpsLogRecordedAt ?? currentLog?.gpsLogRecordedAt) && (
-                <p>{new Date(currentLog.tmsGpsLogRecordedAt ?? currentLog.gpsLogRecordedAt).toLocaleString("th-TH")}</p>
+                <p>{new Date(currentLog.tmsGpsLogRecordedAt ?? currentLog.gpsLogRecordedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}</p>
               )}
             </div>
           </Popup>

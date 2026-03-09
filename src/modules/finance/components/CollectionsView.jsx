@@ -154,7 +154,7 @@ export default function CollectionsView({
         return <span>{item.lastContactDate ? fmtDate(item.lastContactDate) : "-"}</span>;
       case "nextFollowUpDate": {
         if (!item.nextFollowUpDate) return <span className="text-muted-foreground">-</span>;
-        const overdue = item.nextFollowUpDate <= new Date().toISOString().slice(0, 10);
+        const overdue = item.nextFollowUpDate <= new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
         return (
           <span className={`font-light ${overdue ? "text-danger" : "text-primary"}`}>
             {fmtDate(item.nextFollowUpDate)}
@@ -255,7 +255,7 @@ export default function CollectionsView({
             defaultRowsPerPage={15}
             getRowClassName={(item) => {
               if (!item.followUpCount) return "bg-danger-50/30";
-              if (item.nextFollowUpDate && item.nextFollowUpDate <= new Date().toISOString().slice(0, 10)) return "bg-warning-50/30";
+              if (item.nextFollowUpDate && item.nextFollowUpDate <= new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" })) return "bg-warning-50/30";
               return undefined;
             }}
             enableCardView

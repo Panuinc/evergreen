@@ -135,7 +135,7 @@ export default function DeliveriesView({
           ) : "-";
         case "tmsDeliveryReceivedAt":
           return item.tmsDeliveryReceivedAt
-            ? new Date(item.tmsDeliveryReceivedAt).toLocaleString("th-TH")
+            ? new Date(item.tmsDeliveryReceivedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })
             : "-";
         case "actions":
           return (

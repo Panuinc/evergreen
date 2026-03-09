@@ -148,10 +148,10 @@ export async function GET(request) {
 
 
   if (!compareMode) {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      .toISOString()
-      .split("T")[0];
+    const bangkokDate = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
+    const [bkYear, bkMonth] = bangkokDate.split("-").map(Number);
+    const now = new Date(bkYear, bkMonth - 1, 1); // local Date object anchored to Bangkok month
+    const startOfMonth = bangkokDate.slice(0, 7) + "-01";
 
 
     const totalVehicles = vehicles.length;
@@ -211,9 +211,8 @@ export async function GET(request) {
     }
 
 
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0];
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      .toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
     const vehicleUtilization = vehicles.map((v) => ({
       vehicleName: v.tmsVehicleName || v.tmsVehiclePlateNumber,
       shipmentCount: allShipments.filter(

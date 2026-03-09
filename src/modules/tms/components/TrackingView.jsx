@@ -52,6 +52,8 @@ export default function TrackingView({
   loadingRoute,
   routeModal,
   loadRouteHistory,
+  selectedDate,
+  handleDateChange,
 }) {
   if (loading) {
     return (
@@ -208,9 +210,7 @@ export default function TrackingView({
                         </p>
                       )}
                       <p className="text-muted-foreground">
-                        {new Date(pos.tmsGpsLogRecordedAt).toLocaleString(
-                          "th-TH",
-                        )}
+                        {new Date(pos.tmsGpsLogRecordedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
                       </p>
                       {pos.tmsGpsLogSource === "forthtrack" && (
                         <p className="text-[10px] text-primary/60">
@@ -380,17 +380,26 @@ export default function TrackingView({
         scrollBehavior="inside"
       >
         <ModalContent>
-          <ModalHeader>
-            ประวัติเส้นทาง
-            {selectedVehicleId &&
-              (() => {
-                const v = vehicles.find(
-                  (v) => v.tmsVehicleId === selectedVehicleId,
-                );
-                return v
-                  ? ` - ${v.tmsVehicleName || v.tmsVehiclePlateNumber}`
-                  : "";
-              })()}
+          <ModalHeader className="flex flex-col gap-2">
+            <div>
+              ประวัติเส้นทาง
+              {selectedVehicleId &&
+                (() => {
+                  const v = vehicles.find(
+                    (v) => v.tmsVehicleId === selectedVehicleId,
+                  );
+                  return v
+                    ? ` - ${v.tmsVehicleName || v.tmsVehiclePlateNumber}`
+                    : "";
+                })()}
+            </div>
+            <input
+              type="date"
+              value={selectedDate}
+              max={new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" })}
+              onChange={(e) => handleDateChange(e.target.value)}
+              className="text-sm font-normal border border-default-300 rounded-lg px-3 py-1.5 bg-default-100 focus:outline-none focus:ring-2 focus:ring-primary w-fit"
+            />
           </ModalHeader>
           <ModalBody>
             {loadingRoute ? (

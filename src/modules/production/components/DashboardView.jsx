@@ -457,11 +457,11 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         return Number(item.quantity || 0).toLocaleString("th-TH");
       case "dueDate":
         return item.dueDate
-          ? new Date(item.dueDate).toLocaleDateString("th-TH")
+          ? new Date(item.dueDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
           : "-";
       case "startingDateTime":
         return item.startingDateTime
-          ? new Date(item.startingDateTime).toLocaleDateString("th-TH")
+          ? new Date(item.startingDateTime).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
           : "-";
       case "overdueDays":
         return (
@@ -546,7 +546,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         );
       case "dueDate":
         return item.dueDate
-          ? <span className="text-xs">{new Date(item.dueDate).toLocaleDateString("th-TH")}</span>
+          ? <span className="text-xs">{new Date(item.dueDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })}</span>
           : "-";
       default:
         return <span className="text-xs">{item[columnKey] || "-"}</span>;

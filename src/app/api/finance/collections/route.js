@@ -51,7 +51,7 @@ export async function POST(request) {
       customerNumber: body.customerNumber,
       customerName: body.customerName || "",
       invoiceNumber: body.invoiceNumber || null,
-      contactDate: body.contactDate || new Date().toISOString().slice(0, 10),
+      contactDate: body.contactDate || new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" }),
       contactMethod: body.contactMethod || "phone",
       reason: body.reason,
       reasonDetail: body.reasonDetail || null,

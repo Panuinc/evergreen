@@ -135,7 +135,7 @@ export default function BankReconView({
           </Chip>
         );
       case "createdAt":
-        return item.createdAt ? new Date(item.createdAt).toLocaleDateString("th-TH") : "-";
+        return item.createdAt ? new Date(item.createdAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" }) : "-";
       case "actions":
         return (
           <div className="flex gap-1">

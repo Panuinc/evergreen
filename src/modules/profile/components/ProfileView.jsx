@@ -48,7 +48,7 @@ export default function ProfileView({
             <span className="text-xs text-muted-foreground w-20">สร้างเมื่อ</span>
             <span className="font-light">
               {user?.createdAt
-                ? new Date(user.createdAt).toLocaleDateString("th-TH")
+                ? new Date(user.createdAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
                 : "-"}
             </span>
           </div>

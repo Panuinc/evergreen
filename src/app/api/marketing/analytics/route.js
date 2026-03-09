@@ -113,23 +113,23 @@ export async function GET(request) {
     });
 
 
-    const now = new Date();
-    const today = now.toISOString().slice(0, 10);
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
     const currentMonth = today.slice(0, 7);
     const currentYear = today.slice(0, 4);
 
-    const pm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const [ty, tm] = today.split("-").map(Number);
+    const pm = new Date(ty, tm - 2, 1); // previous month
     const prevMonth = `${pm.getFullYear()}-${String(pm.getMonth() + 1).padStart(2, "0")}`;
-    const prevYear = String(now.getFullYear() - 1);
+    const prevYear = String(ty - 1);
 
 
     const msPerDay = 86400000;
-    const todayDate = new Date(today);
+    const todayDate = new Date(today + "T00:00:00+07:00");
     const dayOfWeek = todayDate.getDay();
     const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    const thisWeekStart = new Date(todayDate - mondayOffset * msPerDay).toISOString().slice(0, 10);
-    const lastWeekStart = new Date(todayDate - (mondayOffset + 7) * msPerDay).toISOString().slice(0, 10);
-    const lastWeekEnd = new Date(todayDate - (mondayOffset + 1) * msPerDay).toISOString().slice(0, 10);
+    const thisWeekStart = new Date(todayDate - mondayOffset * msPerDay).toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
+    const lastWeekStart = new Date(todayDate - (mondayOffset + 7) * msPerDay).toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
+    const lastWeekEnd = new Date(todayDate - (mondayOffset + 1) * msPerDay).toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
 
 
     const filtered = (() => {

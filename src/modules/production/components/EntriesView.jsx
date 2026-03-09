@@ -136,7 +136,7 @@ export default function EntriesView({ data, loading }) {
       case "bcItemLedgerEntryDocumentDate":
       case "bcItemLedgerEntryExpirationDate":
         return row[columnKey]
-          ? new Date(row[columnKey]).toLocaleDateString("th-TH")
+          ? new Date(row[columnKey]).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
           : "-";
       case "bcItemLedgerEntrySyncedAt":
         return row[columnKey]

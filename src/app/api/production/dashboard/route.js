@@ -628,7 +628,7 @@ export async function GET(request) {
       }
     }
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
 
 
     const splitAndBuild = (orders, entries) => {

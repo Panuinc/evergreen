@@ -132,12 +132,12 @@ export async function deleteMaintenance(id) {
 
 
 
-export async function getGpsLogs(vehicleId) {
-  return get(
-    vehicleId
-      ? `/api/tms/gpsLogs?vehicleId=${vehicleId}`
-      : "/api/tms/gpsLogs"
-  );
+export async function getGpsLogs(vehicleId, date) {
+  const params = new URLSearchParams();
+  if (vehicleId) params.set("vehicleId", vehicleId);
+  if (date) params.set("date", date);
+  const qs = params.toString();
+  return get(qs ? `/api/tms/gpsLogs?${qs}` : "/api/tms/gpsLogs");
 }
 
 export async function createGpsLog(data) {

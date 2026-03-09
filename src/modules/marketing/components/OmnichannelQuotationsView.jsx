@@ -85,7 +85,7 @@ export default function OmnichannelQuotationsView({
         );
       }
       case "omQuotationCreatedAt":
-        return new Date(item.omQuotationCreatedAt).toLocaleDateString("th-TH");
+        return new Date(item.omQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" });
       case "isActive":
         return (
           <Chip

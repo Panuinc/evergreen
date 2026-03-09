@@ -356,9 +356,10 @@ async function runSync(supabase, requestedTables, send) {
 
       const soPrefixes = [];
       const startYear = 25, startMonth = 1;
-      const nowDate = new Date();
-      const endYear = nowDate.getFullYear() % 100;
-      const endMonth = nowDate.getMonth() + 1;
+      const bkDate = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
+      const [bkYyyy, bkMm] = bkDate.split("-").map(Number);
+      const endYear = bkYyyy % 100;
+      const endMonth = bkMm;
       for (let y = startYear; y <= endYear; y++) {
         const mStart = y === startYear ? startMonth : 1;
         const mEnd = y === endYear ? endMonth : 12;

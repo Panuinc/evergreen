@@ -141,7 +141,7 @@ export default function OrdersView({ data, loading }) {
       case "bcProductionOrderDueDate":
       case "bcProductionOrderFinishedDate":
         return row[columnKey]
-          ? new Date(row[columnKey]).toLocaleDateString("th-TH")
+          ? new Date(row[columnKey]).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
           : "-";
       case "durationDays":
         return row.durationDays != null

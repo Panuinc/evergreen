@@ -98,11 +98,11 @@ export default function QuotationsView({
             : "-";
         case "crmQuotationValidUntil":
           return item.crmQuotationValidUntil
-            ? new Date(item.crmQuotationValidUntil).toLocaleDateString("th-TH")
+            ? new Date(item.crmQuotationValidUntil).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
             : "-";
         case "crmQuotationCreatedAt":
           return item.crmQuotationCreatedAt
-            ? new Date(item.crmQuotationCreatedAt).toLocaleDateString("th-TH")
+            ? new Date(item.crmQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
             : "-";
         case "actions":
           return (

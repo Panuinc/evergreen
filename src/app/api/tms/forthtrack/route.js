@@ -51,10 +51,10 @@ async function getToken() {
 // Parse "DD-MM-YYYY HH:MM:SS" → ISO string
 function parseForthTrackDate(dateStr) {
   if (!dateStr) return new Date().toISOString();
-  // "09-03-2026 15:05:32" → "2026-03-09T15:05:32.000Z"
+  // "09-03-2026 15:05:32" is Thai time (UTC+7) → convert to UTC ISO string
   const [datePart, timePart] = dateStr.split(" ");
   const [dd, mm, yyyy] = datePart.split("-");
-  return `${yyyy}-${mm}-${dd}T${timePart}.000Z`;
+  return new Date(`${yyyy}-${mm}-${dd}T${timePart}+07:00`).toISOString();
 }
 
 async function fetchForthTrack() {

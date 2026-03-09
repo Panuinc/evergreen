@@ -24,6 +24,8 @@ export default function GpsTrackingPage() {
     loadingRoute,
     routeModal,
     loadRouteHistory,
+    selectedDate,
+    handleDateChange,
   } = useGpsTracking();
 
   return (
@@ -47,6 +49,8 @@ export default function GpsTrackingPage() {
       loadingRoute={loadingRoute}
       routeModal={routeModal}
       loadRouteHistory={loadRouteHistory}
+      selectedDate={selectedDate}
+      handleDateChange={handleDateChange}
     />
   );
 }

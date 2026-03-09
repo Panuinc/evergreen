@@ -81,7 +81,7 @@ export default function DivisionsView({
         case "hrDivisionCreatedAt":
           return (
             <span className="text-muted-foreground">
-              {new Date(div.hrDivisionCreatedAt).toLocaleDateString("th-TH")}
+              {new Date(div.hrDivisionCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })}
             </span>
           );
         case "isActive":

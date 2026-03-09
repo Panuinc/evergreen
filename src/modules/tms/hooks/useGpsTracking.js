@@ -47,7 +47,7 @@ export function useGpsTracking() {
         if (ft.dateTime) {
           const [datePart, timePart] = ft.dateTime.split(" ");
           const [dd, mm, yyyy] = datePart.split("-");
-          recordedAt = `${yyyy}-${mm}-${dd}T${timePart}.000Z`;
+          recordedAt = new Date(`${yyyy}-${mm}-${dd}T${timePart}+07:00`).toISOString();
         }
         return {
           tmsGpsLogVehicleId:      matched.tmsVehicleId,
@@ -188,13 +188,17 @@ export function useGpsTracking() {
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const [routeHistory, setRouteHistory] = useState([]);
   const [loadingRoute, setLoadingRoute] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(() =>
+    new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" })
+  );
   const routeModal = useDisclosure();
 
-  const loadRouteHistory = async (vehicleId) => {
+  const loadRouteHistory = async (vehicleId, date) => {
+    const targetDate = date ?? selectedDate;
     try {
       setLoadingRoute(true);
       setSelectedVehicleId(vehicleId);
-      const logs = await getGpsLogs(vehicleId);
+      const logs = await getGpsLogs(vehicleId, targetDate);
       setRouteHistory(
         logs.sort(
           (a, b) => new Date(a.tmsGpsLogRecordedAt) - new Date(b.tmsGpsLogRecordedAt)
@@ -205,6 +209,25 @@ export function useGpsTracking() {
       toast.error("โหลดประวัติเส้นทางล้มเหลว");
     } finally {
       setLoadingRoute(false);
+    }
+  };
+
+  const handleDateChange = async (newDate) => {
+    setSelectedDate(newDate);
+    if (selectedVehicleId && routeModal.isOpen) {
+      try {
+        setLoadingRoute(true);
+        const logs = await getGpsLogs(selectedVehicleId, newDate);
+        setRouteHistory(
+          logs.sort(
+            (a, b) => new Date(a.tmsGpsLogRecordedAt) - new Date(b.tmsGpsLogRecordedAt)
+          )
+        );
+      } catch {
+        toast.error("โหลดประวัติเส้นทางล้มเหลว");
+      } finally {
+        setLoadingRoute(false);
+      }
     }
   };
 
@@ -228,5 +251,7 @@ export function useGpsTracking() {
     loadingRoute,
     routeModal,
     loadRouteHistory,
+    selectedDate,
+    handleDateChange,
   };
 }

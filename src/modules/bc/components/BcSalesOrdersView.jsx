@@ -76,7 +76,7 @@ export default function BcSalesOrdersView({
           return <span className="font-light">{order.bcSalesOrderNumber}</span>;
         case "bcSalesOrderDate":
           return order.bcSalesOrderDate
-            ? new Date(order.bcSalesOrderDate).toLocaleDateString("th-TH")
+            ? new Date(order.bcSalesOrderDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
             : "-";
         case "bcSalesOrderCustomerName":
           return order.bcSalesOrderCustomerName || "-";

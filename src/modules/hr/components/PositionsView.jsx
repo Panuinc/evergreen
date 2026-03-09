@@ -92,7 +92,7 @@ export default function PositionsView({
         case "hrPositionCreatedAt":
           return (
             <span className="text-muted-foreground">
-              {new Date(pos.hrPositionCreatedAt).toLocaleDateString("th-TH")}
+              {new Date(pos.hrPositionCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })}
             </span>
           );
         case "isActive":

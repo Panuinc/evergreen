@@ -250,7 +250,7 @@ function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
                     </Chip>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {nom.cycle?.perf360CycleName} | กำหนดส่ง: {nom.cycle?.perf360CycleResponseDeadline ? new Date(nom.cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH") : "-"}
+                    {nom.cycle?.perf360CycleName} | กำหนดส่ง: {nom.cycle?.perf360CycleResponseDeadline ? new Date(nom.cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" }) : "-"}
                   </p>
                 </div>
                 <Button color="primary" size="md" radius="md" onPress={() => onOpenReview(nom)}>
@@ -525,7 +525,7 @@ function CycleCard({ cycle, selectedCycle, onSelectCycle, onOpenCycleForm, onDel
             </Chip>
           </div>
           <p className="text-xs text-muted-foreground">
-            ปี {cycle.perf360CycleYear} {cycle.perf360CycleQuarter ? `Q${cycle.perf360CycleQuarter}` : ""} | กำหนดส่ง: {cycle.perf360CycleResponseDeadline ? new Date(cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH") : "-"}
+            ปี {cycle.perf360CycleYear} {cycle.perf360CycleQuarter ? `Q${cycle.perf360CycleQuarter}` : ""} | กำหนดส่ง: {cycle.perf360CycleResponseDeadline ? new Date(cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" }) : "-"}
           </p>
         </div>
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>

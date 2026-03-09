@@ -94,7 +94,7 @@ export default function FuelLogsView({
           return (
             <span className="text-muted-foreground">
               {item.tmsFuelLogDate
-                ? new Date(item.tmsFuelLogDate).toLocaleDateString("th-TH")
+                ? new Date(item.tmsFuelLogDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
                 : "-"}
             </span>
           );
@@ -373,9 +373,7 @@ export default function FuelLogsView({
                   {" "}
                   จากวันที่{" "}
                   <span className="font-light">
-                    {new Date(
-                      deletingFuelLog.tmsFuelLogDate,
-                    ).toLocaleDateString("th-TH")}
+                    {new Date(deletingFuelLog.tmsFuelLogDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })}
                   </span>
                 </>
               )}

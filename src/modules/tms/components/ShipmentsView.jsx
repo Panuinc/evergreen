@@ -162,7 +162,7 @@ export default function ShipmentsView({
           return <span className="font-light">{item.tmsShipmentNumber}</span>;
         case "tmsShipmentDate":
           return item.tmsShipmentDate
-            ? new Date(item.tmsShipmentDate).toLocaleDateString("th-TH")
+            ? new Date(item.tmsShipmentDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
             : "-";
         case "tmsShipmentCustomerName":
           return item.tmsShipmentCustomerName || "-";
@@ -345,7 +345,7 @@ export default function ShipmentsView({
                     {deliveryPlans.filter((p) => !selectedPlanIds.includes(String(p.tmsDeliveryPlanId))).map((plan) => {
                       const firstItem = plan.tmsDeliveryPlanItem?.[0];
                       const dateLabel = plan.tmsDeliveryPlanDate
-                        ? new Date(plan.tmsDeliveryPlanDate + "T00:00:00").toLocaleDateString("th-TH", { day: "numeric", month: "short" })
+                        ? new Date(plan.tmsDeliveryPlanDate + "T00:00:00+07:00").toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short" })
                         : "";
                       const pLabel = plan.tmsDeliveryPlanPriority === "urgent" ? " [ด่วนมาก]" : plan.tmsDeliveryPlanPriority === "high" ? " [ด่วน]" : "";
                       return (

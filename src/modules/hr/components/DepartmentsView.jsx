@@ -88,7 +88,7 @@ export default function DepartmentsView({
         case "hrDepartmentCreatedAt":
           return (
             <span className="text-muted-foreground">
-              {new Date(dept.hrDepartmentCreatedAt).toLocaleDateString("th-TH")}
+              {new Date(dept.hrDepartmentCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })}
             </span>
           );
         case "isActive":

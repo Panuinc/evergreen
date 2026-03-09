@@ -130,7 +130,7 @@ export default function VehicleMapInner({
               {m.speed && <p>Speed: {m.speed} km/h</p>}
               {m.updatedAt && (
                 <p className="text-muted-foreground text-xs">
-                  Updated: {new Date(m.updatedAt).toLocaleString("th-TH")}
+                  Updated: {new Date(m.updatedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
                 </p>
               )}
             </div>

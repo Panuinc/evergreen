@@ -144,9 +144,9 @@ export default function BciProjectsView({ projects, loading, reload }) {
       { header: "โทร (PM)", key: "bciProjectPmPhone", width: 20 },
       { header: "อีเมล (PM)", key: "bciProjectPmEmail", width: 25 },
       { header: "จำนวนชั้น", key: "bciProjectStoreys", width: 10 },
-      { header: "เริ่มก่อสร้าง", key: "bciProjectConstructionStartDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
-      { header: "สิ้นสุดก่อสร้าง", key: "bciProjectConstructionEndDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
-      { header: "อัปเดตล่าสุด", key: "bciProjectModifiedDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH") : "" },
+      { header: "เริ่มก่อสร้าง", key: "bciProjectConstructionStartDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" }) : "" },
+      { header: "สิ้นสุดก่อสร้าง", key: "bciProjectConstructionEndDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" }) : "" },
+      { header: "อัปเดตล่าสุด", key: "bciProjectModifiedDate", width: 15, formatter: (v) => v ? new Date(v).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" }) : "" },
       { header: "หมายเหตุ", key: "bciProjectRemarks", width: 30 },
     ];
     exportToExcel("bci-projects.xlsx", excelColumns, projects);

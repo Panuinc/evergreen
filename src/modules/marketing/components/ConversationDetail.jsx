@@ -170,7 +170,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                     <div className="flex flex-col">
                       <span className="text-xs font-light">{q.omQuotationNumber}</span>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(q.omQuotationCreatedAt).toLocaleDateString("th-TH")}
+                        {new Date(q.omQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">

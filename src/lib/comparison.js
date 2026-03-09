@@ -11,7 +11,7 @@ export function getComparisonRanges(mode, ref = new Date()) {
     return {
       current: {
         start: `${year}-01-01`,
-        end: endDate.toISOString().slice(0, 10),
+        end: endDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" }),
         label: `ม.ค.–${endDate.toLocaleDateString("th-TH", { month: "short" })} ${String(year % 100).padStart(2, "0")}`,
       },
       previous: {
@@ -131,7 +131,7 @@ export function getFinancePeriodRanges(periodType, periodValue) {
 
 export function mergeMonthlyData(currentData, previousData, valueKey, currentYear) {
   const months = [];
-  const maxMonth = currentYear ? 12 : new Date().getMonth() + 1;
+  const maxMonth = currentYear ? 12 : Number(new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" }).split("-")[1]);
 
   for (let m = 1; m <= maxMonth; m++) {
     const mm = String(m).padStart(2, "0");

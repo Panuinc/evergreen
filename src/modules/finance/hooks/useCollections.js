@@ -16,7 +16,7 @@ function parseNum(val) {
 }
 
 const INITIAL_FORM = {
-  contactDate: new Date().toISOString().slice(0, 10),
+  contactDate: new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" }),
   contactMethod: "phone",
   reason: "",
   reasonDetail: "",
@@ -40,10 +40,10 @@ export function useCollections() {
 
 
   const [reportSince, setReportSince] = useState(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+    const bkDate = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
+    return bkDate.slice(0, 7) + "-01";
   });
-  const [reportUntil, setReportUntil] = useState(() => new Date().toISOString().slice(0, 10));
+  const [reportUntil, setReportUntil] = useState(() => new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" }));
 
 
   const loadData = useCallback(async () => {
@@ -100,7 +100,7 @@ export function useCollections() {
     const totalOverdue = mergedData.reduce((s, c) => s + c.balanceDue, 0);
     const contacted = mergedData.filter((c) => c.followUpCount > 0).length;
     const uncontacted = mergedData.filter((c) => c.followUpCount === 0).length;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
     const dueToday = mergedData.filter((c) => c.nextFollowUpDate && c.nextFollowUpDate <= today).length;
     const promisedTotal = followUps
       .filter((f) => f.status === "promised" && f.promiseAmount)
@@ -176,7 +176,7 @@ export function useCollections() {
 
   const openAdd = useCallback((customer) => {
     setSelectedCustomer(customer);
-    setForm({ ...INITIAL_FORM, contactDate: new Date().toISOString().slice(0, 10) });
+    setForm({ ...INITIAL_FORM, contactDate: new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" }) });
     addModal.onOpen();
   }, [addModal]);
 
@@ -215,7 +215,7 @@ export function useCollections() {
     setAiLoading(true);
     setAiAnalysis("");
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
     const uncontacted = mergedData.filter((c) => c.followUpCount === 0);
     const dueItems = mergedData.filter((c) => c.nextFollowUpDate && c.nextFollowUpDate <= today);
 
