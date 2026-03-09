@@ -102,7 +102,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
             <p className="text-xs font-light">รายละเอียดรายได้</p>
             <Chip size="md" variant="flat" color="success">ปี {beYear}</Chip>
           </div>
-          <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
+          <Button size="md" variant="flat" startContent={<Download />} onPress={handleExport}>
             Export Excel
           </Button>
         </CardHeader>

@@ -165,7 +165,7 @@ export default function OmnichannelQuotationEditorView({
             radius="md"
             onPress={onBack}
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft />
           </Button>
           <p className="text-xs font-light">{quotation.omQuotationNumber}</p>
           <Chip variant="flat" size="md" radius="md" color={status.color}>
@@ -177,7 +177,7 @@ export default function OmnichannelQuotationEditorView({
             variant="flat"
             size="md"
             radius="md"
-            startContent={<ExternalLink size={14} />}
+            startContent={<ExternalLink />}
             onPress={() => window.open(`/quotation/${id}`, "_blank")}
           >
             ดูใบเสนอราคา
@@ -269,7 +269,7 @@ export default function OmnichannelQuotationEditorView({
         {quotation.paymentSlip?.omMessageImageUrl && (
           <div className="p-4 bg-default-50 rounded-lg border border-border">
             <p className="font-light mb-3 flex items-center gap-2">
-              <Receipt size={16} />
+              <Receipt />
               หลักฐานการชำระเงิน
             </p>
             <div className="flex gap-4">
@@ -334,7 +334,7 @@ export default function OmnichannelQuotationEditorView({
               variant="bordered"
               size="md"
               radius="md"
-              startContent={<Send size={14} />}
+              startContent={<Send />}
               onPress={() => handleAction("submit")}
               isLoading={saving}
             >
@@ -348,7 +348,7 @@ export default function OmnichannelQuotationEditorView({
                 variant="bordered"
                 size="md"
                 radius="md"
-                startContent={<X size={14} />}
+                startContent={<X />}
                 onPress={rejectModal.onOpen}
               >
                 ไม่อนุมัติ
@@ -358,7 +358,7 @@ export default function OmnichannelQuotationEditorView({
                 color="success"
                 size="md"
                 radius="md"
-                startContent={<Check size={14} />}
+                startContent={<Check />}
                 onPress={() => handleAction("approve")}
                 isLoading={saving}
               >
@@ -371,7 +371,7 @@ export default function OmnichannelQuotationEditorView({
               variant="bordered"
               size="md"
               radius="md"
-              startContent={<Banknote size={14} />}
+              startContent={<Banknote />}
               onPress={() => handleAction("confirm_payment")}
               isLoading={saving}
             >

@@ -125,7 +125,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
             {/* Facebook */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <Facebook size={18} className="text-blue-500" />
+                <Facebook className="text-blue-500" />
                 <span className="font-light">Facebook Messenger</span>
                 <Chip size="md" variant="flat" color={fbToken ? "success" : "default"}>
                   {fbToken ? "เปิดใช้งาน" : "ปิดใช้งาน"}
@@ -179,7 +179,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
             {/* AI Agent Settings */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <Sparkles size={18} className="text-secondary" />
+                <Sparkles className="text-secondary" />
                 <span className="font-light">ตั้งค่า AI Agent</span>
               </div>
               <Textarea

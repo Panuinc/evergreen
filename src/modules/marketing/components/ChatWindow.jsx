@@ -87,7 +87,7 @@ export default function ChatWindow({
       <div className="flex items-center gap-3 p-3 border-b border-border">
         {onBack && (
           <Button isIconOnly variant="light" size="md" radius="md" onPress={onBack}>
-            <ArrowLeft size={18} />
+            <ArrowLeft />
           </Button>
         )}
         <div className="flex-1 min-w-0">
@@ -108,7 +108,7 @@ export default function ChatWindow({
         <div className="flex items-center gap-1">
           <Tooltip content="AI ตอบอัตโนมัติ">
             <div className="flex items-center gap-1 px-2">
-              <Bot size={14} className="text-secondary" />
+              <Bot className="text-secondary" />
               <Switch
                 size="md"
                 color="secondary"
@@ -122,7 +122,7 @@ export default function ChatWindow({
               size="md"
               variant="flat"
               radius="md"
-              startContent={<RotateCcw size={14} />}
+              startContent={<RotateCcw />}
               onPress={() => onUpdateStatus(conversation.omConversationId, "open")}
             >
               เปิดอีกครั้ง
@@ -133,7 +133,7 @@ export default function ChatWindow({
               variant="bordered"
               radius="md"
               color="danger"
-              startContent={<CloseIcon size={14} />}
+              startContent={<CloseIcon />}
               onPress={() => onUpdateStatus(conversation.omConversationId, "closed")}
             >
               ปิด
@@ -147,10 +147,10 @@ export default function ChatWindow({
             color="danger"
             onPress={deleteModal.onOpen}
           >
-            <Trash2 size={18} />
+            <Trash2 />
           </Button>
           <Button isIconOnly variant="light" size="md" radius="md" onPress={onToggleDetail}>
-            <Info size={18} />
+            <Info />
           </Button>
         </div>
       </div>
@@ -183,7 +183,7 @@ export default function ChatWindow({
                 >
                   {msg.omMessageIsAi && (
                     <div className="flex items-center gap-1 mb-1 text-xs opacity-70">
-                      <Sparkles size={10} />
+                      <Sparkles />
                       <span>AI</span>
                     </div>
                   )}
@@ -200,7 +200,7 @@ export default function ChatWindow({
                       {msg.omMessageOcrData && (
                         <div className="bg-default-50 rounded-lg p-2 text-xs space-y-1 border border-border">
                           <div className="flex items-center gap-1 font-light text-foreground mb-1">
-                            <Receipt size={12} />
+                            <Receipt />
                             <span>ข้อมูลสลิป</span>
                           </div>
                           {msg.omMessageOcrData.amount && (

@@ -167,10 +167,10 @@ export default function CollectionsView({
         return (
           <div className="flex gap-1">
             <Button isIconOnly size="md" variant="flat" color="primary" onPress={() => onOpenAdd(item)} title="เพิ่มการติดตาม">
-              <Plus size={14} />
+              <Plus />
             </Button>
             <Button isIconOnly size="md" variant="flat" color="default" onPress={() => onOpenHistory(item)} title="ดูประวัติ" isDisabled={!item.followUpCount}>
-              <History size={14} />
+              <History />
             </Button>
           </div>
         );
@@ -233,7 +233,7 @@ export default function CollectionsView({
           key="tracking"
           title={
             <div className="flex items-center gap-2">
-              <Phone size={16} />
+              <Phone />
               <span>ติดตามลูกหนี้</span>
               {kpis.uncontacted > 0 && (
                 <Chip size="md" color="danger" variant="solid">{kpis.uncontacted}</Chip>
@@ -260,9 +260,9 @@ export default function CollectionsView({
             }}
             enableCardView
             actionMenuItems={(item) => [
-              { key: "add", label: "เพิ่มการติดตาม", icon: <Plus size={16} />, onPress: () => onOpenAdd(item) },
+              { key: "add", label: "เพิ่มการติดตาม", icon: <Plus />, onPress: () => onOpenAdd(item) },
               item.followUpCount
-                ? { key: "history", label: "ดูประวัติ", icon: <History size={16} />, onPress: () => onOpenHistory(item) }
+                ? { key: "history", label: "ดูประวัติ", icon: <History />, onPress: () => onOpenHistory(item) }
                 : null,
             ].filter(Boolean)}
           />
@@ -273,7 +273,7 @@ export default function CollectionsView({
           key="report"
           title={
             <div className="flex items-center gap-2">
-              <FileText size={16} />
+              <FileText />
               <span>รายงาน</span>
             </div>
           }
@@ -299,7 +299,7 @@ export default function CollectionsView({
             <Button
               variant="flat"
               size="md"
-              startContent={<Download size={14} />}
+              startContent={<Download />}
               onPress={() => exportCSV(reportData.filtered, `ar-collections-${reportSince}-${reportUntil}.csv`)}
               isDisabled={!reportData.filtered.length}
             >
@@ -308,7 +308,7 @@ export default function CollectionsView({
             <Button
               variant="light"
               size="md"
-              startContent={<RefreshCw size={14} />}
+              startContent={<RefreshCw />}
               onPress={onReload}
             >
               รีเฟรช
@@ -395,7 +395,7 @@ export default function CollectionsView({
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <BotMessageSquare size={18} className="text-primary" />
+            <BotMessageSquare className="text-primary" />
             <p className="text-xs font-light">AI วิเคราะห์การติดตามลูกหนี้</p>
             <Chip size="md" variant="flat" color="secondary">Collections Advisor</Chip>
           </div>
@@ -406,7 +406,7 @@ export default function CollectionsView({
             isLoading={aiLoading}
             isDisabled={!mergedData?.length || aiLoading}
             onPress={runAiAnalysis}
-            startContent={!aiLoading && (aiAnalysis ? <RefreshCw size={14} /> : <BotMessageSquare size={14} />)}
+            startContent={!aiLoading && (aiAnalysis ? <RefreshCw /> : <BotMessageSquare />)}
           >
             {aiAnalysis ? "วิเคราะห์ใหม่" : "เริ่มวิเคราะห์"}
           </Button>
@@ -609,7 +609,7 @@ export default function CollectionsView({
                         {fu.promiseAmount && <span>จำนวน: ฿{fmt(fu.promiseAmount)}</span>}
                         {fu.nextFollowUpDate && (
                           <span className="flex items-center gap-1">
-                            <Clock size={12} /> ติดตามถัดไป: {fmtDate(fu.nextFollowUpDate)}
+                            <Clock /> ติดตามถัดไป: {fmtDate(fu.nextFollowUpDate)}
                           </span>
                         )}
                         {fu.createdByName && <span>โดย: {fu.createdByName}</span>}
@@ -626,7 +626,7 @@ export default function CollectionsView({
             <Button variant="flat" onPress={historyModal.onClose}>ปิด</Button>
             <Button
               color="primary"
-              startContent={<Plus size={14} />}
+              startContent={<Plus />}
               onPress={() => { historyModal.onClose(); onOpenAdd(selectedCustomer); }}
             >
               เพิ่มการติดตาม

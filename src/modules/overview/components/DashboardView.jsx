@@ -193,7 +193,7 @@ export default function DashboardView({
           onClick={scrollToBottom}
           className="absolute bottom-24 right-6 w-8 h-8 rounded-full bg-default-100 border border-border flex items-center justify-center shadow-sm hover:bg-default-200 transition-colors z-10"
         >
-          <ArrowDown size={14} className="text-muted-foreground" />
+          <ArrowDown className="text-muted-foreground" />
         </button>
       )}
 
@@ -218,7 +218,7 @@ export default function DashboardView({
                   className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-default-100 transition-colors"
                   title="ล้างประวัติ"
                 >
-                  <Trash2 size={15} />
+                  <Trash2 />
                 </button>
               )}
               <Button
@@ -231,7 +231,7 @@ export default function DashboardView({
                 isLoading={isLoading}
                 className="w-8 h-8 min-w-8"
               >
-                {!isLoading && <Send size={14} />}
+                {!isLoading && <Send />}
               </Button>
             </div>
           </div>

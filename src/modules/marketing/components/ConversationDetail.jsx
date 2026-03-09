@@ -49,7 +49,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
       <div className="flex items-center justify-between p-3 border-b border-border">
         <span className="font-light">รายละเอียด</span>
         <Button isIconOnly variant="light" size="md" radius="md" onPress={onClose}>
-          <X size={18} />
+          <X />
         </Button>
       </div>
 
@@ -86,7 +86,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           {/* Tags */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <Tag size={14} />
+              <Tag />
               <p className="font-light text-xs">แท็ก</p>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -112,7 +112,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               />
               <Button isIconOnly size="md" variant="bordered" radius="md" onPress={handleAddTag}>
-                <Plus size={14} />
+                <Plus />
               </Button>
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           {/* Notes */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <StickyNote size={14} />
+              <StickyNote />
               <p className="font-light text-xs">หมายเหตุ</p>
             </div>
             {editingNotes ? (
@@ -155,7 +155,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           {/* Quotations */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <FileText size={14} />
+              <FileText />
               <p className="font-light text-xs">ใบเสนอราคา</p>
             </div>
             {quotations.length === 0 ? (
@@ -184,7 +184,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                         radius="md"
                         onPress={() => window.open(`/marketing/omnichannel/quotations/${q.omQuotationId}`, "_self")}
                       >
-                        <ExternalLink size={14} />
+                        <ExternalLink />
                       </Button>
                     </div>
                   </div>

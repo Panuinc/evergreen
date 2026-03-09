@@ -179,10 +179,10 @@ export default function UsersView({
         emptyContent="ไม่พบผู้ใช้"
         actionMenuItems={(item) =>
           [
-            { key: "roles", label: "จัดการบทบาท", icon: <Settings size={16} />, onPress: () => openRoleAssignment(item) },
-            { key: "reset", label: "รีเซ็ตรหัสผ่าน", icon: <KeyRound size={16} />, onPress: () => openResetPassword(item) },
+            { key: "roles", label: "จัดการบทบาท", icon: <Settings />, onPress: () => openRoleAssignment(item) },
+            { key: "reset", label: "รีเซ็ตรหัสผ่าน", icon: <KeyRound />, onPress: () => openResetPassword(item) },
             isSuperAdmin
-              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => handleToggleUserStatus(item) }
+              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => handleToggleUserStatus(item) }
               : null,
           ].filter(Boolean)
         }

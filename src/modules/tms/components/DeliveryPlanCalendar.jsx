@@ -316,7 +316,7 @@ export default function DeliveryPlanCalendar() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <CalendarDays size={20} className="text-primary" />
+          <CalendarDays className="text-primary" />
           <p className="text-xs font-light">แผนส่งของ</p>
         </div>
         <Tabs
@@ -334,10 +334,10 @@ export default function DeliveryPlanCalendar() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button size="md" variant="flat" isIconOnly onPress={goToPrev}>
-            <ChevronLeft size={16} />
+            <ChevronLeft />
           </Button>
           <Button size="md" variant="flat" isIconOnly onPress={goToNext}>
-            <ChevronRight size={16} />
+            <ChevronRight />
           </Button>
           <Button size="md" variant="flat" onPress={goToToday}>
             วันนี้

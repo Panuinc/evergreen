@@ -24,7 +24,7 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
             onPress={onClose}
             className="absolute top-2 right-2 z-10"
           >
-            <X size={20} />
+            <X />
           </Button>
 
           <div className="flex items-center justify-center min-h-[400px] bg-default-100">
@@ -45,7 +45,7 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
                 onPress={goPrev}
                 className="absolute left-2 top-1/2 -translate-y-1/2"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft />
               </Button>
               <Button
                 isIconOnly
@@ -55,7 +55,7 @@ export default function ImagePreviewModal({ isOpen, onClose, images = [], initia
                 onPress={goNext}
                 className="absolute right-2 top-1/2 -translate-y-1/2"
               >
-                <ChevronRight size={20} />
+                <ChevronRight />
               </Button>
               <p className="text-center text-xs text-muted-foreground py-2">
                 {currentIndex + 1} / {images.length}

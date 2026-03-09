@@ -167,7 +167,7 @@ export default function BankReconView({
                 if (confirm("ลบ Statement นี้?")) handleDelete(item.id);
               }}
             >
-              <Trash2 size={14} />
+              <Trash2 />
             </Button>
           </div>
         );
@@ -253,7 +253,7 @@ export default function BankReconView({
                   color="primary"
                   variant="flat"
                   onPress={() => openMatchModal(item)}
-                  startContent={<Link2 size={12} />}
+                  startContent={<Link2 />}
                 >
                   Match
                 </Button>
@@ -265,7 +265,7 @@ export default function BankReconView({
                   isIconOnly
                   title="ยกเว้น"
                 >
-                  <Ban size={14} />
+                  <Ban />
                 </Button>
               </>
             )}
@@ -275,7 +275,7 @@ export default function BankReconView({
                 color="danger"
                 variant="light"
                 onPress={() => handleUnmatch(item.id)}
-                startContent={<X size={12} />}
+                startContent={<X />}
               >
                 ยกเลิก
               </Button>
@@ -309,7 +309,7 @@ export default function BankReconView({
           key="upload"
           title={
             <div className="flex items-center gap-2">
-              <Upload size={16} />
+              <Upload />
               <span>อัพโหลด</span>
             </div>
           }
@@ -355,10 +355,10 @@ export default function BankReconView({
               emptyContent="ยังไม่มี Statement"
               actionMenuItems={(item) => [
                 item.status === "pending"
-                  ? { key: "parse", label: "อ่าน PDF", icon: <Eye size={16} />, onPress: () => handleParse(item.id) }
+                  ? { key: "parse", label: "อ่าน PDF", icon: <Eye />, onPress: () => handleParse(item.id) }
                   : null,
-                { key: "view", label: "ดูรายละเอียด", icon: <Eye size={16} />, onPress: () => { selectStatement(item.id); setActiveTab("recon"); } },
-                { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => { if (confirm("ลบ Statement นี้?")) handleDelete(item.id); } },
+                { key: "view", label: "ดูรายละเอียด", icon: <Eye />, onPress: () => { selectStatement(item.id); setActiveTab("recon"); } },
+                { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => { if (confirm("ลบ Statement นี้?")) handleDelete(item.id); } },
               ].filter(Boolean)}
             />
           </div>
@@ -369,7 +369,7 @@ export default function BankReconView({
           key="recon"
           title={
             <div className="flex items-center gap-2">
-              <FileText size={16} />
+              <FileText />
               <span>กระทบยอด</span>
               {kpis.unmatchedCount > 0 && (
                 <Chip size="md" color="danger" variant="flat">
@@ -402,7 +402,7 @@ export default function BankReconView({
                         color="primary"
                         onPress={handleAutoMatch}
                         isLoading={matching}
-                        startContent={<Zap size={14} />}
+                        startContent={<Zap />}
                       >
                         Auto-Match
                       </Button>
@@ -411,7 +411,7 @@ export default function BankReconView({
                         color="default"
                         variant="flat"
                         onPress={handleExport}
-                        startContent={<Download size={14} />}
+                        startContent={<Download />}
                       >
                         Export Excel
                       </Button>
@@ -475,12 +475,12 @@ export default function BankReconView({
                   const items = [];
                   if (item.matchStatus === "unmatched" || item.matchStatus === "suggested") {
                     items.push(
-                      { key: "match", label: "Match", icon: <Link2 size={16} />, onPress: () => openMatchModal(item) },
-                      { key: "exclude", label: "ยกเว้น", icon: <Ban size={16} />, onPress: () => handleExclude(item.id, "ยกเว้น — โอนภายใน/ค่าธรรมเนียม") },
+                      { key: "match", label: "Match", icon: <Link2 />, onPress: () => openMatchModal(item) },
+                      { key: "exclude", label: "ยกเว้น", icon: <Ban />, onPress: () => handleExclude(item.id, "ยกเว้น — โอนภายใน/ค่าธรรมเนียม") },
                     );
                   }
                   if (item.matchStatus === "matched") {
-                    items.push({ key: "unmatch", label: "ยกเลิก Match", icon: <X size={16} />, color: "danger", onPress: () => handleUnmatch(item.id) });
+                    items.push({ key: "unmatch", label: "ยกเลิก Match", icon: <X />, color: "danger", onPress: () => handleUnmatch(item.id) });
                   }
                   return items;
                 }}
@@ -494,7 +494,7 @@ export default function BankReconView({
           key="summary"
           title={
             <div className="flex items-center gap-2">
-              <RefreshCw size={16} />
+              <RefreshCw />
               <span>สรุป</span>
             </div>
           }
@@ -510,7 +510,7 @@ export default function BankReconView({
           key="arCompare"
           title={
             <div className="flex items-center gap-2">
-              <Scale size={16} />
+              <Scale />
               <span>เปรียบเทียบ AR</span>
             </div>
           }
@@ -548,7 +548,7 @@ export default function BankReconView({
               placeholder="ค้นหาเลข Invoice หรือชื่อลูกค้า..."
               value={invoiceSearch}
               onChange={(e) => setInvoiceSearch(e.target.value)}
-              startContent={<Search size={16} />}
+              startContent={<Search />}
               className="mb-3"
             />
 
@@ -577,7 +577,7 @@ export default function BankReconView({
                             matchedAmount: matchEntry.amount,
                           })
                         }
-                        startContent={<Check size={12} />}
+                        startContent={<Check />}
                       >
                         เลือก
                       </Button>
@@ -619,7 +619,7 @@ export default function BankReconView({
                           matchedAmount: matchEntry.amount,
                         })
                       }
-                      startContent={<Check size={12} />}
+                      startContent={<Check />}
                     >
                       Match
                     </Button>
@@ -730,7 +730,7 @@ function SummaryTab({ detail, kpis, handleExport }) {
             color="primary"
             variant="flat"
             onPress={handleExport}
-            startContent={<Download size={14} />}
+            startContent={<Download />}
           >
             Export Excel
           </Button>
@@ -829,7 +829,7 @@ function ArCompareTab({ arComparison, arLoading, loadArData, kpis }) {
             color="primary"
             onPress={loadArData}
             isLoading={arLoading}
-            startContent={<RefreshCw size={14} />}
+            startContent={<RefreshCw />}
           >
             โหลดข้อมูล AR
           </Button>

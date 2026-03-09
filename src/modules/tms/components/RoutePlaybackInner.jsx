@@ -116,7 +116,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
           radius="md"
           onPress={handleReset}
         >
-          <SkipBack size={14} />
+          <SkipBack />
         </Button>
         <Button
           isIconOnly
@@ -125,7 +125,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
           radius="md"
           onPress={() => setPlaying(!playing)}
         >
-          {playing ? <Pause size={14} /> : <Play size={14} />}
+          {playing ? <Pause /> : <Play />}
         </Button>
         <div className="flex gap-1">
           {[1, 2, 5, 10].map((s) => (

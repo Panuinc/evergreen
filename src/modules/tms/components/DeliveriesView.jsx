@@ -146,7 +146,7 @@ export default function DeliveriesView({
                 isIconOnly
                 onPress={() => handleOpen(item)}
               >
-                <Edit size={16} />
+                <Edit />
               </Button>
               <Button
                 variant="bordered"
@@ -155,7 +155,7 @@ export default function DeliveriesView({
                 isIconOnly
                 onPress={() => confirmDelete(item)}
               >
-                <Trash2 size={16} />
+                <Trash2 />
               </Button>
             </div>
           );
@@ -183,8 +183,8 @@ export default function DeliveriesView({
         emptyContent="ไม่พบการจัดส่ง"
         topEndContent={null}
         actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
-          { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
+          { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ]}
       />
 

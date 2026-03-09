@@ -292,7 +292,7 @@ export default function DeliveryPlanModal({
                       isIconOnly
                       onPress={() => onDelete(plan.tmsDeliveryPlanId)}
                     >
-                      <Trash2 size={14} />
+                      <Trash2 />
                     </Button>
                   </div>
                 </div>
@@ -305,7 +305,7 @@ export default function DeliveryPlanModal({
             <Button
               variant="flat"
               color="primary"
-              startContent={<Plus size={16} />}
+              startContent={<Plus />}
               onPress={() => {
                 setShowForm(true);
                 onSearchSO("");
@@ -431,7 +431,7 @@ export default function DeliveryPlanModal({
                       placeholder="ค้นหาเลขที่ SO หรือชื่อลูกค้า..."
                       value={soSearch}
                       onValueChange={handleSOSearch}
-                      startContent={<Search size={14} />}
+                      startContent={<Search />}
                       size="md"
                     />
                     {soLoading && <Loading />}
@@ -470,7 +470,7 @@ export default function DeliveryPlanModal({
                           isIconOnly
                           onPress={() => onSelectSO(null)}
                         >
-                          <Trash2 size={14} />
+                          <Trash2 />
                         </Button>
                       </div>
                     )}

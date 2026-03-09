@@ -178,12 +178,12 @@ export default function RolesView({
         emptyContent="ไม่พบบทบาท"
         actionMenuItems={(item) =>
           [
-            { key: "permissions", label: "จัดการสิทธิ์", icon: <Shield size={16} />, onPress: () => openPermissions(item) },
-            { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+            { key: "permissions", label: "จัดการสิทธิ์", icon: <Shield />, onPress: () => openPermissions(item) },
+            { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
             isSuperAdmin
-              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
+              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
               : !item.rbacRoleIsSuperadmin
-                ? { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => handleDelete(item) }
+                ? { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => handleDelete(item) }
                 : null,
           ].filter(Boolean)
         }

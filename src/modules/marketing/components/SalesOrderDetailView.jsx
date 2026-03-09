@@ -86,7 +86,7 @@ export default function SalesOrderDetailView({
           radius="md"
           onPress={onBack}
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft />
         </Button>
         <p className="text-xs font-light">{order.bcSalesOrderNumber}</p>
         <Chip variant="flat" size="md" radius="md" color={STATUS_COLORS[order.bcSalesOrderStatus] || "default"}>
@@ -102,7 +102,7 @@ export default function SalesOrderDetailView({
           variant="flat"
           size="md"
           radius="md"
-          startContent={<Printer size={14} />}
+          startContent={<Printer />}
           onPress={labelModal.onOpen}
         >
           พิมพ์ใบปะหน้า

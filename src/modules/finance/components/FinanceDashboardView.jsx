@@ -317,7 +317,7 @@ function KpiCard({ title, value, unit, color = "default", subtitle, tooltip, onD
       <CardBody className="gap-1">
         <div className="flex items-center gap-1">
           <p className="text-xs text-muted-foreground">{title}</p>
-          {tooltip && <Info size={10} className="text-muted-foreground" />}
+          {tooltip && <Info className="text-muted-foreground" />}
         </div>
         <div className="flex items-baseline gap-1">
           <p className={`text-xs font-light ${colorClass[color] || ""}`}>{value}</p>
@@ -348,7 +348,7 @@ function RatioCard({ title, value, subtitle, status, tooltip, previousValue, onD
       <CardBody className="gap-1">
         <div className="flex items-center gap-1">
           <p className="text-xs text-muted-foreground">{title}</p>
-          {tooltip && <Info size={10} className="text-muted-foreground" />}
+          {tooltip && <Info className="text-muted-foreground" />}
         </div>
         <p className={`text-xs font-light ${statusColor[status] || ""}`}>{value}</p>
         {previousValue != null && (
@@ -482,7 +482,7 @@ export default function FinanceDashboardView({
         const count = (arInvoiceMap[item.customerNumber] || []).length;
         return count > 0 ? (
           <Button variant="flat" size="md" onPress={() => openAgingDetail(item, "ar")}>
-            <Eye size={14} /> {count} ใบ
+            <Eye /> {count} ใบ
           </Button>
         ) : <span className="text-muted-foreground">-</span>;
       }
@@ -511,7 +511,7 @@ export default function FinanceDashboardView({
         const count = (apInvoiceMap[item.vendorNumber] || []).length;
         return count > 0 ? (
           <Button variant="bordered" size="md" onPress={() => openAgingDetail(item, "ap")}>
-            <Eye size={14} /> {count} ใบ
+            <Eye /> {count} ใบ
           </Button>
         ) : <span className="text-muted-foreground">-</span>;
       }
@@ -593,7 +593,7 @@ export default function FinanceDashboardView({
             variant="bordered"
             size="md"
             isDisabled={!financials}
-            startContent={<Download size={14} />}
+            startContent={<Download />}
             onPress={() => exportCalculationReport(financials, selectedYear)}
           >
             Export วิธีคำนวณ
@@ -950,7 +950,7 @@ export default function FinanceDashboardView({
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <BotMessageSquare size={18} className="text-primary" />
+            <BotMessageSquare className="text-primary" />
             <p className="text-xs font-light">AI วิเคราะห์สถานะการเงิน</p>
             <Chip size="md" variant="flat" color="secondary">CFO Advisor</Chip>
           </div>
@@ -961,7 +961,7 @@ export default function FinanceDashboardView({
             isLoading={aiLoading}
             isDisabled={!financials || aiLoading}
             onPress={runAiAnalysis}
-            startContent={!aiLoading && (aiAnalysis ? <RefreshCw size={14} /> : <BotMessageSquare size={14} />)}
+            startContent={!aiLoading && (aiAnalysis ? <RefreshCw /> : <BotMessageSquare />)}
           >
             {aiAnalysis ? "วิเคราะห์ใหม่" : "เริ่มวิเคราะห์"}
           </Button>
@@ -1023,7 +1023,7 @@ export default function FinanceDashboardView({
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <BotMessageSquare size={18} className="text-success" />
+            <BotMessageSquare className="text-success" />
             <p className="text-xs font-light">AI พยากรณ์กระแสเงินสด</p>
             <Chip size="md" variant="flat" color="success">Cash Flow Advisor</Chip>
           </div>
@@ -1034,7 +1034,7 @@ export default function FinanceDashboardView({
             isLoading={cashFlowLoading}
             isDisabled={!financials || cashFlowLoading}
             onPress={runCashFlowForecast}
-            startContent={!cashFlowLoading && (cashFlowAnalysis ? <RefreshCw size={14} /> : <BotMessageSquare size={14} />)}
+            startContent={!cashFlowLoading && (cashFlowAnalysis ? <RefreshCw /> : <BotMessageSquare />)}
           >
             {cashFlowAnalysis ? "พยากรณ์ใหม่" : "เริ่มพยากรณ์"}
           </Button>
@@ -1442,7 +1442,7 @@ export default function FinanceDashboardView({
               actionMenuItems={(item) => {
                 const count = (arInvoiceMap[item.customerNumber] || []).length;
                 return count > 0
-                  ? [{ key: "view", label: `ดูรายละเอียด (${count} ใบ)`, icon: <Eye size={16} />, onPress: () => openAgingDetail(item, "ar") }]
+                  ? [{ key: "view", label: `ดูรายละเอียด (${count} ใบ)`, icon: <Eye />, onPress: () => openAgingDetail(item, "ar") }]
                   : [];
               }}
             />
@@ -1483,7 +1483,7 @@ export default function FinanceDashboardView({
               actionMenuItems={(item) => {
                 const count = (apInvoiceMap[item.vendorNumber] || []).length;
                 return count > 0
-                  ? [{ key: "view", label: `ดูรายละเอียด (${count} ใบ)`, icon: <Eye size={16} />, onPress: () => openAgingDetail(item, "ap") }]
+                  ? [{ key: "view", label: `ดูรายละเอียด (${count} ใบ)`, icon: <Eye />, onPress: () => openAgingDetail(item, "ap") }]
                   : [];
               }}
             />
@@ -1621,7 +1621,7 @@ export default function FinanceDashboardView({
                   <Button
                     variant="flat"
                     size="md"
-                    startContent={<Download size={14} />}
+                    startContent={<Download />}
                     onPress={() => exportCalculationReport(financials, selectedYear)}
                   >
                     Export ทั้งหมด

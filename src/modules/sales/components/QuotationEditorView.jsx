@@ -94,7 +94,7 @@ export default function QuotationEditorView({
             radius="md"
             onPress={onNavigateBack}
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft />
           </Button>
           <p className="text-xs font-light">
             {quotation.crmQuotationNo || "ใบเสนอราคาใหม่"}
@@ -109,7 +109,7 @@ export default function QuotationEditorView({
               variant="flat"
               size="md"
               radius="md"
-              startContent={<Send size={14} />}
+              startContent={<Send />}
               onPress={() => handleAction("submit")}
               isLoading={saving}
             >
@@ -133,7 +133,7 @@ export default function QuotationEditorView({
                 variant="bordered"
                 size="md"
                 radius="md"
-                startContent={<X size={14} />}
+                startContent={<X />}
                 onPress={rejectModal.onOpen}
               >
                 ปฏิเสธ
@@ -142,7 +142,7 @@ export default function QuotationEditorView({
                 variant="bordered"
                 size="md"
                 radius="md"
-                startContent={<Check size={14} />}
+                startContent={<Check />}
                 onPress={() => handleAction("approve")}
                 isLoading={saving}
               >
@@ -155,7 +155,7 @@ export default function QuotationEditorView({
               variant="bordered"
               size="md"
               radius="md"
-              startContent={<ShoppingCart size={14} />}
+              startContent={<ShoppingCart />}
               onPress={() => handleAction("convert_order")}
               isLoading={saving}
             >
@@ -361,7 +361,7 @@ export default function QuotationEditorView({
                           isIconOnly
                           onPress={() => removeLine(index)}
                         >
-                          <X size={14} />
+                          <X />
                         </Button>
                       </td>
                     )}
@@ -376,7 +376,7 @@ export default function QuotationEditorView({
                 variant="bordered"
                 size="md"
                 radius="md"
-                startContent={<Plus size={14} />}
+                startContent={<Plus />}
                 onPress={addLine}
               >
                 เพิ่มรายการ

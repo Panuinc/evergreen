@@ -220,7 +220,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
                   className="flex items-center justify-between p-2 rounded-lg border border-border"
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={16} className="text-muted-foreground" />
+                    <Icon className="text-muted-foreground" />
                     <span className="font-light">
                       {activity.crmActivitySubject}
                     </span>

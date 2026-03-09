@@ -155,7 +155,7 @@ export default function CogsDetailTable({
                   size="md"
                   variant={inventoryOverride ? "flat" : "bordered"}
                   color={inventoryOverride ? "success" : "default"}
-                  startContent={<Pencil size={14} />}
+                  startContent={<Pencil />}
                   onPress={handleOpenPopover}
                 >
                   ปรับปรุงสินค้าคงเหลือ
@@ -185,7 +185,7 @@ export default function CogsDetailTable({
                   />
                   <div className="flex justify-between gap-2 mt-1">
                     {inventoryOverride && (
-                      <Button size="md" color="danger" variant="flat" startContent={<Trash2 size={14} />} onPress={handleClear}>
+                      <Button size="md" color="danger" variant="flat" startContent={<Trash2 />} onPress={handleClear}>
                         ล้าง (ใช้ค่า BC)
                       </Button>
                     )}
@@ -200,7 +200,7 @@ export default function CogsDetailTable({
                 </div>
               </PopoverContent>
             </Popover>
-            <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
+            <Button size="md" variant="flat" startContent={<Download />} onPress={handleExport}>
               Export Excel
             </Button>
           </div>

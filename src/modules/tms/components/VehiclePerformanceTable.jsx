@@ -31,7 +31,7 @@ function StatItem({ icon: Icon, label, value, sub }) {
   return (
     <div className="flex items-start gap-2">
       <div className="p-1.5 rounded-md bg-default-100 mt-0.5">
-        <Icon size={14} className="text-muted-foreground" />
+        <Icon className="text-muted-foreground" />
       </div>
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
@@ -71,7 +71,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
             {/* Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Truck size={16} className="text-muted-foreground" />
+                <Truck className="text-muted-foreground" />
                 <div>
                   <p className="text-xs font-light">{v.vehicleName || v.plateNumber}</p>
                   {v.vehicleName && (

@@ -66,9 +66,9 @@ export default function CompareKpiCard({
         </div>
         {showBadge && (
           <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-xs font-light w-fit ${badgeColor} ${bgColor}`}>
-            {isPositive && <TrendingUp size={12} />}
-            {isNegative && <TrendingDown size={12} />}
-            {isNeutral && <Minus size={12} />}
+            {isPositive && <TrendingUp />}
+            {isNegative && <TrendingDown />}
+            {isNeutral && <Minus />}
             <span>{isPositive ? "+" : ""}{change}%</span>
           </div>
         )}

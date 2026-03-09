@@ -126,7 +126,7 @@ function ResultCards({ tables, results }) {
             <CardBody className="gap-1">
               <div className="flex items-center gap-2">
                 <Icon
-                  size={14}
+                 
                   className={isError ? "text-danger" : "text-muted-foreground"}
                 />
                 <p className="text-xs text-muted-foreground">{t.label}</p>
@@ -167,7 +167,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
           size="md"
           radius="md"
           startContent={
-            importing ? <Loading /> : <Upload size={16} />
+            importing ? <Loading /> : <Upload />
           }
           isDisabled={importing}
           className="cursor-pointer"
@@ -184,7 +184,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
 
       {fileName && !importing && !error && !result && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <FileSpreadsheet size={14} />
+          <FileSpreadsheet />
           <span>{fileName}</span>
         </div>
       )}
@@ -192,7 +192,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
       {error && (
         <Card shadow="none" className="border-2 border-danger bg-danger-50">
           <CardBody className="flex-row items-center gap-2">
-            <XCircle size={18} className="text-danger shrink-0" />
+            <XCircle className="text-danger shrink-0" />
             <span className="text-danger font-light text-xs">{error}</span>
           </CardBody>
         </Card>
@@ -201,7 +201,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
       {result?.success && (
         <Card shadow="none" className="border-2 border-success bg-success-50">
           <CardHeader className="flex-row items-center gap-2 pb-0">
-            <CheckCircle2 size={18} className="text-success" />
+            <CheckCircle2 className="text-success" />
             <span className="font-light text-success">นำเข้าสำเร็จ!</span>
           </CardHeader>
           <CardBody>
@@ -283,7 +283,7 @@ function BcSyncSection({
           variant="bordered"
           size="md"
           radius="md"
-          startContent={syncingAll ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+          startContent={syncingAll ? <Loader2 className="animate-spin" /> : <RefreshCw />}
           onPress={handleSyncAll}
           isDisabled={syncingAll}
         >
@@ -293,7 +293,7 @@ function BcSyncSection({
 
       {lastSync && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Clock size={14} />
+          <Clock />
           <span>ซิงค์ล่าสุด: {lastSync}</span>
         </div>
       )}
@@ -304,7 +304,7 @@ function BcSyncSection({
       {allError && (
         <Card shadow="none" className="border-2 border-danger bg-danger-50">
           <CardBody className="flex-row items-center gap-2">
-            <XCircle size={18} className="text-danger" />
+            <XCircle className="text-danger" />
             <span className="text-danger font-light">{allError}</span>
           </CardBody>
         </Card>
@@ -313,7 +313,7 @@ function BcSyncSection({
       {allResult && (
         <Card shadow="none" className="border-2 border-success bg-success-50">
           <CardHeader className="flex-row items-center gap-2 pb-0">
-            <CheckCircle2 size={18} className="text-success" />
+            <CheckCircle2 className="text-success" />
             <span className="font-light text-success">ซิงค์ทั้งหมดสำเร็จ!</span>
           </CardHeader>
           <CardBody>

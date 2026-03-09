@@ -118,7 +118,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
             <p className="text-xs font-light">งบกำไรขาดทุนรายเดือน</p>
             <Chip size="md" variant="flat" color="primary">ปี {beYear}</Chip>
           </div>
-          <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
+          <Button size="md" variant="flat" startContent={<Download />} onPress={handleExport}>
             Export Excel
           </Button>
         </CardHeader>

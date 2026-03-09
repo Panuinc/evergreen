@@ -87,7 +87,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
             onPress={() => onSelectDoor(Math.max(0, selectedIdx - 1))}
             isDisabled={selectedIdx === 0}
           >
-            <ChevronLeft size={12} />
+            <ChevronLeft />
           </Button>
           <ScrollShadow orientation="horizontal" className="flex-1">
             <div className="flex gap-1">
@@ -113,7 +113,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
             onPress={() => onSelectDoor(Math.min(doors.length - 1, selectedIdx + 1))}
             isDisabled={selectedIdx === doors.length - 1}
           >
-            <ChevronRight size={12} />
+            <ChevronRight />
           </Button>
         </div>
       )}
@@ -121,7 +121,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
       {/* Applied banner */}
       {isApplied ? (
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success-50 border border-success-200 text-xs text-success-700">
-          <CheckCheck size={13} />
+          <CheckCheck />
           <span>กรอกฟอร์มแล้ว — เลือกประตูถัดไปหรือปิด</span>
         </div>
       ) : (
@@ -173,7 +173,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
           {/* Apply action */}
           <Button
             size="md" color="primary" variant="solid" fullWidth className="text-xs"
-            startContent={<CheckCheck size={12} />}
+            startContent={<CheckCheck />}
             onPress={() => onApply(door, checkedKeys, selectedIdx)}
             isDisabled={checkedKeys.length === 0}
           >
@@ -287,7 +287,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
       <CardHeader className="border-b border-primary-200 bg-primary-50">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
-            <Sparkles size={14} className="text-primary" />
+            <Sparkles className="text-primary" />
             <span className="font-light text-xs text-primary">AI ช่วยกรอก BOM</span>
             <span className="text-xs text-muted-foreground font-light">
               {image ? "Gemini + Claude" : "Claude Sonnet"}
@@ -295,7 +295,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
           </div>
           {messages.length > 0 && (
             <Button isIconOnly variant="light" size="md" onPress={clearMessages}>
-              <Trash2 size={13} />
+              <Trash2 />
             </Button>
           )}
         </div>
@@ -311,7 +311,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
               className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-primary-200 bg-primary-50/50 py-4 hover:border-primary-400 hover:bg-primary-50 transition-colors cursor-pointer"
               onClick={() => fileRef.current?.click()}
             >
-              <ImagePlus size={20} className="text-primary-400" />
+              <ImagePlus className="text-primary-400" />
               <span className="text-xs text-primary-600 font-light">อัปโหลดแบบขยาย / Spec Sheet</span>
               <span className="text-xs text-muted-foreground">PDF, JPG, PNG · สูงสุด 3.5MB · วิเคราะห์อัตโนมัติ</span>
             </button>
@@ -353,7 +353,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
                 >
                   {msg.role === "assistant" && (
                     <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center mr-1 mt-1 shrink-0">
-                      <Bot size={11} className="text-white" />
+                      <Bot className="text-white" />
                     </div>
                   )}
                   <div
@@ -423,7 +423,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
               className="absolute -top-1 -right-1 bg-background rounded-full border border-border p-0.5"
               onClick={removeImage}
             >
-              <X size={10} />
+              <X />
             </button>
           </div>
         )}
@@ -447,7 +447,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
                 onPress={() => fileInputRef.current?.click()}
                 title="แนบไฟล์"
               >
-                <ImagePlus size={14} />
+                <ImagePlus />
               </Button>
             )}
             <Input
@@ -468,7 +468,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
               isLoading={isLoading}
               isDisabled={!input.trim() && !image}
             >
-              <Send size={14} />
+              <Send />
             </Button>
           </div>
         )}

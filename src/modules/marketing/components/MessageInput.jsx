@@ -40,7 +40,7 @@ export default function MessageInput({ onSend, onSuggest, sending, suggestLoadin
             isLoading={suggestLoading}
             isDisabled={disabled || sending || suggestLoading}
           >
-            <Sparkles size={18} />
+            <Sparkles />
           </Button>
         </Tooltip>
       )}
@@ -63,7 +63,7 @@ export default function MessageInput({ onSend, onSuggest, sending, suggestLoadin
         isLoading={sending}
         isDisabled={disabled || !input.trim()}
       >
-        <Send size={18} />
+        <Send />
       </Button>
     </div>
   );

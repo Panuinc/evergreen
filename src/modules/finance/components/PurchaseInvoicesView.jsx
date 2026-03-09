@@ -118,7 +118,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
       case "actions":
         return (
           <Button variant="flat" size="md" isIconOnly onPress={() => openLines(item)}>
-            <Eye size={16} />
+            <Eye />
           </Button>
         );
       default:
@@ -146,7 +146,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
         }
         enableCardView
         actionMenuItems={(item) => [
-          { key: "view", label: "ดูรายละเอียด", icon: <Eye size={16} />, onPress: () => openLines(item) },
+          { key: "view", label: "ดูรายละเอียด", icon: <Eye />, onPress: () => openLines(item) },
         ]}
       />
 

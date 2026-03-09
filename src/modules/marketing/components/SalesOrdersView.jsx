@@ -110,7 +110,7 @@ export default function SalesOrdersView({
           <p className="text-xs font-light">คำสั่งขาย</p>
           <p className="text-xs text-muted-foreground">ช่องทางออนไลน์ — Business Central</p>
         </div>
-        <Button variant="bordered" size="md" radius="md" startContent={<RefreshCw size={14} />} onPress={reload}>
+        <Button variant="bordered" size="md" radius="md" startContent={<RefreshCw />} onPress={reload}>
           รีเฟรช
         </Button>
       </div>

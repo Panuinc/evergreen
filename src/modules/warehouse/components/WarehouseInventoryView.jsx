@@ -91,7 +91,7 @@ export default function WarehouseInventoryView({ items, loading }) {
             <Card shadow="none" className="border border-border hover:bg-default-100 transition-colors cursor-pointer h-full">
               <CardBody className="gap-2">
                 <div className="flex items-center gap-2">
-                  <Package size={16} className="text-muted-foreground" />
+                  <Package className="text-muted-foreground" />
                   <p className="font-light">{group}</p>
                 </div>
                 <div className="flex flex-col gap-0.5 text-xs">

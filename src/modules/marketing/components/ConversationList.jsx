@@ -55,7 +55,7 @@ export default function ConversationList({
           variant="bordered"
           size="md"
           radius="md"
-          startContent={<Search size={16} />}
+          startContent={<Search />}
           value={searchQuery}
           onValueChange={onSearchChange}
           onClear={() => onSearchChange("")}

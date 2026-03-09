@@ -18,7 +18,7 @@ export default function ChannelBadge({ channelType, size = "sm" }) {
         size={size}
         variant="flat"
         color="primary"
-        startContent={<Facebook size={12} />}
+        startContent={<Facebook />}
       >
         FB
       </Chip>
@@ -31,7 +31,7 @@ export default function ChannelBadge({ channelType, size = "sm" }) {
         size={size}
         variant="flat"
         className="bg-success-100 text-success-700 dark:bg-success-900 dark:text-success-300"
-        startContent={<LineIcon size={12} />}
+        startContent={<LineIcon />}
       >
         LINE
       </Chip>

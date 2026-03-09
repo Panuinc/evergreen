@@ -307,7 +307,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
             variant="flat"
             size="md"
             radius="md"
-            startContent={<Upload size={16} />}
+            startContent={<Upload />}
             isDisabled={importing}
             className="cursor-pointer"
           >
@@ -324,7 +324,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
             variant="bordered"
             size="md"
             radius="md"
-            startContent={<Download size={16} />}
+            startContent={<Download />}
             onPress={handleExport}
             isDisabled={projects.length === 0}
           >

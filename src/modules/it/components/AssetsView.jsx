@@ -191,10 +191,10 @@ export default function AssetsView({
         statusOptions={statusOptions}
         emptyContent="ไม่พบทรัพย์สิน"
         actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
           isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
+            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ].filter(Boolean)}
         topEndContent={
           <Button

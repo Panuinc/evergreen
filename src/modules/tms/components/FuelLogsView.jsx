@@ -187,7 +187,7 @@ export default function FuelLogsView({
         emptyContent="ไม่พบบันทึกน้ำมัน"
         topEndContent={
           <div className="flex gap-2">
-            <Button variant="bordered" size="md" radius="md" startContent={<Download size={16} />} onPress={() => exportToCsv("fuel-logs.csv", fuelCsvColumns, fuelLogs)}>
+            <Button variant="bordered" size="md" radius="md" startContent={<Download />} onPress={() => exportToCsv("fuel-logs.csv", fuelCsvColumns, fuelLogs)}>
               ส่งออก
             </Button>
             <Button variant="bordered" size="md" radius="md" startContent={<Plus />} onPress={() => handleOpen()}>
@@ -196,10 +196,10 @@ export default function FuelLogsView({
           </div>
         }
         actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
           isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
+            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ].filter(Boolean)}
       />
 

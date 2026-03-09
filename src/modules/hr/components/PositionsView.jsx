@@ -176,10 +176,10 @@ export default function PositionsView({
           </Button>
         }
         actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => onOpen(item) },
+          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => onOpen(item) },
           isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => onConfirmDelete(item) },
+            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
+            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => onConfirmDelete(item) },
         ].filter(Boolean)}
       />
 

@@ -18,7 +18,7 @@ function AgentIndicator({ agent }) {
   return (
     <div className="flex justify-start">
       <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs bg-default-100 text-muted-foreground animate-pulse">
-        <Icon size={12} />
+        <Icon />
         <span>{agent.name} กำลังค้นหา...</span>
       </div>
     </div>
@@ -62,7 +62,7 @@ export default function ChatBot() {
         className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 shadow-lg w-14 h-14"
         onPress={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
+        {isOpen ? <X /> : <MessageCircle />}
       </Button>
 
       {/* Chat Panel */}
@@ -85,7 +85,7 @@ export default function ChatBot() {
                 radius="md"
                 onPress={clearMessages}
               >
-                <Trash2 size={16} />
+                <Trash2 />
               </Button>
             </div>
 
@@ -139,7 +139,7 @@ export default function ChatBot() {
                 onPress={handleSend}
                 isLoading={isLoading}
               >
-                <Send size={18} />
+                <Send />
               </Button>
             </div>
           </motion.div>

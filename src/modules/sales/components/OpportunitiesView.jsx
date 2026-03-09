@@ -225,10 +225,10 @@ export default function OpportunitiesView({
           emptyContent="ไม่พบโอกาสขาย"
           actionMenuItems={(item) =>
             [
-              { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+              { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
               isSuperAdmin
-                ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
-                : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+                ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
+                : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
             ].filter(Boolean)
           }
           topEndContent={
@@ -240,7 +240,7 @@ export default function OpportunitiesView({
                 isIconOnly
                 onPress={() => setViewMode("table")}
               >
-                <LayoutList size={18} />
+                <LayoutList />
               </Button>
               <Button
                 variant={viewMode === "kanban" ? "solid" : "bordered"}
@@ -249,7 +249,7 @@ export default function OpportunitiesView({
                 isIconOnly
                 onPress={() => setViewMode("kanban")}
               >
-                <Columns3 size={18} />
+                <Columns3 />
               </Button>
               <Button
                 variant="bordered"
@@ -274,7 +274,7 @@ export default function OpportunitiesView({
                 isIconOnly
                 onPress={() => setViewMode("table")}
               >
-                <LayoutList size={18} />
+                <LayoutList />
               </Button>
               <Button
                 variant={viewMode === "kanban" ? "solid" : "bordered"}
@@ -283,7 +283,7 @@ export default function OpportunitiesView({
                 isIconOnly
                 onPress={() => setViewMode("kanban")}
               >
-                <Columns3 size={18} />
+                <Columns3 />
               </Button>
             </div>
             <Button

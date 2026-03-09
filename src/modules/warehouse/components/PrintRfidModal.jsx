@@ -88,7 +88,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalContent>
         <ModalHeader className="flex items-center gap-2">
-          <Printer size={20} />
+          <Printer />
           พิมพ์ RFID Label
         </ModalHeader>
         <ModalBody>
@@ -130,7 +130,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
                 radius="md"
                 onPress={loadPreview}
                 isLoading={loadingPreview}
-                startContent={!loadingPreview && <Eye size={14} />}
+                startContent={!loadingPreview && <Eye />}
               >
                 รีเฟรช Preview
               </Button>
@@ -150,14 +150,14 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
 
             {!hasRfidCode && (
               <div className="flex items-center gap-2 rounded-lg bg-danger-50 p-3 text-xs text-danger">
-                <AlertTriangle size={16} className="shrink-0" />
+                <AlertTriangle className="shrink-0" />
                 <span>สินค้านี้ยังไม่ได้กำหนด RFID Code กรุณา assign ก่อนพิมพ์</span>
               </div>
             )}
 
             {isOverBatch && (
               <div className="flex items-center gap-2 rounded-lg bg-warning-50 p-3 text-xs text-warning-700">
-                <AlertTriangle size={16} className="shrink-0" />
+                <AlertTriangle className="shrink-0" />
                 <span>จำนวนต่อ batch ต้องไม่เกิน {MAX_BATCH} ชิ้น</span>
               </div>
             )}
@@ -179,7 +179,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             onPress={handlePrint}
             isLoading={printing}
             isDisabled={!quantity || !hasRfidCode || isOverBatch}
-            startContent={!printing && <Printer size={16} />}
+            startContent={!printing && <Printer />}
           >
             พิมพ์ {quantity} ใบ
           </Button>

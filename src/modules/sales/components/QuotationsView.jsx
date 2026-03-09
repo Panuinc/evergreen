@@ -162,8 +162,8 @@ export default function QuotationsView({
         searchKeys={["crmQuotationNo"]}
         emptyContent="ไม่พบใบเสนอราคา"
         actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => onNavigateToQuotation(item.crmQuotationId) },
-          { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => onNavigateToQuotation(item.crmQuotationId) },
+          { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ]}
         topEndContent={
           <Button

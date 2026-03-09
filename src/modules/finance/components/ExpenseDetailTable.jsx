@@ -98,7 +98,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
             <p className="text-xs font-light">{title}</p>
             <Chip size="md" variant="flat" color={color}>{chipLabel}</Chip>
           </div>
-          <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
+          <Button size="md" variant="flat" startContent={<Download />} onPress={handleExport}>
             Export Excel
           </Button>
         </CardHeader>

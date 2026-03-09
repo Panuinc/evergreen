@@ -180,14 +180,14 @@ export default function OrdersView({
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำสั่งซื้อ"
         actionMenuItems={(item) => [
-          { key: "view", label: "ดูรายละเอียด", icon: <Eye size={16} />, onPress: () => handleViewDetail(item) },
-          { key: "status-pending", label: "สถานะ: รอดำเนินการ", icon: <Edit size={16} />, onPress: () => handleStatusChange(item, "pending") },
-          { key: "status-confirmed", label: "สถานะ: ยืนยันแล้ว", icon: <Edit size={16} />, onPress: () => handleStatusChange(item, "confirmed") },
-          { key: "status-processing", label: "สถานะ: กำลังดำเนินการ", icon: <Edit size={16} />, onPress: () => handleStatusChange(item, "processing") },
-          { key: "status-shipped", label: "สถานะ: จัดส่งแล้ว", icon: <Edit size={16} />, onPress: () => handleStatusChange(item, "shipped") },
-          { key: "status-delivered", label: "สถานะ: ส่งถึงแล้ว", icon: <Edit size={16} />, onPress: () => handleStatusChange(item, "delivered") },
-          { key: "status-cancelled", label: "สถานะ: ยกเลิก", icon: <Edit size={16} />, onPress: () => handleStatusChange(item, "cancelled") },
-          { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+          { key: "view", label: "ดูรายละเอียด", icon: <Eye />, onPress: () => handleViewDetail(item) },
+          { key: "status-pending", label: "สถานะ: รอดำเนินการ", icon: <Edit />, onPress: () => handleStatusChange(item, "pending") },
+          { key: "status-confirmed", label: "สถานะ: ยืนยันแล้ว", icon: <Edit />, onPress: () => handleStatusChange(item, "confirmed") },
+          { key: "status-processing", label: "สถานะ: กำลังดำเนินการ", icon: <Edit />, onPress: () => handleStatusChange(item, "processing") },
+          { key: "status-shipped", label: "สถานะ: จัดส่งแล้ว", icon: <Edit />, onPress: () => handleStatusChange(item, "shipped") },
+          { key: "status-delivered", label: "สถานะ: ส่งถึงแล้ว", icon: <Edit />, onPress: () => handleStatusChange(item, "delivered") },
+          { key: "status-cancelled", label: "สถานะ: ยกเลิก", icon: <Edit />, onPress: () => handleStatusChange(item, "cancelled") },
+          { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ]}
       />
 

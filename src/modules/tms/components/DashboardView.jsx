@@ -139,7 +139,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <BotMessageSquare size={18} className="text-primary" />
+            <BotMessageSquare className="text-primary" />
             <p className="text-xs font-light">AI วิเคราะห์ระบบขนส่ง</p>
             <Chip size="md" variant="flat" color="secondary">TMS Advisor</Chip>
           </div>
@@ -150,7 +150,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
             isLoading={aiLoading}
             isDisabled={!stats || aiLoading}
             onPress={runAiAnalysis}
-            startContent={!aiLoading && (aiAnalysis ? <RefreshCw size={14} /> : <BotMessageSquare size={14} />)}
+            startContent={!aiLoading && (aiAnalysis ? <RefreshCw /> : <BotMessageSquare />)}
           >
             {aiAnalysis ? "วิเคราะห์ใหม่" : "เริ่มวิเคราะห์"}
           </Button>

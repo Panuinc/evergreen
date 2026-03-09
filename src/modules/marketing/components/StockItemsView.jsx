@@ -174,7 +174,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
       color="primary"
       size="md"
       radius="md"
-      startContent={<Save size={14} />}
+      startContent={<Save />}
       onPress={handleSaveAll}
       isLoading={saving}
     >

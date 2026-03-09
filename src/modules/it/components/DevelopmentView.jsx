@@ -276,11 +276,11 @@ export default function DevelopmentView({
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำขอพัฒนา"
         actionMenuItems={(item) => [
-          { key: "progress", label: "อัปเดตความคืบหน้า", icon: <GitBranch size={16} />, onPress: () => openProgress(item) },
-          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+          { key: "progress", label: "อัปเดตความคืบหน้า", icon: <GitBranch />, onPress: () => openProgress(item) },
+          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
           isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
+            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ].filter(Boolean)}
         topEndContent={
           <Button
@@ -588,7 +588,7 @@ export default function DevelopmentView({
                       >
                         <div className="flex-shrink-0 mt-0.5">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <GitBranch size={14} className="text-primary" />
+                            <GitBranch className="text-primary" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -597,7 +597,7 @@ export default function DevelopmentView({
                               {log.itDevProgressLogCreatedBy || "ไม่ทราบ"}
                             </span>
                             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock size={12} />
+                              <Clock />
                               {formatDateTime(log.itDevProgressLogCreatedAt)}
                             </div>
                           </div>

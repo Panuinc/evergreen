@@ -213,14 +213,14 @@ export default function ShipmentsView({
                   isIconOnly
                   title="เปิด Google Maps"
                 >
-                  <MapPin size={16} />
+                  <MapPin />
                 </Button>
               )}
               {nextStatuses.length > 0 && (
                 <Dropdown>
                   <DropdownTrigger>
                     <Button variant="bordered" size="md" radius="md" isIconOnly>
-                      <ChevronDown size={16} />
+                      <ChevronDown />
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
@@ -243,7 +243,7 @@ export default function ShipmentsView({
                   isIconOnly
                   onPress={() => router.push(`/tms/deliveries?shipmentId=${item.tmsShipmentId}`)}
                 >
-                  <ClipboardCheck size={16} />
+                  <ClipboardCheck />
                 </Button>
               )}
               <Button
@@ -253,7 +253,7 @@ export default function ShipmentsView({
                 isIconOnly
                 onPress={() => handleOpen(item)}
               >
-                <Edit size={16} />
+                <Edit />
               </Button>
               {isSuperAdmin ? (
                 <Switch
@@ -269,7 +269,7 @@ export default function ShipmentsView({
                   isIconOnly
                   onPress={() => confirmDelete(item)}
                 >
-                  <Trash2 size={16} />
+                  <Trash2 />
                 </Button>
               )}
             </div>
@@ -302,19 +302,19 @@ export default function ShipmentsView({
         emptyContent="ไม่พบการขนส่ง"
         topEndContent={
           <div className="flex gap-2">
-            <Button variant="bordered" size="md" radius="md" startContent={<Download size={16} />} onPress={() => exportToCsv("shipments.csv", shipmentCsvColumns, shipments)}>
+            <Button variant="bordered" size="md" radius="md" startContent={<Download />} onPress={() => exportToCsv("shipments.csv", shipmentCsvColumns, shipments)}>
               ส่งออก
             </Button>
-            <Button variant="bordered" size="md" radius="md" startContent={<Plus size={16} />} onPress={() => handleOpen()}>
+            <Button variant="bordered" size="md" radius="md" startContent={<Plus />} onPress={() => handleOpen()}>
               สร้างการขนส่ง
             </Button>
           </div>
         }
         actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
           isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
+            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ].filter(Boolean)}
       />
 
@@ -334,7 +334,7 @@ export default function ShipmentsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    startContent={<CalendarDays size={16} className="text-primary" />}
+                    startContent={<CalendarDays className="text-primary" />}
                     selectedKeys={[]}
                     onSelectionChange={(keys) => {
                       const key = Array.from(keys)[0];
@@ -379,7 +379,7 @@ export default function ShipmentsView({
                             color={pColor}
                             size="md"
                             onClose={() => togglePlanSelection(pid)}
-                            endContent={<X size={12} />}
+                            endContent={<X />}
                           >
                             {firstItem?.tmsDeliveryPlanItemCustomerName || plan.tmsDeliveryPlanAddress || "แผนส่ง"}
                           </Chip>
@@ -398,7 +398,7 @@ export default function ShipmentsView({
                           size="md"
                           radius="md"
                           color="secondary"
-                          startContent={<Route size={14} />}
+                          startContent={<Route />}
                           onPress={optimizeRoute}
                           isLoading={routeLoading}
                         >
@@ -445,9 +445,9 @@ export default function ShipmentsView({
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 text-xs font-light text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
                             >
-                              <MapPin size={14} />
+                              <MapPin />
                               เปิด Google Maps
-                              <ExternalLink size={12} />
+                              <ExternalLink />
                             </a>
                           )}
                         </div>
@@ -456,7 +456,7 @@ export default function ShipmentsView({
                       {routeAiAnalysis && (
                         <details className="text-xs">
                           <summary className="cursor-pointer text-secondary-600 font-light flex items-center gap-1">
-                            <Sparkles size={12} /> ดูวิเคราะห์ AI
+                            <Sparkles /> ดูวิเคราะห์ AI
                           </summary>
                           <div className="prose prose-sm max-w-none mt-2 bg-content2 rounded-lg p-3 max-h-40 overflow-y-auto">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>{routeAiAnalysis}</ReactMarkdown>
@@ -520,9 +520,9 @@ export default function ShipmentsView({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-light text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
                       >
-                        <MapPin size={14} />
+                        <MapPin />
                         เปิด Google Maps — เส้นทางจุด A→B→C
-                        <ExternalLink size={12} />
+                        <ExternalLink />
                       </a>
                     )}
                   </div>
@@ -625,7 +625,7 @@ export default function ShipmentsView({
                             updateField("tmsShipmentAssistants", updated);
                           }}
                         >
-                          <Trash2 size={16} />
+                          <Trash2 />
                         </Button>
                       )}
                     </div>
@@ -729,7 +729,7 @@ export default function ShipmentsView({
                                 </td>
                                 <td className="px-1 py-1">
                                   <Button size="md" variant="light" isIconOnly onPress={() => removeExtra(idx)}>
-                                    <Trash2 size={14} />
+                                    <Trash2 />
                                   </Button>
                                 </td>
                               </tr>

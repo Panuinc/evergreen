@@ -87,7 +87,7 @@ function SystemStatusTab({ status, loading, refetch }) {
           variant="bordered"
           size="md"
           radius="md"
-          startContent={<RefreshCw size={16} />}
+          startContent={<RefreshCw />}
           onPress={refetch}
           isLoading={loading}
         >
@@ -115,7 +115,7 @@ function SystemStatusTab({ status, loading, refetch }) {
                 <CardBody className="gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Icon size={24} />
+                      <Icon />
                       <div>
                         <p className="font-light text-xs">{service.name}</p>
                         <p className="text-muted-foreground text-xs">
@@ -232,7 +232,7 @@ function Cp30Settings() {
     <div className="flex flex-col gap-4">
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex items-center gap-2 pb-0">
-          <Printer size={20} />
+          <Printer />
           <p className="font-light text-xs">Chainway CP30 (RFID)</p>
         </CardHeader>
         <CardBody className="gap-3">
@@ -257,7 +257,7 @@ function Cp30Settings() {
             radius="md"
             onPress={handleTestConnection}
             isLoading={checking}
-            startContent={!checking && <Wifi size={16} />}
+            startContent={!checking && <Wifi />}
           >
             ทดสอบการเชื่อมต่อ
           </Button>
@@ -403,7 +403,7 @@ function Cp30Settings() {
           size="md"
           radius="md"
           onPress={handleSave}
-          startContent={<Save size={16} />}
+          startContent={<Save />}
         >
           บันทึก
         </Button>
@@ -413,7 +413,7 @@ function Cp30Settings() {
           radius="md"
           onPress={handleTestPrint}
           isLoading={testing}
-          startContent={!testing && <TestTube size={16} />}
+          startContent={!testing && <TestTube />}
         >
           พิมพ์ทดสอบ
         </Button>
@@ -479,7 +479,7 @@ function TscTeSettings() {
     <div className="flex flex-col gap-4">
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex items-center gap-2 pb-0">
-          <Printer size={20} />
+          <Printer />
           <p className="font-light text-xs">TSC TE</p>
         </CardHeader>
         <CardBody className="gap-3">
@@ -511,7 +511,7 @@ function TscTeSettings() {
               radius="md"
               onPress={handleTestConnection}
               isLoading={checking}
-              startContent={!checking && <Wifi size={16} />}
+              startContent={!checking && <Wifi />}
             >
               ทดสอบการเชื่อมต่อ
             </Button>
@@ -629,7 +629,7 @@ function TscTeSettings() {
           size="md"
           radius="md"
           onPress={handleSave}
-          startContent={<Save size={16} />}
+          startContent={<Save />}
         >
           บันทึก
         </Button>
@@ -638,7 +638,7 @@ function TscTeSettings() {
           size="md"
           radius="md"
           onPress={handleReset}
-          startContent={<RotateCcw size={16} />}
+          startContent={<RotateCcw />}
         >
           รีเซ็ตค่าเริ่มต้น
         </Button>
@@ -674,7 +674,7 @@ export default function ConfigCheckView({ status, loading, refetch }) {
           key="status"
           title={
             <div className="flex items-center gap-2">
-              <Activity size={16} />
+              <Activity />
               <span>สถานะระบบ</span>
             </div>
           }
@@ -685,7 +685,7 @@ export default function ConfigCheckView({ status, loading, refetch }) {
           key="printer"
           title={
             <div className="flex items-center gap-2">
-              <Printer size={16} />
+              <Printer />
               <span>เครื่องพิมพ์</span>
             </div>
           }

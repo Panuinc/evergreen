@@ -57,7 +57,7 @@ function GrowthBadge({ value }) {
   const Icon = isPositive ? TrendingUp : TrendingDown;
   return (
     <span className={`inline-flex items-center gap-1 text-xs font-light ${isPositive ? "text-success" : "text-danger"}`}>
-      <Icon size={12} />
+      <Icon />
       {isPositive ? "+" : ""}{value.toFixed(1)}%
     </span>
   );
@@ -70,7 +70,7 @@ function KpiCard({ title, value, sub, icon: Icon, color, growth }) {
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">{title}</p>
           <div className={`p-2 rounded-lg bg-default-100 ${color}`}>
-            <Icon size={16} />
+            <Icon />
           </div>
         </div>
         <p className="text-xs font-light mt-1">{value}</p>
@@ -90,7 +90,7 @@ function PeriodCard({ title, revenue, orders, icon: Icon, color, growth, prevLab
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">{title}</p>
           <div className={`p-2 rounded-lg bg-default-100 ${color}`}>
-            <Icon size={16} />
+            <Icon />
           </div>
         </div>
         <p className="text-xs font-light mt-1">{formatCurrency(revenue)}</p>
@@ -142,7 +142,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
               ))}
             </div>
             <Button variant="bordered" size="md" radius="md" isIconOnly onPress={reload}>
-              <RefreshCw size={14} />
+              <RefreshCw />
             </Button>
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
               color="primary"
               isDisabled={!startDate || !endDate}
               onPress={searchCustomRange}
-              startContent={<Search size={14} />}
+              startContent={<Search />}
             >
               ค้นหา
             </Button>

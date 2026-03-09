@@ -69,7 +69,7 @@ export default function FileUpload({
                 />
               ) : (
                 <div className="w-20 h-20 flex items-center justify-center rounded-md border border-border bg-default-100">
-                  <ImageIcon size={24} className="text-muted-foreground" />
+                  <ImageIcon className="text-muted-foreground" />
                 </div>
               )}
               <button
@@ -77,7 +77,7 @@ export default function FileUpload({
                 onClick={() => handleRemove(url)}
                 className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <X size={12} />
+                <X />
               </button>
             </div>
           ))}
@@ -92,7 +92,7 @@ export default function FileUpload({
           <Loading />
         ) : (
           <>
-            <Upload size={16} className="text-muted-foreground" />
+            <Upload className="text-muted-foreground" />
             <span className="text-xs text-muted-foreground">
               คลิกเพื่ออัปโหลดไฟล์
             </span>

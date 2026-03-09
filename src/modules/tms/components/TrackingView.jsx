@@ -61,7 +61,7 @@ export default function TrackingView({
             variant="bordered"
             size="md"
             radius="md"
-            startContent={<RefreshCw size={16} />}
+            startContent={<RefreshCw />}
             onPress={loadData}
           >
             รีเฟรช
@@ -70,7 +70,7 @@ export default function TrackingView({
             variant="bordered"
             size="md"
             radius="md"
-            startContent={<Navigation size={16} />}
+            startContent={<Navigation />}
             onPress={() => handleOpenManualUpdate()}
           >
             อัปเดตตำแหน่ง
@@ -110,7 +110,7 @@ export default function TrackingView({
                   {pos ? (
                     <div className="flex flex-col gap-1 text-xs">
                       <p className="flex items-center gap-1">
-                        <MapPin size={12} className="text-primary" />
+                        <MapPin className="text-primary" />
                         {Number(pos.tmsGpsLogLatitude).toFixed(5)},{" "}
                         {Number(pos.tmsGpsLogLongitude).toFixed(5)}
                       </p>
@@ -140,7 +140,7 @@ export default function TrackingView({
                       variant="bordered"
                       size="md"
                       radius="md"
-                      startContent={<History size={12} />}
+                      startContent={<History />}
                       onPress={() => loadRouteHistory(vehicle.tmsVehicleId)}
                       isLoading={loadingRoute && selectedVehicleId === vehicle.tmsVehicleId}
                       className="flex-1"

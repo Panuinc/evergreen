@@ -97,7 +97,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
             variant="flat"
             onPress={() => setPrintItem(item)}
           >
-            <Printer size={16} />
+            <Printer />
           </Button>
         );
       default:
@@ -148,7 +148,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
         searchKeys={["number", "displayName", "projectName"]}
         emptyContent="ไม่พบรายการสินค้า"
         actionMenuItems={(item) => [
-          { key: "print", label: "พิมพ์", icon: <Printer size={16} />, onPress: () => setPrintItem(item) },
+          { key: "print", label: "พิมพ์", icon: <Printer />, onPress: () => setPrintItem(item) },
         ]}
       />
 

@@ -232,11 +232,11 @@ export default function LeadsView({
         emptyContent="ไม่พบลีด"
         actionMenuItems={(item) =>
           [
-            item.crmLeadStatus === "qualified" && { key: "convert", label: "แปลงเป็นโอกาสขาย", icon: <ArrowRightLeft size={16} />, onPress: () => handleConvert(item) },
-            { key: "edit", label: "แก้ไข", icon: <Edit size={16} />, onPress: () => handleOpen(item) },
+            item.crmLeadStatus === "qualified" && { key: "convert", label: "แปลงเป็นโอกาสขาย", icon: <ArrowRightLeft />, onPress: () => handleConvert(item) },
+            { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
             isSuperAdmin
-              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power size={16} />, onPress: () => toggleActive(item) }
-              : { key: "delete", label: "ลบ", icon: <Trash2 size={16} />, color: "danger", onPress: () => confirmDelete(item) },
+              ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
+              : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
           ].filter(Boolean)
         }
         topEndContent={

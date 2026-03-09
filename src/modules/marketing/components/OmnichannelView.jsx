@@ -53,7 +53,7 @@ export default function OmnichannelView({
           variant="bordered"
           size="md"
           radius="md"
-          startContent={<Settings size={16} />}
+          startContent={<Settings />}
           onPress={settingsModal.onOpen}
         >
           ตั้งค่าช่องทาง

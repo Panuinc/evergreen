@@ -347,7 +347,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                 variant="bordered"
                 size="md"
                 radius="md"
-                startContent={<Printer size={16} />}
+                startContent={<Printer />}
                 onPress={handlePrint}
                 isDisabled={totalLabels === 0}
               >
@@ -357,7 +357,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                 color="primary"
                 size="md"
                 radius="md"
-                startContent={<Send size={16} />}
+                startContent={<Send />}
                 onPress={handleNetworkPrint}
                 isDisabled={totalLabels === 0 || networkPrinting}
                 isLoading={networkPrinting}

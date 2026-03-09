@@ -173,7 +173,7 @@ export default function DataTable({
             isIconOnly
             onPress={() => setView("table")}
           >
-            <TableProperties size={18} />
+            <TableProperties />
           </Button>
           <Button
             variant={view === "card" ? "solid" : "bordered"}
@@ -182,7 +182,7 @@ export default function DataTable({
             isIconOnly
             onPress={() => setView("card")}
           >
-            <LayoutGrid size={18} />
+            <LayoutGrid />
           </Button>
         </div>
       ) : null,
