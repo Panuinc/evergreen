@@ -13,12 +13,17 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
-const STATUS_MARKER_COLORS = {
-  available: "#22c55e",
-  in_use: "#f59e0b",
-  maintenance: "#ef4444",
-  retired: "#a1a1aa",
-};
+// Color by real-time engine/speed state (Forth Track) or DB status fallback
+function getMarkerColor(pos, dbStatus) {
+  const engine = pos?.tmsGpsLogEngine ?? pos?.ftEngine;
+  const speed = Number(pos?.tmsGpsLogSpeed ?? pos?.gpsLogSpeed ?? 0);
+  if (engine === "ON" && speed > 0) return "#f59e0b"; // moving → orange
+  if (engine === "ON" && speed === 0) return "#3b82f6"; // idle → blue
+  if (engine === "OFF") return "#a1a1aa";              // off → gray
+  // fallback to DB status
+  const STATUS_COLORS = { available: "#22c55e", in_use: "#f59e0b", maintenance: "#ef4444", retired: "#a1a1aa" };
+  return STATUS_COLORS[dbStatus] || "#a1a1aa";
+}
 
 function createColoredIcon(color) {
   return L.divIcon({
@@ -87,7 +92,7 @@ export default function VehicleMapInner({
         updatedAt: pos.tmsGpsLogRecordedAt ?? pos.gpsLogRecordedAt,
         name: v.tmsVehicleName ?? v.vehicleName,
         plate: v.tmsVehiclePlateNumber ?? v.vehiclePlateNumber,
-        status: v.tmsVehicleStatus ?? v.vehicleStatus,
+        color: getMarkerColor(pos, v.tmsVehicleStatus ?? v.vehicleStatus),
       };
     })
     .filter(Boolean);
@@ -113,7 +118,7 @@ export default function VehicleMapInner({
         <Marker
           key={m.vehicleId}
           position={[m.lat, m.lng]}
-          icon={createColoredIcon(STATUS_MARKER_COLORS[m.status] || "#a1a1aa")}
+          icon={createColoredIcon(m.color)}
           eventHandlers={{
             click: () => onVehicleClick?.(m.vehicleId),
           }}
