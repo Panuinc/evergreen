@@ -1,4 +1,4 @@
-import { JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Bai_Jamjuree } from "next/font/google";
 import "@/styles/globals.css";
 import { Providers } from "./providers";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -7,6 +7,12 @@ import { RBACProvider } from "@/contexts/RBACContext";
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+});
+
+const baiJamjuree = Bai_Jamjuree({
+  variable: "--font-bai-jamjuree",
+  subsets: ["latin", "thai"],
+  weight: ["200", "300", "400", "500", "600", "700"],
 });
 
 export const metadata = {
@@ -21,8 +27,8 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/logo/logo-01.png" />
       </head>
       <body
-        className={`${jetbrainsMono.variable} antialiased`}
-        style={{ fontFamily: "var(--font-jetbrains-mono)" }}
+        className={`${jetbrainsMono.variable} ${baiJamjuree.variable} antialiased`}
+        style={{ fontFamily: "var(--font-jetbrains-mono), var(--font-bai-jamjuree)" }}
       >
         <Providers>
           <AuthProvider>
