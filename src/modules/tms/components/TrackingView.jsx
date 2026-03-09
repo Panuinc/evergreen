@@ -12,7 +12,15 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { MapPin, RefreshCw, Navigation, History, Fuel, Thermometer, Wifi } from "lucide-react";
+import {
+  MapPin,
+  RefreshCw,
+  Navigation,
+  History,
+  Fuel,
+  Thermometer,
+  Wifi,
+} from "lucide-react";
 import VehicleMap from "@/modules/tms/components/VehicleMap";
 import RoutePlayback from "@/modules/tms/components/RoutePlayback";
 import Loading from "@/components/ui/Loading";
@@ -67,21 +75,12 @@ export default function TrackingView({
           >
             รีเฟรช
           </Button>
-          <Button
-            variant="bordered"
-            size="md"
-            radius="md"
-            startContent={<Navigation />}
-            onPress={() => handleOpenManualUpdate()}
-          >
-            อัปเดตตำแหน่ง
-          </Button>
         </div>
       </div>
 
-      <div className="flex gap-4 h-[calc(100vh-220px)]">
+      <div className="flex flex-col gap-4">
         {}
-        <div className="w-80 h-fit flex-shrink-0 overflow-y-auto flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 shrink-0">
           {vehicles.map((vehicle) => {
             const pos = positions.find(
               (p) => p.tmsGpsLogVehicleId === vehicle.tmsVehicleId,
@@ -91,16 +90,20 @@ export default function TrackingView({
               <Card
                 key={vehicle.tmsVehicleId}
                 shadow="none"
-                className={`cursor-pointer ${isSelected ? "border-2 border-primary" : "border border-border"}`}
+                className={`cursor-pointer shrink-0 w-64 ${isSelected ? "border-2 border-primary" : "border border-border"}`}
                 onClick={() => setSelectedVehicleId(vehicle.tmsVehicleId)}
               >
                 <CardBody className="p-3 gap-2">
                   <div className="flex items-center justify-between">
-                    <p className="font-light text-xs">{vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}</p>
+                    <p className="font-light text-xs">
+                      {vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}
+                    </p>
                     <Chip
                       variant="flat"
                       size="md"
-                      color={STATUS_COLORS[vehicle.tmsVehicleStatus] || "default"}
+                      color={
+                        STATUS_COLORS[vehicle.tmsVehicleStatus] || "default"
+                      }
                     >
                       {vehicle.tmsVehicleStatus}
                     </Chip>
@@ -117,7 +120,10 @@ export default function TrackingView({
                         {Number(pos.tmsGpsLogLongitude).toFixed(5)}
                       </p>
                       {pos.ftAddress && (
-                        <p className="text-muted-foreground truncate" title={pos.ftAddress}>
+                        <p
+                          className="text-muted-foreground truncate"
+                          title={pos.ftAddress}
+                        >
                           {pos.ftAddress}
                         </p>
                       )}
@@ -132,13 +138,25 @@ export default function TrackingView({
                         {pos.ftEngine && (
                           <span>
                             เครื่อง:{" "}
-                            <span className={pos.ftEngine === "ON" ? "text-success" : "text-danger"}>
+                            <span
+                              className={
+                                pos.ftEngine === "ON"
+                                  ? "text-success"
+                                  : "text-danger"
+                              }
+                            >
                               {pos.ftEngine}
                             </span>
                           </span>
                         )}
                         {pos.ftPowerStatus && (
-                          <span className={pos.ftPowerStatus === "ON" ? "text-success" : "text-muted-foreground"}>
+                          <span
+                            className={
+                              pos.ftPowerStatus === "ON"
+                                ? "text-success"
+                                : "text-muted-foreground"
+                            }
+                          >
                             ⚡ {pos.ftPowerStatus}
                           </span>
                         )}
@@ -150,11 +168,12 @@ export default function TrackingView({
                             <Fuel size={10} /> {pos.ftFuel}%
                           </span>
                         )}
-                        {pos.ftTemperature != null && pos.ftTemperature !== 0 && (
-                          <span className="flex items-center gap-0.5">
-                            <Thermometer size={10} /> {pos.ftTemperature}°C
-                          </span>
-                        )}
+                        {pos.ftTemperature != null &&
+                          pos.ftTemperature !== 0 && (
+                            <span className="flex items-center gap-0.5">
+                              <Thermometer size={10} /> {pos.ftTemperature}°C
+                            </span>
+                          )}
                         {pos.ftExternalBatt && (
                           <span>🔋 {pos.ftExternalBatt}V</span>
                         )}
@@ -162,7 +181,13 @@ export default function TrackingView({
                       {/* Signal row */}
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground">
                         {pos.ftGPS && (
-                          <span className={pos.ftGPS === "ON" ? "text-success" : "text-danger"}>
+                          <span
+                            className={
+                              pos.ftGPS === "ON"
+                                ? "text-success"
+                                : "text-danger"
+                            }
+                          >
                             GPS: {pos.ftGPS}
                           </span>
                         )}
@@ -172,39 +197,46 @@ export default function TrackingView({
                           </span>
                         )}
                         {pos.ftPositionSource && (
-                          <span className="text-muted-foreground/60">{pos.ftPositionSource}</span>
+                          <span className="text-muted-foreground/60">
+                            {pos.ftPositionSource}
+                          </span>
                         )}
                       </div>
                       {pos.ftDriver && (
-                        <p className="text-muted-foreground">👤 {pos.ftDriver}</p>
+                        <p className="text-muted-foreground">
+                          👤 {pos.ftDriver}
+                        </p>
                       )}
                       <p className="text-muted-foreground">
-                        {new Date(pos.tmsGpsLogRecordedAt).toLocaleString("th-TH")}
+                        {new Date(pos.tmsGpsLogRecordedAt).toLocaleString(
+                          "th-TH",
+                        )}
                       </p>
                       {pos.tmsGpsLogSource === "forthtrack" && (
-                        <p className="text-[10px] text-primary/60">● Live GPS</p>
+                        <p className="text-[10px] text-primary/60">
+                          ● Live GPS
+                        </p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">ไม่มีข้อมูล GPS</p>
+                    <p className="text-xs text-muted-foreground">
+                      ไม่มีข้อมูล GPS
+                    </p>
                   )}
-                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant="bordered"
-                      size="md"
-                      radius="md"
-                      onPress={() => handleOpenManualUpdate(vehicle)}
-                      className="flex-1"
-                    >
-                      อัปเดต
-                    </Button>
+                  <div
+                    className="flex gap-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button
                       variant="bordered"
                       size="md"
                       radius="md"
                       startContent={<History />}
                       onPress={() => loadRouteHistory(vehicle.tmsVehicleId)}
-                      isLoading={loadingRoute && selectedVehicleId === vehicle.tmsVehicleId}
+                      isLoading={
+                        loadingRoute &&
+                        selectedVehicleId === vehicle.tmsVehicleId
+                      }
                       className="flex-1"
                     >
                       ประวัติ
@@ -217,7 +249,10 @@ export default function TrackingView({
         </div>
 
         {}
-        <div className="flex-1 rounded-xl overflow-hidden border border-border" style={{ isolation: "isolate" }}>
+        <div
+          className="flex-1 rounded-xl overflow-hidden border border-border"
+          style={{ isolation: "isolate" }}
+        >
           <VehicleMap
             positions={positions}
             vehicles={vehicles}
@@ -236,7 +271,8 @@ export default function TrackingView({
         <ModalContent>
           <ModalHeader>
             อัปเดตตำแหน่งยานพาหนะ
-            {selectedVehicle && ` - ${selectedVehicle.tmsVehicleName || selectedVehicle.tmsVehiclePlateNumber}`}
+            {selectedVehicle &&
+              ` - ${selectedVehicle.tmsVehicleName || selectedVehicle.tmsVehiclePlateNumber}`}
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-4">
@@ -249,7 +285,9 @@ export default function TrackingView({
                   size="md"
                   radius="md"
                   selectedKeys={
-                    formData.tmsGpsLogVehicleId ? [formData.tmsGpsLogVehicleId] : []
+                    formData.tmsGpsLogVehicleId
+                      ? [formData.tmsGpsLogVehicleId]
+                      : []
                   }
                   onSelectionChange={(keys) =>
                     updateField("tmsGpsLogVehicleId", Array.from(keys)[0] || "")
@@ -257,8 +295,17 @@ export default function TrackingView({
                   isRequired
                 >
                   {vehicles.map((v) => (
-                    <SelectItem key={v.tmsVehicleId} textValue={v.tmsVehicleName ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})` : v.tmsVehiclePlateNumber}>
-                      {v.tmsVehicleName ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})` : v.tmsVehiclePlateNumber}
+                    <SelectItem
+                      key={v.tmsVehicleId}
+                      textValue={
+                        v.tmsVehicleName
+                          ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})`
+                          : v.tmsVehiclePlateNumber
+                      }
+                    >
+                      {v.tmsVehicleName
+                        ? `${v.tmsVehicleName} (${v.tmsVehiclePlateNumber})`
+                        : v.tmsVehiclePlateNumber}
                     </SelectItem>
                   ))}
                 </Select>
@@ -272,7 +319,9 @@ export default function TrackingView({
                 size="md"
                 radius="md"
                 value={formData.tmsGpsLogLatitude}
-                onChange={(e) => updateField("tmsGpsLogLatitude", e.target.value)}
+                onChange={(e) =>
+                  updateField("tmsGpsLogLatitude", e.target.value)
+                }
                 isRequired
                 isInvalid={!!validationErrors?.tmsGpsLogLatitude}
                 errorMessage={validationErrors?.tmsGpsLogLatitude}
@@ -286,7 +335,9 @@ export default function TrackingView({
                 size="md"
                 radius="md"
                 value={formData.tmsGpsLogLongitude}
-                onChange={(e) => updateField("tmsGpsLogLongitude", e.target.value)}
+                onChange={(e) =>
+                  updateField("tmsGpsLogLongitude", e.target.value)
+                }
                 isRequired
                 isInvalid={!!validationErrors?.tmsGpsLogLongitude}
                 errorMessage={validationErrors?.tmsGpsLogLongitude}
@@ -322,14 +373,24 @@ export default function TrackingView({
       </Modal>
 
       {}
-      <Modal isOpen={routeModal.isOpen} onClose={routeModal.onClose} size="4xl" scrollBehavior="inside">
+      <Modal
+        isOpen={routeModal.isOpen}
+        onClose={routeModal.onClose}
+        size="4xl"
+        scrollBehavior="inside"
+      >
         <ModalContent>
           <ModalHeader>
             ประวัติเส้นทาง
-            {selectedVehicleId && (() => {
-              const v = vehicles.find((v) => v.tmsVehicleId === selectedVehicleId);
-              return v ? ` - ${v.tmsVehicleName || v.tmsVehiclePlateNumber}` : "";
-            })()}
+            {selectedVehicleId &&
+              (() => {
+                const v = vehicles.find(
+                  (v) => v.tmsVehicleId === selectedVehicleId,
+                );
+                return v
+                  ? ` - ${v.tmsVehicleName || v.tmsVehiclePlateNumber}`
+                  : "";
+              })()}
           </ModalHeader>
           <ModalBody>
             {loadingRoute ? (
@@ -341,7 +402,12 @@ export default function TrackingView({
             )}
           </ModalBody>
           <ModalFooter>
-            <Button variant="bordered" size="md" radius="md" onPress={routeModal.onClose}>
+            <Button
+              variant="bordered"
+              size="md"
+              radius="md"
+              onPress={routeModal.onClose}
+            >
               ปิด
             </Button>
           </ModalFooter>
