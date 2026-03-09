@@ -15,7 +15,7 @@ export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }
         isCollapsed ? "flex-1" : "w-6/12"
       }`}
     >
-      <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b border-border font-semibold">
+      <div className="flex items-center justify-center w-full h-fit p-2 gap-2 border-b border-border font-light">
         {activeMenu.name}
       </div>
       <div className="flex flex-col items-center justify-start w-full h-full p-2 gap-2 overflow-auto">
@@ -40,7 +40,7 @@ export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }
               onClick={onSubMenuClick}
               className={`flex flex-row items-center justify-start w-full h-fit p-2 gap-2 rounded-xl cursor-pointer transition-colors ${
                 isSubActive
-                  ? "border border-border font-medium"
+                  ? "border border-border font-light"
                   : "hover:bg-default"
               }`}
             >

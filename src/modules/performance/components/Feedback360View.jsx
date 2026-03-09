@@ -113,7 +113,7 @@ export default function Feedback360View({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <h1 className="text-lg font-semibold">ประเมิน 360 องศา</h1>
+        <p className="text-sm font-light">ประเมิน 360 องศา</p>
         <p className="text-muted-foreground text-sm">
           ประเมินรอบด้านจากหัวหน้า เพื่อนร่วมงาน ลูกน้อง และตนเอง
         </p>
@@ -133,7 +133,7 @@ export default function Feedback360View({
               <ClipboardList className="w-4 h-4" />
               <span>รอดำเนินการ</span>
               {pendingReviews.length > 0 && (
-                <Chip size="md" radius="md" color="danger" variant="bordered">{pendingReviews.length}</Chip>
+                <Chip size="md" radius="md" color="danger" variant="shadow">{pendingReviews.length}</Chip>
               )}
             </div>
           }
@@ -247,8 +247,8 @@ function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">{revieweeName}</h4>
-                    <Chip size="md" radius="md" variant="bordered" style={{ backgroundColor: relType.color + "20", color: relType.color }}>
+                    <p className="font-light">{revieweeName}</p>
+                    <Chip size="md" radius="md" variant="shadow" style={{ backgroundColor: relType.color + "20", color: relType.color }}>
                       {relType.label}
                     </Chip>
                   </div>
@@ -280,7 +280,7 @@ function MyResultsTab({ cycles, resultCycleId, onResultCycleIdChange, myResults,
     <div className="flex flex-col gap-4 mt-4">
       <Select
         label="เลือกรอบประเมิน"
-        variant="bordered"
+        variant="shadow"
         size="md"
         radius="md"
         labelPlacement="outside"
@@ -324,9 +324,9 @@ function ResultsDisplay({ results }) {
         <CardBody className="flex flex-row items-center gap-6">
           <div className="text-center">
             <p className="text-sm text-muted-foreground">คะแนนรวม</p>
-            <p className="text-4xl font-semibold">{results.overallScore?.toFixed(2) || "0.00"}</p>
+            <p className="text-sm font-light">{results.overallScore?.toFixed(2) || "0.00"}</p>
           </div>
-          <Chip color={gradeColor} variant="bordered" size="md" radius="md">
+          <Chip color={gradeColor} variant="shadow" size="md" radius="md">
             {grade}
           </Chip>
           <div className="text-sm text-muted-foreground">
@@ -337,7 +337,7 @@ function ResultsDisplay({ results }) {
 
       {/* By Relationship Type */}
       <Card>
-        <CardHeader><h3 className="font-semibold">คะแนนตามกลุ่มผู้ประเมิน</h3></CardHeader>
+        <CardHeader><p className="font-light">คะแนนตามกลุ่มผู้ประเมิน</p></CardHeader>
         <CardBody>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {RELATIONSHIP_TYPES.map((rt) => {
@@ -345,8 +345,8 @@ function ResultsDisplay({ results }) {
               if (!typeData) return null;
               return (
                 <div key={rt.key} className="p-3 rounded-lg" style={{ backgroundColor: rt.color + "10" }}>
-                  <p className="text-sm font-medium" style={{ color: rt.color }}>{rt.label}</p>
-                  <p className="text-2xl font-semibold">{typeData.overallScore?.toFixed(2) || "-"}</p>
+                  <p className="text-sm font-light" style={{ color: rt.color }}>{rt.label}</p>
+                  <p className="text-sm font-light">{typeData.overallScore?.toFixed(2) || "-"}</p>
                   <p className="text-sm text-muted-foreground">{typeData.responseCount} คน</p>
                 </div>
               );
@@ -358,7 +358,7 @@ function ResultsDisplay({ results }) {
       {/* Competency Breakdown */}
       {competencies.length > 0 && (
         <Card>
-          <CardHeader><h3 className="font-semibold">คะแนนรายสมรรถนะ</h3></CardHeader>
+          <CardHeader><p className="font-light">คะแนนรายสมรรถนะ</p></CardHeader>
           <CardBody>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -400,7 +400,7 @@ function ResultsDisplay({ results }) {
       {/* Qualitative Feedback */}
       {results.feedback && Object.keys(results.feedback).length > 0 && (
         <Card>
-          <CardHeader><h3 className="font-semibold">ความคิดเห็น</h3></CardHeader>
+          <CardHeader><p className="font-light">ความคิดเห็น</p></CardHeader>
           <CardBody>
             {Object.entries(results.feedback).map(([type, fb]) => {
               const rt = getRelationshipType(type);
@@ -408,7 +408,7 @@ function ResultsDisplay({ results }) {
               if (!hasContent) return null;
               return (
                 <div key={type} className="mb-4">
-                  <h4 className="font-medium mb-2" style={{ color: rt.color }}>{rt.label}</h4>
+                  <p className="font-light mb-2" style={{ color: rt.color }}>{rt.label}</p>
                   {fb.strengths?.length > 0 && (
                     <div className="mb-2">
                       <p className="text-sm text-muted-foreground mb-1">จุดแข็ง:</p>
@@ -458,7 +458,7 @@ function AdminTab({
   return (
     <div className="flex flex-col gap-4 mt-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">รอบประเมิน 360 องศา</h3>
+        <p className="text-sm font-light">รอบประเมิน 360 องศา</p>
         <Button
           color="primary"
           size="md"
@@ -526,8 +526,8 @@ function CycleCard({ cycle, selectedCycle, onSelectCycle, onOpenCycleForm, onDel
       <CardBody className="flex flex-row items-center gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h4 className="font-semibold">{cycle.perf360CycleName}</h4>
-            <Chip size="md" radius="md" color={statusConfig.color} variant="bordered">
+            <p className="font-light">{cycle.perf360CycleName}</p>
+            <Chip size="md" radius="md" color={statusConfig.color} variant="shadow">
               {statusConfig.label}
             </Chip>
           </div>
@@ -537,7 +537,7 @@ function CycleCard({ cycle, selectedCycle, onSelectCycle, onOpenCycleForm, onDel
         </div>
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           {transitions.filter((t) => t !== "cancelled").map((t) => (
-            <Button key={t} size="md" radius="md" color="primary" variant="bordered" onPress={() => onTransition(cycle.perf360CycleId, t)}>
+            <Button key={t} size="md" radius="md" color="primary" variant="shadow" onPress={() => onTransition(cycle.perf360CycleId, t)}>
               {TRANSITION_LABELS[t]}
             </Button>
           ))}
@@ -577,7 +577,7 @@ function CycleDetails({
   return (
     <Card>
       <CardHeader>
-        <h3 className="font-semibold">รายละเอียด: {selectedCycle.perf360CycleName}</h3>
+        <p className="font-light">รายละเอียด: {selectedCycle.perf360CycleName}</p>
       </CardHeader>
       <CardBody>
         <Tabs selectedKey={detailTab} onSelectionChange={setDetailTab} variant="bordered" size="md" radius="md">
@@ -722,7 +722,7 @@ function CompetenciesPanel({ selectedCycle, competencies, loadingCompetencies, s
       ) : (
         competencies.map((comp) => (
           <div key={comp.perf360CompetencyId} className="p-3 rounded-lg bg-default-50">
-            <h4 className="font-medium">{comp.perf360CompetencyName}</h4>
+            <p className="font-light">{comp.perf360CompetencyName}</p>
             {comp.perf360CompetencyDescription && <p className="text-sm text-muted-foreground">{comp.perf360CompetencyDescription}</p>}
             <ul className="mt-1 ml-4 list-disc text-sm text-foreground">
               {(comp.perf360CompetencyQuestions || []).map((q, i) => (
@@ -781,7 +781,7 @@ function NominationsPanel({ selectedCycle, nominations, loadingNominations, onDe
 
           return (
             <div key={group.reviewee?.hrEmployeeId} className="p-3 rounded-lg bg-default-50">
-              <h4 className="font-medium mb-2">{revieweeName}</h4>
+              <p className="font-light mb-2">{revieweeName}</p>
               <div className="flex flex-wrap gap-2">
                 {group.nominations.map((nom) => {
                   const relType = getRelationshipType(nom.perf360NominationRelationshipType);
@@ -791,7 +791,7 @@ function NominationsPanel({ selectedCycle, nominations, loadingNominations, onDe
                   return (
                     <Chip
                       key={nom.perf360NominationId}
-                      variant="bordered"
+                      variant="shadow"
                       size="md"
                       radius="md"
                       style={{ backgroundColor: relType.color + "20", color: relType.color }}
@@ -1084,7 +1084,7 @@ function ReviewModal({
           <div className="flex flex-col gap-3">
             <Textarea
               label="จุดแข็ง"
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               labelPlacement="outside"

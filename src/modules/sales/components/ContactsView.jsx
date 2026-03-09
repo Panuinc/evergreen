@@ -82,7 +82,7 @@ export default function ContactsView({
           return <span className="text-muted-foreground">{item.crmContactNo || "-"}</span>;
         case "crmContactName":
           return (
-            <span className="font-medium">
+            <span className="font-light">
               {item.crmContactFirstName} {item.crmContactLastName}
             </span>
           );
@@ -96,7 +96,7 @@ export default function ContactsView({
           return item.salesAccount?.crmAccountName || "-";
         case "crmContactTags":
           return item.crmContactTags ? (
-            <Chip variant="bordered" size="md" radius="md" color="primary">
+            <Chip variant="shadow" size="md" radius="md" color="primary">
               {item.crmContactTags}
             </Chip>
           ) : (
@@ -105,7 +105,7 @@ export default function ContactsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -342,7 +342,7 @@ export default function ContactsView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingContact?.crmContactFirstName} {deletingContact?.crmContactLastName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

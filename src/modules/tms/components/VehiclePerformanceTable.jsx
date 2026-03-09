@@ -35,7 +35,7 @@ function StatItem({ icon: Icon, label, value, sub }) {
       </div>
       <div className="min-w-0">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-sm font-semibold">{value}</p>
+        <p className="text-sm font-light">{value}</p>
         {sub && <p className="text-sm text-muted-foreground">{sub}</p>}
       </div>
     </div>
@@ -73,7 +73,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
               <div className="flex items-center gap-2">
                 <Truck size={16} className="text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-semibold">{v.vehicleName || v.plateNumber}</p>
+                  <p className="text-sm font-light">{v.vehicleName || v.plateNumber}</p>
                   {v.vehicleName && (
                     <p className="text-sm text-muted-foreground">{v.plateNumber}</p>
                   )}
@@ -89,7 +89,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-muted-foreground">ระยะทาง</span>
-                  <span className="text-sm font-medium">{fmt(v.totalDistanceKm)} กม.</span>
+                  <span className="text-sm font-light">{fmt(v.totalDistanceKm)} กม.</span>
                 </div>
                 <Progress
                   size="sm"

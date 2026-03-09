@@ -94,7 +94,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
         <ModalBody>
           <div className="flex flex-col gap-3">
             <div className="rounded-lg bg-default-50 p-3 text-sm">
-              <p className="font-semibold">{item.number}</p>
+              <p className="font-light">{item.number}</p>
               <p className="text-muted-foreground">{item.displayName}</p>
               <p className="text-muted-foreground">
                 คงเหลือ: {Number(item.inventory || 0).toLocaleString("th-TH")}
@@ -105,7 +105,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-sm font-light text-foreground">
                 ตัวอย่าง Label
               </p>
               <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-border bg-white p-3 min-h-20">

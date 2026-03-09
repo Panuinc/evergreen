@@ -65,7 +65,7 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
     <div className="flex flex-col gap-2">
       {/* Header: progress */}
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-foreground">
+        <span className="text-[11px] font-light text-foreground">
           พบ {doors.length} ประตู
           {appliedIdxs.length > 0 && (
             <span className="text-success-600 ml-1">· ใช้แล้ว {appliedIdxs.length}</span>
@@ -129,14 +129,14 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
           {/* Door name + notes */}
           {(door.doorName || door.notes) && (
             <div className="text-[11px] text-muted-foreground px-1">
-              {door.doorName && <span className="font-medium text-foreground">{door.doorName}</span>}
+              {door.doorName && <span className="font-light text-foreground">{door.doorName}</span>}
               {door.notes && <span className="ml-1 text-warning-600">· {door.notes}</span>}
             </div>
           )}
 
           {/* Field-by-field compare table */}
           <div className="rounded-lg border border-border overflow-hidden">
-            <div className="grid grid-cols-[auto_1fr_1fr] text-[10px] font-semibold bg-default-100 text-muted-foreground px-2 py-1">
+            <div className="grid grid-cols-[auto_1fr_1fr] text-[10px] font-light bg-default-100 text-muted-foreground px-2 py-1">
               <span className="w-4" />
               <span>ฟิลด์</span>
               <span className="text-primary">AI แนะนำ</span>
@@ -157,10 +157,10 @@ function DoorCompareView({ doors, selectedIdx, appliedIdxs, onSelectDoor, onAppl
                     className="min-w-0"
                   />
                   <span className="text-foreground truncate">{FIELD_LABELS[key] || key}</span>
-                  <span className={`font-medium truncate ${isDiff ? "text-primary" : "text-foreground"}`}>
+                  <span className={`font-light truncate ${isDiff ? "text-primary" : "text-foreground"}`}>
                     {formatFieldValue(key, aiVal)}
                     {isDiff && currentVal != null && currentVal !== "" && (
-                      <span className="text-muted-foreground font-normal ml-1 text-[10px]">
+                      <span className="text-muted-foreground font-light ml-1 text-[10px]">
                         (เดิม: {formatFieldValue(key, currentVal)})
                       </span>
                     )}
@@ -288,8 +288,8 @@ export default function BomAIPanel({ bomState, bomAI }) {
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             <Sparkles size={14} className="text-primary" />
-            <span className="font-semibold text-sm text-primary">AI ช่วยกรอก BOM</span>
-            <span className="text-[9px] text-muted-foreground font-normal">
+            <span className="font-light text-sm text-primary">AI ช่วยกรอก BOM</span>
+            <span className="text-[9px] text-muted-foreground font-light">
               {image ? "Gemini + Claude" : "Claude Sonnet"}
             </span>
           </div>
@@ -312,7 +312,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
               onClick={() => fileRef.current?.click()}
             >
               <ImagePlus size={20} className="text-primary-400" />
-              <span className="text-[12px] text-primary-600 font-medium">อัปโหลดแบบขยาย / Spec Sheet</span>
+              <span className="text-[12px] text-primary-600 font-light">อัปโหลดแบบขยาย / Spec Sheet</span>
               <span className="text-[10px] text-muted-foreground">PDF, JPG, PNG · สูงสุด 3.5MB · วิเคราะห์อัตโนมัติ</span>
             </button>
             <input
@@ -452,7 +452,7 @@ export default function BomAIPanel({ bomState, bomAI }) {
             )}
             <Input
               placeholder='พิมพ์ "45×90×200 ไส้โฟม" หรืออัปโหลดไฟล์'
-              variant="bordered"
+              variant="shadow"
               size="sm"
               value={input}
               onValueChange={setInput}

@@ -76,7 +76,7 @@ export default function DepartmentsView({
     (dept, columnKey) => {
       switch (columnKey) {
         case "hrDepartmentName":
-          return <span className="font-medium">{dept.hrDepartmentName}</span>;
+          return <span className="font-light">{dept.hrDepartmentName}</span>;
         case "hrDepartmentDivision":
           return dept.hrDepartmentDivision || "-";
         case "hrDepartmentDescription":
@@ -94,7 +94,7 @@ export default function DepartmentsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={dept.isActive ? "success" : "danger"}
@@ -263,7 +263,7 @@ export default function DepartmentsView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingDept?.hrDepartmentName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

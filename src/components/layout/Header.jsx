@@ -69,7 +69,7 @@ export default function Header({ onMobileMenuToggle }) {
                 src="https://i.pravatar.cc/150?u=user"
                 className="w-7 h-7"
               />
-              <span className="hidden md:inline font-medium">
+              <span className="hidden md:inline font-light">
                 {user?.email?.split("@")[0] || "ผู้ใช้"}
               </span>
               <ChevronDown />

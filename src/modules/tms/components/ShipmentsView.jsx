@@ -160,7 +160,7 @@ export default function ShipmentsView({
     (item, columnKey) => {
       switch (columnKey) {
         case "tmsShipmentNumber":
-          return <span className="font-medium">{item.tmsShipmentNumber}</span>;
+          return <span className="font-light">{item.tmsShipmentNumber}</span>;
         case "tmsShipmentDate":
           return item.tmsShipmentDate
             ? new Date(item.tmsShipmentDate).toLocaleDateString("th-TH")
@@ -176,7 +176,7 @@ export default function ShipmentsView({
         case "tmsShipmentStatus":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={STATUS_COLORS[item.tmsShipmentStatus] || "default"}
@@ -187,7 +187,7 @@ export default function ShipmentsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -352,7 +352,7 @@ export default function ShipmentsView({
                       return (
                         <SelectItem key={String(plan.tmsDeliveryPlanId)} textValue={`${firstItem?.tmsDeliveryPlanItemSalesOrderNo || ""} ${firstItem?.tmsDeliveryPlanItemCustomerName || ""}`}>
                           <div className="flex flex-col">
-                            <span className="text-sm font-medium">
+                            <span className="text-sm font-light">
                               {dateLabel} · {firstItem?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"} · {firstItem?.tmsDeliveryPlanItemCustomerName || "-"}{pLabel}
                             </span>
                             <span className="text-sm text-muted-foreground">
@@ -395,7 +395,7 @@ export default function ShipmentsView({
                       <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
                         <Button
-                          variant="bordered"
+                          variant="shadow"
                           size="sm"
                           radius="md"
                           color="secondary"
@@ -421,7 +421,7 @@ export default function ShipmentsView({
                             {routeResult.optimizedStops?.map((stop, i) => (
                               <span key={i} className="flex items-center gap-1">
                                 <span className="text-muted-foreground">→</span>
-                                <span className="font-medium">{stop.name}</span>
+                                <span className="font-light">{stop.name}</span>
                                 {stop.priority !== "normal" && (
                                   <Chip size="sm" variant="dot" color={stop.priority === "urgent" ? "danger" : "warning"} className="h-4" />
                                 )}
@@ -432,10 +432,10 @@ export default function ShipmentsView({
                           </div>
                           {/* Stats row */}
                           <div className="flex items-center gap-4 text-sm flex-wrap">
-                            <span><span className="text-muted-foreground">รวม:</span> <span className="font-semibold">{routeResult.totalDistanceKm} กม.</span></span>
-                            <span><span className="text-muted-foreground">เวลา:</span> <span className="font-semibold">{Math.floor(routeResult.totalDurationMin / 60)} ชม. {routeResult.totalDurationMin % 60} น.</span></span>
+                            <span><span className="text-muted-foreground">รวม:</span> <span className="font-light">{routeResult.totalDistanceKm} กม.</span></span>
+                            <span><span className="text-muted-foreground">เวลา:</span> <span className="font-light">{Math.floor(routeResult.totalDurationMin / 60)} ชม. {routeResult.totalDurationMin % 60} น.</span></span>
                             {routeResult.savedKm > 0 && (
-                              <span className="text-success-600 font-semibold">ประหยัด {routeResult.savedKm.toFixed(1)} กม.</span>
+                              <span className="text-success-600 font-light">ประหยัด {routeResult.savedKm.toFixed(1)} กม.</span>
                             )}
                           </div>
                           {/* Google Maps link */}
@@ -444,7 +444,7 @@ export default function ShipmentsView({
                               href={routeResult.googleMapsUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
+                              className="inline-flex items-center gap-1.5 text-sm font-light text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
                             >
                               <MapPin size={14} />
                               เปิด Google Maps
@@ -456,7 +456,7 @@ export default function ShipmentsView({
                       {/* AI analysis (collapsible) */}
                       {routeAiAnalysis && (
                         <details className="text-sm">
-                          <summary className="cursor-pointer text-secondary-600 font-medium flex items-center gap-1">
+                          <summary className="cursor-pointer text-secondary-600 font-light flex items-center gap-1">
                             <Sparkles size={12} /> ดูวิเคราะห์ AI
                           </summary>
                           <div className="prose prose-sm max-w-none mt-2 bg-content2 rounded-lg p-3 max-h-40 overflow-y-auto">
@@ -472,16 +472,16 @@ export default function ShipmentsView({
                 {/* Multi-stop: show stops table */}
                 {shipmentStops.length > 1 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
-                    <p className="text-sm font-medium">จุดส่งของ ({shipmentStops.length} จุด)</p>
+                    <p className="text-sm font-light">จุดส่งของ ({shipmentStops.length} จุด)</p>
                     <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-default-100">
-                            <th className="text-center px-2 py-2 font-semibold w-10">ลำดับ</th>
-                            <th className="text-left px-3 py-2 font-semibold">ลูกค้า</th>
-                            <th className="text-left px-3 py-2 font-semibold">ที่อยู่/ปลายทาง</th>
-                            <th className="text-left px-3 py-2 font-semibold w-24">SO</th>
-                            <th className="text-center px-2 py-2 font-semibold w-16">ความสำคัญ</th>
+                            <th className="text-center px-2 py-2 font-light w-10">ลำดับ</th>
+                            <th className="text-left px-3 py-2 font-light">ลูกค้า</th>
+                            <th className="text-left px-3 py-2 font-light">ที่อยู่/ปลายทาง</th>
+                            <th className="text-left px-3 py-2 font-light w-24">SO</th>
+                            <th className="text-center px-2 py-2 font-light w-16">ความสำคัญ</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -493,9 +493,9 @@ export default function ShipmentsView({
                               return (
                                 <tr key={stop.planId || i} className="border-t border-border">
                                   <td className="text-center px-2 py-2">
-                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-semibold text-sm">{letter}</span>
+                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-light text-sm">{letter}</span>
                                   </td>
-                                  <td className="px-3 py-2 font-medium">{stop.customerName || "-"}</td>
+                                  <td className="px-3 py-2 font-light">{stop.customerName || "-"}</td>
                                   <td className="px-3 py-2 text-foreground max-w-50 truncate">{stop.address || "-"}</td>
                                   <td className="px-3 py-2 text-muted-foreground">{stop.soRef || "-"}</td>
                                   <td className="text-center px-2 py-2">
@@ -519,7 +519,7 @@ export default function ShipmentsView({
                         href={routeResult.googleMapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
+                        className="inline-flex items-center gap-1.5 text-sm font-light text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
                       >
                         <MapPin size={14} />
                         เปิด Google Maps — เส้นทางจุด A→B→C
@@ -531,7 +531,7 @@ export default function ShipmentsView({
                   <>
                     {/* Single stop: original fields */}
                     <div className="flex items-center w-full h-fit p-2 gap-2">
-                      <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
+                      <Input label="ชื่อลูกค้า" labelPlacement="outside" placeholder="กรอกชื่อลูกค้า" variant="shadow" size="md" radius="md" value={formData.tmsShipmentCustomerName} onChange={(e) => updateField("tmsShipmentCustomerName", e.target.value)} isRequired />
                     </div>
                     <div className="flex items-center w-full h-fit p-2 gap-2">
                       <Input label="เบอร์โทรลูกค้า" labelPlacement="outside" placeholder="กรอกเบอร์โทร" variant="bordered" size="md" radius="md" value={formData.tmsShipmentCustomerPhone} onChange={(e) => updateField("tmsShipmentCustomerPhone", e.target.value)} />
@@ -566,7 +566,7 @@ export default function ShipmentsView({
                 {/* เด็กติดรถ สูงสุด 3 คน */}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">เด็กติดรถ</p>
+                    <p className="text-sm font-light">เด็กติดรถ</p>
                     {(formData.tmsShipmentAssistants || []).length < 3 && (
                       <Button
                         variant="bordered"
@@ -635,7 +635,7 @@ export default function ShipmentsView({
                 {/* รายการพิเศษ */}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">รายการพิเศษ</p>
+                    <p className="text-sm font-light">รายการพิเศษ</p>
                     <Button variant="bordered" size="sm" radius="md" onPress={addExtra}>
                       + เพิ่มรายการ
                     </Button>
@@ -645,12 +645,12 @@ export default function ShipmentsView({
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-default-100">
-                            <th className="text-left px-3 py-2 font-semibold w-36">คน</th>
-                            <th className="text-left px-3 py-2 font-semibold w-32">ประเภท</th>
-                            <th className="text-center px-3 py-2 font-semibold w-20">ชม.</th>
-                            <th className="text-center px-3 py-2 font-semibold w-20">เรท</th>
-                            <th className="text-left px-3 py-2 font-semibold">รายละเอียด</th>
-                            <th className="text-right px-3 py-2 font-semibold w-28">จำนวนเงิน</th>
+                            <th className="text-left px-3 py-2 font-light w-36">คน</th>
+                            <th className="text-left px-3 py-2 font-light w-32">ประเภท</th>
+                            <th className="text-center px-3 py-2 font-light w-20">ชม.</th>
+                            <th className="text-center px-3 py-2 font-light w-20">เรท</th>
+                            <th className="text-left px-3 py-2 font-light">รายละเอียด</th>
+                            <th className="text-right px-3 py-2 font-light w-28">จำนวนเงิน</th>
                             <th className="w-10"></th>
                           </tr>
                         </thead>
@@ -716,7 +716,7 @@ export default function ShipmentsView({
                                 </td>
                                 <td className="px-1 py-1">
                                   {ex.type === "ot" ? (
-                                    <span className="text-sm font-medium block text-right px-2">
+                                    <span className="text-sm font-light block text-right px-2">
                                       {ex.amount ? Number(ex.amount).toLocaleString("th-TH", { minimumFractionDigits: 2 }) : "-"}
                                     </span>
                                   ) : (
@@ -739,8 +739,8 @@ export default function ShipmentsView({
                         </tbody>
                         <tfoot>
                           <tr className="border-t border-border bg-default-50">
-                            <td colSpan={5} className="px-3 py-2 font-semibold text-right">รวมรายการพิเศษ</td>
-                            <td className="px-3 py-2 font-semibold text-right">
+                            <td colSpan={5} className="px-3 py-2 font-light text-right">รวมรายการพิเศษ</td>
+                            <td className="px-3 py-2 font-light text-right">
                               {(formData.tmsShipmentExtras || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                             </td>
                             <td></td>
@@ -752,7 +752,7 @@ export default function ShipmentsView({
                 </div>
                 {/* ค่าน้ำมัน - คำนวณอัตโนมัติ */}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
-                  <p className="text-sm font-medium">ค่าน้ำมันโดยประมาณ</p>
+                  <p className="text-sm font-light">ค่าน้ำมันโดยประมาณ</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Input
                       type="number"
@@ -807,16 +807,16 @@ export default function ShipmentsView({
                 {/* Items table or fallback input */}
                 {shipmentItems.length > 0 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
-                    <p className="text-sm font-medium">รายการสินค้า</p>
+                    <p className="text-sm font-light">รายการสินค้า</p>
                     <div className="border border-border rounded-xl overflow-hidden">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-default-100">
-                            <th className="text-left px-3 py-2 font-semibold">รายการ</th>
-                            <th className="text-center px-3 py-2 font-semibold w-20">หน่วย</th>
-                            <th className="text-center px-3 py-2 font-semibold w-24">แผน</th>
-                            <th className="text-center px-3 py-2 font-semibold w-28">ส่งจริง</th>
-                            <th className="text-center px-3 py-2 font-semibold w-20">%</th>
+                            <th className="text-left px-3 py-2 font-light">รายการ</th>
+                            <th className="text-center px-3 py-2 font-light w-20">หน่วย</th>
+                            <th className="text-center px-3 py-2 font-light w-24">แผน</th>
+                            <th className="text-center px-3 py-2 font-light w-28">ส่งจริง</th>
+                            <th className="text-center px-3 py-2 font-light w-20">%</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -825,11 +825,11 @@ export default function ShipmentsView({
                             return (
                               <tr key={item.id} className="border-t border-border">
                                 <td className="px-3 py-2">
-                                  <p className="font-medium">{item.description}</p>
+                                  <p className="font-light">{item.description}</p>
                                   <p className="text-muted-foreground">{item.soNo}</p>
                                 </td>
                                 <td className="text-center px-3 py-2">{item.uom}</td>
-                                <td className="text-center px-3 py-2 font-medium">{item.plannedQty}</td>
+                                <td className="text-center px-3 py-2 font-light">{item.plannedQty}</td>
                                 <td className="text-center px-1 py-1">
                                   <Input
                                     type="number"
@@ -858,9 +858,9 @@ export default function ShipmentsView({
                         </tbody>
                         <tfoot>
                           <tr className="border-t border-border bg-default-50">
-                            <td className="px-3 py-2 font-semibold" colSpan={2}>รวม</td>
-                            <td className="text-center px-3 py-2 font-semibold">{shipmentItems.reduce((s, i) => s + i.plannedQty, 0)}</td>
-                            <td className="text-center px-3 py-2 font-semibold">{shipmentItems.reduce((s, i) => s + i.actualQty, 0)}</td>
+                            <td className="px-3 py-2 font-light" colSpan={2}>รวม</td>
+                            <td className="text-center px-3 py-2 font-light">{shipmentItems.reduce((s, i) => s + i.plannedQty, 0)}</td>
+                            <td className="text-center px-3 py-2 font-light">{shipmentItems.reduce((s, i) => s + i.actualQty, 0)}</td>
                             <td className="text-center px-3 py-2">
                               {(() => {
                                 const totalPlan = shipmentItems.reduce((s, i) => s + i.plannedQty, 0);
@@ -880,7 +880,7 @@ export default function ShipmentsView({
                   </div>
                 ) : (
                   <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
-                    <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="bordered" size="md" radius="md" value={formData.tmsShipmentItemsSummary} onChange={(e) => updateField("tmsShipmentItemsSummary", e.target.value)} />
+                    <Input label="รายการสินค้า" labelPlacement="outside" placeholder="รายละเอียดสินค้า" variant="shadow" size="md" radius="md" value={formData.tmsShipmentItemsSummary} onChange={(e) => updateField("tmsShipmentItemsSummary", e.target.value)} />
                   </div>
                 )}
                 <div className="flex items-center w-full h-fit p-2 gap-2 md:col-span-2">
@@ -900,7 +900,7 @@ export default function ShipmentsView({
         <ModalContent>
           <ModalHeader>ลบการขนส่ง</ModalHeader>
           <ModalBody>
-            <p>คุณต้องการลบการขนส่ง <span className="font-semibold">{deletingShipment?.tmsShipmentNumber}</span> หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+            <p>คุณต้องการลบการขนส่ง <span className="font-light">{deletingShipment?.tmsShipmentNumber}</span> หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={deleteModal.onClose}>ยกเลิก</Button>

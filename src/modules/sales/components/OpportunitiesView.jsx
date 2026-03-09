@@ -114,7 +114,7 @@ export default function OpportunitiesView({
           );
         case "crmOpportunityName":
           return (
-            <span className="font-medium">{item.crmOpportunityName}</span>
+            <span className="font-light">{item.crmOpportunityName}</span>
           );
         case "contact":
           return item.crmContact
@@ -133,7 +133,7 @@ export default function OpportunitiesView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.crmOpportunityStage] || "default"}
@@ -161,7 +161,7 @@ export default function OpportunitiesView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -315,7 +315,7 @@ export default function OpportunitiesView({
                     style={{ borderTop: `3px solid ${stage.color}` }}
                   >
                     <div className="flex flex-col">
-                      <span className="font-medium text-sm">
+                      <span className="font-light text-sm">
                         {stage.name}
                       </span>
                       <span className="text-sm text-muted-foreground">
@@ -331,7 +331,7 @@ export default function OpportunitiesView({
                         className="flex flex-col gap-1 p-3 bg-background rounded-md border border-border cursor-pointer hover:border-border transition-colors"
                         onClick={() => handleOpen(opp)}
                       >
-                        <span className="font-medium text-sm">
+                        <span className="font-light text-sm">
                           {opp.crmOpportunityName}
                         </span>
                         <span className="text-sm text-muted-foreground">
@@ -340,7 +340,7 @@ export default function OpportunitiesView({
                             : "-"}
                         </span>
                         <div className="flex items-center justify-between mt-1">
-                          <span className="text-sm font-medium">
+                          <span className="text-sm font-light">
                             ฿
                             {Number(
                               opp.crmOpportunityAmount || 0,
@@ -584,7 +584,7 @@ export default function OpportunitiesView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingOpp?.crmOpportunityName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

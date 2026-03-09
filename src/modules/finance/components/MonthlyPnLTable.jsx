@@ -26,8 +26,8 @@ function fmtShort(n) {
 
 function getRowClass(row) {
   switch (row.type) {
-    case "subtotal": return "bg-default-100 font-semibold";
-    case "grandTotal": return "bg-primary-50 font-semibold text-primary";
+    case "subtotal": return "bg-default-100 font-light";
+    case "grandTotal": return "bg-primary-50 font-light text-primary";
     case "separator": return "h-2";
     default: return "";
   }
@@ -35,7 +35,7 @@ function getRowClass(row) {
 
 function getCellClass(val, row) {
   let cls = "text-right font-mono text-sm";
-  if (row.type === "subtotal" || row.type === "grandTotal") cls += " font-semibold";
+  if (row.type === "subtotal" || row.type === "grandTotal") cls += " font-light";
   if (val < 0) cls += " text-danger";
   return cls;
 }
@@ -88,7 +88,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
       {chartData && chartData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
-            <h3 className="text-sm font-semibold">แนวโน้มรายเดือน ปี {beYear}</h3>
+            <p className="text-sm font-light">แนวโน้มรายเดือน ปี {beYear}</p>
           </CardHeader>
           <CardBody>
             <ResponsiveContainer width="100%" height={300}>
@@ -114,7 +114,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">งบกำไรขาดทุนรายเดือน</h3>
+            <p className="text-sm font-light">งบกำไรขาดทุนรายเดือน</p>
             <Chip size="sm" variant="flat" color="primary">ปี {beYear}</Chip>
           </div>
           <Button size="sm" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
@@ -125,15 +125,15 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
           <table className="w-full text-sm border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-default-100 border-b border-border">
-                <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[200px] font-semibold">รายการ</th>
+                <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[200px] font-light">รายการ</th>
                 {CAL_MONTHS.map((m, i) => (
-                  <th key={m} className="text-right px-2 py-2 min-w-[90px] font-semibold">
+                  <th key={m} className="text-right px-2 py-2 min-w-[90px] font-light">
                     {CAL_MONTHS_SHORT[i]} {calMonthBE(i, year)}
                   </th>
                 ))}
-                <th className="text-right px-3 py-2 min-w-[110px] font-semibold bg-default-200">รวม {beYear}</th>
+                <th className="text-right px-3 py-2 min-w-[110px] font-light bg-default-200">รวม {beYear}</th>
                 {compYears.map((cy) => (
-                  <th key={cy.year} className="text-right px-3 py-2 min-w-[110px] font-semibold bg-warning-50 text-warning-700">
+                  <th key={cy.year} className="text-right px-3 py-2 min-w-[110px] font-light bg-warning-50 text-warning-700">
                     {cy.year + 543}
                   </th>
                 ))}
@@ -154,7 +154,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
                         <span className="px-2">{fmt(row.months?.[m])}</span>
                       </td>
                     ))}
-                    <td className={`${getCellClass(row.total, row)} bg-default-50 font-semibold`}>
+                    <td className={`${getCellClass(row.total, row)} bg-default-50 font-light`}>
                       <span className="px-3">{fmt(row.total)}</span>
                     </td>
                     {compYears.map((cy) => {

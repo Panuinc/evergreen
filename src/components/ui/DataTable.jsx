@@ -405,7 +405,7 @@ export default function DataTable({
               >
                 <CardBody className="gap-3">
                   {cardColumns.title && (
-                    <div className="font-semibold text-lg">
+                    <div className="font-light text-sm">
                       {renderCell(item, cardColumns.title.uid)}
                     </div>
                   )}

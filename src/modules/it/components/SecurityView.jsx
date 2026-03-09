@@ -64,7 +64,7 @@ export default function SecurityView({
     (item, columnKey) => {
       switch (columnKey) {
         case "itSecurityIncidentTitle":
-          return <span className="font-medium">{item.itSecurityIncidentTitle}</span>;
+          return <span className="font-light">{item.itSecurityIncidentTitle}</span>;
         case "itSecurityIncidentType":
           return item.itSecurityIncidentType || "-";
         case "itSecurityIncidentSeverity": {
@@ -76,7 +76,7 @@ export default function SecurityView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itSecurityIncidentSeverity] || "default"}
@@ -94,7 +94,7 @@ export default function SecurityView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itSecurityIncidentStatus] || "default"}
@@ -337,7 +337,7 @@ export default function SecurityView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingIncident?.itSecurityIncidentTitle}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

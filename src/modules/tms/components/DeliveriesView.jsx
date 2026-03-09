@@ -105,7 +105,7 @@ export default function DeliveriesView({
         case "tmsDeliveryStatus":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={STATUS_COLORS[item.tmsDeliveryStatus] || "default"}
@@ -205,7 +205,7 @@ export default function DeliveriesView({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-default-50 rounded-xl p-4">
                 <div>
                   <p className="text-sm text-muted-foreground">การขนส่ง</p>
-                  <p className="text-sm font-medium">
+                  <p className="text-sm font-light">
                     {(() => {
                       const s = shipments.find(
                         (s) => String(s.tmsShipmentId) === String(formData.tmsDeliveryShipmentId),
@@ -216,29 +216,29 @@ export default function DeliveriesView({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">ชื่อผู้รับ</p>
-                  <p className="text-sm font-medium">{formData.tmsDeliveryReceiverName || "-"}</p>
+                  <p className="text-sm font-light">{formData.tmsDeliveryReceiverName || "-"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">เบอร์โทรผู้รับ</p>
-                  <p className="text-sm font-medium">{formData.tmsDeliveryReceiverPhone || "-"}</p>
+                  <p className="text-sm font-light">{formData.tmsDeliveryReceiverPhone || "-"}</p>
                 </div>
               </div>
 
               {/* Delivery Items Table */}
               {deliveryItems.length > 0 && (
                 <div className="flex flex-col w-full gap-2">
-                  <p className="text-sm font-medium">รายการสินค้า</p>
+                  <p className="text-sm font-light">รายการสินค้า</p>
                   <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-default-100">
-                          <th className="text-left px-3 py-2 font-semibold">รายการ</th>
-                          <th className="text-center px-3 py-2 font-semibold w-16">หน่วย</th>
-                          <th className="text-center px-3 py-2 font-semibold w-20">แผน</th>
-                          <th className="text-center px-3 py-2 font-semibold w-24">ส่งจริง</th>
-                          <th className="text-center px-3 py-2 font-semibold w-24">เสียหาย</th>
-                          <th className="text-center px-3 py-2 font-semibold w-20">คืน</th>
-                          <th className="text-left px-3 py-2 font-semibold min-w-[140px]">หมายเหตุ</th>
+                          <th className="text-left px-3 py-2 font-light">รายการ</th>
+                          <th className="text-center px-3 py-2 font-light w-16">หน่วย</th>
+                          <th className="text-center px-3 py-2 font-light w-20">แผน</th>
+                          <th className="text-center px-3 py-2 font-light w-24">ส่งจริง</th>
+                          <th className="text-center px-3 py-2 font-light w-24">เสียหาย</th>
+                          <th className="text-center px-3 py-2 font-light w-20">คืน</th>
+                          <th className="text-left px-3 py-2 font-light min-w-[140px]">หมายเหตุ</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -250,13 +250,13 @@ export default function DeliveriesView({
                           return (
                             <tr key={idx} className={`border-t border-border ${hasDiscrepancy ? "bg-warning-50" : ""}`}>
                               <td className="px-3 py-2">
-                                <p className="font-medium">{item.tmsDeliveryItemDescription}</p>
+                                <p className="font-light">{item.tmsDeliveryItemDescription}</p>
                                 {item.tmsDeliveryItemSoNo && (
                                   <p className="text-muted-foreground">{item.tmsDeliveryItemSoNo}</p>
                                 )}
                               </td>
                               <td className="text-center px-3 py-2">{item.tmsDeliveryItemUom}</td>
-                              <td className="text-center px-3 py-2 font-medium">{planned}</td>
+                              <td className="text-center px-3 py-2 font-light">{planned}</td>
                               <td className="text-center px-1 py-1">
                                 <Input
                                   type="number"
@@ -282,7 +282,7 @@ export default function DeliveriesView({
                                   classNames={{ input: "text-center" }}
                                 />
                               </td>
-                              <td className="text-center px-3 py-2 text-muted-foreground font-medium">
+                              <td className="text-center px-3 py-2 text-muted-foreground font-light">
                                 {item.tmsDeliveryItemReturnedQty || 0}
                               </td>
                               <td className="px-1 py-1">
@@ -302,17 +302,17 @@ export default function DeliveriesView({
                       </tbody>
                       <tfoot>
                         <tr className="border-t border-border bg-default-50">
-                          <td className="px-3 py-2 font-semibold" colSpan={2}>รวม</td>
-                          <td className="text-center px-3 py-2 font-semibold">
+                          <td className="px-3 py-2 font-light" colSpan={2}>รวม</td>
+                          <td className="text-center px-3 py-2 font-light">
                             {deliveryItems.reduce((s, i) => s + i.tmsDeliveryItemPlannedQty, 0)}
                           </td>
-                          <td className="text-center px-3 py-2 font-semibold">
+                          <td className="text-center px-3 py-2 font-light">
                             {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemDeliveredQty) || 0), 0)}
                           </td>
-                          <td className="text-center px-3 py-2 font-semibold">
+                          <td className="text-center px-3 py-2 font-light">
                             {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemDamagedQty) || 0), 0)}
                           </td>
-                          <td className="text-center px-3 py-2 font-semibold">
+                          <td className="text-center px-3 py-2 font-light">
                             {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemReturnedQty) || 0), 0)}
                           </td>
                           <td></td>
@@ -372,7 +372,7 @@ export default function DeliveriesView({
           <ModalBody>
             <p>
               คุณต้องการลบการจัดส่งของ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingDelivery?.tmsDeliveryReceiverName}
               </span>
               {" "}หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้

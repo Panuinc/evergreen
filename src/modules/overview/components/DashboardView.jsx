@@ -32,7 +32,7 @@ function AssistantMessage({ content, isLoading }) {
   return (
     <div className="flex gap-3 max-w-3xl w-full">
       {/* Avatar */}
-      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold mt-0.5">
+      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-light mt-0.5">
         E
       </div>
 
@@ -54,7 +54,7 @@ function AssistantMessage({ content, isLoading }) {
                   <thead className="bg-default-100">{children}</thead>
                 ),
                 th: ({ children }) => (
-                  <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">
+                  <th className="border border-border px-3 py-1.5 text-left font-light text-foreground">
                     {children}
                   </th>
                 ),
@@ -75,7 +75,7 @@ function AssistantMessage({ content, isLoading }) {
                 ),
                 li: ({ children }) => <li className="text-foreground">{children}</li>,
                 strong: ({ children }) => (
-                  <strong className="font-semibold text-foreground">{children}</strong>
+                  <strong className="font-light text-foreground">{children}</strong>
                 ),
                 code: ({ inline, children }) =>
                   inline ? (
@@ -145,9 +145,9 @@ export default function DashboardView({
                 className="w-16 h-16 object-contain opacity-90"
               />
               <div>
-                <h1 className="text-2xl font-semibold text-foreground">
+                <p className="text-sm font-light text-foreground">
                   Evergreen AI Assistant
-                </h1>
+                </p>
                 <p className="text-muted-foreground text-sm mt-1">
                   ถามอะไรก็ได้เกี่ยวกับข้อมูลในระบบ
                 </p>

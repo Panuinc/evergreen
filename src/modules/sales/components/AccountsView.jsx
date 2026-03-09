@@ -83,7 +83,7 @@ export default function AccountsView({
         case "crmAccountNo":
           return <span className="text-muted-foreground">{item.crmAccountNo || "-"}</span>;
         case "crmAccountName":
-          return <span className="font-medium">{item.crmAccountName}</span>;
+          return <span className="font-light">{item.crmAccountName}</span>;
         case "crmAccountIndustry":
           return item.crmAccountIndustry || "-";
         case "crmAccountPhone":
@@ -101,7 +101,7 @@ export default function AccountsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -352,7 +352,7 @@ export default function AccountsView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingAccount?.crmAccountName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

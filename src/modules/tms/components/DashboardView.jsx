@@ -98,13 +98,13 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">สถานะการขนส่ง</p>
+            <p className="text-sm font-light mb-3">สถานะการขนส่ง</p>
             <ShipmentStatusChart data={d.shipmentStatusDistribution} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">
+            <p className="text-sm font-light mb-3">
               {isCompare ? "การขนส่งรายเดือน" : "การขนส่งรายเดือน (6 เดือนล่าสุด)"}
             </p>
             <MonthlyShipmentChart data={d.monthlyShipmentTrend} />
@@ -112,13 +112,13 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">แนวโน้มค่าน้ำมัน</p>
+            <p className="text-sm font-light mb-3">แนวโน้มค่าน้ำมัน</p>
             <FuelCostChart data={d.fuelCostTrend} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">
+            <p className="text-sm font-light mb-3">
               {isCompare ? "อัตราการใช้ยานพาหนะ" : "อัตราการใช้ยานพาหนะ (30 วัน)"}
             </p>
             <VehicleUtilizationChart data={d.vehicleUtilization} />
@@ -129,7 +129,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       {/* Vehicle Performance */}
       {stats.vehiclePerformance && (
         <div>
-          <p className="text-sm font-semibold mb-3">สรุปประสิทธิภาพยานพาหนะ</p>
+          <p className="text-sm font-light mb-3">สรุปประสิทธิภาพยานพาหนะ</p>
           <VehiclePerformanceTable data={stats.vehiclePerformance} />
         </div>
       )}
@@ -139,7 +139,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
-            <p className="text-sm font-semibold">AI วิเคราะห์ระบบขนส่ง</p>
+            <p className="text-sm font-light">AI วิเคราะห์ระบบขนส่ง</p>
             <Chip size="sm" variant="flat" color="secondary">TMS Advisor</Chip>
           </div>
           <Button
@@ -178,7 +178,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-border px-3 py-1.5 text-left font-light text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
                     <td className="border border-border px-3 py-1.5 text-foreground">{children}</td>
@@ -188,7 +188,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
                   ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
                   ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
                   li: ({ children }) => <li className="text-foreground">{children}</li>,
-                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  strong: ({ children }) => <strong className="font-light text-foreground">{children}</strong>,
                   code: ({ inline, children }) =>
                     inline ? (
                       <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">{children}</code>

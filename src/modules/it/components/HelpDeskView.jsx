@@ -90,9 +90,9 @@ export default function HelpDeskView({
     (item, columnKey) => {
       switch (columnKey) {
         case "itTicketNo":
-          return <span className="font-medium">{item.itTicketNo || "-"}</span>;
+          return <span className="font-light">{item.itTicketNo || "-"}</span>;
         case "itTicketTitle":
-          return <span className="font-medium">{item.itTicketTitle}</span>;
+          return <span className="font-light">{item.itTicketTitle}</span>;
         case "itTicketCategory":
           return item.itTicketCategory || "-";
         case "itTicketPriority": {
@@ -104,7 +104,7 @@ export default function HelpDeskView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itTicketPriority] || "default"}
@@ -122,7 +122,7 @@ export default function HelpDeskView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itTicketStatus] || "default"}
@@ -138,7 +138,7 @@ export default function HelpDeskView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -387,7 +387,7 @@ export default function HelpDeskView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingTicket?.itTicketNo} - {deletingTicket?.itTicketTitle}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

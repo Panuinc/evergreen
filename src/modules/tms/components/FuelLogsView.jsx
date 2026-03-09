@@ -123,7 +123,7 @@ export default function FuelLogsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -372,7 +372,7 @@ export default function FuelLogsView({
                 <>
                   {" "}
                   จากวันที่{" "}
-                  <span className="font-semibold">
+                  <span className="font-light">
                     {new Date(
                       deletingFuelLog.tmsFuelLogDate,
                     ).toLocaleDateString("th-TH")}

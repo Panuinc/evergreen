@@ -46,10 +46,10 @@ export default function MonthlyComparisonTable({ data }) {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border">
-            <th className="text-left py-2 pr-3 text-muted-foreground font-medium">Metric</th>
-            <th className="text-right py-2 px-3 text-muted-foreground font-medium">{formatMonth(p.month)}</th>
-            <th className="text-right py-2 px-3 text-muted-foreground font-medium">{formatMonth(c.month)}</th>
-            <th className="text-right py-2 pl-3 text-muted-foreground font-medium">Change</th>
+            <th className="text-left py-2 pr-3 text-muted-foreground font-light">Metric</th>
+            <th className="text-right py-2 px-3 text-muted-foreground font-light">{formatMonth(p.month)}</th>
+            <th className="text-right py-2 px-3 text-muted-foreground font-light">{formatMonth(c.month)}</th>
+            <th className="text-right py-2 pl-3 text-muted-foreground font-light">Change</th>
           </tr>
         </thead>
         <tbody>
@@ -57,7 +57,7 @@ export default function MonthlyComparisonTable({ data }) {
             <tr key={row.label} className="border-b border-border">
               <td className="py-2 pr-3 text-foreground">{row.label}</td>
               <td className="py-2 px-3 text-right text-muted-foreground">{row.prev}</td>
-              <td className="py-2 px-3 text-right font-medium">{row.curr}</td>
+              <td className="py-2 px-3 text-right font-light">{row.curr}</td>
               <td className="py-2 pl-3 text-right">
                 <ChangeCell current={row.currentVal} previous={row.prevVal} isPercent={row.isPercent} />
               </td>

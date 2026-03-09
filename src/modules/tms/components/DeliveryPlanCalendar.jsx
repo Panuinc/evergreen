@@ -65,7 +65,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
         {DAYS_TH.map((d, i) => (
           <div
             key={d}
-            className={`text-center text-sm font-semibold py-2 ${
+            className={`text-center text-sm font-light py-2 ${
               i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-muted-foreground"
             }`}
           >
@@ -95,7 +95,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                 }`}
               >
                 <span
-                  className={`text-sm font-semibold w-6 h-6 flex items-center justify-center rounded-full flex-shrink-0 ${
+                  className={`text-sm font-light w-6 h-6 flex items-center justify-center rounded-full flex-shrink-0 ${
                     today
                       ? "bg-primary text-white"
                       : ci === 0
@@ -111,7 +111,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                   {plans.slice(0, 2).map((p) => (
                     <div
                       key={p.tmsDeliveryPlanId}
-                      className={`text-[10px] px-1.5 py-0.5 rounded-md truncate font-medium flex items-center gap-1 ${
+                      className={`text-[10px] px-1.5 py-0.5 rounded-md truncate font-light flex items-center gap-1 ${
                         p.tmsDeliveryPlanStatus === "planned"
                           ? "bg-primary-100 text-primary-700"
                           : p.tmsDeliveryPlanStatus === "in_progress"
@@ -169,14 +169,14 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
               {/* Day header */}
               <div className="flex flex-col items-center gap-1">
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-sm font-light ${
                     i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-muted-foreground"
                   }`}
                 >
                   {DAYS_TH[i]}
                 </span>
                 <span
-                  className={`text-sm font-semibold w-8 h-8 flex items-center justify-center rounded-full ${
+                  className={`text-sm font-light w-8 h-8 flex items-center justify-center rounded-full ${
                     today ? "bg-primary text-white" : "text-foreground"
                   }`}
                 >
@@ -207,7 +207,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                     }`}
                     onClick={() => onDateClick(date)}
                   >
-                    <p className="font-semibold truncate">
+                    <p className="font-light truncate">
                       {p.tmsDeliveryPlanItem?.[0]?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"}
                     </p>
                     <p className="text-muted-foreground truncate">
@@ -316,13 +316,13 @@ export default function DeliveryPlanCalendar() {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <CalendarDays size={20} className="text-primary" />
-          <h1 className="text-base font-semibold">แผนส่งของ</h1>
+          <p className="text-sm font-light">แผนส่งของ</p>
         </div>
         <Tabs
           selectedKey={viewMode}
           onSelectionChange={(k) => setViewMode(k)}
           size="sm"
-          variant="bordered"
+          variant="shadow"
         >
           <Tab key="month" title="รายเดือน" />
           <Tab key="week" title="รายสัปดาห์" />
@@ -342,7 +342,7 @@ export default function DeliveryPlanCalendar() {
             วันนี้
           </Button>
         </div>
-        <p className="text-sm font-semibold">{title}</p>
+        <p className="text-sm font-light">{title}</p>
         {loading && <Spinner size="sm" />}
       </div>
 

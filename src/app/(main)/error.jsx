@@ -15,7 +15,7 @@ export default function MainError({ error, reset }) {
         <div className="flex items-center justify-center w-24 h-24 rounded-xl bg-danger-100">
           <CircleAlert className="w-12 h-12 text-danger" />
         </div>
-        <h2 className="text-[20px] text-foreground">Something went wrong</h2>
+        <p className="text-[20px] text-foreground">Something went wrong</p>
         <p className="text-muted-foreground">
           An error occurred while loading this page.
         </p>

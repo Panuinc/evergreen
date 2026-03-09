@@ -97,7 +97,7 @@ function RankBadge({ rank }) {
   }
   return (
     <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-default-100">
-      <span className="text-sm font-semibold text-muted-foreground">#{rank}</span>
+      <span className="text-sm font-light text-muted-foreground">#{rank}</span>
     </div>
   );
 }
@@ -163,13 +163,13 @@ export default function EmployeeSpecializationChart({ data = [] }) {
             {/* Player Info */}
             <div className="shrink-0 w-28">
               <div className="truncate">
-                <span className={`text-sm font-semibold ${isTop3 ? "text-foreground" : "text-foreground"}`}>
+                <span className={`text-sm font-light ${isTop3 ? "text-foreground" : "text-foreground"}`}>
                   {emp.employee}
                 </span>
               </div>
               <div className="flex items-center gap-1 mt-0.5">
                 <LevelIcon className={`w-3 h-3 ${level.color}`} />
-                <span className={`text-[10px] font-medium ${level.color}`}>
+                <span className={`text-[10px] font-light ${level.color}`}>
                   {level.label}
                 </span>
               </div>
@@ -179,7 +179,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
             <div className="flex-1 flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground font-medium">
+                  <span className="text-[10px] text-muted-foreground font-light">
                     ผลงานรวม
                   </span>
                   {emp.avgLeadTime != null && (
@@ -187,17 +187,17 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                       <Timer className="w-3 h-3" />
                       เฉลี่ย {emp.avgLeadTime} วัน/ใบ
                       {speed && (
-                        <span className={`font-semibold ${speed.color}`}>
+                        <span className={`font-light ${speed.color}`}>
                           ({speed.label})
                         </span>
                       )}
                     </span>
                   )}
                 </div>
-                <span className={`text-sm font-semibold ${isTop3 ? "text-foreground" : "text-muted-foreground"}`}>
+                <span className={`text-sm font-light ${isTop3 ? "text-foreground" : "text-muted-foreground"}`}>
                   {fmtNum(emp.totalQty)} ชิ้น
                   {emp.orderCount > 0 && (
-                    <span className="text-[10px] font-normal text-muted-foreground ml-1">
+                    <span className="text-[10px] font-light text-muted-foreground ml-1">
                       ({emp.orderCount} ใบ)
                     </span>
                   )}
@@ -229,7 +229,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                   const catSpeed = getSpeedLabel(c.avgDays);
                   return (
                     <span key={c.category} className="text-[10px] text-muted-foreground">
-                      <span className={`font-medium ${TEXT_COLORS[colorIdx]}`}>{c.category}</span>
+                      <span className={`font-light ${TEXT_COLORS[colorIdx]}`}>{c.category}</span>
                       {" "}{fmtNum(c.quantity)}
                       {c.avgDays != null && (
                         <span className={catSpeed?.color || ""}>
@@ -253,7 +253,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                 {emp.topCategory}
               </Chip>
               {emp.avgLeadTime != null && speed && (
-                <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium ${speed.color} ${speed.bg}`}>
+                <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-light ${speed.color} ${speed.bg}`}>
                   <Clock className="w-3 h-3" />
                   {emp.avgLeadTime}วัน
                 </div>

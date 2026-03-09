@@ -63,7 +63,7 @@ export default function NetworkView({
     (item, columnKey) => {
       switch (columnKey) {
         case "itNetworkDeviceName":
-          return <span className="font-medium">{item.itNetworkDeviceName}</span>;
+          return <span className="font-light">{item.itNetworkDeviceName}</span>;
         case "itNetworkDeviceType":
           return item.itNetworkDeviceType || "-";
         case "itNetworkDeviceIpAddress":
@@ -82,7 +82,7 @@ export default function NetworkView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itNetworkDeviceStatus] || "default"}
@@ -326,7 +326,7 @@ export default function NetworkView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingDevice?.itNetworkDeviceName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

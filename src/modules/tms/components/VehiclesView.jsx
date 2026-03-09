@@ -112,7 +112,7 @@ export default function VehiclesView({
     (item, columnKey) => {
       switch (columnKey) {
         case "tmsVehiclePlateNumber":
-          return <span className="font-medium">{item.tmsVehiclePlateNumber || "-"}</span>;
+          return <span className="font-light">{item.tmsVehiclePlateNumber || "-"}</span>;
         case "dimensions": {
           const w = item.tmsVehicleWidth;
           const l = item.tmsVehicleLength;
@@ -129,7 +129,7 @@ export default function VehiclesView({
         case "tmsVehicleStatus":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={STATUS_COLORS[item.tmsVehicleStatus] || "default"}
@@ -140,7 +140,7 @@ export default function VehiclesView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -253,7 +253,7 @@ export default function VehiclesView({
 
               {/* 2. ความจุที่สามารถบรรทุกได้ */}
               <div className="flex flex-col gap-2">
-                <p className="text-sm font-medium px-2">ความจุที่สามารถบรรทุกได้</p>
+                <p className="text-sm font-light px-2">ความจุที่สามารถบรรทุกได้</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex items-center w-full h-fit p-2 gap-2">
                     <Input
@@ -407,7 +407,7 @@ export default function VehiclesView({
           <ModalBody>
             <p>
               คุณต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingVehicle?.tmsVehiclePlateNumber}
               </span>
               {" "}หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้

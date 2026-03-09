@@ -34,7 +34,7 @@ export default function AgedReceivablesView({ data, loading }) {
       case "customerNumber":
         return <span className="font-mono">{item.customerNumber}</span>;
       case "name":
-        return <span className="font-medium">{item.name}</span>;
+        return <span className="font-light">{item.name}</span>;
       case "currencyCode":
         return <span className="text-muted-foreground">{item.currencyCode || "-"}</span>;
       case "currentAmount":
@@ -46,7 +46,7 @@ export default function AgedReceivablesView({ data, loading }) {
       case "period3Amount":
         return <span className="text-danger">{fmt(item.period3Amount)}</span>;
       case "balanceDue":
-        return <span className="font-semibold">{fmt(item.balanceDue)}</span>;
+        return <span className="font-light">{fmt(item.balanceDue)}</span>;
       default:
         return item[key] || "-";
     }

@@ -25,7 +25,7 @@ export default function BcCustomersView({ customers, loading }) {
   const renderCell = useCallback((customer, columnKey) => {
     switch (columnKey) {
       case "bcCustomerDisplayName":
-        return <span className="font-medium">{customer.bcCustomerDisplayName}</span>;
+        return <span className="font-light">{customer.bcCustomerDisplayName}</span>;
       case "bcCustomerContact":
         return (
           <span className="text-muted-foreground">{customer.bcCustomerContact || "-"}</span>

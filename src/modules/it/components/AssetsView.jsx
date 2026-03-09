@@ -88,7 +88,7 @@ export default function AssetsView({
     (item, columnKey) => {
       switch (columnKey) {
         case "itAssetName":
-          return <span className="font-medium">{item.itAssetName}</span>;
+          return <span className="font-light">{item.itAssetName}</span>;
         case "itAssetTag":
           return <span className="text-muted-foreground">{item.itAssetTag || "-"}</span>;
         case "itAssetCategory":
@@ -110,7 +110,7 @@ export default function AssetsView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itAssetStatus] || "default"}
@@ -122,7 +122,7 @@ export default function AssetsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -415,7 +415,7 @@ export default function AssetsView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingAsset?.itAssetName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

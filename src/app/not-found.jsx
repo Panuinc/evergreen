@@ -10,10 +10,10 @@ export default function NotFound() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h1 className="text-6xl text-foreground">404</h1>
-          <h2 className="text-[20px] text-foreground">
+          <p className="text-sm text-foreground">404</p>
+          <p className="text-[20px] text-foreground">
             Page Not Found
-          </h2>
+          </p>
         </div>
 
         <p className="text-muted-foreground">

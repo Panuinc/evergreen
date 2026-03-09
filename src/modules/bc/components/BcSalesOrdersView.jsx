@@ -73,7 +73,7 @@ export default function BcSalesOrdersView({
     (order, columnKey) => {
       switch (columnKey) {
         case "bcSalesOrderNumber":
-          return <span className="font-medium">{order.bcSalesOrderNumber}</span>;
+          return <span className="font-light">{order.bcSalesOrderNumber}</span>;
         case "bcSalesOrderDate":
           return order.bcSalesOrderDate
             ? new Date(order.bcSalesOrderDate).toLocaleDateString("th-TH")
@@ -83,7 +83,7 @@ export default function BcSalesOrdersView({
         case "bcSalesOrderStatus":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={statusColorMap[order.bcSalesOrderStatus] || "default"}
@@ -157,13 +157,13 @@ export default function BcSalesOrdersView({
                 {lines.map((line, idx) => (
                   <TableRow key={line.bcSalesOrderLineId || idx}>
                     <TableCell>{idx + 1}</TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-light">
                       {line.bcSalesOrderLineObjectNumber || "-"}
                     </TableCell>
                     <TableCell>{line.bcSalesOrderLineDescription || "-"}</TableCell>
                     <TableCell>
                       {line.bcSalesOrderLineProjectName ? (
-                        <Chip variant="bordered" size="md" radius="md" color="secondary">
+                        <Chip variant="shadow" size="md" radius="md" color="secondary">
                           {line.bcSalesOrderLineProjectName}
                         </Chip>
                       ) : (
@@ -196,7 +196,7 @@ export default function BcSalesOrdersView({
             </Table>
           </ModalBody>
           <ModalFooter>
-            <Button variant="bordered" size="md" radius="md" onPress={onClose}>
+            <Button variant="shadow" size="md" radius="md" onPress={onClose}>
               ปิด
             </Button>
           </ModalFooter>

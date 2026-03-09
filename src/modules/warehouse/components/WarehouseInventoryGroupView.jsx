@@ -47,10 +47,10 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "displayName":
-        return <span className="font-medium">{item.displayName}</span>;
+        return <span className="font-light">{item.displayName}</span>;
       case "projectName":
         return item.projectName ? (
-          <Chip variant="bordered" size="md" radius="md" color="secondary">
+          <Chip variant="shadow" size="md" radius="md" color="secondary">
             {item.projectName}
           </Chip>
         ) : (
@@ -84,7 +84,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
       }
       case "type":
         return (
-          <Chip variant="bordered" size="md" radius="md" color="default">
+          <Chip variant="shadow" size="md" radius="md" color="default">
             {item.type || "-"}
           </Chip>
         );
@@ -94,7 +94,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
             isIconOnly
             size="md"
             radius="md"
-            variant="bordered"
+            variant="shadow"
             onPress={() => setPrintItem(item)}
           >
             <Printer size={16} />
@@ -111,7 +111,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
             <p className="text-sm text-muted-foreground">รายการสินค้า</p>
-            <p className="text-2xl font-semibold">
+            <p className="text-sm font-light">
               {summary.totalItems.toLocaleString("th-TH")}
             </p>
           </CardBody>
@@ -119,7 +119,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
             <p className="text-sm text-muted-foreground">จำนวนคงเหลือ</p>
-            <p className="text-2xl font-semibold text-success">
+            <p className="text-sm font-light text-success">
               {summary.totalQty.toLocaleString("th-TH")}
             </p>
           </CardBody>
@@ -127,7 +127,7 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
             <p className="text-sm text-muted-foreground">มูลค่า (ต้นทุน)</p>
-            <p className="text-2xl font-semibold text-primary">
+            <p className="text-sm font-light text-primary">
               {summary.totalValue.toLocaleString("th-TH", {
                 minimumFractionDigits: 2,
               })}

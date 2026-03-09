@@ -14,7 +14,7 @@ export default function SignInPasswordForm({
 }) {
   return (
     <>
-      <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 text-[16px] font-semibold">
+      <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 text-[16px] font-light">
         <Image
           src="/logo/logo-01.png"
           width={50}
@@ -24,7 +24,7 @@ export default function SignInPasswordForm({
         />
         ยินดีต้อนรับกลับ
       </div>
-      <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 font-semibold">
+      <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 font-light">
         ลงชื่อเข้าใช้บัญชีของคุณ
       </div>
 

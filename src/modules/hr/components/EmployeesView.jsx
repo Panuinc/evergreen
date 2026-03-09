@@ -72,7 +72,7 @@ export default function EmployeesView({
       switch (columnKey) {
         case "name":
           return (
-            <span className="font-medium">
+            <span className="font-light">
               {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
             </span>
           );
@@ -93,7 +93,7 @@ export default function EmployeesView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={emp.isActive ? "success" : "default"}
@@ -365,7 +365,7 @@ export default function EmployeesView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingEmployee?.hrEmployeeFirstName}{" "}
                 {deletingEmployee?.hrEmployeeLastName}
               </span>

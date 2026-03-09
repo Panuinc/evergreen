@@ -121,7 +121,7 @@ export default function ConversationList({
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate">
+                    <span className="font-light truncate">
                       {contact?.omContactDisplayName || "ไม่ทราบ"}
                     </span>
                     <span className="text-[10px] text-muted-foreground flex-shrink-0">

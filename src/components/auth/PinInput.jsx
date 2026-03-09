@@ -77,7 +77,7 @@ export default function PinInput({ value = "", onChange, onComplete, length = 6,
           onChange={(e) => handleChange(i, e)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={i === 0 ? handlePaste : undefined}
-          className={`w-12 h-14 text-center text-xl font-semibold rounded-xl border-2 outline-none transition-colors
+          className={`w-12 h-14 text-center text-sm font-light rounded-xl border-2 outline-none transition-colors
             ${error ? "border-danger bg-danger-50" : "border-border focus:border-primary"}
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
           `}

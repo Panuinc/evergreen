@@ -70,7 +70,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
       {pieData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
-            <h3 className="text-sm font-semibold">สัดส่วนรายได้</h3>
+            <p className="text-sm font-light">สัดส่วนรายได้</p>
           </CardHeader>
           <CardBody>
             <ResponsiveContainer width="100%" height={280}>
@@ -98,7 +98,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">รายละเอียดรายได้</h3>
+            <p className="text-sm font-light">รายละเอียดรายได้</p>
             <Chip size="sm" variant="flat" color="success">ปี {beYear}</Chip>
           </div>
           <Button size="sm" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
@@ -109,15 +109,15 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
           <table className="w-full text-sm border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-default-100 border-b border-border">
-                <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[280px] font-semibold">รายการ</th>
+                <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[280px] font-light">รายการ</th>
                 {CAL_MONTHS.map((m, i) => (
-                  <th key={m} className="text-right px-2 py-2 min-w-[85px] font-semibold">
+                  <th key={m} className="text-right px-2 py-2 min-w-[85px] font-light">
                     {CAL_MONTHS_SHORT[i]} {calMonthBE(i, year)}
                   </th>
                 ))}
-                <th className="text-right px-3 py-2 min-w-[110px] font-semibold bg-default-200">รวม {beYear}</th>
+                <th className="text-right px-3 py-2 min-w-[110px] font-light bg-default-200">รวม {beYear}</th>
                 {compYears.map((cy) => (
-                  <th key={cy.year} className="text-right px-3 py-2 min-w-[110px] font-semibold bg-warning-50 text-warning-700">
+                  <th key={cy.year} className="text-right px-3 py-2 min-w-[110px] font-light bg-warning-50 text-warning-700">
                     {cy.year + 543}
                   </th>
                 ))}
@@ -127,7 +127,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
               {data.map((row) => {
                 const isTotal = row.type === "grandTotal";
                 return (
-                  <tr key={row.key} className={`border-b border-border ${isTotal ? "bg-success-50 font-semibold text-success-700" : ""}`}>
+                  <tr key={row.key} className={`border-b border-border ${isTotal ? "bg-success-50 font-light text-success-700" : ""}`}>
                     <td className="sticky left-0 z-10 bg-background px-3 py-1.5">
                       {row.account && <span className="text-muted-foreground mr-1">{row.account}</span>}
                       {row.label}
@@ -140,7 +140,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
                         </td>
                       );
                     })}
-                    <td className={`text-right font-mono text-sm px-3 bg-default-50 font-semibold ${row.total < 0 ? "text-danger" : ""}`}>
+                    <td className={`text-right font-mono text-sm px-3 bg-default-50 font-light ${row.total < 0 ? "text-danger" : ""}`}>
                       {fmt(row.total)}
                     </td>
                     {compYears.map((cy) => {

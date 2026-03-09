@@ -82,13 +82,13 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
   const renderCell = useCallback((item, key) => {
     switch (key) {
       case "number":
-        return <span className="font-mono font-medium">{item.number}</span>;
+        return <span className="font-mono font-light">{item.number}</span>;
       case "invoiceDate":
         return fmtDate(item.invoiceDate);
       case "dueDate": {
         const days = item.daysOverdue || 0;
         return (
-          <span className={days > 0 ? "font-medium text-danger" : ""}>
+          <span className={days > 0 ? "font-light text-danger" : ""}>
             {fmtDate(item.dueDate)}
           </span>
         );
@@ -96,20 +96,20 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
       case "customerNumber":
         return <span className="font-mono">{item.customerNumber}</span>;
       case "customerName":
-        return <span className="font-medium">{item.customerName}</span>;
+        return <span className="font-light">{item.customerName}</span>;
       case "salesperson":
         return <span className="text-muted-foreground">{item.salesperson || "-"}</span>;
       case "totalAmountIncludingTax":
         return <span>{fmt(item.totalAmountIncludingTax)}</span>;
       case "remainingAmount": {
         const v = item.remainingAmount || 0;
-        return <span className={v > 0 ? "font-semibold text-warning" : "text-success"}>{fmt(v)}</span>;
+        return <span className={v > 0 ? "font-light text-warning" : "text-success"}>{fmt(v)}</span>;
       }
       case "daysOverdue": {
         const days = item.daysOverdue || 0;
         if (item.status !== "Open") return <span className="text-muted-foreground">-</span>;
         return (
-          <span className={`font-semibold ${daysColor(days)}`}>
+          <span className={`font-light ${daysColor(days)}`}>
             {days > 0 ? `${days} วัน` : "ยังไม่ถึง"}
           </span>
         );
@@ -122,7 +122,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
         );
       case "actions":
         return (
-          <Button variant="bordered" size="sm" isIconOnly onPress={() => openLines(item)}>
+          <Button variant="shadow" size="sm" isIconOnly onPress={() => openLines(item)}>
             <Eye size={16} />
           </Button>
         );
@@ -159,7 +159,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <span>รายการสินค้า — {selected?.number}</span>
-            <span className="text-sm font-normal text-muted-foreground">
+            <span className="text-sm font-light text-muted-foreground">
               {selected?.customerName} | ยอดรวม {fmt(selected?.totalAmountIncludingTax)} | ค้างชำระ {fmt(selected?.remainingAmount)}
             </span>
           </ModalHeader>
@@ -189,7 +189,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
                     <TableCell>{line.quantity ? Number(line.quantity).toLocaleString("th-TH") : "-"}</TableCell>
                     <TableCell className="text-muted-foreground">{line.unitOfMeasureCode || "-"}</TableCell>
                     <TableCell>{fmt(line.unitPrice)}</TableCell>
-                    <TableCell className="font-medium">{fmt(line.amountIncludingTax)}</TableCell>
+                    <TableCell className="font-light">{fmt(line.amountIncludingTax)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -199,9 +199,9 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>ก่อน VAT: {fmt(selected?.totalAmountExcludingTax)}</span>
               <span>VAT: {fmt(selected?.totalTaxAmount)}</span>
-              <span className="font-semibold text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>
+              <span className="font-light text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>
             </div>
-            <Button variant="bordered" size="md" onPress={onClose}>ปิด</Button>
+            <Button variant="shadow" size="md" onPress={onClose}>ปิด</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

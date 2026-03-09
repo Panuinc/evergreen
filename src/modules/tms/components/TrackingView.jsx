@@ -56,7 +56,7 @@ export default function TrackingView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">ติดตาม GPS</h2>
+        <p className="text-sm font-light">ติดตาม GPS</p>
         <div className="flex gap-2">
           <Button
             variant="bordered"
@@ -96,9 +96,9 @@ export default function TrackingView({
               >
                 <CardBody className="p-3 gap-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm">{vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}</h3>
+                    <p className="font-light text-sm">{vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}</p>
                     <Chip
-                      variant="bordered"
+                      variant="shadow"
                       size="sm"
                       color={STATUS_COLORS[vehicle.tmsVehicleStatus] || "default"}
                     >

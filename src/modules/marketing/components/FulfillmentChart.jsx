@@ -25,19 +25,19 @@ export default function FulfillmentChart({ data }) {
 
       <div className="grid grid-cols-2 gap-3 text-center">
         <div>
-          <p className="text-lg font-semibold text-success">{data.fulfillmentRate}%</p>
+          <p className="text-sm font-light text-success">{data.fulfillmentRate}%</p>
           <p className="text-sm text-muted-foreground">Fulfillment Rate</p>
         </div>
         <div>
-          <p className="text-lg font-semibold">{data.totalQtyOrdered.toLocaleString()}</p>
+          <p className="text-sm font-light">{data.totalQtyOrdered.toLocaleString()}</p>
           <p className="text-sm text-muted-foreground">สั่งทั้งหมด (ชิ้น)</p>
         </div>
         <div>
-          <p className="text-lg font-semibold text-success">{data.totalQtyShipped.toLocaleString()}</p>
+          <p className="text-sm font-light text-success">{data.totalQtyShipped.toLocaleString()}</p>
           <p className="text-sm text-muted-foreground">ส่งแล้ว (ชิ้น)</p>
         </div>
         <div>
-          <p className="text-lg font-semibold text-warning">{data.ordersWithOutstanding}</p>
+          <p className="text-sm font-light text-warning">{data.ordersWithOutstanding}</p>
           <p className="text-sm text-muted-foreground">ออเดอร์มีค้าง</p>
         </div>
       </div>

@@ -117,7 +117,7 @@ export default function VehicleMapInner({
         >
           <Popup>
             <div className="text-sm">
-              <p className="font-semibold">{m.name}</p>
+              <p className="font-light">{m.name}</p>
               <p className="text-muted-foreground">{m.plate}</p>
               {m.speed && <p>Speed: {m.speed} km/h</p>}
               {m.updatedAt && (

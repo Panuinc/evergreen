@@ -97,17 +97,17 @@ export default function QuotationEditorView({
           >
             <ArrowLeft size={18} />
           </Button>
-          <h2 className="text-lg font-semibold">
+          <p className="text-sm font-light">
             {quotation.crmQuotationNo || "ใบเสนอราคาใหม่"}
-          </h2>
-          <Chip variant="bordered" size="md" radius="md" color={statusColor}>
+          </p>
+          <Chip variant="shadow" size="md" radius="md" color={statusColor}>
             {status}
           </Chip>
         </div>
         <div className="flex items-center gap-2">
           {canSubmit && (
             <Button
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               startContent={<Send size={14} />}
@@ -169,7 +169,7 @@ export default function QuotationEditorView({
       <div className="flex flex-col gap-6">
         {/* Quotation Info */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">ข้อมูลใบเสนอราคา</p>
+          <p className="text-sm font-light mb-4">ข้อมูลใบเสนอราคา</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <Input
@@ -221,7 +221,7 @@ export default function QuotationEditorView({
 
         {/* Line Items */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">รายการสินค้า</p>
+          <p className="text-sm font-light mb-4">รายการสินค้า</p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -347,7 +347,7 @@ export default function QuotationEditorView({
                       )}
                     </td>
                     <td className="p-2">
-                      <span className="block text-right font-medium">
+                      <span className="block text-right font-light">
                         {(line.crmQuotationLineAmount || 0).toLocaleString("th-TH", {
                           minimumFractionDigits: 2,
                         })}
@@ -388,7 +388,7 @@ export default function QuotationEditorView({
 
         {/* Summary */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">สรุป</p>
+          <p className="text-sm font-light mb-4">สรุป</p>
           <div className="flex flex-col items-end gap-3 w-full max-w-sm ml-auto">
             <div className="flex items-center justify-between w-full">
               <span className="text-muted-foreground">ยอดรวมย่อย</span>
@@ -428,8 +428,8 @@ export default function QuotationEditorView({
               />
             </div>
             <div className="flex items-center justify-between w-full border-t border-border pt-2">
-              <span className="font-semibold text-lg">ยอดรวม</span>
-              <span className="font-semibold text-lg">
+              <span className="font-light text-sm">ยอดรวม</span>
+              <span className="font-light text-sm">
                 ฿
                 {calcTotal().toLocaleString("th-TH", {
                   minimumFractionDigits: 2,
@@ -441,7 +441,7 @@ export default function QuotationEditorView({
 
         {/* Notes & Terms */}
         <Card className="p-4">
-          <p className="text-lg font-semibold mb-4">หมายเหตุและเงื่อนไข</p>
+          <p className="text-sm font-light mb-4">หมายเหตุและเงื่อนไข</p>
           <div className="flex flex-col gap-4">
             <Textarea
               label="หมายเหตุ"
@@ -473,7 +473,7 @@ export default function QuotationEditorView({
         {/* Approval Info */}
         {quotation.crmQuotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
-            <p className="text-sm font-semibold text-danger mb-1">
+            <p className="text-sm font-light text-danger mb-1">
               หมายเหตุการปฏิเสธ:
             </p>
             <p className="text-sm">{quotation.crmQuotationApprovalNote}</p>

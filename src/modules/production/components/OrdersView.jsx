@@ -160,7 +160,7 @@ export default function OrdersView({ data, loading }) {
       case "profit":
         return row[columnKey] != null && row.revenue > 0 ? (
           <span
-            className={`font-semibold ${row[columnKey] >= 0 ? "text-success" : "text-danger"}`}
+            className={`font-light ${row[columnKey] >= 0 ? "text-success" : "text-danger"}`}
           >
             {fmtCurrency(row[columnKey])}
           </span>

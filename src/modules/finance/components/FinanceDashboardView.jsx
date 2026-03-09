@@ -319,7 +319,7 @@ function KpiCard({ title, value, unit, color = "default", subtitle, tooltip, onD
           {tooltip && <Info size={10} className="text-muted-foreground" />}
         </div>
         <div className="flex items-baseline gap-1">
-          <p className={`text-2xl font-semibold ${colorClass[color] || ""}`}>{value}</p>
+          <p className={`text-sm font-light ${colorClass[color] || ""}`}>{value}</p>
           {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
         </div>
         {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
@@ -349,7 +349,7 @@ function RatioCard({ title, value, subtitle, status, tooltip, previousValue, onD
           <p className="text-sm text-muted-foreground">{title}</p>
           {tooltip && <Info size={10} className="text-muted-foreground" />}
         </div>
-        <p className={`text-2xl font-semibold ${statusColor[status] || ""}`}>{value}</p>
+        <p className={`text-sm font-light ${statusColor[status] || ""}`}>{value}</p>
         {previousValue != null && (
           <p className="text-sm text-muted-foreground">ปีก่อน: {previousValue}</p>
         )}
@@ -366,7 +366,7 @@ function ChartCard({ title, children, chip }) {
     <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardHeader className="pb-0">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold">{title}</p>
+          <p className="text-sm font-light">{title}</p>
           {chip && <Chip size="sm" variant="flat" color={chip.color}>{chip.label}</Chip>}
         </div>
       </CardHeader>
@@ -464,7 +464,7 @@ export default function FinanceDashboardView({
   const arAgingRenderCell = useCallback((item, key) => {
     switch (key) {
       case "name":
-        return <span className="font-medium">{item.name}</span>;
+        return <span className="font-light">{item.name}</span>;
       case "customerNumber":
         return <span className="font-mono text-muted-foreground">{item.customerNumber}</span>;
       case "current":
@@ -476,11 +476,11 @@ export default function FinanceDashboardView({
       case "period3":
         return <span className="text-danger">{fmt(item.period3)}</span>;
       case "balanceDue":
-        return <span className="font-semibold">{fmt(item.balanceDue)}</span>;
+        return <span className="font-light">{fmt(item.balanceDue)}</span>;
       case "actions": {
         const count = (arInvoiceMap[item.customerNumber] || []).length;
         return count > 0 ? (
-          <Button variant="bordered" size="sm" onPress={() => openAgingDetail(item, "ar")}>
+          <Button variant="shadow" size="sm" onPress={() => openAgingDetail(item, "ar")}>
             <Eye size={14} /> {count} ใบ
           </Button>
         ) : <span className="text-muted-foreground">-</span>;
@@ -493,7 +493,7 @@ export default function FinanceDashboardView({
   const apAgingRenderCell = useCallback((item, key) => {
     switch (key) {
       case "name":
-        return <span className="font-medium">{item.name}</span>;
+        return <span className="font-light">{item.name}</span>;
       case "vendorNumber":
         return <span className="font-mono text-muted-foreground">{item.vendorNumber}</span>;
       case "current":
@@ -505,7 +505,7 @@ export default function FinanceDashboardView({
       case "period3":
         return <span className="text-danger">{fmt(Math.abs(item.period3))}</span>;
       case "balanceDue":
-        return <span className="font-semibold">{fmt(Math.abs(item.balanceDue))}</span>;
+        return <span className="font-light">{fmt(Math.abs(item.balanceDue))}</span>;
       case "actions": {
         const count = (apInvoiceMap[item.vendorNumber] || []).length;
         return count > 0 ? (
@@ -664,8 +664,8 @@ export default function FinanceDashboardView({
               subtitle={financials ? `หมุนเวียน ${fmt(financials.currentAssets)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ที่มา: Trial Balance → API: trialBalances</p>
-                  <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)</p>
+                  <p className="text-tiny font-light">ที่มา: Trial Balance → API: trialBalances</p>
+                  <p className="text-tiny font-light mt-1">สินทรัพย์หมุนเวียน (11xx) + ไม่หมุนเวียน (12xx)</p>
                   <p className="text-tiny text-muted-foreground">= {fmt(financials.currentAssets)} + {fmt(financials.noncurrentAssets)}</p>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
@@ -686,8 +686,8 @@ export default function FinanceDashboardView({
               subtitle={financials ? `หมุนเวียน ${fmt(financials.currentLiabilities)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ที่มา: Trial Balance → API: trialBalances</p>
-                  <p className="text-tiny font-semibold mt-1">หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)</p>
+                  <p className="text-tiny font-light">ที่มา: Trial Balance → API: trialBalances</p>
+                  <p className="text-tiny font-light mt-1">หนี้สินหมุนเวียน (21xx) + ไม่หมุนเวียน (22xx)</p>
                   <p className="text-tiny text-muted-foreground">= {fmt(financials.currentLiabilities)} + {fmt(financials.noncurrentLiabilities)}</p>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
@@ -708,8 +708,8 @@ export default function FinanceDashboardView({
               subtitle={financials ? `ทุน ${fmt(financials.shareCapital)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ที่มา: Trial Balance → API: trialBalances</p>
-                  <p className="text-tiny font-semibold mt-1">ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)</p>
+                  <p className="text-tiny font-light">ที่มา: Trial Balance → API: trialBalances</p>
+                  <p className="text-tiny font-light mt-1">ทุนจดทะเบียน (31xx) + กำไรสะสม (33xx)</p>
                   <p className="text-tiny text-muted-foreground">= {fmt(financials.shareCapital)} + {fmt(financials.retainedEarnings)}</p>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
@@ -730,8 +730,8 @@ export default function FinanceDashboardView({
               subtitle="Working Capital"
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ที่มา: Trial Balance → API: trialBalances</p>
-                  <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน (11xx) − หนี้สินหมุนเวียน (21xx)</p>
+                  <p className="text-tiny font-light">ที่มา: Trial Balance → API: trialBalances</p>
+                  <p className="text-tiny font-light mt-1">สินทรัพย์หมุนเวียน (11xx) − หนี้สินหมุนเวียน (21xx)</p>
                   <p className="text-tiny text-muted-foreground">= {fmt(financials.currentAssets)} − {fmt(financials.currentLiabilities)}</p>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
@@ -756,8 +756,8 @@ export default function FinanceDashboardView({
               subtitle={financials ? `ขาย ${fmt(financials.salesRevenue)}` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ที่มา: GL Entries (กรองตามปี)</p>
-                  <p className="text-tiny font-semibold mt-1">ขาย (41xx) + บริการ (42xx) + อื่น (43xx)</p>
+                  <p className="text-tiny font-light">ที่มา: GL Entries (กรองตามปี)</p>
+                  <p className="text-tiny font-light mt-1">ขาย (41xx) + บริการ (42xx) + อื่น (43xx)</p>
                   <p className="text-tiny text-muted-foreground">= {fmt(financials.salesRevenue)} + {fmt(financials.serviceRevenue)} + {fmt(financials.otherIncome)}</p>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
@@ -778,8 +778,8 @@ export default function FinanceDashboardView({
               subtitle={financials ? `${financials.grossMargin.toFixed(1)}% Gross Margin` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ที่มา: GL + TB Inventory Adjustment</p>
-                  <p className="text-tiny font-semibold mt-1">ต้นทุนผลิต (GL) − สินค้าคงเหลือ (TB)</p>
+                  <p className="text-tiny font-light">ที่มา: GL + TB Inventory Adjustment</p>
+                  <p className="text-tiny font-light mt-1">ต้นทุนผลิต (GL) − สินค้าคงเหลือ (TB)</p>
                   <p className="text-tiny text-muted-foreground">= {fmt(financials.rawGlCogs)} − {fmt(financials.inventoryAdj)}</p>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
@@ -802,8 +802,8 @@ export default function FinanceDashboardView({
               color={financials && financials.grossProfit >= 0 ? "success" : "danger"}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-xs">
-                  <p className="text-tiny font-semibold">ที่มา: GL (รายได้) − GL+TB (ต้นทุน)</p>
-                  <p className="text-tiny font-semibold mt-1">รายได้รวม − ต้นทุนขายสุทธิ</p>
+                  <p className="text-tiny font-light">ที่มา: GL (รายได้) − GL+TB (ต้นทุน)</p>
+                  <p className="text-tiny font-light mt-1">รายได้รวม − ต้นทุนขายสุทธิ</p>
                   <p className="text-tiny text-muted-foreground">= {fmt(financials.totalRevenue)} − {fmt(financials.cogs)} = {fmt(financials.grossProfit)}</p>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
                 </div>
@@ -824,7 +824,7 @@ export default function FinanceDashboardView({
               subtitle={financials ? `${financials.netMargin.toFixed(1)}% Net Margin` : ""}
               tooltip={financials && (
                 <div className="px-1 py-1 max-w-sm">
-                  <p className="text-tiny font-semibold">ที่มา: GL Entries (กรองตามปี)</p>
+                  <p className="text-tiny font-light">ที่มา: GL Entries (กรองตามปี)</p>
                   <table className="text-tiny text-muted-foreground mt-1 w-full">
                     <tbody>
                       <tr><td>กำไรขั้นต้น</td><td className="text-right font-mono">{fmt(financials.grossProfit)}</td></tr>
@@ -832,7 +832,7 @@ export default function FinanceDashboardView({
                       <tr><td>53xx ค่าใช้จ่ายบริหาร</td><td className="text-right font-mono">({fmt(financials.adminExpense)})</td></tr>
                       <tr><td>กำไรก่อนต้นทุนทางการเงิน</td><td className="text-right font-mono">{fmt(financials.operatingProfit)}</td></tr>
                       <tr><td>53710-xx ดอกเบี้ยจ่าย</td><td className="text-right font-mono">({fmt(financials.interestExpense)})</td></tr>
-                      <tr className="font-semibold border-t border-border"><td>กำไรสุทธิ</td><td className="text-right font-mono">{fmt(financials.netIncome)}</td></tr>
+                      <tr className="font-light border-t border-border"><td>กำไรสุทธิ</td><td className="text-right font-mono">{fmt(financials.netIncome)}</td></tr>
                     </tbody>
                   </table>
                   <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
@@ -859,8 +859,8 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">ที่มา: TB → API: trialBalances</p>
-              <p className="text-tiny font-semibold mt-1">สินทรัพย์หมุนเวียน (11xx) ÷ หนี้สินหมุนเวียน (21xx)</p>
+              <p className="text-tiny font-light">ที่มา: TB → API: trialBalances</p>
+              <p className="text-tiny font-light mt-1">สินทรัพย์หมุนเวียน (11xx) ÷ หนี้สินหมุนเวียน (21xx)</p>
               <p className="text-tiny text-muted-foreground">= {fmt(financials.currentAssets)} ÷ {fmt(financials.currentLiabilities)}</p>
               <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
             </div>
@@ -882,8 +882,8 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">ที่มา: TB → API: trialBalances</p>
-              <p className="text-tiny font-semibold mt-1">หนี้สินรวม (21xx+22xx) ÷ ส่วนของเจ้าของ (31xx+33xx)</p>
+              <p className="text-tiny font-light">ที่มา: TB → API: trialBalances</p>
+              <p className="text-tiny font-light mt-1">หนี้สินรวม (21xx+22xx) ÷ ส่วนของเจ้าของ (31xx+33xx)</p>
               <p className="text-tiny text-muted-foreground">= {fmt(financials.totalLiabilities)} ÷ {fmt(financials.totalEquity)}</p>
               <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
             </div>
@@ -905,8 +905,8 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">ที่มา: GL → API: generalLedgerEntries</p>
-              <p className="text-tiny font-semibold mt-1">(กำไรขั้นต้น ÷ รายได้รวม) × 100</p>
+              <p className="text-tiny font-light">ที่มา: GL → API: generalLedgerEntries</p>
+              <p className="text-tiny font-light mt-1">(กำไรขั้นต้น ÷ รายได้รวม) × 100</p>
               <p className="text-tiny text-muted-foreground">= ({fmt(financials.grossProfit)} ÷ {fmt(financials.totalRevenue)}) × 100</p>
               <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
             </div>
@@ -928,8 +928,8 @@ export default function FinanceDashboardView({
           previousValue={null}
           tooltip={financials && (
             <div className="px-1 py-1 max-w-xs">
-              <p className="text-tiny font-semibold">ที่มา: GL → API: generalLedgerEntries</p>
-              <p className="text-tiny font-semibold mt-1">(กำไรสุทธิ ÷ รายได้รวม) × 100</p>
+              <p className="text-tiny font-light">ที่มา: GL → API: generalLedgerEntries</p>
+              <p className="text-tiny font-light mt-1">(กำไรสุทธิ ÷ รายได้รวม) × 100</p>
               <p className="text-tiny text-muted-foreground">= ({fmt(financials.netIncome)} ÷ {fmt(financials.totalRevenue)}) × 100</p>
               <p className="text-tiny text-primary mt-1">คลิกเพื่อดูรายบัญชีทั้งหมด</p>
             </div>
@@ -950,7 +950,7 @@ export default function FinanceDashboardView({
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
-            <p className="text-sm font-semibold">AI วิเคราะห์สถานะการเงิน</p>
+            <p className="text-sm font-light">AI วิเคราะห์สถานะการเงิน</p>
             <Chip size="sm" variant="flat" color="secondary">CFO Advisor</Chip>
           </div>
           <Button
@@ -989,7 +989,7 @@ export default function FinanceDashboardView({
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-border px-3 py-1.5 text-left font-light text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
                     <td className="border border-border px-3 py-1.5 text-foreground">{children}</td>
@@ -999,7 +999,7 @@ export default function FinanceDashboardView({
                   ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
                   ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
                   li: ({ children }) => <li className="text-foreground">{children}</li>,
-                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  strong: ({ children }) => <strong className="font-light text-foreground">{children}</strong>,
                   code: ({ inline, children }) =>
                     inline ? (
                       <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">{children}</code>
@@ -1023,7 +1023,7 @@ export default function FinanceDashboardView({
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-success" />
-            <p className="text-sm font-semibold">AI พยากรณ์กระแสเงินสด</p>
+            <p className="text-sm font-light">AI พยากรณ์กระแสเงินสด</p>
             <Chip size="sm" variant="flat" color="success">Cash Flow Advisor</Chip>
           </div>
           <Button
@@ -1062,7 +1062,7 @@ export default function FinanceDashboardView({
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-border px-3 py-1.5 text-left font-light text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
                     <td className="border border-border px-3 py-1.5 text-foreground">{children}</td>
@@ -1072,7 +1072,7 @@ export default function FinanceDashboardView({
                   ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
                   ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
                   li: ({ children }) => <li className="text-foreground">{children}</li>,
-                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  strong: ({ children }) => <strong className="font-light text-foreground">{children}</strong>,
                   code: ({ inline, children }) =>
                     inline ? (
                       <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">{children}</code>
@@ -1140,7 +1140,7 @@ export default function FinanceDashboardView({
                   const d = payload[0]?.payload;
                   return (
                     <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
-                      <p className="mb-1 text-sm font-semibold">{d?.name}</p>
+                      <p className="mb-1 text-sm font-light">{d?.name}</p>
                       <p className={`text-sm ${d?.value >= 0 ? "text-success" : "text-danger"}`}>
                         {d?.value >= 0 ? "+" : ""}{fmt(d?.value)}
                       </p>
@@ -1163,7 +1163,7 @@ export default function FinanceDashboardView({
       {/* ═══ Section: งบกำไรขาดทุนรายเดือน (GL Data) ═══ */}
       <div className="flex items-center gap-3 mt-2">
         <div className="h-px flex-1 bg-default-200" />
-        <span className="text-sm font-semibold text-muted-foreground whitespace-nowrap">
+        <span className="text-sm font-light text-muted-foreground whitespace-nowrap">
           รายงานรายเดือน — ปีงบ พ.ศ. {(selectedYear || 0) + 543}
         </span>
         <div className="h-px flex-1 bg-default-200" />
@@ -1214,7 +1214,7 @@ export default function FinanceDashboardView({
       {/* ═══ Section: ลูกหนี้/เจ้าหนี้ ═══ */}
       <div className="flex items-center gap-3 mt-2">
         <div className="h-px flex-1 bg-default-200" />
-        <span className="text-sm font-semibold text-muted-foreground whitespace-nowrap">ลูกหนี้ / เจ้าหนี้</span>
+        <span className="text-sm font-light text-muted-foreground whitespace-nowrap">ลูกหนี้ / เจ้าหนี้</span>
         <div className="h-px flex-1 bg-default-200" />
       </div>
 
@@ -1300,7 +1300,7 @@ export default function FinanceDashboardView({
                     const d = payload[0]?.payload;
                     return (
                       <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
-                        <p className="mb-1 text-sm font-semibold">{fmtMonth(label)}</p>
+                        <p className="mb-1 text-sm font-light">{fmtMonth(label)}</p>
                         <p className="text-sm">{d?.count} ใบ</p>
                         <p className="text-sm text-primary">ยอดเต็ม: {fmt(d?.total)}</p>
                         <p className="text-sm text-warning">ค้างชำระ: {fmt(d?.remaining)}</p>
@@ -1334,7 +1334,7 @@ export default function FinanceDashboardView({
                     const d = payload[0]?.payload;
                     return (
                       <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
-                        <p className="mb-1 text-sm font-semibold">{fmtMonth(label)}</p>
+                        <p className="mb-1 text-sm font-light">{fmtMonth(label)}</p>
                         <p className="text-sm">{d?.count} ใบ</p>
                         <p className="text-sm text-danger">ยอดรวม: {fmt(d?.total)}</p>
                       </div>
@@ -1365,7 +1365,7 @@ export default function FinanceDashboardView({
                     const d = payload[0]?.payload;
                     return (
                       <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
-                        <p className="mb-1 text-sm font-semibold">{d?.name}</p>
+                        <p className="mb-1 text-sm font-light">{d?.name}</p>
                         <p className="text-sm">{d?.count} ใบ</p>
                         <p className="text-sm text-warning">ค้างชำระ: {fmt(d?.remaining)}</p>
                         <p className="text-sm text-muted-foreground">ยอดเต็ม: {fmt(d?.total)}</p>
@@ -1396,7 +1396,7 @@ export default function FinanceDashboardView({
                     const d = payload[0]?.payload;
                     return (
                       <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
-                        <p className="mb-1 text-sm font-semibold">{d?.name}</p>
+                        <p className="mb-1 text-sm font-light">{d?.name}</p>
                         <p className="text-sm">{d?.count} ใบ</p>
                         <p className="text-sm text-danger">ยอดรวม: {fmt(d?.total)}</p>
                       </div>
@@ -1513,13 +1513,13 @@ export default function FinanceDashboardView({
               <>
                 <ModalHeader className="flex flex-col gap-1">
                   <span>{kpiDetail.title}</span>
-                  <span className="text-sm font-normal text-muted-foreground">ปีงบ พ.ศ. {selectedYear + 543} ({selectedYear}) — {kpiDetail.source}</span>
+                  <span className="text-sm font-light text-muted-foreground">ปีงบ พ.ศ. {selectedYear + 543} ({selectedYear}) — {kpiDetail.source}</span>
                 </ModalHeader>
                 <ModalBody>
                   <div className="space-y-3">
                     {/* Formula & Calculation */}
                     <div className="rounded-lg bg-default-50 p-3">
-                      <p className="text-sm font-semibold">{kpiDetail.formula}</p>
+                      <p className="text-sm font-light">{kpiDetail.formula}</p>
                       <p className="text-sm text-muted-foreground mt-1">{kpiDetail.calc}</p>
                       {kpiDetail.notes && <p className="text-sm text-muted-foreground mt-2">{kpiDetail.notes}</p>}
                     </div>
@@ -1531,16 +1531,16 @@ export default function FinanceDashboardView({
                     {sections.map((sec) => (
                       <div key={sec.key}>
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-semibold">{sec.name}</p>
+                          <p className="text-sm font-light">{sec.name}</p>
                           <Chip size="sm" variant="flat" color="primary">{sec.accounts.length} บัญชี</Chip>
                         </div>
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm">
                             <thead className="bg-default-100">
                               <tr>
-                                <th className="text-left px-2 py-1.5 font-semibold w-[100px]">เลขบัญชี</th>
-                                <th className="text-left px-2 py-1.5 font-semibold">ชื่อบัญชี</th>
-                                <th className="text-right px-2 py-1.5 font-semibold w-[120px]">ยอด</th>
+                                <th className="text-left px-2 py-1.5 font-light w-[100px]">เลขบัญชี</th>
+                                <th className="text-left px-2 py-1.5 font-light">ชื่อบัญชี</th>
+                                <th className="text-right px-2 py-1.5 font-light w-[120px]">ยอด</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1551,7 +1551,7 @@ export default function FinanceDashboardView({
                                   <td className="px-2 py-1 text-right font-mono">{fmt(a.bal)}</td>
                                 </tr>
                               ))}
-                              <tr className="bg-default-50 font-semibold">
+                              <tr className="bg-default-50 font-light">
                                 <td className="px-2 py-1.5" colSpan={2}>รวม {sec.name}</td>
                                 <td className="px-2 py-1.5 text-right font-mono">{fmt(sec.accounts.reduce((s, a) => s + a.bal, 0))}</td>
                               </tr>
@@ -1568,16 +1568,16 @@ export default function FinanceDashboardView({
                       return (
                         <div>
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-sm font-semibold">หัก: สินค้าคงเหลือ (TB 115xx)</p>
+                            <p className="text-sm font-light">หัก: สินค้าคงเหลือ (TB 115xx)</p>
                             <Chip size="sm" variant="flat" color="warning">{invEntries.length} บัญชี</Chip>
                           </div>
                           <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                               <thead className="bg-warning-50">
                                 <tr>
-                                  <th className="text-left px-2 py-1.5 font-semibold w-[100px]">เลขบัญชี</th>
-                                  <th className="text-left px-2 py-1.5 font-semibold">ชื่อบัญชี</th>
-                                  <th className="text-right px-2 py-1.5 font-semibold w-[120px]">ยอด</th>
+                                  <th className="text-left px-2 py-1.5 font-light w-[100px]">เลขบัญชี</th>
+                                  <th className="text-left px-2 py-1.5 font-light">ชื่อบัญชี</th>
+                                  <th className="text-right px-2 py-1.5 font-light w-[120px]">ยอด</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1588,7 +1588,7 @@ export default function FinanceDashboardView({
                                     <td className="px-2 py-1 text-right font-mono text-danger">({fmt(a.balance)})</td>
                                   </tr>
                                 ))}
-                                <tr className="bg-warning-50 font-semibold">
+                                <tr className="bg-warning-50 font-light">
                                   <td className="px-2 py-1.5" colSpan={2}>รวมหัก สินค้าคงเหลือ</td>
                                   <td className="px-2 py-1.5 text-right font-mono text-danger">({fmt(invTotal)})</td>
                                 </tr>
@@ -1602,23 +1602,23 @@ export default function FinanceDashboardView({
                     {/* Grand total */}
                     {sections.length > 1 && (
                       <div className="rounded-lg bg-primary-50 p-3 flex justify-between items-center">
-                        <p className="text-sm font-semibold">รวมทั้งสิ้น ({accounts.length} บัญชี)</p>
-                        <p className="text-lg font-semibold font-mono">{fmt(total)}</p>
+                        <p className="text-sm font-light">รวมทั้งสิ้น ({accounts.length} บัญชี)</p>
+                        <p className="text-sm font-light font-mono">{fmt(total)}</p>
                       </div>
                     )}
 
                     {/* COGS net total (after inventory deduction) */}
                     {kpiDetail.inventoryTotal > 0 && (
                       <div className="rounded-lg bg-success-50 p-3 flex justify-between items-center">
-                        <p className="text-sm font-semibold">ต้นทุนขายสุทธิ (หลังหักสินค้าคงเหลือ)</p>
-                        <p className="text-lg font-semibold font-mono">{fmt(total - (kpiDetail.inventoryTotal || 0))}</p>
+                        <p className="text-sm font-light">ต้นทุนขายสุทธิ (หลังหักสินค้าคงเหลือ)</p>
+                        <p className="text-sm font-light font-mono">{fmt(total - (kpiDetail.inventoryTotal || 0))}</p>
                       </div>
                     )}
                   </div>
                 </ModalBody>
                 <ModalFooter>
                   <Button
-                    variant="bordered"
+                    variant="shadow"
                     size="md"
                     startContent={<Download size={14} />}
                     onPress={() => exportCalculationReport(financials, selectedYear)}
@@ -1638,7 +1638,7 @@ export default function FinanceDashboardView({
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <span>ใบแจ้งหนี้ — {selectedAging?.item.name}</span>
-            <span className="text-sm font-normal text-muted-foreground">
+            <span className="text-sm font-light text-muted-foreground">
               {selectedAging?.type === "ar" ? "ลูกค้า" : "เจ้าหนี้"}{" "}
               {selectedAging?.type === "ar" ? selectedAging?.item.customerNumber : selectedAging?.item.vendorNumber} |{" "}
               ยอดรวม {fmt(Math.abs(selectedAging?.item.balanceDue || 0))}
@@ -1657,15 +1657,15 @@ export default function FinanceDashboardView({
               <TableBody emptyContent="ไม่มีใบแจ้งหนี้">
                 {agingInvoices.map((inv) => (
                   <TableRow key={inv.number}>
-                    <TableCell className="font-mono font-medium">{inv.number}</TableCell>
+                    <TableCell className="font-mono font-light">{inv.number}</TableCell>
                     <TableCell>{fmtDate(inv.invoiceDate)}</TableCell>
                     <TableCell>
                       <span className={inv.daysOverdue > 0 ? "text-danger" : ""}>{fmtDate(inv.dueDate)}</span>
                     </TableCell>
                     <TableCell>{fmt(Math.abs(inv.totalAmountIncludingTax))}</TableCell>
-                    <TableCell className="font-medium text-warning">{fmt(inv.remainingAmount || 0)}</TableCell>
+                    <TableCell className="font-light text-warning">{fmt(inv.remainingAmount || 0)}</TableCell>
                     <TableCell>
-                      <span className={`font-semibold ${daysOverdueColor(inv.daysOverdue)}`}>
+                      <span className={`font-light ${daysOverdueColor(inv.daysOverdue)}`}>
                         {inv.daysOverdue > 0 ? `${inv.daysOverdue} วัน` : "ยังไม่ถึงกำหนด"}
                       </span>
                     </TableCell>

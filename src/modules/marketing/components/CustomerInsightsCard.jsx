@@ -24,11 +24,11 @@ export default function CustomerInsightsCard({ data }) {
     <div className="flex flex-col items-center gap-3">
       <div className="grid grid-cols-2 gap-4 w-full">
         <div className="text-center">
-          <p className="text-2xl font-semibold text-primary">{data.repeatCustomerRate}%</p>
+          <p className="text-sm font-light text-primary">{data.repeatCustomerRate}%</p>
           <p className="text-sm text-muted-foreground">Repeat Rate</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-semibold text-warning">{data.top5ConcentrationPct}%</p>
+          <p className="text-sm font-light text-warning">{data.top5ConcentrationPct}%</p>
           <p className="text-sm text-muted-foreground">Top 5% Revenue Share</p>
         </div>
       </div>

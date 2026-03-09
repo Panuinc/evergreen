@@ -93,7 +93,7 @@ export default function LeadsView({
         case "crmLeadNo":
           return <span className="text-muted-foreground">{item.crmLeadNo || "-"}</span>;
         case "crmLeadName":
-          return <span className="font-medium">{item.crmLeadName}</span>;
+          return <span className="font-light">{item.crmLeadName}</span>;
         case "crmLeadCompany":
           return item.crmLeadCompany || "-";
         case "crmLeadEmail":
@@ -102,7 +102,7 @@ export default function LeadsView({
           return item.crmLeadPhone || "-";
         case "crmLeadSource":
           return item.crmLeadSource ? (
-            <Chip variant="bordered" size="md" radius="md">
+            <Chip variant="shadow" size="md" radius="md">
               {item.crmLeadSource}
             </Chip>
           ) : (
@@ -116,7 +116,7 @@ export default function LeadsView({
           };
           return item.crmLeadScore ? (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={scoreColorMap[item.crmLeadScore] || "default"}
@@ -137,7 +137,7 @@ export default function LeadsView({
           };
           return item.crmLeadStatus ? (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={statusColorMap[item.crmLeadStatus] || "default"}
@@ -153,7 +153,7 @@ export default function LeadsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -443,7 +443,7 @@ export default function LeadsView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingLead?.crmLeadName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

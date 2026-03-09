@@ -80,7 +80,7 @@ export default function PositionsView({
     (pos, columnKey) => {
       switch (columnKey) {
         case "hrPositionTitle":
-          return <span className="font-medium">{pos.hrPositionTitle}</span>;
+          return <span className="font-light">{pos.hrPositionTitle}</span>;
         case "hrPositionDepartment":
           return pos.hrPositionDepartment || "-";
         case "hrPositionDescription":
@@ -98,7 +98,7 @@ export default function PositionsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={pos.isActive ? "success" : "danger"}
@@ -275,7 +275,7 @@ export default function PositionsView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingPos?.hrPositionTitle}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

@@ -65,14 +65,14 @@ export default function ProfitByItemChart({ data = [] }) {
             if (!d) return null;
             return (
               <div className="bg-content1 border border-border rounded-lg p-3 shadow-lg text-sm">
-                <p className="font-semibold mb-1">{d.description || d.itemNo}</p>
+                <p className="font-light mb-1">{d.description || d.itemNo}</p>
                 <p>ราคาขาย: {formatCurrency(d.sellingPrice)}/ชิ้น</p>
                 <p>ต้นทุนผลิต: {formatCurrency(d.costPerUnit)}/ชิ้น</p>
                 <p>จำนวนผลิต: {Number(d.outputQty).toLocaleString("th-TH")} ชิ้น</p>
                 <hr className="my-1 border-border" />
                 <p>รายได้รวม: {formatCurrency(d.totalRevenue)}</p>
                 <p>ต้นทุนรวม: {formatCurrency(d.productionCost)}</p>
-                <p className={d.profitAmount >= 0 ? "text-success font-semibold" : "text-danger font-semibold"}>
+                <p className={d.profitAmount >= 0 ? "text-success font-light" : "text-danger font-light"}>
                   กำไร/ขาดทุน: {formatCurrency(d.profitAmount)} ({d.marginLabel})
                 </p>
               </div>

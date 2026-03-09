@@ -107,13 +107,13 @@ export default function ShippingLabelDocument({ orderNo }) {
         <div className="flex gap-2">
           <button
             onClick={() => window.print()}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-sm font-light"
           >
             พิมพ์
           </button>
           <button
             onClick={() => window.close()}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm font-medium"
+            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm font-light"
           >
             ปิด
           </button>

@@ -87,7 +87,7 @@ export default function QuotationsView({
         case "crmQuotationStatus": {
           const color = STATUS_COLOR_MAP[item.crmQuotationStatus] || "default";
           return (
-            <Chip variant="bordered" size="md" radius="md" color={color}>
+            <Chip variant="shadow" size="md" radius="md" color={color}>
               {item.crmQuotationStatus}
             </Chip>
           );
@@ -108,7 +108,7 @@ export default function QuotationsView({
           return (
             <div className="flex items-center gap-1">
               <Button
-                variant="bordered"
+                variant="shadow"
                 size="md"
                 radius="md"
                 isIconOnly
@@ -185,7 +185,7 @@ export default function QuotationsView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingQuotation?.crmQuotationNo}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

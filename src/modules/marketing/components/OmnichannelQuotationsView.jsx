@@ -72,14 +72,14 @@ export default function OmnichannelQuotationsView({
         );
       case "channelType":
         return (
-          <Chip variant="bordered" size="md" radius="md">
+          <Chip variant="shadow" size="md" radius="md">
             {item.channelType}
           </Chip>
         );
       case "omQuotationStatus": {
         const s = STATUS_MAP[item.omQuotationStatus] || STATUS_MAP.draft;
         return (
-          <Chip variant="bordered" size="md" radius="md" color={s.color}>
+          <Chip variant="shadow" size="md" radius="md" color={s.color}>
             {s.label}
           </Chip>
         );
@@ -89,7 +89,7 @@ export default function OmnichannelQuotationsView({
       case "isActive":
         return (
           <Chip
-            variant="bordered"
+            variant="shadow"
             size="md"
             radius="md"
             color={item.isActive ? "success" : "danger"}
@@ -104,7 +104,7 @@ export default function OmnichannelQuotationsView({
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <h2 className="text-lg font-semibold">ใบเสนอราคา</h2>
+      <p className="text-sm font-light">ใบเสนอราคา</p>
 
       <Tabs
         selectedKey={statusFilter}

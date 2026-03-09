@@ -87,7 +87,7 @@ export default function SystemAccessView({
     (item, columnKey) => {
       switch (columnKey) {
         case "itSystemAccessSystem":
-          return <span className="font-medium">{item.itSystemAccessSystem}</span>;
+          return <span className="font-light">{item.itSystemAccessSystem}</span>;
         case "itSystemAccessType": {
           const colorMap = {
             grant: "success",
@@ -96,7 +96,7 @@ export default function SystemAccessView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itSystemAccessType] || "default"}
@@ -118,7 +118,7 @@ export default function SystemAccessView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itSystemAccessStatus] || "default"}
@@ -132,7 +132,7 @@ export default function SystemAccessView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -359,7 +359,7 @@ export default function SystemAccessView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบคำขอเข้าถึงสำหรับ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingAccess?.itSystemAccessSystem} ({deletingAccess?.itSystemAccessRequestedFor})
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

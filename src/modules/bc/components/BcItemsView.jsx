@@ -47,10 +47,10 @@ export default function BcItemsView({ items, loading }) {
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "bcItemDisplayName":
-        return <span className="font-medium">{item.bcItemDisplayName}</span>;
+        return <span className="font-light">{item.bcItemDisplayName}</span>;
       case "bcItemProjectName":
         return item.bcItemProjectName ? (
-          <Chip variant="bordered" size="md" radius="md" color="secondary">
+          <Chip variant="shadow" size="md" radius="md" color="secondary">
             {item.bcItemProjectName}
           </Chip>
         ) : (
@@ -85,7 +85,7 @@ export default function BcItemsView({ items, loading }) {
       case "bcItemBlocked":
         return (
           <Chip
-            variant="bordered"
+            variant="shadow"
             size="md"
             radius="md"
             color={!item.bcItemBlocked ? "success" : "danger"}

@@ -71,7 +71,7 @@ export default function DivisionsView({
     (div, columnKey) => {
       switch (columnKey) {
         case "hrDivisionName":
-          return <span className="font-medium">{div.hrDivisionName}</span>;
+          return <span className="font-light">{div.hrDivisionName}</span>;
         case "hrDivisionDescription":
           return (
             <span className="text-muted-foreground">
@@ -87,7 +87,7 @@ export default function DivisionsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={div.isActive ? "success" : "danger"}
@@ -231,7 +231,7 @@ export default function DivisionsView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingDiv?.hrDivisionName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

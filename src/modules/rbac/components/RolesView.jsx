@@ -83,7 +83,7 @@ export default function RolesView({
     (role, columnKey) => {
       switch (columnKey) {
         case "rbacRoleName":
-          return <span className="font-medium">{role.rbacRoleName}</span>;
+          return <span className="font-light">{role.rbacRoleName}</span>;
         case "rbacRoleDescription":
           return (
             <span className="text-muted-foreground">
@@ -92,11 +92,11 @@ export default function RolesView({
           );
         case "roleType":
           return role.rbacRoleIsSuperadmin ? (
-            <Chip variant="bordered" size="md" radius="md">
+            <Chip variant="shadow" size="md" radius="md">
               Superadmin
             </Chip>
           ) : (
-            <Chip variant="bordered" size="md" radius="md">
+            <Chip variant="shadow" size="md" radius="md">
               มาตรฐาน
             </Chip>
           );
@@ -107,7 +107,7 @@ export default function RolesView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={role.isActive ? "success" : "danger"}
@@ -282,7 +282,7 @@ export default function RolesView({
               <div className="flex flex-col gap-4">
                 {Object.entries(groupedPermissions).map(([resource, perms]) => (
                   <div key={resource} className="flex flex-col gap-2">
-                    <h3 className="font-semibold capitalize">{resource}</h3>
+                    <p className="font-light capitalize">{resource}</p>
                     <div className="flex flex-wrap gap-2">
                       {perms.map((perm) => (
                         <Checkbox

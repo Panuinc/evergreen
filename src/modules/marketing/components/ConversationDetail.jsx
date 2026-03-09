@@ -47,7 +47,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-border">
-        <span className="font-semibold">รายละเอียด</span>
+        <span className="font-light">รายละเอียด</span>
         <Button isIconOnly variant="light" size="sm" radius="md" onPress={onClose}>
           <X size={18} />
         </Button>
@@ -57,7 +57,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
         <div className="flex flex-col gap-4">
           {/* Contact Info */}
           <div className="flex flex-col gap-2">
-            <p className="font-semibold text-sm">ข้อมูลลูกค้า</p>
+            <p className="font-light text-sm">ข้อมูลลูกค้า</p>
             <div className="flex flex-col gap-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">ชื่อ</span>
@@ -87,7 +87,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Tag size={14} />
-              <p className="font-semibold text-sm">แท็ก</p>
+              <p className="font-light text-sm">แท็ก</p>
             </div>
             <div className="flex flex-wrap gap-1">
               {(contact.omContactTags || []).map((tag) => (
@@ -104,7 +104,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             <div className="flex gap-1">
               <Input
                 size="md"
-                variant="bordered"
+                variant="shadow"
                 radius="md"
                 placeholder="เพิ่ม tag..."
                 value={newTag}
@@ -121,7 +121,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <StickyNote size={14} />
-              <p className="font-semibold text-sm">หมายเหตุ</p>
+              <p className="font-light text-sm">หมายเหตุ</p>
             </div>
             {editingNotes ? (
               <div className="flex flex-col gap-2">
@@ -156,7 +156,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <FileText size={14} />
-              <p className="font-semibold text-sm">ใบเสนอราคา</p>
+              <p className="font-light text-sm">ใบเสนอราคา</p>
             </div>
             {quotations.length === 0 ? (
               <p className="text-sm text-muted-foreground">ยังไม่มีใบเสนอราคา</p>
@@ -168,7 +168,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                     className="flex items-center justify-between p-2 rounded-md bg-default/50"
                   >
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">{q.omQuotationNumber}</span>
+                      <span className="text-sm font-light">{q.omQuotationNumber}</span>
                       <span className="text-[10px] text-muted-foreground">
                         {new Date(q.omQuotationCreatedAt).toLocaleDateString("th-TH")}
                       </span>

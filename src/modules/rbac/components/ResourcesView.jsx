@@ -72,7 +72,7 @@ export default function ResourcesView({
     (resource, columnKey) => {
       switch (columnKey) {
         case "rbacResourceName":
-          return <span className="font-medium">{resource.rbacResourceName}</span>;
+          return <span className="font-light">{resource.rbacResourceName}</span>;
         case "rbacResourceModuleId":
           return (
             <span className="text-muted-foreground">
@@ -88,7 +88,7 @@ export default function ResourcesView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={resource.isActive ? "success" : "danger"}

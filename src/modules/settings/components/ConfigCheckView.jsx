@@ -118,14 +118,14 @@ function SystemStatusTab({ status, loading, refetch }) {
                     <div className="flex items-center gap-3">
                       <Icon size={24} />
                       <div>
-                        <p className="font-semibold text-lg">{service.name}</p>
+                        <p className="font-light text-sm">{service.name}</p>
                         <p className="text-muted-foreground text-sm">
                           {service.description}
                         </p>
                       </div>
                     </div>
                     <Chip
-                      variant="bordered"
+                      variant="shadow"
                       size="md"
                       radius="md"
                       color={isConnected ? "success" : "danger"}
@@ -148,7 +148,7 @@ function SystemStatusTab({ status, loading, refetch }) {
                     {data?.detail && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">บัญชี</span>
-                        <span className="font-medium">{data.detail}</span>
+                        <span className="font-light">{data.detail}</span>
                       </div>
                     )}
                     {data?.error && (
@@ -234,7 +234,7 @@ function Cp30Settings() {
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
-          <p className="font-semibold text-lg">Chainway CP30 (RFID)</p>
+          <p className="font-light text-sm">Chainway CP30 (RFID)</p>
         </CardHeader>
         <CardBody className="gap-3">
           <div className="flex gap-2 items-center">
@@ -242,18 +242,18 @@ function Cp30Settings() {
               Network — 192.168.1.110:9100
             </p>
             {connected === true && (
-              <Chip variant="bordered" size="md" radius="md" color="success">
+              <Chip variant="shadow" size="md" radius="md" color="success">
                 เชื่อมต่อแล้ว
               </Chip>
             )}
             {connected === false && (
-              <Chip variant="bordered" size="md" radius="md" color="danger">
+              <Chip variant="shadow" size="md" radius="md" color="danger">
                 ไม่พบเครื่องพิมพ์
               </Chip>
             )}
           </div>
           <Button
-            variant="bordered"
+            variant="shadow"
             size="md"
             radius="md"
             onPress={handleTestConnection}
@@ -267,7 +267,7 @@ function Cp30Settings() {
 
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
-          <p className="font-semibold text-lg">ตั้งค่าการพิมพ์</p>
+          <p className="font-light text-sm">ตั้งค่าการพิมพ์</p>
         </CardHeader>
         <CardBody className="gap-4">
           <div className="grid grid-cols-2 gap-3">
@@ -374,7 +374,7 @@ function Cp30Settings() {
 
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
-          <p className="font-semibold text-lg">เนื้อหา Label</p>
+          <p className="font-light text-sm">เนื้อหา Label</p>
         </CardHeader>
         <CardBody className="gap-3">
           <Switch
@@ -481,7 +481,7 @@ function TscTeSettings() {
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
-          <p className="font-semibold text-lg">TSC TE</p>
+          <p className="font-light text-sm">TSC TE</p>
         </CardHeader>
         <CardBody className="gap-3">
           <div className="grid grid-cols-2 gap-3">
@@ -517,12 +517,12 @@ function TscTeSettings() {
               ทดสอบการเชื่อมต่อ
             </Button>
             {connected === true && (
-              <Chip variant="bordered" size="md" radius="md" color="success">
+              <Chip variant="shadow" size="md" radius="md" color="success">
                 เชื่อมต่อแล้ว
               </Chip>
             )}
             {connected === false && (
-              <Chip variant="bordered" size="md" radius="md" color="danger">
+              <Chip variant="shadow" size="md" radius="md" color="danger">
                 ไม่พบเครื่องพิมพ์
               </Chip>
             )}
@@ -532,14 +532,14 @@ function TscTeSettings() {
 
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
-          <p className="font-semibold text-lg">ตั้งค่าการพิมพ์</p>
+          <p className="font-light text-sm">ตั้งค่าการพิมพ์</p>
         </CardHeader>
         <CardBody className="gap-4">
           <div className="grid grid-cols-2 gap-3">
             <Select
               label="DPI"
               labelPlacement="outside"
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               selectedKeys={[String(config.dpi)]}
@@ -668,7 +668,7 @@ function PrinterTab() {
 export default function ConfigCheckView({ status, loading, refetch }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <h1 className="text-lg font-semibold">ตั้งค่าระบบ</h1>
+      <p className="text-sm font-light">ตั้งค่าระบบ</p>
 
       <Tabs aria-label="Settings" variant="bordered" size="md" radius="md">
         <Tab

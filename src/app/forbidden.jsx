@@ -12,10 +12,10 @@ export default function Forbidden() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h1 className="text-6xl text-foreground">403</h1>
-          <h2 className="text-[20px] text-foreground">
+          <p className="text-sm text-foreground">403</p>
+          <p className="text-[20px] text-foreground">
             Access Forbidden
-          </h2>
+          </p>
         </div>
 
         <div className="flex flex-col gap-2">

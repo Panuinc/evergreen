@@ -113,19 +113,19 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">แนวโน้มตั๋ว (6 เดือนล่าสุด)</p>
+            <p className="text-sm font-light mb-3">แนวโน้มตั๋ว (6 เดือนล่าสุด)</p>
             <TicketTrendChart data={d.ticketTrend} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">ทรัพย์สินตามหมวดหมู่</p>
+            <p className="text-sm font-light mb-3">ทรัพย์สินตามหมวดหมู่</p>
             <AssetByCategoryChart data={d.assetByCategory} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-semibold mb-3">ภาพรวมการหมดอายุไลเซนส์</p>
+            <p className="text-sm font-light mb-3">ภาพรวมการหมดอายุไลเซนส์</p>
             <LicenseExpiryChart data={d.licenseExpiry} />
           </CardBody>
         </Card>

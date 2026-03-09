@@ -126,7 +126,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Facebook size={18} className="text-blue-500" />
-                <span className="font-semibold">Facebook Messenger</span>
+                <span className="font-light">Facebook Messenger</span>
                 <Chip size="sm" variant="flat" color={fbToken ? "success" : "default"}>
                   {fbToken ? "เปิดใช้งาน" : "ปิดใช้งาน"}
                 </Chip>
@@ -135,7 +135,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 label="โทเค็นการเข้าถึงเพจ"
                 labelPlacement="outside"
                 placeholder="ใส่ Facebook Page Access Token"
-                variant="bordered"
+                variant="shadow"
                 size="md"
                 radius="md"
                 value={fbToken}
@@ -157,8 +157,8 @@ export default function ChannelSettings({ isOpen, onClose }) {
             {/* LINE */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-green-500 font-semibold text-sm">LINE</span>
-                <span className="font-semibold">LINE Official Account</span>
+                <span className="text-green-500 font-light text-sm">LINE</span>
+                <span className="font-light">LINE Official Account</span>
                 <Chip size="sm" variant="flat" color={lineToken ? "success" : "default"}>
                   {lineToken ? "เปิดใช้งาน" : "ปิดใช้งาน"}
                 </Chip>
@@ -167,7 +167,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 label="Channel Access Token"
                 labelPlacement="outside"
                 placeholder="ใส่ LINE Channel Access Token"
-                variant="bordered"
+                variant="shadow"
                 size="md"
                 radius="md"
                 value={lineToken}
@@ -180,7 +180,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Sparkles size={18} className="text-secondary" />
-                <span className="font-semibold">ตั้งค่า AI Agent</span>
+                <span className="font-light">ตั้งค่า AI Agent</span>
               </div>
               <Textarea
                 label="System Prompt"

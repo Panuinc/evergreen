@@ -27,8 +27,8 @@ function fmtShort(n) {
 
 function getRowClass(row) {
   switch (row.type) {
-    case "subtotal": return "bg-default-100 font-semibold";
-    case "grandTotal": return "bg-primary-50 font-semibold text-primary";
+    case "subtotal": return "bg-default-100 font-light";
+    case "grandTotal": return "bg-primary-50 font-light text-primary";
     case "deduction": return "text-danger";
     default: return "";
   }
@@ -115,7 +115,7 @@ export default function CogsDetailTable({
       {chartData && chartData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
-            <h3 className="text-sm font-semibold">องค์ประกอบต้นทุนรายเดือน</h3>
+            <p className="text-sm font-light">องค์ประกอบต้นทุนรายเดือน</p>
           </CardHeader>
           <CardBody>
             <ResponsiveContainer width="100%" height={300}>
@@ -141,7 +141,7 @@ export default function CogsDetailTable({
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">รายละเอียดต้นทุนขาย</h3>
+            <p className="text-sm font-light">รายละเอียดต้นทุนขาย</p>
             <Chip size="sm" variant="flat" color="warning">ปี {beYear}</Chip>
             {inventoryOverride && (
               <Chip size="sm" variant="flat" color="success">ปรับปรุงสินค้าคงเหลือแล้ว</Chip>
@@ -162,7 +162,7 @@ export default function CogsDetailTable({
               </PopoverTrigger>
               <PopoverContent className="w-80 p-4">
                 <div className="flex flex-col gap-3">
-                  <h4 className="text-sm font-semibold">ปรับปรุงสินค้าคงเหลือ (Manual Override)</h4>
+                  <p className="text-sm font-light">ปรับปรุงสินค้าคงเหลือ (Manual Override)</p>
                   <p className="text-sm text-muted-foreground">
                     กรอกค่าจาก Excel ของ Manager Account เพื่อปรับปรุงต้นทุนขาย
                   </p>
@@ -208,15 +208,15 @@ export default function CogsDetailTable({
           <table className="w-full text-sm border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-default-100 border-b border-border">
-                <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[220px] font-semibold">รายการ</th>
+                <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[220px] font-light">รายการ</th>
                 {CAL_MONTHS.map((m, i) => (
-                  <th key={m} className="text-right px-2 py-2 min-w-[90px] font-semibold">
+                  <th key={m} className="text-right px-2 py-2 min-w-[90px] font-light">
                     {`${CAL_MONTHS_SHORT[i]} ${calMonthBE(i, year)}`}
                   </th>
                 ))}
-                <th className="text-right px-3 py-2 min-w-[110px] font-semibold bg-default-200">รวม {beYear}</th>
+                <th className="text-right px-3 py-2 min-w-[110px] font-light bg-default-200">รวม {beYear}</th>
                 {compYears.map((cy) => (
-                  <th key={cy.year} className="text-right px-3 py-2 min-w-[110px] font-semibold bg-warning-50 text-warning-700">
+                  <th key={cy.year} className="text-right px-3 py-2 min-w-[110px] font-light bg-warning-50 text-warning-700">
                     {cy.year + 543}
                   </th>
                 ))}
@@ -237,7 +237,7 @@ export default function CogsDetailTable({
                       </td>
                     );
                   })}
-                  <td className={`text-right font-mono text-sm px-3 bg-default-50 font-semibold ${row.total < 0 ? "text-danger" : ""}`}>
+                  <td className={`text-right font-mono text-sm px-3 bg-default-50 font-light ${row.total < 0 ? "text-danger" : ""}`}>
                     {fmt(row.total)}
                   </td>
                   {compYears.map((cy) => {

@@ -79,7 +79,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
     (item, columnKey) => {
       switch (columnKey) {
         case "bcItemDisplayName":
-          return <span className="font-medium">{item.bcItemDisplayName}</span>;
+          return <span className="font-light">{item.bcItemDisplayName}</span>;
         case "bcItemInventory":
           return (
             <span
@@ -155,7 +155,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
           if (item.profit == null) return <span className="block text-right text-muted-foreground">-</span>;
           const isPositive = item.profit >= 0;
           return (
-            <span className={`block text-right font-medium ${isPositive ? "text-success" : "text-danger"}`}>
+            <span className={`block text-right font-light ${isPositive ? "text-success" : "text-danger"}`}>
               {Number(item.profit).toLocaleString("th-TH", {
                 minimumFractionDigits: 2,
               })}
@@ -184,7 +184,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <h2 className="text-lg font-semibold">รายการราคา</h2>
+      <p className="text-sm font-light">รายการราคา</p>
 
       <DataTable
         columns={COLUMNS}

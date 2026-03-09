@@ -33,7 +33,7 @@ export default function SalesOrderDetailView({
     switch (columnKey) {
       case "bcSalesOrderLineProjectName":
         return item.bcSalesOrderLineProjectName ? (
-          <Chip variant="bordered" size="md" radius="md" color="secondary">
+          <Chip variant="shadow" size="md" radius="md" color="secondary">
             {item.bcSalesOrderLineProjectName}
           </Chip>
         ) : (
@@ -46,7 +46,7 @@ export default function SalesOrderDetailView({
       case "bcSalesOrderLineUnitPrice":
       case "bcSalesOrderLineAmount":
         return (
-          <span className="block text-right font-medium">
+          <span className="block text-right font-light">
             {(item[columnKey] || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
         );
@@ -67,7 +67,7 @@ export default function SalesOrderDetailView({
     return (
       <div className="flex flex-col items-center justify-center w-full h-full gap-4">
         <p className="text-muted-foreground">ไม่พบออเดอร์</p>
-        <Button variant="bordered" size="md" radius="md" onPress={onBack}>
+        <Button variant="shadow" size="md" radius="md" onPress={onBack}>
           กลับ
         </Button>
       </div>
@@ -87,18 +87,18 @@ export default function SalesOrderDetailView({
         >
           <ArrowLeft size={18} />
         </Button>
-        <h2 className="text-lg font-semibold">{order.bcSalesOrderNumber}</h2>
-        <Chip variant="bordered" size="md" radius="md" color={STATUS_COLORS[order.bcSalesOrderStatus] || "default"}>
+        <p className="text-sm font-light">{order.bcSalesOrderNumber}</p>
+        <Chip variant="shadow" size="md" radius="md" color={STATUS_COLORS[order.bcSalesOrderStatus] || "default"}>
           {order.bcSalesOrderStatus}
         </Chip>
         {order.bcSalesOrderCompletelyShipped ? (
-          <Chip variant="bordered" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
+          <Chip variant="shadow" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
-          <Chip variant="bordered" size="md" radius="md" color="default">รอจัดส่ง</Chip>
+          <Chip variant="shadow" size="md" radius="md" color="default">รอจัดส่ง</Chip>
         )}
         <div className="flex-1" />
         <Button
-          variant="bordered"
+          variant="shadow"
           size="md"
           radius="md"
           startContent={<Printer size={14} />}
@@ -112,12 +112,12 @@ export default function SalesOrderDetailView({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5 gap-3">
-            <p className="text-sm font-semibold">ข้อมูลลูกค้า</p>
+            <p className="text-sm font-light">ข้อมูลลูกค้า</p>
             <Divider />
             <div className="space-y-2 text-sm">
               <div className="flex gap-2">
                 <span className="text-muted-foreground w-24 shrink-0">ลูกค้า</span>
-                <span className="font-medium">{order.bcSalesOrderCustomerName}</span>
+                <span className="font-light">{order.bcSalesOrderCustomerName}</span>
               </div>
               <div className="flex gap-2">
                 <span className="text-muted-foreground w-24 shrink-0">รหัสลูกค้า</span>
@@ -133,7 +133,7 @@ export default function SalesOrderDetailView({
 
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5 gap-3">
-            <p className="text-sm font-semibold">ข้อมูลออเดอร์</p>
+            <p className="text-sm font-light">ข้อมูลออเดอร์</p>
             <Divider />
             <div className="space-y-2 text-sm">
               <div className="flex gap-2">
@@ -166,7 +166,7 @@ export default function SalesOrderDetailView({
               </div>
               <div className="flex gap-2">
                 <span className="text-muted-foreground w-24 shrink-0">ยอดรวม</span>
-                <span className="text-lg font-semibold text-primary">
+                <span className="text-sm font-light text-primary">
                   ฿{(order.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
               </div>
@@ -177,7 +177,7 @@ export default function SalesOrderDetailView({
 
       {/* Lines */}
       <div>
-        <p className="font-semibold mb-2">รายการสินค้า ({order.lines?.length || 0} รายการ)</p>
+        <p className="font-light mb-2">รายการสินค้า ({order.lines?.length || 0} รายการ)</p>
         <DataTable
           columns={LINE_COLUMNS}
           data={order.lines || []}
@@ -188,8 +188,8 @@ export default function SalesOrderDetailView({
           defaultRowsPerPage={20}
         />
         <div className="flex justify-end mt-2 px-2">
-          <span className="font-semibold mr-4">รวมทั้งสิ้น</span>
-          <span className="font-semibold">
+          <span className="font-light mr-4">รวมทั้งสิ้น</span>
+          <span className="font-light">
             ฿{(order.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
         </div>

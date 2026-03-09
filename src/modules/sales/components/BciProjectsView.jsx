@@ -157,7 +157,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       case "bciProjectName":
         return (
           <div className="flex flex-col">
-            <span className="font-medium text-sm">
+            <span className="font-light text-sm">
               {item.bciProjectName || "-"}
             </span>
             {item.bciProjectType && (
@@ -180,7 +180,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
         );
       case "bciProjectValue":
         return item.bciProjectValue ? (
-          <span className="font-medium">
+          <span className="font-light">
             {(item.bciProjectValue / 1_000_000).toLocaleString("th-TH", {
               maximumFractionDigits: 1,
             })}
@@ -192,7 +192,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       case "bciProjectStage": {
         const color = stageColorMap[item.bciProjectStage] || "default";
         return item.bciProjectStage ? (
-          <Chip variant="bordered" size="md" radius="md" color={color}>
+          <Chip variant="shadow" size="md" radius="md" color={color}>
             {item.bciProjectStage}
           </Chip>
         ) : (
@@ -201,7 +201,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       }
       case "bciProjectStatus":
         return item.bciProjectStatus ? (
-          <Chip variant="bordered" size="md" radius="md" color="primary">
+          <Chip variant="shadow" size="md" radius="md" color="primary">
             {item.bciProjectStatus}
           </Chip>
         ) : (
@@ -209,7 +209,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
         );
       case "bciProjectCategory":
         return item.bciProjectCategory ? (
-          <Chip variant="bordered" size="md" radius="md" color="secondary">
+          <Chip variant="shadow" size="md" radius="md" color="secondary">
             {item.bciProjectCategory}
           </Chip>
         ) : (
@@ -304,7 +304,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
         <div className="flex gap-2">
           <Button
             as="label"
-            variant="bordered"
+            variant="shadow"
             size="md"
             radius="md"
             startContent={<Upload size={16} />}

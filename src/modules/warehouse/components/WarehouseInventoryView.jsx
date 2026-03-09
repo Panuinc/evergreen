@@ -58,7 +58,7 @@ export default function WarehouseInventoryView({ items, loading }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
             <p className="text-sm text-muted-foreground">รายการสินค้าทั้งหมด</p>
-            <p className="text-2xl font-semibold">
+            <p className="text-sm font-light">
               {totalSummary.totalItems.toLocaleString("th-TH")}
             </p>
           </CardBody>
@@ -66,7 +66,7 @@ export default function WarehouseInventoryView({ items, loading }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
             <p className="text-sm text-muted-foreground">จำนวนคงเหลือรวม</p>
-            <p className="text-2xl font-semibold text-success">
+            <p className="text-sm font-light text-success">
               {totalSummary.totalQty.toLocaleString("th-TH")}
             </p>
           </CardBody>
@@ -74,7 +74,7 @@ export default function WarehouseInventoryView({ items, loading }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
             <p className="text-sm text-muted-foreground">มูลค่าคลังสินค้า (ต้นทุน)</p>
-            <p className="text-2xl font-semibold text-primary">
+            <p className="text-sm font-light text-primary">
               {totalSummary.totalValue.toLocaleString("th-TH", {
                 minimumFractionDigits: 2,
               })}
@@ -91,7 +91,7 @@ export default function WarehouseInventoryView({ items, loading }) {
               <CardBody className="gap-2">
                 <div className="flex items-center gap-2">
                   <Package size={16} className="text-muted-foreground" />
-                  <p className="font-semibold">{group}</p>
+                  <p className="font-light">{group}</p>
                 </div>
                 <div className="flex flex-col gap-0.5 text-sm">
                   <p className="text-muted-foreground">

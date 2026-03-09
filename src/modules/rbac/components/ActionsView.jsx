@@ -69,7 +69,7 @@ export default function ActionsView({
     (action, columnKey) => {
       switch (columnKey) {
         case "rbacActionName":
-          return <span className="font-medium">{action.rbacActionName}</span>;
+          return <span className="font-light">{action.rbacActionName}</span>;
         case "rbacActionDescription":
           return (
             <span className="text-muted-foreground">
@@ -85,7 +85,7 @@ export default function ActionsView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={action.isActive ? "success" : "danger"}

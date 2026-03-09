@@ -62,26 +62,26 @@ export default function SalesOrdersView({
           : "-";
       case "bcSalesOrderStatus":
         return (
-          <Chip variant="bordered" size="md" radius="md" color={STATUS_COLORS[item.bcSalesOrderStatus] || "default"}>
+          <Chip variant="shadow" size="md" radius="md" color={STATUS_COLORS[item.bcSalesOrderStatus] || "default"}>
             {item.bcSalesOrderStatus}
           </Chip>
         );
       case "bcSalesOrderTotalAmountIncVat":
         return (
-          <span className="block text-right font-medium">
+          <span className="block text-right font-light">
             {(item.bcSalesOrderTotalAmountIncVat || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
         );
       case "bcSalesOrderCompletelyShipped":
         return item.bcSalesOrderCompletelyShipped ? (
-          <Chip variant="bordered" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
+          <Chip variant="shadow" size="md" radius="md" color="success">จัดส่งแล้ว</Chip>
         ) : (
-          <Chip variant="bordered" size="md" radius="md" color="default">รอจัดส่ง</Chip>
+          <Chip variant="shadow" size="md" radius="md" color="default">รอจัดส่ง</Chip>
         );
       case "isActive":
         return (
           <Chip
-            variant="bordered"
+            variant="shadow"
             size="md"
             radius="md"
             color={item.isActive ? "success" : "danger"}
@@ -106,7 +106,7 @@ export default function SalesOrdersView({
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">คำสั่งขาย</h2>
+          <p className="text-sm font-light">คำสั่งขาย</p>
           <p className="text-sm text-muted-foreground">ช่องทางออนไลน์ — Business Central</p>
         </div>
         <Button variant="bordered" size="md" radius="md" startContent={<RefreshCw size={14} />} onPress={reload}>

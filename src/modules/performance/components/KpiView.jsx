@@ -103,7 +103,7 @@ export default function KpiView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <h1 className="text-lg font-semibold">KPI (Key Performance Indicators)</h1>
+        <p className="text-sm font-light">KPI (Key Performance Indicators)</p>
         <p className="text-muted-foreground text-sm">
           วัดผลงานด้วยตัวชี้วัด ติดตามแนวโน้ม และจัดการ KPI ทั้งองค์กร
         </p>
@@ -283,9 +283,9 @@ function MyKpiTab({
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center w-full">
-                  <h3 className="text-lg font-semibold">
+                  <p className="text-sm font-light">
                     แนวโน้ม: {selectedTrend.definition?.perfKpiDefinitionName}
-                  </h3>
+                  </p>
                   <Button size="md" radius="md" variant="bordered" onPress={() => setSelectedTrend(null)}>
                     ปิด
                   </Button>
@@ -323,9 +323,9 @@ function SummaryCard({ label, count, total, color }) {
       <CardBody className="flex flex-row items-center gap-4">
         <div className="flex-1">
           <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="text-2xl font-semibold">{count}</p>
+          <p className="text-sm font-light">{count}</p>
         </div>
-        <Chip color={color} variant="bordered" size="md" radius="md">
+        <Chip color={color} variant="shadow" size="md" radius="md">
           {total > 0 ? Math.round((count / total) * 100) : 0}%
         </Chip>
       </CardBody>
@@ -347,18 +347,18 @@ function KpiCard({ assignment, onRecord, onTrend }) {
       <CardBody className="flex flex-col gap-3">
         <div className="flex justify-between items-start">
           <div>
-            <h4 className="font-semibold">{def.perfKpiDefinitionName}</h4>
+            <p className="font-light">{def.perfKpiDefinitionName}</p>
             <p className="text-sm text-muted-foreground">
               {getCategoryLabel(def.perfKpiDefinitionCategory)} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
             </p>
           </div>
-          <Chip size="md" radius="md" color={statusColor} variant="bordered">
+          <Chip size="md" radius="md" color={statusColor} variant="shadow">
             {statusLabel}
           </Chip>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-semibold">
+          <span className="text-sm font-light">
             {assignment.latestValue != null ? assignment.latestValue : "-"}
           </span>
           <span className="text-sm text-muted-foreground">
@@ -374,7 +374,7 @@ function KpiCard({ assignment, onRecord, onTrend }) {
         />
 
         <div className="flex gap-2">
-          <Button size="md" radius="md" color="primary" variant="bordered" onPress={onRecord} startContent={<Plus className="w-3 h-3" />}>
+          <Button size="md" radius="md" color="primary" variant="shadow" onPress={onRecord} startContent={<Plus className="w-3 h-3" />}>
             บันทึกค่า
           </Button>
           <Button size="md" radius="md" variant="bordered" onPress={onTrend} startContent={<TrendingUp className="w-3 h-3" />}>
@@ -445,12 +445,12 @@ function DashboardTab({
               <CardHeader className="pb-1">
                 <div className="flex justify-between items-center w-full">
                   <div>
-                    <h3 className="font-semibold">{def.perfKpiDefinitionName}</h3>
+                    <p className="font-light">{def.perfKpiDefinitionName}</p>
                     <p className="text-sm text-muted-foreground">
                       {getCategoryLabel(def.perfKpiDefinitionCategory)} | {def.perfKpiDefinitionUnit} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
                     </p>
                   </div>
-                  <Chip size="md" radius="md" color={successCount === total ? "success" : "warning"} variant="bordered">
+                  <Chip size="md" radius="md" color={successCount === total ? "success" : "warning"} variant="shadow">
                     {successCount}/{total} ตามเป้า
                   </Chip>
                 </div>
@@ -473,7 +473,7 @@ function DashboardTab({
                         <span className="text-sm min-w-[80px] text-right">
                           {emp.latestValue != null ? `${emp.latestValue} / ${emp.targetValue}` : "-"}
                         </span>
-                        <Chip size="md" radius="md" color={getKpiStatusColor(emp.status)} variant="bordered">
+                        <Chip size="md" radius="md" color={getKpiStatusColor(emp.status)} variant="shadow">
                           {getKpiStatusLabel(emp.status)}
                         </Chip>
                       </div>
@@ -501,7 +501,7 @@ function ManageTab({
   return (
     <div className="flex flex-col gap-4 mt-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">KPI Definitions</h3>
+        <p className="text-sm font-light">KPI Definitions</p>
         <Button
           color="primary"
           size="md"
@@ -528,11 +528,11 @@ function ManageTab({
               <CardBody className="flex flex-row items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">{def.perfKpiDefinitionName}</h4>
-                    <Chip size="md" radius="md" variant="bordered">{getCategoryLabel(def.perfKpiDefinitionCategory)}</Chip>
-                    <Chip size="md" radius="md" variant="bordered">{def.perfKpiDefinitionUnit}</Chip>
-                    <Chip size="md" radius="md" variant="bordered">{getFrequencyLabel(def.perfKpiDefinitionFrequency)}</Chip>
-                    {!def.perfKpiDefinitionIsActive && <Chip size="md" radius="md" color="danger" variant="bordered">ปิดใช้งาน</Chip>}
+                    <p className="font-light">{def.perfKpiDefinitionName}</p>
+                    <Chip size="md" radius="md" variant="shadow">{getCategoryLabel(def.perfKpiDefinitionCategory)}</Chip>
+                    <Chip size="md" radius="md" variant="shadow">{def.perfKpiDefinitionUnit}</Chip>
+                    <Chip size="md" radius="md" variant="shadow">{getFrequencyLabel(def.perfKpiDefinitionFrequency)}</Chip>
+                    {!def.perfKpiDefinitionIsActive && <Chip size="md" radius="md" color="danger" variant="shadow">ปิดใช้งาน</Chip>}
                   </div>
                   {def.perfKpiDefinitionDescription && <p className="text-sm text-muted-foreground mt-1">{def.perfKpiDefinitionDescription}</p>}
                   <p className="text-sm text-muted-foreground mt-1">
@@ -541,7 +541,7 @@ function ManageTab({
                 </div>
                 <div className="flex gap-1">
                   <Tooltip content="Assign ให้พนักงาน">
-                    <Button isIconOnly size="md" radius="md" variant="bordered" color="primary" onPress={() => onOpenAssignForm(def.perfKpiDefinitionId)}>
+                    <Button isIconOnly size="md" radius="md" variant="shadow" color="primary" onPress={() => onOpenAssignForm(def.perfKpiDefinitionId)}>
                       <Users className="w-4 h-4" />
                     </Button>
                   </Tooltip>
@@ -796,9 +796,9 @@ function RecordModal({
         <ModalBody>
           <div className="flex flex-col gap-4">
             <div className="text-sm text-muted-foreground">
-              เป้าหมาย: <span className="font-semibold">{recordingAssignment.targetValue} {def.perfKpiDefinitionUnit}</span>
+              เป้าหมาย: <span className="font-light">{recordingAssignment.targetValue} {def.perfKpiDefinitionUnit}</span>
               {recordingAssignment.latestValue != null && (
-                <> | ค่าล่าสุด: <span className="font-semibold">{recordingAssignment.latestValue} {def.perfKpiDefinitionUnit}</span></>
+                <> | ค่าล่าสุด: <span className="font-light">{recordingAssignment.latestValue} {def.perfKpiDefinitionUnit}</span></>
               )}
             </div>
             <Input

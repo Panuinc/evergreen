@@ -72,7 +72,7 @@ function SyncProgressPanel({ phases }) {
     <Card shadow="none" className="border-2 border-primary bg-primary-50/30">
       <CardBody className="gap-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold">ความคืบหน้า</span>
+          <span className="text-sm font-light">ความคืบหน้า</span>
           <span className="text-sm text-muted-foreground">{overallPct}%</span>
         </div>
         <Progress
@@ -99,7 +99,7 @@ function SyncProgressPanel({ phases }) {
                 </div>
               )}
               {e.step === "done" && e.count != null && (
-                <span className="text-sm text-success font-medium">
+                <span className="text-sm text-success font-light">
                   {e.count.toLocaleString("th-TH")}
                 </span>
               )}
@@ -135,7 +135,7 @@ function ResultCards({ tables, results }) {
               {isError ? (
                 <p className="text-sm text-danger">{val}</p>
               ) : (
-                <p className="text-2xl font-semibold">
+                <p className="text-sm font-light">
                   {typeof val === "number"
                     ? val.toLocaleString("th-TH")
                     : typeof val === "object" && val !== null
@@ -156,7 +156,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">นำเข้าจากไฟล์ (BCI Export)</h2>
+          <p className="text-sm font-light">นำเข้าจากไฟล์ (BCI Export)</p>
           <p className="text-sm text-muted-foreground">
             อัปโหลดไฟล์ Excel/CSV ที่ export จาก BCI LeadManager
           </p>
@@ -194,7 +194,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
         <Card shadow="none" className="border-2 border-danger bg-danger-50">
           <CardBody className="flex-row items-center gap-2">
             <XCircle size={18} className="text-danger shrink-0" />
-            <span className="text-danger font-medium text-sm">{error}</span>
+            <span className="text-danger font-light text-sm">{error}</span>
           </CardBody>
         </Card>
       )}
@@ -203,32 +203,32 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
         <Card shadow="none" className="border-2 border-success bg-success-50">
           <CardHeader className="flex-row items-center gap-2 pb-0">
             <CheckCircle2 size={18} className="text-success" />
-            <span className="font-semibold text-success">นำเข้าสำเร็จ!</span>
+            <span className="font-light text-success">นำเข้าสำเร็จ!</span>
           </CardHeader>
           <CardBody>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-sm text-muted-foreground">แถวทั้งหมด</p>
-                  <p className="text-2xl font-semibold">{result.results.totalRows?.toLocaleString("th-TH")}</p>
+                  <p className="text-sm font-light">{result.results.totalRows?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
               <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-sm text-muted-foreground">นำเข้าแล้ว</p>
-                  <p className="text-2xl font-semibold">{result.results.imported?.toLocaleString("th-TH")}</p>
+                  <p className="text-sm font-light">{result.results.imported?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
               <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-sm text-muted-foreground">Column ที่ map ได้</p>
-                  <p className="text-2xl font-semibold">{result.results.columnsMapped}</p>
+                  <p className="text-sm font-light">{result.results.columnsMapped}</p>
                 </CardBody>
               </Card>
               <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
                   <p className="text-sm text-muted-foreground">ข้ามไป</p>
-                  <p className="text-2xl font-semibold">{result.results.skipped}</p>
+                  <p className="text-sm font-light">{result.results.skipped}</p>
                 </CardBody>
               </Card>
             </div>
@@ -239,7 +239,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
             )}
             {result.results.errors?.length > 0 && (
               <div className="mt-2">
-                <p className="text-sm text-warning font-medium">ข้อผิดพลาดบางส่วน:</p>
+                <p className="text-sm text-warning font-light">ข้อผิดพลาดบางส่วน:</p>
                 <ul className="text-sm text-muted-foreground list-disc pl-5">
                   {result.results.errors.map((err, i) => (
                     <li key={i}>{err}</li>
@@ -277,7 +277,7 @@ function BcSyncSection({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Business Central (BC)</h2>
+          <p className="text-sm font-light">Business Central (BC)</p>
           <p className="text-sm text-muted-foreground">ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC</p>
         </div>
         <Button
@@ -306,7 +306,7 @@ function BcSyncSection({
         <Card shadow="none" className="border-2 border-danger bg-danger-50">
           <CardBody className="flex-row items-center gap-2">
             <XCircle size={18} className="text-danger" />
-            <span className="text-danger font-medium">{allError}</span>
+            <span className="text-danger font-light">{allError}</span>
           </CardBody>
         </Card>
       )}
@@ -315,7 +315,7 @@ function BcSyncSection({
         <Card shadow="none" className="border-2 border-success bg-success-50">
           <CardHeader className="flex-row items-center gap-2 pb-0">
             <CheckCircle2 size={18} className="text-success" />
-            <span className="font-semibold text-success">ซิงค์ทั้งหมดสำเร็จ!</span>
+            <span className="font-light text-success">ซิงค์ทั้งหมดสำเร็จ!</span>
           </CardHeader>
           <CardBody>
             <ResultCards tables={BC_TABLES} results={allResult.results} />
@@ -354,7 +354,7 @@ export default function SyncBcView({
 }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <h1 className="text-lg font-semibold">ซิงค์ข้อมูล</h1>
+      <p className="text-sm font-light">ซิงค์ข้อมูล</p>
 
       <BcSyncSection
         syncingAll={syncingAll}

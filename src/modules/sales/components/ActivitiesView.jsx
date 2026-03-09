@@ -129,7 +129,7 @@ export default function ActivitiesView({
         }
         case "crmActivitySubject":
           return (
-            <span className="font-medium">{item.crmActivitySubject || "-"}</span>
+            <span className="font-light">{item.crmActivitySubject || "-"}</span>
           );
         case "contact":
           return item.crmContact
@@ -140,7 +140,7 @@ export default function ActivitiesView({
         case "crmActivityPriority": {
           const color = PRIORITY_COLOR_MAP[item.crmActivityPriority] || "default";
           return (
-            <Chip variant="bordered" size="md" radius="md" color={color}>
+            <Chip variant="shadow" size="md" radius="md" color={color}>
               {item.crmActivityPriority}
             </Chip>
           );
@@ -148,7 +148,7 @@ export default function ActivitiesView({
         case "crmActivityStatus": {
           const color = STATUS_COLOR_MAP[item.crmActivityStatus] || "default";
           return (
-            <Chip variant="bordered" size="md" radius="md" color={color}>
+            <Chip variant="shadow" size="md" radius="md" color={color}>
               {item.crmActivityStatus}
             </Chip>
           );
@@ -159,7 +159,7 @@ export default function ActivitiesView({
           const isOverdue =
             dueDate < new Date() && item.crmActivityStatus !== "completed";
           return (
-            <span className={isOverdue ? "text-danger font-medium" : ""}>
+            <span className={isOverdue ? "text-danger font-light" : ""}>
               {dueDate.toLocaleString("th-TH")}
             </span>
           );
@@ -169,7 +169,7 @@ export default function ActivitiesView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -473,7 +473,7 @@ export default function ActivitiesView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingActivity?.crmActivitySubject}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

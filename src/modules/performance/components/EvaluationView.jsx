@@ -74,7 +74,7 @@ export default function EvaluationView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <h1 className="text-lg font-semibold">ประเมินค่านิยม CHH²</h1>
+        <p className="text-sm font-light">ประเมินค่านิยม CHH²</p>
         <p className="text-muted-foreground text-sm">
           ประเมินพนักงาน 6 ด้าน พร้อม Spider Chart & ประวัติเปรียบเทียบรายรอบ
         </p>
@@ -216,7 +216,7 @@ function EvaluateTab({
         {/* Info Card */}
         <Card>
           <CardBody className="gap-4">
-            <p className="font-semibold">ข้อมูลการประเมิน</p>
+            <p className="font-light">ข้อมูลการประเมิน</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Select
                 label="พนักงานที่ต้องการประเมิน"
@@ -285,14 +285,14 @@ function EvaluateTab({
         {/* Score Legend */}
         <Card>
           <CardBody>
-            <p className="font-semibold mb-2">เกณฑ์คะแนน (1-5)</p>
+            <p className="font-light mb-2">เกณฑ์คะแนน (1-5)</p>
             <div className="flex flex-wrap gap-2">
               {[5, 4, 3, 2, 1].map((s) => (
                 <Chip
                   key={s}
                   size="md"
                   radius="md"
-                  variant="bordered"
+                  variant="shadow"
                   color={SCORE_LABELS[s].color}
                 >
                   {s} — {SCORE_LABELS[s].label} ({SCORE_LABELS[s].description})
@@ -306,7 +306,7 @@ function EvaluateTab({
         <Card>
           <CardBody>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium">
+              <p className="text-sm font-light">
                 ตอบแล้ว {answeredCount}/{totalQuestions}
               </p>
               <p className="text-sm text-muted-foreground">{progress}%</p>
@@ -319,7 +319,7 @@ function EvaluateTab({
             {overallScore > 0 && (
               <div className="flex items-center gap-3 mt-3">
                 <span className="text-sm text-muted-foreground">คะแนนเฉลี่ย:</span>
-                <span className="text-lg font-semibold">
+                <span className="text-sm font-light">
                   {overallScore.toFixed(2)}
                 </span>
                 <Chip size="md" radius="md" color={getGradeColor(grade)}>
@@ -331,7 +331,7 @@ function EvaluateTab({
         </Card>
 
         {/* Evaluation Sections */}
-        <Accordion variant="bordered" selectionMode="multiple" defaultExpandedKeys={["0"]}>
+        <Accordion variant="shadow" selectionMode="multiple" defaultExpandedKeys={["0"]}>
           {EVALUATION_CATEGORIES.map((cat, catIdx) => {
             const catScores = scores[cat.key] || [];
             const answered = catScores.filter((s) => s > 0).length;
@@ -342,18 +342,18 @@ function EvaluateTab({
                 key={String(catIdx)}
                 title={
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-lg">{cat.emoji}</span>
-                    <span className="font-semibold">
+                    <span className="text-sm">{cat.emoji}</span>
+                    <span className="font-light">
                       {catIdx + 1}. {cat.name}
                     </span>
                     <span className="text-muted-foreground text-sm">
                       ({cat.nameTh})
                     </span>
-                    <Chip size="md" radius="md" variant="bordered" color={answered === 5 ? "success" : "default"}>
+                    <Chip size="md" radius="md" variant="shadow" color={answered === 5 ? "success" : "default"}>
                       {answered}/5
                     </Chip>
                     {avg > 0 && (
-                      <Chip size="md" radius="md" variant="bordered" color="primary">
+                      <Chip size="md" radius="md" variant="shadow" color="primary">
                         {avg.toFixed(1)}
                       </Chip>
                     )}
@@ -398,7 +398,7 @@ function EvaluateTab({
               label="ความคิดเห็นเพิ่มเติม (ไม่บังคับ)"
               labelPlacement="outside"
               placeholder="พิมพ์ความคิดเห็นเพิ่มเติม..."
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               value={comment}
@@ -437,7 +437,7 @@ function EvaluateTab({
       <div className="flex flex-col gap-4">
         <Card className="sticky top-4">
           <CardBody>
-            <p className="font-semibold text-center mb-2">
+            <p className="font-light text-center mb-2">
               แผนภูมิใยแมงมุม (เรียลไทม์)
             </p>
             <SpiderChart
@@ -562,7 +562,7 @@ function MyResultsTab({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardBody>
-                <p className="font-semibold text-center mb-2">
+                <p className="font-light text-center mb-2">
                   เปรียบเทียบรายรอบ {resultYear}
                 </p>
                 <SpiderChart datasets={quarterDatasets} height={350} />
@@ -571,7 +571,7 @@ function MyResultsTab({
 
             <Card>
               <CardBody>
-                <p className="font-semibold text-center mb-2">
+                <p className="font-light text-center mb-2">
                   เทียบกับค่าเฉลี่ยบริษัท
                 </p>
                 <SpiderChart datasets={comparisonDatasets} height={350} />
@@ -581,7 +581,7 @@ function MyResultsTab({
 
           <Card>
             <CardBody>
-              <p className="font-semibold mb-4">สรุปคะแนนรายรอบ</p>
+              <p className="font-light mb-4">สรุปคะแนนรายรอบ</p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -606,7 +606,7 @@ function MyResultsTab({
                           key={r.period}
                           className="border-b border-border"
                         >
-                          <td className="py-2 px-3 font-medium">
+                          <td className="py-2 px-3 font-light">
                             Q{r.quarter}/{r.year}
                           </td>
                           {EVALUATION_CATEGORIES.map((cat) => (
@@ -617,7 +617,7 @@ function MyResultsTab({
                               {(r.categoryAverages?.[cat.key] || 0).toFixed(1)}
                             </td>
                           ))}
-                          <td className="text-center py-2 px-3 font-semibold">
+                          <td className="text-center py-2 px-3 font-light">
                             {r.overallScore?.toFixed(2)}
                           </td>
                           <td className="text-center py-2 px-3">
@@ -706,7 +706,7 @@ function AdminTab({
             <Select
               label="รอบประเมิน"
               labelPlacement="outside"
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               className="max-w-[200px]"
@@ -768,7 +768,7 @@ function AdminTab({
         <>
         <Card>
           <CardBody>
-            <p className="font-semibold mb-4">
+            <p className="font-light mb-4">
               สรุปผลประเมิน {adminPeriod} ({adminSummary.length} คน)
             </p>
             <div className="overflow-x-auto">
@@ -806,7 +806,7 @@ function AdminTab({
                       <td className="py-2 px-3 text-muted-foreground">
                         {idx + 1}
                       </td>
-                      <td className="py-2 px-3 font-medium">
+                      <td className="py-2 px-3 font-light">
                         {row.employee?.hrEmployeeFirstName}{" "}
                         {row.employee?.hrEmployeeLastName}
                       </td>
@@ -818,7 +818,7 @@ function AdminTab({
                           {(row.categoryAverages?.[cat.key] || 0).toFixed(1)}
                         </td>
                       ))}
-                      <td className="text-center py-2 px-3 font-semibold">
+                      <td className="text-center py-2 px-3 font-light">
                         {row.overallScore?.toFixed(2)}
                       </td>
                       <td className="text-center py-2 px-3">

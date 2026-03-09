@@ -66,7 +66,7 @@ export default function ProfitByProjectSection({ data = [] }) {
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "itemNo":
-        return <span className="font-medium text-sm">{item.itemNo}</span>;
+        return <span className="font-light text-sm">{item.itemNo}</span>;
       case "description":
         return (
           <span className="max-w-48 truncate block text-sm">
@@ -92,7 +92,7 @@ export default function ProfitByProjectSection({ data = [] }) {
       case "profit":
         return (
           <span
-            className={`text-sm font-semibold ${item.profit >= 0 ? "text-success" : "text-danger"}`}
+            className={`text-sm font-light ${item.profit >= 0 ? "text-success" : "text-danger"}`}
           >
             {fmtCurrency(item.profit)}
           </span>
@@ -152,7 +152,7 @@ export default function ProfitByProjectSection({ data = [] }) {
             aria-label={proj.projectName}
             title={
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="font-semibold text-sm">
+                <span className="font-light text-sm">
                   {proj.projectName || proj.projectCode}
                 </span>
                 <div className="flex items-center gap-2 text-sm">
@@ -166,7 +166,7 @@ export default function ProfitByProjectSection({ data = [] }) {
                   <span className="text-muted-foreground">|</span>
                   <span
                     className={
-                      proj.totalProfit >= 0 ? "text-success font-semibold" : "text-danger font-semibold"
+                      proj.totalProfit >= 0 ? "text-success font-light" : "text-danger font-light"
                     }
                   >
                     กำไร {fmtCurrency(proj.totalProfit)}

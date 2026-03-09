@@ -93,7 +93,7 @@ export default function ChatWindow({
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-semibold truncate">
+            <span className="font-light truncate">
               {contact?.omContactDisplayName || "ไม่ทราบ"}
             </span>
             <ChannelBadge channelType={conversation?.omConversationChannelType} />
@@ -121,7 +121,7 @@ export default function ChatWindow({
           {isClosed ? (
             <Button
               size="md"
-              variant="bordered"
+              variant="shadow"
               radius="md"
               startContent={<RotateCcw size={14} />}
               onPress={() => onUpdateStatus(conversation.omConversationId, "open")}
@@ -200,14 +200,14 @@ export default function ChatWindow({
                       </a>
                       {msg.omMessageOcrData && (
                         <div className="bg-default-50 rounded-lg p-2 text-sm space-y-1 border border-border">
-                          <div className="flex items-center gap-1 font-semibold text-foreground mb-1">
+                          <div className="flex items-center gap-1 font-light text-foreground mb-1">
                             <Receipt size={12} />
                             <span>ข้อมูลสลิป</span>
                           </div>
                           {msg.omMessageOcrData.amount && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">ยอดเงิน</span>
-                              <span className="font-semibold">{Number(msg.omMessageOcrData.amount).toLocaleString()} บาท</span>
+                              <span className="font-light">{Number(msg.omMessageOcrData.amount).toLocaleString()} บาท</span>
                             </div>
                           )}
                           {msg.omMessageOcrData.fromBank && (

@@ -244,12 +244,12 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <span>พิมพ์ใบปะหน้าส่งสินค้า</span>
-          <span className="text-sm font-normal text-muted-foreground">{order?.bcSalesOrderNumber}</span>
+          <span className="text-sm font-light text-muted-foreground">{order?.bcSalesOrderNumber}</span>
         </ModalHeader>
         <ModalBody className="gap-6">
           {/* Recipient Info */}
           <div className="space-y-3">
-            <p className="text-sm font-semibold">ข้อมูลผู้รับ</p>
+            <p className="text-sm font-light">ข้อมูลผู้รับ</p>
             <Input
               label="ชื่อผู้รับ"
               labelPlacement="outside"
@@ -282,7 +282,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
 
           {/* Line Items Selection */}
           <div className="space-y-3">
-            <p className="text-sm font-semibold">เลือกรายการสินค้า</p>
+            <p className="text-sm font-light">เลือกรายการสินค้า</p>
             <div className="space-y-2">
               {lines.map((l) => (
                 <div
@@ -295,7 +295,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                     size="sm"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
+                    <p className="text-sm font-light truncate">
                       {l.bcSalesOrderLineDescription || l.bcSalesOrderLineObjectNumber}
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -337,7 +337,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
           )}
           <div className="flex items-center justify-between w-full">
             <p className="text-sm text-muted-foreground">
-              จำนวนใบปะหน้า: <span className="font-semibold text-foreground">{totalLabels}</span> ใบ
+              จำนวนใบปะหน้า: <span className="font-light text-foreground">{totalLabels}</span> ใบ
             </p>
             <div className="flex gap-2">
               <Button variant="bordered" size="md" radius="md" onPress={onClose}>

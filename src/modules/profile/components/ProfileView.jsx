@@ -33,7 +33,7 @@ export default function ProfileView({
     <div className="flex flex-col w-full h-full gap-6">
       {/* ข้อมูลบัญชี */}
       <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
-        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
+        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-light">
           <User />
           ข้อมูลบัญชี
         </div>
@@ -41,11 +41,11 @@ export default function ProfileView({
         <div className="flex flex-col w-full gap-2">
           <div className="flex items-center w-full h-fit p-2 gap-2">
             <span className="text-sm text-muted-foreground w-20">อีเมล</span>
-            <span className="font-medium">{user?.email}</span>
+            <span className="font-light">{user?.email}</span>
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
             <span className="text-sm text-muted-foreground w-20">สร้างเมื่อ</span>
-            <span className="font-medium">
+            <span className="font-light">
               {user?.createdAt
                 ? new Date(user.createdAt).toLocaleDateString("th-TH")
                 : "-"}
@@ -58,7 +58,7 @@ export default function ProfileView({
                 roles.map((role) => (
                   <Chip
                     key={role.rbacRoleId}
-                    variant="bordered"
+                    variant="shadow"
                     size="md"
                     radius="md"
                     color={role.rbacRoleIsSuperadmin ? "danger" : "primary"}
@@ -76,7 +76,7 @@ export default function ProfileView({
 
       {/* ข้อมูลพนักงาน */}
       <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
-        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
+        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-light">
           <Briefcase />
           ข้อมูลพนักงาน
         </div>
@@ -85,44 +85,44 @@ export default function ProfileView({
           <div className="flex flex-col w-full gap-2">
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-muted-foreground w-24">ชื่อ</span>
-              <span className="font-medium">
+              <span className="font-light">
                 {employee.hrEmployeeFirstName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-muted-foreground w-24">นามสกุล</span>
-              <span className="font-medium">
+              <span className="font-light">
                 {employee.hrEmployeeLastName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-muted-foreground w-24">อีเมล</span>
-              <span className="font-medium">
+              <span className="font-light">
                 {employee.hrEmployeeEmail || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-muted-foreground w-24">โทรศัพท์</span>
-              <span className="font-medium">
+              <span className="font-light">
                 {employee.hrEmployeePhone || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-muted-foreground w-24">แผนก</span>
-              <span className="font-medium">
+              <span className="font-light">
                 {employee.hrEmployeeDepartment || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-muted-foreground w-24">ตำแหน่ง</span>
-              <span className="font-medium">
+              <span className="font-light">
                 {employee.hrEmployeePosition || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-sm text-muted-foreground w-24">สถานะ</span>
               <Chip
-                variant="bordered"
+                variant="shadow"
                 size="md"
                 radius="md"
                 color={
@@ -143,13 +143,13 @@ export default function ProfileView({
       {/* PIN ปลดล็อกด่วน */}
       <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
         <div className="flex items-center justify-between w-full h-fit p-2">
-          <div className="flex items-center gap-2 font-semibold">
+          <div className="flex items-center gap-2 font-light">
             <KeyRound />
             PIN ปลดล็อกด่วน
           </div>
           {!pinLoading && (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={pinEnabled ? "success" : "default"}
@@ -201,7 +201,7 @@ export default function ProfileView({
 
       {/* เปลี่ยนรหัสผ่าน */}
       <div className="flex flex-col gap-4 p-4 border border-border rounded-xl">
-        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-semibold">
+        <div className="flex items-center justify-start w-full h-fit p-2 gap-2 font-light">
           <Lock />
           เปลี่ยนรหัสผ่าน
         </div>

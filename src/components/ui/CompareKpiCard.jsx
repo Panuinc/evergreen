@@ -59,13 +59,13 @@ export default function CompareKpiCard({
       <CardBody className="gap-1">
         <p className="text-sm text-muted-foreground">{title}</p>
         <div className="flex items-baseline gap-1">
-          <p className={`text-2xl font-semibold ${colorClass[color] || ""}`}>
+          <p className={`text-sm font-light ${colorClass[color] || ""}`}>
             {value}
           </p>
           {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
         </div>
         {showBadge && (
-          <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-sm font-medium w-fit ${badgeColor} ${bgColor}`}>
+          <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-sm font-light w-fit ${badgeColor} ${bgColor}`}>
             {isPositive && <TrendingUp size={12} />}
             {isNegative && <TrendingDown size={12} />}
             {isNeutral && <Minus size={12} />}

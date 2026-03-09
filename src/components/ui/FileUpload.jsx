@@ -54,7 +54,7 @@ export default function FileUpload({
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <p className="text-sm font-medium">{label}</p>
+      <p className="text-sm font-light">{label}</p>
 
       {urls.length > 0 && (
         <div className="flex flex-wrap gap-2">

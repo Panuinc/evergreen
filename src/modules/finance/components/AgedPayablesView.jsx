@@ -34,7 +34,7 @@ export default function AgedPayablesView({ data, loading }) {
       case "vendorNumber":
         return <span className="font-mono">{item.vendorNumber}</span>;
       case "name":
-        return <span className="font-medium">{item.name}</span>;
+        return <span className="font-light">{item.name}</span>;
       case "currencyCode":
         return <span className="text-muted-foreground">{item.currencyCode || "-"}</span>;
       case "currentAmount":
@@ -46,7 +46,7 @@ export default function AgedPayablesView({ data, loading }) {
       case "period3Amount":
         return <span className="text-danger">{fmt(Math.abs(item.period3Amount))}</span>;
       case "balanceDue":
-        return <span className="font-semibold">{fmt(Math.abs(item.balanceDue))}</span>;
+        return <span className="font-light">{fmt(Math.abs(item.balanceDue))}</span>;
       default:
         return item[key] || "-";
     }

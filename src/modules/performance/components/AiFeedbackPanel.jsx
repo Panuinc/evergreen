@@ -35,7 +35,7 @@ export default function AiFeedbackPanel({
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            <p className="font-semibold">AI Feedback & Recommendations</p>
+            <p className="font-light">AI Feedback & Recommendations</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export default function AiFeedbackPanel({
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-success" />
-                  <p className="font-semibold text-sm text-success">จุดแข็ง</p>
+                  <p className="font-light text-sm text-success">จุดแข็ง</p>
                 </div>
                 {feedback.strengths?.map((s, i) => (
                   <div key={i} className="bg-success-50 rounded-lg p-3">
@@ -113,7 +113,7 @@ export default function AiFeedbackPanel({
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <TrendingDown className="w-4 h-4 text-warning" />
-                  <p className="font-semibold text-sm text-warning">จุดที่ควรพัฒนา</p>
+                  <p className="font-light text-sm text-warning">จุดที่ควรพัฒนา</p>
                 </div>
                 {feedback.weaknesses?.map((w, i) => (
                   <div key={i} className="bg-warning-50 rounded-lg p-3">
@@ -137,9 +137,9 @@ export default function AiFeedbackPanel({
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Target className="w-4 h-4 text-primary" />
-                <p className="font-semibold text-sm">คำแนะนำเชิงปฏิบัติ</p>
+                <p className="font-light text-sm">คำแนะนำเชิงปฏิบัติ</p>
               </div>
-              <Accordion variant="bordered" isCompact>
+              <Accordion variant="shadow" isCompact>
                 {(feedback.recommendations || []).map((rec, i) => (
                   <AccordionItem
                     key={i}
@@ -169,7 +169,7 @@ export default function AiFeedbackPanel({
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen className="w-4 h-4 text-secondary" />
-                <p className="font-semibold text-sm">คอร์สและกิจกรรมแนะนำ</p>
+                <p className="font-light text-sm">คอร์สและกิจกรรมแนะนำ</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {(feedback.courses || []).map((course, i) => {
@@ -180,7 +180,7 @@ export default function AiFeedbackPanel({
                       className="border border-border rounded-lg p-3 flex flex-col gap-2"
                     >
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-medium flex-1">{course.title}</p>
+                        <p className="text-sm font-light flex-1">{course.title}</p>
                         <Chip size="sm" variant="flat" color={typeInfo.color}>
                           {typeInfo.label}
                         </Chip>

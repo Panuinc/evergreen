@@ -45,7 +45,7 @@ export default function TopOutputItemsChart({ data = [] }) {
             if (!d) return null;
             return (
               <div className="bg-content1 border border-border rounded-lg p-3 shadow-lg text-sm">
-                <p className="font-semibold mb-1">
+                <p className="font-light mb-1">
                   {d.description || d.itemNo}
                 </p>
                 <p>รหัสสินค้า: {d.itemNo}</p>

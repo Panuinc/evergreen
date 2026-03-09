@@ -46,9 +46,9 @@ export default function GlobalError({ error, reset }) {
             >
               <CircleAlert style={{ width: "48px", height: "48px", color: "#ef4444" }} />
             </div>
-            <h2 style={{ fontSize: "20px", color: "#111" }}>
+            <p style={{ fontSize: "20px", color: "#111" }}>
               Something went wrong
-            </h2>
+            </p>
             <p style={{ fontSize: "14px", color: "#666" }}>
               An unexpected error occurred. Please try again.
             </p>

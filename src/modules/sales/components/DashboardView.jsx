@@ -132,7 +132,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Pipeline by Stage */}
         <Card shadow="none" className="border border-border p-4">
-          <p className="text-lg font-semibold mb-4">ไปป์ไลน์ตามขั้นตอน</p>
+          <p className="text-sm font-light mb-4">ไปป์ไลน์ตามขั้นตอน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={pipelineByStage || []}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -152,7 +152,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
 
         {/* Revenue by Month */}
         <Card shadow="none" className="border border-border p-4">
-          <p className="text-lg font-semibold mb-4">รายได้ตามเดือน</p>
+          <p className="text-sm font-light mb-4">รายได้ตามเดือน</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={revenueByMonth || []}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -175,7 +175,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Top Salespeople */}
         <Card shadow="none" className="border border-border p-4">
-          <p className="text-lg font-semibold mb-4">พนักงานขายยอดเยี่ยม</p>
+          <p className="text-sm font-light mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(topSalespeople || []).map((person, i) => (
               <div
@@ -183,16 +183,16 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
                 className="flex items-center justify-between p-2 rounded-lg border border-border"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-muted-foreground w-6">
+                  <span className="text-sm font-light text-muted-foreground w-6">
                     #{i + 1}
                   </span>
-                  <span className="font-medium">{person.name}</span>
+                  <span className="font-light">{person.name}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <span className="text-muted-foreground">
                     {person.deals} ดีล
                   </span>
-                  <span className="font-semibold">
+                  <span className="font-light">
                     ฿{Number(person.revenue || 0).toLocaleString("th-TH")}
                   </span>
                 </div>
@@ -208,7 +208,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
 
         {/* Recent Activities */}
         <Card shadow="none" className="border border-border p-4">
-          <p className="text-lg font-semibold mb-4">กิจกรรมล่าสุด</p>
+          <p className="text-sm font-light mb-4">กิจกรรมล่าสุด</p>
           <div className="flex flex-col gap-3">
             {(recentActivities || []).map((activity, i) => {
               const Icon =
@@ -220,7 +220,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
                 >
                   <div className="flex items-center gap-3">
                     <Icon size={16} className="text-muted-foreground" />
-                    <span className="font-medium">
+                    <span className="font-light">
                       {activity.crmActivitySubject}
                     </span>
                   </div>

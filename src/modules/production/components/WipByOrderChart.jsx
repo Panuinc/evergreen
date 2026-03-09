@@ -53,12 +53,12 @@ export default function WipByOrderChart({ data = [] }) {
             if (!d) return null;
             return (
               <div className="bg-content1 border border-border rounded-lg p-3 shadow-lg text-sm">
-                <p className="font-semibold mb-1">{d.orderNo}</p>
+                <p className="font-light mb-1">{d.orderNo}</p>
                 <p className="text-muted-foreground mb-1">{d.description}</p>
                 <p>ต้นทุนวัตถุดิบ: {formatCurrency(d.consumptionCost)}</p>
                 <p>รายได้จากการขาย: {formatCurrency(d.revenue)}</p>
                 <hr className="my-1 border-border" />
-                <p className="font-semibold text-red-500">
+                <p className="font-light text-red-500">
                   WIP: {formatCurrency(d.wipValue)}
                 </p>
               </div>

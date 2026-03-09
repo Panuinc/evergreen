@@ -44,7 +44,7 @@ export default function TrialBalanceView({ data, loading }) {
       case "number":
         return <span className="font-mono">{item.number}</span>;
       case "display":
-        return <span className="font-medium">{item.display}</span>;
+        return <span className="font-light">{item.display}</span>;
       case "accountType": {
         const cleaned = cleanAccountType(item.accountType);
         return (
@@ -63,11 +63,11 @@ export default function TrialBalanceView({ data, loading }) {
       }
       case "balanceAtDateDebit": {
         const v = parseNum(item.balanceAtDateDebit);
-        return <span className={v > 0 ? "font-medium text-primary" : "text-muted-foreground"}>{fmt(v)}</span>;
+        return <span className={v > 0 ? "font-light text-primary" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       case "balanceAtDateCredit": {
         const v = parseNum(item.balanceAtDateCredit);
-        return <span className={v > 0 ? "font-medium text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
+        return <span className={v > 0 ? "font-light text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       default:
         return item[key] || "-";

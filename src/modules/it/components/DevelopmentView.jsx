@@ -126,9 +126,9 @@ export default function DevelopmentView({
     (item, columnKey) => {
       switch (columnKey) {
         case "itDevRequestNo":
-          return <span className="font-medium">{item.itDevRequestNo || "-"}</span>;
+          return <span className="font-light">{item.itDevRequestNo || "-"}</span>;
         case "itDevRequestTitle":
-          return <span className="font-medium">{item.itDevRequestTitle}</span>;
+          return <span className="font-light">{item.itDevRequestTitle}</span>;
         case "itDevRequestRequestedBy":
           return item.itDevRequestRequestedBy || "-";
         case "itDevRequestPriority": {
@@ -140,7 +140,7 @@ export default function DevelopmentView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itDevRequestPriority] || "default"}
@@ -186,7 +186,7 @@ export default function DevelopmentView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itDevRequestStatus] || "default"}
@@ -200,7 +200,7 @@ export default function DevelopmentView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -502,7 +502,7 @@ export default function DevelopmentView({
                 }
                 className="flex-1"
               />
-              <span className="text-sm font-normal text-muted-foreground">
+              <span className="text-sm font-light text-muted-foreground">
                 {selectedRequest?.itDevRequestProgress || 0}%
               </span>
             </div>
@@ -511,7 +511,7 @@ export default function DevelopmentView({
             <div className="flex flex-col gap-4">
               {/* Add Progress Form */}
               <div className="flex flex-col gap-3 p-4 rounded-lg border border-border bg-default-50">
-                <p className="text-sm font-semibold">เพิ่มการอัปเดตความคืบหน้า</p>
+                <p className="text-sm font-light">เพิ่มการอัปเดตความคืบหน้า</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="md:col-span-2">
                     <Textarea
@@ -571,7 +571,7 @@ export default function DevelopmentView({
 
               {/* Progress History */}
               <div className="flex flex-col gap-1">
-                <p className="text-sm font-semibold">ประวัติความคืบหน้า</p>
+                <p className="text-sm font-light">ประวัติความคืบหน้า</p>
                 {progressLoading ? (
                   <div className="flex justify-center py-6">
                     <Spinner />
@@ -594,7 +594,7 @@ export default function DevelopmentView({
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-sm font-medium">
+                            <span className="text-sm font-light">
                               {log.itDevProgressLogCreatedBy || "ไม่ทราบ"}
                             </span>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -648,7 +648,7 @@ export default function DevelopmentView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingRequest?.itDevRequestNo} - {deletingRequest?.itDevRequestTitle}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

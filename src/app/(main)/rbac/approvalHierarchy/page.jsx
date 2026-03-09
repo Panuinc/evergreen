@@ -8,7 +8,7 @@ export default function ApprovalHierarchyPage() {
       <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-default-100">
         <GitBranch className="w-8 h-8 text-muted-foreground" />
       </div>
-      <h1 className="text-lg font-semibold">ลำดับการอนุมัติ</h1>
+      <p className="text-sm font-light">ลำดับการอนุมัติ</p>
       <p className="text-muted-foreground">เร็ว ๆ นี้</p>
     </div>
   );

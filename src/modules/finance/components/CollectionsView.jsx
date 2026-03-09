@@ -128,11 +128,11 @@ export default function CollectionsView({
   const trackingRenderCell = useCallback((item, key) => {
     switch (key) {
       case "name":
-        return <span className="font-medium">{item.name}</span>;
+        return <span className="font-light">{item.name}</span>;
       case "customerNumber":
         return <span className="font-mono">{item.customerNumber}</span>;
       case "balanceDue":
-        return <span className="font-semibold">{fmt(item.balanceDue)}</span>;
+        return <span className="font-light">{fmt(item.balanceDue)}</span>;
       case "current":
         return <span className="text-success">{fmt(item.current)}</span>;
       case "period1":
@@ -155,7 +155,7 @@ export default function CollectionsView({
         if (!item.nextFollowUpDate) return <span className="text-muted-foreground">-</span>;
         const overdue = item.nextFollowUpDate <= new Date().toISOString().slice(0, 10);
         return (
-          <span className={`font-medium ${overdue ? "text-danger" : "text-primary"}`}>
+          <span className={`font-light ${overdue ? "text-danger" : "text-primary"}`}>
             {fmtDate(item.nextFollowUpDate)}
           </span>
         );
@@ -199,7 +199,7 @@ export default function CollectionsView({
       case "customerName":
         return (
           <div>
-            <p className="font-medium">{item.customerName}</p>
+            <p className="font-light">{item.customerName}</p>
             <p className="text-muted-foreground">{item.customerNumber}</p>
           </div>
         );
@@ -216,7 +216,7 @@ export default function CollectionsView({
       case "promiseDate":
         return <span>{item.promiseDate ? fmtDate(item.promiseDate) : "-"}</span>;
       case "promiseAmount":
-        return item.promiseAmount ? <span className="font-medium">{fmt(item.promiseAmount)}</span> : <span className="text-muted-foreground">-</span>;
+        return item.promiseAmount ? <span className="font-light">{fmt(item.promiseAmount)}</span> : <span className="text-muted-foreground">-</span>;
       case "createdByName":
         return <span className="text-muted-foreground">{item.createdByName || "-"}</span>;
       default:
@@ -296,7 +296,7 @@ export default function CollectionsView({
               onChange={(e) => onReportUntilChange(e.target.value)}
             />
             <Button
-              variant="bordered"
+              variant="shadow"
               size="sm"
               startContent={<Download size={14} />}
               onPress={() => exportCSV(reportData.filtered, `ar-collections-${reportSince}-${reportUntil}.csv`)}
@@ -318,7 +318,7 @@ export default function CollectionsView({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
               <CardHeader className="pb-0">
-                <p className="text-sm font-semibold">เหตุผลที่ลูกหนี้ยังไม่ชำระ</p>
+                <p className="text-sm font-light">เหตุผลที่ลูกหนี้ยังไม่ชำระ</p>
               </CardHeader>
               <CardBody>
                 {reportData.reasonChart.length > 0 ? (
@@ -343,7 +343,7 @@ export default function CollectionsView({
 
             <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
               <CardHeader className="pb-0">
-                <p className="text-sm font-semibold">สถานะการติดตาม</p>
+                <p className="text-sm font-light">สถานะการติดตาม</p>
               </CardHeader>
               <CardBody>
                 {reportData.statusChart.length > 0 ? (
@@ -395,7 +395,7 @@ export default function CollectionsView({
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
-            <p className="text-sm font-semibold">AI วิเคราะห์การติดตามลูกหนี้</p>
+            <p className="text-sm font-light">AI วิเคราะห์การติดตามลูกหนี้</p>
             <Chip size="sm" variant="flat" color="secondary">Collections Advisor</Chip>
           </div>
           <Button
@@ -434,7 +434,7 @@ export default function CollectionsView({
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
                   th: ({ children }) => (
-                    <th className="border border-border px-3 py-1.5 text-left font-semibold text-foreground">{children}</th>
+                    <th className="border border-border px-3 py-1.5 text-left font-light text-foreground">{children}</th>
                   ),
                   td: ({ children }) => (
                     <td className="border border-border px-3 py-1.5 text-foreground">{children}</td>
@@ -444,7 +444,7 @@ export default function CollectionsView({
                   ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
                   ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
                   li: ({ children }) => <li className="text-foreground">{children}</li>,
-                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  strong: ({ children }) => <strong className="font-light text-foreground">{children}</strong>,
                   code: ({ inline, children }) =>
                     inline ? (
                       <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">{children}</code>
@@ -469,7 +469,7 @@ export default function CollectionsView({
           <ModalHeader className="flex flex-col gap-1">
             <span>เพิ่มการติดตาม</span>
             {selectedCustomer && (
-              <span className="text-sm font-normal text-muted-foreground">
+              <span className="text-sm font-light text-muted-foreground">
                 {selectedCustomer.name} ({selectedCustomer.customerNumber}) | ค้างชำระ ฿{fmt(selectedCustomer.balanceDue)}
               </span>
             )}
@@ -552,7 +552,7 @@ export default function CollectionsView({
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button variant="bordered" onPress={addModal.onClose}>ยกเลิก</Button>
+            <Button variant="shadow" onPress={addModal.onClose}>ยกเลิก</Button>
             <Button
               color="primary"
               onPress={onSubmit}
@@ -571,7 +571,7 @@ export default function CollectionsView({
           <ModalHeader className="flex flex-col gap-1">
             <span>ประวัติการติดตาม</span>
             {selectedCustomer && (
-              <span className="text-sm font-normal text-muted-foreground">
+              <span className="text-sm font-light text-muted-foreground">
                 {selectedCustomer.name} ({selectedCustomer.customerNumber}) | ค้างชำระ ฿{fmt(selectedCustomer.balanceDue)} | ติดตาม {customerHistory.length} ครั้ง
               </span>
             )}
@@ -589,18 +589,18 @@ export default function CollectionsView({
                           <span className="text-muted-foreground">{contactLabel(fu.contactMethod)}</span>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">{fmtDate(fu.contactDate)}</p>
+                          <p className="font-light">{fmtDate(fu.contactDate)}</p>
                           {idx === 0 && <Chip size="sm" variant="flat" color="primary" className="mt-1">ล่าสุด</Chip>}
                         </div>
                       </div>
                       {fu.reasonDetail && (
                         <p className="text-foreground mb-1">
-                          <span className="font-medium">เหตุผล:</span> {fu.reasonDetail}
+                          <span className="font-light">เหตุผล:</span> {fu.reasonDetail}
                         </p>
                       )}
                       {fu.note && (
                         <p className="text-foreground mb-1">
-                          <span className="font-medium">หมายเหตุ:</span> {fu.note}
+                          <span className="font-light">หมายเหตุ:</span> {fu.note}
                         </p>
                       )}
                       <div className="flex gap-4 mt-2 text-muted-foreground">
@@ -622,7 +622,7 @@ export default function CollectionsView({
             )}
           </ModalBody>
           <ModalFooter>
-            <Button variant="bordered" onPress={historyModal.onClose}>ปิด</Button>
+            <Button variant="shadow" onPress={historyModal.onClose}>ปิด</Button>
             <Button
               color="primary"
               startContent={<Plus size={14} />}

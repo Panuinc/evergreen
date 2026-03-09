@@ -29,7 +29,7 @@ export default function QuotationDocument({ quotation, lines }) {
       <div className="no-print fixed top-4 right-4 z-50">
         <button
           onClick={() => window.print()}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-blue-700 text-sm font-medium"
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-blue-700 text-sm font-light"
         >
           พิมพ์ / Save PDF
         </button>
@@ -39,11 +39,11 @@ export default function QuotationDocument({ quotation, lines }) {
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-black pb-4 mb-6">
           <div>
-            <h1 className="text-xl font-semibold">บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด</h1>
+            <p className="text-sm font-light">บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด</p>
             <p className="text-sm text-gray-600 mt-1">Chua Ha Huad Industry Co., Ltd.</p>
           </div>
           <div className="text-right">
-            <h2 className="text-2xl font-semibold text-blue-700">ใบเสนอราคา</h2>
+            <p className="text-sm font-light text-blue-700">ใบเสนอราคา</p>
             <p className="text-sm text-gray-500">QUOTATION</p>
           </div>
         </div>
@@ -52,33 +52,33 @@ export default function QuotationDocument({ quotation, lines }) {
         <div className="flex justify-between mb-6">
           <div className="flex flex-col gap-1">
             <div className="flex gap-2">
-              <span className="font-semibold w-24">ลูกค้า:</span>
+              <span className="font-light w-24">ลูกค้า:</span>
               <span>{quotation.quotationCustomerName || "-"}</span>
             </div>
             <div className="flex gap-2">
-              <span className="font-semibold w-24">เบอร์โทร:</span>
+              <span className="font-light w-24">เบอร์โทร:</span>
               <span>{quotation.quotationCustomerPhone || "-"}</span>
             </div>
             <div className="flex gap-2">
-              <span className="font-semibold w-24">ที่อยู่จัดส่ง:</span>
+              <span className="font-light w-24">ที่อยู่จัดส่ง:</span>
               <span className="max-w-xs">{quotation.quotationCustomerAddress || "-"}</span>
             </div>
             <div className="flex gap-2">
-              <span className="font-semibold w-24">ชำระเงิน:</span>
+              <span className="font-light w-24">ชำระเงิน:</span>
               <span>{quotation.quotationPaymentMethod || "-"}</span>
             </div>
           </div>
           <div className="flex flex-col gap-1 text-right">
             <div className="flex gap-2 justify-end">
-              <span className="font-semibold">เลขที่:</span>
+              <span className="font-light">เลขที่:</span>
               <span>{quotation.quotationNumber}</span>
             </div>
             <div className="flex gap-2 justify-end">
-              <span className="font-semibold">วันที่:</span>
+              <span className="font-light">วันที่:</span>
               <span>{formatThaiDate(quotation.quotationCreatedAt)}</span>
             </div>
             <div className="flex gap-2 justify-end">
-              <span className="font-semibold">สถานะ:</span>
+              <span className="font-light">สถานะ:</span>
               <span>{quotation.quotationStatus === "draft" ? "ร่าง" : quotation.quotationStatus}</span>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function QuotationDocument({ quotation, lines }) {
         {/* Notes */}
         {quotation.quotationNotes && (
           <div className="mb-6 p-3 bg-gray-50 rounded border border-gray-200">
-            <p className="font-semibold text-sm mb-1">หมายเหตุ:</p>
+            <p className="font-light text-sm mb-1">หมายเหตุ:</p>
             <p className="whitespace-pre-wrap">{quotation.quotationNotes}</p>
           </div>
         )}

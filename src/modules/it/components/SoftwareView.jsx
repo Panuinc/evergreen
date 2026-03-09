@@ -88,7 +88,7 @@ export default function SoftwareView({
     (item, columnKey) => {
       switch (columnKey) {
         case "itSoftwareName":
-          return <span className="font-medium">{item.itSoftwareName}</span>;
+          return <span className="font-light">{item.itSoftwareName}</span>;
         case "itSoftwareVendor":
           return item.itSoftwareVendor || "-";
         case "itSoftwareVersion":
@@ -107,7 +107,7 @@ export default function SoftwareView({
           };
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={colorMap[item.itSoftwareStatus] || "default"}
@@ -119,7 +119,7 @@ export default function SoftwareView({
         case "isActive":
           return (
             <Chip
-              variant="bordered"
+              variant="shadow"
               size="md"
               radius="md"
               color={item.isActive ? "success" : "danger"}
@@ -385,7 +385,7 @@ export default function SoftwareView({
           <ModalBody>
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
-              <span className="font-semibold">
+              <span className="font-light">
                 {deletingSoftware?.itSoftwareName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้

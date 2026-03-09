@@ -143,7 +143,7 @@ export default function OmnichannelQuotationEditorView({
           );
         case "omQuotationLineTotal":
           return (
-            <span className="block text-right font-medium">
+            <span className="block text-right font-light">
               {item.omQuotationLineTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </span>
           );
@@ -168,14 +168,14 @@ export default function OmnichannelQuotationEditorView({
           >
             <ArrowLeft size={18} />
           </Button>
-          <h2 className="text-lg font-semibold">{quotation.omQuotationNumber}</h2>
-          <Chip variant="bordered" size="md" radius="md" color={status.color}>
+          <p className="text-sm font-light">{quotation.omQuotationNumber}</p>
+          <Chip variant="shadow" size="md" radius="md" color={status.color}>
             {status.label}
           </Chip>
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant="bordered"
+            variant="shadow"
             size="md"
             radius="md"
             startContent={<ExternalLink size={14} />}
@@ -235,7 +235,7 @@ export default function OmnichannelQuotationEditorView({
 
         {/* Lines */}
         <div>
-          <p className="font-semibold mb-2">รายการสินค้า</p>
+          <p className="font-light mb-2">รายการสินค้า</p>
           <DataTable
             columns={LINE_COLUMNS}
             data={lineData}
@@ -246,8 +246,8 @@ export default function OmnichannelQuotationEditorView({
             defaultRowsPerPage={20}
           />
           <div className="flex justify-end mt-2 px-2">
-            <span className="font-semibold mr-4">รวมทั้งสิ้น</span>
-            <span className="font-semibold">
+            <span className="font-light mr-4">รวมทั้งสิ้น</span>
+            <span className="font-light">
               {calcTotal().toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท
             </span>
           </div>
@@ -269,7 +269,7 @@ export default function OmnichannelQuotationEditorView({
         {/* Payment Slip */}
         {quotation.paymentSlip?.omMessageImageUrl && (
           <div className="p-4 bg-default-50 rounded-lg border border-border">
-            <p className="font-semibold mb-3 flex items-center gap-2">
+            <p className="font-light mb-3 flex items-center gap-2">
               <Receipt size={16} />
               หลักฐานการชำระเงิน
             </p>
@@ -287,7 +287,7 @@ export default function OmnichannelQuotationEditorView({
                   {quotation.paymentSlip.omMessageOcrData.amount && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-muted-foreground">ยอดเงิน</span>
-                      <span className="font-semibold">{Number(quotation.paymentSlip.omMessageOcrData.amount).toLocaleString()} บาท</span>
+                      <span className="font-light">{Number(quotation.paymentSlip.omMessageOcrData.amount).toLocaleString()} บาท</span>
                     </div>
                   )}
                   {quotation.paymentSlip.omMessageOcrData.fromBank && (
@@ -323,7 +323,7 @@ export default function OmnichannelQuotationEditorView({
         {/* Approval Info */}
         {quotation.omQuotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
-            <p className="text-sm font-semibold text-danger mb-1">เหตุผลที่ไม่อนุมัติ:</p>
+            <p className="text-sm font-light text-danger mb-1">เหตุผลที่ไม่อนุมัติ:</p>
             <p className="text-sm">{quotation.omQuotationApprovalNote}</p>
           </div>
         )}

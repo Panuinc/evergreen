@@ -41,13 +41,13 @@ export default function AccessLogsView({ logs, loading }) {
           </span>
         );
       case "rbacAccessLogResource":
-        return <span className="font-medium">{log.rbacAccessLogResource}</span>;
+        return <span className="font-light">{log.rbacAccessLogResource}</span>;
       case "rbacAccessLogAction":
         return log.rbacAccessLogAction;
       case "rbacAccessLogGranted":
         return (
           <Chip
-            variant="bordered"
+            variant="shadow"
             size="md"
             radius="md"
             color={log.rbacAccessLogGranted ? "success" : "danger"}
@@ -63,7 +63,7 @@ export default function AccessLogsView({ logs, loading }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between w-full">
-        <h1 className="text-lg font-semibold">บันทึกการเข้าถึง</h1>
+        <p className="text-sm font-light">บันทึกการเข้าถึง</p>
         <p className="text-muted-foreground">200 รายการล่าสุด</p>
       </div>
 
