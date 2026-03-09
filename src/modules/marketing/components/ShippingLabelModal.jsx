@@ -244,12 +244,12 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <span>พิมพ์ใบปะหน้าส่งสินค้า</span>
-          <span className="text-sm font-light text-muted-foreground">{order?.bcSalesOrderNumber}</span>
+          <span className="text-xs font-light text-muted-foreground">{order?.bcSalesOrderNumber}</span>
         </ModalHeader>
         <ModalBody className="gap-6">
           {/* Recipient Info */}
           <div className="space-y-3">
-            <p className="text-sm font-light">ข้อมูลผู้รับ</p>
+            <p className="text-xs font-light">ข้อมูลผู้รับ</p>
             <Input
               label="ชื่อผู้รับ"
               labelPlacement="outside"
@@ -282,7 +282,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
 
           {/* Line Items Selection */}
           <div className="space-y-3">
-            <p className="text-sm font-light">เลือกรายการสินค้า</p>
+            <p className="text-xs font-light">เลือกรายการสินค้า</p>
             <div className="space-y-2">
               {lines.map((l) => (
                 <div
@@ -295,10 +295,10 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                     size="md"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-light truncate">
+                    <p className="text-xs font-light truncate">
                       {l.bcSalesOrderLineDescription || l.bcSalesOrderLineObjectNumber}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       สั่ง {l.bcSalesOrderLineQuantity} / ส่งแล้ว {l.bcSalesOrderLineQuantityShipped || 0} / คงค้าง{" "}
                       {l.bcSalesOrderLineOutstandingQuantity || 0} {l.bcSalesOrderLineUnitOfMeasureCode}
                     </p>
@@ -315,7 +315,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                     onValueChange={(v) => handleQtyChange(l.bcSalesOrderLineNo, v)}
                     isDisabled={!selectedLines[l.bcSalesOrderLineNo]}
                   />
-                  <span className="text-sm text-muted-foreground w-8">
+                  <span className="text-xs text-muted-foreground w-8">
                     {l.bcSalesOrderLineUnitOfMeasureCode || "PCS"}
                   </span>
                 </div>
@@ -326,7 +326,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
         <ModalFooter className="flex flex-col gap-2">
           {networkResult && (
             <div
-              className={`w-full text-sm px-3 py-2 rounded-lg ${
+              className={`w-full text-xs px-3 py-2 rounded-lg ${
                 networkResult.type === "success"
                   ? "bg-success-50 text-success-700"
                   : "bg-danger-50 text-danger-700"
@@ -336,7 +336,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
             </div>
           )}
           <div className="flex items-center justify-between w-full">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               จำนวนใบปะหน้า: <span className="font-light text-foreground">{totalLabels}</span> ใบ
             </p>
             <div className="flex gap-2">

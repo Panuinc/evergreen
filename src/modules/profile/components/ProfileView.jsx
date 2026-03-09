@@ -41,11 +41,11 @@ export default function ProfileView({
 
         <div className="flex flex-col w-full gap-2">
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-muted-foreground w-20">อีเมล</span>
+            <span className="text-xs text-muted-foreground w-20">อีเมล</span>
             <span className="font-light">{user?.email}</span>
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-muted-foreground w-20">สร้างเมื่อ</span>
+            <span className="text-xs text-muted-foreground w-20">สร้างเมื่อ</span>
             <span className="font-light">
               {user?.createdAt
                 ? new Date(user.createdAt).toLocaleDateString("th-TH")
@@ -53,7 +53,7 @@ export default function ProfileView({
             </span>
           </div>
           <div className="flex items-center w-full h-fit p-2 gap-2">
-            <span className="text-sm text-muted-foreground w-20">สิทธิ์</span>
+            <span className="text-xs text-muted-foreground w-20">สิทธิ์</span>
             <div className="flex flex-wrap gap-1">
               {roles?.length > 0 ? (
                 roles.map((role) => (
@@ -85,43 +85,43 @@ export default function ProfileView({
         {employee ? (
           <div className="flex flex-col w-full gap-2">
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-muted-foreground w-24">ชื่อ</span>
+              <span className="text-xs text-muted-foreground w-24">ชื่อ</span>
               <span className="font-light">
                 {employee.hrEmployeeFirstName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-muted-foreground w-24">นามสกุล</span>
+              <span className="text-xs text-muted-foreground w-24">นามสกุล</span>
               <span className="font-light">
                 {employee.hrEmployeeLastName}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-muted-foreground w-24">อีเมล</span>
+              <span className="text-xs text-muted-foreground w-24">อีเมล</span>
               <span className="font-light">
                 {employee.hrEmployeeEmail || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-muted-foreground w-24">โทรศัพท์</span>
+              <span className="text-xs text-muted-foreground w-24">โทรศัพท์</span>
               <span className="font-light">
                 {employee.hrEmployeePhone || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-muted-foreground w-24">แผนก</span>
+              <span className="text-xs text-muted-foreground w-24">แผนก</span>
               <span className="font-light">
                 {employee.hrEmployeeDepartment || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-muted-foreground w-24">ตำแหน่ง</span>
+              <span className="text-xs text-muted-foreground w-24">ตำแหน่ง</span>
               <span className="font-light">
                 {employee.hrEmployeePosition || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
-              <span className="text-sm text-muted-foreground w-24">สถานะ</span>
+              <span className="text-xs text-muted-foreground w-24">สถานะ</span>
               <Chip
                 variant="flat"
                 size="md"

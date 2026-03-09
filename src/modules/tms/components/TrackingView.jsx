@@ -55,7 +55,7 @@ export default function TrackingView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-light">ติดตาม GPS</p>
+        <p className="text-xs font-light">ติดตาม GPS</p>
         <div className="flex gap-2">
           <Button
             variant="bordered"
@@ -95,7 +95,7 @@ export default function TrackingView({
               >
                 <CardBody className="p-3 gap-2">
                   <div className="flex items-center justify-between">
-                    <p className="font-light text-sm">{vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}</p>
+                    <p className="font-light text-xs">{vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}</p>
                     <Chip
                       variant="flat"
                       size="md"
@@ -104,11 +104,11 @@ export default function TrackingView({
                       {vehicle.tmsVehicleStatus}
                     </Chip>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {vehicle.tmsVehiclePlateNumber}
                   </p>
                   {pos ? (
-                    <div className="flex flex-col gap-1 text-sm">
+                    <div className="flex flex-col gap-1 text-xs">
                       <p className="flex items-center gap-1">
                         <MapPin size={12} className="text-primary" />
                         {Number(pos.tmsGpsLogLatitude).toFixed(5)},{" "}
@@ -124,7 +124,7 @@ export default function TrackingView({
                       </p>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">ไม่มีข้อมูล GPS</p>
+                    <p className="text-xs text-muted-foreground">ไม่มีข้อมูล GPS</p>
                   )}
                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                     <Button
@@ -165,7 +165,7 @@ export default function TrackingView({
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         รีเฟรชอัตโนมัติทุก 30 วินาที
       </p>
 

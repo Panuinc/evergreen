@@ -54,7 +54,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
   };
 
   if (points.length === 0) {
-    return <p className="text-sm text-muted-foreground text-center py-8">No route data available</p>;
+    return <p className="text-xs text-muted-foreground text-center py-8">No route data available</p>;
   }
 
   const traveled = points.slice(0, currentIndex + 1);
@@ -89,7 +89,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
           weight={3}
         >
           <Popup>
-            <div className="text-sm">
+            <div className="text-xs">
               {currentLog?.gpsLogSpeed && <p>Speed: {currentLog.gpsLogSpeed} km/h</p>}
               {currentLog?.gpsLogRecordedAt && (
                 <p>{new Date(currentLog.gpsLogRecordedAt).toLocaleString("th-TH")}</p>
@@ -141,7 +141,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
             </Button>
           ))}
         </div>
-        <span className="text-sm text-muted-foreground ml-auto">
+        <span className="text-xs text-muted-foreground ml-auto">
           {currentIndex + 1} / {points.length} points
         </span>
       </div>

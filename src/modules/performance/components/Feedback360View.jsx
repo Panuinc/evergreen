@@ -112,8 +112,8 @@ export default function Feedback360View({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <p className="text-sm font-light">ประเมิน 360 องศา</p>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-xs font-light">ประเมิน 360 องศา</p>
+        <p className="text-muted-foreground text-xs">
           ประเมินรอบด้านจากหัวหน้า เพื่อนร่วมงาน ลูกน้อง และตนเอง
         </p>
       </div>
@@ -251,7 +251,7 @@ function PendingTab({ pendingReviews, loadingPending, onOpenReview }) {
                       {relType.label}
                     </Chip>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {nom.cycle?.perf360CycleName} | กำหนดส่ง: {nom.cycle?.perf360CycleResponseDeadline ? new Date(nom.cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH") : "-"}
                   </p>
                 </div>
@@ -322,13 +322,13 @@ function ResultsDisplay({ results }) {
       <Card>
         <CardBody className="flex flex-row items-center gap-6">
           <div className="text-center">
-            <p className="text-sm text-muted-foreground">คะแนนรวม</p>
-            <p className="text-sm font-light">{results.overallScore?.toFixed(2) || "0.00"}</p>
+            <p className="text-xs text-muted-foreground">คะแนนรวม</p>
+            <p className="text-xs font-light">{results.overallScore?.toFixed(2) || "0.00"}</p>
           </div>
           <Chip color={gradeColor} variant="flat" size="md" radius="md">
             {grade}
           </Chip>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             จำนวนผู้ประเมิน: {results.totalResponses || 0} คน
           </div>
         </CardBody>
@@ -344,9 +344,9 @@ function ResultsDisplay({ results }) {
               if (!typeData) return null;
               return (
                 <div key={rt.key} className="p-3 rounded-lg" style={{ backgroundColor: rt.color + "10" }}>
-                  <p className="text-sm font-light" style={{ color: rt.color }}>{rt.label}</p>
-                  <p className="text-sm font-light">{typeData.overallScore?.toFixed(2) || "-"}</p>
-                  <p className="text-sm text-muted-foreground">{typeData.responseCount} คน</p>
+                  <p className="text-xs font-light" style={{ color: rt.color }}>{rt.label}</p>
+                  <p className="text-xs font-light">{typeData.overallScore?.toFixed(2) || "-"}</p>
+                  <p className="text-xs text-muted-foreground">{typeData.responseCount} คน</p>
                 </div>
               );
             })}
@@ -360,7 +360,7 @@ function ResultsDisplay({ results }) {
           <CardHeader><p className="font-light">คะแนนรายสมรรถนะ</p></CardHeader>
           <CardBody>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b">
                     <th className="text-left py-2 px-3">สมรรถนะ</th>
@@ -410,17 +410,17 @@ function ResultsDisplay({ results }) {
                   <p className="font-light mb-2" style={{ color: rt.color }}>{rt.label}</p>
                   {fb.strengths?.length > 0 && (
                     <div className="mb-2">
-                      <p className="text-sm text-muted-foreground mb-1">จุดแข็ง:</p>
+                      <p className="text-xs text-muted-foreground mb-1">จุดแข็ง:</p>
                       {fb.strengths.map((s, i) => (
-                        <p key={i} className="text-sm ml-2">• {s}</p>
+                        <p key={i} className="text-xs ml-2">• {s}</p>
                       ))}
                     </div>
                   )}
                   {fb.improvements?.length > 0 && (
                     <div className="mb-2">
-                      <p className="text-sm text-muted-foreground mb-1">จุดที่ควรพัฒนา:</p>
+                      <p className="text-xs text-muted-foreground mb-1">จุดที่ควรพัฒนา:</p>
                       {fb.improvements.map((s, i) => (
-                        <p key={i} className="text-sm ml-2">• {s}</p>
+                        <p key={i} className="text-xs ml-2">• {s}</p>
                       ))}
                     </div>
                   )}
@@ -457,7 +457,7 @@ function AdminTab({
   return (
     <div className="flex flex-col gap-4 mt-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm font-light">รอบประเมิน 360 องศา</p>
+        <p className="text-xs font-light">รอบประเมิน 360 องศา</p>
         <Button
           color="primary"
           size="md"
@@ -530,7 +530,7 @@ function CycleCard({ cycle, selectedCycle, onSelectCycle, onOpenCycleForm, onDel
               {statusConfig.label}
             </Chip>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             ปี {cycle.perf360CycleYear} {cycle.perf360CycleQuarter ? `Q${cycle.perf360CycleQuarter}` : ""} | กำหนดส่ง: {cycle.perf360CycleResponseDeadline ? new Date(cycle.perf360CycleResponseDeadline).toLocaleDateString("th-TH") : "-"}
           </p>
         </div>
@@ -717,13 +717,13 @@ function CompetenciesPanel({ selectedCycle, competencies, loadingCompetencies, s
           </Button>
         </div>
       ) : competencies.length === 0 ? (
-        <p className="text-muted-foreground text-sm">ยังไม่มีสมรรถนะ</p>
+        <p className="text-muted-foreground text-xs">ยังไม่มีสมรรถนะ</p>
       ) : (
         competencies.map((comp) => (
           <div key={comp.perf360CompetencyId} className="p-3 rounded-lg bg-default-50">
             <p className="font-light">{comp.perf360CompetencyName}</p>
-            {comp.perf360CompetencyDescription && <p className="text-sm text-muted-foreground">{comp.perf360CompetencyDescription}</p>}
-            <ul className="mt-1 ml-4 list-disc text-sm text-foreground">
+            {comp.perf360CompetencyDescription && <p className="text-xs text-muted-foreground">{comp.perf360CompetencyDescription}</p>}
+            <ul className="mt-1 ml-4 list-disc text-xs text-foreground">
               {(comp.perf360CompetencyQuestions || []).map((q, i) => (
                 <li key={i}>{q}</li>
               ))}
@@ -771,7 +771,7 @@ function NominationsPanel({ selectedCycle, nominations, loadingNominations, onDe
       {loadingNominations ? (
         <Loading />
       ) : grouped.length === 0 ? (
-        <p className="text-muted-foreground text-sm">ยังไม่มีการเสนอชื่อ</p>
+        <p className="text-muted-foreground text-xs">ยังไม่มีการเสนอชื่อ</p>
       ) : (
         grouped.map((group) => {
           const revieweeName = group.reviewee
@@ -826,7 +826,7 @@ function ProgressPanel({ nominations }) {
   return (
     <div className="flex flex-col gap-3 mt-3">
       {grouped.length === 0 ? (
-        <p className="text-muted-foreground text-sm">ยังไม่มีข้อมูล</p>
+        <p className="text-muted-foreground text-xs">ยังไม่มีข้อมูล</p>
       ) : (
         grouped.map((item) => {
           const name = item.reviewee
@@ -835,9 +835,9 @@ function ProgressPanel({ nominations }) {
           const pct = item.total > 0 ? Math.round((item.completed / item.total) * 100) : 0;
           return (
             <div key={item.reviewee?.hrEmployeeId} className="flex items-center gap-3">
-              <span className="text-sm min-w-[150px]">{name}</span>
+              <span className="text-xs min-w-[150px]">{name}</span>
               <Progress value={pct} className="flex-1" color={pct === 100 ? "success" : "primary"} size="md" />
-              <span className="text-sm text-muted-foreground min-w-[60px] text-right">{item.completed}/{item.total}</span>
+              <span className="text-xs text-muted-foreground min-w-[60px] text-right">{item.completed}/{item.total}</span>
             </div>
           );
         })
@@ -1046,7 +1046,7 @@ function ReviewModal({
         </ModalHeader>
         <ModalBody>
           <Progress value={progress} color="primary" size="md" className="mb-4" />
-          <p className="text-sm text-muted-foreground mb-4">{answeredQ}/{totalQ} ข้อ</p>
+          <p className="text-xs text-muted-foreground mb-4">{answeredQ}/{totalQ} ข้อ</p>
 
           <Accordion selectionMode="multiple" defaultExpandedKeys={reviewCompetencies.map((c) => c.perf360CompetencyId)}>
             {reviewCompetencies.map((comp) => (
@@ -1056,7 +1056,7 @@ function ReviewModal({
                     const currentScore = (reviewScores[comp.perf360CompetencyId] || [])[qIdx] || 0;
                     return (
                       <div key={qIdx} className="p-2 rounded bg-default-50">
-                        <p className="text-sm mb-2">
+                        <p className="text-xs mb-2">
                           {qIdx + 1}. {question}
                         </p>
                         <RadioGroup

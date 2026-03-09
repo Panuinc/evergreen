@@ -9,7 +9,7 @@ const MapInner = dynamic(() => import("./DeliveryPlanMapPickerInner"), {
   ssr: false,
   loading: () => (
     <div className="h-[220px] w-full rounded-xl bg-default-100 flex items-center justify-center">
-      <span className="text-sm text-muted-foreground">กำลังโหลดแผนที่...</span>
+      <span className="text-xs text-muted-foreground">กำลังโหลดแผนที่...</span>
     </div>
   ),
 });
@@ -86,13 +86,13 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
 
       {/* Current address display */}
       {address && (
-        <p className="text-sm text-muted-foreground truncate px-1">{address}</p>
+        <p className="text-xs text-muted-foreground truncate px-1">{address}</p>
       )}
 
       {/* Map */}
       <MapInner lat={lat} lng={lng} onMapClick={handleMapClick} />
 
-      <p className="text-[10px] text-muted-foreground text-center">
+      <p className="text-xs text-muted-foreground text-center">
         คลิกบนแผนที่เพื่อกำหนดจุดส่ง หรือค้นหาด้วยชื่อสถานที่
       </p>
     </div>

@@ -45,7 +45,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
           <div />
           <div className="flex items-center gap-2">
             {isCompare && stats.labels && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {stats.labels.current} vs {stats.labels.previous}
               </span>
             )}
@@ -99,13 +99,13 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">สถานะการขนส่ง</p>
+            <p className="text-xs font-light mb-3">สถานะการขนส่ง</p>
             <ShipmentStatusChart data={d.shipmentStatusDistribution} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">
+            <p className="text-xs font-light mb-3">
               {isCompare ? "การขนส่งรายเดือน" : "การขนส่งรายเดือน (6 เดือนล่าสุด)"}
             </p>
             <MonthlyShipmentChart data={d.monthlyShipmentTrend} />
@@ -113,13 +113,13 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">แนวโน้มค่าน้ำมัน</p>
+            <p className="text-xs font-light mb-3">แนวโน้มค่าน้ำมัน</p>
             <FuelCostChart data={d.fuelCostTrend} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">
+            <p className="text-xs font-light mb-3">
               {isCompare ? "อัตราการใช้ยานพาหนะ" : "อัตราการใช้ยานพาหนะ (30 วัน)"}
             </p>
             <VehicleUtilizationChart data={d.vehicleUtilization} />
@@ -130,7 +130,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       {/* Vehicle Performance */}
       {stats.vehiclePerformance && (
         <div>
-          <p className="text-sm font-light mb-3">สรุปประสิทธิภาพยานพาหนะ</p>
+          <p className="text-xs font-light mb-3">สรุปประสิทธิภาพยานพาหนะ</p>
           <VehiclePerformanceTable data={stats.vehiclePerformance} />
         </div>
       )}
@@ -140,7 +140,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
-            <p className="text-sm font-light">AI วิเคราะห์ระบบขนส่ง</p>
+            <p className="text-xs font-light">AI วิเคราะห์ระบบขนส่ง</p>
             <Chip size="md" variant="flat" color="secondary">TMS Advisor</Chip>
           </div>
           <Button
@@ -159,22 +159,22 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
           {aiLoading && !aiAnalysis && (
             <div className="flex items-center gap-3 py-8 justify-center">
               <Loading />
-              <span className="text-sm text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลขนส่ง...</span>
+              <span className="text-xs text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลขนส่ง...</span>
             </div>
           )}
           {!aiAnalysis && !aiLoading && (
-            <p className="text-sm text-muted-foreground py-4 text-center">
+            <p className="text-xs text-muted-foreground py-4 text-center">
               กดปุ่ม &quot;เริ่มวิเคราะห์&quot; เพื่อให้ AI วิเคราะห์ประสิทธิภาพขนส่ง ต้นทุนน้ำมัน และคำแนะนำลดค่าใช้จ่าย
             </p>
           )}
           {aiAnalysis && (
-            <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-sm leading-relaxed">
+            <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-xs leading-relaxed">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
                   table: ({ children }) => (
                     <div className="overflow-x-auto my-2">
-                      <table className="border-collapse w-full text-sm">{children}</table>
+                      <table className="border-collapse w-full text-xs">{children}</table>
                     </div>
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
@@ -192,10 +192,10 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
                   strong: ({ children }) => <strong className="font-light text-foreground">{children}</strong>,
                   code: ({ inline, children }) =>
                     inline ? (
-                      <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">{children}</code>
+                      <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
                     ) : (
                       <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
-                        <code className="text-sm font-mono">{children}</code>
+                        <code className="text-xs font-mono">{children}</code>
                       </pre>
                     ),
                 }}

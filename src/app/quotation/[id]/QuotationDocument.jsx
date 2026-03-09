@@ -29,22 +29,22 @@ export default function QuotationDocument({ quotation, lines }) {
       <div className="no-print fixed top-4 right-4 z-50">
         <button
           onClick={() => window.print()}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-blue-700 text-sm font-light"
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-blue-700 text-xs font-light"
         >
           พิมพ์ / Save PDF
         </button>
       </div>
 
-      <div className="max-w-[210mm] mx-auto p-8 text-black text-sm">
+      <div className="max-w-[210mm] mx-auto p-8 text-black text-xs">
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-black pb-4 mb-6">
           <div>
-            <p className="text-sm font-light">บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด</p>
-            <p className="text-sm text-gray-600 mt-1">Chua Ha Huad Industry Co., Ltd.</p>
+            <p className="text-xs font-light">บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด</p>
+            <p className="text-xs text-gray-600 mt-1">Chua Ha Huad Industry Co., Ltd.</p>
           </div>
           <div className="text-right">
-            <p className="text-sm font-light text-blue-700">ใบเสนอราคา</p>
-            <p className="text-sm text-gray-500">QUOTATION</p>
+            <p className="text-xs font-light text-blue-700">ใบเสนอราคา</p>
+            <p className="text-xs text-gray-500">QUOTATION</p>
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export default function QuotationDocument({ quotation, lines }) {
                 <td className="border border-gray-300 px-3 py-2">
                   {line.lineProductName}
                   {line.lineVariant && (
-                    <span className="text-gray-500 text-sm ml-2">({line.lineVariant})</span>
+                    <span className="text-gray-500 text-xs ml-2">({line.lineVariant})</span>
                   )}
                 </td>
                 <td className="border border-gray-300 px-3 py-2 text-center">{line.lineQuantity}</td>
@@ -127,13 +127,13 @@ export default function QuotationDocument({ quotation, lines }) {
         {/* Notes */}
         {quotation.quotationNotes && (
           <div className="mb-6 p-3 bg-gray-50 rounded border border-gray-200">
-            <p className="font-light text-sm mb-1">หมายเหตุ:</p>
+            <p className="font-light text-xs mb-1">หมายเหตุ:</p>
             <p className="whitespace-pre-wrap">{quotation.quotationNotes}</p>
           </div>
         )}
 
         {/* Footer */}
-        <div className="border-t border-gray-300 pt-4 mt-8 text-sm text-gray-500 text-center">
+        <div className="border-t border-gray-300 pt-4 mt-8 text-xs text-gray-500 text-center">
           <p>เอกสารนี้สร้างโดยระบบอัตโนมัติ กรุณาติดต่อเจ้าหน้าที่เพื่อยืนยันราคาและรายละเอียด</p>
         </div>
       </div>

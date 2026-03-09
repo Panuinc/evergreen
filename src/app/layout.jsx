@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <AuthProvider>
             <RBACProvider>
-              <div className="flex items-center justify-center w-full h-screen text-[12px] transition-colors duration-300">
+              <div className="flex items-center justify-center w-full h-screen text-xs transition-colors duration-300">
                 {children}
               </div>
             </RBACProvider>

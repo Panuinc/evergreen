@@ -104,7 +104,7 @@ export default function OmnichannelQuotationsView({
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <p className="text-sm font-light">ใบเสนอราคา</p>
+      <p className="text-xs font-light">ใบเสนอราคา</p>
 
       <Tabs
         selectedKey={statusFilter}

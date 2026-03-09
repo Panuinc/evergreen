@@ -35,7 +35,7 @@ function getRowClass(row) {
 }
 
 function getCellClass(val, row) {
-  let cls = "text-right font-mono text-sm";
+  let cls = "text-right font-mono text-xs";
   if (row.type === "subtotal" || row.type === "grandTotal") cls += " font-light";
   if (val < 0) cls += " text-danger";
   return cls;
@@ -51,7 +51,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
   }
 
   if (!data || data.length === 0) {
-    return <p className="py-10 text-center text-sm text-muted-foreground">ไม่มีข้อมูล</p>;
+    return <p className="py-10 text-center text-xs text-muted-foreground">ไม่มีข้อมูล</p>;
   }
 
   const beYear = (year || 0) + 543;
@@ -89,7 +89,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
       {chartData && chartData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
-            <p className="text-sm font-light">แนวโน้มรายเดือน ปี {beYear}</p>
+            <p className="text-xs font-light">แนวโน้มรายเดือน ปี {beYear}</p>
           </CardHeader>
           <CardBody>
             <ResponsiveContainer width="100%" height={300}>
@@ -115,7 +115,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-light">งบกำไรขาดทุนรายเดือน</p>
+            <p className="text-xs font-light">งบกำไรขาดทุนรายเดือน</p>
             <Chip size="md" variant="flat" color="primary">ปี {beYear}</Chip>
           </div>
           <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
@@ -123,7 +123,7 @@ export default function MonthlyPnLTable({ data, chartData, loading, year, compYe
           </Button>
         </CardHeader>
         <CardBody className="overflow-x-auto p-0">
-          <table className="w-full text-sm border-collapse min-w-[1200px]">
+          <table className="w-full text-xs border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-default-100 border-b border-border">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[200px] font-light">รายการ</th>

@@ -66,12 +66,12 @@ export default function AiFeedbackPanel({
         {isLoading && (
           <div className="flex flex-col items-center gap-3 py-8">
             <Loading />
-            <p className="text-sm text-muted-foreground">กำลังวิเคราะห์ผลประเมิน...</p>
+            <p className="text-xs text-muted-foreground">กำลังวิเคราะห์ผลประเมิน...</p>
           </div>
         )}
 
         {!isLoading && !feedback && (
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p className="text-xs text-muted-foreground text-center py-4">
             กดปุ่ม "สร้าง AI Feedback" เพื่อรับคำแนะนำจาก AI
           </p>
         )}
@@ -80,7 +80,7 @@ export default function AiFeedbackPanel({
           <div className="flex flex-col gap-4">
             {/* Summary */}
             <div className="bg-default-50 rounded-lg p-4">
-              <p className="text-sm">{feedback.summary}</p>
+              <p className="text-xs">{feedback.summary}</p>
             </div>
 
             <Divider />
@@ -91,7 +91,7 @@ export default function AiFeedbackPanel({
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-success" />
-                  <p className="font-light text-sm text-success">จุดแข็ง</p>
+                  <p className="font-light text-xs text-success">จุดแข็ง</p>
                 </div>
                 {feedback.strengths?.map((s, i) => (
                   <div key={i} className="bg-success-50 rounded-lg p-3">
@@ -99,11 +99,11 @@ export default function AiFeedbackPanel({
                       <Chip size="md" color="success" variant="flat">
                         {s.categoryName}
                       </Chip>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {s.score?.toFixed(1)}/5.0
                       </span>
                     </div>
-                    <p className="text-sm">{s.analysis}</p>
+                    <p className="text-xs">{s.analysis}</p>
                   </div>
                 ))}
               </div>
@@ -112,7 +112,7 @@ export default function AiFeedbackPanel({
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <TrendingDown className="w-4 h-4 text-warning" />
-                  <p className="font-light text-sm text-warning">จุดที่ควรพัฒนา</p>
+                  <p className="font-light text-xs text-warning">จุดที่ควรพัฒนา</p>
                 </div>
                 {feedback.weaknesses?.map((w, i) => (
                   <div key={i} className="bg-warning-50 rounded-lg p-3">
@@ -120,11 +120,11 @@ export default function AiFeedbackPanel({
                       <Chip size="md" color="warning" variant="flat">
                         {w.categoryName}
                       </Chip>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {w.score?.toFixed(1)}/5.0
                       </span>
                     </div>
-                    <p className="text-sm">{w.analysis}</p>
+                    <p className="text-xs">{w.analysis}</p>
                   </div>
                 ))}
               </div>
@@ -136,27 +136,27 @@ export default function AiFeedbackPanel({
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Target className="w-4 h-4 text-primary" />
-                <p className="font-light text-sm">คำแนะนำเชิงปฏิบัติ</p>
+                <p className="font-light text-xs">คำแนะนำเชิงปฏิบัติ</p>
               </div>
               <Accordion variant="flat" isCompact>
                 {(feedback.recommendations || []).map((rec, i) => (
                   <AccordionItem
                     key={i}
                     title={
-                      <div className="flex items-center gap-2 text-sm">
+                      <div className="flex items-center gap-2 text-xs">
                         <Chip size="md" variant="flat" color="primary">
                           #{rec.priority}
                         </Chip>
                         <span>{rec.title}</span>
                         {rec.timeframe && (
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             ({rec.timeframe})
                           </span>
                         )}
                       </div>
                     }
                   >
-                    <p className="text-sm pb-2">{rec.description}</p>
+                    <p className="text-xs pb-2">{rec.description}</p>
                   </AccordionItem>
                 ))}
               </Accordion>
@@ -168,7 +168,7 @@ export default function AiFeedbackPanel({
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen className="w-4 h-4 text-secondary" />
-                <p className="font-light text-sm">คอร์สและกิจกรรมแนะนำ</p>
+                <p className="font-light text-xs">คอร์สและกิจกรรมแนะนำ</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {(feedback.courses || []).map((course, i) => {
@@ -179,13 +179,13 @@ export default function AiFeedbackPanel({
                       className="border border-border rounded-lg p-3 flex flex-col gap-2"
                     >
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-light flex-1">{course.title}</p>
+                        <p className="text-xs font-light flex-1">{course.title}</p>
                         <Chip size="md" variant="flat" color={typeInfo.color}>
                           {typeInfo.label}
                         </Chip>
                       </div>
-                      <p className="text-sm text-muted-foreground">{course.description}</p>
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">{course.description}</p>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         {course.provider && <span>{course.provider}</span>}
                         {course.estimatedDuration && <span>{course.estimatedDuration}</span>}
                       </div>

@@ -110,24 +110,24 @@ export default function WarehouseInventoryGroupView({ items, loading }) {
       <div className="grid grid-cols-3 gap-3">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-sm text-muted-foreground">รายการสินค้า</p>
-            <p className="text-sm font-light">
+            <p className="text-xs text-muted-foreground">รายการสินค้า</p>
+            <p className="text-xs font-light">
               {summary.totalItems.toLocaleString("th-TH")}
             </p>
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-sm text-muted-foreground">จำนวนคงเหลือ</p>
-            <p className="text-sm font-light text-success">
+            <p className="text-xs text-muted-foreground">จำนวนคงเหลือ</p>
+            <p className="text-xs font-light text-success">
               {summary.totalQty.toLocaleString("th-TH")}
             </p>
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="gap-1">
-            <p className="text-sm text-muted-foreground">มูลค่า (ต้นทุน)</p>
-            <p className="text-sm font-light text-primary">
+            <p className="text-xs text-muted-foreground">มูลค่า (ต้นทุน)</p>
+            <p className="text-xs font-light text-primary">
               {summary.totalValue.toLocaleString("th-TH", {
                 minimumFractionDigits: 2,
               })}

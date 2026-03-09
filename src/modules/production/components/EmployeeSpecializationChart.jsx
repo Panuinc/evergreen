@@ -97,7 +97,7 @@ function RankBadge({ rank }) {
   }
   return (
     <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-default-100">
-      <span className="text-sm font-light text-muted-foreground">#{rank}</span>
+      <span className="text-xs font-light text-muted-foreground">#{rank}</span>
     </div>
   );
 }
@@ -105,7 +105,7 @@ function RankBadge({ rank }) {
 export default function EmployeeSpecializationChart({ data = [] }) {
   if (!data.length) {
     return (
-      <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>
+      <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>
     );
   }
 
@@ -130,7 +130,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
         {categories.map((cat, i) => (
           <div key={cat} className="flex items-center gap-1.5">
             <div className={`w-2.5 h-2.5 rounded-sm ${BG_COLORS[i % BG_COLORS.length]}`} />
-            <span className="text-sm text-muted-foreground">{cat}</span>
+            <span className="text-xs text-muted-foreground">{cat}</span>
           </div>
         ))}
       </div>
@@ -163,13 +163,13 @@ export default function EmployeeSpecializationChart({ data = [] }) {
             {/* Player Info */}
             <div className="shrink-0 w-28">
               <div className="truncate">
-                <span className={`text-sm font-light ${isTop3 ? "text-foreground" : "text-foreground"}`}>
+                <span className={`text-xs font-light ${isTop3 ? "text-foreground" : "text-foreground"}`}>
                   {emp.employee}
                 </span>
               </div>
               <div className="flex items-center gap-1 mt-0.5">
                 <LevelIcon className={`w-3 h-3 ${level.color}`} />
-                <span className={`text-[10px] font-light ${level.color}`}>
+                <span className={`text-xs font-light ${level.color}`}>
                   {level.label}
                 </span>
               </div>
@@ -179,11 +179,11 @@ export default function EmployeeSpecializationChart({ data = [] }) {
             <div className="flex-1 flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground font-light">
+                  <span className="text-xs text-muted-foreground font-light">
                     ผลงานรวม
                   </span>
                   {emp.avgLeadTime != null && (
-                    <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                    <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                       <Timer className="w-3 h-3" />
                       เฉลี่ย {emp.avgLeadTime} วัน/ใบ
                       {speed && (
@@ -194,10 +194,10 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                     </span>
                   )}
                 </div>
-                <span className={`text-sm font-light ${isTop3 ? "text-foreground" : "text-muted-foreground"}`}>
+                <span className={`text-xs font-light ${isTop3 ? "text-foreground" : "text-muted-foreground"}`}>
                   {fmtNum(emp.totalQty)} ชิ้น
                   {emp.orderCount > 0 && (
-                    <span className="text-[10px] font-light text-muted-foreground ml-1">
+                    <span className="text-xs font-light text-muted-foreground ml-1">
                       ({emp.orderCount} ใบ)
                     </span>
                   )}
@@ -228,7 +228,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                   const colorIdx = catColorMap[c.category] ?? 0;
                   const catSpeed = getSpeedLabel(c.avgDays);
                   return (
-                    <span key={c.category} className="text-[10px] text-muted-foreground">
+                    <span key={c.category} className="text-xs text-muted-foreground">
                       <span className={`font-light ${TEXT_COLORS[colorIdx]}`}>{c.category}</span>
                       {" "}{fmtNum(c.quantity)}
                       {c.avgDays != null && (
@@ -253,7 +253,7 @@ export default function EmployeeSpecializationChart({ data = [] }) {
                 {emp.topCategory}
               </Chip>
               {emp.avgLeadTime != null && speed && (
-                <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-light ${speed.color} ${speed.bg}`}>
+                <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-light ${speed.color} ${speed.bg}`}>
                   <Clock className="w-3 h-3" />
                   {emp.avgLeadTime}วัน
                 </div>

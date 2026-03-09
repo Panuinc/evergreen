@@ -13,7 +13,7 @@ import {
 export default function TopOutputItemsChart({ data = [] }) {
   if (!data.length) {
     return (
-      <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>
+      <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>
     );
   }
 
@@ -44,7 +44,7 @@ export default function TopOutputItemsChart({ data = [] }) {
             const d = payload[0]?.payload;
             if (!d) return null;
             return (
-              <div className="bg-content1 border border-border rounded-lg p-3 shadow-lg text-sm">
+              <div className="bg-content1 border border-border rounded-lg p-3 shadow-lg text-xs">
                 <p className="font-light mb-1">
                   {d.description || d.itemNo}
                 </p>

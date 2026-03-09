@@ -8,7 +8,7 @@ export default function AnalyticsPage() {
       <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-default-100">
         <BarChart3 className="w-8 h-8 text-muted-foreground" />
       </div>
-      <p className="text-sm font-light">วิเคราะห์ข้อมูล</p>
+      <p className="text-xs font-light">วิเคราะห์ข้อมูล</p>
       <p className="text-muted-foreground">เร็ว ๆ นี้</p>
     </div>
   );

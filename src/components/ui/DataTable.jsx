@@ -404,11 +404,11 @@ export default function DataTable({
               >
                 <CardBody className="gap-3">
                   {cardColumns.title && (
-                    <div className="font-light text-sm">
+                    <div className="font-light text-xs">
                       {renderCell(item, cardColumns.title.uid)}
                     </div>
                   )}
-                  <div className="flex flex-col gap-1 text-sm">
+                  <div className="flex flex-col gap-1 text-xs">
                     {cardColumns.fields.map((col) => (
                       <div key={col.uid} className="flex justify-between">
                         <span className="text-muted-foreground">{col.name}</span>

@@ -101,19 +101,19 @@ export default function ShippingLabelDocument({ orderNo }) {
 
       {/* ปุ่มสำหรับหน้าจอ */}
       <div className="no-print flex items-center justify-between mb-4 px-4 pt-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           ใบปะหน้าส่งสินค้า — {data.orderNo} ({labels.length} ใบ)
         </p>
         <div className="flex gap-2">
           <button
             onClick={() => window.print()}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-sm font-light"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-xs font-light"
           >
             พิมพ์
           </button>
           <button
             onClick={() => window.close()}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm font-light"
+            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-xs font-light"
           >
             ปิด
           </button>

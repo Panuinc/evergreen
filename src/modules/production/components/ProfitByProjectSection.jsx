@@ -66,33 +66,33 @@ export default function ProfitByProjectSection({ data = [] }) {
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "itemNo":
-        return <span className="font-light text-sm">{item.itemNo}</span>;
+        return <span className="font-light text-xs">{item.itemNo}</span>;
       case "description":
         return (
-          <span className="max-w-48 truncate block text-sm">
+          <span className="max-w-48 truncate block text-xs">
             {item.description || "-"}
           </span>
         );
       case "outputQty":
       case "soQty":
       case "shippedQty":
-        return <span className="text-sm">{fmtNum(item[columnKey])}</span>;
+        return <span className="text-xs">{fmtNum(item[columnKey])}</span>;
       case "unitPrice":
         return (
-          <span className="text-sm">
+          <span className="text-xs">
             {item.unitPrice > 0 ? fmtCurrency(item.unitPrice) : "-"}
           </span>
         );
       case "costPerUnit":
-        return <span className="text-sm">{fmtCurrency(item.costPerUnit)}</span>;
+        return <span className="text-xs">{fmtCurrency(item.costPerUnit)}</span>;
       case "revenue":
-        return <span className="text-sm">{fmtCurrency(item.revenue)}</span>;
+        return <span className="text-xs">{fmtCurrency(item.revenue)}</span>;
       case "totalCost":
-        return <span className="text-sm">{fmtCurrency(item.totalCost)}</span>;
+        return <span className="text-xs">{fmtCurrency(item.totalCost)}</span>;
       case "profit":
         return (
           <span
-            className={`text-sm font-light ${item.profit >= 0 ? "text-success" : "text-danger"}`}
+            className={`text-xs font-light ${item.profit >= 0 ? "text-success" : "text-danger"}`}
           >
             {fmtCurrency(item.profit)}
           </span>
@@ -100,7 +100,7 @@ export default function ProfitByProjectSection({ data = [] }) {
       case "margin":
         return <MarginChip margin={item.margin} />;
       default:
-        return <span className="text-sm">{item[columnKey] || "-"}</span>;
+        return <span className="text-xs">{item[columnKey] || "-"}</span>;
     }
   }, []);
 
@@ -122,7 +122,7 @@ export default function ProfitByProjectSection({ data = [] }) {
 
   if (!data.length) {
     return (
-      <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>
+      <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>
     );
   }
 
@@ -140,7 +140,7 @@ export default function ProfitByProjectSection({ data = [] }) {
             setPage(1);
           }}
         />
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {filtered.length} โครงการ
         </span>
       </div>
@@ -152,10 +152,10 @@ export default function ProfitByProjectSection({ data = [] }) {
             aria-label={proj.projectName}
             title={
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="font-light text-sm">
+                <span className="font-light text-xs">
                   {proj.projectName || proj.projectCode}
                 </span>
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-xs">
                   <span className="text-muted-foreground">
                     รายได้ {fmtCurrency(proj.totalRevenue)}
                   </span>

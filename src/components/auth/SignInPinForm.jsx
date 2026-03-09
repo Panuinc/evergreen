@@ -13,7 +13,7 @@ export default function SignInPinForm({
 }) {
   return (
     <>
-      <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 text-[16px] font-light">
+      <div className="flex items-center justify-start w-11/12 h-fit p-2 gap-2 text-xs font-light">
         <Image
           src="/logo/logo-01.png"
           width={50}

@@ -93,7 +93,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
         </ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-3">
-            <div className="rounded-lg bg-default-50 p-3 text-sm">
+            <div className="rounded-lg bg-default-50 p-3 text-xs">
               <p className="font-light">{item.number}</p>
               <p className="text-muted-foreground">{item.displayName}</p>
               <p className="text-muted-foreground">
@@ -105,7 +105,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-light text-foreground">
+              <p className="text-xs font-light text-foreground">
                 ตัวอย่าง Label
               </p>
               <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-border bg-white p-3 min-h-20">
@@ -119,7 +119,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
                     style={{ imageRendering: "pixelated" }}
                   />
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     กดปุ่มด้านล่างเพื่อดูตัวอย่าง
                   </p>
                 )}
@@ -149,20 +149,20 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
             />
 
             {!hasRfidCode && (
-              <div className="flex items-center gap-2 rounded-lg bg-danger-50 p-3 text-sm text-danger">
+              <div className="flex items-center gap-2 rounded-lg bg-danger-50 p-3 text-xs text-danger">
                 <AlertTriangle size={16} className="shrink-0" />
                 <span>สินค้านี้ยังไม่ได้กำหนด RFID Code กรุณา assign ก่อนพิมพ์</span>
               </div>
             )}
 
             {isOverBatch && (
-              <div className="flex items-center gap-2 rounded-lg bg-warning-50 p-3 text-sm text-warning-700">
+              <div className="flex items-center gap-2 rounded-lg bg-warning-50 p-3 text-xs text-warning-700">
                 <AlertTriangle size={16} className="shrink-0" />
                 <span>จำนวนต่อ batch ต้องไม่เกิน {MAX_BATCH} ชิ้น</span>
               </div>
             )}
 
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               RFID จะเขียนข้อมูล: RFID Code + ลำดับชิ้น (1/{quantity} ถึง{" "}
               {quantity}/{quantity})
             </p>

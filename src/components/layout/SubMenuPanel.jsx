@@ -51,7 +51,7 @@ export default function SubMenuPanel({ activeMenu, isCollapsed, onSubMenuClick }
                 {subMenu.name}
               </div>
               {badgeCount > 0 && (
-                <Chip size="md" color="danger" variant="solid" className="ml-auto min-w-6 h-5 text-sm">
+                <Chip size="md" color="danger" variant="solid" className="ml-auto min-w-6 h-5 text-xs">
                   {badgeCount}
                 </Chip>
               )}

@@ -205,13 +205,13 @@ export default function OrdersView({
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">เลขที่คำสั่ง</span>
+                    <span className="text-xs text-muted-foreground">เลขที่คำสั่ง</span>
                     <span className="font-light">
                       {selectedOrder.crmOrderNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">ผู้ติดต่อ</span>
+                    <span className="text-xs text-muted-foreground">ผู้ติดต่อ</span>
                     <span className="font-light">
                       {selectedOrder.crmContact
                         ? `${selectedOrder.crmContact.crmContactFirstName} ${selectedOrder.crmContact.crmContactLastName}`
@@ -219,19 +219,19 @@ export default function OrdersView({
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">บัญชี</span>
+                    <span className="text-xs text-muted-foreground">บัญชี</span>
                     <span className="font-light">
                       {selectedOrder.salesAccount?.crmAccountName || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">ใบเสนอราคา</span>
+                    <span className="text-xs text-muted-foreground">ใบเสนอราคา</span>
                     <span className="font-light">
                       {selectedOrder.salesQuotation?.crmQuotationNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">สถานะ</span>
+                    <span className="text-xs text-muted-foreground">สถานะ</span>
                     <div>
                       {(() => {
                         const colorMap = {
@@ -258,7 +258,7 @@ export default function OrdersView({
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">ยอดรวม</span>
+                    <span className="text-xs text-muted-foreground">ยอดรวม</span>
                     <span className="font-light">
                       {selectedOrder.crmOrderTotal
                         ? `฿${Number(selectedOrder.crmOrderTotal).toLocaleString()}`
@@ -266,7 +266,7 @@ export default function OrdersView({
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       ที่อยู่จัดส่ง
                     </span>
                     <span className="font-light">
@@ -274,7 +274,7 @@ export default function OrdersView({
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       เลขติดตาม
                     </span>
                     <span className="font-light">
@@ -282,7 +282,7 @@ export default function OrdersView({
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       วันส่ง
                     </span>
                     <span className="font-light">
@@ -290,7 +290,7 @@ export default function OrdersView({
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">สร้างเมื่อ</span>
+                    <span className="text-xs text-muted-foreground">สร้างเมื่อ</span>
                     <span className="font-light">
                       {selectedOrder.crmOrderCreatedAt
                         ? new Date(
@@ -302,7 +302,7 @@ export default function OrdersView({
                 </div>
                 {selectedOrder.crmOrderNotes && (
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">หมายเหตุ</span>
+                    <span className="text-xs text-muted-foreground">หมายเหตุ</span>
                     <span className="font-light">
                       {selectedOrder.crmOrderNotes}
                     </span>

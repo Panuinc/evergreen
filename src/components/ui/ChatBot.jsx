@@ -17,7 +17,7 @@ function AgentIndicator({ agent }) {
   const Icon = AGENT_ICONS[agent.icon] || Bot;
   return (
     <div className="flex justify-start">
-      <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-default-100 text-muted-foreground animate-pulse">
+      <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs bg-default-100 text-muted-foreground animate-pulse">
         <Icon size={12} />
         <span>{agent.name} กำลังค้นหา...</span>
       </div>
@@ -77,7 +77,7 @@ export default function ChatBot() {
           >
             {/* Header */}
             <div className="flex items-center justify-between p-3 border-b border-border">
-              <span className="font-light text-sm">ผู้ช่วย AI</span>
+              <span className="font-light text-xs">ผู้ช่วย AI</span>
               <Button
                 isIconOnly
                 variant="light"
@@ -92,7 +92,7 @@ export default function ChatBot() {
             {/* Messages */}
             <ScrollShadow ref={scrollRef} className="flex-1 p-3 overflow-y-auto">
               {messages.length === 0 && !isLoading && (
-                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
                   ถามอะไรก็ได้เกี่ยวกับข้อมูลในระบบ
                 </div>
               )}
@@ -103,7 +103,7 @@ export default function ChatBot() {
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`max-w-[80%] px-3 py-2 rounded-xl text-sm whitespace-pre-wrap ${
+                      className={`max-w-[80%] px-3 py-2 rounded-xl text-xs whitespace-pre-wrap ${
                         msg.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-default-100"

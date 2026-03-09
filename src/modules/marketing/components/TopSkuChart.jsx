@@ -8,7 +8,7 @@ function formatCurrency(value) {
 
 export default function TopSkuChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   const hasRevenue = data.some((d) => d.revenue > 0);

@@ -126,7 +126,7 @@ export default function DeliveriesView({
                 />
               ))}
               {item.tmsDeliveryPhotoUrls.length > 3 && (
-                <span className="text-sm text-muted-foreground self-center">
+                <span className="text-xs text-muted-foreground self-center">
                   +{item.tmsDeliveryPhotoUrls.length - 3}
                 </span>
               )}
@@ -204,8 +204,8 @@ export default function DeliveriesView({
               {/* Shipment Info - read-only */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-default-50 rounded-xl p-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">การขนส่ง</p>
-                  <p className="text-sm font-light">
+                  <p className="text-xs text-muted-foreground">การขนส่ง</p>
+                  <p className="text-xs font-light">
                     {(() => {
                       const s = shipments.find(
                         (s) => String(s.tmsShipmentId) === String(formData.tmsDeliveryShipmentId),
@@ -215,21 +215,21 @@ export default function DeliveriesView({
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">ชื่อผู้รับ</p>
-                  <p className="text-sm font-light">{formData.tmsDeliveryReceiverName || "-"}</p>
+                  <p className="text-xs text-muted-foreground">ชื่อผู้รับ</p>
+                  <p className="text-xs font-light">{formData.tmsDeliveryReceiverName || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">เบอร์โทรผู้รับ</p>
-                  <p className="text-sm font-light">{formData.tmsDeliveryReceiverPhone || "-"}</p>
+                  <p className="text-xs text-muted-foreground">เบอร์โทรผู้รับ</p>
+                  <p className="text-xs font-light">{formData.tmsDeliveryReceiverPhone || "-"}</p>
                 </div>
               </div>
 
               {/* Delivery Items Table */}
               {deliveryItems.length > 0 && (
                 <div className="flex flex-col w-full gap-2">
-                  <p className="text-sm font-light">รายการสินค้า</p>
+                  <p className="text-xs font-light">รายการสินค้า</p>
                   <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full text-xs">
                       <thead>
                         <tr className="bg-default-100">
                           <th className="text-left px-3 py-2 font-light">รายการ</th>

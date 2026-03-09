@@ -88,7 +88,7 @@ export default function SalesOrderDetailView({
         >
           <ArrowLeft size={18} />
         </Button>
-        <p className="text-sm font-light">{order.bcSalesOrderNumber}</p>
+        <p className="text-xs font-light">{order.bcSalesOrderNumber}</p>
         <Chip variant="flat" size="md" radius="md" color={STATUS_COLORS[order.bcSalesOrderStatus] || "default"}>
           {order.bcSalesOrderStatus}
         </Chip>
@@ -113,9 +113,9 @@ export default function SalesOrderDetailView({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5 gap-3">
-            <p className="text-sm font-light">ข้อมูลลูกค้า</p>
+            <p className="text-xs font-light">ข้อมูลลูกค้า</p>
             <Divider />
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-xs">
               <div className="flex gap-2">
                 <span className="text-muted-foreground w-24 shrink-0">ลูกค้า</span>
                 <span className="font-light">{order.bcSalesOrderCustomerName}</span>
@@ -134,9 +134,9 @@ export default function SalesOrderDetailView({
 
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5 gap-3">
-            <p className="text-sm font-light">ข้อมูลออเดอร์</p>
+            <p className="text-xs font-light">ข้อมูลออเดอร์</p>
             <Divider />
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-xs">
               <div className="flex gap-2">
                 <span className="text-muted-foreground w-24 shrink-0">วันที่สั่ง</span>
                 <span>
@@ -167,7 +167,7 @@ export default function SalesOrderDetailView({
               </div>
               <div className="flex gap-2">
                 <span className="text-muted-foreground w-24 shrink-0">ยอดรวม</span>
-                <span className="text-sm font-light text-primary">
+                <span className="text-xs font-light text-primary">
                   ฿{(order.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
               </div>

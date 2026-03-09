@@ -55,7 +55,7 @@ export default function FileUpload({
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <p className="text-sm font-light">{label}</p>
+      <p className="text-xs font-light">{label}</p>
 
       {urls.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -93,7 +93,7 @@ export default function FileUpload({
         ) : (
           <>
             <Upload size={16} className="text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               คลิกเพื่ออัปโหลดไฟล์
             </span>
           </>

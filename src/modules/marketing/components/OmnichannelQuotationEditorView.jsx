@@ -167,7 +167,7 @@ export default function OmnichannelQuotationEditorView({
           >
             <ArrowLeft size={18} />
           </Button>
-          <p className="text-sm font-light">{quotation.omQuotationNumber}</p>
+          <p className="text-xs font-light">{quotation.omQuotationNumber}</p>
           <Chip variant="flat" size="md" radius="md" color={status.color}>
             {status.label}
           </Chip>
@@ -282,7 +282,7 @@ export default function OmnichannelQuotationEditorView({
                 />
               </a>
               {quotation.paymentSlip.omMessageOcrData && (
-                <div className="text-sm space-y-2 flex-1">
+                <div className="text-xs space-y-2 flex-1">
                   {quotation.paymentSlip.omMessageOcrData.amount && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-muted-foreground">ยอดเงิน</span>
@@ -322,8 +322,8 @@ export default function OmnichannelQuotationEditorView({
         {/* Approval Info */}
         {quotation.omQuotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
-            <p className="text-sm font-light text-danger mb-1">เหตุผลที่ไม่อนุมัติ:</p>
-            <p className="text-sm">{quotation.omQuotationApprovalNote}</p>
+            <p className="text-xs font-light text-danger mb-1">เหตุผลที่ไม่อนุมัติ:</p>
+            <p className="text-xs">{quotation.omQuotationApprovalNote}</p>
           </div>
         )}
 

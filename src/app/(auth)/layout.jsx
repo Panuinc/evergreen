@@ -11,7 +11,7 @@ export default function AuthLayout({ children }) {
         <div className="flex items-center justify-start w-6/12 h-fit p-2 gap-2">
           <Quote className="text-default" />
         </div>
-        <div className="flex items-center justify-center w-6/12 h-fit p-2 gap-2 text-[20px] font-light">
+        <div className="flex items-center justify-center w-6/12 h-fit p-2 gap-2 text-xs font-light">
           EverGreen Internal makes managing company operations effortless — from
           sales and warehousing to production, everything in one place.
         </div>

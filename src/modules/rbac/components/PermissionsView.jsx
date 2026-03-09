@@ -22,7 +22,7 @@ export default function PermissionsView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between w-full">
-        <p className="text-sm font-light">ตารางสิทธิ์</p>
+        <p className="text-xs font-light">ตารางสิทธิ์</p>
         <p className="text-muted-foreground">
           สลับเพื่อสร้าง/ลบสิทธิ์ทรัพยากร-การดำเนินการ
         </p>

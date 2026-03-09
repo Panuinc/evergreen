@@ -184,7 +184,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <p className="text-sm font-light">รายการราคา</p>
+      <p className="text-xs font-light">รายการราคา</p>
 
       <DataTable
         columns={COLUMNS}

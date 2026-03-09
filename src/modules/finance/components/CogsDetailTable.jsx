@@ -62,7 +62,7 @@ export default function CogsDetailTable({
   }
 
   if (!data || data.length === 0) {
-    return <p className="py-10 text-center text-sm text-muted-foreground">ไม่มีข้อมูล</p>;
+    return <p className="py-10 text-center text-xs text-muted-foreground">ไม่มีข้อมูล</p>;
   }
 
   const beYear = (year || 0) + 543;
@@ -116,7 +116,7 @@ export default function CogsDetailTable({
       {chartData && chartData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
-            <p className="text-sm font-light">องค์ประกอบต้นทุนรายเดือน</p>
+            <p className="text-xs font-light">องค์ประกอบต้นทุนรายเดือน</p>
           </CardHeader>
           <CardBody>
             <ResponsiveContainer width="100%" height={300}>
@@ -142,7 +142,7 @@ export default function CogsDetailTable({
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-light">รายละเอียดต้นทุนขาย</p>
+            <p className="text-xs font-light">รายละเอียดต้นทุนขาย</p>
             <Chip size="md" variant="flat" color="warning">ปี {beYear}</Chip>
             {inventoryOverride && (
               <Chip size="md" variant="flat" color="success">ปรับปรุงสินค้าคงเหลือแล้ว</Chip>
@@ -163,8 +163,8 @@ export default function CogsDetailTable({
               </PopoverTrigger>
               <PopoverContent className="w-80 p-4">
                 <div className="flex flex-col gap-3">
-                  <p className="text-sm font-light">ปรับปรุงสินค้าคงเหลือ (Manual Override)</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs font-light">ปรับปรุงสินค้าคงเหลือ (Manual Override)</p>
+                  <p className="text-xs text-muted-foreground">
                     กรอกค่าจาก Excel ของ Manager Account เพื่อปรับปรุงต้นทุนขาย
                   </p>
                   <Input
@@ -206,7 +206,7 @@ export default function CogsDetailTable({
           </div>
         </CardHeader>
         <CardBody className="overflow-x-auto p-0">
-          <table className="w-full text-sm border-collapse min-w-[1200px]">
+          <table className="w-full text-xs border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-default-100 border-b border-border">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[220px] font-light">รายการ</th>
@@ -233,18 +233,18 @@ export default function CogsDetailTable({
                   {CAL_MONTHS.map((m) => {
                     const val = row.months?.[m];
                     return (
-                      <td key={m} className={`text-right font-mono text-sm px-2 ${val < 0 ? "text-danger" : ""}`}>
+                      <td key={m} className={`text-right font-mono text-xs px-2 ${val < 0 ? "text-danger" : ""}`}>
                         {fmt(val)}
                       </td>
                     );
                   })}
-                  <td className={`text-right font-mono text-sm px-3 bg-default-50 font-light ${row.total < 0 ? "text-danger" : ""}`}>
+                  <td className={`text-right font-mono text-xs px-3 bg-default-50 font-light ${row.total < 0 ? "text-danger" : ""}`}>
                     {fmt(row.total)}
                   </td>
                   {compYears.map((cy) => {
                     const val = cy.cogs[row.key] || 0;
                     return (
-                      <td key={cy.year} className={`text-right font-mono text-sm px-3 bg-warning-50/50 ${val < 0 ? "text-danger" : ""}`}>
+                      <td key={cy.year} className={`text-right font-mono text-xs px-3 bg-warning-50/50 ${val < 0 ? "text-danger" : ""}`}>
                         {fmt(val)}
                       </td>
                     );

@@ -157,11 +157,11 @@ export default function BciProjectsView({ projects, loading, reload }) {
       case "bciProjectName":
         return (
           <div className="flex flex-col">
-            <span className="font-light text-sm">
+            <span className="font-light text-xs">
               {item.bciProjectName || "-"}
             </span>
             {item.bciProjectType && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {item.bciProjectType}
               </span>
             )}
@@ -170,9 +170,9 @@ export default function BciProjectsView({ projects, loading, reload }) {
       case "bciProjectCityOrTown":
         return (
           <div className="flex flex-col">
-            <span className="text-sm">{item.bciProjectCityOrTown || "-"}</span>
+            <span className="text-xs">{item.bciProjectCityOrTown || "-"}</span>
             {item.bciProjectStateProvince && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {item.bciProjectStateProvince}
               </span>
             )}
@@ -226,15 +226,15 @@ export default function BciProjectsView({ projects, loading, reload }) {
         const email = item[`${prefix}Email`];
         return company ? (
           <div className="flex flex-col">
-            <span className="text-sm">{company}</span>
+            <span className="text-xs">{company}</span>
             {contact && (
-              <span className="text-sm text-muted-foreground">{contact}</span>
+              <span className="text-xs text-muted-foreground">{contact}</span>
             )}
             {phone && (
-              <span className="text-sm text-muted-foreground">{phone}</span>
+              <span className="text-xs text-muted-foreground">{phone}</span>
             )}
             {email && (
-              <span className="text-sm text-muted-foreground">{email}</span>
+              <span className="text-xs text-muted-foreground">{email}</span>
             )}
           </div>
         ) : (
@@ -244,7 +244,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       case "bciProjectDescription":
       case "bciProjectRemarks":
         return item[columnKey] ? (
-          <span className="text-sm line-clamp-2">{item[columnKey]}</span>
+          <span className="text-xs line-clamp-2">{item[columnKey]}</span>
         ) : (
           <span className="text-muted-foreground">-</span>
         );
@@ -253,7 +253,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       case "bciProjectFloorArea":
       case "bciProjectSiteArea":
         return item[columnKey] ? (
-          <span className="text-sm">
+          <span className="text-xs">
             {Number(item[columnKey]).toLocaleString("th-TH")} m²
           </span>
         ) : (

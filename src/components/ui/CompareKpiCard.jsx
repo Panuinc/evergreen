@@ -57,15 +57,15 @@ export default function CompareKpiCard({
   return (
     <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="gap-1">
-        <p className="text-sm text-muted-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground">{title}</p>
         <div className="flex items-baseline gap-1">
-          <p className={`text-sm font-light ${colorClass[color] || ""}`}>
+          <p className={`text-xs font-light ${colorClass[color] || ""}`}>
             {value}
           </p>
-          {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
+          {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
         </div>
         {showBadge && (
-          <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-sm font-light w-fit ${badgeColor} ${bgColor}`}>
+          <div className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-xs font-light w-fit ${badgeColor} ${bgColor}`}>
             {isPositive && <TrendingUp size={12} />}
             {isNegative && <TrendingDown size={12} />}
             {isNeutral && <Minus size={12} />}
@@ -73,7 +73,7 @@ export default function CompareKpiCard({
           </div>
         )}
         {subtitle && !showBadge && (
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
         )}
       </CardBody>
     </Card>

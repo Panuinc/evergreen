@@ -125,18 +125,18 @@ export default function ConversationList({
                     <span className="font-light truncate">
                       {contact?.omContactDisplayName || "ไม่ทราบ"}
                     </span>
-                    <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                    <span className="text-xs text-muted-foreground flex-shrink-0">
                       {formatTime(conv.omConversationLastMessageAt)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mt-0.5">
-                    <span className="text-muted-foreground truncate text-[11px]">
+                    <span className="text-muted-foreground truncate text-xs">
                       {conv.omConversationLastMessagePreview || "..."}
                     </span>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <ChannelBadge channelType={conv.omConversationChannelType} />
                       {conv.omConversationUnreadCount > 0 && (
-                        <Chip size="md" color="danger" variant="solid" className="min-w-5 h-5 text-[10px]">
+                        <Chip size="md" color="danger" variant="solid" className="min-w-5 h-5 text-xs">
                           {conv.omConversationUnreadCount}
                         </Chip>
                       )}

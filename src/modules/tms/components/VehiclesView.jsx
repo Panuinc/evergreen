@@ -253,7 +253,7 @@ export default function VehiclesView({
 
               {/* 2. ความจุที่สามารถบรรทุกได้ */}
               <div className="flex flex-col gap-2">
-                <p className="text-sm font-light px-2">ความจุที่สามารถบรรทุกได้</p>
+                <p className="text-xs font-light px-2">ความจุที่สามารถบรรทุกได้</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex items-center w-full h-fit p-2 gap-2">
                     <Input

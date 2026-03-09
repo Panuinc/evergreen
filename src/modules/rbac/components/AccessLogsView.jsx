@@ -63,7 +63,7 @@ export default function AccessLogsView({ logs, loading }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between w-full">
-        <p className="text-sm font-light">บันทึกการเข้าถึง</p>
+        <p className="text-xs font-light">บันทึกการเข้าถึง</p>
         <p className="text-muted-foreground">200 รายการล่าสุด</p>
       </div>
 

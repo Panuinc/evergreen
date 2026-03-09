@@ -173,7 +173,7 @@ export default function ChatWindow({
                 className={`flex ${msg.omMessageSenderType === "agent" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${
+                  className={`max-w-[75%] px-3 py-2 rounded-xl text-xs ${
                     msg.omMessageSenderType === "agent"
                       ? msg.omMessageIsAi
                         ? "bg-secondary text-secondary-foreground"
@@ -182,7 +182,7 @@ export default function ChatWindow({
                   }`}
                 >
                   {msg.omMessageIsAi && (
-                    <div className="flex items-center gap-1 mb-1 text-[10px] opacity-70">
+                    <div className="flex items-center gap-1 mb-1 text-xs opacity-70">
                       <Sparkles size={10} />
                       <span>AI</span>
                     </div>
@@ -198,7 +198,7 @@ export default function ChatWindow({
                         />
                       </a>
                       {msg.omMessageOcrData && (
-                        <div className="bg-default-50 rounded-lg p-2 text-sm space-y-1 border border-border">
+                        <div className="bg-default-50 rounded-lg p-2 text-xs space-y-1 border border-border">
                           <div className="flex items-center gap-1 font-light text-foreground mb-1">
                             <Receipt size={12} />
                             <span>ข้อมูลสลิป</span>
@@ -240,7 +240,7 @@ export default function ChatWindow({
                     <p className="whitespace-pre-wrap break-words">{renderMessageContent(msg.omMessageContent)}</p>
                   )}
                   <p
-                    className={`text-[10px] mt-1 ${
+                    className={`text-xs mt-1 ${
                       msg.omMessageSenderType === "agent"
                         ? msg.omMessageIsAi
                           ? "text-secondary-foreground/70"
@@ -273,7 +273,7 @@ export default function ChatWindow({
           <ModalHeader>ยืนยันการลบ</ModalHeader>
           <ModalBody>
             <p>ต้องการลบการสนทนากับ <strong>{contact?.omContactDisplayName || "ไม่ทราบ"}</strong> หรือไม่?</p>
-            <p className="text-sm text-muted-foreground">ข้อความทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้</p>
+            <p className="text-xs text-muted-foreground">ข้อความทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้</p>
           </ModalBody>
           <ModalFooter>
             <Button variant="bordered" size="md" radius="md" onPress={deleteModal.onClose}>

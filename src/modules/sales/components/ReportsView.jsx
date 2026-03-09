@@ -27,12 +27,12 @@ export default function ReportsView({ data, loading }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-light">รายงานการขาย</p>
+        <p className="text-xs font-light">รายงานการขาย</p>
       </div>
 
       {/* Full-width Pipeline Chart */}
       <Card shadow="none" className="border border-border p-4">
-        <p className="text-sm font-light mb-4">วิเคราะห์ไปป์ไลน์</p>
+        <p className="text-xs font-light mb-4">วิเคราะห์ไปป์ไลน์</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.pipelineByStage || []}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -50,7 +50,7 @@ export default function ReportsView({ data, loading }) {
 
       {/* Revenue Trend */}
       <Card shadow="none" className="border border-border p-4">
-        <p className="text-sm font-light mb-4">แนวโน้มรายได้</p>
+        <p className="text-xs font-light mb-4">แนวโน้มรายได้</p>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.revenueByMonth || []}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -69,10 +69,10 @@ export default function ReportsView({ data, loading }) {
       {/* Win/Loss and Salespeople side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border p-4">
-          <p className="text-sm font-light mb-4">อัตราการชนะ</p>
+          <p className="text-xs font-light mb-4">อัตราการชนะ</p>
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <p className="text-sm font-light text-success">
+              <p className="text-xs font-light text-success">
                 {kpis.winRate || 0}%
               </p>
               <p className="text-muted-foreground mt-2">
@@ -83,7 +83,7 @@ export default function ReportsView({ data, loading }) {
         </Card>
 
         <Card shadow="none" className="border border-border p-4">
-          <p className="text-sm font-light mb-4">พนักงานขายยอดเยี่ยม</p>
+          <p className="text-xs font-light mb-4">พนักงานขายยอดเยี่ยม</p>
           <div className="flex flex-col gap-3">
             {(data.topSalespeople || []).map((person, i) => (
               <div
@@ -91,12 +91,12 @@ export default function ReportsView({ data, loading }) {
                 className="flex items-center justify-between p-2 rounded-lg border border-border"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-light text-muted-foreground w-6">
+                  <span className="text-xs font-light text-muted-foreground w-6">
                     #{i + 1}
                   </span>
                   <span className="font-light">{person.name}</span>
                 </div>
-                <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-4 text-xs">
                   <span className="text-muted-foreground">
                     {person.deals} ดีล
                   </span>
@@ -107,7 +107,7 @@ export default function ReportsView({ data, loading }) {
               </div>
             ))}
             {(!data.topSalespeople || data.topSalespeople.length === 0) && (
-              <p className="text-muted-foreground text-sm text-center py-4">
+              <p className="text-muted-foreground text-xs text-center py-4">
                 ไม่มีข้อมูล
               </p>
             )}

@@ -38,7 +38,7 @@
   --sidebar-accent: #f4f4f5;
   --sidebar-accent-foreground: #18181b;
   --radius: 0.625rem;
-  --grid-line: rgba(0, 0, 0, 0.01);
+  --grid-line: rgba(0, 0, 0, 0.02);
 }
 
 .dark {

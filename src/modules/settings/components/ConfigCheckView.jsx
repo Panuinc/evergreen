@@ -117,8 +117,8 @@ function SystemStatusTab({ status, loading, refetch }) {
                     <div className="flex items-center gap-3">
                       <Icon size={24} />
                       <div>
-                        <p className="font-light text-sm">{service.name}</p>
-                        <p className="text-muted-foreground text-sm">
+                        <p className="font-light text-xs">{service.name}</p>
+                        <p className="text-muted-foreground text-xs">
                           {service.description}
                         </p>
                       </div>
@@ -137,7 +137,7 @@ function SystemStatusTab({ status, loading, refetch }) {
                     </Chip>
                   </div>
 
-                  <div className="flex flex-col gap-1 text-sm">
+                  <div className="flex flex-col gap-1 text-xs">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">เวลาตอบสนอง</span>
                       <span>
@@ -153,7 +153,7 @@ function SystemStatusTab({ status, loading, refetch }) {
                     {data?.error && (
                       <div className="flex flex-col gap-1 mt-2">
                         <span className="text-muted-foreground">ข้อผิดพลาด</span>
-                        <span className="text-danger text-sm break-all">
+                        <span className="text-danger text-xs break-all">
                           {data.error}
                         </span>
                       </div>
@@ -233,11 +233,11 @@ function Cp30Settings() {
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
-          <p className="font-light text-sm">Chainway CP30 (RFID)</p>
+          <p className="font-light text-xs">Chainway CP30 (RFID)</p>
         </CardHeader>
         <CardBody className="gap-3">
           <div className="flex gap-2 items-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Network — 192.168.1.110:9100
             </p>
             {connected === true && (
@@ -266,7 +266,7 @@ function Cp30Settings() {
 
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
-          <p className="font-light text-sm">ตั้งค่าการพิมพ์</p>
+          <p className="font-light text-xs">ตั้งค่าการพิมพ์</p>
         </CardHeader>
         <CardBody className="gap-4">
           <div className="grid grid-cols-2 gap-3">
@@ -373,7 +373,7 @@ function Cp30Settings() {
 
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
-          <p className="font-light text-sm">เนื้อหา Label</p>
+          <p className="font-light text-xs">เนื้อหา Label</p>
         </CardHeader>
         <CardBody className="gap-3">
           <Switch
@@ -480,7 +480,7 @@ function TscTeSettings() {
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex items-center gap-2 pb-0">
           <Printer size={20} />
-          <p className="font-light text-sm">TSC TE</p>
+          <p className="font-light text-xs">TSC TE</p>
         </CardHeader>
         <CardBody className="gap-3">
           <div className="grid grid-cols-2 gap-3">
@@ -531,7 +531,7 @@ function TscTeSettings() {
 
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
-          <p className="font-light text-sm">ตั้งค่าการพิมพ์</p>
+          <p className="font-light text-xs">ตั้งค่าการพิมพ์</p>
         </CardHeader>
         <CardBody className="gap-4">
           <div className="grid grid-cols-2 gap-3">
@@ -667,7 +667,7 @@ function PrinterTab() {
 export default function ConfigCheckView({ status, loading, refetch }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <p className="text-sm font-light">ตั้งค่าระบบ</p>
+      <p className="text-xs font-light">ตั้งค่าระบบ</p>
 
       <Tabs aria-label="Settings" variant="bordered" size="md" radius="md">
         <Tab

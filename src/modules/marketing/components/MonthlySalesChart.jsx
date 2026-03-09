@@ -14,7 +14,7 @@ function formatCurrency(value) {
 
 export default function MonthlySalesChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   const chartData = data.map((d) => ({

@@ -52,11 +52,11 @@ function formatCompact(value) {
 }
 
 function GrowthBadge({ value }) {
-  if (value === null || value === undefined) return <span className="text-sm text-muted-foreground">—</span>;
+  if (value === null || value === undefined) return <span className="text-xs text-muted-foreground">—</span>;
   const isPositive = value >= 0;
   const Icon = isPositive ? TrendingUp : TrendingDown;
   return (
-    <span className={`inline-flex items-center gap-1 text-sm font-light ${isPositive ? "text-success" : "text-danger"}`}>
+    <span className={`inline-flex items-center gap-1 text-xs font-light ${isPositive ? "text-success" : "text-danger"}`}>
       <Icon size={12} />
       {isPositive ? "+" : ""}{value.toFixed(1)}%
     </span>
@@ -68,15 +68,15 @@ function KpiCard({ title, value, sub, icon: Icon, color, growth }) {
     <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="p-5 gap-1">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground uppercase tracking-wide">{title}</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">{title}</p>
           <div className={`p-2 rounded-lg bg-default-100 ${color}`}>
             <Icon size={16} />
           </div>
         </div>
-        <p className="text-sm font-light mt-1">{value}</p>
+        <p className="text-xs font-light mt-1">{value}</p>
         <div className="flex items-center gap-2 mt-1">
           {growth !== undefined && <GrowthBadge value={growth} />}
-          <p className="text-sm text-muted-foreground">{sub}</p>
+          <p className="text-xs text-muted-foreground">{sub}</p>
         </div>
       </CardBody>
     </Card>
@@ -88,17 +88,17 @@ function PeriodCard({ title, revenue, orders, icon: Icon, color, growth, prevLab
     <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="p-5 gap-1">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground uppercase tracking-wide">{title}</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">{title}</p>
           <div className={`p-2 rounded-lg bg-default-100 ${color}`}>
             <Icon size={16} />
           </div>
         </div>
-        <p className="text-sm font-light mt-1">{formatCurrency(revenue)}</p>
+        <p className="text-xs font-light mt-1">{formatCurrency(revenue)}</p>
         <div className="flex items-center gap-2 mt-1">
           {growth !== undefined && <GrowthBadge value={growth} />}
-          <span className="text-sm text-muted-foreground">{prevLabel}</span>
+          <span className="text-xs text-muted-foreground">{prevLabel}</span>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">{orders} ออเดอร์</p>
+        <p className="text-xs text-muted-foreground mt-1">{orders} ออเดอร์</p>
       </CardBody>
     </Card>
   );
@@ -123,8 +123,8 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-light">วิเคราะห์ยอดขาย</p>
-            <p className="text-sm text-muted-foreground">ช่องทางออนไลน์ — Business Central</p>
+            <p className="text-xs font-light">วิเคราะห์ยอดขาย</p>
+            <p className="text-xs text-muted-foreground">ช่องทางออนไลน์ — Business Central</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex flex-wrap gap-1">
@@ -148,19 +148,19 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         </div>
         {period === "custom" && (
           <div className="flex items-center gap-2 flex-wrap">
-            <label className="text-sm text-muted-foreground">ตั้งแต่</label>
+            <label className="text-xs text-muted-foreground">ตั้งแต่</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-border rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
+              className="border border-border rounded-lg px-3 py-1.5 text-xs bg-transparent focus:outline-none focus:border-primary"
             />
-            <label className="text-sm text-muted-foreground">ถึง</label>
+            <label className="text-xs text-muted-foreground">ถึง</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-border rounded-lg px-3 py-1.5 text-sm bg-transparent focus:outline-none focus:border-primary"
+              className="border border-border rounded-lg px-3 py-1.5 text-xs bg-transparent focus:outline-none focus:border-primary"
             />
             <Button
               size="md"
@@ -277,12 +277,12 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
                 <OrderStatusChart data={stats.orderStatusDist} />
                 <div className="flex justify-center gap-6 mt-2">
                   <div className="text-center">
-                    <p className="text-sm font-light text-success">{stats.shippedOrders}</p>
-                    <p className="text-sm text-muted-foreground">จัดส่งแล้ว</p>
+                    <p className="text-xs font-light text-success">{stats.shippedOrders}</p>
+                    <p className="text-xs text-muted-foreground">จัดส่งแล้ว</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-light text-warning">{stats.pendingOrders}</p>
-                    <p className="text-sm text-muted-foreground">รอจัดส่ง</p>
+                    <p className="text-xs font-light text-warning">{stats.pendingOrders}</p>
+                    <p className="text-xs text-muted-foreground">รอจัดส่ง</p>
                   </div>
                 </div>
               </Tab>
@@ -301,13 +301,13 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">การกระจายมูลค่าออเดอร์</p>
+            <p className="text-xs font-light mb-3">การกระจายมูลค่าออเดอร์</p>
             <OrderValueDistChart data={stats.orderValueDist} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">เปรียบเทียบรายเดือน</p>
+            <p className="text-xs font-light mb-3">เปรียบเทียบรายเดือน</p>
             <MonthlyComparisonTable data={stats.monthlyComparison} />
           </CardBody>
         </Card>
@@ -318,7 +318,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-light">ช่องทางลูกค้า</p>
+              <p className="text-xs font-light">ช่องทางลูกค้า</p>
               <Chip variant="flat" size="md" radius="md">{stats.customerSegmentation?.totalCustomers || 0} ราย</Chip>
             </div>
             <ChannelDistChart data={stats.customerSegmentation?.byChannel} />
@@ -326,13 +326,13 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">กลุ่มลูกค้า</p>
+            <p className="text-xs font-light mb-3">กลุ่มลูกค้า</p>
             <CustomerGroupChart data={stats.customerSegmentation?.byGroup} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">ประเภทงาน</p>
+            <p className="text-xs font-light mb-3">ประเภทงาน</p>
             <ProjectTypeChart data={stats.customerSegmentation?.byType} />
           </CardBody>
         </Card>
@@ -342,14 +342,14 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">ข้อมูลเชิงลึกลูกค้า</p>
+            <p className="text-xs font-light mb-3">ข้อมูลเชิงลึกลูกค้า</p>
             <CustomerInsightsCard data={stats.customerInsights} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-light">Top 10 ลูกค้า</p>
+              <p className="text-xs font-light">Top 10 ลูกค้า</p>
               <Chip variant="flat" size="md" radius="md">ตามยอดขาย</Chip>
             </div>
             <TopCustomersChart data={stats.topCustomers} />
@@ -358,7 +358,7 @@ export default function AnalyticsView({ stats, loading, reload, period, setPerio
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-light">Top 10 SKU</p>
+              <p className="text-xs font-light">Top 10 SKU</p>
               <Chip variant="flat" size="md" radius="md">ตามยอดขาย</Chip>
             </div>
             <TopSkuChart data={stats.topSkus} />

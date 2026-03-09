@@ -57,8 +57,8 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
         <div className="flex flex-col gap-4">
           {/* Contact Info */}
           <div className="flex flex-col gap-2">
-            <p className="font-light text-sm">ข้อมูลลูกค้า</p>
-            <div className="flex flex-col gap-1 text-sm">
+            <p className="font-light text-xs">ข้อมูลลูกค้า</p>
+            <div className="flex flex-col gap-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">ชื่อ</span>
                 <span>{contact.omContactDisplayName || "-"}</span>
@@ -69,7 +69,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">External ID</span>
-                <span className="text-[10px] truncate max-w-[150px]">{contact.omContactExternalId}</span>
+                <span className="text-xs truncate max-w-[150px]">{contact.omContactExternalId}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">สถานะ</span>
@@ -87,7 +87,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Tag size={14} />
-              <p className="font-light text-sm">แท็ก</p>
+              <p className="font-light text-xs">แท็ก</p>
             </div>
             <div className="flex flex-wrap gap-1">
               {(contact.omContactTags || []).map((tag) => (
@@ -121,7 +121,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <StickyNote size={14} />
-              <p className="font-light text-sm">หมายเหตุ</p>
+              <p className="font-light text-xs">หมายเหตุ</p>
             </div>
             {editingNotes ? (
               <div className="flex flex-col gap-2">
@@ -145,7 +145,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             ) : (
               <div
                 onClick={() => setEditingNotes(true)}
-                className="text-sm text-muted-foreground cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
+                className="text-xs text-muted-foreground cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
               >
                 {contact.omContactNotes || "คลิกเพื่อเพิ่มหมายเหตุ..."}
               </div>
@@ -156,10 +156,10 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <FileText size={14} />
-              <p className="font-light text-sm">ใบเสนอราคา</p>
+              <p className="font-light text-xs">ใบเสนอราคา</p>
             </div>
             {quotations.length === 0 ? (
-              <p className="text-sm text-muted-foreground">ยังไม่มีใบเสนอราคา</p>
+              <p className="text-xs text-muted-foreground">ยังไม่มีใบเสนอราคา</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {quotations.map((q) => (
@@ -168,8 +168,8 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                     className="flex items-center justify-between p-2 rounded-md bg-default/50"
                   >
                     <div className="flex flex-col">
-                      <span className="text-sm font-light">{q.omQuotationNumber}</span>
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-xs font-light">{q.omQuotationNumber}</span>
+                      <span className="text-xs text-muted-foreground">
                         {new Date(q.omQuotationCreatedAt).toLocaleDateString("th-TH")}
                       </span>
                     </div>

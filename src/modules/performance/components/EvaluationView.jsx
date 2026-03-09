@@ -73,8 +73,8 @@ export default function EvaluationView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <p className="text-sm font-light">ประเมินค่านิยม CHH²</p>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-xs font-light">ประเมินค่านิยม CHH²</p>
+        <p className="text-muted-foreground text-xs">
           ประเมินพนักงาน 6 ด้าน พร้อม Spider Chart & ประวัติเปรียบเทียบรายรอบ
         </p>
       </div>
@@ -273,7 +273,7 @@ function EvaluateTab({
             </div>
 
             {currentEmployee && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 ผู้ประเมิน: {currentEmployee.hrEmployeeFirstName}{" "}
                 {currentEmployee.hrEmployeeLastName} | รอบ: {perfEvaluationPeriod}
               </p>
@@ -305,10 +305,10 @@ function EvaluateTab({
         <Card>
           <CardBody>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-light">
+              <p className="text-xs font-light">
                 ตอบแล้ว {answeredCount}/{totalQuestions}
               </p>
-              <p className="text-sm text-muted-foreground">{progress}%</p>
+              <p className="text-xs text-muted-foreground">{progress}%</p>
             </div>
             <Progress
               value={progress}
@@ -317,8 +317,8 @@ function EvaluateTab({
             />
             {overallScore > 0 && (
               <div className="flex items-center gap-3 mt-3">
-                <span className="text-sm text-muted-foreground">คะแนนเฉลี่ย:</span>
-                <span className="text-sm font-light">
+                <span className="text-xs text-muted-foreground">คะแนนเฉลี่ย:</span>
+                <span className="text-xs font-light">
                   {overallScore.toFixed(2)}
                 </span>
                 <Chip size="md" radius="md" color={getGradeColor(grade)}>
@@ -341,11 +341,11 @@ function EvaluateTab({
                 key={String(catIdx)}
                 title={
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm">{cat.emoji}</span>
+                    <span className="text-xs">{cat.emoji}</span>
                     <span className="font-light">
                       {catIdx + 1}. {cat.name}
                     </span>
-                    <span className="text-muted-foreground text-sm">
+                    <span className="text-muted-foreground text-xs">
                       ({cat.nameTh})
                     </span>
                     <Chip size="md" radius="md" variant="flat" color={answered === 5 ? "success" : "default"}>
@@ -362,7 +362,7 @@ function EvaluateTab({
                 <div className="flex flex-col gap-6 py-2">
                   {cat.questions.map((question, qIdx) => (
                     <div key={qIdx}>
-                      <p className="text-sm mb-2">
+                      <p className="text-xs mb-2">
                         <span className="text-muted-foreground mr-2">
                           {qIdx + 1}
                         </span>
@@ -582,7 +582,7 @@ function MyResultsTab({
             <CardBody>
               <p className="font-light mb-4">สรุปคะแนนรายรอบ</p>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-border">
                       <th className="text-left py-2 px-3">รอบ</th>
@@ -771,7 +771,7 @@ function AdminTab({
               สรุปผลประเมิน {adminPeriod} ({adminSummary.length} คน)
             </p>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-2 px-3">#</th>
@@ -834,7 +834,7 @@ function AdminTab({
               </table>
             </div>
             {selectedAdminEmployee && (
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-xs text-muted-foreground mt-2">
                 คลิกอีกครั้งเพื่อยกเลิกการเลือก
               </p>
             )}

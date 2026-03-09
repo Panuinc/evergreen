@@ -319,7 +319,7 @@ export default function CollectionsView({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
               <CardHeader className="pb-0">
-                <p className="text-sm font-light">เหตุผลที่ลูกหนี้ยังไม่ชำระ</p>
+                <p className="text-xs font-light">เหตุผลที่ลูกหนี้ยังไม่ชำระ</p>
               </CardHeader>
               <CardBody>
                 {reportData.reasonChart.length > 0 ? (
@@ -337,14 +337,14 @@ export default function CollectionsView({
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="py-10 text-center text-sm text-muted-foreground">ไม่มีข้อมูลในช่วงนี้</p>
+                  <p className="py-10 text-center text-xs text-muted-foreground">ไม่มีข้อมูลในช่วงนี้</p>
                 )}
               </CardBody>
             </Card>
 
             <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
               <CardHeader className="pb-0">
-                <p className="text-sm font-light">สถานะการติดตาม</p>
+                <p className="text-xs font-light">สถานะการติดตาม</p>
               </CardHeader>
               <CardBody>
                 {reportData.statusChart.length > 0 ? (
@@ -369,7 +369,7 @@ export default function CollectionsView({
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="py-10 text-center text-sm text-muted-foreground">ไม่มีข้อมูลในช่วงนี้</p>
+                  <p className="py-10 text-center text-xs text-muted-foreground">ไม่มีข้อมูลในช่วงนี้</p>
                 )}
               </CardBody>
             </Card>
@@ -396,7 +396,7 @@ export default function CollectionsView({
         <CardHeader className="pb-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BotMessageSquare size={18} className="text-primary" />
-            <p className="text-sm font-light">AI วิเคราะห์การติดตามลูกหนี้</p>
+            <p className="text-xs font-light">AI วิเคราะห์การติดตามลูกหนี้</p>
             <Chip size="md" variant="flat" color="secondary">Collections Advisor</Chip>
           </div>
           <Button
@@ -415,22 +415,22 @@ export default function CollectionsView({
           {aiLoading && !aiAnalysis && (
             <div className="flex items-center gap-3 py-8 justify-center">
               <Loading />
-              <span className="text-sm text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลลูกหนี้และจัดลำดับความสำคัญ...</span>
+              <span className="text-xs text-muted-foreground">AI กำลังวิเคราะห์ข้อมูลลูกหนี้และจัดลำดับความสำคัญ...</span>
             </div>
           )}
           {!aiAnalysis && !aiLoading && (
-            <p className="text-sm text-muted-foreground py-4 text-center">
+            <p className="text-xs text-muted-foreground py-4 text-center">
               กดปุ่ม &quot;เริ่มวิเคราะห์&quot; เพื่อให้ AI จัดลำดับลูกหนี้ที่ควรติดตามก่อน วิเคราะห์ความเสี่ยง และแนะนำกลยุทธ์เก็บหนี้
             </p>
           )}
           {aiAnalysis && (
-            <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-sm leading-relaxed">
+            <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-xs leading-relaxed">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
                   table: ({ children }) => (
                     <div className="overflow-x-auto my-2">
-                      <table className="border-collapse w-full text-sm">{children}</table>
+                      <table className="border-collapse w-full text-xs">{children}</table>
                     </div>
                   ),
                   thead: ({ children }) => <thead className="bg-default-100">{children}</thead>,
@@ -448,10 +448,10 @@ export default function CollectionsView({
                   strong: ({ children }) => <strong className="font-light text-foreground">{children}</strong>,
                   code: ({ inline, children }) =>
                     inline ? (
-                      <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">{children}</code>
+                      <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
                     ) : (
                       <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
-                        <code className="text-sm font-mono">{children}</code>
+                        <code className="text-xs font-mono">{children}</code>
                       </pre>
                     ),
                 }}
@@ -470,7 +470,7 @@ export default function CollectionsView({
           <ModalHeader className="flex flex-col gap-1">
             <span>เพิ่มการติดตาม</span>
             {selectedCustomer && (
-              <span className="text-sm font-light text-muted-foreground">
+              <span className="text-xs font-light text-muted-foreground">
                 {selectedCustomer.name} ({selectedCustomer.customerNumber}) | ค้างชำระ ฿{fmt(selectedCustomer.balanceDue)}
               </span>
             )}
@@ -572,7 +572,7 @@ export default function CollectionsView({
           <ModalHeader className="flex flex-col gap-1">
             <span>ประวัติการติดตาม</span>
             {selectedCustomer && (
-              <span className="text-sm font-light text-muted-foreground">
+              <span className="text-xs font-light text-muted-foreground">
                 {selectedCustomer.name} ({selectedCustomer.customerNumber}) | ค้างชำระ ฿{fmt(selectedCustomer.balanceDue)} | ติดตาม {customerHistory.length} ครั้ง
               </span>
             )}

@@ -14,7 +14,7 @@ function formatCurrency(value) {
 
 export default function FuelCostChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-muted-foreground text-center py-8">No data</p>;
+    return <p className="text-xs text-muted-foreground text-center py-8">No data</p>;
   }
 
   const chartData = data.map((d) => ({

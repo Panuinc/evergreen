@@ -48,7 +48,7 @@ export default function OmnichannelView({
     <div className="flex flex-col w-full h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
-        <p className="text-sm font-light">แชทรวมช่องทาง</p>
+        <p className="text-xs font-light">แชทรวมช่องทาง</p>
         <Button
           variant="bordered"
           size="md"

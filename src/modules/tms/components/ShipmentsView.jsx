@@ -351,10 +351,10 @@ export default function ShipmentsView({
                       return (
                         <SelectItem key={String(plan.tmsDeliveryPlanId)} textValue={`${firstItem?.tmsDeliveryPlanItemSalesOrderNo || ""} ${firstItem?.tmsDeliveryPlanItemCustomerName || ""}`}>
                           <div className="flex flex-col">
-                            <span className="text-sm font-light">
+                            <span className="text-xs font-light">
                               {dateLabel} · {firstItem?.tmsDeliveryPlanItemSalesOrderNo || "แผนส่ง"} · {firstItem?.tmsDeliveryPlanItemCustomerName || "-"}{pLabel}
                             </span>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               {plan.tmsDeliveryPlanItem?.length || 0} รายการ
                               {plan.tmsDeliveryPlanAddress ? ` · ${plan.tmsDeliveryPlanAddress}` : ""}
                             </span>
@@ -392,7 +392,7 @@ export default function ShipmentsView({
                   {selectedPlanIds.length >= 2 && (
                     <div className="flex flex-col gap-2 border border-border rounded-xl p-3 bg-default-50">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
+                        <p className="text-xs text-muted-foreground">{selectedPlanIds.length} จุดส่ง — กดจัดเส้นทางเพื่อหาเส้นทางที่ดีที่สุด</p>
                         <Button
                           variant="flat"
                           size="md"
@@ -408,14 +408,14 @@ export default function ShipmentsView({
 
                       {/* Compact route result */}
                       {routeLoading && !routeResult && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
                           <Loading /> กำลังคำนวณเส้นทาง...
                         </div>
                       )}
                       {routeResult && (
                         <div className="flex flex-col gap-2">
                           {/* Stop order */}
-                          <div className="flex items-center gap-1 flex-wrap text-sm">
+                          <div className="flex items-center gap-1 flex-wrap text-xs">
                             <span className="text-muted-foreground">โรงงาน</span>
                             {routeResult.optimizedStops?.map((stop, i) => (
                               <span key={i} className="flex items-center gap-1">
@@ -430,7 +430,7 @@ export default function ShipmentsView({
                             <span className="text-muted-foreground">โรงงาน</span>
                           </div>
                           {/* Stats row */}
-                          <div className="flex items-center gap-4 text-sm flex-wrap">
+                          <div className="flex items-center gap-4 text-xs flex-wrap">
                             <span><span className="text-muted-foreground">รวม:</span> <span className="font-light">{routeResult.totalDistanceKm} กม.</span></span>
                             <span><span className="text-muted-foreground">เวลา:</span> <span className="font-light">{Math.floor(routeResult.totalDurationMin / 60)} ชม. {routeResult.totalDurationMin % 60} น.</span></span>
                             {routeResult.savedKm > 0 && (
@@ -443,7 +443,7 @@ export default function ShipmentsView({
                               href={routeResult.googleMapsUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-sm font-light text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
+                              className="inline-flex items-center gap-1.5 text-xs font-light text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
                             >
                               <MapPin size={14} />
                               เปิด Google Maps
@@ -454,7 +454,7 @@ export default function ShipmentsView({
                       )}
                       {/* AI analysis (collapsible) */}
                       {routeAiAnalysis && (
-                        <details className="text-sm">
+                        <details className="text-xs">
                           <summary className="cursor-pointer text-secondary-600 font-light flex items-center gap-1">
                             <Sparkles size={12} /> ดูวิเคราะห์ AI
                           </summary>
@@ -471,9 +471,9 @@ export default function ShipmentsView({
                 {/* Multi-stop: show stops table */}
                 {shipmentStops.length > 1 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
-                    <p className="text-sm font-light">จุดส่งของ ({shipmentStops.length} จุด)</p>
+                    <p className="text-xs font-light">จุดส่งของ ({shipmentStops.length} จุด)</p>
                     <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-xs">
                         <thead>
                           <tr className="bg-default-100">
                             <th className="text-center px-2 py-2 font-light w-10">ลำดับ</th>
@@ -492,7 +492,7 @@ export default function ShipmentsView({
                               return (
                                 <tr key={stop.planId || i} className="border-t border-border">
                                   <td className="text-center px-2 py-2">
-                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-light text-sm">{letter}</span>
+                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-light text-xs">{letter}</span>
                                   </td>
                                   <td className="px-3 py-2 font-light">{stop.customerName || "-"}</td>
                                   <td className="px-3 py-2 text-foreground max-w-50 truncate">{stop.address || "-"}</td>
@@ -518,7 +518,7 @@ export default function ShipmentsView({
                         href={routeResult.googleMapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-light text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
+                        className="inline-flex items-center gap-1.5 text-xs font-light text-primary-600 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors w-fit"
                       >
                         <MapPin size={14} />
                         เปิด Google Maps — เส้นทางจุด A→B→C
@@ -565,7 +565,7 @@ export default function ShipmentsView({
                 {/* เด็กติดรถ สูงสุด 3 คน */}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-light">เด็กติดรถ</p>
+                    <p className="text-xs font-light">เด็กติดรถ</p>
                     {(formData.tmsShipmentAssistants || []).length < 3 && (
                       <Button
                         variant="bordered"
@@ -634,14 +634,14 @@ export default function ShipmentsView({
                 {/* รายการพิเศษ */}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-light">รายการพิเศษ</p>
+                    <p className="text-xs font-light">รายการพิเศษ</p>
                     <Button variant="bordered" size="md" radius="md" onPress={addExtra}>
                       + เพิ่มรายการ
                     </Button>
                   </div>
                   {(formData.tmsShipmentExtras || []).length > 0 && (
                     <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-xs">
                         <thead>
                           <tr className="bg-default-100">
                             <th className="text-left px-3 py-2 font-light w-36">คน</th>
@@ -711,11 +711,11 @@ export default function ShipmentsView({
                                       value={ex.label || ""}
                                       onChange={(e) => updateExtra(idx, "label", e.target.value)}
                                     />
-                                  ) : <span className="text-muted-foreground text-sm px-2">{ex.type === "ot" ? "ค่าแรง/8 × เรท × ชม." : "ค่าเที่ยว"}</span>}
+                                  ) : <span className="text-muted-foreground text-xs px-2">{ex.type === "ot" ? "ค่าแรง/8 × เรท × ชม." : "ค่าเที่ยว"}</span>}
                                 </td>
                                 <td className="px-1 py-1">
                                   {ex.type === "ot" ? (
-                                    <span className="text-sm font-light block text-right px-2">
+                                    <span className="text-xs font-light block text-right px-2">
                                       {ex.amount ? Number(ex.amount).toLocaleString("th-TH", { minimumFractionDigits: 2 }) : "-"}
                                     </span>
                                   ) : (
@@ -751,7 +751,7 @@ export default function ShipmentsView({
                 </div>
                 {/* ค่าน้ำมัน - คำนวณอัตโนมัติ */}
                 <div className="flex flex-col w-full p-2 gap-3 md:col-span-2">
-                  <p className="text-sm font-light">ค่าน้ำมันโดยประมาณ</p>
+                  <p className="text-xs font-light">ค่าน้ำมันโดยประมาณ</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Input
                       type="number"
@@ -806,9 +806,9 @@ export default function ShipmentsView({
                 {/* Items table or fallback input */}
                 {shipmentItems.length > 0 ? (
                   <div className="flex flex-col w-full p-2 gap-2 md:col-span-2">
-                    <p className="text-sm font-light">รายการสินค้า</p>
+                    <p className="text-xs font-light">รายการสินค้า</p>
                     <div className="border border-border rounded-xl overflow-hidden">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-xs">
                         <thead>
                           <tr className="bg-default-100">
                             <th className="text-left px-3 py-2 font-light">รายการ</th>

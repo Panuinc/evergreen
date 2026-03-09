@@ -222,7 +222,7 @@ export default function BankReconView({
               {STATUS_LABELS[item.matchStatus] || item.matchStatus}
             </Chip>
             {item.matchConfidence && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {(item.matchConfidence * 100).toFixed(0)}%
               </span>
             )}
@@ -234,7 +234,7 @@ export default function BankReconView({
         return (
           <div className="flex flex-col gap-0.5">
             {matches.map((m, i) => (
-              <div key={i} className="text-sm">
+              <div key={i} className="text-xs">
                 <span className="font-light">{m.invoiceNumber}</span>
                 <span className="text-muted-foreground ml-1">({fmtNum(m.matchedAmount)})</span>
               </div>
@@ -537,7 +537,7 @@ export default function BankReconView({
             <div className="flex flex-col gap-1">
               <span>เลือก Invoice สำหรับ Match</span>
               {matchEntry && (
-                <span className="text-sm font-light text-muted-foreground">
+                <span className="text-xs font-light text-muted-foreground">
                   {matchEntry.txDate} — {matchEntry.description} — ยอด {fmtNum(matchEntry.amount)} บาท
                 </span>
               )}
@@ -555,14 +555,14 @@ export default function BankReconView({
             {/* Suggested matches from auto-match */}
             {matchEntry?.bankMatch?.length > 0 && (
               <div className="mb-4">
-                <p className="text-sm font-light mb-2 text-warning">แนะนำจาก Auto-Match:</p>
+                <p className="text-xs font-light mb-2 text-warning">แนะนำจาก Auto-Match:</p>
                 {matchEntry.bankMatch.map((m, i) => (
                   <Card key={i} shadow="none" className="border border-warning-200 mb-2">
                     <CardBody className="flex-row items-center justify-between py-2">
                       <div>
                         <span className="font-light">{m.invoiceNumber}</span>
-                        <span className="text-sm text-muted-foreground ml-2">{m.customerName}</span>
-                        <span className="text-sm ml-2">ยอด {fmtNum(m.remainingAmount)}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{m.customerName}</span>
+                        <span className="text-xs ml-2">ยอด {fmtNum(m.remainingAmount)}</span>
                       </div>
                       <Button
                         size="md"
@@ -595,11 +595,11 @@ export default function BankReconView({
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
                         <span className="font-light">{inv.number}</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {inv.customerName}
                         </span>
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         วันที่ {inv.invoiceDate} | ครบ {inv.dueDate} | ยอด{" "}
                         {fmtNum(inv.totalAmountIncludingTax)} | คงเหลือ{" "}
                         {fmtNum(inv.remainingAmount)}
@@ -646,9 +646,9 @@ function KpiCard({ label, value, sub, color }) {
   return (
     <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="py-3 px-4">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className={`text-sm font-light ${color}`}>{value}</p>
-        <p className="text-sm text-muted-foreground">{sub}</p>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className={`text-xs font-light ${color}`}>{value}</p>
+        <p className="text-xs text-muted-foreground">{sub}</p>
       </CardBody>
     </Card>
   );

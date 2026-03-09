@@ -48,15 +48,15 @@ function KpiCard({ title, value, unit, color = "default", subtitle }) {
   return (
     <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardBody className="gap-1">
-        <p className="text-sm text-muted-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground">{title}</p>
         <div className="flex items-baseline gap-1">
-          <p className={`text-sm font-light ${colorClass[color] || ""}`}>
+          <p className={`text-xs font-light ${colorClass[color] || ""}`}>
             {value}
           </p>
-          {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
+          {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
         </div>
         {subtitle && (
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
         )}
       </CardBody>
     </Card>
@@ -67,7 +67,7 @@ function ChartCard({ title, children }) {
   return (
     <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
       <CardHeader className="pb-0">
-        <p className="text-sm font-light">{title}</p>
+        <p className="text-xs font-light">{title}</p>
       </CardHeader>
       <CardBody>{children}</CardBody>
     </Card>
@@ -277,7 +277,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
       {/* Section 3.5: Profit by project (detail) */}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
-          <p className="text-sm font-light">วิเคราะห์กำไรตามโครงการ (ละเอียดรายสินค้า)</p>
+          <p className="text-xs font-light">วิเคราะห์กำไรตามโครงการ (ละเอียดรายสินค้า)</p>
         </CardHeader>
         <CardBody>
           <ProfitByProjectSection data={d.profitByProject} />
@@ -318,7 +318,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-light">
+              <p className="text-xs font-light">
                 ความคืบหน้าใบสั่งผลิต (Released)
               </p>
               <Chip size="md" color="warning" variant="flat">
@@ -347,7 +347,7 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-light text-danger">
+              <p className="text-xs font-light text-danger">
                 ใบสั่งผลิตเกินกำหนดส่ง
               </p>
               <Chip size="md" color="danger" variant="flat">
@@ -373,9 +373,9 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
       {/* Section 8: Dashboard description */}
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="pb-0">
-          <p className="text-sm font-light">คำอธิบาย Dashboard</p>
+          <p className="text-xs font-light">คำอธิบาย Dashboard</p>
         </CardHeader>
-        <CardBody className="text-sm text-muted-foreground leading-relaxed">
+        <CardBody className="text-xs text-muted-foreground leading-relaxed">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* KPI */}
             <div>
@@ -477,15 +477,15 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
   const renderWipCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "orderNo":
-        return <span className="font-light text-sm">{item.orderNo}</span>;
+        return <span className="font-light text-xs">{item.orderNo}</span>;
       case "description":
         return (
-          <span className="max-w-48 truncate block text-sm">
+          <span className="max-w-48 truncate block text-xs">
             {item.description || "-"}
           </span>
         );
       case "sourceNo":
-        return <span className="text-sm">{item.sourceNo || "-"}</span>;
+        return <span className="text-xs">{item.sourceNo || "-"}</span>;
       case "uom":
         return (
           <Chip size="md" variant="flat" color="default">
@@ -494,10 +494,10 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         );
       case "plannedQty":
       case "outputQty":
-        return <span className="text-sm">{fmt(item[columnKey])}</span>;
+        return <span className="text-xs">{fmt(item[columnKey])}</span>;
       case "remainQty":
         return (
-          <span className={`text-sm font-light ${
+          <span className={`text-xs font-light ${
             item.remainQty < 0
               ? "text-primary"
               : item.remainQty === 0
@@ -537,19 +537,19 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
       }
       case "consumptionCost":
       case "revenue":
-        return <span className="text-sm">{fmtCurrency(item[columnKey])}</span>;
+        return <span className="text-xs">{fmtCurrency(item[columnKey])}</span>;
       case "wipValue":
         return (
-          <span className={`text-sm font-light ${item.wipValue > 0 ? "text-danger" : "text-success"}`}>
+          <span className={`text-xs font-light ${item.wipValue > 0 ? "text-danger" : "text-success"}`}>
             {fmtCurrency(item.wipValue)}
           </span>
         );
       case "dueDate":
         return item.dueDate
-          ? <span className="text-sm">{new Date(item.dueDate).toLocaleDateString("th-TH")}</span>
+          ? <span className="text-xs">{new Date(item.dueDate).toLocaleDateString("th-TH")}</span>
           : "-";
       default:
-        return <span className="text-sm">{item[columnKey] || "-"}</span>;
+        return <span className="text-xs">{item[columnKey] || "-"}</span>;
     }
   }, []);
 
@@ -577,7 +577,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         {setCompareMode && (
           <div className="flex items-center gap-2">
             {isCompare && data.labels && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {data.labels.current} vs {data.labels.previous}
               </span>
             )}

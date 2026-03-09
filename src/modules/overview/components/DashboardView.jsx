@@ -32,7 +32,7 @@ function AssistantMessage({ content, isLoading }) {
   return (
     <div className="flex gap-3 max-w-3xl w-full">
       {/* Avatar */}
-      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-light mt-0.5">
+      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-light mt-0.5">
         E
       </div>
 
@@ -41,13 +41,13 @@ function AssistantMessage({ content, isLoading }) {
         {isLoading && !content ? (
           <TypingIndicator />
         ) : (
-          <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-sm leading-relaxed">
+          <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-xs leading-relaxed">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
                 table: ({ children }) => (
                   <div className="overflow-x-auto my-2">
-                    <table className="border-collapse w-full text-sm">{children}</table>
+                    <table className="border-collapse w-full text-xs">{children}</table>
                   </div>
                 ),
                 thead: ({ children }) => (
@@ -79,12 +79,12 @@ function AssistantMessage({ content, isLoading }) {
                 ),
                 code: ({ inline, children }) =>
                   inline ? (
-                    <code className="bg-default-100 rounded px-1 py-0.5 text-sm font-mono">
+                    <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">
                       {children}
                     </code>
                   ) : (
                     <pre className="bg-default-100 rounded-lg p-3 overflow-x-auto my-2">
-                      <code className="text-sm font-mono">{children}</code>
+                      <code className="text-xs font-mono">{children}</code>
                     </pre>
                   ),
               }}
@@ -101,7 +101,7 @@ function AssistantMessage({ content, isLoading }) {
 function UserMessage({ content }) {
   return (
     <div className="flex justify-end max-w-3xl w-full ml-auto">
-      <div className="max-w-[75%] bg-default-100 rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-foreground whitespace-pre-wrap">
+      <div className="max-w-[75%] bg-default-100 rounded-2xl rounded-tr-sm px-4 py-2.5 text-xs text-foreground whitespace-pre-wrap">
         {content}
       </div>
     </div>
@@ -145,10 +145,10 @@ export default function DashboardView({
                 className="w-16 h-16 object-contain opacity-90"
               />
               <div>
-                <p className="text-sm font-light text-foreground">
+                <p className="text-xs font-light text-foreground">
                   Evergreen AI Assistant
                 </p>
-                <p className="text-muted-foreground text-sm mt-1">
+                <p className="text-muted-foreground text-xs mt-1">
                   ถามอะไรก็ได้เกี่ยวกับข้อมูลในระบบ
                 </p>
               </div>
@@ -160,7 +160,7 @@ export default function DashboardView({
                 <button
                   key={s}
                   onClick={() => handleSuggestion(s)}
-                  className="text-left px-4 py-3 rounded-xl border border-border hover:border-border hover:bg-default-50 text-sm text-foreground transition-colors"
+                  className="text-left px-4 py-3 rounded-xl border border-border hover:border-border hover:bg-default-50 text-xs text-foreground transition-colors"
                 >
                   {s}
                 </button>
@@ -209,7 +209,7 @@ export default function DashboardView({
               onKeyDown={handleKeyDown}
               disabled={isLoading}
               placeholder="ถามอะไรก็ได้... (Shift+Enter เพื่อขึ้นบรรทัดใหม่)"
-              className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-h-[24px] max-h-40 py-1 disabled:opacity-50"
+              className="flex-1 resize-none bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none min-h-[24px] max-h-40 py-1 disabled:opacity-50"
             />
             <div className="flex items-center gap-1 flex-shrink-0 pb-0.5">
               {messages.length > 0 && (
@@ -235,7 +235,7 @@ export default function DashboardView({
               </Button>
             </div>
           </div>
-          <p className="text-center text-sm text-muted-foreground mt-2">
+          <p className="text-center text-xs text-muted-foreground mt-2">
             AI อาจให้ข้อมูลผิดพลาดได้ กรุณาตรวจสอบข้อมูลสำคัญจากระบบโดยตรง
           </p>
         </div>

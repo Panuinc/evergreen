@@ -16,7 +16,7 @@ function formatMonth(monthStr) {
 }
 
 function ChangeCell({ current, previous, suffix = "", isPercent = false }) {
-  if (!previous) return <span className="text-sm text-muted-foreground">—</span>;
+  if (!previous) return <span className="text-xs text-muted-foreground">—</span>;
   const diff = isPercent ? current - previous : ((current - previous) / previous) * 100;
   const isPositive = diff >= 0;
   return (
@@ -28,7 +28,7 @@ function ChangeCell({ current, previous, suffix = "", isPercent = false }) {
 
 export default function MonthlyComparisonTable({ data }) {
   if (!data?.current || !data?.previous) {
-    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   const { current: c, previous: p } = data;
@@ -43,7 +43,7 @@ export default function MonthlyComparisonTable({ data }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-border">
             <th className="text-left py-2 pr-3 text-muted-foreground font-light">Metric</th>

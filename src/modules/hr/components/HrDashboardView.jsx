@@ -98,7 +98,7 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
           <div />
           <div className="flex items-center gap-2">
             {isCompare && stats.labels && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {stats.labels.current} vs {stats.labels.previous}
               </span>
             )}
@@ -125,25 +125,25 @@ export default function HrDashboardView({ stats, loading, compareMode, setCompar
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">พนักงานตามฝ่าย</p>
+            <p className="text-xs font-light mb-3">พนักงานตามฝ่าย</p>
             <EmployeeByDivisionChart data={d.byDivision} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">พนักงานตามแผนก</p>
+            <p className="text-xs font-light mb-3">พนักงานตามแผนก</p>
             <EmployeeByDepartmentChart data={d.byDepartment} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">สถานะพนักงาน</p>
+            <p className="text-xs font-light mb-3">สถานะพนักงาน</p>
             <EmployeeStatusChart data={d.byStatus} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-sm font-light mb-3">
+            <p className="text-xs font-light mb-3">
               แนวโน้มพนักงานใหม่ (6 เดือนล่าสุด)
             </p>
             <NewEmployeeTrendChart data={d.trend} />

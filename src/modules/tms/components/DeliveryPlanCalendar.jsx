@@ -66,7 +66,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
         {DAYS_TH.map((d, i) => (
           <div
             key={d}
-            className={`text-center text-sm font-light py-2 ${
+            className={`text-center text-xs font-light py-2 ${
               i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-muted-foreground"
             }`}
           >
@@ -96,7 +96,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                 }`}
               >
                 <span
-                  className={`text-sm font-light w-6 h-6 flex items-center justify-center rounded-full flex-shrink-0 ${
+                  className={`text-xs font-light w-6 h-6 flex items-center justify-center rounded-full flex-shrink-0 ${
                     today
                       ? "bg-primary text-white"
                       : ci === 0
@@ -112,7 +112,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                   {plans.slice(0, 2).map((p) => (
                     <div
                       key={p.tmsDeliveryPlanId}
-                      className={`text-[10px] px-1.5 py-0.5 rounded-md truncate font-light flex items-center gap-1 ${
+                      className={`text-xs px-1.5 py-0.5 rounded-md truncate font-light flex items-center gap-1 ${
                         p.tmsDeliveryPlanStatus === "planned"
                           ? "bg-primary-100 text-primary-700"
                           : p.tmsDeliveryPlanStatus === "in_progress"
@@ -133,7 +133,7 @@ function MonthView({ currentDate, getPlansForDate, onDateClick }) {
                     </div>
                   ))}
                   {plans.length > 2 && (
-                    <span className="text-[10px] text-muted-foreground px-1">
+                    <span className="text-xs text-muted-foreground px-1">
                       +{plans.length - 2} อื่นๆ
                     </span>
                   )}
@@ -170,14 +170,14 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
               {/* Day header */}
               <div className="flex flex-col items-center gap-1">
                 <span
-                  className={`text-sm font-light ${
+                  className={`text-xs font-light ${
                     i === 0 ? "text-danger-500" : i === 6 ? "text-primary-500" : "text-muted-foreground"
                   }`}
                 >
                   {DAYS_TH[i]}
                 </span>
                 <span
-                  className={`text-sm font-light w-8 h-8 flex items-center justify-center rounded-full ${
+                  className={`text-xs font-light w-8 h-8 flex items-center justify-center rounded-full ${
                     today ? "bg-primary text-white" : "text-foreground"
                   }`}
                 >
@@ -189,7 +189,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                 {plans.map((p) => (
                   <div
                     key={p.tmsDeliveryPlanId}
-                    className={`p-2 rounded-xl border-l-4 border text-sm cursor-pointer hover:opacity-80 shrink-0 ${
+                    className={`p-2 rounded-xl border-l-4 border text-xs cursor-pointer hover:opacity-80 shrink-0 ${
                       p.tmsDeliveryPlanStatus === "planned"
                         ? "bg-primary-50 border-primary-200"
                         : p.tmsDeliveryPlanStatus === "in_progress"
@@ -247,7 +247,7 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
                 {/* Add button */}
                 <button
                   onClick={() => onDateClick(date)}
-                  className="w-full py-2 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:border-primary-300 hover:text-primary-500 transition-colors shrink-0"
+                  className="w-full py-2 rounded-xl border border-dashed border-border text-xs text-muted-foreground hover:border-primary-300 hover:text-primary-500 transition-colors shrink-0"
                 >
                   + เพิ่มแผน
                 </button>
@@ -317,7 +317,7 @@ export default function DeliveryPlanCalendar() {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <CalendarDays size={20} className="text-primary" />
-          <p className="text-sm font-light">แผนส่งของ</p>
+          <p className="text-xs font-light">แผนส่งของ</p>
         </div>
         <Tabs
           selectedKey={viewMode}
@@ -343,7 +343,7 @@ export default function DeliveryPlanCalendar() {
             วันนี้
           </Button>
         </div>
-        <p className="text-sm font-light">{title}</p>
+        <p className="text-xs font-light">{title}</p>
         {loading && <Loading />}
       </div>
 

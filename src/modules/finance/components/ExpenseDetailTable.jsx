@@ -68,7 +68,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
       {pieData.length > 0 && (
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardHeader className="pb-0">
-            <p className="text-sm font-light">สัดส่วน{title} (Top 10)</p>
+            <p className="text-xs font-light">สัดส่วน{title} (Top 10)</p>
           </CardHeader>
           <CardBody>
             <ResponsiveContainer width="100%" height={280}>
@@ -95,7 +95,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
       <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
         <CardHeader className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-light">{title}</p>
+            <p className="text-xs font-light">{title}</p>
             <Chip size="md" variant="flat" color={color}>{chipLabel}</Chip>
           </div>
           <Button size="md" variant="flat" startContent={<Download size={14} />} onPress={handleExport}>
@@ -103,7 +103,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
           </Button>
         </CardHeader>
         <CardBody className="overflow-x-auto p-0">
-          <table className="w-full text-sm border-collapse min-w-[1200px]">
+          <table className="w-full text-xs border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-default-100 border-b border-border">
                 <th className="sticky left-0 z-10 bg-default-100 text-left px-3 py-2 min-w-[250px] font-light">รายการ</th>
@@ -132,18 +132,18 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
                     {CAL_MONTHS.map((m) => {
                       const val = row.months?.[m];
                       return (
-                        <td key={m} className={`text-right font-mono text-sm px-2 ${val < 0 ? "text-danger" : ""}`}>
+                        <td key={m} className={`text-right font-mono text-xs px-2 ${val < 0 ? "text-danger" : ""}`}>
                           {fmt(val)}
                         </td>
                       );
                     })}
-                    <td className={`text-right font-mono text-sm px-3 bg-default-50 font-light ${row.total < 0 ? "text-danger" : ""}`}>
+                    <td className={`text-right font-mono text-xs px-3 bg-default-50 font-light ${row.total < 0 ? "text-danger" : ""}`}>
                       {fmt(row.total)}
                     </td>
                     {compYears.map((cy) => {
                       const val = cy[compKey][row.key] || 0;
                       return (
-                        <td key={cy.year} className={`text-right font-mono text-sm px-3 bg-warning-50/50 ${val < 0 ? "text-danger" : ""}`}>
+                        <td key={cy.year} className={`text-right font-mono text-xs px-3 bg-warning-50/50 ${val < 0 ? "text-danger" : ""}`}>
                           {fmt(val)}
                         </td>
                       );

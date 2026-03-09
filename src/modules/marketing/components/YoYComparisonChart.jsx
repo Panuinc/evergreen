@@ -14,7 +14,7 @@ export default function YoYComparisonChart({ data = [] }) {
   const [metric, setMetric] = useState("revenue");
 
   if (!data.length) {
-    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   const chartData = data.map((d) => ({
@@ -30,13 +30,13 @@ export default function YoYComparisonChart({ data = [] }) {
       <div className="flex gap-2 mb-3">
         <button
           onClick={() => setMetric("revenue")}
-          className={`px-3 py-1 text-sm rounded-md border transition-colors ${metric === "revenue" ? "bg-primary text-white border-primary" : "border-border text-foreground hover:bg-default-100"}`}
+          className={`px-3 py-1 text-xs rounded-md border transition-colors ${metric === "revenue" ? "bg-primary text-white border-primary" : "border-border text-foreground hover:bg-default-100"}`}
         >
           ยอดขาย
         </button>
         <button
           onClick={() => setMetric("orders")}
-          className={`px-3 py-1 text-sm rounded-md border transition-colors ${metric === "orders" ? "bg-primary text-white border-primary" : "border-border text-foreground hover:bg-default-100"}`}
+          className={`px-3 py-1 text-xs rounded-md border transition-colors ${metric === "orders" ? "bg-primary text-white border-primary" : "border-border text-foreground hover:bg-default-100"}`}
         >
           ออเดอร์
         </button>

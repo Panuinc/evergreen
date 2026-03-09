@@ -159,7 +159,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <span>รายการสินค้า — {selected?.number}</span>
-            <span className="text-sm font-light text-muted-foreground">
+            <span className="text-xs font-light text-muted-foreground">
               {selected?.customerName} | ยอดรวม {fmt(selected?.totalAmountIncludingTax)} | ค้างชำระ {fmt(selected?.remainingAmount)}
             </span>
           </ModalHeader>
@@ -196,7 +196,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
             </Table>
           </ModalBody>
           <ModalFooter>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span>ก่อน VAT: {fmt(selected?.totalAmountExcludingTax)}</span>
               <span>VAT: {fmt(selected?.totalTaxAmount)}</span>
               <span className="font-light text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>

@@ -102,8 +102,8 @@ export default function KpiView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <p className="text-sm font-light">KPI (Key Performance Indicators)</p>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-xs font-light">KPI (Key Performance Indicators)</p>
+        <p className="text-muted-foreground text-xs">
           วัดผลงานด้วยตัวชี้วัด ติดตามแนวโน้ม และจัดการ KPI ทั้งองค์กร
         </p>
       </div>
@@ -282,7 +282,7 @@ function MyKpiTab({
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center w-full">
-                  <p className="text-sm font-light">
+                  <p className="text-xs font-light">
                     แนวโน้ม: {selectedTrend.definition?.perfKpiDefinitionName}
                   </p>
                   <Button size="md" radius="md" variant="bordered" onPress={() => setSelectedTrend(null)}>
@@ -321,8 +321,8 @@ function SummaryCard({ label, count, total, color }) {
     <Card>
       <CardBody className="flex flex-row items-center gap-4">
         <div className="flex-1">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="text-sm font-light">{count}</p>
+          <p className="text-xs text-muted-foreground">{label}</p>
+          <p className="text-xs font-light">{count}</p>
         </div>
         <Chip color={color} variant="flat" size="md" radius="md">
           {total > 0 ? Math.round((count / total) * 100) : 0}%
@@ -347,7 +347,7 @@ function KpiCard({ assignment, onRecord, onTrend }) {
         <div className="flex justify-between items-start">
           <div>
             <p className="font-light">{def.perfKpiDefinitionName}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {getCategoryLabel(def.perfKpiDefinitionCategory)} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
             </p>
           </div>
@@ -357,10 +357,10 @@ function KpiCard({ assignment, onRecord, onTrend }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm font-light">
+          <span className="text-xs font-light">
             {assignment.latestValue != null ? assignment.latestValue : "-"}
           </span>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             / {assignment.targetValue} {def.perfKpiDefinitionUnit}
           </span>
         </div>
@@ -445,7 +445,7 @@ function DashboardTab({
                 <div className="flex justify-between items-center w-full">
                   <div>
                     <p className="font-light">{def.perfKpiDefinitionName}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {getCategoryLabel(def.perfKpiDefinitionCategory)} | {def.perfKpiDefinitionUnit} | {getFrequencyLabel(def.perfKpiDefinitionFrequency)}
                     </p>
                   </div>
@@ -462,14 +462,14 @@ function DashboardTab({
                       : emp.hrEmployeeId;
                     return (
                       <div key={emp.assignmentId} className="flex items-center gap-3 p-2 rounded-lg bg-default-50">
-                        <span className="text-sm min-w-[150px]">{empName}</span>
+                        <span className="text-xs min-w-[150px]">{empName}</span>
                         <Progress
                           value={emp.latestValue != null ? computeKpiProgress(emp.latestValue, emp.targetValue, def.perfKpiDefinitionHigherIsBetter !== false) : 0}
                           color={getKpiStatusColor(emp.status)}
                           size="md"
                           className="flex-1"
                         />
-                        <span className="text-sm min-w-[80px] text-right">
+                        <span className="text-xs min-w-[80px] text-right">
                           {emp.latestValue != null ? `${emp.latestValue} / ${emp.targetValue}` : "-"}
                         </span>
                         <Chip size="md" radius="md" color={getKpiStatusColor(emp.status)} variant="flat">
@@ -500,7 +500,7 @@ function ManageTab({
   return (
     <div className="flex flex-col gap-4 mt-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm font-light">KPI Definitions</p>
+        <p className="text-xs font-light">KPI Definitions</p>
         <Button
           color="primary"
           size="md"
@@ -533,8 +533,8 @@ function ManageTab({
                     <Chip size="md" radius="md" variant="flat">{getFrequencyLabel(def.perfKpiDefinitionFrequency)}</Chip>
                     {!def.perfKpiDefinitionIsActive && <Chip size="md" radius="md" color="danger" variant="flat">ปิดใช้งาน</Chip>}
                   </div>
-                  {def.perfKpiDefinitionDescription && <p className="text-sm text-muted-foreground mt-1">{def.perfKpiDefinitionDescription}</p>}
-                  <p className="text-sm text-muted-foreground mt-1">
+                  {def.perfKpiDefinitionDescription && <p className="text-xs text-muted-foreground mt-1">{def.perfKpiDefinitionDescription}</p>}
+                  <p className="text-xs text-muted-foreground mt-1">
                     เป้าหมาย: {def.perfKpiDefinitionTargetValue ?? "-"} | เตือน: {def.perfKpiDefinitionWarningThreshold ?? "-"} | {def.perfKpiDefinitionHigherIsBetter ? "ยิ่งสูงยิ่งดี" : "ยิ่งต่ำยิ่งดี"}
                   </p>
                 </div>
@@ -794,7 +794,7 @@ function RecordModal({
         <ModalHeader>บันทึกค่า: {def.perfKpiDefinitionName}</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               เป้าหมาย: <span className="font-light">{recordingAssignment.targetValue} {def.perfKpiDefinitionUnit}</span>
               {recordingAssignment.latestValue != null && (
                 <> | ค่าล่าสุด: <span className="font-light">{recordingAssignment.latestValue} {def.perfKpiDefinitionUnit}</span></>

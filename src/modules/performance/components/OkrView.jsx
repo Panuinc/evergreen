@@ -289,7 +289,7 @@ function ObjectiveCard({
         <div className="flex justify-between items-start w-full">
           <div className="flex flex-col gap-1 flex-1">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-light">{objective.perfOkrObjectiveTitle}</p>
+              <p className="text-xs font-light">{objective.perfOkrObjectiveTitle}</p>
               <Chip size="md" radius="md" color={statusConfig.color} variant="flat">
                 {statusConfig.label}
               </Chip>
@@ -298,10 +298,10 @@ function ObjectiveCard({
               </Chip>
             </div>
             {showOwner && ownerName && (
-              <p className="text-sm text-muted-foreground">{ownerName} — {objective.employee?.hrEmployeeDepartment}</p>
+              <p className="text-xs text-muted-foreground">{ownerName} — {objective.employee?.hrEmployeeDepartment}</p>
             )}
             {objective.perfOkrObjectiveDescription && (
-              <p className="text-sm text-muted-foreground">{objective.perfOkrObjectiveDescription}</p>
+              <p className="text-xs text-muted-foreground">{objective.perfOkrObjectiveDescription}</p>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -370,7 +370,7 @@ function ObjectiveCard({
             color={objective.perfOkrObjectiveProgress >= 70 ? "success" : objective.perfOkrObjectiveProgress >= 40 ? "warning" : "danger"}
             size="md"
           />
-          <span className="text-sm font-light min-w-[50px] text-right">
+          <span className="text-xs font-light min-w-[50px] text-right">
             {Math.round(objective.perfOkrObjectiveProgress || 0)}%
           </span>
         </div>
@@ -433,7 +433,7 @@ function KeyResultRow({ kr, editable, onOpenCheckin, onOpenKrForm, onDeleteKr })
     <div className="flex items-center gap-3 p-2 rounded-lg bg-default-50 hover:bg-default-100">
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-light">{kr.perfOkrKeyResultTitle}</span>
+          <span className="text-xs font-light">{kr.perfOkrKeyResultTitle}</span>
           <Chip size="md" radius="md" color={statusConfig.color} variant="flat">
             {statusConfig.label}
           </Chip>
@@ -445,7 +445,7 @@ function KeyResultRow({ kr, editable, onOpenCheckin, onOpenKrForm, onDeleteKr })
             size="md"
             color={progress >= 70 ? "success" : progress >= 40 ? "warning" : "danger"}
           />
-          <span className="text-sm text-muted-foreground">{displayValue}</span>
+          <span className="text-xs text-muted-foreground">{displayValue}</span>
         </div>
       </div>
       {editable && (
@@ -734,7 +734,7 @@ function CheckinModal({
         <ModalHeader>Check-in: {checkinKr.perfOkrKeyResultTitle}</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               เป้าหมาย: <span className="font-light">{displayTarget}</span>
               {" | "}ค่าปัจจุบัน: <span className="font-light">{checkinKr.perfOkrKeyResultCurrentValue}{checkinKr.perfOkrKeyResultUnit ? ` ${checkinKr.perfOkrKeyResultUnit}` : ""}</span>
             </div>
@@ -842,8 +842,8 @@ export default function OkrView({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div>
-        <p className="text-sm font-light">OKR (Objectives & Key Results)</p>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-xs font-light">OKR (Objectives & Key Results)</p>
+        <p className="text-muted-foreground text-xs">
           ตั้งเป้าหมายและติดตามความคืบหน้าด้วย Key Results
         </p>
       </div>

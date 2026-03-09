@@ -71,8 +71,8 @@ function SyncProgressPanel({ phases }) {
     <Card shadow="none" className="border-2 border-primary bg-primary-50/30">
       <CardBody className="gap-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-light">ความคืบหน้า</span>
-          <span className="text-sm text-muted-foreground">{overallPct}%</span>
+          <span className="text-xs font-light">ความคืบหน้า</span>
+          <span className="text-xs text-muted-foreground">{overallPct}%</span>
         </div>
         <Progress
           aria-label="Sync progress"
@@ -86,7 +86,7 @@ function SyncProgressPanel({ phases }) {
           {entries.map((e) => (
             <div key={e.key} className="flex items-center gap-2">
               <PhaseIcon phase={e.key} step={e.step} />
-              <span className="text-sm flex-1">{e.label}</span>
+              <span className="text-xs flex-1">{e.label}</span>
               {e.step === "saving" && e.done != null && e.total != null && (
                 <div className="w-32">
                   <Progress
@@ -98,7 +98,7 @@ function SyncProgressPanel({ phases }) {
                 </div>
               )}
               {e.step === "done" && e.count != null && (
-                <span className="text-sm text-success font-light">
+                <span className="text-xs text-success font-light">
                   {e.count.toLocaleString("th-TH")}
                 </span>
               )}
@@ -129,12 +129,12 @@ function ResultCards({ tables, results }) {
                   size={14}
                   className={isError ? "text-danger" : "text-muted-foreground"}
                 />
-                <p className="text-sm text-muted-foreground">{t.label}</p>
+                <p className="text-xs text-muted-foreground">{t.label}</p>
               </div>
               {isError ? (
-                <p className="text-sm text-danger">{val}</p>
+                <p className="text-xs text-danger">{val}</p>
               ) : (
-                <p className="text-sm font-light">
+                <p className="text-xs font-light">
                   {typeof val === "number"
                     ? val.toLocaleString("th-TH")
                     : typeof val === "object" && val !== null
@@ -155,8 +155,8 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-light">นำเข้าจากไฟล์ (BCI Export)</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs font-light">นำเข้าจากไฟล์ (BCI Export)</p>
+          <p className="text-xs text-muted-foreground">
             อัปโหลดไฟล์ Excel/CSV ที่ export จาก BCI LeadManager
           </p>
         </div>
@@ -183,7 +183,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
       </div>
 
       {fileName && !importing && !error && !result && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <FileSpreadsheet size={14} />
           <span>{fileName}</span>
         </div>
@@ -193,7 +193,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
         <Card shadow="none" className="border-2 border-danger bg-danger-50">
           <CardBody className="flex-row items-center gap-2">
             <XCircle size={18} className="text-danger shrink-0" />
-            <span className="text-danger font-light text-sm">{error}</span>
+            <span className="text-danger font-light text-xs">{error}</span>
           </CardBody>
         </Card>
       )}
@@ -208,38 +208,38 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
-                  <p className="text-sm text-muted-foreground">แถวทั้งหมด</p>
-                  <p className="text-sm font-light">{result.results.totalRows?.toLocaleString("th-TH")}</p>
+                  <p className="text-xs text-muted-foreground">แถวทั้งหมด</p>
+                  <p className="text-xs font-light">{result.results.totalRows?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
               <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
-                  <p className="text-sm text-muted-foreground">นำเข้าแล้ว</p>
-                  <p className="text-sm font-light">{result.results.imported?.toLocaleString("th-TH")}</p>
+                  <p className="text-xs text-muted-foreground">นำเข้าแล้ว</p>
+                  <p className="text-xs font-light">{result.results.imported?.toLocaleString("th-TH")}</p>
                 </CardBody>
               </Card>
               <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
-                  <p className="text-sm text-muted-foreground">Column ที่ map ได้</p>
-                  <p className="text-sm font-light">{result.results.columnsMapped}</p>
+                  <p className="text-xs text-muted-foreground">Column ที่ map ได้</p>
+                  <p className="text-xs font-light">{result.results.columnsMapped}</p>
                 </CardBody>
               </Card>
               <Card shadow="none" className="border border-border bg-content1">
                 <CardBody className="gap-1">
-                  <p className="text-sm text-muted-foreground">ข้ามไป</p>
-                  <p className="text-sm font-light">{result.results.skipped}</p>
+                  <p className="text-xs text-muted-foreground">ข้ามไป</p>
+                  <p className="text-xs font-light">{result.results.skipped}</p>
                 </CardBody>
               </Card>
             </div>
             {result.results.unmapped?.length > 0 && (
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-xs text-muted-foreground mt-2">
                 Column ที่ไม่รู้จัก: {result.results.unmapped.join(", ")}
               </p>
             )}
             {result.results.errors?.length > 0 && (
               <div className="mt-2">
-                <p className="text-sm text-warning font-light">ข้อผิดพลาดบางส่วน:</p>
-                <ul className="text-sm text-muted-foreground list-disc pl-5">
+                <p className="text-xs text-warning font-light">ข้อผิดพลาดบางส่วน:</p>
+                <ul className="text-xs text-muted-foreground list-disc pl-5">
                   {result.results.errors.map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
@@ -252,7 +252,7 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
 
       <Card shadow="none" className="bg-default-50 border border-border">
         <CardBody className="gap-1">
-          <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+          <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
             <li>รองรับ .xlsx, .xls, .csv</li>
             <li>ต้องมีคอลัมน์ Project ID (จำเป็น)</li>
             <li>ระบบจะ auto-map ชื่อคอลัมน์จากไฟล์ BCI export</li>
@@ -276,8 +276,8 @@ function BcSyncSection({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-light">Business Central (BC)</p>
-          <p className="text-sm text-muted-foreground">ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC</p>
+          <p className="text-xs font-light">Business Central (BC)</p>
+          <p className="text-xs text-muted-foreground">ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC</p>
         </div>
         <Button
           variant="bordered"
@@ -292,7 +292,7 @@ function BcSyncSection({
       </div>
 
       {lastSync && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Clock size={14} />
           <span>ซิงค์ล่าสุด: {lastSync}</span>
         </div>
@@ -324,7 +324,7 @@ function BcSyncSection({
 
       <Card shadow="none" className="bg-default-50 border border-border">
         <CardBody className="gap-1">
-          <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+          <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
             <li>Dimensions -- dimensionValues จาก BC API v2.0 (code → ชื่อโครงการ)</li>
             <li>Customers -- ข้อมูลลูกค้าจาก CustomerList</li>
             <li>Items -- สินค้าทั้งหมด + map projectCode/projectName</li>
@@ -353,7 +353,7 @@ export default function SyncBcView({
 }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
-      <p className="text-sm font-light">ซิงค์ข้อมูล</p>
+      <p className="text-xs font-light">ซิงค์ข้อมูล</p>
 
       <BcSyncSection
         syncingAll={syncingAll}
@@ -375,7 +375,7 @@ export default function SyncBcView({
         handleFileChange={handleFileChange}
       />
 
-      <p className="text-sm text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Production: ซิงค์อัตโนมัติผ่าน Vercel Cron
       </p>
     </div>

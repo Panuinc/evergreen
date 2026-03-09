@@ -50,14 +50,14 @@ export default function Header({ onMobileMenuToggle }) {
 
         <button className="relative flex items-center justify-center w-9 h-9 border border-border rounded-full hover:bg-default/50 transition-colors cursor-pointer">
           <Bell />
-          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-danger text-background rounded-full px-1">
+          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-xs bg-danger text-background rounded-full px-1">
             3
           </span>
         </button>
 
         <button className="relative flex items-center justify-center w-9 h-9 border border-border rounded-full hover:bg-default/50 transition-colors cursor-pointer">
           <MessageSquare />
-          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] bg-primary text-background rounded-full px-1">
+          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-xs bg-primary text-background rounded-full px-1">
             5
           </span>
         </button>

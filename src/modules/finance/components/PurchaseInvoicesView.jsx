@@ -154,7 +154,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <span>รายการสินค้า — {selected?.number}</span>
-            <span className="text-sm font-light text-muted-foreground">
+            <span className="text-xs font-light text-muted-foreground">
               {selected?.vendorName} | {selected?.vendorInvoiceNumber ? `Ref: ${selected.vendorInvoiceNumber} | ` : ""}
               ยอดรวม {fmt(selected?.totalAmountIncludingTax)}
             </span>
@@ -192,7 +192,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
             </Table>
           </ModalBody>
           <ModalFooter>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span>ก่อน VAT: {fmt(selected?.totalAmountExcludingTax)}</span>
               <span>VAT: {fmt(selected?.totalTaxAmount)}</span>
               <span className="font-light text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>

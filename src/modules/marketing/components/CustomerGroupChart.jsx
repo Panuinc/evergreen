@@ -10,7 +10,7 @@ function formatCurrency(value) {
 
 export default function CustomerGroupChart({ data = [] }) {
   if (!data.length) {
-    return <p className="text-sm text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
+    return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
   return (
@@ -39,7 +39,7 @@ export default function CustomerGroupChart({ data = [] }) {
         <Legend
           verticalAlign="bottom"
           height={36}
-          formatter={(value) => <span className="text-sm">{value}</span>}
+          formatter={(value) => <span className="text-xs">{value}</span>}
         />
       </PieChart>
     </ResponsiveContainer>

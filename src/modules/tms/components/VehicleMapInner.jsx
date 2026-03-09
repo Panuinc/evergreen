@@ -116,12 +116,12 @@ export default function VehicleMapInner({
           }}
         >
           <Popup>
-            <div className="text-sm">
+            <div className="text-xs">
               <p className="font-light">{m.name}</p>
               <p className="text-muted-foreground">{m.plate}</p>
               {m.speed && <p>Speed: {m.speed} km/h</p>}
               {m.updatedAt && (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs">
                   Updated: {new Date(m.updatedAt).toLocaleString("th-TH")}
                 </p>
               )}
