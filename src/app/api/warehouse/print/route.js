@@ -6,7 +6,7 @@ import { PrinterService, PrintService } from "@/lib/chainWay/server";
 function getShortItemNumber(fullNumber) {
   if (!fullNumber) return fullNumber;
   const parts = fullNumber.split("-");
-  if (parts.length >= 3) return parts.slice(-2).join("-");
+  if (parts.length >= 3) return parts.slice(2).join("-");
   return fullNumber;
 }
 
