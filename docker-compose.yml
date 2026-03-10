@@ -31,6 +31,29 @@ services:
             --max-time 290 || echo "[$(date)] Full sync failed"
         done
 
+  forthtrack-sync:
+    image: alpine:3.20
+    container_name: evergreen-forthtrack-sync
+    restart: unless-stopped
+    depends_on:
+      - evergreen
+    env_file:
+      - .env.local
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache curl
+        echo "ForthTrack GPS sync cron started — every 1 minute"
+        while true; do
+          sleep 60
+          echo "[$(date)] Triggering ForthTrack sync..."
+          curl -sf -H "Authorization: Bearer $${CRON_SECRET}" \
+            "http://evergreen:3000/api/sync/forthtrack" \
+            -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
+            --max-time 30 || echo "[$(date)] ForthTrack sync failed"
+        done
+
   bc-sync-items:
     image: alpine:3.20
     container_name: evergreen-bc-sync-items
