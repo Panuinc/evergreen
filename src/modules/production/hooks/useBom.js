@@ -1397,10 +1397,8 @@ export function useBom() {
 
 
     let core;
-    if (!isSolidCore && coreStripsPerSheet > 0 && qty > 0) {
-      const coreBatchTotal =
-        Math.ceil((coreStrips * qty) / coreStripsPerSheet) * coreUnitCost;
-      core = coreBatchTotal / qty;
+    if (!isSolidCore && coreStripsPerSheet > 0) {
+      core = (coreStrips / coreStripsPerSheet) * coreUnitCost;
     } else {
       core = coreUnitCost * coreQtyUsed;
     }

@@ -45,8 +45,6 @@ import { useBomAI } from "@/modules/production/hooks/useBomAI";
 
 const GLUE_THICKNESS = 1;
 const LOCK_BLOCK_HEIGHT = 400;
-const LOCK_BLOCK_POSITION = 1000;
-const CUT_ALLOWANCE = 10;
 
 const NO_RAIL_CORE_TYPES = ["foam", "particle_solid", "honeycomb"];
 
@@ -101,12 +99,6 @@ const CORE_TYPE_CONFIG = [
   },
 ];
 
-const FRAME_TYPES = [
-  { value: "rubberwood", label: "ไม้ยางพารา" },
-  { value: "sadao", label: "ไม้สะเดา" },
-  { value: "lvl", label: "ไม้ LVL" },
-];
-
 const DOUBLE_FRAME_SIDES = [
   { key: "top", label: "บน" },
   { key: "bottom", label: "ล่าง" },
@@ -144,12 +136,6 @@ const LAYER_CONFIG = {
     id: "grid",
     label: "เส้นกริด",
     color: "#DCDCDC",
-    defaultVisible: true,
-  },
-  title: {
-    id: "title",
-    label: "กรอบชื่อ",
-    color: "#4456E9",
     defaultVisible: true,
   },
   dimensions: {
@@ -204,9 +190,6 @@ const LAYER_CONFIG = {
 
 const formatDimension = (t, w, h, separator = "×") =>
   `${t || "-"}${separator}${w || "-"}${separator}${h || "-"}`;
-
-const getMaterialLabel = (materials, value) =>
-  materials.find((m) => m.value === value)?.label || "-";
 
 const getEfficiencyColor = (efficiency) => {
   const val = parseFloat(String(efficiency)) || 0;
@@ -444,340 +427,6 @@ const FilledRect = memo(
 );
 FilledRect.displayName = "FilledRect";
 
-const TitleBlockSVG = ({ x, y, w, h, theme, data }) => {
-  const stroke = theme?.stroke || "#000";
-  const fill = theme?.text || "#000";
-  const font = "Arial, sans-serif";
-
-  const rows = [
-    { key: "logo", weight: 220 },
-    { key: "company", weight: 95 },
-    { key: "ownerH", weight: 110 },
-    { key: "ownerV", weight: 360 },
-    { key: "pcH", weight: 120 },
-    { key: "pcV", weight: 90 },
-    { key: "dimH", weight: 110 },
-    { key: "dimV", weight: 105 },
-    { key: "typeH", weight: 110 },
-    { key: "typeV", weight: 105 },
-    { key: "issueH", weight: 110 },
-    { key: "issueV", weight: 95 },
-    { key: "drawn", weight: 85 },
-    { key: "checked", weight: 85 },
-    { key: "sale", weight: 85 },
-    { key: "co", weight: 85 },
-    { key: "tol", weight: 235 },
-    { key: "qr", weight: 280 },
-    { key: "thai1", weight: 140 },
-    { key: "thai2", weight: 150 },
-    { key: "sig", weight: 120 },
-    { key: "app", weight: 110 },
-    { key: "footer", weight: 35 },
-  ];
-
-  const total = rows.reduce((s, r) => s + r.weight, 0);
-  const k = h / total;
-
-  const yMap = {};
-  let cy = y;
-  rows.forEach((r) => {
-    const rh = r.weight * k;
-    yMap[r.key] = { y: cy, h: rh };
-    cy += rh;
-  });
-
-  const midY = (key) => yMap[key].y + yMap[key].h / 2;
-
-  const line = (x1, y1, x2, y2, sw = 2) => (
-    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={sw} />
-  );
-
-  const txt = (tx, ty, text, opt = {}) => (
-    <text
-      x={tx}
-      y={ty}
-      fill={fill}
-      fontFamily={font}
-      fontSize={opt.size ?? 20}
-      fontWeight={opt.weight ?? 700}
-      textAnchor={opt.anchor ?? "middle"}
-      dominantBaseline="middle"
-      letterSpacing={opt.letterSpacing ?? 0}
-    >
-      {text || ""}
-    </text>
-  );
-
-  const splitHalf = x + w * 0.5;
-  const splitIssue = x + w * 0.66;
-  const splitName = x + w * 0.36;
-  const pad = w * 0.04;
-
-  const owner = data?.projectOwner || "";
-  const projectCode = data?.projectCode || "";
-  const code = data?.code || "";
-  const dimText = data?.dimension || "-";
-  const type = data?.type || "";
-  const issueDate = data?.issueDate || "";
-  const revise = data?.revise ?? "";
-
-  const drawn = data?.drawn || "";
-  const checked = data?.checked || "";
-  const sale = data?.sale || "";
-  const coApproved = data?.coApproved || "";
-
-  return (
-    <g className="layer-title">
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        fill="none"
-        stroke={stroke}
-        strokeWidth="3"
-      />
-
-      {rows.map((r) => (
-        <React.Fragment key={`h-${r.key}`}>
-          {line(x, yMap[r.key].y, x + w, yMap[r.key].y, 2)}
-        </React.Fragment>
-      ))}
-      {line(x, y + h, x + w, y + h, 3)}
-
-      <rect
-        x={x + pad}
-        y={yMap.logo.y + pad * 0.5}
-        width={w - pad * 2}
-        height={yMap.logo.h - pad}
-        fill="none"
-        stroke={stroke}
-        strokeWidth="2"
-      />
-      {txt(x + w / 2, yMap.logo.y + yMap.logo.h * 0.62, "EVERGREEN", {
-        size: 34,
-        weight: 300,
-        letterSpacing: 8,
-      })}
-      {txt(
-        x + w / 2,
-        yMap.logo.y + yMap.logo.h * 0.8,
-        "GREEN CONSTRUCTION MATERIALS",
-        { size: 16, weight: 300, letterSpacing: 2 },
-      )}
-
-      {txt(x + w / 2, midY("company"), "C.H.H. INDUSTRY CO.,LTD .", {
-        size: 26,
-        weight: 600,
-        letterSpacing: 2,
-      })}
-
-      {txt(x + w / 2, midY("ownerH"), "เจ้าของโครงการ", {
-        size: 38,
-        weight: 900,
-      })}
-      {txt(x + w / 2, midY("ownerV"), owner, { size: 28, weight: 600 })}
-
-      {line(
-        splitHalf,
-        yMap.pcH.y,
-        splitHalf,
-        yMap.pcH.y + yMap.pcH.h + yMap.pcV.h,
-        2,
-      )}
-      {txt(x + (splitHalf - x) / 2, midY("pcH"), "รหัสโครงการ", {
-        size: 24,
-        weight: 900,
-      })}
-      {txt(splitHalf + (x + w - splitHalf) / 2, midY("pcH"), "รหัส", {
-        size: 32,
-        weight: 900,
-      })}
-      {txt(x + (splitHalf - x) / 2, midY("pcV"), projectCode, {
-        size: 28,
-        weight: 600,
-      })}
-      {txt(splitHalf + (x + w - splitHalf) / 2, midY("pcV"), code, {
-        size: 28,
-        weight: 600,
-      })}
-
-      {txt(x + w / 2, midY("dimH"), "ขนาด", { size: 34, weight: 900 })}
-      {txt(x + w / 2, midY("dimV"), dimText, { size: 26, weight: 600 })}
-
-      {txt(x + w / 2, midY("typeH"), "ประเภท", { size: 34, weight: 900 })}
-      {txt(x + w / 2, midY("typeV"), type, { size: 26, weight: 600 })}
-
-      {line(
-        splitIssue,
-        yMap.issueH.y,
-        splitIssue,
-        yMap.issueH.y + yMap.issueH.h + yMap.issueV.h,
-        2,
-      )}
-      {txt(x + (splitIssue - x) / 2, midY("issueH"), "วันที่ออก", {
-        size: 30,
-        weight: 900,
-      })}
-      {txt(
-        splitIssue + (x + w - splitIssue) / 2,
-        midY("issueH"),
-        "แก้ไขครั้งที่",
-        {
-          size: 28,
-          weight: 900,
-        },
-      )}
-      {txt(x + (splitIssue - x) / 2, midY("issueV"), issueDate, {
-        size: 26,
-        weight: 600,
-      })}
-      {txt(
-        splitIssue + (x + w - splitIssue) / 2,
-        midY("issueV"),
-        String(revise),
-        { size: 26, weight: 600 },
-      )}
-
-      {["drawn", "checked", "sale", "co"].map((kRow) => {
-        const yy = yMap[kRow].y;
-        const hh = yMap[kRow].h;
-        const value =
-          kRow === "drawn"
-            ? drawn
-            : kRow === "checked"
-              ? checked
-              : kRow === "sale"
-                ? sale
-                : coApproved;
-        const label =
-          kRow === "drawn"
-            ? "เขียนโดย"
-            : kRow === "checked"
-              ? "ตรวจสอบโดย"
-              : kRow === "sale"
-                ? "ฝ่ายขาย"
-                : "อนุมัติร่วม";
-
-        return (
-          <React.Fragment key={`ap-${kRow}`}>
-            {line(splitName, yy, splitName, yy + hh, 2)}
-            {txt(x + (splitName - x) / 2, yy + hh / 2, label, {
-              size: 18,
-              weight: 600,
-            })}
-            <text
-              x={splitName + pad}
-              y={yy + hh / 2}
-              fill={fill}
-              fontFamily={font}
-              fontSize={18}
-              fontWeight={500}
-              textAnchor="start"
-              dominantBaseline="middle"
-            >
-              {value || ""}
-            </text>
-          </React.Fragment>
-        );
-      })}
-
-      <text
-        x={x + pad * 2}
-        y={yMap.tol.y + yMap.tol.h * 0.25}
-        fill={fill}
-        fontFamily={font}
-        fontSize={18}
-        fontWeight={500}
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        ความตรง ( ± 4 มม. )
-      </text>
-      <text
-        x={x + pad * 2}
-        y={yMap.tol.y + yMap.tol.h * 0.45}
-        fill={fill}
-        fontFamily={font}
-        fontSize={18}
-        fontWeight={500}
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        ค่าเผื่อ ( ± 3 มม. )
-      </text>
-      <text
-        x={x + pad * 2}
-        y={yMap.tol.y + yMap.tol.h * 0.65}
-        fill={fill}
-        fontFamily={font}
-        fontSize={18}
-        fontWeight={500}
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        ความหนา ( ± 1 มม. )
-      </text>
-      <text
-        x={x + pad * 2}
-        y={yMap.tol.y + yMap.tol.h * 0.85}
-        fill={fill}
-        fontFamily={font}
-        fontSize={18}
-        fontWeight={500}
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        หน่วย : มิลลิเมตร
-      </text>
-
-      <rect
-        x={x + w * 0.25}
-        y={yMap.qr.y + yMap.qr.h * 0.18}
-        width={w * 0.5}
-        height={yMap.qr.h * 0.55}
-        fill="none"
-        stroke={stroke}
-        strokeWidth="2"
-      />
-      {txt(x + w / 2, yMap.qr.y + yMap.qr.h * 0.48, "QR", {
-        size: 28,
-        weight: 900,
-      })}
-
-      {txt(x + w / 2, midY("thai1"), "*เงื่อนไขการรับประกันสินค้า*", {
-        size: 20,
-        weight: 600,
-      })}
-      {txt(x + w / 2, midY("thai2"), "*ตรวจสอบและยืนยันก่อนลงนามอนุมัติ*", {
-        size: 20,
-        weight: 600,
-      })}
-      {txt(x + w / 2, midY("sig"), "( ลายเซ็นลูกค้า )", {
-        size: 20,
-        weight: 600,
-      })}
-      {txt(x + w / 2, midY("app"), "( วันที่อนุมัติ )", {
-        size: 20,
-        weight: 600,
-      })}
-
-      <text
-        x={x + w - pad}
-        y={midY("footer")}
-        fill={fill}
-        fontFamily={font}
-        fontSize={18}
-        fontWeight={500}
-        textAnchor="end"
-        dominantBaseline="middle"
-      >
-        FP--02 Rev.00
-      </text>
-    </g>
-  );
-};
-
 const EnhancedEngineeringDrawing = memo(
   ({ results, coreCalculation, surfaceMaterial }) => {
     const svgRef = useRef(null);
@@ -823,23 +472,6 @@ const EnhancedEngineeringDrawing = memo(
 
     const surfaceMaterialLabel = surfaceMaterial || "ไม่ระบุ";
 
-    const titleData = useMemo(
-      () => ({
-        projectOwner: safeResults.projectOwner || "",
-        projectCode: safeResults.projectCode || "0",
-        code: safeResults.code || "0",
-        dimension: `${T} × ${W} × ${H} มม.`,
-        type: safeResults.type || "",
-        issueDate: safeResults.issueDate || "",
-        revise: safeResults.revise ?? "0",
-        drawn: safeResults.drawn || "",
-        checked: safeResults.checked || "",
-        sale: safeResults.sale || "",
-        coApproved: safeResults.coApproved || "",
-      }),
-      [safeResults, T, W, H],
-    );
-
     const safeH = H > 0 ? H : 2000;
     const safeW = W > 0 ? W : 800;
     const safeT = T > 0 ? T : 35;
@@ -855,8 +487,7 @@ const EnhancedEngineeringDrawing = memo(
     const viewBoxWidth = 2970;
     const viewBoxHeight = 2100;
     const DRAWING_SCALE = 0.45;
-    const titleBlockWidth = 439;
-    const drawingAreaWidth = viewBoxWidth - titleBlockWidth - 20;
+    const drawingAreaWidth = viewBoxWidth - 20;
 
     const hasDoubleFrame = doubleFrame?.hasAny && doubleFrame.count > 0;
     const drawingDF = hasDoubleFrame ? safeF * doubleFrame.count : 0;
@@ -2188,14 +1819,7 @@ const EnhancedEngineeringDrawing = memo(
                       </text>
                     </g>
 
-                    <TitleBlockSVG
-                      x={viewBoxWidth - 439}
-                      y={9}
-                      w={430}
-                      h={viewBoxHeight - 17}
-                      theme={theme}
-                      data={titleData}
-                    />
+                    {}
                   </svg>
                 </TransformComponent>
               </>
@@ -2313,7 +1937,19 @@ const UIDoorBom = ({
       coreType,
       edgeBanding,
     }),
-    [customerPO, orderQty, doorType, doorThickness, doorWidth, doorHeight, surfaceMaterial, surfaceThickness, surfacePrice, coreType, edgeBanding],
+    [
+      customerPO,
+      orderQty,
+      doorType,
+      doorThickness,
+      doorWidth,
+      doorHeight,
+      surfaceMaterial,
+      surfaceThickness,
+      surfacePrice,
+      coreType,
+      edgeBanding,
+    ],
   );
 
   const aiSetters = useMemo(
@@ -2331,7 +1967,19 @@ const UIDoorBom = ({
       setEdgeBanding,
     }),
 
-    [setCustomerPO, setOrderQty, setDoorType, setDoorThickness, setDoorWidth, setDoorHeight, setSurfaceMaterial, setSurfacePrice, setSurfaceThickness, setCoreType, setEdgeBanding],
+    [
+      setCustomerPO,
+      setOrderQty,
+      setDoorType,
+      setDoorThickness,
+      setDoorWidth,
+      setDoorHeight,
+      setSurfaceMaterial,
+      setSurfacePrice,
+      setSurfaceThickness,
+      setCoreType,
+      setEdgeBanding,
+    ],
   );
 
   const bomAI = useBomAI({ bomState, setters: aiSetters });
@@ -2356,19 +2004,24 @@ const UIDoorBom = ({
                     key={i}
                     size="md"
                     variant={isActive ? "solid" : "flat"}
-                    color={isApplied ? "success" : isActive ? "primary" : "default"}
+                    color={
+                      isApplied ? "success" : isActive ? "primary" : "default"
+                    }
                     className="cursor-pointer text-xs font-light"
                     onClick={() => {
                       bomAI.selectDoor(i);
                       bomAI.applyDoorFields(door, null, i);
                     }}
                   >
-                    {isApplied ? "✓ " : ""}{door.doorCode || `ประตู ${i + 1}`}
+                    {isApplied ? "✓ " : ""}
+                    {door.doorCode || `ประตู ${i + 1}`}
                   </Chip>
                 );
               })}
               <Button
-                size="md" variant="light" color="default"
+                size="md"
+                variant="light"
+                color="default"
                 className="ml-auto text-xs h-6 min-w-0 px-2"
                 onPress={bomAI.dismissPendingDoors}
               >
@@ -2575,7 +2228,8 @@ const UIDoorBom = ({
                         )
                       : idx === 0;
                     const isRecommended = candidate.allFrames.some(
-                      (af) => af.code === frameLengthOptions?.recommendedFrameCode,
+                      (af) =>
+                        af.code === frameLengthOptions?.recommendedFrameCode,
                     );
                     return (
                       <div
@@ -2650,7 +2304,8 @@ const UIDoorBom = ({
                             >
                               {candidate.allFrames.map((af) => {
                                 const isRecLen =
-                                  af.code === frameLengthOptions?.recommendedFrameCode;
+                                  af.code ===
+                                  frameLengthOptions?.recommendedFrameCode;
                                 return (
                                   <SelectItem
                                     key={af.code}
@@ -2689,10 +2344,14 @@ const UIDoorBom = ({
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex flex-col gap-0.5">
                         <span className="font-light">
-                          {frameLengthOptions.recommendedOption.frame.displaySize}
+                          {
+                            frameLengthOptions.recommendedOption.frame
+                              .displaySize
+                          }
                         </span>
                         <span className="text-muted-foreground">
-                          {frameLengthOptions.recommendedOption.totalStocks} ท่อน ·{" "}
+                          {frameLengthOptions.recommendedOption.totalStocks}{" "}
+                          ท่อน ·{" "}
                           {frameLengthOptions.recommendedOption.efficiency}%
                         </span>
                       </div>
@@ -2706,7 +2365,9 @@ const UIDoorBom = ({
                         </div>
                         <div className="text-success-600 text-xs">
                           ฿
-                          {frameLengthOptions.recommendedOption.costPerDoor.toFixed(2)}
+                          {frameLengthOptions.recommendedOption.costPerDoor.toFixed(
+                            2,
+                          )}
                           /บาน
                         </div>
                       </div>
@@ -3157,9 +2818,7 @@ const UIDoorBom = ({
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <span className="text-xs font-light">
-                      ด้านที่ทำขอบ
-                    </span>
+                    <span className="text-xs font-light">ด้านที่ทำขอบ</span>
                     <div className="flex flex-wrap gap-2">
                       {[
                         { key: "top", label: "บน" },
@@ -3363,7 +3022,7 @@ const UIDoorBom = ({
                   <span>
                     {priceSummary.coreStripsPerSheet > 0
                       ? `วัสดุไส้ (${priceSummary.coreStrips} เส้น / ${priceSummary.coreStripsPerSheet} เส้น/แผ่น × ฿${priceSummary.coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):`
-                      : `วัสดุไส้ (${priceSummary.coreQtyLabel} × ฿${priceSummary.coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):` }
+                      : `วัสดุไส้ (${priceSummary.coreQtyLabel} × ฿${priceSummary.coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}):`}
                   </span>
                   <span>
                     ฿
@@ -3373,19 +3032,28 @@ const UIDoorBom = ({
                     })}
                   </span>
                 </div>
-                {priceSummary.coreStripsPerSheet > 0 && priceSummary.qty > 1 && (() => {
-                  const { coreStrips, coreStripsPerSheet, coreUnitCost, qty } = priceSummary;
-                  const totalStrips = coreStrips * qty;
-                  const sheetsNeeded = Math.ceil(totalStrips / coreStripsPerSheet);
-                  const batchTotal = sheetsNeeded * coreUnitCost;
-                  return (
-                    <div className="text-xs text-muted-foreground pl-2 space-y-0.5 mb-1">
-                      <div>= {qty} บาน × {coreStrips} เส้น = {totalStrips.toLocaleString()} เส้น</div>
-                      <div>= ceil({totalStrips.toLocaleString()} ÷ {coreStripsPerSheet}) = {sheetsNeeded.toLocaleString()} แผ่น</div>
-                      <div>= {sheetsNeeded.toLocaleString()} × ฿{coreUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ÷ {qty} บาน = ฿{priceSummary.core.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/บาน</div>
-                    </div>
-                  );
-                })()}
+                {priceSummary.coreStripsPerSheet > 0 &&
+                  (() => {
+                    const { coreStrips, coreStripsPerSheet, coreUnitCost } =
+                      priceSummary;
+                    return (
+                      <div className="text-xs text-muted-foreground pl-2 space-y-0.5 mb-1">
+                        <div>
+                          = {coreStrips} ÷ {coreStripsPerSheet} เส้น/แผ่น × ฿
+                          {coreUnitCost.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}{" "}
+                          = ฿
+                          {priceSummary.core.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                          /บาน
+                        </div>
+                      </div>
+                    );
+                  })()}
                 {priceSummary.edge > 0 && (
                   <div className="flex justify-between">
                     <span>ทำขอบประตู:</span>
@@ -3696,20 +3364,36 @@ const UIDoorBom = ({
                   </div>
                   <div className="grid grid-cols-4 gap-0 divide-x divide-default-200">
                     <div className="p-2 text-center">
-                      <div className="font-light text-xs text-foreground">{cuttingPlan.totalStocks}</div>
-                      <div className="text-xs text-muted-foreground">ท่อนไม้ที่ใช้</div>
+                      <div className="font-light text-xs text-foreground">
+                        {cuttingPlan.totalStocks}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        ท่อนไม้ที่ใช้
+                      </div>
                     </div>
                     <div className="p-2 text-center">
-                      <div className="font-light text-xs text-foreground">{cuttingPlan.efficiency}%</div>
-                      <div className="text-xs text-muted-foreground">ประสิทธิภาพ</div>
+                      <div className="font-light text-xs text-foreground">
+                        {cuttingPlan.efficiency}%
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        ประสิทธิภาพ
+                      </div>
                     </div>
                     <div className="p-2 text-center">
-                      <div className="font-light text-xs text-foreground">{cuttingPlan.usedLength}</div>
-                      <div className="text-xs text-muted-foreground">ใช้จริง (มม.)</div>
+                      <div className="font-light text-xs text-foreground">
+                        {cuttingPlan.usedLength}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        ใช้จริง (มม.)
+                      </div>
                     </div>
                     <div className="p-2 text-center">
-                      <div className="font-light text-xs text-muted-foreground">{cuttingPlan.totalWaste}</div>
-                      <div className="text-xs text-muted-foreground">เศษ (มม.)</div>
+                      <div className="font-light text-xs text-muted-foreground">
+                        {cuttingPlan.totalWaste}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        เศษ (มม.)
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3718,23 +3402,40 @@ const UIDoorBom = ({
                 {cuttingPlan.batch && (
                   <div className="rounded-lg border border-success-200 overflow-hidden">
                     <div className="px-3 py-1.5 bg-success-50 text-xs font-light text-success-700 flex items-center justify-between">
-                      <span>📦 ทั้ง order {cuttingPlan.batch.orderQty} บาน (ตัดรวม)</span>
+                      <span>
+                        📦 ทั้ง order {cuttingPlan.batch.orderQty} บาน (ตัดรวม)
+                      </span>
                       {cuttingPlan.batch.savedStocks > 0 && (
-                        <span className="text-success-600">ประหยัดได้ {cuttingPlan.batch.savedStocks} ท่อน</span>
+                        <span className="text-success-600">
+                          ประหยัดได้ {cuttingPlan.batch.savedStocks} ท่อน
+                        </span>
                       )}
                     </div>
                     <div className="grid grid-cols-3 gap-0 divide-x divide-default-200">
                       <div className="p-2 text-center">
-                        <div className="font-light text-xs text-success-700">{cuttingPlan.batch.totalStocks}</div>
-                        <div className="text-xs text-muted-foreground">ท่อนทั้งหมด (ตัดรวม)</div>
+                        <div className="font-light text-xs text-success-700">
+                          {cuttingPlan.batch.totalStocks}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          ท่อนทั้งหมด (ตัดรวม)
+                        </div>
                       </div>
                       <div className="p-2 text-center">
-                        <div className="font-light text-xs text-muted-foreground line-through">{cuttingPlan.batch.naiveStocksTotal}</div>
-                        <div className="text-xs text-muted-foreground">ถ้าตัดแยกบาน ({cuttingPlan.totalStocks}×{cuttingPlan.batch.orderQty})</div>
+                        <div className="font-light text-xs text-muted-foreground line-through">
+                          {cuttingPlan.batch.naiveStocksTotal}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          ถ้าตัดแยกบาน ({cuttingPlan.totalStocks}×
+                          {cuttingPlan.batch.orderQty})
+                        </div>
                       </div>
                       <div className="p-2 text-center">
-                        <div className="font-light text-xs text-success-600">{cuttingPlan.batch.efficiency}%</div>
-                        <div className="text-xs text-muted-foreground">ประสิทธิภาพรวม</div>
+                        <div className="font-light text-xs text-success-600">
+                          {cuttingPlan.batch.efficiency}%
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          ประสิทธิภาพรวม
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -3780,12 +3481,23 @@ const UIDoorBom = ({
 
                 {(() => {
                   const isBatch = cuttingPlan.batch?.stocks?.length > 0;
-                  const displayStocks = isBatch ? cuttingPlan.batch.stocks : cuttingPlan.stocks;
-                  const totalStocksDisplay = isBatch ? cuttingPlan.batch.totalStocks : cuttingPlan.totalStocks;
-                  const efficiencyDisplay = isBatch ? cuttingPlan.batch.efficiency : cuttingPlan.efficiency;
-                  const framePageCount = Math.ceil(displayStocks.length / FRAME_PAGE_SIZE);
+                  const displayStocks = isBatch
+                    ? cuttingPlan.batch.stocks
+                    : cuttingPlan.stocks;
+                  const totalStocksDisplay = isBatch
+                    ? cuttingPlan.batch.totalStocks
+                    : cuttingPlan.totalStocks;
+                  const efficiencyDisplay = isBatch
+                    ? cuttingPlan.batch.efficiency
+                    : cuttingPlan.efficiency;
+                  const framePageCount = Math.ceil(
+                    displayStocks.length / FRAME_PAGE_SIZE,
+                  );
                   const framePage = Math.min(framePlanPage, framePageCount);
-                  const framePageStocks = displayStocks.slice((framePage - 1) * FRAME_PAGE_SIZE, framePage * FRAME_PAGE_SIZE);
+                  const framePageStocks = displayStocks.slice(
+                    (framePage - 1) * FRAME_PAGE_SIZE,
+                    framePage * FRAME_PAGE_SIZE,
+                  );
                   const colorMap = {
                     primary: "#4456E9",
                     secondary: "#FF8A00",
@@ -3797,48 +3509,83 @@ const UIDoorBom = ({
                     <>
                       <div className="border-1 border-border rounded-lg overflow-hidden">
                         <div className="p-2 text-xs font-light bg-default-100 flex items-center justify-between">
-                          <span>🪵 แผนตัดไม้ (ท่อนยาว {cuttingPlan.stockLength}มม. × {totalStocksDisplay} ท่อน)</span>
+                          <span>
+                            🪵 แผนตัดไม้ (ท่อนยาว {cuttingPlan.stockLength}มม. ×{" "}
+                            {totalStocksDisplay} ท่อน)
+                          </span>
                           {isBatch && (
-                            <span className="text-muted-foreground font-light">📦 {cuttingPlan.batch.orderQty} บาน</span>
+                            <span className="text-muted-foreground font-light">
+                              📦 {cuttingPlan.batch.orderQty} บาน
+                            </span>
                           )}
                         </div>
                         <div className="p-2 space-y-3">
                           {framePageStocks.map((stock, idx) => {
-                            const stockIdx = (framePage - 1) * FRAME_PAGE_SIZE + idx;
+                            const stockIdx =
+                              (framePage - 1) * FRAME_PAGE_SIZE + idx;
                             return (
                               <div key={stockIdx} className="space-y-1">
-                                <div className="text-xs text-foreground">ท่อนที่ {stockIdx + 1}</div>
+                                <div className="text-xs text-foreground">
+                                  ท่อนที่ {stockIdx + 1}
+                                </div>
                                 <div className="relative h-8 rounded overflow-hidden bg-default-100">
                                   {(() => {
                                     let offset = 0;
-                                    return stock.pieces.map((piece, pieceIdx) => {
-                                      const pieceCut = piece.cutLength ?? piece.length;
-                                      const width = (pieceCut / stock.length) * 100;
-                                      const kerfWidth = (cuttingPlan.sawKerf / stock.length) * 100;
-                                      const left = offset;
-                                      offset += width + kerfWidth;
-                                      return (
-                                        <React.Fragment key={pieceIdx}>
-                                          <div
-                                            className="absolute h-full flex items-center justify-center text-xs font-light overflow-hidden text-white"
-                                            style={{ left: `${left}%`, width: `${width}%`, backgroundColor: colorMap[piece.color] || "#DCDCDC" }}
-                                            title={`${piece.name}: cut ${pieceCut}mm (use ${piece.length}mm)`}
-                                          >
-                                            {width > 8 && <span className="truncate p-2">{pieceCut}</span>}
-                                          </div>
-                                          {pieceIdx < stock.pieces.length - 1 && (
-                                            <div className="absolute h-full bg-default-200" style={{ left: `${left + width}%`, width: `${kerfWidth}%` }} />
-                                          )}
-                                        </React.Fragment>
-                                      );
-                                    });
+                                    return stock.pieces.map(
+                                      (piece, pieceIdx) => {
+                                        const pieceCut =
+                                          piece.cutLength ?? piece.length;
+                                        const width =
+                                          (pieceCut / stock.length) * 100;
+                                        const kerfWidth =
+                                          (cuttingPlan.sawKerf / stock.length) *
+                                          100;
+                                        const left = offset;
+                                        offset += width + kerfWidth;
+                                        return (
+                                          <React.Fragment key={pieceIdx}>
+                                            <div
+                                              className="absolute h-full flex items-center justify-center text-xs font-light overflow-hidden text-white"
+                                              style={{
+                                                left: `${left}%`,
+                                                width: `${width}%`,
+                                                backgroundColor:
+                                                  colorMap[piece.color] ||
+                                                  "#DCDCDC",
+                                              }}
+                                              title={`${piece.name}: cut ${pieceCut}mm (use ${piece.length}mm)`}
+                                            >
+                                              {width > 8 && (
+                                                <span className="truncate p-2">
+                                                  {pieceCut}
+                                                </span>
+                                              )}
+                                            </div>
+                                            {pieceIdx <
+                                              stock.pieces.length - 1 && (
+                                              <div
+                                                className="absolute h-full bg-default-200"
+                                                style={{
+                                                  left: `${left + width}%`,
+                                                  width: `${kerfWidth}%`,
+                                                }}
+                                              />
+                                            )}
+                                          </React.Fragment>
+                                        );
+                                      },
+                                    );
                                   })()}
                                   {stock.remaining > 0 && (
                                     <div
                                       className="absolute right-0 h-full flex items-center justify-center text-xs bg-background text-foreground"
-                                      style={{ width: `${(stock.remaining / stock.length) * 100}%` }}
+                                      style={{
+                                        width: `${(stock.remaining / stock.length) * 100}%`,
+                                      }}
                                     >
-                                      {stock.remaining > 100 && <span>เศษเหลือ {stock.remaining}</span>}
+                                      {stock.remaining > 100 && (
+                                        <span>เศษเหลือ {stock.remaining}</span>
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -3850,17 +3597,32 @@ const UIDoorBom = ({
                           <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-default-50">
                             <button
                               className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
-                              onClick={() => setFramePlanPage(p => Math.max(1, p - 1))}
+                              onClick={() =>
+                                setFramePlanPage((p) => Math.max(1, p - 1))
+                              }
                               disabled={framePage === 1}
-                            >← ก่อนหน้า</button>
+                            >
+                              ← ก่อนหน้า
+                            </button>
                             <span className="text-xs text-muted-foreground">
-                              ท่อนที่ {(framePage - 1) * FRAME_PAGE_SIZE + 1}–{Math.min(framePage * FRAME_PAGE_SIZE, displayStocks.length)} / {displayStocks.length}
+                              ท่อนที่ {(framePage - 1) * FRAME_PAGE_SIZE + 1}–
+                              {Math.min(
+                                framePage * FRAME_PAGE_SIZE,
+                                displayStocks.length,
+                              )}{" "}
+                              / {displayStocks.length}
                             </span>
                             <button
                               className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
-                              onClick={() => setFramePlanPage(p => Math.min(framePageCount, p + 1))}
+                              onClick={() =>
+                                setFramePlanPage((p) =>
+                                  Math.min(framePageCount, p + 1),
+                                )
+                              }
                               disabled={framePage === framePageCount}
-                            >ถัดไป →</button>
+                            >
+                              ถัดไป →
+                            </button>
                           </div>
                         )}
                       </div>
@@ -3868,11 +3630,17 @@ const UIDoorBom = ({
                       <div className="p-2">
                         <div className="flex justify-between text-xs">
                           <span>ประสิทธิภาพการใช้ไม้</span>
-                          <span className={`font-light text-${getEfficiencyColor(efficiencyDisplay)}`}>
+                          <span
+                            className={`font-light text-${getEfficiencyColor(efficiencyDisplay)}`}
+                          >
                             {efficiencyDisplay}%
                           </span>
                         </div>
-                        <Progress value={parseFloat(efficiencyDisplay)} color={getEfficiencyColor(efficiencyDisplay)} size="md" />
+                        <Progress
+                          value={parseFloat(efficiencyDisplay)}
+                          color={getEfficiencyColor(efficiencyDisplay)}
+                          size="md"
+                        />
                         <div className="flex justify-between text-xs text-muted-foreground">
                           <span>0%</span>
                           <span>ดี: ≥80%</span>
@@ -3884,114 +3652,159 @@ const UIDoorBom = ({
                 })()}
 
                 {}
-                {priceSummary.coreStripsPerSheet > 0 && (() => {
-                  const { coreStrips, coreStripsPerSheet, coreSheetWidth, coreStripCutWidth } = priceSummary;
-                  const orderQty = priceSummary.qty || 1;
-                  const batchStrips = coreStrips * orderQty;
-                  const batchSheets = Math.ceil(batchStrips / coreStripsPerSheet);
-                  const batchEfficiency = batchSheets > 0
-                    ? ((batchStrips / (batchSheets * coreStripsPerSheet)) * 100).toFixed(1)
-                    : "0";
+                {priceSummary.coreStripsPerSheet > 0 &&
+                  (() => {
+                    const {
+                      coreStrips,
+                      coreStripsPerSheet,
+                      coreSheetWidth,
+                      coreStripCutWidth,
+                    } = priceSummary;
+                    const orderQty = priceSummary.qty || 1;
+                    const batchStrips = coreStrips * orderQty;
+                    const batchSheets = Math.ceil(
+                      batchStrips / coreStripsPerSheet,
+                    );
+                    const batchEfficiency =
+                      batchSheets > 0
+                        ? (
+                            (batchStrips / (batchSheets * coreStripsPerSheet)) *
+                            100
+                          ).toFixed(1)
+                        : "0";
 
+                    const buildSheets = (totalStrips, perSheet) => {
+                      const sheets = [];
+                      let remaining = totalStrips;
+                      while (remaining > 0) {
+                        const used = Math.min(remaining, perSheet);
+                        sheets.push({ used, waste: perSheet - used });
+                        remaining -= used;
+                      }
+                      return sheets;
+                    };
 
-                  const buildSheets = (totalStrips, perSheet) => {
-                    const sheets = [];
-                    let remaining = totalStrips;
-                    while (remaining > 0) {
-                      const used = Math.min(remaining, perSheet);
-                      sheets.push({ used, waste: perSheet - used });
-                      remaining -= used;
-                    }
-                    return sheets;
-                  };
+                    const displaySheets = buildSheets(
+                      orderQty > 1 ? batchStrips : coreStrips,
+                      coreStripsPerSheet,
+                    );
+                    const corePageCount = Math.ceil(
+                      displaySheets.length / CORE_PAGE_SIZE,
+                    );
+                    const corePage = Math.min(corePlanPage, corePageCount);
+                    const corePageSheets = displaySheets.slice(
+                      (corePage - 1) * CORE_PAGE_SIZE,
+                      corePage * CORE_PAGE_SIZE,
+                    );
 
-                  const displaySheets = buildSheets(
-                    orderQty > 1 ? batchStrips : coreStrips,
-                    coreStripsPerSheet,
-                  );
-                  const corePageCount = Math.ceil(displaySheets.length / CORE_PAGE_SIZE);
-                  const corePage = Math.min(corePlanPage, corePageCount);
-                  const corePageSheets = displaySheets.slice((corePage - 1) * CORE_PAGE_SIZE, corePage * CORE_PAGE_SIZE);
-
-                  return (
-                    <div className="mt-3 border-1 border-border rounded-lg overflow-hidden">
-                      <div className="p-2 text-xs font-light bg-default-100 flex items-center justify-between">
-                        <span>
-                          🧱 แผนตัดใส้ (แผ่น {coreSheetWidth}มม. ÷ {coreStripCutWidth}มม. = {coreStripsPerSheet} เส้น/แผ่น)
-                        </span>
-                        {orderQty > 1 && (
-                          <span className="text-muted-foreground font-light">
-                            📦 กลุ่ม {orderQty} บาน: {batchSheets} แผ่น
+                    return (
+                      <div className="mt-3 border-1 border-border rounded-lg overflow-hidden">
+                        <div className="p-2 text-xs font-light bg-default-100 flex items-center justify-between">
+                          <span>
+                            🧱 แผนตัดใส้ (แผ่น {coreSheetWidth}มม. ÷{" "}
+                            {coreStripCutWidth}มม. = {coreStripsPerSheet}{" "}
+                            เส้น/แผ่น)
                           </span>
-                        )}
-                      </div>
-                      <div className="p-2 space-y-2">
-                        {corePageSheets.map((sheet, idx) => {
-                          const sheetIdx = (corePage - 1) * CORE_PAGE_SIZE + idx;
-                          const usedPct = (sheet.used / coreStripsPerSheet) * 100;
-                          const wastePct = (sheet.waste / coreStripsPerSheet) * 100;
-                          return (
-                            <div key={sheetIdx} className="space-y-0.5">
-                              <div className="text-xs text-muted-foreground">
-                                แผ่นที่ {sheetIdx + 1}
-                                <span className="ml-1 text-muted-foreground">
-                                  ({sheet.used} เส้น{sheet.waste > 0 ? ` · เหลือ ${sheet.waste}` : ""})
-                                </span>
-                              </div>
-                              <div className="relative h-6 rounded overflow-hidden bg-default-100">
-                                <div
-                                  className="absolute h-full flex items-center justify-center text-xs font-light text-white"
-                                  style={{ width: `${usedPct}%`, backgroundColor: "#D97706" }}
-                                  title={`ใช้ ${sheet.used} เส้น`}
-                                >
-                                  {usedPct > 15 && `${sheet.used} เส้น`}
+                          {orderQty > 1 && (
+                            <span className="text-muted-foreground font-light">
+                              📦 กลุ่ม {orderQty} บาน: {batchSheets} แผ่น
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-2 space-y-2">
+                          {corePageSheets.map((sheet, idx) => {
+                            const sheetIdx =
+                              (corePage - 1) * CORE_PAGE_SIZE + idx;
+                            const usedPct =
+                              (sheet.used / coreStripsPerSheet) * 100;
+                            const wastePct =
+                              (sheet.waste / coreStripsPerSheet) * 100;
+                            return (
+                              <div key={sheetIdx} className="space-y-0.5">
+                                <div className="text-xs text-muted-foreground">
+                                  แผ่นที่ {sheetIdx + 1}
+                                  <span className="ml-1 text-muted-foreground">
+                                    ({sheet.used} เส้น
+                                    {sheet.waste > 0
+                                      ? ` · เหลือ ${sheet.waste}`
+                                      : ""}
+                                    )
+                                  </span>
                                 </div>
-                                {sheet.waste > 0 && (
+                                <div className="relative h-6 rounded overflow-hidden bg-default-100">
                                   <div
-                                    className="absolute right-0 h-full flex items-center justify-center text-xs text-muted-foreground"
-                                    style={{ width: `${wastePct}%` }}
+                                    className="absolute h-full flex items-center justify-center text-xs font-light text-white"
+                                    style={{
+                                      width: `${usedPct}%`,
+                                      backgroundColor: "#D97706",
+                                    }}
+                                    title={`ใช้ ${sheet.used} เส้น`}
                                   >
-                                    {wastePct > 10 && `เศษ ${sheet.waste}`}
+                                    {usedPct > 15 && `${sheet.used} เส้น`}
                                   </div>
-                                )}
+                                  {sheet.waste > 0 && (
+                                    <div
+                                      className="absolute right-0 h-full flex items-center justify-center text-xs text-muted-foreground"
+                                      style={{ width: `${wastePct}%` }}
+                                    >
+                                      {wastePct > 10 && `เศษ ${sheet.waste}`}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      {corePageCount > 1 && (
-                        <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-default-50">
-                          <button
-                            className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
-                            onClick={() => setCorePlanPage(p => Math.max(1, p - 1))}
-                            disabled={corePage === 1}
-                          >← ก่อนหน้า</button>
-                          <span className="text-xs text-muted-foreground">
-                            แผ่นที่ {(corePage - 1) * CORE_PAGE_SIZE + 1}–{Math.min(corePage * CORE_PAGE_SIZE, displaySheets.length)} / {displaySheets.length}
-                          </span>
-                          <button
-                            className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
-                            onClick={() => setCorePlanPage(p => Math.min(corePageCount, p + 1))}
-                            disabled={corePage === corePageCount}
-                          >ถัดไป →</button>
+                            );
+                          })}
                         </div>
-                      )}
-                      <div className="px-2 pb-2 space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span>ประสิทธิภาพการใช้แผ่น</span>
-                          <span className={`font-light text-${getEfficiencyColor(batchEfficiency)}`}>
-                            {batchEfficiency}%
-                          </span>
+                        {corePageCount > 1 && (
+                          <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-default-50">
+                            <button
+                              className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                              onClick={() =>
+                                setCorePlanPage((p) => Math.max(1, p - 1))
+                              }
+                              disabled={corePage === 1}
+                            >
+                              ← ก่อนหน้า
+                            </button>
+                            <span className="text-xs text-muted-foreground">
+                              แผ่นที่ {(corePage - 1) * CORE_PAGE_SIZE + 1}–
+                              {Math.min(
+                                corePage * CORE_PAGE_SIZE,
+                                displaySheets.length,
+                              )}{" "}
+                              / {displaySheets.length}
+                            </span>
+                            <button
+                              className="text-xs px-2 py-1 rounded disabled:opacity-30 hover:bg-default-200 transition-colors"
+                              onClick={() =>
+                                setCorePlanPage((p) =>
+                                  Math.min(corePageCount, p + 1),
+                                )
+                              }
+                              disabled={corePage === corePageCount}
+                            >
+                              ถัดไป →
+                            </button>
+                          </div>
+                        )}
+                        <div className="px-2 pb-2 space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span>ประสิทธิภาพการใช้แผ่น</span>
+                            <span
+                              className={`font-light text-${getEfficiencyColor(batchEfficiency)}`}
+                            >
+                              {batchEfficiency}%
+                            </span>
+                          </div>
+                          <Progress
+                            value={parseFloat(batchEfficiency)}
+                            color={getEfficiencyColor(batchEfficiency)}
+                            size="md"
+                          />
                         </div>
-                        <Progress
-                          value={parseFloat(batchEfficiency)}
-                          color={getEfficiencyColor(batchEfficiency)}
-                          size="md"
-                        />
                       </div>
-                    </div>
-                  );
-                })()}
+                    );
+                  })()}
               </CardBody>
             </Card>
           ) : (
@@ -4006,9 +3819,7 @@ const UIDoorBom = ({
               <CardBody>
                 <div className="flex flex-col items-center justify-center h-48 gap-2">
                   <Calculator className="w-12 h-12 text-muted-foreground" />
-                  <p className="text-xs font-light">
-                    กรุณากรอกสเปคประตูให้ครบ
-                  </p>
+                  <p className="text-xs font-light">กรุณากรอกสเปคประตูให้ครบ</p>
                   <p className="text-xs text-muted-foreground">
                     ระบบจะคำนวณแผนตัดไม้ให้อัตโนมัติ
                   </p>
