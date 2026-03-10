@@ -92,17 +92,25 @@ export default function TrackingView({
               <Card
                 key={vehicle.tmsVehicleId}
                 shadow="none"
-                className={`cursor-pointer shrink-0 w-64 ${isSelected ? "border-2 border-primary" : "border border-border"}`}
+                className={`cursor-pointer shrink-0 w-72 ${isSelected ? "border-2 border-primary" : "border border-border"}`}
                 onClick={() => setSelectedVehicleId(vehicle.tmsVehicleId)}
               >
-                <CardBody className="p-3 gap-2">
+                <CardBody className="p-4 gap-3">
+                  {/* Header */}
                   <div className="flex items-center justify-between">
-                    <p className="font-light text-xs">
-                      {vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}
-                    </p>
+                    <div>
+                      <p className="font-medium text-sm">
+                        {vehicle.tmsVehicleName || vehicle.tmsVehiclePlateNumber}
+                      </p>
+                      {vehicle.tmsVehicleName && (
+                        <p className="text-xs text-muted-foreground">
+                          {vehicle.tmsVehiclePlateNumber}
+                        </p>
+                      )}
+                    </div>
                     <Chip
                       variant="flat"
-                      size="md"
+                      size="sm"
                       color={
                         STATUS_COLORS[vehicle.tmsVehicleStatus] || "default"
                       }
@@ -110,113 +118,107 @@ export default function TrackingView({
                       {vehicle.tmsVehicleStatus}
                     </Chip>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {vehicle.tmsVehiclePlateNumber}
-                  </p>
+
                   {pos ? (
-                    <div className="flex flex-col gap-1 text-xs">
+                    <div className="flex flex-col gap-2 text-xs">
                       {/* Location */}
-                      <p className="flex items-center gap-1">
-                        <MapPin size={12} className="text-primary shrink-0" />
-                        {Number(pos.tmsGpsLogLatitude).toFixed(5)},{" "}
-                        {Number(pos.tmsGpsLogLongitude).toFixed(5)}
-                      </p>
-                      {pos.ftAddress && (
-                        <p
-                          className="text-muted-foreground truncate"
-                          title={pos.ftAddress}
-                        >
-                          {pos.ftAddress}
-                        </p>
-                      )}
-                      {pos.ftPoi && (
-                        <p className="text-muted-foreground">📍 {pos.ftPoi}</p>
-                      )}
-                      {/* Status row */}
-                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground">
-                        {pos.tmsGpsLogSpeed != null && (
-                          <span>🚗 {pos.tmsGpsLogSpeed} km/h</span>
-                        )}
-                        {pos.ftEngine && (
-                          <span>
-                            เครื่อง:{" "}
-                            <span
-                              className={
-                                pos.ftEngine === "ON"
-                                  ? "text-success"
-                                  : "text-danger"
-                              }
-                            >
-                              {pos.ftEngine}
-                            </span>
-                          </span>
-                        )}
-                        {pos.ftPowerStatus && (
-                          <span
-                            className={
-                              pos.ftPowerStatus === "ON"
-                                ? "text-success"
-                                : "text-muted-foreground"
-                            }
-                          >
-                            ⚡ {pos.ftPowerStatus}
-                          </span>
-                        )}
-                      </div>
-                      {/* Sensor row */}
-                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground">
-                        {pos.ftFuel != null && (
-                          <span className="flex items-center gap-0.5">
-                            <Fuel size={10} /> {pos.ftFuel}%
-                          </span>
-                        )}
-                        {pos.ftTemperature != null &&
-                          pos.ftTemperature !== 0 && (
-                            <span className="flex items-center gap-0.5">
-                              <Thermometer size={10} /> {pos.ftTemperature}°C
-                            </span>
+                      <div className="flex items-start gap-1.5">
+                        <MapPin size={13} className="text-primary shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <p className="font-mono text-xs">
+                            {Number(pos.tmsGpsLogLatitude).toFixed(5)}, {Number(pos.tmsGpsLogLongitude).toFixed(5)}
+                          </p>
+                          {pos.ftAddress && (
+                            <p className="text-muted-foreground truncate" title={pos.ftAddress}>
+                              {pos.ftAddress}
+                            </p>
                           )}
+                        </div>
+                      </div>
+
+                      {/* Vehicle status grid */}
+                      <div className="grid grid-cols-3 gap-x-2 gap-y-1 text-xs bg-default-50 rounded-lg px-2.5 py-2">
+                        <div>
+                          <p className="text-[10px] text-muted-foreground/70">ความเร็ว</p>
+                          <p className="font-medium">{pos.tmsGpsLogSpeed ?? 0} km/h</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-muted-foreground/70">เครื่อง</p>
+                          <p className={`font-medium ${pos.ftEngine === "ON" ? "text-success" : "text-danger"}`}>
+                            {pos.ftEngine || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-muted-foreground/70">ไฟ</p>
+                          <p className={`font-medium ${pos.ftPowerStatus === "ON" ? "text-success" : "text-danger"}`}>
+                            {pos.ftPowerStatus || "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Sensor grid */}
+                      <div className="grid grid-cols-3 gap-x-2 gap-y-1 text-xs">
+                        {pos.ftFuel != null && (
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Fuel size={11} className="shrink-0" />
+                            <span>{pos.ftFuel}%</span>
+                          </div>
+                        )}
                         {pos.ftExternalBatt && (
-                          <span>🔋 {pos.ftExternalBatt}V</span>
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <span className="text-[11px]">🔋</span>
+                            <span>{pos.ftExternalBatt}V</span>
+                          </div>
+                        )}
+                        {pos.ftTemperature != null && pos.ftTemperature !== 0 && (
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Thermometer size={11} className="shrink-0" />
+                            <span>{pos.ftTemperature}°C</span>
+                          </div>
                         )}
                       </div>
-                      {/* Signal row */}
-                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground">
+
+                      {/* Signal status */}
+                      <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                         {pos.ftGPS && (
-                          <span
-                            className={
-                              pos.ftGPS === "ON"
-                                ? "text-success"
-                                : "text-danger"
-                            }
-                          >
-                            GPS: {pos.ftGPS}
+                          <span>
+                            GPS:{" "}
+                            <span className={pos.ftGPS === "ON" ? "text-success font-medium" : "text-danger font-medium"}>
+                              {pos.ftGPS}
+                            </span>
                           </span>
                         )}
                         {pos.ftGPRS && (
                           <span className="flex items-center gap-0.5">
-                            <Wifi size={10} /> {pos.ftGPRS}
+                            <Wifi size={11} />
+                            <span className={pos.ftGPRS === "ON" ? "text-success font-medium" : "font-medium"}>
+                              {pos.ftGPRS}
+                            </span>
                           </span>
                         )}
                         {pos.ftPositionSource && (
-                          <span className="text-muted-foreground/60">
-                            {pos.ftPositionSource}
-                          </span>
+                          <span className="text-muted-foreground/60">{pos.ftPositionSource}</span>
                         )}
                       </div>
+
                       {pos.ftDriver && (
-                        <p className="text-muted-foreground">
+                        <p className="text-muted-foreground text-[11px]">
                           👤 {pos.ftDriver}
                         </p>
                       )}
-                      <p className="text-muted-foreground">
-                        {new Date(pos.tmsGpsLogRecordedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
-                      </p>
-                      {pos.tmsGpsLogSource === "forthtrack" && (
-                        <p className="text-[10px] text-primary/60">
-                          ● Live GPS
+
+                      {/* Timestamp & Live */}
+                      <div className="flex items-center justify-between pt-1 border-t border-border/50">
+                        <p className="text-[11px] text-muted-foreground">
+                          {new Date(pos.tmsGpsLogRecordedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
                         </p>
-                      )}
+                        {pos.tmsGpsLogSource === "forthtrack" && (
+                          <span className="text-[10px] text-primary flex items-center gap-1">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                            Live
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <p className="text-xs text-muted-foreground">
@@ -229,9 +231,9 @@ export default function TrackingView({
                   >
                     <Button
                       variant="bordered"
-                      size="md"
+                      size="sm"
                       radius="md"
-                      startContent={<History />}
+                      startContent={<History size={14} />}
                       onPress={() => loadRouteHistory(vehicle.tmsVehicleId)}
                       isLoading={
                         loadingRoute &&
