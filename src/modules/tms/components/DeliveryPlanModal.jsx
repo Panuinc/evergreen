@@ -257,6 +257,7 @@ export default function DeliveryPlanModal({
                         className="text-xs text-foreground truncate"
                       >
                         {item.tmsDeliveryPlanItemSalesOrderNo} ·{" "}
+                        {item.tmsDeliveryPlanItemItemNo && `[${item.tmsDeliveryPlanItemItemNo}] `}
                         {item.tmsDeliveryPlanItemDescription} ×{" "}
                         {item.tmsDeliveryPlanItemPlannedQty}{" "}
                         {item.tmsDeliveryPlanItemUom}
@@ -359,6 +360,11 @@ export default function DeliveryPlanModal({
                               )}
                             </p>
                             <p className="text-xs text-foreground truncate">
+                              {item.tmsDeliveryPlanItemItemNo && (
+                                <span className="text-muted-foreground mr-1">
+                                  [{item.tmsDeliveryPlanItemItemNo}]
+                                </span>
+                              )}
                               {item.tmsDeliveryPlanItemDescription}
                             </p>
                           </div>
@@ -506,6 +512,11 @@ export default function DeliveryPlanModal({
                             />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-light truncate">
+                                {line.bcSalesOrderLineObjectNumber && (
+                                  <span className="text-muted-foreground mr-1">
+                                    [{line.bcSalesOrderLineObjectNumber}]
+                                  </span>
+                                )}
                                 {line.bcSalesOrderLineDescription}
                               </p>
                               <p className="text-xs text-muted-foreground">
