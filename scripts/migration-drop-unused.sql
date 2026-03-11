@@ -1,0 +1,35 @@
+-- Migration: Drop unused tables and columns (ALREADY EXECUTED 2026-03-11)
+-- This file is a record of what was dropped.
+
+-- ============================================
+-- DROPPED ENTIRE TABLES (round 1)
+-- ============================================
+-- tmsRoute, tmsMaintenanceRecord, tmsMaintenance, tmsDriverProfile, hrAttendance
+
+-- ============================================
+-- DROPPED COLUMNS (round 1)
+-- ============================================
+-- tmsVehicle: tmsVehicleType, tmsVehicleBrand, tmsVehicleModel, tmsVehicleYear,
+--             tmsVehicleCurrentMileage, tmsVehicleRegistrationExpiry, tmsVehicleInsuranceExpiry
+-- bcSalesOrder: bcSalesOrderDocumentType
+
+-- ============================================
+-- DROPPED COLUMNS (round 2 - full audit)
+-- ============================================
+-- tmsVehicle: tmsVehicleVinNumber, tmsVehicleInsurancePolicy, tmsVehicleActExpiry,
+--             tmsVehicleColor, tmsVehicleNotes
+-- tmsShipment: tmsShipmentWeightKg
+-- omQuotation: omQuotationNo (dead duplicate of omQuotationNumber)
+-- omConversation: omConversationUpdatedAt
+-- itDevProgressLog: itDevProgressLogNote (dead duplicate of itDevProgressLogDescription)
+-- salesQuotation: crmQuotationCreatedBy
+-- perfEvaluation: perfEvaluationStatus, perfEvaluationUpdatedAt
+-- hrDepartment: hrDepartmentDivisionId
+-- hrEmployee: hrEmployeeUpdatedAt
+-- rbacAction: rbacActionUpdatedAt
+-- rbacResource: rbacResourceCreatedAt, rbacResourceUpdatedAt
+-- rbacRole: rbacRoleUpdatedAt
+-- rbacRolePermission: rbacRolePermissionCreatedAt
+-- rbacUserProfile: rbacUserProfileDisplayName, rbacUserProfileAvatarUrl
+-- rbacUserRole: rbacUserRoleCreatedAt
+-- whOrderMatch: whOrderMatchStatus, whOrderMatchCreatedAt

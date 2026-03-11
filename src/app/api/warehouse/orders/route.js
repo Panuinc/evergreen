@@ -3,7 +3,6 @@ import { withAuth } from "@/app/api/_lib/auth";
 function formatOrder(o) {
   return {
     number: o.bcSalesOrderNumber,
-    documentType: o.bcSalesOrderDocumentType,
     sellToCustomerName: o.bcSalesOrderCustomerName,
     sellToCustomerNo: o.bcSalesOrderCustomerNumber,
     orderDate: o.bcSalesOrderDate,
@@ -32,18 +31,10 @@ export async function GET(request) {
   if (auth.error) return auth.error;
   const { supabase } = auth;
 
-  const { searchParams } = new URL(request.url);
-  const type = searchParams.get("type");
-
-
   let tableName = "bcSalesOrder";
   let linesTable = "bcSalesOrderLine";
 
   let query = supabase.from(tableName).select("*");
-
-  if (type) {
-    query = query.eq("bcSalesOrderDocumentType", type);
-  }
 
   let { data, error } = await query.order("bcSalesOrderDate", { ascending: false });
 
@@ -51,10 +42,6 @@ export async function GET(request) {
   if (error && error.message.includes("does not exist")) {
     tableName = "bcSalesOrderHeaders";
     query = supabase.from(tableName).select("*");
-
-    if (type) {
-      query = query.eq("bcSalesOrderDocumentType", type);
-    }
 
     const result = await query.order("bcSalesOrderDate", { ascending: false });
     data = result.data;

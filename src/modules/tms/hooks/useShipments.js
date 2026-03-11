@@ -256,7 +256,7 @@ export function useShipments(fromPlanId = null) {
 
 
     const selectedVehicle = vehicles.find((v) => String(v.tmsVehicleId) === String(formData.tmsShipmentVehicleId));
-    const vehicleInfo = selectedVehicle ? `${selectedVehicle.tmsVehiclePlateNumber} (${selectedVehicle.tmsVehicleType || ""})` : "";
+    const vehicleInfo = selectedVehicle ? `${selectedVehicle.tmsVehiclePlateNumber}` : "";
 
     try {
       const res = await fetch("/api/tms/routeOptimize", {

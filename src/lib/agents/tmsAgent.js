@@ -52,9 +52,9 @@ const tools = [
             type: "string",
             description: "กรองตามสถานะ: 'Active', 'Inactive', 'Maintenance'",
           },
-          type: {
+          fuelType: {
             type: "string",
-            description: "กรองตามประเภทรถ (partial match)",
+            description: "กรองตามประเภทน้ำมัน (partial match)",
           },
         },
       },
@@ -128,34 +128,6 @@ const tools = [
       },
     },
   },
-  {
-    type: "function",
-    function: {
-      name: "get_maintenances",
-      description: "ดึงบันทึกการซ่อมบำรุง สามารถกรองตามรถ สถานะ หรือช่วงวันที่",
-      parameters: {
-        type: "object",
-        properties: {
-          vehicleId: {
-            type: "string",
-            description: "กรองตาม vehicleId เพื่อดูประวัติซ่อมของรถคันนั้น",
-          },
-          status: {
-            type: "string",
-            description: "กรองตาม maintenanceStatus เช่น 'Pending', 'In Progress', 'Completed'",
-          },
-          since: {
-            type: "string",
-            description: "กรองตั้งแต่วันที่นี้ (YYYY-MM-DD)",
-          },
-          limit: {
-            type: "number",
-            description: "จำนวนสูงสุด (default: 50)",
-          },
-        },
-      },
-    },
-  },
 ];
 
 async function executeTool(name, args, supabase) {
@@ -163,10 +135,10 @@ async function executeTool(name, args, supabase) {
     case "get_vehicles": {
       let q = supabase
         .from("tmsVehicle")
-        .select("tmsVehicleId, tmsVehicleName, tmsVehiclePlateNumber, tmsVehicleType, tmsVehicleBrand, tmsVehicleModel, tmsVehicleYear, tmsVehicleStatus, tmsVehicleCurrentMileage, tmsVehicleFuelType, tmsVehicleCapacityKg, tmsVehicleRegistrationExpiry, tmsVehicleInsuranceExpiry")
+        .select("tmsVehicleId, tmsVehicleName, tmsVehiclePlateNumber, tmsVehicleStatus, tmsVehicleFuelType, tmsVehicleCapacityKg")
         .order("tmsVehicleName");
       if (args.status) q = q.eq("tmsVehicleStatus", args.status);
-      if (args.type) q = q.ilike("tmsVehicleType", `%${args.type}%`);
+      if (args.fuelType) q = q.ilike("tmsVehicleFuelType", `%${args.fuelType}%`);
       const { data } = await q;
       return data ?? [];
     }
@@ -189,7 +161,7 @@ async function executeTool(name, args, supabase) {
     case "get_shipments": {
       let q = supabase
         .from("tmsShipment")
-        .select("tmsShipmentId, tmsShipmentNumber, tmsShipmentCustomerName, tmsShipmentDestination, tmsShipmentStatus, tmsShipmentEstimatedArrival, tmsShipmentWeightKg, tmsShipmentCreatedAt")
+        .select("tmsShipmentId, tmsShipmentNumber, tmsShipmentCustomerName, tmsShipmentDestination, tmsShipmentStatus, tmsShipmentEstimatedArrival, tmsShipmentCreatedAt")
         .order("tmsShipmentCreatedAt", { ascending: false })
         .limit(args.limit || 50);
       if (args.status) q = q.eq("tmsShipmentStatus", args.status);
@@ -206,19 +178,6 @@ async function executeTool(name, args, supabase) {
         .limit(args.limit || 50);
       if (args.vehicleId) q = q.eq("tmsFuelLogVehicleId", args.vehicleId);
       if (args.since) q = q.gte("tmsFuelLogDate", args.since);
-      const { data } = await q;
-      return data ?? [];
-    }
-
-    case "get_maintenances": {
-      let q = supabase
-        .from("tmsMaintenance")
-        .select("tmsMaintenanceId, tmsMaintenanceVehicleId, tmsMaintenanceType, tmsMaintenanceDescription, tmsMaintenanceDate, tmsMaintenanceStatus, tmsMaintenanceCost, tmsMaintenanceVendor, tmsMaintenanceNextDueDate")
-        .order("tmsMaintenanceDate", { ascending: false })
-        .limit(args.limit || 50);
-      if (args.vehicleId) q = q.eq("tmsMaintenanceVehicleId", args.vehicleId);
-      if (args.status) q = q.eq("tmsMaintenanceStatus", args.status);
-      if (args.since) q = q.gte("tmsMaintenanceDate", args.since);
       const { data } = await q;
       return data ?? [];
     }

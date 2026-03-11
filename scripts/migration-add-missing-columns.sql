@@ -1,6 +1,5 @@
--- Migration: Add missing columns to various tables
--- Generated: 2026-03-11
--- Run this in Supabase SQL Editor if automatic execution fails
+-- Migration: Add missing columns (ALREADY EXECUTED 2026-03-11)
+-- This file is a record of what was added.
 
 -- omContact
 ALTER TABLE "omContact" ADD COLUMN IF NOT EXISTS "omContactTags" jsonb DEFAULT '[]';
@@ -36,9 +35,6 @@ ALTER TABLE "salesQuotation" ADD COLUMN IF NOT EXISTS "crmQuotationValidUntil" d
 
 -- tmsDeliveryPlanItem
 ALTER TABLE "tmsDeliveryPlanItem" ADD COLUMN IF NOT EXISTS "tmsDeliveryPlanItemCustomerPhone" text;
-
--- tmsShipment
-ALTER TABLE "tmsShipment" ADD COLUMN IF NOT EXISTS "tmsShipmentWeightKg" numeric;
 
 -- itAsset
 ALTER TABLE "itAsset" ADD COLUMN IF NOT EXISTS "itAssetLocation" text;

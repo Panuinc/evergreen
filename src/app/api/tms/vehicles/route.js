@@ -13,7 +13,7 @@ export async function GET(request) {
 
   if (search) {
     query = query.or(
-      `tmsVehiclePlateNumber.ilike.%${search}%,tmsVehicleName.ilike.%${search}%,tmsVehicleBrand.ilike.%${search}%`
+      `tmsVehiclePlateNumber.ilike.%${search}%,tmsVehicleName.ilike.%${search}%`
     );
   }
 
