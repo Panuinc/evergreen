@@ -16,7 +16,7 @@ const columns = [
   { name: "ภูมิภาค", uid: "bciProjectRegion", sortable: true },
   { name: "มูลค่า (ล้าน)", uid: "bciProjectValue", sortable: true },
   { name: "ขั้นตอน", uid: "bciProjectStage", sortable: true },
-  { name: "สถานะ", uid: "bciProjectStatus", sortable: true },
+  { name: "สถานะ", uid: "bciProjectStageStatus", sortable: true },
   { name: "หมวดหมู่", uid: "bciProjectCategory", sortable: true },
   { name: "หมวดหมู่ย่อย", uid: "bciProjectSubCategory", sortable: true },
   { name: "ประเภทการพัฒนา", uid: "bciProjectDevelopmentType", sortable: true },
@@ -89,7 +89,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
 
   const statusOptions = useMemo(() => {
     const unique = [
-      ...new Set(projects.map((p) => p.bciProjectStatus).filter(Boolean)),
+      ...new Set(projects.map((p) => p.bciProjectStageStatus).filter(Boolean)),
     ];
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
@@ -124,7 +124,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       { header: "ที่อยู่", key: "bciProjectStreetName", width: 30 },
       { header: "มูลค่า (บาท)", key: "bciProjectValue", width: 15 },
       { header: "ขั้นตอน", key: "bciProjectStage", width: 20 },
-      { header: "สถานะ", key: "bciProjectStatus", width: 20 },
+      { header: "สถานะ", key: "bciProjectStageStatus", width: 20 },
       { header: "หมวดหมู่", key: "bciProjectCategory", width: 20 },
       { header: "ประเภทการพัฒนา", key: "bciProjectDevelopmentType", width: 20 },
       { header: "บริษัทเจ้าของ", key: "bciProjectOwnerCompany", width: 30 },
@@ -199,10 +199,10 @@ export default function BciProjectsView({ projects, loading, reload }) {
           "-"
         );
       }
-      case "bciProjectStatus":
-        return item.bciProjectStatus ? (
+      case "bciProjectStageStatus":
+        return item.bciProjectStageStatus ? (
           <Chip variant="flat" size="md" radius="md" color="primary">
-            {item.bciProjectStatus}
+            {item.bciProjectStageStatus}
           </Chip>
         ) : (
           "-"
@@ -340,7 +340,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
           options: stageOptions,
         },
         {
-          uid: "bciProjectStatus",
+          uid: "bciProjectStageStatus",
           name: "สถานะ",
           options: statusOptions,
         },

@@ -29,9 +29,9 @@ const emptyForm = {
 };
 
 const emptyProgressForm = {
-  itDevRequestLogDescription: "",
-  itDevRequestLogProgress: "",
-  itDevRequestLogCreatedBy: "",
+  itDevProgressLogDescription: "",
+  itDevProgressLogProgress: "",
+  itDevProgressLogCreatedBy: "",
 };
 
 export function useItDevRequests() {
@@ -170,7 +170,7 @@ export function useItDevRequests() {
     setSelectedRequest(request);
     setProgressForm({
       ...emptyProgressForm,
-      itDevRequestLogProgress: request.itDevRequestProgress?.toString() || "0",
+      itDevProgressLogProgress: request.itDevRequestProgress?.toString() || "0",
     });
     progressModal.onOpen();
     try {
@@ -185,11 +185,11 @@ export function useItDevRequests() {
   };
 
   const handleAddProgress = async () => {
-    if (!progressForm.itDevRequestLogDescription.trim()) {
+    if (!progressForm.itDevProgressLogDescription.trim()) {
       toast.error("กรุณาระบุรายละเอียด");
       return;
     }
-    if (!progressForm.itDevRequestLogProgress) {
+    if (!progressForm.itDevProgressLogProgress) {
       toast.error("กรุณาระบุเปอร์เซ็นต์ความคืบหน้า");
       return;
     }
@@ -197,9 +197,9 @@ export function useItDevRequests() {
     try {
       setProgressSaving(true);
       await createProgressLog(selectedRequest.itDevRequestId, {
-        itDevRequestLogDescription: progressForm.itDevRequestLogDescription,
-        itDevRequestLogProgress: parseInt(progressForm.itDevRequestLogProgress) || 0,
-        itDevRequestLogCreatedBy: progressForm.itDevRequestLogCreatedBy,
+        itDevProgressLogDescription: progressForm.itDevProgressLogDescription,
+        itDevProgressLogProgress: parseInt(progressForm.itDevProgressLogProgress) || 0,
+        itDevProgressLogCreatedBy: progressForm.itDevProgressLogCreatedBy,
       });
       toast.success("อัปเดตความคืบหน้าสำเร็จ");
 
@@ -208,14 +208,14 @@ export function useItDevRequests() {
       setProgressLogs(logs);
       setProgressForm({
         ...emptyProgressForm,
-        itDevRequestLogProgress: progressForm.itDevRequestLogProgress,
+        itDevProgressLogProgress: progressForm.itDevProgressLogProgress,
       });
       loadData();
 
 
       setSelectedRequest((prev) => ({
         ...prev,
-        itDevRequestProgress: parseInt(progressForm.itDevRequestLogProgress) || 0,
+        itDevRequestProgress: parseInt(progressForm.itDevProgressLogProgress) || 0,
       }));
     } catch (error) {
       toast.error(error.message || "เพิ่มความคืบหน้าล้มเหลว");
