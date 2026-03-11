@@ -2,30 +2,43 @@ import {
   getServiceSupabase,
   verifyLineSignature,
 } from "@/app/api/_lib/webhookAuth";
+import { checkRateLimit } from "@/app/api/_lib/rateLimit";
 import { downloadLineImage } from "@/lib/omnichannel/imageStorage";
 
 export const maxDuration = 30;
 
-export async function POST(request) {
-  const rawBody = await request.text();
-  const signature = request.headers.get("x-line-signature");
+const MAX_MESSAGE_LENGTH = 5000;
 
-  if (process.env.LINE_CHANNEL_SECRET && !verifyLineSignature(rawBody, signature)) {
+export async function POST(request) {
+  const rl = checkRateLimit(request, "webhook-line", { maxRequests: 120, windowMs: 60_000 });
+  if (rl) return rl;
+
+  const rawBody = await request.text();
+
+  if (!rawBody || rawBody.length > 1_000_000) {
+    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  const signature = request.headers.get("x-line-signature");
+  if (!verifyLineSignature(rawBody, signature)) {
     return Response.json({ error: "Invalid signature" }, { status: 403 });
   }
 
-  const body = JSON.parse(rawBody);
+  let body;
+  try {
+    body = JSON.parse(rawBody);
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
   const events = body.events || [];
-
-
-  if (events.length === 0) {
+  if (!Array.isArray(events) || events.length === 0) {
     return Response.json({ status: "ok" });
   }
 
   const supabase = getServiceSupabase();
 
-
-  for (const event of events) {
+  for (const event of events.slice(0, 10)) {
     if (event.type === "message") {
       try {
         await handleMessage(supabase, event);
@@ -54,13 +67,13 @@ async function getLineProfile(supabase, userId) {
   if (!channel?.omChannelAccessToken) return null;
 
   try {
-    const res = await fetch(`https://api.line.me/v2/bot/profile/${userId}`, {
+    const res = await fetch(`https://api.line.me/v2/bot/profile/${encodeURIComponent(userId)}`, {
       headers: { Authorization: `Bearer ${channel.omChannelAccessToken}` },
+      signal: AbortSignal.timeout(10_000),
     });
     if (res.ok) {
       const profile = await res.json();
       profileCache.set(userId, profile);
-
       setTimeout(() => profileCache.delete(userId), 5 * 60 * 1000);
       return profile;
     }
@@ -71,11 +84,16 @@ async function getLineProfile(supabase, userId) {
 }
 
 async function handleMessage(supabase, event) {
-  const userId = event.source.userId;
-  const message = event.message;
-  const messageText = message.type === "text" ? message.text : `[${message.type}]`;
-  const messageType = message.type === "text" ? "text" : message.type === "sticker" ? "sticker" : "image";
+  const userId = event.source?.userId;
+  if (!userId || typeof userId !== "string" || userId.length > 100) return;
 
+  const message = event.message;
+  if (!message?.id) return;
+
+  const messageText = message.type === "text"
+    ? (message.text || "").slice(0, MAX_MESSAGE_LENGTH)
+    : `[${message.type}]`;
+  const messageType = message.type === "text" ? "text" : message.type === "sticker" ? "sticker" : "image";
 
   const { data: existing } = await supabase
     .from("omMessage")
@@ -86,9 +104,10 @@ async function handleMessage(supabase, event) {
 
   if (existing) return;
 
-
   const profile = await getLineProfile(supabase, userId);
 
+  const displayName = (profile?.displayName || userId).slice(0, 200);
+  const avatarUrl = profile?.pictureUrl?.startsWith("https://") ? profile.pictureUrl : null;
 
   const { data: contact } = await supabase
     .from("omContact")
@@ -96,8 +115,8 @@ async function handleMessage(supabase, event) {
       {
         omContactChannelType: "line",
         omContactExternalId: userId,
-        omContactDisplayName: profile?.displayName || userId,
-        omContactAvatarUrl: profile?.pictureUrl || null,
+        omContactDisplayName: displayName,
+        omContactAvatarUrl: avatarUrl,
       },
       { onConflict: "omContactChannelType,omContactExternalId" }
     )
@@ -105,7 +124,6 @@ async function handleMessage(supabase, event) {
     .single();
 
   if (!contact) return;
-
 
   let { data: conversation } = await supabase
     .from("omConversation")
@@ -146,7 +164,6 @@ async function handleMessage(supabase, event) {
 
   if (!conversation) return;
 
-
   let imageUrl = null;
   if (message.type === "image") {
     try {
@@ -164,7 +181,6 @@ async function handleMessage(supabase, event) {
     }
   }
 
-
   await supabase.from("omMessage").insert({
     omMessageConversationId: conversation.omConversationId,
     omMessageSenderType: "customer",
@@ -175,7 +191,6 @@ async function handleMessage(supabase, event) {
     omMessageMetadata: message,
     omMessageImageUrl: imageUrl,
   });
-
 
   if (conversation.omConversationAiAutoReply) {
     triggerAiReply(conversation.omConversationId);
@@ -191,6 +206,7 @@ function triggerAiReply(conversationId) {
       "x-internal-secret": process.env.INTERNAL_API_SECRET,
     },
     body: JSON.stringify({ conversationId }),
+    signal: AbortSignal.timeout(55_000),
   }).catch((err) => {
     console.error("[LINE Webhook] Failed to trigger AI reply:", err.message);
   });

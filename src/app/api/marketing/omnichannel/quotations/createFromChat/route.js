@@ -1,4 +1,5 @@
-import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
+import { getServiceSupabase, verifyInternalSecret } from "@/app/api/_lib/webhookAuth";
+import { checkRateLimit } from "@/app/api/_lib/rateLimit";
 import { extractOrderFromChat } from "@/lib/omnichannel/quotationExtractor";
 
 export const maxDuration = 60;
@@ -13,12 +14,21 @@ function generateQuotationNumber() {
 }
 
 export async function POST(request) {
-  const authHeader = request.headers.get("x-internal-secret");
-  if (authHeader !== process.env.INTERNAL_API_SECRET) {
+  const rl = checkRateLimit(request, "create-quotation", { maxRequests: 15, windowMs: 60_000 });
+  if (rl) return rl;
+
+  if (!verifyInternalSecret(request)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { conversationId } = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const { conversationId } = body;
   if (!conversationId) {
     return Response.json({ error: "conversationId required" }, { status: 400 });
   }

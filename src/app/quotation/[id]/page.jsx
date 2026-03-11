@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import { cacheLife, cacheTag } from "next/cache";
 import QuotationDocument from "./QuotationDocument";
 
 function getSupabase() {
@@ -10,31 +9,23 @@ function getSupabase() {
 }
 
 async function getQuotation(id) {
-  "use cache";
-  cacheTag(`quotation-${id}`);
-  cacheLife("hours");
-
   const supabase = getSupabase();
   const { data } = await supabase
-    .from("omQuotations")
+    .from("omQuotation")
     .select("*")
-    .eq("quotationId", id)
+    .eq("omQuotationId", id)
     .single();
 
   return data;
 }
 
 async function getQuotationLines(id) {
-  "use cache";
-  cacheTag(`quotation-${id}`, "quotation-lines");
-  cacheLife("hours");
-
   const supabase = getSupabase();
   const { data } = await supabase
-    .from("omQuotationLines")
+    .from("omQuotationLine")
     .select("*")
-    .eq("lineQuotationId", id)
-    .order("lineOrder", { ascending: true });
+    .eq("omQuotationLineQuotationId", id)
+    .order("omQuotationLineOrder", { ascending: true });
 
   return data;
 }
@@ -48,8 +39,8 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: `ใบเสนอราคา ${quotation.quotationNo || id}`,
-    description: `ใบเสนอราคาสำหรับ ${quotation.customerName || ""}`,
+    title: `ใบเสนอราคา ${quotation.omQuotationNumber || id}`,
+    description: `ใบเสนอราคาสำหรับ ${quotation.omQuotationCustomerName || ""}`,
   };
 }
 

@@ -9,6 +9,7 @@ export async function sendMessageToChannel(channelType, channelAccessToken, reci
           recipient: { id: recipientExternalId },
           message: { text: content },
         }),
+        signal: AbortSignal.timeout(15_000),
       }
     );
     const result = await res.json();
@@ -26,6 +27,7 @@ export async function sendMessageToChannel(channelType, channelAccessToken, reci
         to: recipientExternalId,
         messages: [{ type: "text", text: content }],
       }),
+      signal: AbortSignal.timeout(15_000),
     });
     return { success: res.ok, externalId: null };
   }

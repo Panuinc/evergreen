@@ -5,7 +5,6 @@ export async function GET() {
   if (auth.error) return auth.error;
 
   try {
-
     const [{ data: bcItems, error: itemErr }, priceResult] = await Promise.all([
       auth.supabase
         .from("bcItem")
@@ -15,7 +14,6 @@ export async function GET() {
     ]);
 
     if (itemErr) throw new Error(itemErr.message);
-
 
     const priceMap = {};
     for (const p of priceResult.data || []) {
@@ -28,8 +26,8 @@ export async function GET() {
     }));
 
     return Response.json(merged);
-  } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: "Failed to load stock items" }, { status: 500 });
   }
 }
 
@@ -37,15 +35,38 @@ export async function POST(request) {
   const auth = await withAuth();
   if (auth.error) return auth.error;
 
+  let body;
   try {
-    const { items } = await request.json();
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
 
+  const { items } = body;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return Response.json({ error: "items array is required" }, { status: 400 });
+  }
+
+  if (items.length > 500) {
+    return Response.json({ error: "Too many items (max 500)" }, { status: 400 });
+  }
+
+  try {
     for (const item of items) {
+      if (!item.number || typeof item.number !== "string") continue;
+
+      const number = item.number.slice(0, 100);
+      const name = typeof item.name === "string" ? item.name.slice(0, 500) : null;
+      const price = Number(item.price);
+
+      if (isNaN(price) || price < 0 || price > 999999999) continue;
+
       await auth.supabase.from("omPriceItem").upsert(
         {
-          omPriceItemNumber: item.number,
-          omPriceItemName: item.name,
-          omPriceItemUnitPrice: item.price,
+          omPriceItemNumber: number,
+          omPriceItemName: name,
+          omPriceItemUnitPrice: price,
           omPriceItemUpdatedAt: new Date().toISOString(),
           omPriceItemUpdatedBy: auth.session.user.id,
         },
@@ -54,7 +75,7 @@ export async function POST(request) {
     }
 
     return Response.json({ status: "saved" });
-  } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: "Failed to save stock items" }, { status: 500 });
   }
 }

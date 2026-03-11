@@ -2,7 +2,10 @@ import {
   getServiceSupabase,
   verifyFacebookSignature,
 } from "@/app/api/_lib/webhookAuth";
+import { checkRateLimit } from "@/app/api/_lib/rateLimit";
 import { downloadFacebookImage } from "@/lib/omnichannel/imageStorage";
+
+const MAX_MESSAGE_LENGTH = 5000;
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -17,21 +20,38 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const rawBody = await request.text();
-  const signature = request.headers.get("x-hub-signature-256");
+  const rl = checkRateLimit(request, "webhook-facebook", { maxRequests: 120, windowMs: 60_000 });
+  if (rl) return rl;
 
+  const rawBody = await request.text();
+
+  if (!rawBody || rawBody.length > 1_000_000) {
+    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  const signature = request.headers.get("x-hub-signature-256");
   if (process.env.FACEBOOK_APP_SECRET && !verifyFacebookSignature(rawBody, signature)) {
     return Response.json({ error: "Invalid signature" }, { status: 403 });
   }
 
-  const body = JSON.parse(rawBody);
+  let body;
+  try {
+    body = JSON.parse(rawBody);
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
   const supabase = getServiceSupabase();
 
   if (body.object === "page") {
-    for (const entry of body.entry || []) {
-      for (const event of entry.messaging || []) {
+    for (const entry of (body.entry || []).slice(0, 10)) {
+      for (const event of (entry.messaging || []).slice(0, 10)) {
         if (event.message) {
-          await handleMessage(supabase, event);
+          try {
+            await handleMessage(supabase, event);
+          } catch (err) {
+            console.error("[Facebook Webhook] Error:", err.message);
+          }
         }
       }
     }
@@ -41,11 +61,13 @@ export async function POST(request) {
 }
 
 async function handleMessage(supabase, event) {
-  const senderId = event.sender.id;
-  const messageText = event.message.text || "";
+  const senderId = event.sender?.id;
+  if (!senderId || typeof senderId !== "string" || senderId.length > 100) return;
+
+  const messageText = (event.message.text || "").slice(0, MAX_MESSAGE_LENGTH);
   const messageType = event.message.attachments ? "image" : "text";
   const externalId = event.message.mid;
-
+  if (!externalId) return;
 
   const { data: contact } = await supabase
     .from("omContact")
@@ -61,7 +83,6 @@ async function handleMessage(supabase, event) {
     .single();
 
   if (!contact) return;
-
 
   let { data: conversation } = await supabase
     .from("omConversation")
@@ -102,7 +123,6 @@ async function handleMessage(supabase, event) {
 
   if (!conversation) return;
 
-
   let imageUrl = null;
   if (event.message.attachments) {
     const imgAttachment = event.message.attachments.find((a) => a.type === "image");
@@ -115,7 +135,6 @@ async function handleMessage(supabase, event) {
     }
   }
 
-
   await supabase.from("omMessage").insert({
     omMessageConversationId: conversation.omConversationId,
     omMessageSenderType: "customer",
@@ -126,7 +145,6 @@ async function handleMessage(supabase, event) {
     omMessageMetadata: event.message,
     omMessageImageUrl: imageUrl,
   });
-
 
   if (conversation.omConversationAiAutoReply) {
     triggerAiReply(conversation.omConversationId);
@@ -142,6 +160,7 @@ function triggerAiReply(conversationId) {
       "x-internal-secret": process.env.INTERNAL_API_SECRET,
     },
     body: JSON.stringify({ conversationId }),
+    signal: AbortSignal.timeout(55_000),
   }).catch((err) => {
     console.error("[Facebook Webhook] Failed to trigger AI reply:", err.message);
   });

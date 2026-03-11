@@ -31,7 +31,6 @@ export async function GET(request, { params }) {
     .eq("omQuotationLineQuotationId", id)
     .order("omQuotationLineOrder", { ascending: true });
 
-
   let paymentSlip = null;
   if (quotation.omQuotationConversationId && ["approved", "paid"].includes(quotation.omQuotationStatus)) {
     const { data: slipMsg } = await auth.supabase
@@ -57,15 +56,30 @@ export async function PUT(request, { params }) {
   if (auth.error) return auth.error;
 
   const { id } = await params;
-  const body = await request.json();
 
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
 
   const updateData = {};
-  if (body.omQuotationCustomerName !== undefined) updateData.omQuotationCustomerName = body.omQuotationCustomerName;
-  if (body.omQuotationCustomerPhone !== undefined) updateData.omQuotationCustomerPhone = body.omQuotationCustomerPhone;
-  if (body.omQuotationCustomerAddress !== undefined) updateData.omQuotationCustomerAddress = body.omQuotationCustomerAddress;
-  if (body.omQuotationPaymentMethod !== undefined) updateData.omQuotationPaymentMethod = body.omQuotationPaymentMethod;
-  if (body.omQuotationNotes !== undefined) updateData.omQuotationNotes = body.omQuotationNotes;
+  const strFields = [
+    "omQuotationCustomerName",
+    "omQuotationCustomerPhone",
+    "omQuotationCustomerAddress",
+    "omQuotationPaymentMethod",
+    "omQuotationNotes",
+  ];
+  for (const field of strFields) {
+    if (body[field] !== undefined) {
+      if (body[field] !== null && typeof body[field] !== "string") {
+        return Response.json({ error: `Invalid ${field}` }, { status: 400 });
+      }
+      updateData[field] = body[field] ? String(body[field]).slice(0, 1000) : body[field];
+    }
+  }
 
   if (Object.keys(updateData).length > 0) {
     updateData.omQuotationUpdatedAt = new Date().toISOString();
@@ -73,23 +87,29 @@ export async function PUT(request, { params }) {
       .from("omQuotation")
       .update(updateData)
       .eq("omQuotationId", id);
-    if (error) return Response.json({ error: error.message }, { status: 500 });
+    if (error) return Response.json({ error: "Update failed" }, { status: 500 });
   }
 
+  if (Array.isArray(body.lines)) {
+    for (const line of body.lines.slice(0, 50)) {
+      if (!line.omQuotationLineId || typeof line.omQuotationLineId !== "string") continue;
 
-  if (body.lines) {
-    for (const line of body.lines) {
-      const amount = (line.omQuotationLineQuantity || 0) * (line.omQuotationLineUnitPrice || 0);
+      const qty = Number(line.omQuotationLineQuantity) || 0;
+      const price = Number(line.omQuotationLineUnitPrice) || 0;
+      if (qty < 0 || price < 0 || qty > 999999 || price > 999999999) continue;
+
+      const amount = qty * price;
       await auth.supabase
         .from("omQuotationLine")
         .update({
-          omQuotationLineProductName: line.omQuotationLineProductName,
-          omQuotationLineVariant: line.omQuotationLineVariant,
-          omQuotationLineQuantity: line.omQuotationLineQuantity,
-          omQuotationLineUnitPrice: line.omQuotationLineUnitPrice,
+          omQuotationLineProductName: String(line.omQuotationLineProductName || "").slice(0, 500),
+          omQuotationLineVariant: line.omQuotationLineVariant ? String(line.omQuotationLineVariant).slice(0, 500) : null,
+          omQuotationLineQuantity: qty,
+          omQuotationLineUnitPrice: price,
           omQuotationLineAmount: amount,
         })
-        .eq("omQuotationLineId", line.omQuotationLineId);
+        .eq("omQuotationLineId", line.omQuotationLineId)
+        .eq("omQuotationLineQuotationId", id);
     }
   }
 
@@ -101,13 +121,21 @@ export async function PATCH(request, { params }) {
   if (auth.error) return auth.error;
 
   const { id } = await params;
-  const { action, note } = await request.json();
 
-  const transition = VALID_TRANSITIONS[action];
-  if (!transition) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const { action, note } = body;
+
+  if (typeof action !== "string" || !VALID_TRANSITIONS[action]) {
     return Response.json({ error: "Invalid action" }, { status: 400 });
   }
 
+  const transition = VALID_TRANSITIONS[action];
 
   const { data: quotation } = await auth.supabase
     .from("omQuotation")
@@ -136,7 +164,7 @@ export async function PATCH(request, { params }) {
   } else if (action === "approve") {
     updateData.omQuotationApprovedBy = auth.session.user.id;
   } else if (action === "reject") {
-    updateData.omQuotationApprovalNote = note || "";
+    updateData.omQuotationApprovalNote = typeof note === "string" ? note.slice(0, 1000) : "";
   }
 
   const { error } = await auth.supabase
@@ -145,9 +173,8 @@ export async function PATCH(request, { params }) {
     .eq("omQuotationId", id);
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: "Update failed" }, { status: 500 });
   }
-
 
   if (action === "approve") {
     try {
@@ -155,13 +182,11 @@ export async function PATCH(request, { params }) {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const quotationUrl = `${baseUrl}/quotation/${id}`;
 
-
       await sendAiMessage(
         serviceSupabase,
         quotation.omQuotationConversationId,
         `ใบเสนอราคาของท่าน: ${quotationUrl}`
       );
-
 
       const { data: aiSettings } = await serviceSupabase
         .from("omAiSetting")
@@ -180,7 +205,6 @@ export async function PATCH(request, { params }) {
       console.error("[Quotation] Failed to send link:", err.message);
     }
   }
-
 
   if (action === "confirm_payment") {
     try {

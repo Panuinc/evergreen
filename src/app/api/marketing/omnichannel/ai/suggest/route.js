@@ -1,13 +1,24 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { checkRateLimit } from "@/app/api/_lib/rateLimit";
 import { generateAiReply } from "@/lib/omnichannel/aiAgent";
 
 export const maxDuration = 60;
 
 export async function POST(request) {
+  const rl = checkRateLimit(request, "ai-suggest", { maxRequests: 15, windowMs: 60_000 });
+  if (rl) return rl;
+
   const auth = await withAuth();
   if (auth.error) return auth.error;
 
-  const { conversationId } = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const { conversationId } = body;
   if (!conversationId) {
     return Response.json({ error: "conversationId required" }, { status: 400 });
   }
