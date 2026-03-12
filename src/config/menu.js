@@ -53,6 +53,7 @@ import {
   Landmark,
   ImagePlus,
   Tag,
+  ArrowLeftRight,
 } from "lucide-react";
 
 export const menuData = [
@@ -192,6 +193,11 @@ export const menuData = [
         name: "โปรโมชั่น",
         icon: Tag,
         href: "/marketing/omnichannel/promotions",
+      },
+      {
+        name: "สินค้าที่เกี่ยวข้อง",
+        icon: ArrowLeftRight,
+        href: "/marketing/omnichannel/relatedProducts",
       },
       {
         name: "แชทรวมช่องทาง",
