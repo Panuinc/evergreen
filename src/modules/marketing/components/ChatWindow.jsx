@@ -13,7 +13,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles, Receipt } from "lucide-react";
+import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles, Receipt, FileDown, FileText } from "lucide-react";
 import ChannelBadge from "./ChannelBadge";
 import MessageInput from "./MessageInput";
 import Loading from "@/components/ui/Loading";
@@ -187,7 +187,22 @@ export default function ChatWindow({
                       <span>AI</span>
                     </div>
                   )}
-                  {msg.omMessageType === "image" && msg.omMessageImageUrl ? (
+                  {msg.omMessageType === "file" && msg.omMessageImageUrl ? (
+                    <a
+                      href={msg.omMessageImageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-default-50 border border-border hover:bg-default-100 transition-colors"
+                    >
+                      <FileText size={20} className="text-primary shrink-0" />
+                      <span className="text-sm truncate max-w-[200px]">
+                        {msg.omMessageContent && msg.omMessageContent !== "[file]"
+                          ? msg.omMessageContent
+                          : "ไฟล์แนบ"}
+                      </span>
+                      <FileDown size={16} className="text-default-400 shrink-0 ml-auto" />
+                    </a>
+                  ) : msg.omMessageType === "image" && msg.omMessageImageUrl ? (
                     <div className="space-y-2">
                       <a href={msg.omMessageImageUrl} target="_blank" rel="noopener noreferrer">
                         {/* eslint-disable-next-line @next/next/no-img-element */}

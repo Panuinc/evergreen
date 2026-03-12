@@ -3,7 +3,7 @@ import {
   verifyFacebookSignature,
 } from "@/app/api/_lib/webhookAuth";
 import { checkRateLimit } from "@/app/api/_lib/rateLimit";
-import { downloadFacebookImage } from "@/lib/omnichannel/imageStorage";
+import { downloadFacebookImage, downloadFacebookFile } from "@/lib/omnichannel/imageStorage";
 
 const MAX_MESSAGE_LENGTH = 5000;
 
@@ -65,7 +65,10 @@ async function handleMessage(supabase, event) {
   if (!senderId || typeof senderId !== "string" || senderId.length > 100) return;
 
   const messageText = (event.message.text || "").slice(0, MAX_MESSAGE_LENGTH);
-  const messageType = event.message.attachments ? "image" : "text";
+  const attachments = event.message.attachments || [];
+  const hasImage = attachments.some((a) => a.type === "image");
+  const hasFile = attachments.some((a) => a.type === "file" || a.type === "video" || a.type === "audio");
+  const messageType = hasImage ? "image" : hasFile ? "file" : "text";
   const externalId = event.message.mid;
   if (!externalId) return;
 
@@ -123,14 +126,24 @@ async function handleMessage(supabase, event) {
 
   if (!conversation) return;
 
-  let imageUrl = null;
-  if (event.message.attachments) {
-    const imgAttachment = event.message.attachments.find((a) => a.type === "image");
+  let fileUrl = null;
+  let fileName = null;
+  if (attachments.length > 0) {
+    const imgAttachment = attachments.find((a) => a.type === "image");
+    const fileAttachment = attachments.find((a) => a.type === "file" || a.type === "video" || a.type === "audio");
+
     if (imgAttachment?.payload?.url) {
       try {
-        imageUrl = await downloadFacebookImage(supabase, imgAttachment.payload.url, externalId);
+        fileUrl = await downloadFacebookImage(supabase, imgAttachment.payload.url, externalId);
       } catch (err) {
         console.error("[Facebook Webhook] Failed to download image:", err.message);
+      }
+    } else if (fileAttachment?.payload?.url) {
+      try {
+        fileName = fileAttachment.payload.name || `file-${externalId}`;
+        fileUrl = await downloadFacebookFile(supabase, fileAttachment.payload.url, externalId);
+      } catch (err) {
+        console.error("[Facebook Webhook] Failed to download file:", err.message);
       }
     }
   }
@@ -139,11 +152,11 @@ async function handleMessage(supabase, event) {
     omMessageConversationId: conversation.omConversationId,
     omMessageSenderType: "customer",
     omMessageSenderId: senderId,
-    omMessageContent: imageUrl || messageText || "[image]",
+    omMessageContent: fileName || fileUrl || messageText || "[file]",
     omMessageType: messageType,
     omMessageExternalId: externalId,
     omMessageMetadata: event.message,
-    omMessageImageUrl: imageUrl,
+    omMessageImageUrl: fileUrl,
   });
 
   if (conversation.omConversationAiAutoReply) {

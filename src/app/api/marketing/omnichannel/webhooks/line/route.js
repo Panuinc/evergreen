@@ -3,7 +3,7 @@ import {
   verifyLineSignature,
 } from "@/app/api/_lib/webhookAuth";
 import { checkRateLimit } from "@/app/api/_lib/rateLimit";
-import { downloadLineImage } from "@/lib/omnichannel/imageStorage";
+import { downloadLineImage, downloadLineFile } from "@/lib/omnichannel/imageStorage";
 
 export const maxDuration = 30;
 
@@ -93,7 +93,13 @@ async function handleMessage(supabase, event) {
   const messageText = message.type === "text"
     ? (message.text || "").slice(0, MAX_MESSAGE_LENGTH)
     : `[${message.type}]`;
-  const messageType = message.type === "text" ? "text" : message.type === "sticker" ? "sticker" : "image";
+  const messageType = message.type === "text"
+    ? "text"
+    : message.type === "sticker"
+      ? "sticker"
+      : message.type === "file" || message.type === "video" || message.type === "audio"
+        ? "file"
+        : "image";
 
   const { data: existing } = await supabase
     .from("omMessage")
@@ -164,8 +170,9 @@ async function handleMessage(supabase, event) {
 
   if (!conversation) return;
 
-  let imageUrl = null;
-  if (message.type === "image") {
+  let fileUrl = null;
+  let fileName = null;
+  if (message.type === "image" || message.type === "file" || message.type === "video" || message.type === "audio") {
     try {
       const { data: channel } = await supabase
         .from("omChannel")
@@ -174,10 +181,15 @@ async function handleMessage(supabase, event) {
         .eq("omChannelStatus", "active")
         .single();
       if (channel?.omChannelAccessToken) {
-        imageUrl = await downloadLineImage(supabase, message.id, channel.omChannelAccessToken);
+        if (message.type === "image") {
+          fileUrl = await downloadLineImage(supabase, message.id, channel.omChannelAccessToken);
+        } else {
+          fileName = message.fileName || `${message.type}-${message.id}`;
+          fileUrl = await downloadLineFile(supabase, message.id, channel.omChannelAccessToken, fileName);
+        }
       }
     } catch (err) {
-      console.error("[LINE Webhook] Failed to download image:", err.message);
+      console.error("[LINE Webhook] Failed to download content:", err.message);
     }
   }
 
@@ -185,11 +197,11 @@ async function handleMessage(supabase, event) {
     omMessageConversationId: conversation.omConversationId,
     omMessageSenderType: "customer",
     omMessageSenderId: userId,
-    omMessageContent: imageUrl || messageText,
+    omMessageContent: fileName || fileUrl || messageText,
     omMessageType: messageType,
     omMessageExternalId: message.id,
     omMessageMetadata: message,
-    omMessageImageUrl: imageUrl,
+    omMessageImageUrl: fileUrl,
   });
 
   if (conversation.omConversationAiAutoReply) {

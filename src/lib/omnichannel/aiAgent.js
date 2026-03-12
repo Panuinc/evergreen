@@ -1,6 +1,8 @@
 import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
+import pdfParse from "pdf-parse";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const MAX_EXTRACTED_TEXT = 3000;
 
 async function fetchProductCatalog() {
   try {
@@ -138,33 +140,78 @@ function buildSystemPrompt(basePrompt, products, promotions, relatedProducts, se
   // Sales closing process
   prompt += `
 
+## วิธีพูดคุยกับลูกค้า (สำคัญมาก)
+- ตอบสั้นๆ กระชับ เหมือนคนแชทจริงๆ ไม่ต้องยาวเป็นย่อหน้า
+- ห้ามลิสต์สินค้ายาวๆ ทีเดียว ให้ถามก่อนว่าลูกค้าต้องการแบบไหน แล้วค่อยแนะนำ 1-2 ตัวที่ตรงใจ
+- ใช้ภาษาเป็นกันเอง เหมือนเพื่อนคุยกัน เช่น "ตัวนี้ขายดีมากเลยค่ะ" แทน "สินค้ารายการนี้เป็นที่นิยม"
+- ตอบทีละประเด็น อย่าตอบหลายเรื่องในข้อความเดียว
+- ใช้คำลงท้ายหลากหลาย ไม่ต้อง "ค่ะ" ทุกประโยค สลับ "นะคะ" "เลยค่ะ" "ได้เลยค่ะ" "น้า"
+- ถ้าลูกค้าถามสั้น ให้ตอบสั้นตาม ไม่ต้องอธิบายยืดยาว
+- แสดงความเข้าใจลูกค้า เช่น "เข้าใจเลยค่ะ" "ดีเลยค่ะ" ก่อนตอบเนื้อหา
+
 ## เทคนิคการขาย
-- เมื่อลูกค้าสนใจสินค้า ให้เน้นจุดเด่นของสินค้าและบอกว่าทำไมสินค้านี้ดี
-- ถ้ามีโปรโมชั่นที่เกี่ยวข้อง ให้แจ้งลูกค้าทันที
-- ถ้ามีสินค้าแนะนำเพิ่มเติม ให้แนะนำอย่างเป็นธรรมชาติ
-- สร้างความมั่นใจโดยอ้างอิงจุดเด่นแบรนด์ ความนิยมของสินค้า หรือรีวิวจากลูกค้า
-- ถ้าลูกค้ายังลังเล ให้ย้ำข้อดีของสินค้าและโปรโมชั่นที่ใกล้หมดเขต
-- พูดเชิงบวก กระตือรือร้น แต่ไม่กดดันมากเกินไป
+- แนะนำสินค้าทีละ 1-2 ตัว ไม่ยิงรายการยาวๆ
+- ถ้ามีโปรโมชั่นที่เกี่ยวข้อง ให้แจ้งลูกค้าแบบกันเอง
+- ถ้าลูกค้ายังลังเล ค่อยๆ ย้ำข้อดี ไม่กดดัน
+- พูดเชิงบวก กระตือรือร้น แต่ไม่เยอะเกินไป
 
 ## ขั้นตอนการปิดการขาย
-เมื่อลูกค้าต้องการสั่งซื้อสินค้า ให้ถามข้อมูลต่อไปนี้ทีละข้อ (ถ้ายังไม่มีข้อมูล):
+เมื่อลูกค้าต้องการสั่งซื้อ ให้ถามข้อมูลทีละข้อ ไม่ถามทีเดียวทั้งหมด:
 1. สินค้าที่ต้องการ (รุ่น สี ขนาด)
 2. จำนวน
 3. ชื่อ-นามสกุล ผู้รับสินค้า
-4. ที่อยู่จัดส่ง (บ้านเลขที่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์)
+4. ที่อยู่จัดส่ง
 5. เบอร์โทรติดต่อ
 
-เมื่อได้ข้อมูลครบ ให้สรุปรายการสั่งซื้อทั้งหมดและขอยืนยันจากลูกค้า
-ถ้าลูกค้ายืนยัน ให้แจ้งว่า "ขอบคุณค่ะ รับออเดอร์เรียบร้อยแล้ว เจ้าหน้าที่จะติดต่อกลับเพื่อยืนยันอีกครั้งค่ะ"
+เมื่อได้ข้อมูลครบ ให้สรุปรายการสั่งซื้อและขอยืนยัน
+ถ้าลูกค้ายืนยัน ให้แจ้งว่า "ขอบคุณค่ะ รับออเดอร์เรียบร้อยแล้วนะคะ เจ้าหน้าที่จะติดต่อกลับเพื่อยืนยันอีกครั้งค่ะ"
 
-## การวิเคราะห์รูปภาพจากลูกค้า
-เมื่อลูกค้าส่งรูปภาพมา ให้วิเคราะห์ว่ารูปเป็นอะไร:
-1. ถ้าเป็นรูปสินค้าหรือตัวอย่างที่ลูกค้าสนใจ → วิเคราะห์ว่าเป็นสินค้าประเภทอะไร จับคู่กับสินค้าในรายการที่มี แนะนำสินค้าที่ใกล้เคียงพร้อมราคาและโปรโมชั่น (ถ้ามี)
-2. ถ้าเป็นรูปสลิปการโอนเงิน/หลักฐานการชำระเงิน → ตอบว่า "ได้รับหลักฐานการชำระเงินแล้วค่ะ เจ้าหน้าที่จะตรวจสอบและยืนยันให้ค่ะ"
-3. ถ้าเป็นรูปสถานที่ติดตั้งหรือหน้างาน → ให้แนะนำสินค้าที่เหมาะกับพื้นที่/การใช้งานนั้น
-4. ถ้าไม่แน่ใจว่ารูปคืออะไร → ถามลูกค้าว่าต้องการสอบถามอะไรเพิ่มเติม`;
+## การวิเคราะห์รูปภาพและไฟล์จากลูกค้า
+เมื่อลูกค้าส่งรูปภาพมา:
+1. รูปสินค้า/ตัวอย่าง → วิเคราะห์ว่าเป็นสินค้าประเภทอะไร แนะนำสินค้าที่ใกล้เคียงพร้อมราคา
+2. รูปสลิป/หลักฐานชำระเงิน → ตอบว่า "ได้รับหลักฐานแล้วค่ะ เจ้าหน้าที่จะตรวจสอบให้นะคะ"
+3. รูปสถานที่/หน้างาน → แนะนำสินค้าที่เหมาะกับพื้นที่นั้น
+4. ไม่แน่ใจ → ถามลูกค้าว่าต้องการสอบถามอะไรเพิ่ม
+
+เมื่อลูกค้าส่งไฟล์ (PDF, เอกสาร):
+- คุณสามารถอ่านเนื้อหาในไฟล์ PDF และไฟล์ข้อความได้ ให้วิเคราะห์เนื้อหาและแนะนำสินค้าที่เกี่ยวข้อง
+- ถ้าไฟล์มีข้อมูลขนาด/สเปค/แบบแปลน ให้ใช้ข้อมูลนั้นในการแนะนำสินค้าที่เหมาะสมพร้อมราคา
+- ถ้าอ่านเนื้อหาไม่ได้ ให้ถามลูกค้าว่าต้องการให้ช่วยอะไรเกี่ยวกับไฟล์นี้`;
 
   return prompt;
+}
+
+async function extractFileContent(url) {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+    if (!res.ok) return null;
+
+    const contentType = res.headers.get("content-type") || "";
+    const buffer = Buffer.from(await res.arrayBuffer());
+
+    if (buffer.length > 10 * 1024 * 1024) return null; // 10MB limit
+
+    // PDF
+    if (contentType.includes("pdf") || url.match(/\.pdf(\?|$)/i)) {
+      const parsed = await pdfParse(buffer);
+      const text = (parsed.text || "").trim();
+      return text ? text.slice(0, MAX_EXTRACTED_TEXT) : null;
+    }
+
+    // Plain text / CSV
+    if (
+      contentType.includes("text/") ||
+      url.match(/\.(txt|csv)(\?|$)/i)
+    ) {
+      const text = buffer.toString("utf-8").trim();
+      return text ? text.slice(0, MAX_EXTRACTED_TEXT) : null;
+    }
+
+    return null;
+  } catch (err) {
+    console.error("[AI] Failed to extract file content:", err.message);
+    return null;
+  }
 }
 
 export async function getAiSettings(supabase) {
@@ -201,24 +248,53 @@ export async function generateAiReply(conversationId, supabase) {
   const temperature = Number(settings?.omAiSettingTemperature) || 0.3;
   const basePrompt =
     settings?.omAiSettingSystemPrompt ||
-    "คุณเป็นพนักงานขายออนไลน์ที่เป็นมิตรและเชี่ยวชาญ ตอบเป็นภาษาไทย พูดจาสุภาพ กระตือรือร้น และพร้อมช่วยเหลือลูกค้าเสมอ";
+    "คุณเป็นพนักงานขายออนไลน์ที่เป็นมิตร ตอบเป็นภาษาไทยแบบพูดคุยธรรมชาติ เหมือนคนจริงๆ แชทกัน ไม่ใช่หุ่นยนต์";
 
   const systemPrompt = buildSystemPrompt(basePrompt, products, promotions, relatedProducts, settings);
+
+  // Pre-extract file contents for non-visual files
+  const fileExtractions = new Map();
+  for (const msg of history) {
+    if (
+      msg.omMessageSenderType === "customer" &&
+      (msg.omMessageType === "file") &&
+      msg.omMessageImageUrl &&
+      !/\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(msg.omMessageImageUrl)
+    ) {
+      const text = await extractFileContent(msg.omMessageImageUrl);
+      if (text) fileExtractions.set(msg.omMessageImageUrl, text);
+    }
+  }
 
   const aiMessages = [
     { role: "system", content: systemPrompt },
     ...history.map((msg) => {
       const role = msg.omMessageSenderType === "customer" ? "user" : "assistant";
 
-      // Send image as multimodal content for customer messages
-      if (role === "user" && msg.omMessageType === "image" && msg.omMessageImageUrl) {
-        const parts = [];
-        if (msg.omMessageContent && msg.omMessageContent !== "[image]") {
-          parts.push({ type: "text", text: msg.omMessageContent });
+      // Send image/file as multimodal content for customer messages
+      if (role === "user" && (msg.omMessageType === "image" || msg.omMessageType === "file") && msg.omMessageImageUrl) {
+        const url = msg.omMessageImageUrl;
+        const isVisualFile = /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url);
+
+        if (isVisualFile) {
+          const parts = [];
+          if (msg.omMessageContent && !["[image]", "[file]"].includes(msg.omMessageContent) && !msg.omMessageContent.startsWith("http")) {
+            parts.push({ type: "text", text: msg.omMessageContent });
+          }
+          parts.push({ type: "text", text: "ลูกค้าส่งรูปภาพมา กรุณาวิเคราะห์ว่าลูกค้าสนใจสินค้าอะไร แล้วแนะนำสินค้าที่เกี่ยวข้องพร้อมราคา" });
+          parts.push({ type: "image_url", image_url: { url } });
+          return { role, content: parts };
         }
-        parts.push({ type: "text", text: "ลูกค้าส่งรูปภาพมา กรุณาวิเคราะห์ว่าลูกค้าสนใจสินค้าอะไร แล้วแนะนำสินค้าที่เกี่ยวข้องพร้อมราคา" });
-        parts.push({ type: "image_url", image_url: { url: msg.omMessageImageUrl } });
-        return { role, content: parts };
+
+        // Non-visual file (PDF, doc, etc.) — extract and send content
+        const fileName = msg.omMessageContent && !["[file]"].includes(msg.omMessageContent) && !msg.omMessageContent.startsWith("http")
+          ? msg.omMessageContent
+          : "ไฟล์เอกสาร";
+        const extracted = fileExtractions.get(url);
+        if (extracted) {
+          return { role, content: `ลูกค้าส่งไฟล์ "${fileName}" มา เนื้อหาในไฟล์:\n\n${extracted}\n\nกรุณาวิเคราะห์เนื้อหาไฟล์นี้ แล้วแนะนำสินค้าที่เหมาะสมพร้อมราคา ถ้ามีข้อมูลขนาด/สเปค ให้ใช้ข้อมูลนั้นในการแนะนำ` };
+        }
+        return { role, content: `ลูกค้าส่งไฟล์มา: ${fileName} — ตอบรับว่าได้รับไฟล์แล้ว และถามว่าต้องการสอบถามอะไรเพิ่มเติมเกี่ยวกับไฟล์นี้` };
       }
 
       return { role, content: msg.omMessageContent };
