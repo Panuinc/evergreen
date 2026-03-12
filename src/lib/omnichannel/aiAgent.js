@@ -171,7 +171,13 @@ function buildSystemPrompt(basePrompt, products, promotions, relatedProducts, se
 1. รูปสินค้า/ตัวอย่าง → วิเคราะห์ว่าเป็นสินค้าประเภทอะไร แนะนำสินค้าที่ใกล้เคียงพร้อมราคา
 2. รูปสลิป/หลักฐานชำระเงิน → ตอบว่า "ได้รับหลักฐานแล้วค่ะ เจ้าหน้าที่จะตรวจสอบให้นะคะ"
 3. รูปสถานที่/หน้างาน → แนะนำสินค้าที่เหมาะกับพื้นที่นั้น
-4. ไม่แน่ใจ → ถามลูกค้าว่าต้องการสอบถามอะไรเพิ่ม
+4. แบบแปลน/Shop Drawing/แบบก่อสร้าง → **สำคัญมาก** ต้องอ่านตัวเลขทุกตัวในแบบให้ละเอียด:
+   - อ่านขนาดทั้งหมดที่ระบุในแบบ (กว้าง x สูง มม.) แยกระหว่างขนาดวงกบ ขนาดบาน ขนาดช่องเปิด
+   - อ่านข้อความกำกับทั้งหมด เช่น วัสดุ (PVC, อลูมิเนียม), สี, ประเภท (บานเปิด, บานเลื่อน)
+   - อ่านสัญลักษณ์ เช่น D1, W1 (รหัสประตู/หน้าต่าง)
+   - ระบุข้อมูลทั้งหมดที่อ่านได้ให้ลูกค้าทราบ แล้วแนะนำสินค้าที่ตรงสเปคพร้อมราคา
+   - ถ้ามีหลายมิติ เช่น ความกว้างช่องผนัง vs ความกว้างวงกบ vs ความกว้างบาน ให้แยกระบุให้ชัดเจน
+5. ไม่แน่ใจ → ถามลูกค้าว่าต้องการสอบถามอะไรเพิ่ม
 
 เมื่อลูกค้าส่งไฟล์ (PDF, เอกสาร):
 - คุณสามารถอ่านเนื้อหาในไฟล์ PDF และไฟล์ข้อความได้ ให้วิเคราะห์เนื้อหาและแนะนำสินค้าที่เกี่ยวข้อง
@@ -244,7 +250,7 @@ export async function generateAiReply(conversationId, supabase) {
     fetchRelatedProducts(),
   ]);
 
-  const model = settings?.omAiSettingModel || "google/gemini-2.5-flash-lite";
+  const model = settings?.omAiSettingModel || "google/gemini-2.5-flash";
   const temperature = Number(settings?.omAiSettingTemperature) || 0.3;
   const basePrompt =
     settings?.omAiSettingSystemPrompt ||
@@ -281,7 +287,7 @@ export async function generateAiReply(conversationId, supabase) {
           if (msg.omMessageContent && !["[image]", "[file]"].includes(msg.omMessageContent) && !msg.omMessageContent.startsWith("http")) {
             parts.push({ type: "text", text: msg.omMessageContent });
           }
-          parts.push({ type: "text", text: "ลูกค้าส่งรูปภาพมา กรุณาวิเคราะห์ว่าลูกค้าสนใจสินค้าอะไร แล้วแนะนำสินค้าที่เกี่ยวข้องพร้อมราคา" });
+          parts.push({ type: "text", text: "ลูกค้าส่งรูปภาพมา กรุณาดูรูปอย่างละเอียด ถ้าเป็นแบบแปลน/Shop Drawing ให้อ่านตัวเลขขนาดทุกตัว อ่านข้อความกำกับทุกจุด (วัสดุ สี ประเภท รหัส) แล้วสรุปสเปคให้ลูกค้าทราบ พร้อมแนะนำสินค้าที่ตรงสเปคและราคา ถ้าเป็นรูปสินค้า/สถานที่ ให้วิเคราะห์ว่าลูกค้าสนใจอะไรแล้วแนะนำสินค้าที่เกี่ยวข้อง" });
           parts.push({ type: "image_url", image_url: { url } });
           return { role, content: parts };
         }
