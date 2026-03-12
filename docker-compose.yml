@@ -31,6 +31,29 @@ services:
             --max-time 290 || echo "[$(date)] Full sync failed"
         done
 
+  followup-cron:
+    image: alpine:3.20
+    container_name: evergreen-followup-cron
+    restart: unless-stopped
+    depends_on:
+      - evergreen
+    env_file:
+      - .env.local
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache curl
+        echo "Follow-up cron started — every 10 minutes"
+        while true; do
+          sleep 600
+          echo "[$(date)] Processing pending follow-ups..."
+          curl -sf -X POST -H "x-internal-secret: $${INTERNAL_API_SECRET}" \
+            "http://evergreen:3000/api/marketing/omnichannel/followUp/process" \
+            -w "HTTP %{http_code} in %{time_total}s\n" \
+            --max-time 60 || echo "[$(date)] Follow-up processing failed"
+        done
+
   forthtrack-sync:
     image: alpine:3.20
     container_name: evergreen-forthtrack-sync

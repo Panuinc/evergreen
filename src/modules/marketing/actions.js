@@ -134,3 +134,64 @@ export async function quotationAction(id, action, note) {
 export async function getQuotationsByConversation(conversationId) {
   return get(`/api/marketing/omnichannel/quotations?conversationId=${conversationId}`);
 }
+
+
+
+export async function getPromotions() {
+  return get("/api/marketing/omnichannel/promotions");
+}
+
+export async function createPromotion(data) {
+  return post("/api/marketing/omnichannel/promotions", data);
+}
+
+export async function updatePromotion(id, data) {
+  return put(`/api/marketing/omnichannel/promotions/${id}`, data);
+}
+
+export async function deletePromotion(id) {
+  return del(`/api/marketing/omnichannel/promotions/${id}`);
+}
+
+
+
+export async function getProductInfo() {
+  return get("/api/marketing/omnichannel/productInfo");
+}
+
+export async function saveProductInfo(items) {
+  return post("/api/marketing/omnichannel/productInfo", { items });
+}
+
+
+
+export async function getRelatedProducts() {
+  return get("/api/marketing/omnichannel/relatedProducts");
+}
+
+export async function createRelatedProduct(data) {
+  return post("/api/marketing/omnichannel/relatedProducts", data);
+}
+
+export async function deleteRelatedProduct(id) {
+  return del(`/api/marketing/omnichannel/relatedProducts/${id}`);
+}
+
+
+
+export async function getFollowUps(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return get(`/api/marketing/omnichannel/followUp${qs ? `?${qs}` : ""}`);
+}
+
+export async function createFollowUp(data) {
+  return post("/api/marketing/omnichannel/followUp", data);
+}
+
+export async function updateFollowUp(id, data) {
+  return put(`/api/marketing/omnichannel/followUp/${id}`, data);
+}
+
+export async function deleteFollowUp(id) {
+  return del(`/api/marketing/omnichannel/followUp/${id}`);
+}

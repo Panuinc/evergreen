@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button, Input, Chip, Textarea } from "@heroui/react";
-import { X, Plus, Tag, StickyNote, FileText, ExternalLink } from "lucide-react";
-import { getQuotationsByConversation } from "@/modules/marketing/actions";
+import { X, Plus, Tag, StickyNote, FileText, ExternalLink, Clock, CalendarPlus } from "lucide-react";
+import { getQuotationsByConversation, getFollowUps, createFollowUp, deleteFollowUp as deleteFollowUpAction } from "@/modules/marketing/actions";
 import ChannelBadge from "./ChannelBadge";
 
 export default function ConversationDetail({ conversation, onUpdateContact, onClose }) {
@@ -12,12 +12,20 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   const [notes, setNotes] = useState(contact?.omContactNotes || "");
   const [editingNotes, setEditingNotes] = useState(false);
   const [quotations, setQuotations] = useState([]);
+  const [followUps, setFollowUps] = useState([]);
+  const [showFollowUpForm, setShowFollowUpForm] = useState(false);
+  const [followUpDate, setFollowUpDate] = useState("");
+  const [followUpTime, setFollowUpTime] = useState("10:00");
+  const [followUpMessage, setFollowUpMessage] = useState("");
 
   useEffect(() => {
     if (!conversation?.omConversationId) return;
     getQuotationsByConversation(conversation.omConversationId)
       .then((data) => setQuotations(data || []))
       .catch(() => setQuotations([]));
+    getFollowUps({ conversationId: conversation.omConversationId })
+      .then((data) => setFollowUps(data || []))
+      .catch(() => setFollowUps([]));
   }, [conversation?.omConversationId]);
 
   if (!conversation || !contact) return null;
@@ -41,6 +49,34 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   const handleSaveNotes = () => {
     onUpdateContact(contact.omContactId, { omContactNotes: notes });
     setEditingNotes(false);
+  };
+
+  const handleCreateFollowUp = async () => {
+    if (!followUpDate) return;
+    try {
+      const scheduledAt = new Date(`${followUpDate}T${followUpTime || "10:00"}:00+07:00`).toISOString();
+      const result = await createFollowUp({
+        conversationId: conversation.omConversationId,
+        scheduledAt,
+        message: followUpMessage || null,
+      });
+      setFollowUps((prev) => [...prev, result]);
+      setShowFollowUpForm(false);
+      setFollowUpDate("");
+      setFollowUpTime("10:00");
+      setFollowUpMessage("");
+    } catch {
+      // handled in actions
+    }
+  };
+
+  const handleDeleteFollowUp = async (id) => {
+    try {
+      await deleteFollowUpAction(id);
+      setFollowUps((prev) => prev.filter((f) => f.omFollowUpId !== id));
+    } catch {
+      // handled in actions
+    }
   };
 
   return (
@@ -148,6 +184,93 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 className="text-xs text-muted-foreground cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
               >
                 {contact.omContactNotes || "คลิกเพื่อเพิ่มหมายเหตุ..."}
+              </div>
+            )}
+          </div>
+
+          {}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock size={16} />
+                <p className="font-light text-xs">ติดตามลูกค้า</p>
+              </div>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onPress={() => setShowFollowUpForm(!showFollowUpForm)}
+              >
+                <CalendarPlus size={14} />
+              </Button>
+            </div>
+            {showFollowUpForm && (
+              <div className="flex flex-col gap-2 p-2 rounded-md bg-default/50">
+                <div className="flex gap-2">
+                  <Input
+                    size="sm"
+                    variant="bordered"
+                    radius="md"
+                    type="date"
+                    label="วันที่"
+                    labelPlacement="outside"
+                    value={followUpDate}
+                    onValueChange={setFollowUpDate}
+                  />
+                  <Input
+                    size="sm"
+                    variant="bordered"
+                    radius="md"
+                    type="time"
+                    label="เวลา"
+                    labelPlacement="outside"
+                    value={followUpTime}
+                    onValueChange={setFollowUpTime}
+                  />
+                </div>
+                <Textarea
+                  size="sm"
+                  variant="bordered"
+                  radius="md"
+                  placeholder="ข้อความ (เว้นว่างให้ AI สร้างเอง)"
+                  minRows={2}
+                  value={followUpMessage}
+                  onValueChange={setFollowUpMessage}
+                />
+                <div className="flex gap-1 justify-end">
+                  <Button size="sm" variant="bordered" radius="md" onPress={() => setShowFollowUpForm(false)}>
+                    ยกเลิก
+                  </Button>
+                  <Button size="sm" color="primary" radius="md" onPress={handleCreateFollowUp} isDisabled={!followUpDate}>
+                    ตั้งเวลา
+                  </Button>
+                </div>
+              </div>
+            )}
+            {followUps.filter((f) => f.omFollowUpStatus === "pending").length === 0 && !showFollowUpForm ? (
+              <p className="text-xs text-muted-foreground">ยังไม่มีการตั้งเวลาติดตาม</p>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {followUps
+                  .filter((f) => f.omFollowUpStatus === "pending")
+                  .map((f) => (
+                    <div key={f.omFollowUpId} className="flex items-center justify-between p-2 rounded-md bg-default/50">
+                      <div className="flex flex-col">
+                        <span className="text-xs">
+                          {new Date(f.omFollowUpScheduledAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}
+                        </span>
+                        {f.omFollowUpMessage && (
+                          <span className="text-xs text-muted-foreground line-clamp-1">{f.omFollowUpMessage}</span>
+                        )}
+                        {!f.omFollowUpMessage && (
+                          <span className="text-xs text-muted-foreground">AI จะสร้างข้อความเอง</span>
+                        )}
+                      </div>
+                      <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => handleDeleteFollowUp(f.omFollowUpId)}>
+                        <X size={14} />
+                      </Button>
+                    </div>
+                  ))}
               </div>
             )}
           </div>

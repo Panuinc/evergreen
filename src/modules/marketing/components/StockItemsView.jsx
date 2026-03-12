@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
-import { Button, Input } from "@heroui/react";
-import { Save } from "lucide-react";
+import { Button, Input, Textarea } from "@heroui/react";
+import { Save, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { saveStockItemPrices } from "@/modules/marketing/actions";
 import DataTable from "@/components/ui/DataTable";
@@ -9,6 +9,7 @@ const FIXED_PACKET_COST = 25;
 const FIXED_SHIPPING_COST = 200;
 
 const COLUMNS = [
+  { name: "", uid: "expand" },
   { name: "รหัสสินค้า", uid: "bcItemNumber", sortable: true },
   { name: "ชื่อสินค้า", uid: "bcItemDisplayName", sortable: true },
   { name: "คงคลัง", uid: "bcItemInventory", sortable: true },
@@ -22,6 +23,7 @@ const COLUMNS = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
+  "expand",
   "bcItemNumber",
   "bcItemDisplayName",
   "bcItemInventory",
@@ -34,8 +36,18 @@ const INITIAL_VISIBLE_COLUMNS = [
   "profit",
 ];
 
-export default function StockItemsView({ items, loading, prices, updatePrice }) {
+export default function StockItemsView({ items, loading, prices, updatePrice, productInfoMap, updateProductInfo, saveAllProductInfo }) {
   const [saving, setSaving] = useState(false);
+  const [expandedRows, setExpandedRows] = useState(new Set());
+
+  const toggleExpand = (number) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(number)) next.delete(number);
+      else next.add(number);
+      return next;
+    });
+  };
 
   const handleSaveAll = async () => {
     try {
@@ -48,13 +60,17 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
           price: Number(price) || 0,
         }));
 
-      if (toSave.length === 0) {
+      if (toSave.length === 0 && !saveAllProductInfo) {
         toast.info("ไม่มีราคาที่ต้องบันทึก");
         return;
       }
 
-      await saveStockItemPrices(toSave);
-      toast.success(`บันทึกราคา ${toSave.length} รายการเรียบร้อย`);
+      const promises = [];
+      if (toSave.length > 0) promises.push(saveStockItemPrices(toSave));
+      if (saveAllProductInfo) promises.push(saveAllProductInfo());
+      await Promise.all(promises);
+
+      toast.success("บันทึกข้อมูลเรียบร้อย");
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -78,8 +94,62 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
+        case "expand":
+          return (
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              onPress={() => toggleExpand(item.bcItemNumber)}
+            >
+              {expandedRows.has(item.bcItemNumber) ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            </Button>
+          );
         case "bcItemDisplayName":
-          return <span className="font-light">{item.bcItemDisplayName}</span>;
+          return (
+            <div>
+              <span className="font-light">{item.bcItemDisplayName}</span>
+              {expandedRows.has(item.bcItemNumber) && updateProductInfo && (
+                <div className="mt-2 flex flex-col gap-2 border-t border-border pt-2">
+                  <Input
+                    size="sm"
+                    variant="bordered"
+                    radius="md"
+                    label="หมวดหมู่"
+                    labelPlacement="outside-left"
+                    placeholder="เช่น ม่านม้วน, ม่านจีบ..."
+                    classNames={{ mainWrapper: "flex-1", label: "min-w-[80px] text-xs" }}
+                    value={productInfoMap?.[item.bcItemNumber]?.category || ""}
+                    onValueChange={(v) => updateProductInfo(item.bcItemNumber, "category", v)}
+                  />
+                  <Textarea
+                    size="sm"
+                    variant="bordered"
+                    radius="md"
+                    label="จุดเด่น"
+                    labelPlacement="outside-left"
+                    placeholder="เช่น วัสดุพรีเมียม กันน้ำ กันUV..."
+                    minRows={1}
+                    classNames={{ mainWrapper: "flex-1", label: "min-w-[80px] text-xs" }}
+                    value={productInfoMap?.[item.bcItemNumber]?.highlights || ""}
+                    onValueChange={(v) => updateProductInfo(item.bcItemNumber, "highlights", v)}
+                  />
+                  <Textarea
+                    size="sm"
+                    variant="bordered"
+                    radius="md"
+                    label="รายละเอียด"
+                    labelPlacement="outside-left"
+                    placeholder="คำอธิบายสินค้าสำหรับ AI ใช้ตอบลูกค้า..."
+                    minRows={1}
+                    classNames={{ mainWrapper: "flex-1", label: "min-w-[80px] text-xs" }}
+                    value={productInfoMap?.[item.bcItemNumber]?.description || ""}
+                    onValueChange={(v) => updateProductInfo(item.bcItemNumber, "description", v)}
+                  />
+                </div>
+              )}
+            </div>
+          );
         case "bcItemInventory":
           return (
             <span
@@ -166,7 +236,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice }) 
           return item[columnKey] || "-";
       }
     },
-    [prices, updatePrice]
+    [prices, updatePrice, expandedRows, productInfoMap, updateProductInfo]
   );
 
   const saveButton = (

@@ -74,6 +74,21 @@ export async function PUT(request) {
     updateData.omAiSettingBankAccountInfo = body.omAiSettingBankAccountInfo.slice(0, 2000);
   }
 
+  if (body.omAiSettingShippingInfo !== undefined) {
+    updateData.omAiSettingShippingInfo = typeof body.omAiSettingShippingInfo === "string"
+      ? body.omAiSettingShippingInfo.slice(0, 3000) : null;
+  }
+
+  if (body.omAiSettingAfterSalesInfo !== undefined) {
+    updateData.omAiSettingAfterSalesInfo = typeof body.omAiSettingAfterSalesInfo === "string"
+      ? body.omAiSettingAfterSalesInfo.slice(0, 3000) : null;
+  }
+
+  if (body.omAiSettingBrandStory !== undefined) {
+    updateData.omAiSettingBrandStory = typeof body.omAiSettingBrandStory === "string"
+      ? body.omAiSettingBrandStory.slice(0, 3000) : null;
+  }
+
   const { data: existing } = await auth.supabase
     .from("omAiSetting")
     .select("omAiSettingId")

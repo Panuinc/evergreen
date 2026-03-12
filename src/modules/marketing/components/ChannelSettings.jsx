@@ -29,6 +29,9 @@ export default function ChannelSettings({ isOpen, onClose }) {
   const [aiSystemPrompt, setAiSystemPrompt] = useState("");
   const [aiMaxHistory, setAiMaxHistory] = useState("20");
   const [aiBankAccountInfo, setAiBankAccountInfo] = useState("");
+  const [aiShippingInfo, setAiShippingInfo] = useState("");
+  const [aiAfterSalesInfo, setAiAfterSalesInfo] = useState("");
+  const [aiBrandStory, setAiBrandStory] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -63,6 +66,9 @@ export default function ChannelSettings({ isOpen, onClose }) {
         setAiSystemPrompt(data.omAiSettingSystemPrompt || "");
         setAiMaxHistory(String(data.omAiSettingMaxHistoryMessages || 20));
         setAiBankAccountInfo(data.omAiSettingBankAccountInfo || "");
+        setAiShippingInfo(data.omAiSettingShippingInfo || "");
+        setAiAfterSalesInfo(data.omAiSettingAfterSalesInfo || "");
+        setAiBrandStory(data.omAiSettingBrandStory || "");
       }
     } catch {
 
@@ -102,6 +108,9 @@ export default function ChannelSettings({ isOpen, onClose }) {
           omAiSettingSystemPrompt: aiSystemPrompt,
           omAiSettingMaxHistoryMessages: parseInt(aiMaxHistory) || 20,
           omAiSettingBankAccountInfo: aiBankAccountInfo,
+          omAiSettingShippingInfo: aiShippingInfo,
+          omAiSettingAfterSalesInfo: aiAfterSalesInfo,
+          omAiSettingBrandStory: aiBrandStory,
         });
       } catch {
 
@@ -216,6 +225,42 @@ export default function ChannelSettings({ isOpen, onClose }) {
                 minRows={3}
                 value={aiBankAccountInfo}
                 onValueChange={setAiBankAccountInfo}
+              />
+              <Textarea
+                label="เรื่องราวแบรนด์ / จุดเด่น (USP)"
+                labelPlacement="outside"
+                placeholder={"เช่น บริษัทมีประสบการณ์กว่า 10 ปี ใช้วัสดุคุณภาพ มีรีวิวจากลูกค้ากว่า 1,000 รีวิว..."}
+                description="AI จะอ้างอิงข้อมูลนี้เพื่อสร้างความมั่นใจให้ลูกค้า"
+                variant="bordered"
+                size="md"
+                radius="md"
+                minRows={3}
+                value={aiBrandStory}
+                onValueChange={setAiBrandStory}
+              />
+              <Textarea
+                label="ข้อมูลการจัดส่ง"
+                labelPlacement="outside"
+                placeholder={"เช่น จัดส่งฟรีทั่วประเทศ 3-5 วันทำการ\nค่าส่งกรุงเทพ 50 บาท ต่างจังหวัด 100 บาท..."}
+                description="AI จะใช้ตอบคำถามเรื่องค่าส่งและระยะเวลาจัดส่ง"
+                variant="bordered"
+                size="md"
+                radius="md"
+                minRows={3}
+                value={aiShippingInfo}
+                onValueChange={setAiShippingInfo}
+              />
+              <Textarea
+                label="นโยบายหลังการขาย / การรับประกัน"
+                labelPlacement="outside"
+                placeholder={"เช่น รับประกันสินค้า 1 ปี\nคืนสินค้าภายใน 7 วัน หากสินค้ามีปัญหา..."}
+                description="AI จะใช้ตอบคำถามเรื่องการรับประกันและคืนสินค้า"
+                variant="bordered"
+                size="md"
+                radius="md"
+                minRows={3}
+                value={aiAfterSalesInfo}
+                onValueChange={setAiAfterSalesInfo}
               />
             </div>
           </div>

@@ -5,7 +5,7 @@ const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 async function fetchProductCatalog() {
   try {
     const supabase = getServiceSupabase();
-    const [itemsResult, priceResult] = await Promise.all([
+    const [itemsResult, priceResult, productInfoResult] = await Promise.all([
       supabase
         .from("bcItem")
         .select("bcItemNumber,bcItemDisplayName")
@@ -13,6 +13,7 @@ async function fetchProductCatalog() {
         .like("bcItemNumber", "FG-00003%")
         .order("bcItemNumber"),
       supabase.from("omPriceItem").select("omPriceItemNumber, omPriceItemUnitPrice"),
+      supabase.from("omProductInfo").select("*"),
     ]);
 
     const priceMap = {};
@@ -20,9 +21,18 @@ async function fetchProductCatalog() {
       priceMap[p.omPriceItemNumber] = Number(p.omPriceItemUnitPrice) || 0;
     }
 
+    const infoMap = {};
+    for (const info of productInfoResult.data || []) {
+      infoMap[info.omProductInfoItemNumber] = info;
+    }
+
     return (itemsResult.data || []).map((i) => ({
+      number: i.bcItemNumber,
       name: i.bcItemDisplayName,
       price: priceMap[i.bcItemNumber] || 0,
+      description: infoMap[i.bcItemNumber]?.omProductInfoDescription || null,
+      highlights: infoMap[i.bcItemNumber]?.omProductInfoHighlights || null,
+      category: infoMap[i.bcItemNumber]?.omProductInfoCategory || null,
     }));
   } catch (err) {
     console.error("[AI] Failed to fetch products:", err.message);
@@ -30,20 +40,105 @@ async function fetchProductCatalog() {
   }
 }
 
-function buildSystemPrompt(basePrompt, products) {
+async function fetchActivePromotions() {
+  try {
+    const supabase = getServiceSupabase();
+    const today = new Date().toISOString().split("T")[0];
+    const { data } = await supabase
+      .from("omPromotion")
+      .select("*")
+      .eq("omPromotionIsActive", true)
+      .or(`omPromotionStartDate.is.null,omPromotionStartDate.lte.${today}`)
+      .or(`omPromotionEndDate.is.null,omPromotionEndDate.gte.${today}`);
+    return data || [];
+  } catch (err) {
+    console.error("[AI] Failed to fetch promotions:", err.message);
+    return [];
+  }
+}
+
+async function fetchRelatedProducts() {
+  try {
+    const supabase = getServiceSupabase();
+    const { data } = await supabase.from("omRelatedProduct").select("*");
+    return data || [];
+  } catch (err) {
+    console.error("[AI] Failed to fetch related products:", err.message);
+    return [];
+  }
+}
+
+function buildSystemPrompt(basePrompt, products, promotions, relatedProducts, settings) {
   let prompt = basePrompt;
+
+  // Brand story / USP
+  if (settings?.omAiSettingBrandStory) {
+    prompt += `\n\n## เกี่ยวกับแบรนด์ของเรา\n${settings.omAiSettingBrandStory}`;
+  }
+
+  // Product catalog with enriched info
   if (products.length > 0) {
     prompt += `\n\n## สินค้าที่มีจำหน่าย\nใช้ข้อมูลนี้ในการตอบคำถามเกี่ยวกับสินค้าและราคา ห้ามบอกจำนวนสต๊อก:\n`;
     for (const p of products) {
       if (p.price > 0) {
-        prompt += `- ${p.name} ราคา ${p.price.toLocaleString("th-TH")} บาท\n`;
+        prompt += `- ${p.name} ราคา ${p.price.toLocaleString("th-TH")} บาท`;
       } else {
-        prompt += `- ${p.name} (ยังไม่ระบุราคา)\n`;
+        prompt += `- ${p.name} (ยังไม่ระบุราคา)`;
       }
+      if (p.category) prompt += ` [หมวด: ${p.category}]`;
+      prompt += `\n`;
+      if (p.highlights) prompt += `  จุดเด่น: ${p.highlights}\n`;
+      if (p.description) prompt += `  รายละเอียด: ${p.description}\n`;
     }
     prompt += `\nถ้าลูกค้าถามสินค้าที่ไม่อยู่ในรายการ ให้บอกว่าสินค้ารุ่นนี้ไม่มีจำหน่ายในขณะนี้
 ถ้าลูกค้าถามราคาสินค้าที่มีราคาอยู่แล้ว ให้บอกราคาตามข้อมูลข้างต้นได้เลย
-ถ้าลูกค้าถามราคาสินค้าที่ยังไม่ระบุราคา ให้บอกว่ากรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามราคา
+ถ้าลูกค้าถามราคาสินค้าที่ยังไม่ระบุราคา ให้บอกว่ากรุณาติดต่อเจ้าหน้าที่เพื่อสอบถามราคา`;
+  }
+
+  // Promotions
+  if (promotions.length > 0) {
+    prompt += `\n\n## โปรโมชั่นที่กำลังจัดอยู่ตอนนี้\nแนะนำโปรโมชั่นให้ลูกค้าเมื่อมีโอกาส เช่น เมื่อลูกค้าสนใจสินค้าหรือกำลังตัดสินใจ:\n`;
+    for (const promo of promotions) {
+      prompt += `- ${promo.omPromotionName}`;
+      if (promo.omPromotionDescription) prompt += `: ${promo.omPromotionDescription}`;
+      if (promo.omPromotionEndDate) prompt += ` (ถึง ${promo.omPromotionEndDate})`;
+      prompt += `\n`;
+    }
+    prompt += `ใช้โปรโมชั่นเพื่อกระตุ้นการตัดสินใจ เช่น "ตอนนี้มีโปรพิเศษนะคะ..." หรือ "โปรนี้ใกล้หมดเขตแล้วนะคะ"\n`;
+  }
+
+  // Cross-sell / Upsell
+  if (relatedProducts.length > 0) {
+    prompt += `\n\n## สินค้าแนะนำเพิ่มเติม (Cross-sell / Upsell)\nเมื่อลูกค้าเลือกสินค้าแล้ว ให้แนะนำสินค้าที่เกี่ยวข้องตามรายการนี้:\n`;
+    for (const rp of relatedProducts) {
+      const type = rp.omRelatedProductType === "upsell" ? "อัปเกรด" : "ใช้คู่กัน";
+      prompt += `- ถ้าลูกค้าสนใจ ${rp.omRelatedProductSourceItem} → แนะนำ ${rp.omRelatedProductTargetItem} (${type})`;
+      if (rp.omRelatedProductReason) prompt += ` เพราะ: ${rp.omRelatedProductReason}`;
+      prompt += `\n`;
+    }
+    prompt += `แนะนำอย่างเป็นธรรมชาติ ไม่ยัดเยียด เช่น "หลายคนที่สั่งรุ่นนี้ มักจะสั่ง...ด้วยค่ะ"\n`;
+  }
+
+  // Shipping info
+  if (settings?.omAiSettingShippingInfo) {
+    prompt += `\n\n## ข้อมูลการจัดส่ง\n${settings.omAiSettingShippingInfo}\n`;
+  }
+
+  // After-sales / warranty
+  if (settings?.omAiSettingAfterSalesInfo) {
+    prompt += `\n\n## นโยบายหลังการขาย / การรับประกัน\n${settings.omAiSettingAfterSalesInfo}\n`;
+  }
+
+  // Sales closing process
+  prompt += `
+
+## เทคนิคการขาย
+- เมื่อลูกค้าสนใจสินค้า ให้เน้นจุดเด่นของสินค้าและบอกว่าทำไมสินค้านี้ดี
+- ถ้ามีโปรโมชั่นที่เกี่ยวข้อง ให้แจ้งลูกค้าทันที
+- ถ้ามีสินค้าแนะนำเพิ่มเติม ให้แนะนำอย่างเป็นธรรมชาติ
+- สร้างความมั่นใจโดยอ้างอิงจุดเด่นแบรนด์ ความนิยมของสินค้า หรือรีวิวจากลูกค้า
+- ถ้าลูกค้ายังลังเล ให้ย้ำข้อดีของสินค้าและโปรโมชั่นที่ใกล้หมดเขต
+- พูดเชิงบวก กระตือรือร้น แต่ไม่กดดันมากเกินไป
 
 ## ขั้นตอนการปิดการขาย
 เมื่อลูกค้าต้องการสั่งซื้อสินค้า ให้ถามข้อมูลต่อไปนี้ทีละข้อ (ถ้ายังไม่มีข้อมูล):
@@ -58,7 +153,7 @@ function buildSystemPrompt(basePrompt, products) {
 
 ## การรับหลักฐานการชำระเงิน
 ถ้าลูกค้าส่งรูปภาพ ([image]) หลังจากมีการสั่งซื้อสินค้าแล้ว ให้ตอบว่า "ได้รับหลักฐานการชำระเงินแล้วค่ะ เจ้าหน้าที่จะตรวจสอบและยืนยันให้ค่ะ"`;
-  }
+
   return prompt;
 }
 
@@ -84,19 +179,21 @@ export async function getConversationContext(conversationId, supabase, limit = 2
 
 export async function generateAiReply(conversationId, supabase) {
 
-  const [settings, history, products] = await Promise.all([
+  const [settings, history, products, promotions, relatedProducts] = await Promise.all([
     getAiSettings(supabase),
     getConversationContext(conversationId, supabase),
     fetchProductCatalog(),
+    fetchActivePromotions(),
+    fetchRelatedProducts(),
   ]);
 
   const model = settings?.omAiSettingModel || "google/gemini-2.5-flash-lite";
   const temperature = Number(settings?.omAiSettingTemperature) || 0.3;
   const basePrompt =
     settings?.omAiSettingSystemPrompt ||
-    "คุณเป็นเจ้าหน้าที่บริการลูกค้า ตอบเป็นภาษาไทย";
+    "คุณเป็นพนักงานขายออนไลน์ที่เป็นมิตรและเชี่ยวชาญ ตอบเป็นภาษาไทย พูดจาสุภาพ กระตือรือร้น และพร้อมช่วยเหลือลูกค้าเสมอ";
 
-  const systemPrompt = buildSystemPrompt(basePrompt, products);
+  const systemPrompt = buildSystemPrompt(basePrompt, products, promotions, relatedProducts, settings);
 
   const aiMessages = [
     { role: "system", content: systemPrompt },

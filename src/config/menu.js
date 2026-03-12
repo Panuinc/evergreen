@@ -52,6 +52,7 @@ import {
   RefreshCw,
   Landmark,
   ImagePlus,
+  Tag,
 } from "lucide-react";
 
 export const menuData = [
@@ -186,6 +187,11 @@ export const menuData = [
         name: "รายการราคา",
         icon: Package,
         href: "/marketing/omnichannel/stockItems",
+      },
+      {
+        name: "โปรโมชั่น",
+        icon: Tag,
+        href: "/marketing/omnichannel/promotions",
       },
       {
         name: "แชทรวมช่องทาง",
