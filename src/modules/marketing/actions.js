@@ -53,6 +53,10 @@ export async function sendMessage(conversationId, content) {
 
 
 
+export async function logNote(conversationId, content) {
+  return post("/api/marketing/omnichannel/logNote", { conversationId, content });
+}
+
 export async function suggestReply(conversationId) {
   return post("/api/marketing/omnichannel/ai/suggest", { conversationId });
 }

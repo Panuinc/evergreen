@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Chip,  ScrollShadow,
@@ -11,9 +11,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Textarea,
   useDisclosure,
 } from "@heroui/react";
-import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles, Receipt, FileDown, FileText } from "lucide-react";
+import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles, Receipt, FileDown, FileText, MessageSquarePlus } from "lucide-react";
 import ChannelBadge from "./ChannelBadge";
 import MessageInput from "./MessageInput";
 import Loading from "@/components/ui/Loading";
@@ -68,9 +69,12 @@ export default function ChatWindow({
   onSuggestReply,
   suggestLoading,
   suggestedText,
+  onLogNote,
 }) {
   const scrollRef = useRef(null);
   const deleteModal = useDisclosure();
+  const logNoteModal = useDisclosure();
+  const [logNoteText, setLogNoteText] = useState("");
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -117,6 +121,17 @@ export default function ChatWindow({
               />
             </div>
           </Tooltip>
+          <Tooltip content="บันทึกข้อความที่ส่งผ่าน LINE OA">
+            <Button
+              isIconOnly
+              variant="light"
+              size="md"
+              radius="md"
+              onPress={logNoteModal.onOpen}
+            >
+              <MessageSquarePlus />
+            </Button>
+          </Tooltip>
           {isClosed ? (
             <Button
               size="md"
@@ -153,6 +168,10 @@ export default function ChatWindow({
             <Info />
           </Button>
         </div>
+      </div>
+
+      <div className="px-3 py-2 bg-warning-50 border-b border-warning-200 text-xs text-warning-700">
+        ควรตอบลูกค้าผ่านระบบนี้ เพื่อให้ AI มีบริบทครบถ้วน หากตอบผ่าน LINE OA โดยตรง กดปุ่ม <MessageSquarePlus size={14} className="inline" /> เพื่อบันทึกข้อความ
       </div>
 
       {}
@@ -305,6 +324,44 @@ export default function ChatWindow({
               }}
             >
               ลบการสนทนา
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={logNoteModal.isOpen} onClose={logNoteModal.onClose} size="md">
+        <ModalContent>
+          <ModalHeader>บันทึกข้อความที่ส่งผ่าน LINE OA</ModalHeader>
+          <ModalBody>
+            <p className="text-xs text-muted-foreground mb-2">
+              ใช้สำหรับบันทึกข้อความที่แอดมินส่งผ่าน LINE OA โดยตรง เพื่อให้ AI มีบริบทครบถ้วน
+            </p>
+            <Textarea
+              placeholder="พิมพ์ข้อความที่ส่งผ่าน LINE OA..."
+              variant="bordered"
+              size="md"
+              radius="md"
+              minRows={3}
+              value={logNoteText}
+              onValueChange={setLogNoteText}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="bordered" size="md" radius="md" onPress={() => { logNoteModal.onClose(); setLogNoteText(""); }}>
+              ยกเลิก
+            </Button>
+            <Button
+              color="primary"
+              size="md"
+              radius="md"
+              isDisabled={!logNoteText.trim()}
+              onPress={() => {
+                onLogNote(logNoteText.trim());
+                setLogNoteText("");
+                logNoteModal.onClose();
+              }}
+            >
+              บันทึก
             </Button>
           </ModalFooter>
         </ModalContent>

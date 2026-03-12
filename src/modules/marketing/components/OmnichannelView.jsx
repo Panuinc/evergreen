@@ -29,6 +29,7 @@ export default function OmnichannelView({
   suggestedText,
   toggleAiAutoReply,
   suggestReply,
+  logNote,
 }) {
   const [showDetail, setShowDetail] = useState(false);
   const [mobileView, setMobileView] = useState("list");
@@ -105,6 +106,7 @@ export default function OmnichannelView({
                   onSuggestReply={suggestReply}
                   suggestLoading={suggestLoading}
                   suggestedText={suggestedText}
+                  onLogNote={logNote}
                 />
               </div>
               {showDetail && (

@@ -7,6 +7,7 @@ import {
   getConversations,
   getMessages,
   sendMessage as sendMessageAction,
+  logNote as logNoteAction,
   updateConversation,
   deleteConversation as deleteConversationAction,
   suggestReply as suggestReplyAction,
@@ -120,6 +121,20 @@ export function useOmnichannelChat() {
     [selectedConversation]
   );
 
+
+  const handleLogNote = useCallback(
+    async (content) => {
+      if (!selectedConversation || !content.trim()) return;
+      try {
+        const savedMsg = await logNoteAction(selectedConversation.omConversationId, content);
+        setMessages((prev) => [...prev, savedMsg]);
+        toast.success("บันทึกข้อความเรียบร้อย");
+      } catch (error) {
+        toast.error(error.message || "บันทึกข้อความล้มเหลว");
+      }
+    },
+    [selectedConversation]
+  );
 
   const handleUpdateStatus = useCallback(
     async (conversationId, status) => {
@@ -376,6 +391,7 @@ export function useOmnichannelChat() {
     setSearchQuery,
     selectConversation,
     sendMessage: handleSendMessage,
+    logNote: handleLogNote,
     updateStatus: handleUpdateStatus,
     updateContact: handleUpdateContact,
     deleteConversation: handleDeleteConversation,

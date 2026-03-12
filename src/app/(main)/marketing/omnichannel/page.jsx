@@ -26,6 +26,7 @@ export default function OmnichannelPage() {
     suggestedText,
     toggleAiAutoReply,
     suggestReply,
+    logNote,
   } = useOmnichannelChat();
 
   return (
@@ -51,6 +52,7 @@ export default function OmnichannelPage() {
       suggestedText={suggestedText}
       toggleAiAutoReply={toggleAiAutoReply}
       suggestReply={suggestReply}
+      logNote={logNote}
     />
   );
 }
