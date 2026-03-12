@@ -2,6 +2,28 @@ import { get, post, put, del } from "@/lib/apiClient";
 
 
 
+export async function generateMarketingImage(imageFile, prompt, size = "1024x1024") {
+  const form = new FormData();
+  form.append("image", imageFile);
+  form.append("prompt", prompt);
+  form.append("size", size);
+
+  const res = await fetch("/api/marketing/ai/generate-image", {
+    method: "POST",
+    body: form,
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Image generation failed");
+  return data;
+}
+
+export async function getImageGenerationHistory(limit = 20) {
+  return get(`/api/marketing/ai/generate-image?limit=${limit}`);
+}
+
+
+
 export async function getConversations(params = {}) {
   const qs = new URLSearchParams(params).toString();
   return get(`/api/marketing/omnichannel/conversations${qs ? `?${qs}` : ""}`);

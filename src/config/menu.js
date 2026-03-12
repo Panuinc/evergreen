@@ -51,6 +51,7 @@ import {
   AlertTriangle,
   RefreshCw,
   Landmark,
+  ImagePlus,
 } from "lucide-react";
 
 export const menuData = [
@@ -190,6 +191,11 @@ export const menuData = [
         name: "แชทรวมช่องทาง",
         icon: MessageCircle,
         href: "/marketing/omnichannel",
+      },
+      {
+        name: "AI สร้างรูปภาพ",
+        icon: ImagePlus,
+        href: "/marketing/imageGen",
       },
 
 
