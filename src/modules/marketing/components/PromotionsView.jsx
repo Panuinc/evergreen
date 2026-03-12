@@ -16,7 +16,7 @@ import {
   Switch,
   useDisclosure,
 } from "@heroui/react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, X } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 
 const PROMO_TYPES = [
@@ -32,6 +32,7 @@ const COLUMNS = [
   { name: "ชื่อโปรโมชั่น", uid: "omPromotionName", sortable: true },
   { name: "ประเภท", uid: "omPromotionType", sortable: true },
   { name: "มูลค่า", uid: "omPromotionValue", sortable: true },
+  { name: "สินค้า", uid: "omPromotionApplicableProducts" },
   { name: "วันเริ่ม", uid: "omPromotionStartDate", sortable: true },
   { name: "วันสิ้นสุด", uid: "omPromotionEndDate", sortable: true },
   { name: "สถานะ", uid: "omPromotionIsActive", sortable: true },
@@ -44,20 +45,23 @@ const INITIAL_FORM = {
   omPromotionType: "discount_percent",
   omPromotionValue: "",
   omPromotionMinQuantity: "1",
+  omPromotionApplicableProducts: [],
   omPromotionStartDate: "",
   omPromotionEndDate: "",
   omPromotionIsActive: true,
 };
 
-export default function PromotionsView({ promotions, loading, onAdd, onUpdate, onDelete }) {
+export default function PromotionsView({ promotions, loading, stockItems = [], onAdd, onUpdate, onDelete }) {
   const modal = useDisclosure();
   const [form, setForm] = useState(INITIAL_FORM);
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [productSearch, setProductSearch] = useState("");
 
   const openCreate = () => {
     setForm(INITIAL_FORM);
     setEditingId(null);
+    setProductSearch("");
     modal.onOpen();
   };
 
@@ -68,11 +72,13 @@ export default function PromotionsView({ promotions, loading, onAdd, onUpdate, o
       omPromotionType: promo.omPromotionType || "discount_percent",
       omPromotionValue: String(promo.omPromotionValue || ""),
       omPromotionMinQuantity: String(promo.omPromotionMinQuantity || 1),
+      omPromotionApplicableProducts: promo.omPromotionApplicableProducts || [],
       omPromotionStartDate: promo.omPromotionStartDate || "",
       omPromotionEndDate: promo.omPromotionEndDate || "",
       omPromotionIsActive: promo.omPromotionIsActive !== false,
     });
     setEditingId(promo.omPromotionId);
+    setProductSearch("");
     modal.onOpen();
   };
 
@@ -100,6 +106,35 @@ export default function PromotionsView({ promotions, loading, onAdd, onUpdate, o
     }
   };
 
+  const addProduct = (itemNumber) => {
+    if (form.omPromotionApplicableProducts.includes(itemNumber)) return;
+    setForm((f) => ({
+      ...f,
+      omPromotionApplicableProducts: [...f.omPromotionApplicableProducts, itemNumber],
+    }));
+    setProductSearch("");
+  };
+
+  const removeProduct = (itemNumber) => {
+    setForm((f) => ({
+      ...f,
+      omPromotionApplicableProducts: f.omPromotionApplicableProducts.filter((n) => n !== itemNumber),
+    }));
+  };
+
+  const getItemName = (itemNumber) => {
+    const item = stockItems.find((i) => i.bcItemNumber === itemNumber);
+    return item?.bcItemDisplayName || itemNumber;
+  };
+
+  const filteredStockItems = stockItems.filter(
+    (i) =>
+      productSearch &&
+      !form.omPromotionApplicableProducts.includes(i.bcItemNumber) &&
+      (i.bcItemNumber?.toLowerCase().includes(productSearch.toLowerCase()) ||
+        i.bcItemDisplayName?.toLowerCase().includes(productSearch.toLowerCase()))
+  );
+
   const getTypeLabel = (type) => PROMO_TYPES.find((t) => t.value === type)?.label || type;
 
   const renderCell = (item, key) => {
@@ -119,6 +154,22 @@ export default function PromotionsView({ promotions, loading, onAdd, onUpdate, o
         if (item.omPromotionType === "discount_percent") return `${item.omPromotionValue}%`;
         if (item.omPromotionType === "discount_amount") return `${Number(item.omPromotionValue).toLocaleString("th-TH")} บาท`;
         return item.omPromotionValue || "-";
+      case "omPromotionApplicableProducts": {
+        const products = item.omPromotionApplicableProducts || [];
+        if (products.length === 0) return <span className="text-xs text-default-400">ทุกสินค้า</span>;
+        return (
+          <div className="flex flex-wrap gap-1">
+            {products.slice(0, 3).map((p) => (
+              <Chip key={p} size="sm" variant="flat" color="primary">
+                {p}
+              </Chip>
+            ))}
+            {products.length > 3 && (
+              <Chip size="sm" variant="flat">+{products.length - 3}</Chip>
+            )}
+          </div>
+        );
+      }
       case "omPromotionStartDate":
         return item.omPromotionStartDate || "-";
       case "omPromotionEndDate":
@@ -237,6 +288,55 @@ export default function PromotionsView({ promotions, loading, onAdd, onUpdate, o
                 value={form.omPromotionMinQuantity}
                 onValueChange={(v) => setForm((f) => ({ ...f, omPromotionMinQuantity: v }))}
               />
+
+              {/* Product selection */}
+              <div>
+                <p className="text-sm mb-2">สินค้าที่ใช้โปรโมชั่นนี้</p>
+                {form.omPromotionApplicableProducts.length > 0 ? (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {form.omPromotionApplicableProducts.map((itemNumber) => (
+                      <Chip
+                        key={itemNumber}
+                        size="sm"
+                        variant="flat"
+                        color="primary"
+                        onClose={() => removeProduct(itemNumber)}
+                      >
+                        {getItemName(itemNumber)}
+                      </Chip>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-default-400 mb-2">ยังไม่ได้เลือกสินค้า = ใช้กับทุกสินค้า</p>
+                )}
+                <Input
+                  placeholder="พิมพ์ค้นหาสินค้าเพื่อเพิ่ม..."
+                  variant="bordered"
+                  size="sm"
+                  radius="md"
+                  value={productSearch}
+                  onValueChange={setProductSearch}
+                />
+                {productSearch && (
+                  <div className="max-h-40 overflow-y-auto border rounded-md mt-1">
+                    {filteredStockItems.slice(0, 20).map((item) => (
+                      <button
+                        key={item.bcItemNumber}
+                        type="button"
+                        className="w-full text-left px-3 py-2 hover:bg-default-100 text-sm"
+                        onClick={() => addProduct(item.bcItemNumber)}
+                      >
+                        <span className="font-medium">{item.bcItemNumber}</span>
+                        <span className="text-default-400 ml-2">{item.bcItemDisplayName}</span>
+                      </button>
+                    ))}
+                    {filteredStockItems.length === 0 && (
+                      <p className="px-3 py-2 text-sm text-default-400">ไม่พบสินค้า</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="วันเริ่มต้น"

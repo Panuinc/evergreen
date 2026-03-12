@@ -9,6 +9,7 @@ import {
   ModalBody,
   ModalFooter,
   Chip,
+  Tooltip,
   useDisclosure,
 } from "@heroui/react";
 import { Save, FileEdit } from "lucide-react";
@@ -25,6 +26,7 @@ const COLUMNS = [
   { name: "คงคลัง", uid: "bcItemInventory", sortable: true },
   { name: "ราคา BC", uid: "bcItemUnitPrice", sortable: true },
   { name: "ราคาขาย", uid: "customPrice", sortable: true },
+  { name: "ราคาโปรฯ", uid: "promoPrice", sortable: true },
   { name: "ต้นทุนสินค้า", uid: "bcItemUnitCost", sortable: true },
   { name: "ค่าแพ็ค", uid: "packetCost" },
   { name: "ค่าขนส่ง", uid: "shippingCost" },
@@ -39,6 +41,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "bcItemInventory",
   "bcItemUnitPrice",
   "customPrice",
+  "promoPrice",
   "bcItemUnitCost",
   "packetCost",
   "shippingCost",
@@ -47,7 +50,37 @@ const INITIAL_VISIBLE_COLUMNS = [
   "productInfo",
 ];
 
-export default function StockItemsView({ items, loading, prices, updatePrice, productInfoMap, updateProductInfo, saveAllProductInfo }) {
+function getPromoForItem(itemNumber, promotions) {
+  if (!promotions || promotions.length === 0) return null;
+  const today = new Date().toISOString().split("T")[0];
+
+  for (const promo of promotions) {
+    if (!promo.omPromotionIsActive) continue;
+    if (promo.omPromotionStartDate && promo.omPromotionStartDate > today) continue;
+    if (promo.omPromotionEndDate && promo.omPromotionEndDate < today) continue;
+
+    const applicable = promo.omPromotionApplicableProducts || [];
+    if (applicable.length > 0 && !applicable.includes(itemNumber)) continue;
+
+    return promo;
+  }
+  return null;
+}
+
+function calcPromoPrice(sellingPrice, promo) {
+  if (!promo || !sellingPrice) return null;
+  if (promo.omPromotionType === "discount_percent") {
+    const discount = Number(promo.omPromotionValue) || 0;
+    return sellingPrice * (1 - discount / 100);
+  }
+  if (promo.omPromotionType === "discount_amount") {
+    const discount = Number(promo.omPromotionValue) || 0;
+    return Math.max(0, sellingPrice - discount);
+  }
+  return null;
+}
+
+export default function StockItemsView({ items, loading, prices, updatePrice, productInfoMap, updateProductInfo, saveAllProductInfo, promotions = [] }) {
   const [saving, setSaving] = useState(false);
   const modal = useDisclosure();
   const [editingItem, setEditingItem] = useState(null);
@@ -93,10 +126,13 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
         const cost = Number(item.bcItemUnitCost) || 0;
         const totalCost = cost + FIXED_PACKET_COST + FIXED_SHIPPING_COST;
         const sellingPrice = Number(customPrice) || Number(item.bcItemUnitPrice) || 0;
-        const profit = sellingPrice > 0 ? sellingPrice - totalCost : null;
-        return { ...item, customPrice, totalCost, profit };
+        const promo = getPromoForItem(item.bcItemNumber, promotions);
+        const promoPrice = calcPromoPrice(sellingPrice, promo);
+        const effectivePrice = promoPrice != null ? promoPrice : sellingPrice;
+        const profit = effectivePrice > 0 ? effectivePrice - totalCost : null;
+        return { ...item, customPrice, totalCost, profit, promoPrice, promoName: promo?.omPromotionName || null };
       }),
-    [items, prices]
+    [items, prices, promotions]
   );
 
   const renderCell = useCallback(
@@ -142,6 +178,15 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
               }
               onValueChange={(v) => updatePrice(item.bcItemNumber, v)}
             />
+          );
+        case "promoPrice":
+          if (item.promoPrice == null) return <span className="block text-right text-muted-foreground">-</span>;
+          return (
+            <Tooltip content={item.promoName} placement="top">
+              <span className="block text-right text-warning font-medium cursor-help">
+                {Number(item.promoPrice).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+              </span>
+            </Tooltip>
           );
         case "bcItemUnitCost":
           return (

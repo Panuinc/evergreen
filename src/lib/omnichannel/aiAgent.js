@@ -101,10 +101,16 @@ function buildSystemPrompt(basePrompt, products, promotions, relatedProducts, se
     for (const promo of promotions) {
       prompt += `- ${promo.omPromotionName}`;
       if (promo.omPromotionDescription) prompt += `: ${promo.omPromotionDescription}`;
+      const applicableProducts = promo.omPromotionApplicableProducts || [];
+      if (applicableProducts.length > 0) {
+        prompt += ` [ใช้กับสินค้า: ${applicableProducts.join(", ")}]`;
+      } else {
+        prompt += ` [ใช้กับทุกสินค้า]`;
+      }
       if (promo.omPromotionEndDate) prompt += ` (ถึง ${promo.omPromotionEndDate})`;
       prompt += `\n`;
     }
-    prompt += `ใช้โปรโมชั่นเพื่อกระตุ้นการตัดสินใจ เช่น "ตอนนี้มีโปรพิเศษนะคะ..." หรือ "โปรนี้ใกล้หมดเขตแล้วนะคะ"\n`;
+    prompt += `ใช้โปรโมชั่นเพื่อกระตุ้นการตัดสินใจ เช่น "ตอนนี้มีโปรพิเศษนะคะ..." หรือ "โปรนี้ใกล้หมดเขตแล้วนะคะ"\nสำคัญ: ถ้าโปรโมชั่นระบุสินค้าเฉพาะ ให้แนะนำโปรฯ เฉพาะเมื่อลูกค้าสนใจสินค้านั้นๆ เท่านั้น\n`;
   }
 
   // Cross-sell / Upsell

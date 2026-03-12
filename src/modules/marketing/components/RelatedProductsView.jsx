@@ -82,7 +82,7 @@ export default function RelatedProductsView({
 
   const getItemName = (itemNumber) => {
     const item = stockItems.find((i) => i.bcItemNumber === itemNumber);
-    return item ? `${itemNumber} — ${item.bcItemDescription || ""}` : itemNumber;
+    return item ? `${itemNumber} — ${item.bcItemDisplayName || ""}` : itemNumber;
   };
 
   const renderCell = (item, key) => {
@@ -136,14 +136,14 @@ export default function RelatedProductsView({
     (i) =>
       !sourceSearch ||
       i.bcItemNumber?.toLowerCase().includes(sourceSearch.toLowerCase()) ||
-      i.bcItemDescription?.toLowerCase().includes(sourceSearch.toLowerCase())
+      i.bcItemDisplayName?.toLowerCase().includes(sourceSearch.toLowerCase())
   );
 
   const filteredTargetItems = stockItems.filter(
     (i) =>
       !targetSearch ||
       i.bcItemNumber?.toLowerCase().includes(targetSearch.toLowerCase()) ||
-      i.bcItemDescription?.toLowerCase().includes(targetSearch.toLowerCase())
+      i.bcItemDisplayName?.toLowerCase().includes(targetSearch.toLowerCase())
   );
 
   const addButton = (
@@ -209,7 +209,7 @@ export default function RelatedProductsView({
                         }}
                       >
                         <span className="font-medium">{item.bcItemNumber}</span>
-                        <span className="text-default-400 ml-2">{item.bcItemDescription}</span>
+                        <span className="text-default-400 ml-2">{item.bcItemDisplayName}</span>
                       </button>
                     ))}
                     {filteredSourceItems.length === 0 && (
@@ -248,7 +248,7 @@ export default function RelatedProductsView({
                         }}
                       >
                         <span className="font-medium">{item.bcItemNumber}</span>
-                        <span className="text-default-400 ml-2">{item.bcItemDescription}</span>
+                        <span className="text-default-400 ml-2">{item.bcItemDisplayName}</span>
                       </button>
                     ))}
                     {filteredTargetItems.length === 0 && (
