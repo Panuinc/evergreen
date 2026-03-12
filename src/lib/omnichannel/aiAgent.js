@@ -157,8 +157,12 @@ function buildSystemPrompt(basePrompt, products, promotions, relatedProducts, se
 เมื่อได้ข้อมูลครบ ให้สรุปรายการสั่งซื้อทั้งหมดและขอยืนยันจากลูกค้า
 ถ้าลูกค้ายืนยัน ให้แจ้งว่า "ขอบคุณค่ะ รับออเดอร์เรียบร้อยแล้ว เจ้าหน้าที่จะติดต่อกลับเพื่อยืนยันอีกครั้งค่ะ"
 
-## การรับหลักฐานการชำระเงิน
-ถ้าลูกค้าส่งรูปภาพ ([image]) หลังจากมีการสั่งซื้อสินค้าแล้ว ให้ตอบว่า "ได้รับหลักฐานการชำระเงินแล้วค่ะ เจ้าหน้าที่จะตรวจสอบและยืนยันให้ค่ะ"`;
+## การวิเคราะห์รูปภาพจากลูกค้า
+เมื่อลูกค้าส่งรูปภาพมา ให้วิเคราะห์ว่ารูปเป็นอะไร:
+1. ถ้าเป็นรูปสินค้าหรือตัวอย่างที่ลูกค้าสนใจ → วิเคราะห์ว่าเป็นสินค้าประเภทอะไร จับคู่กับสินค้าในรายการที่มี แนะนำสินค้าที่ใกล้เคียงพร้อมราคาและโปรโมชั่น (ถ้ามี)
+2. ถ้าเป็นรูปสลิปการโอนเงิน/หลักฐานการชำระเงิน → ตอบว่า "ได้รับหลักฐานการชำระเงินแล้วค่ะ เจ้าหน้าที่จะตรวจสอบและยืนยันให้ค่ะ"
+3. ถ้าเป็นรูปสถานที่ติดตั้งหรือหน้างาน → ให้แนะนำสินค้าที่เหมาะกับพื้นที่/การใช้งานนั้น
+4. ถ้าไม่แน่ใจว่ารูปคืออะไร → ถามลูกค้าว่าต้องการสอบถามอะไรเพิ่มเติม`;
 
   return prompt;
 }
@@ -175,7 +179,7 @@ export async function getAiSettings(supabase) {
 export async function getConversationContext(conversationId, supabase, limit = 20) {
   const { data: messages } = await supabase
     .from("omMessage")
-    .select("omMessageSenderType, omMessageContent, omMessageCreatedAt")
+    .select("omMessageSenderType, omMessageContent, omMessageType, omMessageImageUrl, omMessageCreatedAt")
     .eq("omMessageConversationId", conversationId)
     .order("omMessageCreatedAt", { ascending: false })
     .limit(limit);
@@ -203,10 +207,22 @@ export async function generateAiReply(conversationId, supabase) {
 
   const aiMessages = [
     { role: "system", content: systemPrompt },
-    ...history.map((msg) => ({
-      role: msg.omMessageSenderType === "customer" ? "user" : "assistant",
-      content: msg.omMessageContent,
-    })),
+    ...history.map((msg) => {
+      const role = msg.omMessageSenderType === "customer" ? "user" : "assistant";
+
+      // Send image as multimodal content for customer messages
+      if (role === "user" && msg.omMessageType === "image" && msg.omMessageImageUrl) {
+        const parts = [];
+        if (msg.omMessageContent && msg.omMessageContent !== "[image]") {
+          parts.push({ type: "text", text: msg.omMessageContent });
+        }
+        parts.push({ type: "text", text: "ลูกค้าส่งรูปภาพมา กรุณาวิเคราะห์ว่าลูกค้าสนใจสินค้าอะไร แล้วแนะนำสินค้าที่เกี่ยวข้องพร้อมราคา" });
+        parts.push({ type: "image_url", image_url: { url: msg.omMessageImageUrl } });
+        return { role, content: parts };
+      }
+
+      return { role, content: msg.omMessageContent };
+    }),
   ];
 
 
