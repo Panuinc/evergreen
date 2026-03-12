@@ -86,22 +86,22 @@ export default function ChatWindow({
   const isClosed = conversation?.omConversationStatus === "closed";
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-w-0 overflow-hidden">
       {}
-      <div className="flex items-center gap-3 p-3 border-b border-border">
+      <div className="flex items-center gap-2 p-2 md:p-3 border-b border-border min-w-0">
         {onBack && (
-          <Button isIconOnly variant="light" size="md" radius="md" onPress={onBack}>
-            <ArrowLeft />
+          <Button isIconOnly variant="light" size="sm" radius="md" onPress={onBack} className="shrink-0">
+            <ArrowLeft size={18} />
           </Button>
         )}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-light truncate">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="font-light truncate text-sm">
               {contact?.omContactDisplayName || "ไม่ทราบ"}
             </span>
             <ChannelBadge channelType={conversation?.omConversationChannelType} />
             <Chip
-              size="md"
+              size="sm"
               color={STATUS_COLORS[conversation?.omConversationStatus] || "default"}
               variant="flat"
             >
@@ -109,12 +109,12 @@ export default function ChatWindow({
             </Chip>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 shrink-0">
           <Tooltip content="AI ตอบอัตโนมัติ">
-            <div className="flex items-center gap-1 px-2">
-              <Bot className="text-secondary" />
+            <div className="flex items-center gap-0.5 px-1">
+              <Bot size={16} className="text-secondary hidden md:block" />
               <Switch
-                size="md"
+                size="sm"
                 color="secondary"
                 isSelected={conversation?.omConversationAiAutoReply || false}
                 onValueChange={(val) => onToggleAiAutoReply(conversation.omConversationId, val)}
@@ -125,31 +125,57 @@ export default function ChatWindow({
             <Button
               isIconOnly
               variant="light"
-              size="md"
+              size="sm"
               radius="md"
               onPress={logNoteModal.onOpen}
             >
-              <MessageSquarePlus />
+              <MessageSquarePlus size={16} />
             </Button>
           </Tooltip>
           {isClosed ? (
             <Button
-              size="md"
+              isIconOnly
+              variant="flat"
+              size="sm"
+              radius="md"
+              className="md:hidden"
+              onPress={() => onUpdateStatus(conversation.omConversationId, "open")}
+            >
+              <RotateCcw size={16} />
+            </Button>
+          ) : (
+            <Button
+              isIconOnly
+              variant="bordered"
+              size="sm"
+              radius="md"
+              color="danger"
+              className="md:hidden"
+              onPress={() => onUpdateStatus(conversation.omConversationId, "closed")}
+            >
+              <CloseIcon size={16} />
+            </Button>
+          )}
+          {isClosed ? (
+            <Button
+              size="sm"
               variant="flat"
               radius="md"
-              startContent={<RotateCcw />}
+              startContent={<RotateCcw size={14} />}
               onPress={() => onUpdateStatus(conversation.omConversationId, "open")}
+              className="hidden md:flex"
             >
               เปิดอีกครั้ง
             </Button>
           ) : (
             <Button
-              size="md"
+              size="sm"
               variant="bordered"
               radius="md"
               color="danger"
-              startContent={<CloseIcon />}
+              startContent={<CloseIcon size={14} />}
               onPress={() => onUpdateStatus(conversation.omConversationId, "closed")}
+              className="hidden md:flex"
             >
               ปิด
             </Button>
@@ -157,25 +183,26 @@ export default function ChatWindow({
           <Button
             isIconOnly
             variant="light"
-            size="md"
+            size="sm"
             radius="md"
             color="danger"
             onPress={deleteModal.onOpen}
           >
-            <Trash2 />
+            <Trash2 size={16} />
           </Button>
-          <Button isIconOnly variant="light" size="md" radius="md" onPress={onToggleDetail}>
-            <Info />
+          <Button isIconOnly variant="light" size="sm" radius="md" onPress={onToggleDetail}>
+            <Info size={16} />
           </Button>
         </div>
       </div>
 
-      <div className="px-3 py-2 bg-warning-50 border-b border-warning-200 text-xs text-warning-700">
-        ควรตอบลูกค้าผ่านระบบนี้ เพื่อให้ AI มีบริบทครบถ้วน หากตอบผ่าน LINE OA โดยตรง กดปุ่ม <MessageSquarePlus size={14} className="inline" /> เพื่อบันทึกข้อความ
+      <div className="px-2 md:px-3 py-1.5 bg-warning-50 border-b border-warning-200 text-xs text-warning-700">
+        <span className="md:hidden">ตอบผ่านระบบนี้ เพื่อให้ AI มีบริบทครบ</span>
+        <span className="hidden md:inline">ควรตอบลูกค้าผ่านระบบนี้ เพื่อให้ AI มีบริบทครบถ้วน หากตอบผ่าน LINE OA โดยตรง กดปุ่ม <MessageSquarePlus size={14} className="inline" /> เพื่อบันทึกข้อความ</span>
       </div>
 
       {}
-      <ScrollShadow ref={scrollRef} className="flex-1 p-3 overflow-y-auto">
+      <ScrollShadow ref={scrollRef} className="flex-1 p-2 md:p-3 overflow-y-auto">
         {messagesLoading ? (
           <div className="flex items-center justify-center h-full">
             <Loading />
@@ -192,7 +219,7 @@ export default function ChatWindow({
                 className={`flex ${msg.omMessageSenderType === "agent" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[75%] px-3 py-2 rounded-xl text-xs ${
+                  className={`max-w-[85%] md:max-w-[75%] px-3 py-2 rounded-xl text-xs overflow-hidden break-words ${
                     msg.omMessageSenderType === "agent"
                       ? msg.omMessageIsAi
                         ? "bg-secondary text-secondary-foreground"

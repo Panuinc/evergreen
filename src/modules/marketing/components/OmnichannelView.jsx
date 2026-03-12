@@ -87,11 +87,11 @@ export default function OmnichannelView({
         <div
           className={`${
             mobileView === "chat" ? "flex" : "hidden"
-          } md:flex flex-col flex-1`}
+          } md:flex flex-col flex-1 min-w-0 overflow-hidden`}
         >
           {selectedConversation ? (
-            <div className="flex flex-1 min-h-0">
-              <div className={`flex flex-col ${showDetail ? "w-full md:w-7/12" : "w-full"}`}>
+            <div className="flex flex-1 min-h-0 min-w-0">
+              <div className={`flex flex-col min-w-0 ${showDetail ? "w-full md:w-7/12" : "w-full"}`}>
                 <ChatWindow
                   conversation={selectedConversation}
                   messages={messages}
