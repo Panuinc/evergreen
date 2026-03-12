@@ -1,6 +1,17 @@
 import { useState, useCallback, useMemo } from "react";
-import { Button, Input, Textarea } from "@heroui/react";
-import { Save, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Button,
+  Input,
+  Textarea,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Chip,
+  useDisclosure,
+} from "@heroui/react";
+import { Save, FileEdit } from "lucide-react";
 import { toast } from "sonner";
 import { saveStockItemPrices } from "@/modules/marketing/actions";
 import DataTable from "@/components/ui/DataTable";
@@ -9,7 +20,6 @@ const FIXED_PACKET_COST = 25;
 const FIXED_SHIPPING_COST = 200;
 
 const COLUMNS = [
-  { name: "", uid: "expand" },
   { name: "รหัสสินค้า", uid: "bcItemNumber", sortable: true },
   { name: "ชื่อสินค้า", uid: "bcItemDisplayName", sortable: true },
   { name: "คงคลัง", uid: "bcItemInventory", sortable: true },
@@ -20,10 +30,10 @@ const COLUMNS = [
   { name: "ค่าขนส่ง", uid: "shippingCost" },
   { name: "ต้นทุนรวม", uid: "totalCost", sortable: true },
   { name: "กำไร", uid: "profit", sortable: true },
+  { name: "ข้อมูล AI", uid: "productInfo" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "expand",
   "bcItemNumber",
   "bcItemDisplayName",
   "bcItemInventory",
@@ -34,20 +44,18 @@ const INITIAL_VISIBLE_COLUMNS = [
   "shippingCost",
   "totalCost",
   "profit",
+  "productInfo",
 ];
 
 export default function StockItemsView({ items, loading, prices, updatePrice, productInfoMap, updateProductInfo, saveAllProductInfo }) {
   const [saving, setSaving] = useState(false);
-  const [expandedRows, setExpandedRows] = useState(new Set());
+  const modal = useDisclosure();
+  const [editingItem, setEditingItem] = useState(null);
 
-  const toggleExpand = (number) => {
-    setExpandedRows((prev) => {
-      const next = new Set(prev);
-      if (next.has(number)) next.delete(number);
-      else next.add(number);
-      return next;
-    });
-  };
+  const openProductInfo = useCallback((item) => {
+    setEditingItem(item);
+    modal.onOpen();
+  }, [modal]);
 
   const handleSaveAll = async () => {
     try {
@@ -94,62 +102,8 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "expand":
-          return (
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => toggleExpand(item.bcItemNumber)}
-            >
-              {expandedRows.has(item.bcItemNumber) ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            </Button>
-          );
         case "bcItemDisplayName":
-          return (
-            <div>
-              <span className="font-light">{item.bcItemDisplayName}</span>
-              {expandedRows.has(item.bcItemNumber) && updateProductInfo && (
-                <div className="mt-2 flex flex-col gap-2 border-t border-border pt-2">
-                  <Input
-                    size="sm"
-                    variant="bordered"
-                    radius="md"
-                    label="หมวดหมู่"
-                    labelPlacement="outside-left"
-                    placeholder="เช่น ม่านม้วน, ม่านจีบ..."
-                    classNames={{ mainWrapper: "flex-1", label: "min-w-[80px] text-xs" }}
-                    value={productInfoMap?.[item.bcItemNumber]?.category || ""}
-                    onValueChange={(v) => updateProductInfo(item.bcItemNumber, "category", v)}
-                  />
-                  <Textarea
-                    size="sm"
-                    variant="bordered"
-                    radius="md"
-                    label="จุดเด่น"
-                    labelPlacement="outside-left"
-                    placeholder="เช่น วัสดุพรีเมียม กันน้ำ กันUV..."
-                    minRows={1}
-                    classNames={{ mainWrapper: "flex-1", label: "min-w-[80px] text-xs" }}
-                    value={productInfoMap?.[item.bcItemNumber]?.highlights || ""}
-                    onValueChange={(v) => updateProductInfo(item.bcItemNumber, "highlights", v)}
-                  />
-                  <Textarea
-                    size="sm"
-                    variant="bordered"
-                    radius="md"
-                    label="รายละเอียด"
-                    labelPlacement="outside-left"
-                    placeholder="คำอธิบายสินค้าสำหรับ AI ใช้ตอบลูกค้า..."
-                    minRows={1}
-                    classNames={{ mainWrapper: "flex-1", label: "min-w-[80px] text-xs" }}
-                    value={productInfoMap?.[item.bcItemNumber]?.description || ""}
-                    onValueChange={(v) => updateProductInfo(item.bcItemNumber, "description", v)}
-                  />
-                </div>
-              )}
-            </div>
-          );
+          return <span className="font-light">{item.bcItemDisplayName}</span>;
         case "bcItemInventory":
           return (
             <span
@@ -178,7 +132,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
               variant="bordered"
               radius="md"
               size="md"
-              type="bcItemNumber"
+              type="number"
               placeholder="0.00"
               classNames={{ input: "text-right" }}
               value={
@@ -232,11 +186,26 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
             </span>
           );
         }
+        case "productInfo": {
+          const info = productInfoMap?.[item.bcItemNumber];
+          const hasInfo = info && (info.category || info.highlights || info.description);
+          return (
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              color={hasInfo ? "primary" : "default"}
+              onPress={() => openProductInfo(item)}
+            >
+              <FileEdit size={16} />
+            </Button>
+          );
+        }
         default:
           return item[columnKey] || "-";
       }
     },
-    [prices, updatePrice, expandedRows, productInfoMap, updateProductInfo]
+    [prices, updatePrice, productInfoMap, openProductInfo]
   );
 
   const saveButton = (
@@ -251,6 +220,8 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
       บันทึกทั้งหมด
     </Button>
   );
+
+  const editingInfo = editingItem ? productInfoMap?.[editingItem.bcItemNumber] || {} : {};
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -270,6 +241,63 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
         emptyContent="ไม่พบสินค้า"
         enableCardView
       />
+
+      <Modal isOpen={modal.isOpen} onOpenChange={modal.onClose} size="xl" scrollBehavior="inside">
+        <ModalContent>
+          {editingItem && (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <span>ข้อมูลสินค้าสำหรับ AI</span>
+                <Chip size="sm" variant="flat">{editingItem.bcItemNumber} — {editingItem.bcItemDisplayName}</Chip>
+              </ModalHeader>
+              <ModalBody>
+                <div className="flex flex-col gap-4">
+                  <Input
+                    label="หมวดหมู่"
+                    labelPlacement="outside"
+                    placeholder="เช่น ม่านม้วน, ม่านจีบ, รั้ว..."
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    value={editingInfo.category || ""}
+                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNumber, "category", v)}
+                  />
+                  <Textarea
+                    label="จุดเด่น"
+                    labelPlacement="outside"
+                    placeholder="เช่น วัสดุพรีเมียม กันน้ำ กันUV ทนทาน..."
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    minRows={2}
+                    value={editingInfo.highlights || ""}
+                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNumber, "highlights", v)}
+                  />
+                  <Textarea
+                    label="รายละเอียดสินค้า"
+                    labelPlacement="outside"
+                    placeholder="คำอธิบายสินค้าที่ AI จะใช้ตอบลูกค้า..."
+                    variant="bordered"
+                    size="md"
+                    radius="md"
+                    minRows={3}
+                    value={editingInfo.description || ""}
+                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNumber, "description", v)}
+                  />
+                  <div className="bg-default-50 rounded-lg p-3 text-xs text-default-500">
+                    ข้อมูลที่กรอกจะถูกส่งให้ AI ใช้ตอบคำถามลูกค้า กดปุ่ม &quot;บันทึกทั้งหมด&quot; ที่หน้าตารางเพื่อบันทึก
+                  </div>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="bordered" size="md" radius="md" onPress={modal.onClose}>
+                  ปิด
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
