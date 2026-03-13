@@ -1,10 +1,8 @@
 import { Card, CardBody} from "@heroui/react";
-import { Server, HeadphonesIcon, FileText, Globe, Shield, Clock } from "lucide-react";
+import { Server } from "lucide-react";
 import CompareToggle from "@/components/ui/CompareToggle";
 import CompareKpiCard from "@/components/ui/CompareKpiCard";
-import TicketTrendChart from "@/modules/it/components/TicketTrendChart";
 import AssetByCategoryChart from "@/modules/it/components/AssetByCategoryChart";
-import LicenseExpiryChart from "@/modules/it/components/LicenseExpiryChart";
 import Loading from "@/components/ui/Loading";
 
 export default function DashboardView({ stats, loading, compareMode, setCompareMode }) {
@@ -32,50 +30,6 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       sub: "ทรัพย์สิน IT ที่ติดตาม",
       icon: Server,
       color: "primary",
-
-    },
-    {
-      title: "ตั๋วที่เปิดอยู่",
-      value: d.openTickets,
-      sub: "เปิด / กำลังดำเนินการ",
-      icon: HeadphonesIcon,
-      color: "warning",
-      currentRaw: prev ? d.openTickets : undefined,
-      previousRaw: prev?.openTickets,
-      invertColor: true,
-    },
-    {
-      title: "ไลเซนส์ที่ใช้งาน",
-      value: d.activeLicenses,
-      sub: "ไลเซนส์ซอฟต์แวร์",
-      icon: FileText,
-      color: "success",
-
-    },
-    {
-      title: "อุปกรณ์เครือข่าย",
-      value: d.totalNetworkDevices,
-      sub: `${d.onlineDevices} ออนไลน์`,
-      icon: Globe,
-      color: "secondary",
-
-    },
-    {
-      title: "เหตุการณ์ด้านความปลอดภัย",
-      value: d.openIncidents,
-      sub: "เปิด / กำลังสอบสวน",
-      icon: Shield,
-      color: "danger",
-      currentRaw: prev ? d.openIncidents : undefined,
-      previousRaw: prev?.openIncidents,
-      invertColor: true,
-    },
-    {
-      title: "การเข้าถึงที่รอดำเนินการ",
-      value: d.pendingAccess,
-      sub: "รอการอนุมัติ",
-      icon: Clock,
-      color: "default",
     },
   ];
 
@@ -114,20 +68,8 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
-            <p className="text-xs font-light mb-3">แนวโน้มตั๋ว (6 เดือนล่าสุด)</p>
-            <TicketTrendChart data={d.ticketTrend} />
-          </CardBody>
-        </Card>
-        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
-          <CardBody className="p-5">
             <p className="text-xs font-light mb-3">ทรัพย์สินตามหมวดหมู่</p>
             <AssetByCategoryChart data={d.assetByCategory} />
-          </CardBody>
-        </Card>
-        <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
-          <CardBody className="p-5">
-            <p className="text-xs font-light mb-3">ภาพรวมการหมดอายุไลเซนส์</p>
-            <LicenseExpiryChart data={d.licenseExpiry} />
           </CardBody>
         </Card>
       </div>

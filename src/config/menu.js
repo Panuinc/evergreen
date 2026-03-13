@@ -9,9 +9,6 @@ import {
   Settings,
   Package,
   Factory,
-  BadgeCheck,
-  Lightbulb,
-  HeadphonesIcon,
   Truck,
   TrendingUp,
   FileText,
@@ -23,32 +20,22 @@ import {
   Receipt,
   BarChart3,
   Target,
-  Mail,
-  Globe,
   Boxes,
-  ScanLine,
   ClipboardList,
-  Phone,
   MessageCircle,
   MapPin,
   FileCheck,
   List,
-  Search,
-  PieChart,
   CreditCard,
   Server,
   Shield,
-  FlaskConical,
   Lock,
   Zap,
   GitBranch,
   Workflow,
   Home,
   Activity,
-  Clock,
-  Star,
   Building2,
-  AlertTriangle,
   RefreshCw,
   Landmark,
   ImagePlus,
@@ -65,10 +52,6 @@ export const menuData = [
     subMenus: [
       { name: "ภาพรวม", icon: Home, href: "/overview/dashboard" },
       { name: "วิเคราะห์", icon: BarChart3, href: "/overview/analytics" },
-
-
-
-
     ],
   },
   {
@@ -82,9 +65,6 @@ export const menuData = [
       { name: "ฝ่าย", icon: Building2, href: "/hr/divisions" },
       { name: "แผนก", icon: Building2, href: "/hr/departments" },
       { name: "ตำแหน่ง", icon: Briefcase, href: "/hr/positions" },
-
-
-
     ],
   },
   {
@@ -111,11 +91,6 @@ export const menuData = [
     subMenus: [
       { name: "แดชบอร์ด IT", icon: LayoutDashboard, href: "/it/dashboard" },
       { name: "ทรัพย์สิน", icon: Server, href: "/it/assets" },
-      { name: "ศูนย์ช่วยเหลือ", icon: HeadphonesIcon, href: "/it/tickets" },
-      { name: "การเข้าถึงระบบ", icon: Shield, href: "/it/systemAccess" },
-      { name: "เครือข่าย", icon: Globe, href: "/it/network" },
-      { name: "ซอฟต์แวร์", icon: FileText, href: "/it/software" },
-      { name: "ความปลอดภัย", icon: Lock, href: "/it/security" },
       { name: "พัฒนาระบบ", icon: GitBranch, href: "/it/devRequests" },
     ],
   },
@@ -145,8 +120,6 @@ export const menuData = [
         icon: Wallet,
         href: "/finance/bankRecon",
       },
-
-
     ],
   },
   {
@@ -209,40 +182,8 @@ export const menuData = [
         icon: ImagePlus,
         href: "/marketing/imageGen",
       },
-
-
-
-
-
     ],
   },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   {
     id: "production",
@@ -262,54 +203,8 @@ export const menuData = [
         href: "/production/entries",
       },
       { name: "BOM", icon: List, href: "/production/bom" },
-
-
-
-
-
     ],
   },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   {
     id: "logistics",
@@ -317,7 +212,6 @@ export const menuData = [
     icon: Truck,
     href: "/tms/dashboard",
     subMenus: [
-
       { name: "แดชบอร์ด", icon: LayoutDashboard, href: "/tms/dashboard" },
 
       { name: "แผนส่งของ", icon: CalendarDays, href: "/tms/deliveryPlans" },
