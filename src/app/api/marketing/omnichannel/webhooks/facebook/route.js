@@ -107,7 +107,7 @@ async function handleMessage(supabase, event) {
         omConversationLastMessageAt: new Date().toISOString(),
         omConversationLastMessagePreview: messageText.slice(0, 100),
         omConversationUnreadCount: 1,
-        omConversationAiAutoReply: true,
+        omConversationAiAutoReply: false,
       })
       .select()
       .single();
