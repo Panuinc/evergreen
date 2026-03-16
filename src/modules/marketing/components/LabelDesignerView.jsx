@@ -46,6 +46,7 @@ import {
   Grid3X3,
   Circle,
   Image as ImageIcon,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,7 +61,6 @@ const LABEL_PRESETS = [
   { key: "custom", name: "กำหนดเอง", width: 100, height: 50 },
 ];
 
-const STORAGE_KEY = "label-designer-designs";
 const GRID_SNAP = 1; // snap to 1mm grid
 const RULER_COLOR = "#94a3b8";
 const GUIDE_COLOR = "#3b82f6";
@@ -149,6 +149,25 @@ function createCircleElement(x = 10, y = 10) {
     borderWidth: 0.5,
     borderColor: "#000000",
     fillColor: "transparent",
+    rotation: 0,
+    locked: false,
+  };
+}
+
+function createArrowElement(x = 10, y = 10) {
+  return {
+    id: genId(),
+    type: "arrow",
+    x,
+    y,
+    width: 30,
+    height: 8,
+    content: "",
+    fontSize: 3,
+    fontWeight: "normal",
+    color: "#000000",
+    lineWidth: 0.5,
+    arrowDirection: "right", // left, right, up, down
     rotation: 0,
     locked: false,
   };
@@ -288,7 +307,7 @@ function DesignElement({
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    if (el.type === "text" || el.type === "barcode") {
+    if (el.type === "text" || el.type === "barcode" || el.type === "arrow") {
       setEditing(true);
       setTimeout(() => editRef.current?.focus(), 0);
     }
@@ -503,6 +522,70 @@ function DesignElement({
           </div>
         );
 
+      case "arrow": {
+        const arrowSize = Math.max(6, el.height * zoom * 0.5);
+        const isHoriz = el.arrowDirection === "left" || el.arrowDirection === "right";
+        const rotMap = { right: 0, down: 90, left: 180, up: 270 };
+        return (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+            }}
+          >
+            {/* Arrow line */}
+            <div
+              style={{
+                position: "absolute",
+                left: isHoriz ? 0 : "50%",
+                top: isHoriz ? "50%" : 0,
+                width: isHoriz ? "100%" : Math.max(1, el.lineWidth * zoom),
+                height: isHoriz ? Math.max(1, el.lineWidth * zoom) : "100%",
+                transform: isHoriz ? "translateY(-50%)" : "translateX(-50%)",
+                backgroundColor: el.color,
+              }}
+            />
+            {/* Arrowhead */}
+            <div
+              style={{
+                position: "absolute",
+                ...(el.arrowDirection === "right" && { right: 0, top: "50%", transform: "translateY(-50%)" }),
+                ...(el.arrowDirection === "left" && { left: 0, top: "50%", transform: "translateY(-50%) rotate(180deg)" }),
+                ...(el.arrowDirection === "down" && { bottom: 0, left: "50%", transform: "translateX(-50%) rotate(90deg)" }),
+                ...(el.arrowDirection === "up" && { top: 0, left: "50%", transform: "translateX(-50%) rotate(-90deg)" }),
+                width: 0,
+                height: 0,
+                borderTop: `${arrowSize / 2}px solid transparent`,
+                borderBottom: `${arrowSize / 2}px solid transparent`,
+                borderLeft: `${arrowSize}px solid ${el.color}`,
+              }}
+            />
+            {/* Text label */}
+            {el.content && (
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  fontSize: el.fontSize * zoom,
+                  fontWeight: el.fontWeight,
+                  color: el.color,
+                  backgroundColor: "rgba(255,255,255,0.85)",
+                  padding: `0 ${2 * zoom}px`,
+                  fontFamily: "Tahoma, 'Noto Sans Thai', Arial, sans-serif",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {el.content}
+              </div>
+            )}
+          </div>
+        );
+      }
+
       default:
         return null;
     }
@@ -611,6 +694,7 @@ function PropertiesPanel({ element, onUpdate, onDelete, onDuplicate }) {
     rect: "สี่เหลี่ยม",
     circle: "วงกลม",
     line: "เส้น",
+    arrow: "ลูกศร",
     image: "รูปภาพ",
   };
 
@@ -893,6 +977,55 @@ function PropertiesPanel({ element, onUpdate, onDelete, onDuplicate }) {
         </>
       )}
 
+      {/* Arrow specific */}
+      {element.type === "arrow" && (
+        <>
+          <p className="text-xs font-semibold text-default-500">ลูกศร</p>
+          <Input
+            size="sm"
+            label="ข้อความ"
+            value={element.content || ""}
+            onValueChange={(v) => u("content", v)}
+          />
+          <Input
+            size="sm"
+            label="ขนาดตัวอักษร (mm)"
+            type="number"
+            step={0.5}
+            min={1}
+            value={String(element.fontSize)}
+            onValueChange={(v) => u("fontSize", Math.max(1, parseFloat(v) || 3))}
+          />
+          <Select
+            size="sm"
+            label="ทิศทาง"
+            selectedKeys={[element.arrowDirection]}
+            onSelectionChange={(keys) => u("arrowDirection", [...keys][0])}
+          >
+            <SelectItem key="right">ขวา →</SelectItem>
+            <SelectItem key="left">ซ้าย ←</SelectItem>
+            <SelectItem key="up">ขึ้น ↑</SelectItem>
+            <SelectItem key="down">ลง ↓</SelectItem>
+          </Select>
+          <Input
+            size="sm"
+            label="ความหนาเส้น (mm)"
+            type="number"
+            step={0.1}
+            min={0.1}
+            value={String(element.lineWidth)}
+            onValueChange={(v) => u("lineWidth", Math.max(0.1, parseFloat(v) || 0.5))}
+          />
+          <Input
+            size="sm"
+            type="color"
+            label="สี"
+            value={element.color}
+            onChange={(e) => u("color", e.target.value)}
+          />
+        </>
+      )}
+
       {/* Image specific */}
       {element.type === "image" && (
         <>
@@ -935,6 +1068,7 @@ function ElementsListPanel({ elements, selectedId, onSelect, onReorder, onDelete
     rect: <Square size={14} />,
     circle: <Circle size={14} />,
     line: <Minus size={14} />,
+    arrow: <ArrowRight size={14} />,
     image: <ImageIcon size={14} />,
   };
 
@@ -944,6 +1078,7 @@ function ElementsListPanel({ elements, selectedId, onSelect, onReorder, onDelete
     rect: "สี่เหลี่ยม",
     circle: "วงกลม",
     line: "เส้น",
+    arrow: "ลูกศร",
     image: "รูปภาพ",
   };
 
@@ -967,7 +1102,7 @@ function ElementsListPanel({ elements, selectedId, onSelect, onReorder, onDelete
         >
           {typeIcons[el.type]}
           <span className="flex-1 truncate text-xs">
-            {el.type === "text"
+            {(el.type === "text" || el.type === "arrow")
               ? el.content?.slice(0, 15) || typeLabels[el.type]
               : typeLabels[el.type]}
           </span>
@@ -1000,7 +1135,12 @@ function ElementsListPanel({ elements, selectedId, onSelect, onReorder, onDelete
 // ═══════════════════════════════════════════════════════════════
 // Main Component
 // ═══════════════════════════════════════════════════════════════
-export default function LabelDesignerView() {
+export default function LabelDesignerView({
+  savedDesigns = [],
+  designsLoading = false,
+  onSaveDesign,
+  onDeleteDesign,
+}) {
   // ─── State ──────────────────────────────────────────────
   const [labelSize, setLabelSize] = useState({ width: 100, height: 30 });
   const [labelPreset, setLabelPreset] = useState("100x30");
@@ -1010,8 +1150,9 @@ export default function LabelDesignerView() {
   const [showGrid, setShowGrid] = useState(true);
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [designName, setDesignName] = useState("ฉลากใหม่");
-  const [savedDesigns, setSavedDesigns] = useState([]);
+  const [currentDesignId, setCurrentDesignId] = useState(null);
   const [printing, setPrinting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [printQty, setPrintQty] = useState(1);
 
   const canvasRef = useRef(null);
@@ -1023,14 +1164,6 @@ export default function LabelDesignerView() {
     () => elements.find((e) => e.id === selectedId) || null,
     [elements, selectedId],
   );
-
-  // ─── Load saved designs from localStorage ─────────────
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setSavedDesigns(JSON.parse(saved));
-    } catch {}
-  }, []);
 
   // ─── Auto-fit zoom to screen ──────────────────────────
   useEffect(() => {
@@ -1200,35 +1333,57 @@ export default function LabelDesignerView() {
   };
 
   // ─── Save / Load designs ──────────────────────────────
-  const saveDesign = () => {
-    const design = {
-      id: Date.now().toString(),
-      name: designName,
-      labelSize,
-      labelPreset,
-      elements,
-      savedAt: new Date().toISOString(),
-    };
-    const updated = [...savedDesigns.filter((d) => d.name !== designName), design];
-    setSavedDesigns(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    toast.success(`บันทึก "${designName}" แล้ว`);
+  const saveDesign = async () => {
+    if (!onSaveDesign) return;
+    setSaving(true);
+    try {
+      const result = await onSaveDesign({
+        id: currentDesignId,
+        name: designName,
+        labelSize,
+        labelPreset,
+        elements,
+      });
+      if (result?.labelDesignId) {
+        setCurrentDesignId(result.labelDesignId);
+      }
+    } catch (err) {
+      toast.error(`บันทึกไม่สำเร็จ: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const loadDesign = (design) => {
-    setDesignName(design.name);
-    setLabelSize(design.labelSize);
-    setLabelPreset(design.labelPreset || "custom");
-    setElements(design.elements);
+    setCurrentDesignId(design.labelDesignId);
+    setDesignName(design.labelDesignName);
+    setLabelSize({
+      width: design.labelDesignWidth,
+      height: design.labelDesignHeight,
+    });
+    setLabelPreset(design.labelDesignPreset || "custom");
+    setElements(design.labelDesignElements || []);
     setSelectedId(null);
-    toast.success(`โหลด "${design.name}" แล้ว`);
+    toast.success(`โหลด "${design.labelDesignName}" แล้ว`);
   };
 
-  const deleteDesign = (id) => {
-    const updated = savedDesigns.filter((d) => d.id !== id);
-    setSavedDesigns(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    toast.success("ลบแบบแล้ว");
+  const handleNewDesign = () => {
+    setCurrentDesignId(null);
+    setDesignName("ฉลากใหม่");
+    setLabelSize({ width: 100, height: 30 });
+    setLabelPreset("100x30");
+    setElements([]);
+    setSelectedId(null);
+  };
+
+  const handleDeleteDesign = async (id) => {
+    if (!onDeleteDesign) return;
+    try {
+      await onDeleteDesign(id);
+      if (currentDesignId === id) handleNewDesign();
+    } catch (err) {
+      toast.error(`ลบไม่สำเร็จ: ${err.message}`);
+    }
   };
 
   // ─── Export to canvas for printing ────────────────────
@@ -1334,6 +1489,58 @@ export default function LabelDesignerView() {
           ctx.lineTo(ex + ew, ey);
           ctx.stroke();
           break;
+
+        case "arrow": {
+          ctx.strokeStyle = el.color;
+          ctx.fillStyle = el.color;
+          ctx.lineWidth = el.lineWidth * dotsPerMm;
+          const isH = el.arrowDirection === "left" || el.arrowDirection === "right";
+          const headSize = Math.max(4, (isH ? eh : ew) * 0.5);
+          // Line
+          ctx.beginPath();
+          if (isH) {
+            ctx.moveTo(ex, ey + eh / 2);
+            ctx.lineTo(ex + ew, ey + eh / 2);
+          } else {
+            ctx.moveTo(ex + ew / 2, ey);
+            ctx.lineTo(ex + ew / 2, ey + eh);
+          }
+          ctx.stroke();
+          // Arrowhead
+          ctx.beginPath();
+          if (el.arrowDirection === "right") {
+            ctx.moveTo(ex + ew, ey + eh / 2);
+            ctx.lineTo(ex + ew - headSize, ey + eh / 2 - headSize / 2);
+            ctx.lineTo(ex + ew - headSize, ey + eh / 2 + headSize / 2);
+          } else if (el.arrowDirection === "left") {
+            ctx.moveTo(ex, ey + eh / 2);
+            ctx.lineTo(ex + headSize, ey + eh / 2 - headSize / 2);
+            ctx.lineTo(ex + headSize, ey + eh / 2 + headSize / 2);
+          } else if (el.arrowDirection === "down") {
+            ctx.moveTo(ex + ew / 2, ey + eh);
+            ctx.lineTo(ex + ew / 2 - headSize / 2, ey + eh - headSize);
+            ctx.lineTo(ex + ew / 2 + headSize / 2, ey + eh - headSize);
+          } else {
+            ctx.moveTo(ex + ew / 2, ey);
+            ctx.lineTo(ex + ew / 2 - headSize / 2, ey + headSize);
+            ctx.lineTo(ex + ew / 2 + headSize / 2, ey + headSize);
+          }
+          ctx.closePath();
+          ctx.fill();
+          // Text
+          if (el.content) {
+            ctx.fillStyle = el.color;
+            ctx.font = `${el.fontWeight} ${el.fontSize * dotsPerMm}px Tahoma, "Noto Sans Thai", Arial, sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const textW = ctx.measureText(el.content).width;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(ex + ew / 2 - textW / 2 - 2, ey + eh / 2 - el.fontSize * dotsPerMm / 2, textW + 4, el.fontSize * dotsPerMm);
+            ctx.fillStyle = el.color;
+            ctx.fillText(el.content, ex + ew / 2, ey + eh / 2);
+          }
+          break;
+        }
 
         case "image":
           // Images are rendered client-side from src
@@ -1478,6 +1685,16 @@ export default function LabelDesignerView() {
             <Minus size={16} />
           </Button>
         </Tooltip>
+        <Tooltip content="เพิ่มลูกศร">
+          <Button
+            size="sm"
+            variant="flat"
+            isIconOnly
+            onPress={() => addElement(createArrowElement)}
+          >
+            <ArrowRight size={16} />
+          </Button>
+        </Tooltip>
         <Tooltip content="เพิ่มรูปภาพ">
           <Button
             size="sm"
@@ -1581,47 +1798,62 @@ export default function LabelDesignerView() {
         <div className="flex-1" />
 
         {/* Save / Load */}
+        <Tooltip content="สร้างแบบใหม่">
+          <Button size="sm" isIconOnly variant="flat" onPress={handleNewDesign}>
+            <Plus size={16} />
+          </Button>
+        </Tooltip>
+
         <Tooltip content="บันทึก">
-          <Button size="sm" isIconOnly variant="flat" color="success" onPress={saveDesign}>
+          <Button
+            size="sm"
+            isIconOnly
+            variant="flat"
+            color="success"
+            onPress={saveDesign}
+            isLoading={saving}
+          >
             <Save size={16} />
           </Button>
         </Tooltip>
 
-        {savedDesigns.length > 0 && (
-          <Dropdown>
-            <DropdownTrigger>
-              <Button size="sm" variant="flat" startContent={<FolderOpen size={14} />}>
-                โหลดแบบ
-                <ChevronDown size={12} />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu>
-              {savedDesigns.map((d) => (
-                <DropdownItem
-                  key={d.id}
-                  description={`${d.labelSize.width}×${d.labelSize.height}mm`}
-                  onPress={() => loadDesign(d)}
-                  endContent={
-                    <Button
-                      size="sm"
-                      isIconOnly
-                      variant="light"
-                      color="danger"
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        deleteDesign(d.id);
-                      }}
-                    >
-                      <Trash2 size={12} />
-                    </Button>
-                  }
-                >
-                  {d.name}
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-        )}
+        <Dropdown>
+          <DropdownTrigger>
+            <Button
+              size="sm"
+              variant="flat"
+              startContent={<FolderOpen size={14} />}
+              isLoading={designsLoading}
+            >
+              โหลดแบบ ({savedDesigns.length})
+              <ChevronDown size={12} />
+            </Button>
+          </DropdownTrigger>
+          <DropdownMenu
+            emptyContent="ยังไม่มีแบบที่บันทึก"
+          >
+            {savedDesigns.map((d) => (
+              <DropdownItem
+                key={d.labelDesignId}
+                description={`${d.labelDesignWidth}×${d.labelDesignHeight}mm`}
+                onPress={() => loadDesign(d)}
+                endContent={
+                  <Button
+                    size="sm"
+                    isIconOnly
+                    variant="light"
+                    color="danger"
+                    onPress={() => handleDeleteDesign(d.labelDesignId)}
+                  >
+                    <Trash2 size={12} />
+                  </Button>
+                }
+              >
+                {d.labelDesignName}
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </Dropdown>
 
         <Tooltip content="ส่งออก PNG">
           <Button size="sm" isIconOnly variant="flat" onPress={handleExportPng}>
@@ -1740,6 +1972,9 @@ export default function LabelDesignerView() {
             <div className="mt-3 text-xs text-default-400 text-center">
               {labelSize.width} × {labelSize.height} mm &nbsp;|&nbsp; ซูม {zoom}x
               &nbsp;|&nbsp; {elements.length} element(s)
+              {currentDesignId && (
+                <span className="text-primary-400"> &nbsp;|&nbsp; บันทึกแล้ว</span>
+              )}
             </div>
           </div>
         </div>

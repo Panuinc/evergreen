@@ -199,3 +199,20 @@ export async function updateFollowUp(id, data) {
 export async function deleteFollowUp(id) {
   return del(`/api/marketing/omnichannel/followUp/${id}`);
 }
+
+// ─── Label Designs ──────────────────────────────────────────
+export async function getLabelDesigns() {
+  return get("/api/marketing/labelDesigns");
+}
+
+export async function createLabelDesign(data) {
+  return post("/api/marketing/labelDesigns", data);
+}
+
+export async function updateLabelDesign(id, data) {
+  return put(`/api/marketing/labelDesigns/${id}`, data);
+}
+
+export async function deleteLabelDesign(id) {
+  return del(`/api/marketing/labelDesigns/${id}`);
+}
