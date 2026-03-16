@@ -71,7 +71,7 @@ export default function ProfitByItemChart({ data = [] }) {
                 <p>จำนวนผลิต: {Number(d.outputQty).toLocaleString("th-TH")} ชิ้น</p>
                 <hr className="my-1 border-border" />
                 <p>รายได้รวม: {formatCurrency(d.totalRevenue)}</p>
-                <p>ต้นทุนรวม: {formatCurrency(d.productionCost)}</p>
+                <p>ต้นทุนรวม: {formatCurrency(d.consumptionCost)}</p>
                 <p className={d.profitAmount >= 0 ? "text-success font-light" : "text-danger font-light"}>
                   กำไร/ขาดทุน: {formatCurrency(d.profitAmount)} ({d.marginLabel})
                 </p>

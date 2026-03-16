@@ -456,8 +456,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         costPerUnit: p.outputQty > 0 ? Math.round(p.consumptionCost / p.outputQty) : 0,
       };
     })
-    .sort((a, b) => b.totalRevenue - a.totalRevenue)
-    .slice(0, 20);
+    .sort((a, b) => b.totalRevenue - a.totalRevenue);
 
 
 

@@ -202,6 +202,7 @@ export const menuData = [
         icon: ClipboardList,
         href: "/production/entries",
       },
+      { name: "กำไรราย FG", icon: BarChart3, href: "/production/profit" },
       { name: "BOM", icon: List, href: "/production/bom" },
     ],
   },
