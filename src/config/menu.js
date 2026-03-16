@@ -41,6 +41,7 @@ import {
   ImagePlus,
   Tag,
   ArrowLeftRight,
+  PenTool,
 } from "lucide-react";
 
 export const menuData = [
@@ -181,6 +182,11 @@ export const menuData = [
         name: "AI สร้างรูปภาพ",
         icon: ImagePlus,
         href: "/marketing/imageGen",
+      },
+      {
+        name: "ออกแบบฉลาก",
+        icon: PenTool,
+        href: "/marketing/labelDesigner",
       },
     ],
   },
