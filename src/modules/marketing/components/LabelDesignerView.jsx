@@ -17,6 +17,11 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Progress,
+  Badge,
 } from "@heroui/react";
 import {
   Type,
@@ -47,6 +52,10 @@ import {
   Circle,
   Image as ImageIcon,
   ArrowRight,
+  ListOrdered,
+  X,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -1155,6 +1164,8 @@ export default function LabelDesignerView({
   const [saving, setSaving] = useState(false);
   const [printQty, setPrintQty] = useState(1);
   const [printProgress, setPrintProgress] = useState(null); // { printed, total, jobId }
+  const [printQueue, setPrintQueue] = useState({ active: [], history: [] });
+  const [queueOpen, setQueueOpen] = useState(false);
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -1588,6 +1599,7 @@ export default function LabelDesignerView({
           labelWidth: labelSize.width,
           labelHeight: labelSize.height,
           jobId,
+          designName,
         }),
       });
 
@@ -1641,6 +1653,24 @@ export default function LabelDesignerView({
     }, 800);
     return () => clearInterval(interval);
   }, [printing, printProgress?.jobId]);
+
+  // Fetch print queue when popover opens or while printing
+  const fetchQueue = useCallback(async () => {
+    try {
+      const res = await fetch("/api/marketing/labelDesigner/print/status");
+      const data = await res.json();
+      if (data.success) {
+        setPrintQueue(data.data);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (!queueOpen) return;
+    fetchQueue();
+    const interval = setInterval(fetchQueue, 1000);
+    return () => clearInterval(interval);
+  }, [queueOpen, fetchQueue]);
 
   // ─── Export as PNG ────────────────────────────────────
   const handleExportPng = () => {
@@ -1946,6 +1976,120 @@ export default function LabelDesignerView({
             </Button>
           </>
         )}
+
+        {/* Queue button */}
+        <Popover
+          isOpen={queueOpen}
+          onOpenChange={setQueueOpen}
+          placement="bottom-end"
+        >
+          <PopoverTrigger>
+            <Button size="sm" variant="flat" isIconOnly>
+              <Badge
+                content={printQueue.active.length || undefined}
+                color="danger"
+                size="sm"
+                isInvisible={printQueue.active.length === 0}
+              >
+                <ListOrdered size={16} />
+              </Badge>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0">
+            <div className="p-3">
+              <p className="text-sm font-semibold mb-2">คิวงานพิมพ์</p>
+
+              {/* Active jobs */}
+              {printQueue.active.length > 0 ? (
+                <div className="space-y-2 mb-3">
+                  {printQueue.active.map((job) => (
+                    <div
+                      key={job.id}
+                      className="flex items-center gap-2 p-2 rounded-lg bg-primary-50 border border-primary-200"
+                    >
+                      <Printer size={14} className="animate-pulse text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate">
+                          {job.designName}
+                        </p>
+                        <Progress
+                          size="sm"
+                          value={(job.printed / job.total) * 100}
+                          className="mt-1"
+                          color={job.status === "cancelling" ? "warning" : "primary"}
+                        />
+                        <p className="text-xs text-default-500 mt-0.5">
+                          {job.status === "cancelling"
+                            ? "กำลังยกเลิก..."
+                            : `${job.printed}/${job.total} แผ่น`}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        isIconOnly
+                        variant="light"
+                        color="danger"
+                        onPress={async () => {
+                          try {
+                            await fetch(
+                              "/api/marketing/labelDesigner/print/cancel",
+                              {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ jobId: job.id }),
+                              },
+                            );
+                            toast.info("กำลังยกเลิก...");
+                          } catch {}
+                        }}
+                      >
+                        <X size={14} />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-default-400 mb-3">
+                  ไม่มีงานที่กำลังพิมพ์
+                </p>
+              )}
+
+              {/* History */}
+              {printQueue.history.length > 0 && (
+                <>
+                  <p className="text-xs font-medium text-default-500 mb-1">
+                    ประวัติล่าสุด
+                  </p>
+                  <div className="space-y-1 max-h-40 overflow-y-auto">
+                    {printQueue.history.map((job) => (
+                      <div
+                        key={job.id}
+                        className="flex items-center gap-2 px-2 py-1.5 rounded text-xs"
+                      >
+                        {job.cancelled ? (
+                          <XCircle size={12} className="text-danger shrink-0" />
+                        ) : (
+                          <CheckCircle2
+                            size={12}
+                            className="text-success shrink-0"
+                          />
+                        )}
+                        <span className="truncate flex-1">
+                          {job.designName}
+                        </span>
+                        <span className="text-default-400 shrink-0">
+                          {job.cancelled
+                            ? `${job.printed}/${job.total}`
+                            : `${job.total} แผ่น`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* ─── Main Area ───────────────────────────────── */}

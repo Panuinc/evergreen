@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import net from "net";
 import { createCanvas, loadImage } from "canvas";
 import { SHIPPING_PRINTER_CONFIG } from "@/lib/chainWay/config";
-import { activePrintJobs } from "./jobStore";
+import { activePrintJobs, addToHistory } from "./jobStore";
 
 function sendToTSC(buffer, config = {}) {
   const host = config.host || SHIPPING_PRINTER_CONFIG.host;
@@ -124,6 +124,7 @@ export async function POST(request) {
       gap = 3,
       printerConfig,
       jobId,
+      designName,
     } = body;
 
     if (!images?.length) {
@@ -134,7 +135,14 @@ export async function POST(request) {
     }
 
     // Register this job for cancellation tracking
-    const job = { id: jobId, cancelled: false, printed: 0, total: images.length };
+    const job = {
+      id: jobId,
+      cancelled: false,
+      printed: 0,
+      total: images.length,
+      designName: designName || "-",
+      startedAt: Date.now(),
+    };
     if (jobId) {
       activePrintJobs.set(jobId, job);
     }
@@ -178,8 +186,9 @@ export async function POST(request) {
       }
     }
 
-    // Cleanup job tracking
+    // Cleanup job tracking & save to history
     if (jobId) {
+      addToHistory(job);
       activePrintJobs.delete(jobId);
     }
 
