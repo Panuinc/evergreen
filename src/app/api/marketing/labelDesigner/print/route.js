@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import net from "net";
 import { createCanvas, loadImage } from "canvas";
 import { SHIPPING_PRINTER_CONFIG } from "@/lib/chainWay/config";
+import { activePrintJobs } from "./jobStore";
 
 function sendToTSC(buffer, config = {}) {
   const host = config.host || SHIPPING_PRINTER_CONFIG.host;
@@ -122,6 +123,7 @@ export async function POST(request) {
       labelHeight = 30,
       gap = 3,
       printerConfig,
+      jobId,
     } = body;
 
     if (!images?.length) {
@@ -131,11 +133,24 @@ export async function POST(request) {
       );
     }
 
+    // Register this job for cancellation tracking
+    const job = { id: jobId, cancelled: false, printed: 0, total: images.length };
+    if (jobId) {
+      activePrintJobs.set(jobId, job);
+    }
+
     const results = [];
     let successCount = 0;
     let failCount = 0;
+    let cancelledAt = null;
 
     for (let i = 0; i < images.length; i++) {
+      // Check if job was cancelled
+      if (job.cancelled) {
+        cancelledAt = i + 1;
+        break;
+      }
+
       try {
         const tsplBuffer = await imageToTSPL(
           images[i],
@@ -156,19 +171,30 @@ export async function POST(request) {
         results.push({ success: false, label: i + 1, error: err.message });
       }
 
+      job.printed = i + 1;
+
       if (i < images.length - 1) {
         await new Promise((r) => setTimeout(r, 300));
       }
     }
 
+    // Cleanup job tracking
+    if (jobId) {
+      activePrintJobs.delete(jobId);
+    }
+
     return NextResponse.json({
-      success: failCount === 0,
+      success: failCount === 0 && !cancelledAt,
+      cancelled: !!cancelledAt,
       data: {
         results,
         summary: {
           total: images.length,
           success: successCount,
           failed: failCount,
+          cancelled: cancelledAt
+            ? images.length - (cancelledAt - 1)
+            : 0,
         },
       },
     });

@@ -1154,6 +1154,7 @@ export default function LabelDesignerView({
   const [printing, setPrinting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [printQty, setPrintQty] = useState(1);
+  const [printProgress, setPrintProgress] = useState(null); // { printed, total, jobId }
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -1567,7 +1568,9 @@ export default function LabelDesignerView({
       return;
     }
 
+    const jobId = `job_${Date.now()}`;
     setPrinting(true);
+    setPrintProgress({ printed: 0, total: printQty, jobId });
     try {
       const canvas = renderToCanvas();
       const base64 = canvas.toDataURL("image/png").split(",")[1];
@@ -1584,11 +1587,16 @@ export default function LabelDesignerView({
           images,
           labelWidth: labelSize.width,
           labelHeight: labelSize.height,
+          jobId,
         }),
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.cancelled) {
+        toast.warning(
+          `ยกเลิกงานพิมพ์แล้ว (พิมพ์ไป ${data.data?.summary?.success || 0}/${printQty} แผ่น)`,
+        );
+      } else if (data.success) {
         toast.success(`พิมพ์สำเร็จ ${printQty} แผ่น`);
       } else {
         toast.error(`พิมพ์ไม่สำเร็จ: ${data.error || "Unknown error"}`);
@@ -1597,8 +1605,42 @@ export default function LabelDesignerView({
       toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
     } finally {
       setPrinting(false);
+      setPrintProgress(null);
     }
   };
+
+  const handleCancelPrint = async () => {
+    if (!printProgress?.jobId) return;
+    try {
+      await fetch("/api/marketing/labelDesigner/print/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId: printProgress.jobId }),
+      });
+      toast.info("กำลังยกเลิกงานพิมพ์...");
+    } catch (err) {
+      toast.error(`ยกเลิกไม่สำเร็จ: ${err.message}`);
+    }
+  };
+
+  // Poll print progress while printing
+  useEffect(() => {
+    if (!printing || !printProgress?.jobId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `/api/marketing/labelDesigner/print/status?jobId=${printProgress.jobId}`,
+        );
+        const data = await res.json();
+        if (data.success && data.data) {
+          setPrintProgress((prev) =>
+            prev ? { ...prev, printed: data.data.printed } : prev,
+          );
+        }
+      } catch {}
+    }, 800);
+    return () => clearInterval(interval);
+  }, [printing, printProgress?.jobId]);
 
   // ─── Export as PNG ────────────────────────────────────
   const handleExportPng = () => {
@@ -1864,25 +1906,46 @@ export default function LabelDesignerView({
         <Divider orientation="vertical" className="h-6" />
 
         {/* Print */}
-        <Input
-          size="sm"
-          className="w-20"
-          type="number"
-          min={1}
-          max={99}
-          label="จำนวน"
-          value={String(printQty)}
-          onValueChange={(v) => setPrintQty(Math.max(1, parseInt(v) || 1))}
-        />
-        <Button
-          size="sm"
-          color="primary"
-          startContent={<Printer size={16} />}
-          onPress={handlePrint}
-          isLoading={printing}
-        >
-          พิมพ์
-        </Button>
+        {printing && printProgress ? (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 text-sm text-default-600">
+              <Printer size={14} className="animate-pulse text-primary" />
+              <span>
+                กำลังพิมพ์ {printProgress.printed}/{printProgress.total}
+              </span>
+            </div>
+            <Button
+              size="sm"
+              color="danger"
+              variant="flat"
+              onPress={handleCancelPrint}
+            >
+              ยกเลิก
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Input
+              size="sm"
+              className="w-20"
+              type="number"
+              min={1}
+              max={999}
+              label="จำนวน"
+              value={String(printQty)}
+              onValueChange={(v) => setPrintQty(Math.max(1, parseInt(v) || 1))}
+            />
+            <Button
+              size="sm"
+              color="primary"
+              startContent={<Printer size={16} />}
+              onPress={handlePrint}
+              isLoading={printing}
+            >
+              พิมพ์
+            </Button>
+          </>
+        )}
       </div>
 
       {/* ─── Main Area ───────────────────────────────── */}
