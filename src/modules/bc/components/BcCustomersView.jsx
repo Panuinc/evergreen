@@ -4,41 +4,41 @@ import { useCallback } from "react";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่", uid: "bcCustomerNumber", sortable: true },
-  { name: "ชื่อลูกค้า", uid: "bcCustomerDisplayName", sortable: true },
+  { name: "เลขที่", uid: "bcCustomerNo", sortable: true },
+  { name: "ชื่อลูกค้า", uid: "bcCustomerNameValue", sortable: true },
   { name: "ผู้ติดต่อ", uid: "bcCustomerContact", sortable: true },
-  { name: "โทรศัพท์", uid: "bcCustomerPhoneNumber" },
+  { name: "โทรศัพท์", uid: "bcCustomerPhoneNo" },
   { name: "พนักงานขาย", uid: "bcCustomerSalespersonCode", sortable: true },
-  { name: "ยอดค้างชำระ", uid: "bcCustomerBalanceDue", sortable: true },
+  { name: "ยอดค้างชำระ", uid: "bcCustomerBalanceDueLCY", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "bcCustomerNumber",
-  "bcCustomerDisplayName",
+  "bcCustomerNo",
+  "bcCustomerNameValue",
   "bcCustomerContact",
-  "bcCustomerPhoneNumber",
+  "bcCustomerPhoneNo",
   "bcCustomerSalespersonCode",
-  "bcCustomerBalanceDue",
+  "bcCustomerBalanceDueLCY",
 ];
 
 export default function BcCustomersView({ customers, loading }) {
   const renderCell = useCallback((customer, columnKey) => {
     switch (columnKey) {
-      case "bcCustomerDisplayName":
-        return <span className="font-light">{customer.bcCustomerDisplayName}</span>;
+      case "bcCustomerNameValue":
+        return <span className="font-light">{customer.bcCustomerNameValue}</span>;
       case "bcCustomerContact":
         return (
           <span className="text-muted-foreground">{customer.bcCustomerContact || "-"}</span>
         );
-      case "bcCustomerPhoneNumber":
+      case "bcCustomerPhoneNo":
         return (
           <span className="text-muted-foreground">
-            {customer.bcCustomerPhoneNumber || "-"}
+            {customer.bcCustomerPhoneNo || "-"}
           </span>
         );
-      case "bcCustomerBalanceDue":
-        return customer.bcCustomerBalanceDue != null
-          ? Number(customer.bcCustomerBalanceDue).toLocaleString("th-TH", {
+      case "bcCustomerBalanceDueLCY":
+        return customer.bcCustomerBalanceDueLCY != null
+          ? Number(customer.bcCustomerBalanceDueLCY).toLocaleString("th-TH", {
               minimumFractionDigits: 2,
             })
           : "-";
@@ -58,7 +58,7 @@ export default function BcCustomersView({ customers, loading }) {
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อ, ผู้ติดต่อ..."
-        searchKeys={["bcCustomerNumber", "bcCustomerDisplayName", "bcCustomerContact", "bcCustomerSalespersonCode"]}
+        searchKeys={["bcCustomerNo", "bcCustomerNameValue", "bcCustomerContact", "bcCustomerSalespersonCode"]}
         emptyContent="ไม่พบลูกค้า"
       />
     </div>

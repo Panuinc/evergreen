@@ -56,16 +56,14 @@ function decodeEpc(hex) {
 
 function formatItem(item) {
   return {
-    number: item.bcItemNumber,
-    displayName: item.bcItemDisplayName,
+    number: item.bcItemNo,
+    displayName: item.bcItemDescription,
     type: item.bcItemType,
     inventory: item.bcItemInventory,
     baseUnitOfMeasure: item.bcItemBaseUnitOfMeasure,
     unitPrice: item.bcItemUnitPrice,
     unitCost: item.bcItemUnitCost,
-    itemCategoryCode: item.bcItemCategoryCode,
-    projectCode: item.bcItemProjectCode || null,
-    projectName: item.bcItemProjectName || null,
+    itemCategoryCode: item.bcItemItemCategoryCode,
   };
 }
 
@@ -102,7 +100,7 @@ export async function POST(request) {
         const { data: items } = await auth.supabase
           .from("bcItem")
           .select("*")
-          .ilike("bcItemNumber", pattern)
+          .ilike("bcItemNo", pattern)
           .limit(1);
         item = items?.[0] || null;
       }

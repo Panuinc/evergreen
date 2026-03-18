@@ -20,21 +20,21 @@ import { Eye } from "lucide-react";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่", uid: "bcSalesOrderNumber", sortable: true },
-  { name: "วันที่สั่ง", uid: "bcSalesOrderDate", sortable: true },
-  { name: "ลูกค้า", uid: "bcSalesOrderCustomerName", sortable: true },
+  { name: "เลขที่", uid: "bcSalesOrderNoValue", sortable: true },
+  { name: "วันที่สั่ง", uid: "bcSalesOrderOrderDate", sortable: true },
+  { name: "ลูกค้า", uid: "bcSalesOrderSellToCustomerName", sortable: true },
   { name: "สถานะ", uid: "bcSalesOrderStatus", sortable: true },
-  { name: "ยอดรวม (รวมภาษี)", uid: "bcSalesOrderTotalAmountIncVat", sortable: true },
+  { name: "ยอดรวม (รวมภาษี)", uid: "bcSalesOrderAmountIncludingVAT", sortable: true },
   { name: "รายการ", uid: "lineCount" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "bcSalesOrderNumber",
-  "bcSalesOrderDate",
-  "bcSalesOrderCustomerName",
+  "bcSalesOrderNoValue",
+  "bcSalesOrderOrderDate",
+  "bcSalesOrderSellToCustomerName",
   "bcSalesOrderStatus",
-  "bcSalesOrderTotalAmountIncVat",
+  "bcSalesOrderAmountIncludingVAT",
   "lineCount",
   "actions",
 ];
@@ -72,14 +72,14 @@ export default function BcSalesOrdersView({
   const renderCell = useCallback(
     (order, columnKey) => {
       switch (columnKey) {
-        case "bcSalesOrderNumber":
-          return <span className="font-light">{order.bcSalesOrderNumber}</span>;
-        case "bcSalesOrderDate":
-          return order.bcSalesOrderDate
-            ? new Date(order.bcSalesOrderDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
+        case "bcSalesOrderNoValue":
+          return <span className="font-light">{order.bcSalesOrderNoValue}</span>;
+        case "bcSalesOrderOrderDate":
+          return order.bcSalesOrderOrderDate
+            ? new Date(order.bcSalesOrderOrderDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
             : "-";
-        case "bcSalesOrderCustomerName":
-          return order.bcSalesOrderCustomerName || "-";
+        case "bcSalesOrderSellToCustomerName":
+          return order.bcSalesOrderSellToCustomerName || "-";
         case "bcSalesOrderStatus":
           return (
             <Chip
@@ -91,8 +91,8 @@ export default function BcSalesOrdersView({
               {statusLabelMap[order.bcSalesOrderStatus] || order.bcSalesOrderStatus || "-"}
             </Chip>
           );
-        case "bcSalesOrderTotalAmountIncVat":
-          return formatNumber(order.bcSalesOrderTotalAmountIncVat);
+        case "bcSalesOrderAmountIncludingVAT":
+          return formatNumber(order.bcSalesOrderAmountIncludingVAT);
         case "lineCount":
           return order.salesOrderLines?.length ?? "-";
         case "actions":
@@ -127,7 +127,7 @@ export default function BcSalesOrdersView({
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยเลขที่, ลูกค้า..."
-        searchKeys={["bcSalesOrderNumber", "bcSalesOrderCustomerName", "bcSalesOrderStatus"]}
+        searchKeys={["bcSalesOrderNoValue", "bcSalesOrderSellToCustomerName", "bcSalesOrderStatus"]}
         emptyContent="ไม่พบใบสั่งขาย"
         actionMenuItems={(item) => [
           { key: "view", label: "ดูรายละเอียด", icon: <Eye />, onPress: () => openLines(item) },
@@ -141,7 +141,7 @@ export default function BcSalesOrdersView({
         scrollBehavior="inside"
       >
         <ModalContent>
-          <ModalHeader>รายการสินค้า — {selectedOrder?.bcSalesOrderNumber}</ModalHeader>
+          <ModalHeader>รายการสินค้า — {selectedOrder?.bcSalesOrderNoValue}</ModalHeader>
           <ModalBody>
             <Table aria-label="รายการสินค้าในใบสั่งขาย" shadow="none">
               <TableHeader>
@@ -158,21 +158,13 @@ export default function BcSalesOrdersView({
                   <TableRow key={line.bcSalesOrderLineId || idx}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell className="font-light">
-                      {line.bcSalesOrderLineObjectNumber || "-"}
+                      {line.bcSalesOrderLineNoValue || "-"}
                     </TableCell>
-                    <TableCell>{line.bcSalesOrderLineDescription || "-"}</TableCell>
+                    <TableCell>{line.bcSalesOrderLineDescriptionValue || "-"}</TableCell>
+                    <TableCell>-</TableCell>
                     <TableCell>
-                      {line.bcSalesOrderLineProjectName ? (
-                        <Chip variant="flat" size="md" radius="md" color="secondary">
-                          {line.bcSalesOrderLineProjectName}
-                        </Chip>
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {line.bcSalesOrderLineQuantity != null
-                        ? Number(line.bcSalesOrderLineQuantity).toLocaleString("th-TH")
+                      {line.bcSalesOrderLineQuantityValue != null
+                        ? Number(line.bcSalesOrderLineQuantityValue).toLocaleString("th-TH")
                         : "-"}
                     </TableCell>
                     <TableCell>
@@ -183,8 +175,8 @@ export default function BcSalesOrdersView({
                         : "-"}
                     </TableCell>
                     <TableCell>
-                      {line.bcSalesOrderLineAmount != null
-                        ? Number(line.bcSalesOrderLineAmount).toLocaleString(
+                      {line.bcSalesOrderLineAmountValue != null
+                        ? Number(line.bcSalesOrderLineAmountValue).toLocaleString(
                             "th-TH",
                             { minimumFractionDigits: 2 },
                           )

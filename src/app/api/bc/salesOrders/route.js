@@ -25,7 +25,7 @@ export async function GET() {
     auth.supabase
       .from("bcSalesOrder")
       .select("*")
-      .order("bcSalesOrderNumber", { ascending: false }),
+      .order("bcSalesOrderNoValue", { ascending: false }),
     fetchAllLines(auth.supabase).catch(() => null),
   ]);
 
@@ -40,7 +40,7 @@ export async function GET() {
 
   const result = (orders || []).map((o) => ({
     ...o,
-    salesOrderLines: linesByOrder[o.bcSalesOrderNumber] || [],
+    salesOrderLines: linesByOrder[o.bcSalesOrderNoValue] || [],
   }));
 
   return Response.json(result);

@@ -14,14 +14,14 @@ const columns = [
   { name: "เลขที่เอกสาร", uid: "bcItemLedgerEntryDocumentNo", sortable: true },
   { name: "รหัสสินค้า", uid: "bcItemLedgerEntryItemNo", sortable: true },
   { name: "รายละเอียด", uid: "bcItemLedgerEntryItemDescription", sortable: true },
-  { name: "รายละเอียด 2", uid: "bcItemLedgerEntryDescription2" },
-  { name: "พนักงาน", uid: "bcItemLedgerEntryEmployeeCode" },
-  { name: "ชื่อพนักงาน", uid: "bcItemLedgerEntryEmployeeName" },
+  { name: "รายละเอียด 2", uid: "_removedDescription2" },
+  { name: "พนักงาน", uid: "_removedEmployeeCode" },
+  { name: "ชื่อพนักงาน", uid: "_removedEmployeeName" },
   { name: "คลัง", uid: "bcItemLedgerEntryLocationCode", sortable: true },
   { name: "Lot No", uid: "bcItemLedgerEntryLotNo" },
   { name: "Serial No", uid: "bcItemLedgerEntrySerialNo" },
   { name: "วันหมดอายุ", uid: "bcItemLedgerEntryExpirationDate", sortable: true },
-  { name: "จำนวน", uid: "bcItemLedgerEntryQuantity", sortable: true },
+  { name: "จำนวน", uid: "bcItemLedgerEntryQuantityValue", sortable: true },
   { name: "หน่วย", uid: "bcItemLedgerEntryUnitOfMeasureCode" },
   { name: "คงเหลือ", uid: "bcItemLedgerEntryRemainingQuantity", sortable: true },
   { name: "จำนวนออกใบแจ้งหนี้", uid: "bcItemLedgerEntryInvoicedQuantity", sortable: true },
@@ -32,11 +32,11 @@ const columns = [
   { name: "ต้นทุนจริง", uid: "bcItemLedgerEntryCostAmountActual", sortable: true },
   { name: "ยอดขาย (คาด)", uid: "bcItemLedgerEntrySalesAmountExpected", sortable: true },
   { name: "ยอดขาย (จริง)", uid: "bcItemLedgerEntrySalesAmountActual", sortable: true },
-  { name: "Open", uid: "bcItemLedgerEntryOpen" },
+  { name: "Open", uid: "bcItemLedgerEntryOpenValue" },
   { name: "รหัสแผนก", uid: "bcItemLedgerEntryGlobalDimension1Code", sortable: true },
-  { name: "ชื่อแผนก", uid: "bcItemLedgerEntryGlobalDimension1Name", sortable: true },
+  { name: "ชื่อแผนก", uid: "_removedDim1Name", sortable: true },
   { name: "รหัสโครงการ", uid: "bcItemLedgerEntryGlobalDimension2Code", sortable: true },
-  { name: "ชื่อโครงการ", uid: "bcItemLedgerEntryGlobalDimension2Name", sortable: true },
+  { name: "ชื่อโครงการ", uid: "_removedDim2Name", sortable: true },
   { name: "Order Type", uid: "bcItemLedgerEntryOrderType" },
   { name: "Order Line No", uid: "bcItemLedgerEntryOrderLineNo" },
   { name: "Document Line No", uid: "bcItemLedgerEntryDocumentLineNo" },
@@ -46,7 +46,7 @@ const columns = [
   { name: "น้ำหนักรวม (Gross)", uid: "bcItemLedgerEntryTotalGrossWeight", sortable: true },
   { name: "น้ำหนักรวม (Net)", uid: "bcItemLedgerEntryTotalNetWeight", sortable: true },
   { name: "ผู้สร้าง", uid: "bcItemLedgerEntryCreatedBy" },
-  { name: "Synced At", uid: "bcItemLedgerEntrySyncedAt", sortable: true },
+  { name: "Synced At", uid: "bcSyncedAt", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -58,14 +58,14 @@ const INITIAL_VISIBLE_COLUMNS = [
   "bcItemLedgerEntryDocumentNo",
   "bcItemLedgerEntryItemNo",
   "bcItemLedgerEntryItemDescription",
-  "bcItemLedgerEntryDescription2",
-  "bcItemLedgerEntryEmployeeCode",
-  "bcItemLedgerEntryEmployeeName",
+  "_removedDescription2",
+  "_removedEmployeeCode",
+  "_removedEmployeeName",
   "bcItemLedgerEntryLocationCode",
   "bcItemLedgerEntryLotNo",
   "bcItemLedgerEntrySerialNo",
   "bcItemLedgerEntryExpirationDate",
-  "bcItemLedgerEntryQuantity",
+  "bcItemLedgerEntryQuantityValue",
   "bcItemLedgerEntryUnitOfMeasureCode",
   "bcItemLedgerEntryRemainingQuantity",
   "bcItemLedgerEntryInvoicedQuantity",
@@ -76,11 +76,11 @@ const INITIAL_VISIBLE_COLUMNS = [
   "bcItemLedgerEntryCostAmountActual",
   "bcItemLedgerEntrySalesAmountExpected",
   "bcItemLedgerEntrySalesAmountActual",
-  "bcItemLedgerEntryOpen",
+  "bcItemLedgerEntryOpenValue",
   "bcItemLedgerEntryGlobalDimension1Code",
-  "bcItemLedgerEntryGlobalDimension1Name",
+  "_removedDim1Name",
   "bcItemLedgerEntryGlobalDimension2Code",
-  "bcItemLedgerEntryGlobalDimension2Name",
+  "_removedDim2Name",
   "bcItemLedgerEntryOrderType",
   "bcItemLedgerEntryOrderLineNo",
   "bcItemLedgerEntryDocumentLineNo",
@@ -90,7 +90,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "bcItemLedgerEntryTotalGrossWeight",
   "bcItemLedgerEntryTotalNetWeight",
   "bcItemLedgerEntryCreatedBy",
-  "bcItemLedgerEntrySyncedAt",
+  "bcSyncedAt",
 ];
 
 const entryTypeColorMap = {
@@ -109,8 +109,8 @@ const searchKeys = [
   "bcItemLedgerEntryItemNo",
   "bcItemLedgerEntryItemDescription",
   "bcItemLedgerEntryLocationCode",
-  "bcItemLedgerEntryEmployeeCode",
-  "bcItemLedgerEntryEmployeeName",
+  "_removedEmployeeCode",
+  "_removedEmployeeName",
   "bcItemLedgerEntryCreatedBy",
 ];
 
@@ -138,7 +138,7 @@ export default function EntriesView({ data, loading }) {
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
           : "-";
-      case "bcItemLedgerEntrySyncedAt":
+      case "bcSyncedAt":
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleString("th-TH", {
               dateStyle: "short",
@@ -157,7 +157,7 @@ export default function EntriesView({ data, loading }) {
         ) : (
           "-"
         );
-      case "bcItemLedgerEntryQuantity":
+      case "bcItemLedgerEntryQuantityValue":
       case "bcItemLedgerEntryRemainingQuantity":
       case "bcItemLedgerEntryInvoicedQuantity":
       case "bcItemLedgerEntryOrderLineNo":
@@ -179,10 +179,10 @@ export default function EntriesView({ data, loading }) {
             })
           : "-";
       case "bcItemLedgerEntryCompletelyInvoiced":
-      case "bcItemLedgerEntryOpen":
+      case "bcItemLedgerEntryOpenValue":
         return row[columnKey] ? "Yes" : "No";
       case "bcItemLedgerEntryItemDescription":
-      case "bcItemLedgerEntryDescription2":
+      case "_removedDescription2":
         return (
           <span className="max-w-75 truncate block">
             {row[columnKey] || "-"}

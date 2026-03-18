@@ -123,16 +123,16 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
   };
 
   const getItemName = (itemNumber) => {
-    const item = stockItems.find((i) => i.bcItemNumber === itemNumber);
-    return item?.bcItemDisplayName || itemNumber;
+    const item = stockItems.find((i) => i.bcItemNo === itemNumber);
+    return item?.bcItemDescription || itemNumber;
   };
 
   const filteredStockItems = stockItems.filter(
     (i) =>
       productSearch &&
-      !form.omPromotionApplicableProducts.includes(i.bcItemNumber) &&
-      (i.bcItemNumber?.toLowerCase().includes(productSearch.toLowerCase()) ||
-        i.bcItemDisplayName?.toLowerCase().includes(productSearch.toLowerCase()))
+      !form.omPromotionApplicableProducts.includes(i.bcItemNo) &&
+      (i.bcItemNo?.toLowerCase().includes(productSearch.toLowerCase()) ||
+        i.bcItemDescription?.toLowerCase().includes(productSearch.toLowerCase()))
   );
 
   const getTypeLabel = (type) => PROMO_TYPES.find((t) => t.value === type)?.label || type;
@@ -321,13 +321,13 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
                   <div className="max-h-40 overflow-y-auto border rounded-md mt-1">
                     {filteredStockItems.slice(0, 20).map((item) => (
                       <button
-                        key={item.bcItemNumber}
+                        key={item.bcItemNo}
                         type="button"
                         className="w-full text-left px-3 py-2 hover:bg-default-100 text-sm"
-                        onClick={() => addProduct(item.bcItemNumber)}
+                        onClick={() => addProduct(item.bcItemNo)}
                       >
-                        <span className="font-medium">{item.bcItemNumber}</span>
-                        <span className="text-default-400 ml-2">{item.bcItemDisplayName}</span>
+                        <span className="font-medium">{item.bcItemNo}</span>
+                        <span className="text-default-400 ml-2">{item.bcItemDescription}</span>
                       </button>
                     ))}
                     {filteredStockItems.length === 0 && (

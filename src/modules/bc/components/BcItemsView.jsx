@@ -5,32 +5,30 @@ import { Chip } from "@heroui/react";
 import DataTable from "@/components/ui/DataTable";
 
 const columns = [
-  { name: "เลขที่", uid: "bcItemNumber", sortable: true },
-  { name: "ชื่อสินค้า", uid: "bcItemDisplayName", sortable: true },
-  { name: "โครงการ", uid: "bcItemProjectName", sortable: true },
+  { name: "เลขที่", uid: "bcItemNo", sortable: true },
+  { name: "ชื่อสินค้า", uid: "bcItemDescription", sortable: true },
   { name: "ประเภท", uid: "bcItemType", sortable: true },
   { name: "คงคลัง", uid: "bcItemInventory", sortable: true },
   { name: "ราคาต่อหน่วย", uid: "bcItemUnitPrice", sortable: true },
   { name: "ต้นทุนต่อหน่วย", uid: "bcItemUnitCost", sortable: true },
-  { name: "หมวดหมู่", uid: "bcItemCategoryCode", sortable: true },
+  { name: "หมวดหมู่", uid: "bcItemItemCategoryCode", sortable: true },
   {
     name: "กลุ่มการลงบัญชี",
-    uid: "bcItemGeneralProductPostingGroupCode",
+    uid: "bcItemGenProdPostingGroup",
     sortable: true,
   },
   { name: "ถูกบล็อก", uid: "bcItemBlocked", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "bcItemNumber",
-  "bcItemDisplayName",
-  "bcItemProjectName",
+  "bcItemNo",
+  "bcItemDescription",
   "bcItemType",
   "bcItemInventory",
   "bcItemUnitPrice",
   "bcItemUnitCost",
-  "bcItemCategoryCode",
-  "bcItemGeneralProductPostingGroupCode",
+  "bcItemItemCategoryCode",
+  "bcItemGenProdPostingGroup",
   "bcItemBlocked",
 ];
 
@@ -38,7 +36,7 @@ export default function BcItemsView({ items, loading }) {
   const postingGroupOptions = useMemo(() => {
     const unique = [
       ...new Set(
-        items.map((i) => i.bcItemGeneralProductPostingGroupCode).filter(Boolean),
+        items.map((i) => i.bcItemGenProdPostingGroup).filter(Boolean),
       ),
     ];
     return unique.map((v) => ({ uid: v, name: v }));
@@ -46,16 +44,8 @@ export default function BcItemsView({ items, loading }) {
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "bcItemDisplayName":
-        return <span className="font-light">{item.bcItemDisplayName}</span>;
-      case "bcItemProjectName":
-        return item.bcItemProjectName ? (
-          <Chip variant="flat" size="md" radius="md" color="secondary">
-            {item.bcItemProjectName}
-          </Chip>
-        ) : (
-          <span className="text-muted-foreground">-</span>
-        );
+      case "bcItemDescription":
+        return <span className="font-light">{item.bcItemDescription}</span>;
       case "bcItemInventory": {
         const inv = Number(item.bcItemInventory);
         return (
@@ -108,11 +98,11 @@ export default function BcItemsView({ items, loading }) {
         rowKey="bcItemId"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
-        statusField="bcItemGeneralProductPostingGroupCode"
+        statusField="bcItemGenProdPostingGroup"
         statusOptions={postingGroupOptions}
         filterLabel="กลุ่มการลงบัญชี"
         searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อ..."
-        searchKeys={["bcItemNumber", "bcItemDisplayName", "bcItemProjectName"]}
+        searchKeys={["bcItemNo", "bcItemDescription"]}
         emptyContent="ไม่พบสินค้า"
       />
     </div>

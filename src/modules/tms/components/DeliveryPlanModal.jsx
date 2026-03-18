@@ -133,7 +133,7 @@ export default function DeliveryPlanModal({
   const toggleLine = (lineNo) => {
     setCheckedLines((prev) => ({ ...prev, [lineNo]: !prev[lineNo] }));
     if (!plannedQtys[lineNo]) {
-      const line = soLines.find((l) => l.bcSalesOrderLineNo === lineNo);
+      const line = soLines.find((l) => l.bcSalesOrderLineLineNo === lineNo);
       setPlannedQtys((prev) => ({
         ...prev,
         [lineNo]: line?.bcSalesOrderLineOutstandingQuantity || 0,
@@ -163,7 +163,7 @@ export default function DeliveryPlanModal({
     }
 
     const selectedLines = soLines.filter(
-      (l) => checkedLines[l.bcSalesOrderLineNo]
+      (l) => checkedLines[l.bcSalesOrderLineLineNo]
     );
 
     if (selectedLines.length === 0) {
@@ -171,17 +171,17 @@ export default function DeliveryPlanModal({
     }
 
     const items = selectedLines.map((l) => ({
-      tmsDeliveryPlanItemSalesOrderNo: selectedSO?.bcSalesOrderNumber,
-      tmsDeliveryPlanItemCustomerName: selectedSO?.bcSalesOrderCustomerName,
-      tmsDeliveryPlanItemSalesOrderLineNo: l.bcSalesOrderLineNo,
-      tmsDeliveryPlanItemItemNo: l.bcSalesOrderLineObjectNumber,
-      tmsDeliveryPlanItemDescription: l.bcSalesOrderLineDescription,
+      tmsDeliveryPlanItemSalesOrderNo: selectedSO?.bcSalesOrderNoValue,
+      tmsDeliveryPlanItemCustomerName: selectedSO?.bcSalesOrderSellToCustomerName,
+      tmsDeliveryPlanItemSalesOrderLineNo: l.bcSalesOrderLineLineNo,
+      tmsDeliveryPlanItemItemNo: l.bcSalesOrderLineNoValue,
+      tmsDeliveryPlanItemDescription: l.bcSalesOrderLineDescriptionValue,
       tmsDeliveryPlanItemUom: l.bcSalesOrderLineUnitOfMeasureCode,
-      tmsDeliveryPlanItemOrderedQty: l.bcSalesOrderLineQuantity,
-      tmsDeliveryPlanItemShippedQty: l.bcSalesOrderLineQuantityShipped,
+      tmsDeliveryPlanItemOrderedQty: l.bcSalesOrderLineQuantityValue,
+      tmsDeliveryPlanItemShippedQty: l.bcSalesOrderLineQuantityValueShipped,
       tmsDeliveryPlanItemOutstandingQty: l.bcSalesOrderLineOutstandingQuantity,
       tmsDeliveryPlanItemPlannedQty:
-        parseFloat(plannedQtys[l.bcSalesOrderLineNo]) || 0,
+        parseFloat(plannedQtys[l.bcSalesOrderLineLineNo]) || 0,
     }));
 
     onSave({
@@ -446,15 +446,15 @@ export default function DeliveryPlanModal({
                       <div className="flex flex-col gap-1 max-h-40 overflow-y-auto border border-border rounded-xl p-1">
                         {salesOrders.map((so) => (
                           <button
-                            key={so.bcSalesOrderNumber}
+                            key={so.bcSalesOrderNoValue}
                             className="flex flex-col items-start px-3 py-2 rounded-lg hover:bg-default-100 text-left"
                             onClick={() => onSelectSO(so)}
                           >
                             <span className="text-xs font-light">
-                              {so.bcSalesOrderNumber}
+                              {so.bcSalesOrderNoValue}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              {so.bcSalesOrderCustomerName}
+                              {so.bcSalesOrderSellToCustomerName}
                             </span>
                           </button>
                         ))}
@@ -464,10 +464,10 @@ export default function DeliveryPlanModal({
                       <div className="flex items-center justify-between p-3 rounded-xl bg-primary-50 border border-primary-200">
                         <div>
                           <p className="text-xs font-light text-primary">
-                            {selectedSO.bcSalesOrderNumber}
+                            {selectedSO.bcSalesOrderNoValue}
                           </p>
                           <p className="text-xs text-foreground">
-                            {selectedSO.bcSalesOrderCustomerName}
+                            {selectedSO.bcSalesOrderSellToCustomerName}
                           </p>
                         </div>
                         <Button
@@ -496,49 +496,49 @@ export default function DeliveryPlanModal({
                       {!soLinesLoading &&
                         soLines.map((line) => (
                           <div
-                            key={line.bcSalesOrderLineNo}
+                            key={line.bcSalesOrderLineLineNo}
                             className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
-                              checkedLines[line.bcSalesOrderLineNo]
+                              checkedLines[line.bcSalesOrderLineLineNo]
                                 ? "border-primary-300 bg-primary-50"
                                 : "border-border hover:border-border"
                             }`}
-                            onClick={() => toggleLine(line.bcSalesOrderLineNo)}
+                            onClick={() => toggleLine(line.bcSalesOrderLineLineNo)}
                           >
                             <input
                               type="checkbox"
-                              checked={!!checkedLines[line.bcSalesOrderLineNo]}
+                              checked={!!checkedLines[line.bcSalesOrderLineLineNo]}
                               onChange={() => {}}
                               className="w-4 h-4"
                             />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-light truncate">
-                                {line.bcSalesOrderLineObjectNumber && (
+                                {line.bcSalesOrderLineNoValue && (
                                   <span className="text-muted-foreground mr-1">
-                                    [{line.bcSalesOrderLineObjectNumber}]
+                                    [{line.bcSalesOrderLineNoValue}]
                                   </span>
                                 )}
-                                {line.bcSalesOrderLineDescription}
+                                {line.bcSalesOrderLineDescriptionValue}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                สั่ง {line.bcSalesOrderLineQuantity} · ส่งแล้ว{" "}
-                                {line.bcSalesOrderLineQuantityShipped} · คงเหลือ{" "}
+                                สั่ง {line.bcSalesOrderLineQuantityValue} · ส่งแล้ว{" "}
+                                {line.bcSalesOrderLineQuantityValueShipped} · คงเหลือ{" "}
                                 <span className="text-warning-600 font-light">
                                   {line.bcSalesOrderLineOutstandingQuantity}
                                 </span>{" "}
                                 {line.bcSalesOrderLineUnitOfMeasureCode}
                               </p>
                             </div>
-                            {checkedLines[line.bcSalesOrderLineNo] && (
+                            {checkedLines[line.bcSalesOrderLineLineNo] && (
                               <Input
                                 size="md"
                                 type="number"
                                 label="จำนวนที่ส่ง"
                                 className="w-28"
                                 value={String(
-                                  plannedQtys[line.bcSalesOrderLineNo] || ""
+                                  plannedQtys[line.bcSalesOrderLineLineNo] || ""
                                 )}
                                 onValueChange={(v) =>
-                                  handleQtyChange(line.bcSalesOrderLineNo, v)
+                                  handleQtyChange(line.bcSalesOrderLineLineNo, v)
                                 }
                                 onClick={(e) => e.stopPropagation()}
                                 min={0}

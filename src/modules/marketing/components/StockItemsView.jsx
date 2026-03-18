@@ -21,8 +21,8 @@ const FIXED_PACKET_COST = 25;
 const FIXED_SHIPPING_COST = 200;
 
 const COLUMNS = [
-  { name: "รหัสสินค้า", uid: "bcItemNumber", sortable: true },
-  { name: "ชื่อสินค้า", uid: "bcItemDisplayName", sortable: true },
+  { name: "รหัสสินค้า", uid: "bcItemNo", sortable: true },
+  { name: "ชื่อสินค้า", uid: "bcItemDescription", sortable: true },
   { name: "คงคลัง", uid: "bcItemInventory", sortable: true },
   { name: "ราคา BC", uid: "bcItemUnitPrice", sortable: true },
   { name: "ราคาขาย", uid: "customPrice", sortable: true },
@@ -36,8 +36,8 @@ const COLUMNS = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "bcItemNumber",
-  "bcItemDisplayName",
+  "bcItemNo",
+  "bcItemDescription",
   "bcItemInventory",
   "bcItemUnitPrice",
   "customPrice",
@@ -97,7 +97,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
         .filter(([, price]) => price !== "" && price != null)
         .map(([number, price]) => ({
           number,
-          name: items.find((i) => i.bcItemNumber === number)?.bcItemDisplayName || "",
+          name: items.find((i) => i.bcItemNo === number)?.bcItemDescription || "",
           price: Number(price) || 0,
         }));
 
@@ -122,11 +122,11 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
   const tableData = useMemo(
     () =>
       items.map((item) => {
-        const customPrice = prices[item.bcItemNumber] != null ? prices[item.bcItemNumber] : "";
+        const customPrice = prices[item.bcItemNo] != null ? prices[item.bcItemNo] : "";
         const cost = Number(item.bcItemUnitCost) || 0;
         const totalCost = cost + FIXED_PACKET_COST + FIXED_SHIPPING_COST;
         const sellingPrice = Number(customPrice) || Number(item.bcItemUnitPrice) || 0;
-        const promo = getPromoForItem(item.bcItemNumber, promotions);
+        const promo = getPromoForItem(item.bcItemNo, promotions);
         const promoPrice = calcPromoPrice(sellingPrice, promo);
         const effectivePrice = promoPrice != null ? promoPrice : sellingPrice;
         const profit = effectivePrice > 0 ? effectivePrice - totalCost : null;
@@ -138,8 +138,8 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "bcItemDisplayName":
-          return <span className="font-light">{item.bcItemDisplayName}</span>;
+        case "bcItemDescription":
+          return <span className="font-light">{item.bcItemDescription}</span>;
         case "bcItemInventory":
           return (
             <span
@@ -172,11 +172,11 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
               placeholder="0.00"
               classNames={{ input: "text-right" }}
               value={
-                prices[item.bcItemNumber] != null
-                  ? String(prices[item.bcItemNumber])
+                prices[item.bcItemNo] != null
+                  ? String(prices[item.bcItemNo])
                   : ""
               }
-              onValueChange={(v) => updatePrice(item.bcItemNumber, v)}
+              onValueChange={(v) => updatePrice(item.bcItemNo, v)}
             />
           );
         case "promoPrice":
@@ -232,7 +232,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
           );
         }
         case "productInfo": {
-          const info = productInfoMap?.[item.bcItemNumber];
+          const info = productInfoMap?.[item.bcItemNo];
           const hasInfo = info && (info.category || info.highlights || info.description);
           return (
             <Button
@@ -266,7 +266,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
     </Button>
   );
 
-  const editingInfo = editingItem ? productInfoMap?.[editingItem.bcItemNumber] || {} : {};
+  const editingInfo = editingItem ? productInfoMap?.[editingItem.bcItemNo] || {} : {};
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -276,11 +276,11 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
         columns={COLUMNS}
         data={tableData}
         renderCell={renderCell}
-        rowKey="bcItemNumber"
+        rowKey="bcItemNo"
         isLoading={loading}
         initialVisibleColumns={INITIAL_VISIBLE_COLUMNS}
         searchPlaceholder="ค้นหาด้วยรหัส, ชื่อสินค้า..."
-        searchKeys={["bcItemNumber", "bcItemDisplayName"]}
+        searchKeys={["bcItemNo", "bcItemDescription"]}
         topEndContent={saveButton}
         defaultRowsPerPage={20}
         emptyContent="ไม่พบสินค้า"
@@ -293,7 +293,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
             <>
               <ModalHeader className="flex flex-col gap-1">
                 <span>ข้อมูลสินค้าสำหรับ AI</span>
-                <Chip size="sm" variant="flat">{editingItem.bcItemNumber} — {editingItem.bcItemDisplayName}</Chip>
+                <Chip size="sm" variant="flat">{editingItem.bcItemNo} — {editingItem.bcItemDescription}</Chip>
               </ModalHeader>
               <ModalBody>
                 <div className="flex flex-col gap-4">
@@ -305,7 +305,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
                     size="md"
                     radius="md"
                     value={editingInfo.category || ""}
-                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNumber, "category", v)}
+                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNo, "category", v)}
                   />
                   <Textarea
                     label="จุดเด่น"
@@ -316,7 +316,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
                     radius="md"
                     minRows={2}
                     value={editingInfo.highlights || ""}
-                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNumber, "highlights", v)}
+                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNo, "highlights", v)}
                   />
                   <Textarea
                     label="รายละเอียดสินค้า"
@@ -327,7 +327,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
                     radius="md"
                     minRows={3}
                     value={editingInfo.description || ""}
-                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNumber, "description", v)}
+                    onValueChange={(v) => updateProductInfo(editingItem.bcItemNo, "description", v)}
                   />
                   <div className="bg-default-50 rounded-lg p-3 text-xs text-default-500">
                     ข้อมูลที่กรอกจะถูกส่งให้ AI ใช้ตอบคำถามลูกค้า กดปุ่ม &quot;บันทึกทั้งหมด&quot; ที่หน้าตารางเพื่อบันทึก

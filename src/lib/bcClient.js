@@ -85,6 +85,7 @@ function getBcUrls() {
   return {
     odata: `${base}/ODataV4/Company('C.H.H._Go-Live')`,
     api: `${base}/api/v2.0/companies(${BC_COMPANY_ID})`,
+    customApi: `https://api.businesscentral.dynamics.com/v2.0/${BC_TENANT_ID}/Production/api/evergreen/erp/v1.0/companies(${BC_COMPANY_ID})`,
   };
 }
 
@@ -124,6 +125,50 @@ export async function bcApiGet(endpoint, params = {}, { timeout = 60_000, maxPag
     if (!res.ok) {
       const text = await res.text();
       throw new Error(`BC API error: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    allValues.push(...(data.value || []));
+    nextUrl = data["@odata.nextLink"] || null;
+  }
+
+  return allValues;
+}
+
+export async function bcCustomApiGet(endpoint, params = {}, { timeout = 60_000, maxPageSize = 5000 } = {}) {
+  const token = await getToken();
+  const { customApi } = getBcUrls();
+
+  const url = new URL(`${customApi}/${endpoint}`);
+  const odataParts = [];
+  for (const [key, value] of Object.entries(params)) {
+    if (key.startsWith("$")) {
+      odataParts.push(`${key}=${value}`);
+    } else {
+      url.searchParams.set(key, value);
+    }
+  }
+
+  let firstUrl = url.toString();
+  if (odataParts.length) {
+    firstUrl += (firstUrl.includes("?") ? "&" : "?") + odataParts.join("&");
+  }
+
+  const allValues = [];
+  let nextUrl = firstUrl;
+
+  while (nextUrl) {
+    const res = await fetchWithRetry(nextUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        Prefer: `odata.maxpagesize=${maxPageSize}`,
+      },
+    }, { timeout });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`BC Custom API error: ${res.status} ${text}`);
     }
 
     const data = await res.json();

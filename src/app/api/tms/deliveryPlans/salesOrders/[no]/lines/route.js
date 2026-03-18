@@ -10,12 +10,12 @@ export async function GET(request, { params }) {
   const { data, error } = await supabase
     .from("bcSalesOrderLine")
     .select(
-      "bcSalesOrderLineNo, bcSalesOrderLineObjectNumber, bcSalesOrderLineDescription, bcSalesOrderLineQuantity, bcSalesOrderLineQuantityShipped, bcSalesOrderLineOutstandingQuantity, bcSalesOrderLineUnitOfMeasureCode, bcSalesOrderLineUnitPrice, bcSalesOrderLineAmount"
+      "bcSalesOrderLineLineNo, bcSalesOrderLineNoValue, bcSalesOrderLineDescriptionValue, bcSalesOrderLineQuantityValue, bcSalesOrderLineQuantityShipped, bcSalesOrderLineOutstandingQuantity, bcSalesOrderLineUnitOfMeasureCode, bcSalesOrderLineUnitPrice, bcSalesOrderLineAmountValue"
     )
     .eq("bcSalesOrderLineDocumentNo", no)
-    .eq("bcSalesOrderLineType", "Item")
+    .eq("bcSalesOrderLineTypeValue", "Item")
     .gt("bcSalesOrderLineOutstandingQuantity", 0)
-    .order("bcSalesOrderLineNo", { ascending: true });
+    .order("bcSalesOrderLineLineNo", { ascending: true });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);

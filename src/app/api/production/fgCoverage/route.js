@@ -26,14 +26,14 @@ export async function GET() {
 
   try {
     const [allOrders, salesLines, items] = await Promise.all([
-      fetchAll(auth.supabase, "bcProductionOrder", "bcProductionOrderExternalId"),
-      fetchAll(auth.supabase, "bcSalesOrderLine", "bcSalesOrderLineExternalId"),
-      fetchAll(auth.supabase, "bcItem", "bcItemExternalId"),
+      fetchAll(auth.supabase, "bcProductionOrder", "bcProductionOrderNo"),
+      fetchAll(auth.supabase, "bcSalesOrderLine", "bcSalesOrderLineDocumentNo"),
+      fetchAll(auth.supabase, "bcItem", "bcItemNo"),
     ]);
 
     const itemLookup = {};
     for (const it of items) {
-      itemLookup[it.bcItemExternalId] = it;
+      itemLookup[it.bcItemNo] = it;
     }
 
     // Production orders grouped by source item number
@@ -43,7 +43,7 @@ export async function GET() {
       if (!src) continue;
       if (!poBySourceNo[src]) poBySourceNo[src] = [];
       poBySourceNo[src].push({
-        orderNo: o.bcProductionOrderExternalId,
+        orderNo: o.bcProductionOrderNo,
         status: o.bcProductionOrderStatus,
         quantity: Number(o.bcProductionOrderQuantity) || 0,
         dueDate: o.bcProductionOrderDueDate,
@@ -53,24 +53,24 @@ export async function GET() {
     // SO lines with outstanding qty, grouped by item number
     const fgCoverageMap = {};
     for (const sl of salesLines) {
-      const itemNo = sl.bcSalesOrderLineObjectNumber;
+      const itemNo = sl.bcSalesOrderLineNoValue;
       if (!itemNo) continue;
-      if (sl.bcSalesOrderLineType && sl.bcSalesOrderLineType !== "Item") continue;
+      if (sl.bcSalesOrderLineTypeValue && sl.bcSalesOrderLineTypeValue !== "Item") continue;
       const outstanding = Number(sl.bcSalesOrderLineOutstandingQuantity) || 0;
       if (outstanding <= 0) continue;
 
       if (!fgCoverageMap[itemNo]) {
         fgCoverageMap[itemNo] = {
           itemNo,
-          description: sl.bcSalesOrderLineDescription,
-          category: itemLookup[itemNo]?.bcItemCategoryCode || "-",
+          description: sl.bcSalesOrderLineDescriptionValue,
+          category: itemLookup[itemNo]?.bcItemItemCategoryCode || "-",
           soQty: 0,
           soOutstandingQty: 0,
           shippedQty: 0,
           soLineCount: 0,
         };
       }
-      fgCoverageMap[itemNo].soQty += Number(sl.bcSalesOrderLineQuantity) || 0;
+      fgCoverageMap[itemNo].soQty += Number(sl.bcSalesOrderLineQuantityValue) || 0;
       fgCoverageMap[itemNo].soOutstandingQty += outstanding;
       fgCoverageMap[itemNo].shippedQty += Number(sl.bcSalesOrderLineQuantityShipped) || 0;
       fgCoverageMap[itemNo].soLineCount++;

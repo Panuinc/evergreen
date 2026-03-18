@@ -25,15 +25,15 @@ export async function POST(request) {
 
   const { data: existing } = await auth.supabase
     .from("bcItem")
-    .select("bcItemNumber, bcItemDisplayName")
+    .select("bcItemNo, bcItemDescription")
     .eq("bcItemRfidCode", String(code))
-    .neq("bcItemNumber", itemNumber)
+    .neq("bcItemNo", itemNumber)
     .limit(1);
 
   if (existing && existing.length > 0) {
     return Response.json(
       {
-        error: `rfidCode ${code} ถูกใช้แล้วโดย ${existing[0].bcItemNumber} (${existing[0].bcItemDisplayName})`,
+        error: `rfidCode ${code} ถูกใช้แล้วโดย ${existing[0].bcItemNo} (${existing[0].bcItemDescription})`,
       },
       { status: 409 },
     );
@@ -43,7 +43,7 @@ export async function POST(request) {
   const { error } = await auth.supabase
     .from("bcItem")
     .update({ bcItemRfidCode: String(code) })
-    .eq("bcItemNumber", itemNumber);
+    .eq("bcItemNo", itemNumber);
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -66,7 +66,7 @@ export async function DELETE(request) {
   const { error } = await auth.supabase
     .from("bcItem")
     .update({ bcItemRfidCode: null })
-    .eq("bcItemNumber", itemNumber);
+    .eq("bcItemNo", itemNumber);
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });

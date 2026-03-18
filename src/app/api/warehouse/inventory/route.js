@@ -2,18 +2,16 @@ import { withAuth } from "@/app/api/_lib/auth";
 
 function formatItem(item) {
   return {
-    number: item.bcItemNumber,
-    displayName: item.bcItemDisplayName,
+    number: item.bcItemNo,
+    displayName: item.bcItemDescription,
     type: item.bcItemType,
     inventory: item.bcItemInventory,
     baseUnitOfMeasure: item.bcItemBaseUnitOfMeasure,
     unitPrice: item.bcItemUnitPrice,
     unitCost: item.bcItemUnitCost,
-    itemCategoryCode: item.bcItemCategoryCode,
-    generalProductPostingGroupCode: item.bcItemGeneralProductPostingGroupCode,
+    itemCategoryCode: item.bcItemItemCategoryCode,
+    generalProductPostingGroupCode: item.bcItemGenProdPostingGroup,
     rfidCode: item.bcItemRfidCode || null,
-    projectCode: item.bcItemProjectCode || null,
-    projectName: item.bcItemProjectName || null,
   };
 }
 
@@ -34,8 +32,8 @@ export async function GET(request) {
       const { data, error } = await auth.supabase
         .from("bcItem")
         .select("*")
-        .ilike("bcItemGeneralProductPostingGroupCode", group)
-        .order("bcItemNumber")
+        .ilike("bcItemGenProdPostingGroup", group)
+        .order("bcItemNo")
         .range(from, from + PAGE_SIZE - 1);
 
       if (error)
@@ -58,7 +56,7 @@ export async function GET(request) {
     const { data, error } = await auth.supabase
       .from("bcItem")
       .select("*")
-      .order("bcItemNumber")
+      .order("bcItemNo")
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) return Response.json({ error: error.message }, { status: 500 });

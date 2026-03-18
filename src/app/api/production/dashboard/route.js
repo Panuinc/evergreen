@@ -3,7 +3,7 @@ import { getComparisonRanges, filterByDateRange } from "@/lib/comparison";
 
 const PAGE_SIZE = 1000;
 
-async function fetchAll(supabase, table, orderBy = "bcProductionOrderExternalId") {
+async function fetchAll(supabase, table, orderBy = "bcProductionOrderNo") {
   let rows = [];
   let from = 0;
   while (true) {
@@ -24,7 +24,7 @@ async function fetchAll(supabase, table, orderBy = "bcProductionOrderExternalId"
 function getDept(order) {
 
 
-  return order?.bcProductionOrderDimension1Code || "";
+  return order?.bcProductionOrderShortcutDimension1Code || "";
 }
 
 function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, salesLines, today) {
@@ -44,12 +44,12 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   let totalRevenue = 0;
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType === "Output") {
-      const qty = Number(e.bcItemLedgerEntryQuantity) || 0;
+      const qty = Number(e.bcItemLedgerEntryQuantityValue) || 0;
       totalOutputQty += qty;
       const unitPrice = salesPriceMap[e.bcItemLedgerEntryItemNo] || 0;
       totalRevenue += unitPrice * qty;
     } else if (e.bcItemLedgerEntryEntryType === "Consumption") {
-      totalConsumptionCost += Math.abs(Number(e.bcItemLedgerEntryCostAmountActual) || 0);
+      totalConsumptionCost += Math.abs(Number(0) || 0);
     }
   }
   const totalProfit = totalRevenue - totalConsumptionCost;
@@ -62,7 +62,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   for (const e of entries) {
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
     if (order?.bcProductionOrderStatus === "Released" && e.bcItemLedgerEntryEntryType === "Consumption") {
-      wipValue += Math.abs(Number(e.bcItemLedgerEntryCostAmountActual) || 0);
+      wipValue += Math.abs(Number(0) || 0);
     }
   }
 
@@ -100,8 +100,8 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   let totalCostActual = 0;
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType === "Consumption") {
-      totalCostExpected += Math.abs(Number(e.bcItemLedgerEntryCostAmountExpected) || 0);
-      totalCostActual += Math.abs(Number(e.bcItemLedgerEntryCostAmountActual) || 0);
+      totalCostExpected += Math.abs(Number(0) || 0);
+      totalCostActual += Math.abs(Number(0) || 0);
     }
   }
   const costVariance =
@@ -134,9 +134,9 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   for (const e of entries) {
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
     const projectCode =
-      order?.bcProductionOrderDimension2Code || e.bcItemLedgerEntryGlobalDimension2Code || "ไม่ระบุ";
+      order?.bcProductionOrderShortcutDimension2Code || e.bcItemLedgerEntryGlobalDimension2Code || "ไม่ระบุ";
     const projectName =
-      order?.bcProductionOrderDimension2Name || e.bcItemLedgerEntryGlobalDimension2Name || projectCode;
+      order?.bcProductionOrderShortcutDimension2Code || e.bcItemLedgerEntryGlobalDimension2Code || projectCode;
     const key = projectCode;
     if (!projectMap[key])
       projectMap[key] = {
@@ -146,10 +146,10 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       };
     if (e.bcItemLedgerEntryEntryType === "Consumption") {
       projectMap[key].consumptionCost += Math.abs(
-        Number(e.bcItemLedgerEntryCostAmountActual) || 0,
+        Number(0) || 0,
       );
     } else if (e.bcItemLedgerEntryEntryType === "Output") {
-      const qty = Number(e.bcItemLedgerEntryQuantity) || 0;
+      const qty = Number(e.bcItemLedgerEntryQuantityValue) || 0;
       const unitPrice = salesPriceMap[e.bcItemLedgerEntryItemNo] || 0;
       projectMap[key].revenue += unitPrice * qty;
     }
@@ -165,9 +165,9 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     const d = e.bcItemLedgerEntryPostingDate.slice(0, 10);
     if (!dailyMap[d]) dailyMap[d] = { consumption: 0, revenue: 0 };
     if (e.bcItemLedgerEntryEntryType === "Consumption") {
-      dailyMap[d].consumption += Math.abs(Number(e.bcItemLedgerEntryCostAmountActual) || 0);
+      dailyMap[d].consumption += Math.abs(Number(0) || 0);
     } else if (e.bcItemLedgerEntryEntryType === "Output") {
-      const qty = Number(e.bcItemLedgerEntryQuantity) || 0;
+      const qty = Number(e.bcItemLedgerEntryQuantityValue) || 0;
       const unitPrice = salesPriceMap[e.bcItemLedgerEntryItemNo] || 0;
       dailyMap[d].revenue += unitPrice * qty;
     }
@@ -183,7 +183,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     const key = e.bcItemLedgerEntryItemNo || "ไม่ระบุ";
     if (!itemMap[key])
       itemMap[key] = { itemNo: key, description: e.bcItemLedgerEntryItemDescription, quantity: 0 };
-    itemMap[key].quantity += Number(e.bcItemLedgerEntryQuantity) || 0;
+    itemMap[key].quantity += Number(e.bcItemLedgerEntryQuantityValue) || 0;
   }
   const topOutputItems = Object.values(itemMap)
     .sort((a, b) => b.quantity - a.quantity)
@@ -213,10 +213,10 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       };
     if (e.bcItemLedgerEntryEntryType === "Consumption") {
       wipMap[key].consumptionCost += Math.abs(
-        Number(e.bcItemLedgerEntryCostAmountActual) || 0,
+        Number(0) || 0,
       );
     } else if (e.bcItemLedgerEntryEntryType === "Output") {
-      const qty = Number(e.bcItemLedgerEntryQuantity) || 0;
+      const qty = Number(e.bcItemLedgerEntryQuantityValue) || 0;
       wipMap[key].outputQty += qty;
       const unitPrice = salesPriceMap[e.bcItemLedgerEntryItemNo] || 0;
       wipMap[key].revenue += unitPrice * qty;
@@ -248,8 +248,8 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     const key = e.bcItemLedgerEntryItemNo || "ไม่ระบุ";
     if (!consumedMap[key])
       consumedMap[key] = { itemNo: key, description: e.bcItemLedgerEntryItemDescription, cost: 0, quantity: 0 };
-    consumedMap[key].cost += Math.abs(Number(e.bcItemLedgerEntryCostAmountActual) || 0);
-    consumedMap[key].quantity += Math.abs(Number(e.bcItemLedgerEntryQuantity) || 0);
+    consumedMap[key].cost += Math.abs(Number(0) || 0);
+    consumedMap[key].quantity += Math.abs(Number(e.bcItemLedgerEntryQuantityValue) || 0);
   }
   const topConsumedItems = Object.values(consumedMap)
     .sort((a, b) => b.cost - a.cost)
@@ -261,11 +261,11 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Consumption") continue;
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
-    const deptCode = order?.bcProductionOrderDimension1Code || "ไม่ระบุ";
-    const deptName = order?.bcProductionOrderDimension1Name || deptCode;
+    const deptCode = order?.bcProductionOrderShortcutDimension1Code || "ไม่ระบุ";
+    const deptName = order?.bcProductionOrderShortcutDimension1Code || deptCode;
     if (!deptMap[deptCode])
       deptMap[deptCode] = { department: deptName, cost: 0 };
-    deptMap[deptCode].cost += Math.abs(Number(e.bcItemLedgerEntryCostAmountActual) || 0);
+    deptMap[deptCode].cost += Math.abs(Number(0) || 0);
   }
   const costByDepartment = Object.values(deptMap)
     .sort((a, b) => b.cost - a.cost)
@@ -318,15 +318,15 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         (new Date(today) - new Date(o.bcProductionOrderDueDate)) / (1000 * 60 * 60 * 24),
       );
       return {
-        id: o.bcProductionOrderExternalId,
+        id: o.bcProductionOrderNo,
         description: o.bcProductionOrderDescription,
         sourceNo: o.bcProductionOrderSourceNo,
         quantity: o.bcProductionOrderQuantity,
         dueDate: o.bcProductionOrderDueDate,
         startingDateTime: o.bcProductionOrderStartingDateTime,
         overdueDays,
-        dimension1Name: o.bcProductionOrderDimension1Name || o.bcProductionOrderDimension1Code,
-        dimension2Name: o.bcProductionOrderDimension2Name || o.bcProductionOrderDimension2Code,
+        dimension1Name: o.bcProductionOrderShortcutDimension1Code || o.bcProductionOrderShortcutDimension1Code,
+        dimension2Name: o.bcProductionOrderShortcutDimension2Code || o.bcProductionOrderShortcutDimension2Code,
         locationCode: o.bcProductionOrderLocationCode,
       };
     })
@@ -340,11 +340,11 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   const empSpecMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Output") continue;
-    const raw = e.bcItemLedgerEntryGlobalDimension1Code || e.bcItemLedgerEntryGlobalDimension1Name || "ไม่ระบุ";
+    const raw = e.bcItemLedgerEntryGlobalDimension1Code || e.bcItemLedgerEntryGlobalDimension1Code || "ไม่ระบุ";
     const workers = raw.split("/").map((w) => w.trim()).filter(Boolean);
     if (!workers.length) workers.push("ไม่ระบุ");
-    const cat = itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemCategoryCode || "ไม่ระบุ";
-    const qty = Number(e.bcItemLedgerEntryQuantity) || 0;
+    const cat = itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemItemCategoryCode || "ไม่ระบุ";
+    const qty = Number(e.bcItemLedgerEntryQuantityValue) || 0;
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
 
     let leadDays = null;
@@ -399,10 +399,10 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   const fgTypeMap = {};
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Output") continue;
-    const cat = itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemCategoryCode || "ไม่ระบุ";
+    const cat = itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemItemCategoryCode || "ไม่ระบุ";
     if (!fgTypeMap[cat])
       fgTypeMap[cat] = { category: cat, quantity: 0, revenue: 0, count: 0 };
-    const qty = Number(e.bcItemLedgerEntryQuantity) || 0;
+    const qty = Number(e.bcItemLedgerEntryQuantityValue) || 0;
     const unitPrice = salesPriceMap[e.bcItemLedgerEntryItemNo] || 0;
     fgTypeMap[cat].quantity += qty;
     fgTypeMap[cat].revenue += unitPrice * qty;
@@ -421,11 +421,11 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
       profitMap[key] = {
         itemNo: key,
         description: e.bcItemLedgerEntryItemDescription,
-        category: itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemCategoryCode || "-",
+        category: itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemItemCategoryCode || "-",
         outputQty: 0,
         consumptionCost: 0,
       };
-    profitMap[key].outputQty += Number(e.bcItemLedgerEntryQuantity) || 0;
+    profitMap[key].outputQty += Number(e.bcItemLedgerEntryQuantityValue) || 0;
   }
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Consumption") continue;
@@ -434,7 +434,7 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
     const fgItem = order.bcProductionOrderSourceNo;
     if (fgItem && profitMap[fgItem]) {
       profitMap[fgItem].consumptionCost += Math.abs(
-        Number(e.bcItemLedgerEntryCostAmountActual) || 0,
+        Number(0) || 0,
       );
     }
   }
@@ -464,8 +464,8 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Output") continue;
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
-    const projCode = order?.bcProductionOrderDimension2Code || e.bcItemLedgerEntryGlobalDimension2Code || "ไม่ระบุ";
-    const projName = order?.bcProductionOrderDimension2Name || e.bcItemLedgerEntryGlobalDimension2Name || projCode;
+    const projCode = order?.bcProductionOrderShortcutDimension2Code || e.bcItemLedgerEntryGlobalDimension2Code || "ไม่ระบุ";
+    const projName = order?.bcProductionOrderShortcutDimension2Code || e.bcItemLedgerEntryGlobalDimension2Code || projCode;
     const itemNo = e.bcItemLedgerEntryItemNo || "ไม่ระบุ";
     const key = `${projCode}::${itemNo}`;
     if (!projItemMap[key])
@@ -474,31 +474,31 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         projectName: projName,
         itemNo,
         description: e.bcItemLedgerEntryItemDescription,
-        category: itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemCategoryCode || "-",
+        category: itemLookup[e.bcItemLedgerEntryItemNo]?.bcItemItemCategoryCode || "-",
         outputQty: 0,
         consumptionCost: 0,
       };
-    projItemMap[key].outputQty += Number(e.bcItemLedgerEntryQuantity) || 0;
+    projItemMap[key].outputQty += Number(e.bcItemLedgerEntryQuantityValue) || 0;
   }
 
   for (const e of entries) {
     if (e.bcItemLedgerEntryEntryType !== "Consumption") continue;
     const order = orderMap[e.bcItemLedgerEntryDocumentNo];
     if (!order) continue;
-    const projCode = order.bcProductionOrderDimension2Code || e.bcItemLedgerEntryGlobalDimension2Code || "ไม่ระบุ";
+    const projCode = order.bcProductionOrderShortcutDimension2Code || e.bcItemLedgerEntryGlobalDimension2Code || "ไม่ระบุ";
     const fgItem = order.bcProductionOrderSourceNo;
     const key = `${projCode}::${fgItem}`;
     if (projItemMap[key]) {
-      projItemMap[key].consumptionCost += Math.abs(Number(e.bcItemLedgerEntryCostAmountActual) || 0);
+      projItemMap[key].consumptionCost += Math.abs(Number(0) || 0);
     }
   }
 
 
   const salesByProjItem = {};
   for (const sl of salesLines) {
-    if (!sl.bcSalesOrderLineObjectNumber || !sl.bcSalesOrderLineUnitPrice) continue;
-    const projCode = sl.bcSalesOrderLineProjectCode || "ไม่ระบุ";
-    const key = `${projCode}::${sl.bcSalesOrderLineObjectNumber}`;
+    if (!sl.bcSalesOrderLineNoValue || !sl.bcSalesOrderLineUnitPrice) continue;
+    const projCode = "ไม่ระบุ" || "ไม่ระบุ";
+    const key = `${projCode}::${sl.bcSalesOrderLineNoValue}`;
     if (!salesByProjItem[key])
       salesByProjItem[key] = {
         soQty: 0,
@@ -506,9 +506,9 @@ function buildDashboard(orders, entries, orderMap, itemLookup, salesPriceMap, sa
         unitPrice: Number(sl.bcSalesOrderLineUnitPrice) || 0,
         shippedQty: 0,
       };
-    salesByProjItem[key].soQty += Number(sl.bcSalesOrderLineQuantity) || 0;
-    salesByProjItem[key].soRevenue += (Number(sl.bcSalesOrderLineUnitPrice) || 0) * (Number(sl.bcSalesOrderLineQuantity) || 0);
-    salesByProjItem[key].shippedQty += Number(sl.bcSalesOrderLineQuantityShipped) || 0;
+    salesByProjItem[key].soQty += Number(sl.bcSalesOrderLineQuantityValue) || 0;
+    salesByProjItem[key].soRevenue += (Number(sl.bcSalesOrderLineUnitPrice) || 0) * (Number(sl.bcSalesOrderLineQuantityValue) || 0);
+    salesByProjItem[key].shippedQty += Number(sl.bcSalesOrderLineQuantityValueShipped) || 0;
 
     if ((Number(sl.bcSalesOrderLineUnitPrice) || 0) > 0) {
       salesByProjItem[key].unitPrice = Number(sl.bcSalesOrderLineUnitPrice);
@@ -605,25 +605,25 @@ export async function GET(request) {
   try {
     const [allOrders, allEntries, salesLines, items] = await Promise.all([
       fetchAll(auth.supabase, "bcProductionOrder"),
-      fetchAll(auth.supabase, "bcItemLedgerEntry", "bcItemLedgerEntryExternalNo"),
-      fetchAll(auth.supabase, "bcSalesOrderLine", "bcSalesOrderLineExternalId"),
-      fetchAll(auth.supabase, "bcItem", "bcItemExternalId"),
+      fetchAll(auth.supabase, "bcItemLedgerEntry", "bcItemLedgerEntryEntryNo"),
+      fetchAll(auth.supabase, "bcSalesOrderLine", "bcSalesOrderLineDocumentNo"),
+      fetchAll(auth.supabase, "bcItem", "bcItemNo"),
     ]);
 
     const orderMap = {};
     for (const o of allOrders) {
-      orderMap[o.bcProductionOrderExternalId] = o;
+      orderMap[o.bcProductionOrderNo] = o;
     }
 
     const itemLookup = {};
     for (const it of items) {
-      itemLookup[it.bcItemExternalId] = it;
+      itemLookup[it.bcItemNo] = it;
     }
 
     const salesPriceMap = {};
     for (const sl of salesLines) {
-      if (sl.bcSalesOrderLineObjectNumber && sl.bcSalesOrderLineUnitPrice > 0) {
-        salesPriceMap[sl.bcSalesOrderLineObjectNumber] = Number(sl.bcSalesOrderLineUnitPrice);
+      if (sl.bcSalesOrderLineNoValue && sl.bcSalesOrderLineUnitPrice > 0) {
+        salesPriceMap[sl.bcSalesOrderLineNoValue] = Number(sl.bcSalesOrderLineUnitPrice);
       }
     }
 
@@ -631,8 +631,8 @@ export async function GET(request) {
 
 
     const splitAndBuild = (orders, entries) => {
-      const wpcOrders = orders.filter((o) => o.bcProductionOrderDimension1Code === "WPC");
-      const otherOrders = orders.filter((o) => o.bcProductionOrderDimension1Code !== "WPC");
+      const wpcOrders = orders.filter((o) => o.bcProductionOrderShortcutDimension1Code === "WPC");
+      const otherOrders = orders.filter((o) => o.bcProductionOrderShortcutDimension1Code !== "WPC");
       const wpcEntries = entries.filter((e) => getDept(orderMap[e.bcItemLedgerEntryDocumentNo]) === "WPC");
       const otherEntries = entries.filter((e) => getDept(orderMap[e.bcItemLedgerEntryDocumentNo]) !== "WPC");
       return {

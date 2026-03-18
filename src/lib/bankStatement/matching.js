@@ -6,11 +6,11 @@ export function autoMatch(entries, invoices, customers, arByCustomer = new Map()
   const custNameMap = new Map();
   for (const c of customers) {
     const names = [
-      normalizeName(c.bcCustomerDisplayName || ""),
+      normalizeName(c.bcCustomerNameValue || ""),
       normalizeName(c.bcCustomerContact || ""),
     ].filter(Boolean);
-    if (c.bcCustomerNumber) {
-      custNameMap.set(c.bcCustomerNumber, names);
+    if (c.bcCustomerNo) {
+      custNameMap.set(c.bcCustomerNo, names);
     }
   }
 

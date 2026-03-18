@@ -49,11 +49,11 @@ export async function GET() {
     const { data, error } = await auth.supabase
       .from("bcItem")
       .select(
-        "bcItemNumber, bcItemDisplayName, bcItemInventory, bcItemUnitCost, bcItemGeneralProductPostingGroupCode",
+        "bcItemNo, bcItemDescription, bcItemInventory, bcItemUnitCost, bcItemGenProdPostingGroup",
       )
-      .eq("bcItemGeneralProductPostingGroupCode", "RM")
+      .eq("bcItemGenProdPostingGroup", "RM")
       .or("bcItemBlocked.eq.false,bcItemBlocked.is.null")
-      .order("bcItemNumber")
+      .order("bcItemNo")
       .range(from, from + PAGE_SIZE - 1);
 
     if (error)
@@ -74,13 +74,13 @@ export async function GET() {
   };
 
   for (const item of allData) {
-    const coreType = getCoreType(item.bcItemNumber);
+    const coreType = getCoreType(item.bcItemNo);
     if (!coreType) continue;
 
-    const dims = parseDimensionsFromDesc(item.bcItemDisplayName);
+    const dims = parseDimensionsFromDesc(item.bcItemDescription);
     grouped[coreType].push({
-      code: item.bcItemNumber,
-      desc: item.bcItemDisplayName || item.bcItemNumber,
+      code: item.bcItemNo,
+      desc: item.bcItemDescription || item.bcItemNo,
       inventory: item.bcItemInventory ?? 0,
       unitCost: item.bcItemUnitCost ?? 0,
       ...(dims && { thickness: dims.thickness, width: dims.width, length: dims.length }),

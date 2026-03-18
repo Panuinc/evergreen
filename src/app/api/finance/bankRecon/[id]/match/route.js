@@ -38,7 +38,7 @@ export async function POST(request, { params }) {
 
     const { data: customers } = await supabase
       .from("bcCustomer")
-      .select("bcCustomerNumber,bcCustomerDisplayName,bcCustomerContact");
+      .select("bcCustomerNo,bcCustomerNameValue,bcCustomerContact");
 
 
     let arByCustomer = new Map();

@@ -8,7 +8,7 @@ export async function GET() {
     .from("bcSalesOrder")
     .select("*")
     .eq("bcSalesOrderSalespersonCode", "ONLINE")
-    .order("bcSalesOrderDate", { ascending: false });
+    .order("bcSalesOrderOrderDate", { ascending: false });
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });

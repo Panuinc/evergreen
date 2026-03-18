@@ -26,7 +26,7 @@ export function useOmStockItems() {
       const initialPrices = {};
       for (const item of stockData) {
         if (item.customPrice != null) {
-          initialPrices[item.bcItemNumber] = item.customPrice;
+          initialPrices[item.bcItemNo] = item.customPrice;
         }
       }
       setPrices(initialPrices);

@@ -2,7 +2,7 @@ import { withAuth } from "@/app/api/_lib/auth";
 
 const PAGE_SIZE = 1000;
 
-async function fetchAll(supabase, table, orderBy = "bcProductionOrderExternalId", ascending = false) {
+async function fetchAll(supabase, table, orderBy = "bcProductionOrderNo", ascending = false) {
   let rows = [];
   let from = 0;
   while (true) {
@@ -26,16 +26,16 @@ export async function GET() {
 
   try {
     const [orders, entries, salesLines] = await Promise.all([
-      fetchAll(auth.supabase, "bcProductionOrder", "bcProductionOrderExternalId", false),
-      fetchAll(auth.supabase, "bcItemLedgerEntry", "bcItemLedgerEntryExternalNo", true),
-      fetchAll(auth.supabase, "bcSalesOrderLine", "bcSalesOrderLineExternalId", true),
+      fetchAll(auth.supabase, "bcProductionOrder", "bcProductionOrderNo", false),
+      fetchAll(auth.supabase, "bcItemLedgerEntry", "bcItemLedgerEntryEntryNo", true),
+      fetchAll(auth.supabase, "bcSalesOrderLine", "bcSalesOrderLineDocumentNo", true),
     ]);
 
 
     const salesPriceMap = {};
     for (const sl of salesLines) {
-      if (sl.bcSalesOrderLineObjectNumber && sl.bcSalesOrderLineUnitPrice > 0) {
-        salesPriceMap[sl.bcSalesOrderLineObjectNumber] = Number(sl.bcSalesOrderLineUnitPrice);
+      if (sl.bcSalesOrderLineNoValue && sl.bcSalesOrderLineUnitPrice > 0) {
+        salesPriceMap[sl.bcSalesOrderLineNoValue] = Number(sl.bcSalesOrderLineUnitPrice);
       }
     }
 
@@ -51,18 +51,16 @@ export async function GET() {
         };
       }
       if (e.bcItemLedgerEntryEntryType === "Consumption") {
-        orderCostMap[e.bcItemLedgerEntryDocumentNo].consumptionCost += Math.abs(
-          Number(e.bcItemLedgerEntryCostAmountActual) || 0,
-        );
+        orderCostMap[e.bcItemLedgerEntryDocumentNo].consumptionCost += 0;
       } else if (e.bcItemLedgerEntryEntryType === "Output") {
-        orderCostMap[e.bcItemLedgerEntryDocumentNo].outputQty += Number(e.bcItemLedgerEntryQuantity) || 0;
-        orderCostMap[e.bcItemLedgerEntryDocumentNo].outputCost += Number(e.bcItemLedgerEntryCostAmountActual) || 0;
+        orderCostMap[e.bcItemLedgerEntryDocumentNo].outputQty += Number(e.bcItemLedgerEntryQuantityValue) || 0;
+        orderCostMap[e.bcItemLedgerEntryDocumentNo].outputCost += 0;
       }
     }
 
 
     const enriched = orders.map((o) => {
-      const c = orderCostMap[o.bcProductionOrderExternalId] || {
+      const c = orderCostMap[o.bcProductionOrderNo] || {
         consumptionCost: 0,
         outputQty: 0,
         outputCost: 0,

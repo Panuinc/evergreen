@@ -11,7 +11,7 @@ function fmtCurrency(v) {
 
 
 const columns = [
-  { name: "เลขที่ใบสั่งผลิต", uid: "bcProductionOrderExternalId", sortable: true },
+  { name: "เลขที่ใบสั่งผลิต", uid: "bcProductionOrderNo", sortable: true },
   { name: "สถานะ", uid: "bcProductionOrderStatus", sortable: true },
   { name: "รายละเอียด", uid: "bcProductionOrderDescription", sortable: true },
   { name: "รายละเอียด 2", uid: "bcProductionOrderDescription2" },
@@ -24,24 +24,24 @@ const columns = [
   { name: "รายได้", uid: "revenue", sortable: true },
   { name: "กำไร/ขาดทุน", uid: "profit", sortable: true },
   { name: "Margin", uid: "profitMargin", sortable: true },
-  { name: "รหัสแผนก", uid: "bcProductionOrderDimension1Code", sortable: true },
-  { name: "ชื่อแผนก", uid: "bcProductionOrderDimension1Name", sortable: true },
-  { name: "รหัสโครงการ", uid: "bcProductionOrderDimension2Code", sortable: true },
-  { name: "ชื่อโครงการ", uid: "bcProductionOrderDimension2Name", sortable: true },
+  { name: "รหัสแผนก", uid: "bcProductionOrderShortcutDimension1Code", sortable: true },
+  { name: "ชื่อแผนก", uid: "bcProductionOrderShortcutDimension1Code", sortable: true },
+  { name: "รหัสโครงการ", uid: "bcProductionOrderShortcutDimension2Code", sortable: true },
+  { name: "ชื่อโครงการ", uid: "bcProductionOrderShortcutDimension2Code", sortable: true },
   { name: "คลัง", uid: "bcProductionOrderLocationCode", sortable: true },
   { name: "วันเริ่ม", uid: "bcProductionOrderStartingDateTime", sortable: true },
   { name: "วันสิ้นสุด", uid: "bcProductionOrderEndingDateTime", sortable: true },
   { name: "กำหนดส่ง", uid: "bcProductionOrderDueDate", sortable: true },
-  { name: "Consumption คงเหลือ", uid: "bcProductionOrderRemainingConsumption", sortable: true },
-  { name: "ผู้รับผิดชอบ", uid: "bcProductionOrderAssignedUserId", sortable: true },
+  { name: "Consumption คงเหลือ", uid: "_removedRemainingConsumption", sortable: true },
+  { name: "ผู้รับผิดชอบ", uid: "bcProductionOrderAssignedUserID", sortable: true },
   { name: "วันที่เสร็จ", uid: "bcProductionOrderFinishedDate", sortable: true },
   { name: "ระยะเวลา (วัน)", uid: "durationDays", sortable: true },
   { name: "Search Description", uid: "bcProductionOrderSearchDescription" },
-  { name: "Synced At", uid: "bcProductionOrderSyncedAt", sortable: true },
+  { name: "Synced At", uid: "bcSyncedAt", sortable: true },
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "bcProductionOrderExternalId",
+  "bcProductionOrderNo",
   "bcProductionOrderStatus",
   "bcProductionOrderDescription",
   "bcProductionOrderSourceNo",
@@ -52,8 +52,8 @@ const INITIAL_VISIBLE_COLUMNS = [
   "revenue",
   "profit",
   "profitMargin",
-  "bcProductionOrderDimension1Name",
-  "bcProductionOrderDimension2Name",
+  "bcProductionOrderShortcutDimension1Code",
+  "bcProductionOrderShortcutDimension2Code",
   "bcProductionOrderDueDate",
   "bcProductionOrderFinishedDate",
   "durationDays",
@@ -67,14 +67,14 @@ const statusColorMap = {
 };
 
 const searchKeys = [
-  "bcProductionOrderExternalId",
+  "bcProductionOrderNo",
   "bcProductionOrderDescription",
   "bcProductionOrderSourceNo",
   "bcProductionOrderRoutingNo",
-  "bcProductionOrderDimension1Code",
-  "bcProductionOrderDimension2Code",
+  "bcProductionOrderShortcutDimension1Code",
+  "bcProductionOrderShortcutDimension2Code",
   "bcProductionOrderLocationCode",
-  "bcProductionOrderAssignedUserId",
+  "bcProductionOrderAssignedUserID",
 ];
 
 const statusOptions = [
@@ -101,11 +101,11 @@ export default function OrdersView({ data, loading }) {
   );
 
   const wpcData = useMemo(
-    () => enrichedData.filter((r) => r.bcProductionOrderDimension1Code === "WPC"),
+    () => enrichedData.filter((r) => r.bcProductionOrderShortcutDimension1Code === "WPC"),
     [enrichedData],
   );
   const otherData = useMemo(
-    () => enrichedData.filter((r) => r.bcProductionOrderDimension1Code !== "WPC"),
+    () => enrichedData.filter((r) => r.bcProductionOrderShortcutDimension1Code !== "WPC"),
     [enrichedData],
   );
 
@@ -131,7 +131,7 @@ export default function OrdersView({ data, loading }) {
         );
       case "bcProductionOrderStartingDateTime":
       case "bcProductionOrderEndingDateTime":
-      case "bcProductionOrderSyncedAt":
+      case "bcSyncedAt":
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleString("th-TH", {
               dateStyle: "short",
@@ -149,7 +149,7 @@ export default function OrdersView({ data, loading }) {
           : "-";
       case "bcProductionOrderQuantity":
       case "outputQty":
-      case "bcProductionOrderRemainingConsumption":
+      case "_removedRemainingConsumption":
         return row[columnKey] != null
           ? Number(row[columnKey]).toLocaleString("th-TH")
           : "-";

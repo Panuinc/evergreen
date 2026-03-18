@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
 
   const [{ data: orders, error: oErr }, { data: rawLines, error: lErr }] =
     await Promise.all([
-      auth.supabase.from("bcSalesOrder").select("*").eq("bcSalesOrderNumber", orderNo),
+      auth.supabase.from("bcSalesOrder").select("*").eq("bcSalesOrderNoValue", orderNo),
       auth.supabase
         .from("bcSalesOrderLine")
         .select("*")
@@ -24,17 +24,17 @@ export async function GET(request, { params }) {
 
   const lines = rawLines || [];
 
-  const totalAmount = lines.reduce((s, l) => s + (l.bcSalesOrderLineAmount || 0), 0);
-  const totalQty = lines.reduce((s, l) => s + (l.bcSalesOrderLineQuantity || 0), 0);
-  const shippedQty = lines.reduce((s, l) => s + (l.bcSalesOrderLineQuantityShipped || 0), 0);
+  const totalAmount = lines.reduce((s, l) => s + (l.bcSalesOrderLineAmountValue || 0), 0);
+  const totalQty = lines.reduce((s, l) => s + (l.bcSalesOrderLineQuantityValue || 0), 0);
+  const shippedQty = lines.reduce((s, l) => s + (l.bcSalesOrderLineQuantityValueShipped || 0), 0);
 
 
   const { data: custRows } = await auth.supabase
     .from("bcCustomer")
-    .select("bcCustomerPhoneNumber")
-    .eq("bcCustomerNumber", order.bcSalesOrderCustomerNumber)
+    .select("bcCustomerPhoneNo")
+    .eq("bcCustomerNo", order.bcSalesOrderSellToCustomerNo)
     .limit(1);
-  const customerPhone = custRows?.[0]?.bcCustomerPhoneNumber || "";
+  const customerPhone = custRows?.[0]?.bcCustomerPhoneNo || "";
 
   return Response.json({
     order: { ...order, lines, totalAmount, totalQty, shippedQty },

@@ -10,10 +10,10 @@ async function fetchProductCatalog() {
     const [itemsResult, priceResult, productInfoResult] = await Promise.all([
       supabase
         .from("bcItem")
-        .select("bcItemNumber,bcItemDisplayName")
+        .select("bcItemNo,bcItemDescription")
         .eq("bcItemBlocked", false)
-        .like("bcItemNumber", "FG-00003%")
-        .order("bcItemNumber"),
+        .like("bcItemNo", "FG-00003%")
+        .order("bcItemNo"),
       supabase.from("omPriceItem").select("omPriceItemNumber, omPriceItemUnitPrice"),
       supabase.from("omProductInfo").select("*"),
     ]);
@@ -29,12 +29,12 @@ async function fetchProductCatalog() {
     }
 
     return (itemsResult.data || []).map((i) => ({
-      number: i.bcItemNumber,
-      name: i.bcItemDisplayName,
-      price: priceMap[i.bcItemNumber] || 0,
-      description: infoMap[i.bcItemNumber]?.omProductInfoDescription || null,
-      highlights: infoMap[i.bcItemNumber]?.omProductInfoHighlights || null,
-      category: infoMap[i.bcItemNumber]?.omProductInfoCategory || null,
+      number: i.bcItemNo,
+      name: i.bcItemDescription,
+      price: priceMap[i.bcItemNo] || 0,
+      description: infoMap[i.bcItemNo]?.omProductInfoDescription || null,
+      highlights: infoMap[i.bcItemNo]?.omProductInfoHighlights || null,
+      category: infoMap[i.bcItemNo]?.omProductInfoCategory || null,
     }));
   } catch (err) {
     console.error("[AI] Failed to fetch products:", err.message);

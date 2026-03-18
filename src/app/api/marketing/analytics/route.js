@@ -43,19 +43,19 @@ export async function GET(request) {
         .from("bcSalesOrder")
         .select("*")
         .eq("bcSalesOrderSalespersonCode", "ONLINE")
-        .order("bcSalesOrderDate", { ascending: false }),
+        .order("bcSalesOrderOrderDate", { ascending: false }),
       fetchAllLines(auth.supabase),
       auth.supabase
         .from("bcCustomer")
-        .select("bcCustomerNumber,bcCustomerDisplayName,bcCustomerContact,bcCustomerPhoneNumber")
+        .select("bcCustomerNo,bcCustomerNameValue,bcCustomerContact,bcCustomerPhoneNo")
         .eq("bcCustomerSalespersonCode", "ONLINE"),
     ]);
 
 
     const orders = (rawOrders.data || []).map((o) => ({
-      No: o.bcSalesOrderNumber,
-      Sell_to_Customer_No: o.bcSalesOrderCustomerNumber,
-      Sell_to_Customer_Name: o.bcSalesOrderCustomerName,
+      No: o.bcSalesOrderNoValue,
+      Sell_to_Customer_No: o.bcSalesOrderSellToCustomerNo,
+      Sell_to_Customer_Name: o.bcSalesOrderSellToCustomerName,
       Sell_to_Address: o.bcSalesOrderSellToAddress,
       Sell_to_City: o.bcSalesOrderSellToCity,
       Sell_to_Post_Code: o.bcSalesOrderSellToPostCode,
@@ -63,11 +63,11 @@ export async function GET(request) {
       Ship_to_Address: o.bcSalesOrderShipToAddress,
       Ship_to_City: o.bcSalesOrderShipToCity,
       Ship_to_Post_Code: o.bcSalesOrderShipToPostCode,
-      Order_Date: o.bcSalesOrderDate,
+      Order_Date: o.bcSalesOrderOrderDate,
       Due_Date: o.bcSalesOrderDueDate,
       Status: o.bcSalesOrderStatus,
       Completely_Shipped: o.bcSalesOrderCompletelyShipped,
-      External_Document_No: o.bcSalesOrderExternalDocumentNumber,
+      External_Document_No: o.bcSalesOrderExternalDocumentNo,
       Salesperson_Code: o.bcSalesOrderSalespersonCode,
     }));
 
@@ -75,24 +75,24 @@ export async function GET(request) {
     const allLines = (rawLines || []).filter((l) => orderNos.has(l.bcSalesOrderLineDocumentNo));
     const lines = allLines.map((l) => ({
       Document_No: l.bcSalesOrderLineDocumentNo,
-      Line_No: l.bcSalesOrderLineNo,
-      Type: l.bcSalesOrderLineType,
-      No: l.bcSalesOrderLineObjectNumber,
-      Description: l.bcSalesOrderLineDescription,
-      Quantity: l.bcSalesOrderLineQuantity,
+      Line_No: l.bcSalesOrderLineLineNo,
+      Type: l.bcSalesOrderLineTypeValue,
+      No: l.bcSalesOrderLineNoValue,
+      Description: l.bcSalesOrderLineDescriptionValue,
+      Quantity: l.bcSalesOrderLineQuantityValue,
       Unit_Price: l.bcSalesOrderLineUnitPrice,
-      Line_Amount: l.bcSalesOrderLineAmount,
-      Quantity_Shipped: l.bcSalesOrderLineQuantityShipped,
+      Line_Amount: l.bcSalesOrderLineAmountValue,
+      Quantity_Shipped: l.bcSalesOrderLineQuantityValueShipped,
       BWK_Outstanding_Quantity: l.bcSalesOrderLineOutstandingQuantity,
       Unit_of_Measure_Code: l.bcSalesOrderLineUnitOfMeasureCode,
       Location_Code: l.bcSalesOrderLineLocationCode,
     }));
 
     const customers = (rawCustomers.data || []).map((c) => ({
-      No: c.bcCustomerNumber,
-      Name: c.bcCustomerDisplayName,
+      No: c.bcCustomerNo,
+      Name: c.bcCustomerNameValue,
       Contact: c.bcCustomerContact,
-      Phone_No: c.bcCustomerPhoneNumber,
+      Phone_No: c.bcCustomerPhoneNo,
     }));
     console.log(`[Marketing Analytics] Customers loaded: ${customers.length}`);
 

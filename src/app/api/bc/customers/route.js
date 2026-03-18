@@ -13,9 +13,9 @@ export async function GET() {
     const { data, error } = await auth.supabase
       .from("bcCustomer")
       .select(
-        "bcCustomerExternalId,bcCustomerNumber,bcCustomerDisplayName,bcCustomerPhoneNumber,bcCustomerContact,bcCustomerBalanceDue,bcCustomerBalance,bcCustomerSalespersonCode",
+        "bcCustomerNo,bcCustomerNameValue,bcCustomerPhoneNo,bcCustomerContact,bcCustomerBalanceDueLCY,bcCustomerBalanceLCY,bcCustomerSalespersonCode",
       )
-      .order("bcCustomerNumber")
+      .order("bcCustomerNo")
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) return Response.json({ error: error.message }, { status: 500 });

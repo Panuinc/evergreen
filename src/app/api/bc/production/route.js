@@ -13,7 +13,7 @@ export async function GET() {
     const { data, error } = await auth.supabase
       .from("bcItemLedgerEntry")
       .select("*")
-      .order("bcItemLedgerEntryExternalNo", { ascending: false })
+      .order("bcItemLedgerEntryEntryNo", { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) return Response.json({ error: error.message }, { status: 500 });

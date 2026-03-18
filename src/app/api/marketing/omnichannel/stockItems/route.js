@@ -9,7 +9,7 @@ export async function GET() {
       auth.supabase
         .from("bcItem")
         .select("*")
-        .like("bcItemNumber", "FG-00003%"),
+        .like("bcItemNo", "FG-00003%"),
       auth.supabase.from("omPriceItem").select("*"),
     ]);
 
@@ -22,7 +22,7 @@ export async function GET() {
 
     const merged = (bcItems || []).map((item) => ({
       ...item,
-      customPrice: priceMap[item.bcItemNumber] ?? null,
+      customPrice: priceMap[item.bcItemNo] ?? null,
     }));
 
     return Response.json(merged);

@@ -11,13 +11,13 @@ export async function GET(request) {
   let query = supabase
     .from("bcSalesOrder")
     .select(
-      "bcSalesOrderNumber, bcSalesOrderCustomerName, bcSalesOrderDueDate, bcSalesOrderStatus, bcSalesOrderTotalAmountIncVat"
+      "bcSalesOrderNoValue, bcSalesOrderSellToCustomerName, bcSalesOrderDueDate, bcSalesOrderStatus, bcSalesOrderAmountIncludingVAT"
     )
     .eq("bcSalesOrderCompletelyShipped", false);
 
   if (search) {
     query = query.or(
-      `bcSalesOrderNumber.ilike.%${search}%,bcSalesOrderCustomerName.ilike.%${search}%`
+      `bcSalesOrderNoValue.ilike.%${search}%,bcSalesOrderSellToCustomerName.ilike.%${search}%`
     );
   }
 

@@ -48,11 +48,11 @@ export async function GET() {
     const { data, error } = await auth.supabase
       .from("bcItem")
       .select(
-        "bcItemNumber, bcItemDisplayName, bcItemInventory, bcItemUnitCost, bcItemGeneralProductPostingGroupCode",
+        "bcItemNo, bcItemDescription, bcItemInventory, bcItemUnitCost, bcItemGenProdPostingGroup",
       )
-      .eq("bcItemGeneralProductPostingGroupCode", "RM")
+      .eq("bcItemGenProdPostingGroup", "RM")
       .or("bcItemBlocked.eq.false,bcItemBlocked.is.null")
-      .order("bcItemNumber")
+      .order("bcItemNo")
       .range(from, from + PAGE_SIZE - 1);
 
     if (error)
@@ -67,15 +67,15 @@ export async function GET() {
   const grouped = { rubberwood: [], sadao: [], lvl: [] };
 
   for (const item of allData) {
-    const frameType = getFrameType(item.bcItemNumber);
+    const frameType = getFrameType(item.bcItemNo);
     if (!frameType) continue;
 
-    const dims = parseDimensionsFromDesc(item.bcItemDisplayName);
+    const dims = parseDimensionsFromDesc(item.bcItemDescription);
     if (!dims) continue;
 
     grouped[frameType].push({
-      code: item.bcItemNumber,
-      desc: item.bcItemDisplayName || item.bcItemNumber,
+      code: item.bcItemNo,
+      desc: item.bcItemDescription || item.bcItemNo,
       thickness: dims.thickness,
       width: dims.width,
       length: dims.length,

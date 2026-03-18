@@ -81,8 +81,8 @@ export default function RelatedProductsView({
     RELATION_TYPES.find((t) => t.value === type)?.label || type;
 
   const getItemName = (itemNumber) => {
-    const item = stockItems.find((i) => i.bcItemNumber === itemNumber);
-    return item ? `${itemNumber} — ${item.bcItemDisplayName || ""}` : itemNumber;
+    const item = stockItems.find((i) => i.bcItemNo === itemNumber);
+    return item ? `${itemNumber} — ${item.bcItemDescription || ""}` : itemNumber;
   };
 
   const renderCell = (item, key) => {
@@ -135,15 +135,15 @@ export default function RelatedProductsView({
   const filteredSourceItems = stockItems.filter(
     (i) =>
       !sourceSearch ||
-      i.bcItemNumber?.toLowerCase().includes(sourceSearch.toLowerCase()) ||
-      i.bcItemDisplayName?.toLowerCase().includes(sourceSearch.toLowerCase())
+      i.bcItemNo?.toLowerCase().includes(sourceSearch.toLowerCase()) ||
+      i.bcItemDescription?.toLowerCase().includes(sourceSearch.toLowerCase())
   );
 
   const filteredTargetItems = stockItems.filter(
     (i) =>
       !targetSearch ||
-      i.bcItemNumber?.toLowerCase().includes(targetSearch.toLowerCase()) ||
-      i.bcItemDisplayName?.toLowerCase().includes(targetSearch.toLowerCase())
+      i.bcItemNo?.toLowerCase().includes(targetSearch.toLowerCase()) ||
+      i.bcItemDescription?.toLowerCase().includes(targetSearch.toLowerCase())
   );
 
   const addButton = (
@@ -200,16 +200,16 @@ export default function RelatedProductsView({
                   <div className="max-h-40 overflow-y-auto border rounded-md mt-1">
                     {filteredSourceItems.slice(0, 20).map((item) => (
                       <button
-                        key={item.bcItemNumber}
+                        key={item.bcItemNo}
                         type="button"
                         className="w-full text-left px-3 py-2 hover:bg-default-100 text-sm"
                         onClick={() => {
-                          setForm((f) => ({ ...f, sourceItem: item.bcItemNumber }));
+                          setForm((f) => ({ ...f, sourceItem: item.bcItemNo }));
                           setSourceSearch("");
                         }}
                       >
-                        <span className="font-medium">{item.bcItemNumber}</span>
-                        <span className="text-default-400 ml-2">{item.bcItemDisplayName}</span>
+                        <span className="font-medium">{item.bcItemNo}</span>
+                        <span className="text-default-400 ml-2">{item.bcItemDescription}</span>
                       </button>
                     ))}
                     {filteredSourceItems.length === 0 && (
@@ -239,16 +239,16 @@ export default function RelatedProductsView({
                   <div className="max-h-40 overflow-y-auto border rounded-md mt-1">
                     {filteredTargetItems.slice(0, 20).map((item) => (
                       <button
-                        key={item.bcItemNumber}
+                        key={item.bcItemNo}
                         type="button"
                         className="w-full text-left px-3 py-2 hover:bg-default-100 text-sm"
                         onClick={() => {
-                          setForm((f) => ({ ...f, targetItem: item.bcItemNumber }));
+                          setForm((f) => ({ ...f, targetItem: item.bcItemNo }));
                           setTargetSearch("");
                         }}
                       >
-                        <span className="font-medium">{item.bcItemNumber}</span>
-                        <span className="text-default-400 ml-2">{item.bcItemDisplayName}</span>
+                        <span className="font-medium">{item.bcItemNo}</span>
+                        <span className="text-default-400 ml-2">{item.bcItemDescription}</span>
                       </button>
                     ))}
                     {filteredTargetItems.length === 0 && (

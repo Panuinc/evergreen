@@ -127,7 +127,7 @@ export function useDeliveryPlans() {
     try {
       setSoLinesLoading(true);
       const lines = await getDeliveryPlanSalesOrderLines(
-        so.bcSalesOrderNumber
+        so.bcSalesOrderNoValue
       );
       setSoLines(lines || []);
     } catch {
