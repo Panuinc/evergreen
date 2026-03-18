@@ -40,8 +40,9 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import * as htmlToImage from "html-to-image";
+import { toast } from "sonner";
+import { authFetch } from "@/lib/apiClient";
 import BomAIPanel from "@/modules/production/components/BomAIPanel";
-import { useBomAI } from "@/modules/production/useBomAI";
 
 const GLUE_THICKNESS = 1;
 const LOCK_BLOCK_HEIGHT = 400;
@@ -1982,7 +1983,182 @@ const UIDoorBom = ({
     ],
   );
 
-  const bomAI = useBomAI({ bomState, setters: aiSetters });
+  // --- BomAI logic (inlined from useBomAI) ---
+  const [aiMessages, setAiMessages] = useState([]);
+  const [aiIsLoading, setAiIsLoading] = useState(false);
+  const [aiLastAction, setAiLastAction] = useState(null);
+  const [aiPendingDoors, setAiPendingDoors] = useState([]);
+  const [aiSelectedDoorIdx, setAiSelectedDoorIdx] = useState(null);
+  const [aiAppliedDoorIdxs, setAiAppliedDoorIdxs] = useState([]);
+  const aiAbortRef = useRef(null);
+
+  const aiApplyFormFields = useCallback(
+    (fields) => {
+      if (!aiSetters) return 0;
+      const map = {
+        customerPO: aiSetters.setCustomerPO,
+        orderQty: aiSetters.setOrderQty,
+        doorCode: aiSetters.setDoorType,
+        doorThickness: aiSetters.setDoorThickness,
+        doorWidth: aiSetters.setDoorWidth,
+        doorHeight: aiSetters.setDoorHeight,
+        surfaceMaterial: aiSetters.setSurfaceMaterial,
+        surfacePrice: aiSetters.setSurfacePrice,
+        surfaceThickness: aiSetters.setSurfaceThickness,
+        coreType: aiSetters.setCoreType,
+        edgeBanding: aiSetters.setEdgeBanding,
+      };
+      let count = 0;
+      for (const [key, val] of Object.entries(fields)) {
+        if (val !== undefined && val !== null && map[key]) {
+          map[key](typeof val === "boolean" ? val : String(val));
+          count++;
+        }
+      }
+      return count;
+    },
+    [aiSetters],
+  );
+
+  const aiApplyDoorFields = useCallback(
+    (door, selectedKeys, doorIdx) => {
+      if (!door) return;
+      const fieldsToApply = selectedKeys
+        ? Object.fromEntries(Object.entries(door).filter(([k]) => selectedKeys.includes(k)))
+        : door;
+      aiApplyFormFields(fieldsToApply);
+      setAiLastAction({ fields: fieldsToApply, count: Object.keys(fieldsToApply).length });
+      setAiAppliedDoorIdxs((prev) => [...prev, doorIdx]);
+      setAiSelectedDoorIdx((prev) => prev);
+    },
+    [aiApplyFormFields],
+  );
+
+  const aiSelectDoor = useCallback((idx) => {
+    setAiSelectedDoorIdx(idx);
+  }, []);
+
+  const aiDismissPendingDoors = useCallback(() => {
+    setAiPendingDoors([]);
+    setAiSelectedDoorIdx(null);
+    setAiAppliedDoorIdxs([]);
+  }, []);
+
+  const aiSendMessage = useCallback(
+    async (content, image = null) => {
+      const userMessage = { role: "user", content };
+      const updatedMessages = [...aiMessages, userMessage];
+
+      setAiMessages([...updatedMessages, { role: "assistant", content: "" }]);
+      setAiIsLoading(true);
+      setAiLastAction(null);
+
+      try {
+        const controller = new AbortController();
+        aiAbortRef.current = controller;
+
+        const res = await authFetch("/api/production/bom/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: updatedMessages,
+            bomState,
+            image,
+          }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || `ส่งข้อความล้มเหลว (${res.status})`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let assistantContent = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          for (const line of chunk.split("\n")) {
+            if (!line.startsWith("data: ")) continue;
+            const data = line.slice(6);
+            if (data === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(data);
+
+              if (parsed.type === "bom_action" && parsed.action?.type === "extract_doors") {
+                const doors = parsed.action.doors || [];
+                if (doors.length === 1) {
+                  const count = aiApplyFormFields(doors[0]);
+                  setAiLastAction({ fields: doors[0], count });
+                } else if (doors.length > 1) {
+                  setAiPendingDoors(doors);
+                  setAiSelectedDoorIdx(0);
+                }
+                continue;
+              }
+
+              if (parsed.type === "bom_action" && parsed.action?.type === "fill_form") {
+                const count = aiApplyFormFields(parsed.action.fields);
+                setAiLastAction({ fields: parsed.action.fields, count });
+                continue;
+              }
+
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) {
+                assistantContent += delta;
+                setAiMessages([
+                  ...updatedMessages,
+                  { role: "assistant", content: assistantContent },
+                ]);
+              }
+            } catch {}
+          }
+        }
+
+        setAiMessages([
+          ...updatedMessages,
+          { role: "assistant", content: assistantContent },
+        ]);
+      } catch (error) {
+        if (error.name === "AbortError") return;
+        toast.error("AI ไม่สามารถตอบได้ในขณะนี้");
+        setAiMessages(updatedMessages);
+      } finally {
+        setAiIsLoading(false);
+        aiAbortRef.current = null;
+      }
+    },
+    [aiMessages, bomState, aiApplyFormFields],
+  );
+
+  const aiClearMessages = useCallback(() => {
+    if (aiAbortRef.current) aiAbortRef.current.abort();
+    setAiMessages([]);
+    setAiIsLoading(false);
+    setAiLastAction(null);
+    setAiPendingDoors([]);
+    setAiSelectedDoorIdx(null);
+    setAiAppliedDoorIdxs([]);
+  }, []);
+
+  const bomAI = {
+    messages: aiMessages,
+    isLoading: aiIsLoading,
+    lastAction: aiLastAction,
+    pendingDoors: aiPendingDoors,
+    selectedDoorIdx: aiSelectedDoorIdx,
+    appliedDoorIdxs: aiAppliedDoorIdxs,
+    sendMessage: aiSendMessage,
+    selectDoor: aiSelectDoor,
+    applyDoorFields: aiApplyDoorFields,
+    dismissPendingDoors: aiDismissPendingDoors,
+    clearMessages: aiClearMessages,
+  };
 
   return (
     <div ref={formRef} className="flex flex-col w-full gap-3">
