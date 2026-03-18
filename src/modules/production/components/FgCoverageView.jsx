@@ -47,11 +47,12 @@ const initialColumns = [
   "poTotalQty",
 ];
 
-export default function FgCoverageView() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function FgCoverageView({ initialData = null }) {
+  const [data, setData] = useState(initialData);
+  const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
+    if (initialData) return;
     (async () => {
       try {
         const res = await authFetch("/api/production/fgCoverage");
@@ -63,7 +64,7 @@ export default function FgCoverageView() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [initialData]);
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {

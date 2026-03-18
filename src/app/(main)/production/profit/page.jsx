@@ -1,10 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import ProfitClient from "@/modules/production/ProfitClient";
 
-import { useProductionDashboard } from "@/modules/production/hooks/useProductionDashboard";
-import ProfitByItemView from "@/modules/production/components/ProfitByItemView";
+export default async function ProductionProfitPage() {
+  const data = await api("/api/production/dashboard");
 
-export default function ProductionProfitPage() {
-  const { data, loading, compareMode, setCompareMode } = useProductionDashboard();
-
-  return <ProfitByItemView data={data} loading={loading} compareMode={compareMode} setCompareMode={setCompareMode} />;
+  return <ProfitClient initialData={data} />;
 }

@@ -1,46 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import VehiclesClient from "@/modules/tms/VehiclesClient";
 
-import { useVehicles } from "@/modules/tms/hooks/useVehicles";
-import VehiclesView from "@/modules/tms/components/VehiclesView";
+export default async function VehiclesPage() {
+  const vehicles = await api("/api/tms/vehicles");
 
-export default function VehiclesPage() {
-  const {
-    vehicles,
-    loading,
-    saving,
-    editingVehicle,
-    formData,
-    validationErrors,
-    deletingVehicle,
-    isOpen,
-    onClose,
-    deleteModal,
-    updateField,
-    handleOpen,
-    handleSave,
-    confirmDelete,
-    handleDelete,
-    toggleActive,
-  } = useVehicles();
-
-  return (
-    <VehiclesView
-      vehicles={vehicles}
-      loading={loading}
-      saving={saving}
-      editingVehicle={editingVehicle}
-      formData={formData}
-      validationErrors={validationErrors}
-      deletingVehicle={deletingVehicle}
-      isOpen={isOpen}
-      onClose={onClose}
-      deleteModal={deleteModal}
-      updateField={updateField}
-      handleOpen={handleOpen}
-      handleSave={handleSave}
-      confirmDelete={confirmDelete}
-      handleDelete={handleDelete}
-      toggleActive={toggleActive}
-    />
-  );
+  return <VehiclesClient initialVehicles={vehicles || []} />;
 }

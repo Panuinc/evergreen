@@ -1,7 +1,5 @@
-"use client";
+import DeliveryPlansClient from "@/modules/tms/DeliveryPlansClient";
 
-import DeliveryPlanCalendar from "@/modules/tms/components/DeliveryPlanCalendar";
-
-export default function DeliveryPlansPage() {
-  return <DeliveryPlanCalendar />;
+export default async function DeliveryPlansPage() {
+  return <DeliveryPlansClient />;
 }

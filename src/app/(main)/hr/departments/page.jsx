@@ -1,46 +1,16 @@
-"use client";
+import { api } from "@/lib/api.server";
+import DepartmentsClient from "@/modules/hr/DepartmentsClient";
 
-import { useDepartments } from "@/modules/hr/hooks/useDepartments";
-import DepartmentsView from "@/modules/hr/components/DepartmentsView";
-
-export default function DepartmentsPage() {
-  const {
-    departments,
-    divisions,
-    loading,
-    saving,
-    editingDept,
-    formData,
-    setFormData,
-    deletingDept,
-    isOpen,
-    onClose,
-    deleteModal,
-    handleOpen,
-    handleSave,
-    confirmDelete,
-    handleDelete,
-    toggleActive,
-  } = useDepartments();
+export default async function DepartmentsPage() {
+  const [departments, divisions] = await Promise.all([
+    api("/api/hr/departments"),
+    api("/api/hr/divisions"),
+  ]);
 
   return (
-    <DepartmentsView
-      departments={departments}
-      divisions={divisions}
-      loading={loading}
-      saving={saving}
-      editingDept={editingDept}
-      formData={formData}
-      onFormDataChange={setFormData}
-      deletingDept={deletingDept}
-      isOpen={isOpen}
-      onClose={onClose}
-      deleteModal={deleteModal}
-      onOpen={handleOpen}
-      onSave={handleSave}
-      onConfirmDelete={confirmDelete}
-      onDelete={handleDelete}
-      toggleActive={toggleActive}
+    <DepartmentsClient
+      initialDepartments={departments || []}
+      initialDivisions={divisions || []}
     />
   );
 }

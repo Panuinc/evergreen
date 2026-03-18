@@ -1,19 +1,18 @@
-"use client";
+import { api } from "@/lib/api.server";
+import SalesInvoicesClient from "@/modules/finance/SalesInvoicesClient";
 
-import { useSalesInvoices } from "@/modules/finance/hooks/useSalesInvoices";
-import SalesInvoicesView from "@/modules/finance/components/SalesInvoicesView";
+function calcDaysOverdue(dueDate) {
+  if (!dueDate || dueDate === "0001-01-01") return 0;
+  const diff = Math.floor((new Date() - new Date(dueDate)) / 86400000);
+  return Math.max(0, diff);
+}
 
-export default function SalesInvoicesPage() {
-  const { data, loading, selected, isOpen, onClose, openLines } = useSalesInvoices();
+export default async function SalesInvoicesPage() {
+  const raw = await api("/api/finance/salesInvoices?status=Open&expand=true");
+  const data = (raw || []).map((r) => ({
+    ...r,
+    daysOverdue: r.status === "Open" ? calcDaysOverdue(r.dueDate) : 0,
+  }));
 
-  return (
-    <SalesInvoicesView
-      data={data}
-      loading={loading}
-      selected={selected}
-      isOpen={isOpen}
-      onClose={onClose}
-      openLines={openLines}
-    />
-  );
+  return <SalesInvoicesClient initialData={data} />;
 }

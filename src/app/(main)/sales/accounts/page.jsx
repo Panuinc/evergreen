@@ -1,46 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import AccountsClient from "@/modules/sales/AccountsClient";
 
-import { useSalesAccounts } from "@/modules/sales/hooks/useSalesAccounts";
-import AccountsView from "@/modules/sales/components/AccountsView";
+export default async function AccountsPage() {
+  const accounts = await api("/api/sales/accounts");
 
-export default function AccountsPage() {
-  const {
-    accounts,
-    loading,
-    saving,
-    editingAccount,
-    formData,
-    validationErrors,
-    deletingAccount,
-    isOpen,
-    onClose,
-    deleteModal,
-    updateField,
-    handleOpen,
-    handleSave,
-    confirmDelete,
-    handleDelete,
-    toggleActive,
-  } = useSalesAccounts();
-
-  return (
-    <AccountsView
-      accounts={accounts}
-      loading={loading}
-      saving={saving}
-      editingAccount={editingAccount}
-      formData={formData}
-      validationErrors={validationErrors}
-      deletingAccount={deletingAccount}
-      isOpen={isOpen}
-      onClose={onClose}
-      deleteModal={deleteModal}
-      updateField={updateField}
-      handleOpen={handleOpen}
-      handleSave={handleSave}
-      confirmDelete={confirmDelete}
-      handleDelete={handleDelete}
-      toggleActive={toggleActive}
-    />
-  );
+  return <AccountsClient initialAccounts={accounts || []} />;
 }

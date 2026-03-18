@@ -1,17 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import HrDashboardClient from "@/modules/hr/HrDashboardClient";
 
-import { useHrDashboard } from "@/modules/hr/hooks/useHrDashboard";
-import HrDashboardView from "@/modules/hr/components/HrDashboardView";
+export default async function HRDashboardPage() {
+  const stats = await api("/api/hr/dashboard");
 
-export default function HRDashboardPage() {
-  const { stats, loading, compareMode, setCompareMode } = useHrDashboard();
-
-  return (
-    <HrDashboardView
-      stats={stats}
-      loading={loading}
-      compareMode={compareMode}
-      setCompareMode={setCompareMode}
-    />
-  );
+  return <HrDashboardClient initialStats={stats} />;
 }

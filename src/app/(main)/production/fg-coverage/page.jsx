@@ -1,7 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import FgCoverageClient from "@/modules/production/FgCoverageClient";
 
-import FgCoverageView from "@/modules/production/components/FgCoverageView";
+export default async function FgCoveragePage() {
+  const data = await api("/api/production/fgCoverage");
 
-export default function FgCoveragePage() {
-  return <FgCoverageView />;
+  return <FgCoverageClient initialData={data} />;
 }

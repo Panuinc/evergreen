@@ -1,10 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import ProfileClient from "@/modules/profile/ProfileClient";
 
-import { useProfilePage } from "@/modules/profile/hooks/useProfilePage";
-import ProfileView from "@/modules/profile/components/ProfileView";
+export default async function ProfilePage() {
+  const profile = await api("/api/profile");
 
-export default function ProfilePage() {
-  const props = useProfilePage();
-
-  return <ProfileView {...props} />;
+  return <ProfileClient initialProfile={profile} />;
 }

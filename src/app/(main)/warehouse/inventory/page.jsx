@@ -1,10 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import InventoryClient from "@/modules/warehouse/InventoryClient";
 
-import { useWarehouseInventory } from "@/modules/warehouse/hooks/useWarehouseInventory";
-import WarehouseInventoryView from "@/modules/warehouse/components/WarehouseInventoryView";
+export default async function WarehouseInventoryPage() {
+  const items = await api("/api/warehouse/inventory");
 
-export default function WarehouseInventoryPage() {
-  const { items, loading } = useWarehouseInventory();
-
-  return <WarehouseInventoryView items={items} loading={loading} />;
+  return <InventoryClient initialItems={items || []} />;
 }

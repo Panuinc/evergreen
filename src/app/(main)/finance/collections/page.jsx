@@ -1,36 +1,8 @@
-"use client";
+import CollectionsClient from "@/modules/finance/CollectionsClient";
 
-import { useCollections } from "@/modules/finance/hooks/useCollections";
-import CollectionsView from "@/modules/finance/components/CollectionsView";
-
-export default function CollectionsPage() {
-  const hook = useCollections();
-
-  return (
-    <CollectionsView
-      loading={hook.loading}
-      mergedData={hook.mergedData}
-      kpis={hook.kpis}
-      selectedCustomer={hook.selectedCustomer}
-      form={hook.form}
-      onFieldChange={hook.setField}
-      submitting={hook.submitting}
-      onSubmit={hook.handleSubmit}
-      addModal={hook.addModal}
-      historyModal={hook.historyModal}
-      onOpenAdd={hook.openAdd}
-      onOpenHistory={hook.openHistory}
-      customerHistory={hook.customerHistory}
-      reportSince={hook.reportSince}
-      onReportSinceChange={hook.setReportSince}
-      reportUntil={hook.reportUntil}
-      onReportUntilChange={hook.setReportUntil}
-      reportData={hook.reportData}
-      onReload={hook.loadData}
-      followUps={hook.followUps}
-      aiAnalysis={hook.aiAnalysis}
-      aiLoading={hook.aiLoading}
-      runAiAnalysis={hook.runAiAnalysis}
-    />
-  );
+export default async function CollectionsPage() {
+  // Collections page relies heavily on client-side hooks (useCollections)
+  // with AI streaming, follow-up mutations, and complex form state.
+  // Keep data fetching in the client hook; this page is a Server Component.
+  return <CollectionsClient />;
 }

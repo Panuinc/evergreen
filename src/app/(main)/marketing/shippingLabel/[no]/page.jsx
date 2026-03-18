@@ -1,21 +1,6 @@
-"use client";
+import ShippingLabelClient from "@/modules/marketing/ShippingLabelClient";
 
-import { useParams } from "next/navigation";
-import dynamic from "next/dynamic";
-import Loading from "@/components/ui/Loading";
-const ShippingLabelDocument = dynamic(
-  () => import("./ShippingLabelDocument"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center py-20">
-        <Loading />
-      </div>
-    ),
-  },
-);
-
-export default function ShippingLabelPage() {
-  const { no } = useParams();
-  return <ShippingLabelDocument orderNo={decodeURIComponent(no)} />;
+export default async function ShippingLabelPage({ params }) {
+  const { no } = await params;
+  return <ShippingLabelClient orderNo={decodeURIComponent(no)} />;
 }

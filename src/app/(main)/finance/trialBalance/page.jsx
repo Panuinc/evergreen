@@ -1,9 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import TrialBalanceClient from "@/modules/finance/TrialBalanceClient";
 
-import { useTrialBalance } from "@/modules/finance/hooks/useTrialBalance";
-import TrialBalanceView from "@/modules/finance/components/TrialBalanceView";
+export default async function TrialBalancePage() {
+  const data = await api("/api/finance/trialBalance");
 
-export default function TrialBalancePage() {
-  const { data, loading } = useTrialBalance();
-  return <TrialBalanceView data={data} loading={loading} />;
+  return <TrialBalanceClient initialData={data || []} />;
 }

@@ -1,10 +1,8 @@
-"use client";
-
-import { useBcCustomers } from "@/modules/bc/hooks/useBcCustomers";
+import { api } from "@/lib/api.server";
 import BcCustomersView from "@/modules/bc/components/BcCustomersView";
 
-export default function BcCustomersPage() {
-  const { customers, loading } = useBcCustomers();
+export default async function BcCustomersPage() {
+  const customers = await api("/api/bc/customers");
 
-  return <BcCustomersView customers={customers} loading={loading} />;
+  return <BcCustomersView customers={customers || []} loading={false} />;
 }

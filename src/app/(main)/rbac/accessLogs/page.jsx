@@ -1,10 +1,8 @@
-"use client";
-
-import { useAccessLogs } from "@/modules/rbac/hooks/useAccessLogs";
+import { api } from "@/lib/api.server";
 import AccessLogsView from "@/modules/rbac/components/AccessLogsView";
 
-export default function AccessLogsPage() {
-  const { logs, loading } = useAccessLogs();
+export default async function AccessLogsPage() {
+  const logs = await api("/api/rbac/accessLogs");
 
-  return <AccessLogsView logs={logs} loading={loading} />;
+  return <AccessLogsView logs={logs || []} loading={false} />;
 }

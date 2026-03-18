@@ -1,48 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import LeadsClient from "@/modules/sales/LeadsClient";
 
-import { useSalesLeads } from "@/modules/sales/hooks/useSalesLeads";
-import LeadsView from "@/modules/sales/components/LeadsView";
+export default async function LeadsPage() {
+  const leads = await api("/api/sales/leads");
 
-export default function LeadsPage() {
-  const {
-    leads,
-    loading,
-    saving,
-    editingLead,
-    formData,
-    validationErrors,
-    deletingLead,
-    isOpen,
-    onClose,
-    deleteModal,
-    updateField,
-    handleOpen,
-    handleSave,
-    confirmDelete,
-    handleDelete,
-    handleConvert,
-    toggleActive,
-  } = useSalesLeads();
-
-  return (
-    <LeadsView
-      leads={leads}
-      loading={loading}
-      saving={saving}
-      editingLead={editingLead}
-      formData={formData}
-      validationErrors={validationErrors}
-      deletingLead={deletingLead}
-      isOpen={isOpen}
-      onClose={onClose}
-      deleteModal={deleteModal}
-      updateField={updateField}
-      handleOpen={handleOpen}
-      handleSave={handleSave}
-      confirmDelete={confirmDelete}
-      handleDelete={handleDelete}
-      handleConvert={handleConvert}
-      toggleActive={toggleActive}
-    />
-  );
+  return <LeadsClient initialLeads={leads || []} />;
 }

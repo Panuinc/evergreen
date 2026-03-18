@@ -1,21 +1,16 @@
-"use client";
+import { api } from "@/lib/api.server";
+import PromotionsClient from "@/modules/marketing/PromotionsClient";
 
-import { usePromotions } from "@/modules/marketing/hooks/usePromotions";
-import { useOmStockItems } from "@/modules/marketing/hooks/useOmStockItems";
-import PromotionsView from "@/modules/marketing/components/PromotionsView";
-
-export default function PromotionsPage() {
-  const { promotions, loading, add, update, remove } = usePromotions();
-  const { items: stockItems, loading: stockLoading } = useOmStockItems();
+export default async function PromotionsPage() {
+  const [promotions, stockItems] = await Promise.all([
+    api("/api/marketing/omnichannel/promotions"),
+    api("/api/marketing/omnichannel/stockItems"),
+  ]);
 
   return (
-    <PromotionsView
-      promotions={promotions}
-      loading={loading || stockLoading}
-      stockItems={stockItems}
-      onAdd={add}
-      onUpdate={update}
-      onDelete={remove}
+    <PromotionsClient
+      initialPromotions={promotions || []}
+      initialStockItems={stockItems || []}
     />
   );
 }

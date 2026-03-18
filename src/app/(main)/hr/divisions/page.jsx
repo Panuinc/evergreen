@@ -1,44 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import DivisionsClient from "@/modules/hr/DivisionsClient";
 
-import { useDivisions } from "@/modules/hr/hooks/useDivisions";
-import DivisionsView from "@/modules/hr/components/DivisionsView";
+export default async function DivisionsPage() {
+  const divisions = await api("/api/hr/divisions");
 
-export default function DivisionsPage() {
-  const {
-    divisions,
-    loading,
-    saving,
-    editingDiv,
-    formData,
-    setFormData,
-    deletingDiv,
-    isOpen,
-    onClose,
-    deleteModal,
-    handleOpen,
-    handleSave,
-    confirmDelete,
-    handleDelete,
-    toggleActive,
-  } = useDivisions();
-
-  return (
-    <DivisionsView
-      divisions={divisions}
-      loading={loading}
-      saving={saving}
-      editingDiv={editingDiv}
-      formData={formData}
-      onFormDataChange={setFormData}
-      deletingDiv={deletingDiv}
-      isOpen={isOpen}
-      onClose={onClose}
-      deleteModal={deleteModal}
-      onOpen={handleOpen}
-      onSave={handleSave}
-      onConfirmDelete={confirmDelete}
-      onDelete={handleDelete}
-      toggleActive={toggleActive}
-    />
-  );
+  return <DivisionsClient initialDivisions={divisions || []} />;
 }

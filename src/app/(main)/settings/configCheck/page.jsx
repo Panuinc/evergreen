@@ -1,12 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import ConfigCheckClient from "@/modules/settings/ConfigCheckClient";
 
-import { useConfigCheck } from "@/hooks/shared/useConfigCheck";
-import ConfigCheckView from "@/modules/settings/components/ConfigCheckView";
+export default async function ConfigCheckPage() {
+  const status = await api("/api/configCheck");
 
-export default function ConfigCheckPage() {
-  const { status, loading, refetch } = useConfigCheck();
-
-  return (
-    <ConfigCheckView status={status} loading={loading} refetch={refetch} />
-  );
+  return <ConfigCheckClient initialStatus={status} />;
 }

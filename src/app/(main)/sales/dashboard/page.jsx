@@ -1,10 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import SalesDashboardClient from "@/modules/sales/SalesDashboardClient";
 
-import { useSalesDashboard } from "@/modules/sales/hooks/useSalesDashboard";
-import DashboardView from "@/modules/sales/components/DashboardView";
+export default async function SalesDashboardPage() {
+  const data = await api("/api/sales/dashboard");
 
-export default function SalesDashboardPage() {
-  const { data, loading, compareMode, setCompareMode } = useSalesDashboard();
-
-  return <DashboardView data={data} loading={loading} compareMode={compareMode} setCompareMode={setCompareMode} />;
+  return <SalesDashboardClient initialData={data} />;
 }

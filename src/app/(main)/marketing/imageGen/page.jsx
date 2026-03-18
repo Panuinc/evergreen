@@ -1,9 +1,5 @@
-"use client";
+import ImageGenClient from "@/modules/marketing/ImageGenClient";
 
-import { useImageGenerator } from "@/modules/marketing/hooks/useImageGenerator";
-import ImageGeneratorView from "@/modules/marketing/components/ImageGeneratorView";
-
-export default function ImageGenPage() {
-  const hook = useImageGenerator();
-  return <ImageGeneratorView {...hook} />;
+export default async function ImageGenPage() {
+  return <ImageGenClient />;
 }

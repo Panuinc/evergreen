@@ -1,20 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import TmsDashboardClient from "@/modules/tms/TmsDashboardClient";
 
-import { useTmsDashboard } from "@/modules/tms/hooks/useTmsDashboard";
-import DashboardView from "@/modules/tms/components/DashboardView";
+export default async function TmsDashboardPage() {
+  const stats = await api("/api/tms/dashboard");
 
-export default function TmsDashboardPage() {
-  const { stats, loading, compareMode, setCompareMode, aiAnalysis, aiLoading, runAiAnalysis } = useTmsDashboard();
-
-  return (
-    <DashboardView
-      stats={stats}
-      loading={loading}
-      compareMode={compareMode}
-      setCompareMode={setCompareMode}
-      aiAnalysis={aiAnalysis}
-      aiLoading={aiLoading}
-      runAiAnalysis={runAiAnalysis}
-    />
-  );
+  return <TmsDashboardClient initialStats={stats} />;
 }

@@ -1,17 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import LabelDesignerClient from "@/modules/marketing/LabelDesignerClient";
 
-import { useLabelDesigns } from "@/modules/marketing/hooks/useLabelDesigns";
-import LabelDesignerView from "@/modules/marketing/components/LabelDesignerView";
+export default async function LabelDesignerPage() {
+  const designs = await api("/api/marketing/labelDesigns");
 
-export default function LabelDesignerPage() {
-  const { designs, loading, save, remove } = useLabelDesigns();
-
-  return (
-    <LabelDesignerView
-      savedDesigns={designs}
-      designsLoading={loading}
-      onSaveDesign={save}
-      onDeleteDesign={remove}
-    />
-  );
+  return <LabelDesignerClient initialDesigns={designs || []} />;
 }

@@ -1,9 +1,9 @@
-"use client";
+import { api } from "@/lib/api.server";
+import AgedPayablesClient from "@/modules/finance/AgedPayablesClient";
 
-import { useAgedPayables } from "@/modules/finance/hooks/useAgedPayables";
-import AgedPayablesView from "@/modules/finance/components/AgedPayablesView";
+export default async function AgedPayablesPage() {
+  const raw = await api("/api/finance/agedPayables");
+  const data = (raw || []).filter((p) => p.vendorNumber && Number(p.balanceDue) !== 0);
 
-export default function AgedPayablesPage() {
-  const { data, loading } = useAgedPayables();
-  return <AgedPayablesView data={data} loading={loading} />;
+  return <AgedPayablesClient initialData={data} />;
 }

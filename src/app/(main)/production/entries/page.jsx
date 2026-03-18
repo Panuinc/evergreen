@@ -1,10 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import EntriesClient from "@/modules/production/EntriesClient";
 
-import { useProduction } from "@/modules/production/hooks/useProduction";
-import EntriesView from "@/modules/production/components/EntriesView";
+export default async function ProductionEntriesPage() {
+  const data = await api("/api/bc/production");
 
-export default function ProductionEntriesPage() {
-  const { data, loading } = useProduction();
-
-  return <EntriesView data={data} loading={loading} />;
+  return <EntriesClient initialData={data || []} />;
 }

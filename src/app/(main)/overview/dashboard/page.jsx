@@ -1,10 +1,5 @@
-"use client";
-
-import { useOverviewDashboard } from "@/modules/overview/hooks/useOverviewDashboard";
-import DashboardView from "@/modules/overview/components/DashboardView";
+import OverviewDashboardClient from "@/modules/overview/OverviewDashboardClient";
 
 export default function OverviewDashboardPage() {
-  const props = useOverviewDashboard();
-
-  return <DashboardView {...props} />;
+  return <OverviewDashboardClient />;
 }

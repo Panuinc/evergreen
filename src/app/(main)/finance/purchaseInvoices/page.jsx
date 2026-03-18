@@ -1,19 +1,18 @@
-"use client";
+import { api } from "@/lib/api.server";
+import PurchaseInvoicesClient from "@/modules/finance/PurchaseInvoicesClient";
 
-import { usePurchaseInvoices } from "@/modules/finance/hooks/usePurchaseInvoices";
-import PurchaseInvoicesView from "@/modules/finance/components/PurchaseInvoicesView";
+function calcDaysOverdue(dueDate) {
+  if (!dueDate || dueDate === "0001-01-01") return 0;
+  const diff = Math.floor((new Date() - new Date(dueDate)) / 86400000);
+  return Math.max(0, diff);
+}
 
-export default function PurchaseInvoicesPage() {
-  const { data, loading, selected, isOpen, onClose, openLines } = usePurchaseInvoices();
+export default async function PurchaseInvoicesPage() {
+  const raw = await api("/api/finance/purchaseInvoices?status=Open&expand=true");
+  const data = (raw || []).map((r) => ({
+    ...r,
+    daysOverdue: r.status === "Open" ? calcDaysOverdue(r.dueDate) : 0,
+  }));
 
-  return (
-    <PurchaseInvoicesView
-      data={data}
-      loading={loading}
-      selected={selected}
-      isOpen={isOpen}
-      onClose={onClose}
-      openLines={openLines}
-    />
-  );
+  return <PurchaseInvoicesClient initialData={data} />;
 }

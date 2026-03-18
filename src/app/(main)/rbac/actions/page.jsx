@@ -1,36 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import RbacActionsClient from "@/modules/rbac/RbacActionsClient";
 
-import { useActions } from "@/modules/rbac/hooks/useActions";
-import ActionsView from "@/modules/rbac/components/ActionsView";
+export default async function ActionsPage() {
+  const actions = await api("/api/rbac/actions");
 
-export default function ActionsPage() {
-  const {
-    actions,
-    loading,
-    editingAction,
-    formData,
-    setFormData,
-    isOpen,
-    onClose,
-    handleOpen,
-    handleSave,
-    handleDelete,
-    toggleActive,
-  } = useActions();
-
-  return (
-    <ActionsView
-      actions={actions}
-      loading={loading}
-      editingAction={editingAction}
-      formData={formData}
-      setFormData={setFormData}
-      isOpen={isOpen}
-      onClose={onClose}
-      handleOpen={handleOpen}
-      handleSave={handleSave}
-      handleDelete={handleDelete}
-      toggleActive={toggleActive}
-    />
-  );
+  return <RbacActionsClient initialActions={actions || []} />;
 }

@@ -1,10 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import ProdOrdersClient from "@/modules/production/ProdOrdersClient";
 
-import { useProductionOrders } from "@/modules/production/hooks/useProductionOrders";
-import OrdersView from "@/modules/production/components/OrdersView";
+export default async function ProductionOrdersPage() {
+  const data = await api("/api/bc/productionOrders");
 
-export default function ProductionOrdersPage() {
-  const { data, loading } = useProductionOrders();
-
-  return <OrdersView data={data} loading={loading} />;
+  return <ProdOrdersClient initialData={data || []} />;
 }

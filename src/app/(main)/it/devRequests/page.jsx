@@ -1,39 +1,16 @@
-"use client";
+import { api } from "@/lib/api.server";
+import DevRequestsClient from "@/modules/it/DevRequestsClient";
 
-import { useItDevRequests } from "@/modules/it/hooks/useItDevRequests";
-import DevelopmentView from "@/modules/it/components/DevelopmentView";
-
-export default function DevelopmentPage() {
-  const hook = useItDevRequests();
+export default async function DevelopmentPage() {
+  const [requests, employees] = await Promise.all([
+    api("/api/it/devRequests"),
+    api("/api/hr/employees"),
+  ]);
 
   return (
-    <DevelopmentView
-      requests={hook.requests}
-      employees={hook.employees}
-      loading={hook.loading}
-      saving={hook.saving}
-      editingRequest={hook.editingRequest}
-      formData={hook.formData}
-      validationErrors={hook.validationErrors}
-      deletingRequest={hook.deletingRequest}
-      isOpen={hook.isOpen}
-      onClose={hook.onClose}
-      deleteModal={hook.deleteModal}
-      updateField={hook.updateField}
-      handleOpen={hook.handleOpen}
-      handleSave={hook.handleSave}
-      confirmDelete={hook.confirmDelete}
-      handleDelete={hook.handleDelete}
-      progressModal={hook.progressModal}
-      selectedRequest={hook.selectedRequest}
-      progressLogs={hook.progressLogs}
-      progressLoading={hook.progressLoading}
-      progressSaving={hook.progressSaving}
-      progressForm={hook.progressForm}
-      openProgress={hook.openProgress}
-      handleAddProgress={hook.handleAddProgress}
-      updateProgressField={hook.updateProgressField}
-      toggleActive={hook.toggleActive}
+    <DevRequestsClient
+      initialRequests={requests || []}
+      initialEmployees={employees || []}
     />
   );
 }

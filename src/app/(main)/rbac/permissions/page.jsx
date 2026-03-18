@@ -1,26 +1,18 @@
-"use client";
+import { api } from "@/lib/api.server";
+import PermissionsClient from "@/modules/rbac/PermissionsClient";
 
-import { usePermissions } from "@/modules/rbac/hooks/usePermissions";
-import PermissionsView from "@/modules/rbac/components/PermissionsView";
-
-export default function PermissionsPage() {
-  const {
-    resources,
-    actions,
-    loading,
-    toggling,
-    permMap,
-    togglePermission,
-  } = usePermissions();
+export default async function PermissionsPage() {
+  const [resources, actions, permissions] = await Promise.all([
+    api("/api/rbac/resources"),
+    api("/api/rbac/actions"),
+    api("/api/rbac/permissions"),
+  ]);
 
   return (
-    <PermissionsView
-      resources={resources}
-      actions={actions}
-      loading={loading}
-      toggling={toggling}
-      permMap={permMap}
-      togglePermission={togglePermission}
+    <PermissionsClient
+      initialResources={resources || []}
+      initialActions={actions || []}
+      initialPermissions={permissions || []}
     />
   );
 }

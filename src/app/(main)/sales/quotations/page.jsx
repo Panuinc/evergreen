@@ -1,34 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import QuotationsClient from "@/modules/sales/QuotationsClient";
 
-import { useSalesQuotations } from "@/modules/sales/hooks/useSalesQuotations";
-import QuotationsView from "@/modules/sales/components/QuotationsView";
+export default async function QuotationsPage() {
+  const quotations = await api("/api/sales/quotations");
 
-export default function QuotationsPage() {
-  const {
-    quotations,
-    loading,
-    statusFilter,
-    setStatusFilter,
-    deletingQuotation,
-    deleteModal,
-    confirmDelete,
-    handleDelete,
-    handleNew,
-    onNavigateToQuotation,
-  } = useSalesQuotations();
-
-  return (
-    <QuotationsView
-      quotations={quotations}
-      loading={loading}
-      statusFilter={statusFilter}
-      setStatusFilter={setStatusFilter}
-      deletingQuotation={deletingQuotation}
-      deleteModal={deleteModal}
-      confirmDelete={confirmDelete}
-      handleDelete={handleDelete}
-      handleNew={handleNew}
-      onNavigateToQuotation={onNavigateToQuotation}
-    />
-  );
+  return <QuotationsClient initialQuotations={quotations || []} />;
 }

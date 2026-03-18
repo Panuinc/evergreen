@@ -1,10 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import ProdDashboardClient from "@/modules/production/ProdDashboardClient";
 
-import { useProductionDashboard } from "@/modules/production/hooks/useProductionDashboard";
-import DashboardView from "@/modules/production/components/DashboardView";
+export default async function ProductionDashboardPage() {
+  const data = await api("/api/production/dashboard");
 
-export default function ProductionDashboardPage() {
-  const { data, loading, compareMode, setCompareMode } = useProductionDashboard();
-
-  return <DashboardView data={data} loading={loading} compareMode={compareMode} setCompareMode={setCompareMode} />;
+  return <ProdDashboardClient initialData={data} />;
 }

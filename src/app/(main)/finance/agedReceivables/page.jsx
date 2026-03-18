@@ -1,9 +1,9 @@
-"use client";
+import { api } from "@/lib/api.server";
+import AgedReceivablesClient from "@/modules/finance/AgedReceivablesClient";
 
-import { useAgedReceivables } from "@/modules/finance/hooks/useAgedReceivables";
-import AgedReceivablesView from "@/modules/finance/components/AgedReceivablesView";
+export default async function AgedReceivablesPage() {
+  const raw = await api("/api/finance/agedReceivables");
+  const data = (raw || []).filter((r) => r.customerNumber && Number(r.balanceDue) !== 0);
 
-export default function AgedReceivablesPage() {
-  const { data, loading } = useAgedReceivables();
-  return <AgedReceivablesView data={data} loading={loading} />;
+  return <AgedReceivablesClient initialData={data} />;
 }

@@ -1,9 +1,8 @@
-"use client";
+import BankReconClient from "@/modules/finance/BankReconClient";
 
-import { useBankRecon } from "@/modules/finance/hooks/useBankRecon";
-import BankReconView from "@/modules/finance/components/BankReconView";
-
-export default function BankReconPage() {
-  const hook = useBankRecon();
-  return <BankReconView {...hook} />;
+export default async function BankReconPage() {
+  // Bank reconciliation relies on complex client-side state (file uploads,
+  // statement selection, auto-match, manual matching, AR comparison, export).
+  // Keep data fetching in the client hook; this page is a Server Component.
+  return <BankReconClient />;
 }

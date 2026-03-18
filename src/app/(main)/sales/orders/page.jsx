@@ -1,39 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import OrdersClient from "@/modules/sales/OrdersClient";
 
-import { useSalesOrders } from "@/modules/sales/hooks/useSalesOrders";
-import OrdersView from "@/modules/sales/components/OrdersView";
+export default async function OrdersPage() {
+  const orders = await api("/api/sales/orders");
 
-export default function OrdersPage() {
-  const {
-    orders,
-    loading,
-    saving,
-    statusFilter,
-    setStatusFilter,
-    selectedOrder,
-    detailModal,
-    deletingOrder,
-    deleteModal,
-    handleStatusChange,
-    handleViewDetail,
-    confirmDelete,
-    handleDelete,
-    reload,
-  } = useSalesOrders();
-
-  return (
-    <OrdersView
-      orders={orders}
-      loading={loading}
-      saving={saving}
-      selectedOrder={selectedOrder}
-      detailModal={detailModal}
-      deletingOrder={deletingOrder}
-      deleteModal={deleteModal}
-      handleStatusChange={handleStatusChange}
-      handleViewDetail={handleViewDetail}
-      confirmDelete={confirmDelete}
-      handleDelete={handleDelete}
-    />
-  );
+  return <OrdersClient initialOrders={orders || []} />;
 }

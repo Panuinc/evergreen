@@ -1,33 +1,5 @@
-"use client";
-
-import { useSyncBc } from "@/modules/settings/hooks/useSyncBc";
-import { useBciImport } from "@/modules/settings/hooks/useBciImport";
-import SyncBcView from "@/modules/settings/components/SyncBcView";
+import SyncBcClient from "@/modules/settings/SyncBcClient";
 
 export default function SyncPage() {
-  const { syncingAll, allResult, allError, phases, lastSync, handleSyncAll } =
-    useSyncBc();
-  const {
-    importing,
-    result: importResult,
-    error: importError,
-    fileName: importFileName,
-    handleFileChange,
-  } = useBciImport();
-
-  return (
-    <SyncBcView
-      syncingAll={syncingAll}
-      allResult={allResult}
-      allError={allError}
-      phases={phases}
-      lastSync={lastSync}
-      handleSyncAll={handleSyncAll}
-      importing={importing}
-      importResult={importResult}
-      importError={importError}
-      importFileName={importFileName}
-      handleFileChange={handleFileChange}
-    />
-  );
+  return <SyncBcClient />;
 }

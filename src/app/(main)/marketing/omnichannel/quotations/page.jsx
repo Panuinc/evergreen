@@ -1,19 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import OmQuotationsClient from "@/modules/marketing/OmQuotationsClient";
 
-import { useOmQuotations } from "@/modules/marketing/hooks/useOmQuotations";
-import OmnichannelQuotationsView from "@/modules/marketing/components/OmnichannelQuotationsView";
+export default async function QuotationListPage() {
+  const quotations = await api("/api/marketing/omnichannel/quotations");
 
-export default function QuotationListPage() {
-  const { quotations, loading, statusFilter, setStatusFilter, handleNavigateToQuotation } =
-    useOmQuotations();
-
-  return (
-    <OmnichannelQuotationsView
-      quotations={quotations}
-      loading={loading}
-      statusFilter={statusFilter}
-      setStatusFilter={setStatusFilter}
-      onNavigateToQuotation={handleNavigateToQuotation}
-    />
-  );
+  return <OmQuotationsClient initialQuotations={quotations || []} />;
 }

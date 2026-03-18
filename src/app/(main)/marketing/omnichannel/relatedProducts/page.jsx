@@ -1,20 +1,16 @@
-"use client";
+import { api } from "@/lib/api.server";
+import RelatedProductsClient from "@/modules/marketing/RelatedProductsClient";
 
-import { useRelatedProducts } from "@/modules/marketing/hooks/useRelatedProducts";
-import { useOmStockItems } from "@/modules/marketing/hooks/useOmStockItems";
-import RelatedProductsView from "@/modules/marketing/components/RelatedProductsView";
-
-export default function RelatedProductsPage() {
-  const { relatedProducts, loading, add, remove } = useRelatedProducts();
-  const { items: stockItems, loading: stockLoading } = useOmStockItems();
+export default async function RelatedProductsPage() {
+  const [relatedProducts, stockItems] = await Promise.all([
+    api("/api/marketing/omnichannel/relatedProducts"),
+    api("/api/marketing/omnichannel/stockItems"),
+  ]);
 
   return (
-    <RelatedProductsView
-      relatedProducts={relatedProducts}
-      loading={loading || stockLoading}
-      stockItems={stockItems}
-      onAdd={add}
-      onDelete={remove}
+    <RelatedProductsClient
+      initialRelatedProducts={relatedProducts || []}
+      initialStockItems={stockItems || []}
     />
   );
 }

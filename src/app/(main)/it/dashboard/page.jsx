@@ -1,17 +1,8 @@
-"use client";
+import { api } from "@/lib/api.server";
+import ItDashboardClient from "@/modules/it/ItDashboardClient";
 
-import { useItDashboard } from "@/modules/it/hooks/useItDashboard";
-import DashboardView from "@/modules/it/components/DashboardView";
+export default async function ITDashboardPage() {
+  const stats = await api("/api/it/dashboard");
 
-export default function ITDashboardPage() {
-  const { stats, loading, compareMode, setCompareMode } = useItDashboard();
-
-  return (
-    <DashboardView
-      stats={stats}
-      loading={loading}
-      compareMode={compareMode}
-      setCompareMode={setCompareMode}
-    />
-  );
+  return <ItDashboardClient initialStats={stats} />;
 }
