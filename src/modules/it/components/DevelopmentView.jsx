@@ -332,6 +332,7 @@ export default function DevelopmentView({
                     <SelectItem key="EIS">EIS</SelectItem>
                     <SelectItem key="CHH_Ticket">CHH_Ticket</SelectItem>
                     <SelectItem key="Web_Evergreen">Web_Evergreen</SelectItem>
+                    <SelectItem key="N8N">N8N</SelectItem>
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
