@@ -28,7 +28,6 @@ import (
 	"github.com/evergreen/api/internal/it"
 	"github.com/evergreen/api/internal/marketing"
 	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/performance"
 	"github.com/evergreen/api/internal/production"
 	"github.com/evergreen/api/internal/profile"
 	"github.com/evergreen/api/internal/rbac"
@@ -138,7 +137,6 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 
 	// Phase 2 handlers
 	hrHandler := hr.New(pool)
-	performanceHandler := performance.New(pool)
 
 	// Phase 3 handlers
 	bcClient := bc.NewClient(cfg)
@@ -198,7 +196,6 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 			r.Mount("/rbac", rbacHandler.Routes())
 
 			r.Mount("/hr", hrHandler.Routes())
-			r.Mount("/performance", performanceHandler.Routes())
 			r.Mount("/bc", bcHandler.Routes())
 			r.Mount("/sales", salesHandler.Routes())
 			r.Mount("/finance", financeHandler.Routes())

@@ -69,22 +69,6 @@ export const menuData = [
     ],
   },
   {
-    id: "performance",
-    name: "ผลการปฏิบัติงาน",
-    icon: Target,
-    href: "/performance/evaluation",
-    subMenus: [
-      {
-        name: "ประเมินค่านิยม",
-        icon: ClipboardList,
-        href: "/performance/evaluation",
-      },
-      { name: "OKR", icon: Target, href: "/performance/okr" },
-      { name: "KPI", icon: BarChart3, href: "/performance/kpi" },
-      { name: "ประเมิน 360 องศา", icon: RefreshCw, href: "/performance/360" },
-    ],
-  },
-  {
     id: "it",
     name: "เทคโนโลยีสารสนเทศ",
     icon: Computer,
