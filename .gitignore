@@ -37,7 +37,6 @@ yarn-error.log*
 deploy.sh
 scripts/deploy-*.sh
 scripts/replace-secrets.sh
-scripts/DEPLOY-GUIDE.md
 
 # sensitive data
 *.xlsx
@@ -47,6 +46,11 @@ scripts/DEPLOY-GUIDE.md
 .agents/
 .claude/
 skills-lock.json
+
+# Go backend
+evergreen-api/server
+evergreen-api/server.exe
+evergreen-api/tmp/
 
 # vercel
 .vercel
