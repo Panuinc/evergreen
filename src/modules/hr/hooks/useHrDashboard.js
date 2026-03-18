@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { get } from "@/lib/apiClient";
 
 export function useHrDashboard() {
   const [stats, setStats] = useState(null);
@@ -12,9 +13,7 @@ export function useHrDashboard() {
     try {
       setLoading(true);
       const params = mode ? `?compareMode=${mode}` : "";
-      const res = await fetch(`/api/hr/dashboard${params}`);
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
+      const data = await get(`/api/hr/dashboard${params}`);
       setStats(data);
     } catch (error) {
       toast.error("โหลดข้อมูลแดชบอร์ดล้มเหลว");

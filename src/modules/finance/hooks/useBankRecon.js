@@ -316,7 +316,10 @@ export function useBankRecon() {
   const handleExport = useCallback(async () => {
     if (!selectedId) return;
     try {
-      const res = await fetch(`/api/finance/bankRecon/${selectedId}/export`);
+      const { supabase } = await import("@/lib/supabase/client");
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers = session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
+      const res = await fetch(`/api/finance/bankRecon/${selectedId}/export`, { headers });
       if (!res.ok) throw new Error("Export failed");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);

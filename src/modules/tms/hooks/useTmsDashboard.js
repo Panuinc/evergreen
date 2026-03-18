@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/apiClient";
 import { getDashboardStats } from "@/modules/tms/actions";
 
 function fmt(v) {
@@ -83,7 +84,7 @@ export function useTmsDashboard() {
     };
 
     try {
-      const res = await fetch("/api/tms/aiAnalysis", {
+      const res = await authFetch("/api/tms/aiAnalysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ snapshot }),

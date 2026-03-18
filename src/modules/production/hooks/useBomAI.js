@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/apiClient";
 
 
 export function useBomAI({ bomState, setters }) {
@@ -89,7 +90,7 @@ export function useBomAI({ bomState, setters }) {
         const controller = new AbortController();
         abortRef.current = controller;
 
-        const res = await fetch("/api/production/bom/ai", {
+        const res = await authFetch("/api/production/bom/ai", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

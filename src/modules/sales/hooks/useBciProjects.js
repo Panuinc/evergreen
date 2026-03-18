@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/apiClient";
 
 export function useBciProjects() {
   const [projects, setProjects] = useState([]);
@@ -14,7 +15,7 @@ export function useBciProjects() {
   const loadProjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/bci/projects");
+      const res = await authFetch("/api/bci/projects");
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setProjects(data);

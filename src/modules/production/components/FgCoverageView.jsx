@@ -11,6 +11,7 @@ import {
 import DataTable from "@/components/ui/DataTable";
 import Loading from "@/components/ui/Loading";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/apiClient";
 
 function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH");
@@ -53,7 +54,7 @@ export default function FgCoverageView() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/production/fgCoverage");
+        const res = await authFetch("/api/production/fgCoverage");
         if (!res.ok) throw new Error("Failed to fetch");
         setData(await res.json());
       } catch {

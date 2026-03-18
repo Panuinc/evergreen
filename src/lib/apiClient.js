@@ -1,6 +1,27 @@
+import { supabase } from "@/lib/supabase/client";
+
+async function getAuthHeaders() {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      return { Authorization: `Bearer ${session.access_token}` };
+    }
+  } catch {
+    // No session available
+  }
+  return {};
+}
+
 async function apiRequest(url, options = {}) {
+  const authHeaders = await getAuthHeaders();
   const res = await fetch(url, {
-    headers: { "Content-Type": "application/json", ...options.headers },
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders,
+      ...options.headers,
+    },
     ...options,
   });
 
@@ -31,4 +52,16 @@ export function patch(url, body) {
 
 export function del(url) {
   return apiRequest(url, { method: "DELETE" });
+}
+
+// Raw fetch with auth headers (for file downloads, SSE streams, FormData uploads)
+export async function authFetch(url, options = {}) {
+  const authHeaders = await getAuthHeaders();
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...authHeaders,
+      ...options.headers,
+    },
+  });
 }

@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Button, Chip } from "@heroui/react";
 import { Download, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/apiClient";
 import { exportToExcel } from "@/lib/exportExcel";
 import DataTable from "@/components/ui/DataTable";
 
@@ -67,7 +68,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/bci/import", { method: "POST", body: formData });
+      const res = await authFetch("/api/bci/import", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Import failed");
       toast.success(`นำเข้าสำเร็จ ${data.results.imported} โครงการ`);

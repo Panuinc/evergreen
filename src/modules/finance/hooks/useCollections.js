@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { getAgedReceivables, getCollections, createFollowUp } from "@/modules/finance/actions";
+import { authFetch } from "@/lib/apiClient";
 
 function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
@@ -255,7 +256,7 @@ export function useCollections() {
     };
 
     try {
-      const res = await fetch("/api/finance/aiCollections", {
+      const res = await authFetch("/api/finance/aiCollections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ snapshot }),

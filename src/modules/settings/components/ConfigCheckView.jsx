@@ -41,6 +41,7 @@ import {
 } from "@/lib/tscPrinterConfig";
 import { testConnection, printTestLabel } from "@/lib/qzPrinter";
 import Loading from "@/components/ui/Loading";
+import { authFetch } from "@/lib/apiClient";
 
 
 
@@ -454,7 +455,7 @@ function TscTeSettings() {
   const handleTestConnection = async () => {
     setChecking(true);
     try {
-      const res = await fetch("/api/warehouse/print", {
+      const res = await authFetch("/api/warehouse/print", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

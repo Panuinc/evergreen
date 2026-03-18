@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/apiClient";
 
 export function useChat() {
   const [messages, setMessages] = useState([]);
@@ -21,7 +22,7 @@ export function useChat() {
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const res = await fetch("/api/chat", {
+      const res = await authFetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: updatedMessages }),

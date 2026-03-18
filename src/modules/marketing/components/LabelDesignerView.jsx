@@ -58,6 +58,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { authFetch } from "@/lib/apiClient";
 
 // ─── Constants ──────────────────────────────────────────────
 const LABEL_PRESETS = [
@@ -1591,7 +1592,7 @@ export default function LabelDesignerView({
         images.push(base64);
       }
 
-      const res = await fetch("/api/marketing/labelDesigner/print", {
+      const res = await authFetch("/api/marketing/labelDesigner/print", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1624,7 +1625,7 @@ export default function LabelDesignerView({
   const handleCancelPrint = async () => {
     if (!printProgress?.jobId) return;
     try {
-      await fetch("/api/marketing/labelDesigner/print/cancel", {
+      await authFetch("/api/marketing/labelDesigner/print/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jobId: printProgress.jobId }),
@@ -1640,7 +1641,7 @@ export default function LabelDesignerView({
     if (!printing || !printProgress?.jobId) return;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `/api/marketing/labelDesigner/print/status?jobId=${printProgress.jobId}`,
         );
         const data = await res.json();
@@ -1657,7 +1658,7 @@ export default function LabelDesignerView({
   // Fetch print queue when popover opens or while printing
   const fetchQueue = useCallback(async () => {
     try {
-      const res = await fetch("/api/marketing/labelDesigner/print/status");
+      const res = await authFetch("/api/marketing/labelDesigner/print/status");
       const data = await res.json();
       if (data.success) {
         setPrintQueue(data.data);

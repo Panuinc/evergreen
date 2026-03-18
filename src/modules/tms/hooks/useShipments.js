@@ -16,6 +16,7 @@ import {
   calculateDistance,
 } from "@/modules/tms/actions";
 import { getEmployees } from "@/modules/hr/actions";
+import { authFetch } from "@/lib/apiClient";
 import { COMPANY_HQ } from "@/modules/tms/constants";
 
 const DEFAULT_FUEL_PRICE = 30;
@@ -259,7 +260,7 @@ export function useShipments(fromPlanId = null) {
     const vehicleInfo = selectedVehicle ? `${selectedVehicle.tmsVehiclePlateNumber}` : "";
 
     try {
-      const res = await fetch("/api/tms/routeOptimize", {
+      const res = await authFetch("/api/tms/routeOptimize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ stops, vehicleInfo, usePriority: true }),

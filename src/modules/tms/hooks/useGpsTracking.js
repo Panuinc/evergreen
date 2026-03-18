@@ -5,6 +5,7 @@ import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { getLatestPositions, createGpsLog, getVehicles, getGpsLogs } from "@/modules/tms/actions";
 import { validateForm, isRequired, isValidLatitude, isValidLongitude } from "@/lib/validation";
+import { authFetch } from "@/lib/apiClient";
 
 export function useGpsTracking() {
   const [positions, setPositions] = useState([]);
@@ -93,7 +94,7 @@ export function useGpsTracking() {
       const [posData, vehData, ftData] = await Promise.all([
         getLatestPositions(),
         getVehicles(),
-        fetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
+        authFetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
       ]);
       setVehicles(vehData);
       setPositions(mergeForthTrack(posData, vehData, Array.isArray(ftData) ? ftData : []));
@@ -114,7 +115,7 @@ export function useGpsTracking() {
       try {
         const [posData, ftData] = await Promise.all([
           getLatestPositions(),
-          fetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
+          authFetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
         ]);
         setVehicles((prev) => {
           setPositions(mergeForthTrack(posData, prev, Array.isArray(ftData) ? ftData : []));

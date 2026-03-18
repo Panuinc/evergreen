@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { Printer, Send } from "lucide-react";
 import JsBarcode from "jsbarcode";
+import { authFetch } from "@/lib/apiClient";
 
 const SENDER = {
   name: "บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด",
@@ -221,7 +222,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
       document.body.removeChild(container);
 
 
-      const res = await fetch("/api/marketing/shippingLabel/print", {
+      const res = await authFetch("/api/marketing/shippingLabel/print", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ images }),

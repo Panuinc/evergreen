@@ -1,4 +1,4 @@
-import { get, post, put, del } from "@/lib/apiClient";
+import { get, post, put, del, authFetch } from "@/lib/apiClient";
 
 
 
@@ -8,7 +8,7 @@ export async function generateMarketingImage(imageFile, prompt, size = "1024x102
   form.append("prompt", prompt);
   form.append("size", size);
 
-  const res = await fetch("/api/marketing/ai/generate-image", {
+  const res = await authFetch("/api/marketing/ai/generate-image", {
     method: "POST",
     body: form,
   });
@@ -123,16 +123,7 @@ export async function updateQuotation(id, data) {
 }
 
 export async function quotationAction(id, action, note) {
-  const res = await fetch(`/api/marketing/omnichannel/quotations/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, note }),
-  });
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.error);
-  }
-  return res.json();
+  return patch(`/api/marketing/omnichannel/quotations/${id}`, { action, note });
 }
 
 export async function getQuotationsByConversation(conversationId) {

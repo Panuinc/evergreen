@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { authFetch } from "@/lib/apiClient";
 
 export function useBciImport() {
   const [importing, setImporting] = useState(false);
@@ -21,7 +22,7 @@ export function useBciImport() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/bci/import", {
+      const res = await authFetch("/api/bci/import", {
         method: "POST",
         body: formData,
       });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { authFetch } from "@/lib/apiClient";
 
 export function useSyncBc() {
   const [syncingAll, setSyncingAll] = useState(false);
@@ -20,7 +21,7 @@ export function useSyncBc() {
     abortRef.current = controller;
 
     try {
-      const res = await fetch("/api/sync/bc?stream=1", {
+      const res = await authFetch("/api/sync/bc?stream=1", {
         signal: controller.signal,
       });
 

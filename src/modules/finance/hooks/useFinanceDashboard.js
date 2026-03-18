@@ -11,6 +11,7 @@ import {
   getPurchaseInvoices,
 } from "@/modules/finance/actions";
 import { getFinancePeriodRanges } from "@/lib/comparison";
+import { authFetch } from "@/lib/apiClient";
 import { COGS_OVERRIDE_ACCOUNTS, INTEREST_ACCOUNTS, ADMIN_OVERRIDE_ACCOUNTS } from "@/modules/finance/glAccountMap";
 
 
@@ -625,7 +626,7 @@ export function useFinanceDashboard() {
     };
 
     try {
-      const res = await fetch("/api/finance/aiAnalysis", {
+      const res = await authFetch("/api/finance/aiAnalysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ snapshot }),
@@ -710,7 +711,7 @@ export function useFinanceDashboard() {
     };
 
     try {
-      const res = await fetch("/api/finance/aiCashFlow", {
+      const res = await authFetch("/api/finance/aiCashFlow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ snapshot }),
