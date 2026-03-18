@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { get, post, put, del, authFetch } from "@/lib/apiClient";
-import { COMPANY_HQ } from "@/modules/tms/constants";
+import { COMPANY_HQ } from "@/lib/tmsConstants";
 import ShipmentsView from "@/modules/tms/components/ShipmentsView";
 
 

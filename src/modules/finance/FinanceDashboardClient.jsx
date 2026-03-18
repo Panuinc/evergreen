@@ -10,7 +10,7 @@ import {
   classifyAccount, computeAdjustedCogs, computeMonthlyPnL,
   computeCogsDetail, computeExpenseDetail, computeRevenueDetail,
   CAL_MONTHS, CAL_MONTHS_SHORT, INVENTORY_ACCOUNTS,
-} from "@/modules/finance/glAccountMap";
+} from "@/lib/glAccountMap";
 import FinanceDashboardView from "@/modules/finance/components/FinanceDashboardView";
 
 /* ── helpers ─────────────────────────────────────────── */

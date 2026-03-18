@@ -9,7 +9,7 @@ import {
   Legend, ResponsiveContainer,
 } from "recharts";
 import { exportToExcel } from "@/lib/exportExcel";
-import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/modules/finance/glAccountMap";
+import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/lib/glAccountMap";
 import Loading from "@/components/ui/Loading";
 const COLORS = ["#006FEE", "#17C964", "#F5A524", "#F31260", "#9353D3", "#00B8D9", "#FF6B35", "#7C3AED", "#EC4899", "#06B6D4", "#84CC16", "#EAB308"];
 

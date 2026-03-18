@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { COMPANY_HQ } from "@/modules/tms/constants";
+import { COMPANY_HQ } from "@/lib/tmsConstants";
 import {
   Button,
   Modal,

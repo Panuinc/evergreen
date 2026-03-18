@@ -11,7 +11,7 @@ import {
   Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import { exportToExcel } from "@/lib/exportExcel";
-import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/modules/finance/glAccountMap";
+import { CAL_MONTHS, CAL_MONTHS_SHORT, calMonthBE } from "@/lib/glAccountMap";
 import Loading from "@/components/ui/Loading";
 
 function fmt(v) {
