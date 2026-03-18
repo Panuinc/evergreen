@@ -52,7 +52,6 @@ export const menuData = [
     href: "/overview/dashboard",
     subMenus: [
       { name: "ภาพรวม", icon: Home, href: "/overview/dashboard" },
-      { name: "วิเคราะห์", icon: BarChart3, href: "/overview/analytics" },
     ],
   },
   {
