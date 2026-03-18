@@ -351,9 +351,9 @@ async function syncEntity(supabase, cfg, { isFullSync, noFilter, send, results, 
       }));
     }
 
-    // Fetch and transform lines separately (no $expand)
+    // Fetch lines only if headers changed (or full sync)
     let lineRows = [];
-    if (linesEndpoint && lineFieldMap && linesTable) {
+    if (linesEndpoint && lineFieldMap && linesTable && (headerRows.length > 0 || isFullSync)) {
       send("progress", { phase: `${bcEndpoint}-lines`, step: "fetching", label: `Fetching ${cfg.name} lines...` });
       const lineParams = { $select: buildSelectParam(lineFieldMap) };
       const lineData = await bcCustomApiGet(linesEndpoint, lineParams, { timeout: fetchTimeout });
