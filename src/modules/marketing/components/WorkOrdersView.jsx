@@ -27,7 +27,6 @@ const baseColumns = [
   { name: "หัวข้อ", uid: "mktWorkOrderTitle", sortable: true },
   { name: "ประเภทงาน", uid: "mktWorkOrderType", sortable: true },
   { name: "ร้องขอโดย", uid: "mktWorkOrderRequestedBy" },
-  { name: "แผนก", uid: "mktWorkOrderRequestedDepartment" },
   { name: "ผู้รับผิดชอบ", uid: "mktWorkOrderAssignedTo" },
   { name: "ความสำคัญ", uid: "mktWorkOrderPriority", sortable: true },
   { name: "ความคืบหน้า", uid: "mktWorkOrderProgress", sortable: true },
@@ -62,7 +61,6 @@ const BASE_VISIBLE_COLUMNS = [
   "mktWorkOrderTitle",
   "mktWorkOrderType",
   "mktWorkOrderRequestedBy",
-  "mktWorkOrderRequestedDepartment",
   "mktWorkOrderAssignedTo",
   "mktWorkOrderPriority",
   "mktWorkOrderProgress",
@@ -169,8 +167,6 @@ export default function WorkOrdersView({
         }
         case "mktWorkOrderRequestedBy":
           return item.mktWorkOrderRequestedBy || "-";
-        case "mktWorkOrderRequestedDepartment":
-          return item.mktWorkOrderRequestedDepartment || "-";
         case "mktWorkOrderAssignedTo":
           return item.mktWorkOrderAssignedTo || "-";
         case "mktWorkOrderPriority": {
@@ -312,7 +308,6 @@ export default function WorkOrdersView({
           "mktWorkOrderTitle",
           "mktWorkOrderRequestedBy",
           "mktWorkOrderAssignedTo",
-          "mktWorkOrderRequestedDepartment",
         ]}
         statusField="mktWorkOrderStatus"
         statusOptions={statusOptions}
@@ -388,36 +383,14 @@ export default function WorkOrdersView({
                   </Select>
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Select
+                  <Input
                     label="ร้องขอโดย"
                     labelPlacement="outside"
-                    placeholder="เลือกพนักงาน"
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.mktWorkOrderRequestedBy ? [formData.mktWorkOrderRequestedBy] : []}
-                    onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
-                      updateField("mktWorkOrderRequestedBy", val);
-                    }}
-                  >
-                    {employees.map((emp) => (
-                      <SelectItem key={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`} textValue={`${emp.hrEmployeeFirstName} ${emp.hrEmployeeLastName}`}>
-                        {emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-                <div className="flex items-center w-full h-fit p-2 gap-2">
-                  <Input
-                    label="แผนกที่สั่ง"
-                    labelPlacement="outside"
-                    placeholder="ระบุแผนก"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    value={formData.mktWorkOrderRequestedDepartment}
-                    onChange={(e) => updateField("mktWorkOrderRequestedDepartment", e.target.value)}
+                    value={formData.mktWorkOrderRequestedBy}
+                    isReadOnly
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
