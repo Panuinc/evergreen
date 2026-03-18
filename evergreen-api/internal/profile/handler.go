@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/evergreen/api/internal/db"
 	"github.com/evergreen/api/internal/external"
 	"github.com/evergreen/api/internal/middleware"
 	"github.com/evergreen/api/internal/response"
@@ -47,47 +48,17 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get employee info
-	var employee map[string]any
-	rows, err := h.db.Query(ctx, `SELECT * FROM "hrEmployee" WHERE "hrEmployeeUserId" = $1 LIMIT 1`, userID)
-	if err == nil {
-		defer rows.Close()
-		if rows.Next() {
-			cols := rows.FieldDescriptions()
-			vals, _ := rows.Values()
-			if vals != nil {
-				employee = make(map[string]any, len(cols))
-				for i, col := range cols {
-					employee[string(col.Name)] = vals[i]
-				}
-			}
-		}
-	}
+	employee, _ := db.QueryRow(ctx, h.db, `SELECT * FROM "hrEmployee" WHERE "hrEmployeeUserId" = $1 LIMIT 1`, userID)
 
 	// Get roles
-	var roles []map[string]any
-	roleRows, err := h.db.Query(ctx, `
+	roles, err := db.QueryRows(ctx, h.db, `
 		SELECT r.*
 		FROM "rbacUserRole" ur
-		JOIN "rbacRole" r ON r.id = ur."rbacUserRoleRoleId"
+		JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
 		WHERE ur."rbacUserRoleUserId" = $1
 		  AND ur."isActive" = true
 	`, userID)
-	if err == nil {
-		defer roleRows.Close()
-		for roleRows.Next() {
-			cols := roleRows.FieldDescriptions()
-			vals, _ := roleRows.Values()
-			if vals != nil {
-				role := make(map[string]any, len(cols))
-				for i, col := range cols {
-					role[string(col.Name)] = vals[i]
-				}
-				roles = append(roles, role)
-			}
-		}
-	}
-
-	if roles == nil {
+	if err != nil || roles == nil {
 		roles = []map[string]any{}
 	}
 

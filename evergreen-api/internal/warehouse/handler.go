@@ -101,7 +101,7 @@ func (h *Handler) ListInventory(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
 	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcSalesOrder" ORDER BY "bcSalesOrderNo" DESC
+		SELECT * FROM "bcSalesOrder" ORDER BY "bcSalesOrderNoValue" DESC
 	`)
 	if err != nil {
 		response.InternalError(w, err)
@@ -135,8 +135,8 @@ func (h *Handler) ListSessions(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.UserID(r.Context())
 	data, err := db.QueryRows(r.Context(), h.pool, `
 		SELECT * FROM "whScanSession"
-		WHERE "whScanSessionCreatedBy" = $1
-		ORDER BY "whScanSessionCreatedAt" DESC
+		WHERE "whScanSessionUserId" = $1
+		ORDER BY "whScanSessionStartedAt" DESC
 	`, userID)
 	if err != nil {
 		response.InternalError(w, err)
@@ -240,7 +240,7 @@ func (h *Handler) ListTransfers(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.UserID(r.Context())
 	data, err := db.QueryRows(r.Context(), h.pool, `
 		SELECT * FROM "whTransfer"
-		WHERE "whTransferCreatedBy" = $1
+		WHERE "whTransferUserId" = $1
 		ORDER BY "whTransferCreatedAt" DESC
 	`, userID)
 	if err != nil {

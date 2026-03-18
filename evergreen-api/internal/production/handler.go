@@ -109,14 +109,15 @@ func (h *Handler) FgCoverage(w http.ResponseWriter, r *http.Request) {
 			COALESCE(po."totalProduction", 0) as "totalProduction"
 		FROM "bcItem" i
 		LEFT JOIN (
-			SELECT "bcSalesOrderLineNo", SUM("bcSalesOrderLineOutstandingQuantity") as "totalOrdered"
+			SELECT "bcSalesOrderLineNoValue", SUM("bcSalesOrderLineOutstandingQuantity") as "totalOrdered"
 			FROM "bcSalesOrderLine"
-			GROUP BY "bcSalesOrderLineNo"
-		) so ON so."bcSalesOrderLineNo" = i."bcItemNo"
+			WHERE "bcSalesOrderLineOutstandingQuantity" > 0
+			GROUP BY "bcSalesOrderLineNoValue"
+		) so ON so."bcSalesOrderLineNoValue" = i."bcItemNo"
 		LEFT JOIN (
 			SELECT "bcProductionOrderSourceNo", SUM("bcProductionOrderQuantity") as "totalProduction"
 			FROM "bcProductionOrder"
-			WHERE "bcProductionOrderStatus" IN ('planned', 'firm_planned', 'released')
+			WHERE "bcProductionOrderStatus" IN ('Planned', 'Firm_x0020_Planned', 'Released')
 			GROUP BY "bcProductionOrderSourceNo"
 		) po ON po."bcProductionOrderSourceNo" = i."bcItemNo"
 		WHERE i."bcItemGenProdPostingGroup" = 'FG'
