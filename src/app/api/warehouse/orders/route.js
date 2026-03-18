@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 function formatOrder(o) {
   return {
@@ -36,14 +37,14 @@ export async function GET(request) {
 
   let query = supabase.from(tableName).select("*");
 
-  let { data, error } = await query.order("bcSalesOrderOrderDate", { ascending: false });
+  let { data, error } = await fetchAll(query.order("bcSalesOrderOrderDate", { ascending: false }));
 
 
   if (error && error.message.includes("does not exist")) {
     tableName = "bcSalesOrderHeaders";
     query = supabase.from(tableName).select("*");
 
-    const result = await query.order("bcSalesOrderOrderDate", { ascending: false });
+    const result = await fetchAll(query.order("bcSalesOrderOrderDate", { ascending: false }));
     data = result.data;
     error = result.error;
   }
@@ -55,10 +56,10 @@ export async function GET(request) {
     const orderNumbers = data.map((o) => o.bcSalesOrderNoValue || o.no).filter(Boolean);
 
     if (orderNumbers.length > 0) {
-      const { data: lines } = await supabase
+      const { data: lines } = await fetchAll(supabase
         .from(linesTable)
         .select("*")
-        .in("bcSalesOrderLineDocumentNo", orderNumbers);
+        .in("bcSalesOrderLineDocumentNo", orderNumbers));
 
       if (lines) {
         const linesByOrder = {};

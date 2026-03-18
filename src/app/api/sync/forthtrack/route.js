@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 const API_BASE = process.env.FORTHTRACK_API_BASE;
 const CLIENT_ID = process.env.FORTHTRACK_CLIENT_ID;
@@ -87,9 +88,9 @@ async function syncToSupabase(ftData) {
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  const { data: vehicles } = await supabase
+  const { data: vehicles } = await fetchAll(supabase
     .from("tmsVehicle")
-    .select("tmsVehicleId, tmsVehiclePlateNumber, tmsVehicleForthtrackId");
+    .select("tmsVehicleId, tmsVehiclePlateNumber, tmsVehicleForthtrackId"));
 
   if (!vehicles?.length) return { synced: 0 };
 

@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 function formatTransfer(t) {
   return {
@@ -21,11 +22,11 @@ export async function GET() {
   if (auth.error) return auth.error;
   const { supabase, session } = auth;
 
-  const { data, error } = await supabase
+  const { data, error } = await fetchAll(supabase
     .from("whTransfer")
     .select("*")
     .eq("whTransferUserId", session.user.id)
-    .order("whTransferCreatedAt", { ascending: false });
+    .order("whTransferCreatedAt", { ascending: false }));
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data.map(formatTransfer));

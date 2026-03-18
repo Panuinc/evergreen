@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 async function enrichAssignments(supabase, assignments) {
   if (!assignments || assignments.length === 0) return [];
@@ -56,7 +57,7 @@ export async function GET(request) {
     query = query.eq("perfKpiAssignmentEmployeeId", employeeId);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await fetchAll(query);
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
   const enriched = await enrichAssignments(supabase, data);

@@ -8,26 +8,17 @@ export async function GET(request) {
 
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search");
-  const status = searchParams.get("status");
 
-  let query = supabase
-    .from("salesOrder")
-    .select(
-      "*, salesContact(crmContactFirstName, crmContactLastName), salesAccount(crmAccountName), salesQuotation(crmQuotationNo)"
-    );
+  let query = supabase.from("mktWorkOrder").select("*");
   if (!isSuperAdmin) query = query.eq("isActive", true);
 
   if (search) {
     query = query.or(
-      `crmOrderNo.ilike.%${search}%,crmOrderShippingAddress.ilike.%${search}%,crmOrderTrackingNumber.ilike.%${search}%`
+      `mktWorkOrderNo.ilike.%${search}%,mktWorkOrderTitle.ilike.%${search}%,mktWorkOrderRequestedBy.ilike.%${search}%,mktWorkOrderAssignedTo.ilike.%${search}%`
     );
   }
 
-  if (status) {
-    query = query.eq("crmOrderStatus", status);
-  }
-
-  const { data, error } = await fetchAll(query.order("crmOrderCreatedAt", {
+  const { data, error } = await fetchAll(query.order("mktWorkOrderCreatedAt", {
     ascending: false,
   }));
 
@@ -42,7 +33,7 @@ export async function POST(request) {
 
   const body = await request.json();
   const { data, error } = await supabase
-    .from("salesOrder")
+    .from("mktWorkOrder")
     .insert([body])
     .select()
     .single();

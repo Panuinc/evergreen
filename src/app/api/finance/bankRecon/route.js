@@ -1,5 +1,6 @@
 import { withAuth } from "@/app/api/_lib/auth";
 import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET(request) {
   const auth = await withAuth();
@@ -17,7 +18,7 @@ export async function GET(request) {
 
     if (status && status !== "all") q = q.eq("status", status);
 
-    const { data, error } = await q;
+    const { data, error } = await fetchAll(q);
     if (error) throw new Error(error.message);
 
     return Response.json(data || []);

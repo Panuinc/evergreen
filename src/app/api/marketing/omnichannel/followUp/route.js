@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET(request) {
   const auth = await withAuth();
@@ -17,7 +18,7 @@ export async function GET(request) {
     if (status) query = query.eq("omFollowUpStatus", status);
     if (conversationId) query = query.eq("omFollowUpConversationId", conversationId);
 
-    const { data, error } = await query;
+    const { data, error } = await fetchAll(query);
     if (error) throw error;
     return Response.json(data);
   } catch {

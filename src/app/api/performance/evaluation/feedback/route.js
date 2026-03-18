@@ -1,5 +1,6 @@
 import { withAuth } from "@/app/api/_lib/auth";
 import { getServiceSupabase } from "@/app/api/_lib/webhookAuth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 import {
   EVALUATION_CATEGORIES,
   computeOverallScore,
@@ -105,11 +106,11 @@ export async function POST(request) {
 }
 
 async function getAggregatedScores(sb, employeeId, period) {
-  const { data, error } = await sb
+  const { data, error } = await fetchAll(sb
     .from("perfEvaluation")
     .select("perfEvaluationCategoryAverages, perfEvaluationOverallScore, perfEvaluationGrade")
     .eq("perfEvaluationEvaluateeEmployeeId", employeeId)
-    .eq("perfEvaluationPeriod", period);
+    .eq("perfEvaluationPeriod", period));
 
   if (error || !data?.length) return null;
 
@@ -135,10 +136,10 @@ async function getAggregatedScores(sb, employeeId, period) {
 }
 
 async function getCompanyAverage(sb, period) {
-  const { data, error } = await sb
+  const { data, error } = await fetchAll(sb
     .from("perfEvaluation")
     .select("perfEvaluationCategoryAverages")
-    .eq("perfEvaluationPeriod", period);
+    .eq("perfEvaluationPeriod", period));
 
   if (error || !data?.length) return null;
 

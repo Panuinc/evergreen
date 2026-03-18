@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET(request) {
   const auth = await withAuth();
@@ -25,29 +26,29 @@ export async function GET(request) {
   }
 
 
-  const { data: competencies } = await supabase
+  const { data: competencies } = await fetchAll(supabase
     .from("perf360Competency")
     .select("*")
     .eq("perf360CompetencyCycleId", cycleId)
-    .order("perf360CompetencySortOrder");
+    .order("perf360CompetencySortOrder"));
 
   if (employeeId) {
 
-    const { data: responses } = await supabase
+    const { data: responses } = await fetchAll(supabase
       .from("perf360Response")
       .select("*")
       .eq("perf360ResponseCycleId", cycleId)
-      .eq("perf360ResponseRevieweeEmployeeId", employeeId);
+      .eq("perf360ResponseRevieweeEmployeeId", employeeId));
 
     const result = aggregateResults(responses || [], competencies || [], cycle.perf360CycleAnonymousToReviewee);
     return Response.json({ cycle, competencies, ...result });
   }
 
 
-  const { data: responses } = await supabase
+  const { data: responses } = await fetchAll(supabase
     .from("perf360Response")
     .select("*")
-    .eq("perf360ResponseCycleId", cycleId);
+    .eq("perf360ResponseCycleId", cycleId));
 
 
   const revieweeIds = [...new Set((responses || []).map((r) => r.perf360ResponseRevieweeEmployeeId))];

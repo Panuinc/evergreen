@@ -188,6 +188,11 @@ export const menuData = [
         icon: PenTool,
         href: "/marketing/labelDesigner",
       },
+      {
+        name: "ใบสั่งงาน",
+        icon: ClipboardList,
+        href: "/marketing/workOrders",
+      },
     ],
   },
 

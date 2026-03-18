@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 import { computeObjectiveProgress, autoKrStatus } from "@/lib/performance/okrConstants";
 
 export async function GET(request) {
@@ -13,11 +14,11 @@ export async function GET(request) {
     return Response.json({ error: "กรุณาระบุ keyResultId" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await fetchAll(supabase
     .from("perfOkrCheckin")
     .select("*")
     .eq("perfOkrCheckinKeyResultId", keyResultId)
-    .order("perfOkrCheckinCreatedAt", { ascending: false });
+    .order("perfOkrCheckinCreatedAt", { ascending: false }));
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);

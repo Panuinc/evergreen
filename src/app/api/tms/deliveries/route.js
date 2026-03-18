@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET(request) {
   const auth = await withAuth();
@@ -17,9 +18,9 @@ export async function GET(request) {
     query = query.eq("tmsDeliveryShipmentId", shipmentId);
   }
 
-  const { data, error } = await query.order("tmsDeliveryCreatedAt", {
+  const { data, error } = await fetchAll(query.order("tmsDeliveryCreatedAt", {
     ascending: false,
-  });
+  }));
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);

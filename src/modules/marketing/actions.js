@@ -200,6 +200,32 @@ export async function deleteFollowUp(id) {
   return del(`/api/marketing/omnichannel/followUp/${id}`);
 }
 
+// ─── Work Orders ────────────────────────────────────────────
+
+export async function getWorkOrders() {
+  return get("/api/marketing/workOrders");
+}
+
+export async function createWorkOrder(data) {
+  return post("/api/marketing/workOrders", data);
+}
+
+export async function updateWorkOrder(id, data) {
+  return put(`/api/marketing/workOrders/${id}`, data);
+}
+
+export async function deleteWorkOrder(id) {
+  return del(`/api/marketing/workOrders/${id}`);
+}
+
+export async function getWorkOrderProgressLogs(workOrderId) {
+  return get(`/api/marketing/workOrders/${workOrderId}/progress`);
+}
+
+export async function createWorkOrderProgressLog(workOrderId, data) {
+  return post(`/api/marketing/workOrders/${workOrderId}/progress`, data);
+}
+
 // ─── Label Designs ──────────────────────────────────────────
 export async function getLabelDesigns() {
   return get("/api/marketing/labelDesigns");

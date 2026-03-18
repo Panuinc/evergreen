@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET(request) {
   const auth = await withAuth();
@@ -42,7 +43,7 @@ export async function GET(request) {
     }
   }
 
-  const { data, error } = await query;
+  const { data, error } = await fetchAll(query);
   if (error) return Response.json({ error: error.message }, { status: 500 });
 
   if (!data || data.length === 0) return Response.json([]);
@@ -54,7 +55,7 @@ export async function GET(request) {
     .select("*")
     .in("perfOkrKeyResultObjectiveId", objIds);
   if (!isSuperAdmin) krQuery = krQuery.eq("isActive", true);
-  const { data: allKrs } = await krQuery.order("perfOkrKeyResultSortOrder", { ascending: true });
+  const { data: allKrs } = await fetchAll(krQuery.order("perfOkrKeyResultSortOrder", { ascending: true }));
 
   const krMap = {};
   for (const kr of (allKrs || [])) {

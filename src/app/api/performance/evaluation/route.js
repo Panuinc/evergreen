@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 import {
   EVALUATION_CATEGORIES,
   computeCategoryAverages,
@@ -32,7 +33,7 @@ export async function GET(request) {
 
     if (period) query = query.eq("perfEvaluationPeriod", period);
 
-    const { data, error } = await query.order("perfEvaluationCreatedAt", { ascending: true });
+    const { data, error } = await fetchAll(query.order("perfEvaluationCreatedAt", { ascending: true }));
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
 
@@ -48,7 +49,7 @@ export async function GET(request) {
 
     if (period) query = query.eq("perfEvaluationPeriod", period);
 
-    const { data, error } = await query.order("perfEvaluationCreatedAt", { ascending: true });
+    const { data, error } = await fetchAll(query.order("perfEvaluationCreatedAt", { ascending: true }));
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
     const aggregated = aggregateByPeriod(data);
@@ -63,7 +64,7 @@ export async function GET(request) {
 
   if (period) query = query.eq("perfEvaluationPeriod", period);
 
-  const { data, error } = await query.order("perfEvaluationCreatedAt", { ascending: false });
+  const { data, error } = await fetchAll(query.order("perfEvaluationCreatedAt", { ascending: false }));
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
 }

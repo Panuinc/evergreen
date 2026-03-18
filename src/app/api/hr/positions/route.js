@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET() {
   const auth = await withAuth();
@@ -7,7 +8,7 @@ export async function GET() {
 
   let query = supabase.from("hrPosition").select("*");
   if (!isSuperAdmin) query = query.eq("isActive", true);
-  const { data, error } = await query.order("hrPositionTitle");
+  const { data, error } = await fetchAll(query.order("hrPositionTitle"));
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);

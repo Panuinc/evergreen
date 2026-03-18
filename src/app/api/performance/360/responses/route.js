@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 import { computeCompetencyAverage, computeWeightedOverall } from "@/lib/performance/feedback360Constants";
 
 export async function GET(request) {
@@ -20,11 +21,11 @@ export async function GET(request) {
     if (!currentEmployee) return Response.json([]);
 
 
-    const { data: nominations, error } = await supabase
+    const { data: nominations, error } = await fetchAll(supabase
       .from("perf360Nomination")
       .select("*")
       .eq("perf360NominationReviewerEmployeeId", currentEmployee.hrEmployeeId)
-      .eq("perf360NominationStatus", "pending");
+      .eq("perf360NominationStatus", "pending"));
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
     if (!nominations || nominations.length === 0) return Response.json([]);

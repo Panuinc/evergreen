@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET(request, { params }) {
   const auth = await withAuth();
@@ -12,7 +13,7 @@ export async function GET(request, { params }) {
     .select("*")
     .eq("omMessageConversationId", id);
   if (!isSuperAdmin) query = query.eq("isActive", true);
-  const { data, error } = await query.order("omMessageCreatedAt", { ascending: true });
+  const { data, error } = await fetchAll(query.order("omMessageCreatedAt", { ascending: true }));
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);

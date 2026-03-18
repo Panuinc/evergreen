@@ -1,14 +1,15 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET() {
   const auth = await withAuth();
   if (auth.error) return auth.error;
 
   try {
-    const { data, error } = await auth.supabase
+    const { data, error } = await fetchAll(auth.supabase
       .from("omPromotion")
       .select("*")
-      .order("omPromotionCreatedAt", { ascending: false });
+      .order("omPromotionCreatedAt", { ascending: false }));
 
     if (error) throw error;
     return Response.json(data);

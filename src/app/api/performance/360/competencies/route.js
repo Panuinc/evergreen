@@ -1,4 +1,5 @@
 import { withAuth } from "@/app/api/_lib/auth";
+import { fetchAll } from "@/app/api/_lib/fetchAll";
 
 export async function GET(request) {
   const auth = await withAuth();
@@ -12,11 +13,11 @@ export async function GET(request) {
     return Response.json({ error: "กรุณาระบุ cycleId" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await fetchAll(supabase
     .from("perf360Competency")
     .select("*")
     .eq("perf360CompetencyCycleId", cycleId)
-    .order("perf360CompetencySortOrder");
+    .order("perf360CompetencySortOrder"));
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json(data);
