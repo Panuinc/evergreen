@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import pg from "pg";
 import { bcCustomApiGet } from "@/lib/bcClient";
 import {
   bcSyncConfig,
@@ -175,34 +174,16 @@ async function runSync(supabase, mode, send) {
     send("progress", { phase: "dimensionValues", step: "error", error: e.message });
   }
 
-  // ── Full sync: TRUNCATE all tables (reset identity so id starts from 1) ──
+  // ── Full sync: delete all rows (use standalone script for TRUNCATE RESTART IDENTITY) ──
   if (isFullSync) {
-    send("progress", { phase: "truncate", step: "truncating", label: "Truncating all tables..." });
+    send("progress", { phase: "truncate", step: "truncating", label: "Deleting all rows..." });
     const allTables = getAllSupabaseTables();
-    try {
-      const pool = new pg.Pool({
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false },
-      });
-      const client = await pool.connect();
-      for (const table of allTables) {
-        try {
-          await client.query(`TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE`);
-        } catch {
-          // ignore — table may not exist yet
-        }
-      }
-      client.release();
-      await pool.end();
-    } catch (e) {
-      // Fallback: use supabase delete if pg connection fails
-      for (const table of allTables) {
-        try {
-          await supabase.from(table).delete().gte("id", 0);
-        } catch {}
-      }
+    for (const table of allTables) {
+      try {
+        await supabase.from(table).delete().gte("id", 0);
+      } catch {}
     }
-    send("progress", { phase: "truncate", step: "done", label: "Tables truncated" });
+    send("progress", { phase: "truncate", step: "done", label: "Tables cleared" });
   }
 
   // ── Phase 2: Master data (customers, vendors, items) ──
