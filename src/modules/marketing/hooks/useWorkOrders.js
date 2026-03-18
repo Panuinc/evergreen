@@ -57,8 +57,8 @@ export function useWorkOrders() {
   const [progressForm, setProgressForm] = useState(emptyProgressForm);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (user) loadData();
+  }, [user]);
 
   const loadData = async () => {
     try {
@@ -68,7 +68,11 @@ export function useWorkOrders() {
       setEmployees(emps);
       if (user?.id) {
         const myEmp = emps.find((e) => e.hrEmployeeUserId === user.id);
-        if (myEmp) setCurrentEmployeeName(`${myEmp.hrEmployeeFirstName} ${myEmp.hrEmployeeLastName}`);
+        if (myEmp) {
+          setCurrentEmployeeName(`${myEmp.hrEmployeeFirstName} ${myEmp.hrEmployeeLastName}`);
+        } else {
+          setCurrentEmployeeName(user.email || "");
+        }
       }
     } catch (error) {
       toast.error("โหลดใบสั่งงานล้มเหลว");
