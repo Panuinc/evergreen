@@ -34,17 +34,16 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID := middleware.UserID(ctx)
 
-	// Get user info from auth
-	user, err := h.auth.AdminGetUser(userID)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
+	// Get user info from rbacUserProfile (instead of Supabase Auth API)
+	profile, _ := db.QueryRow(ctx, h.db, `SELECT * FROM "rbacUserProfile" WHERE "rbacUserProfileId" = $1`, userID)
 
 	userInfo := map[string]any{
-		"id":        user["id"],
-		"email":     user["email"],
-		"createdAt": user["created_at"],
+		"id":    userID,
+		"email": nil,
+	}
+	if profile != nil {
+		userInfo["email"] = profile["rbacUserProfileEmail"]
+		userInfo["createdAt"] = profile["rbacUserProfileCreatedAt"]
 	}
 
 	// Get employee info

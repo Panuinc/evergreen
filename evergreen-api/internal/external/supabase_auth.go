@@ -163,7 +163,7 @@ func (s *SupabaseAuth) adminRequest(method, path string, body io.Reader) (map[st
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("apikey", s.anonKey)
+	req.Header.Set("apikey", s.serviceKey)
 	req.Header.Set("Authorization", "Bearer "+s.serviceKey)
 
 	resp, err := s.httpClient.Do(req)
