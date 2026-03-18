@@ -21,14 +21,14 @@ services:
       - -c
       - |
         apk add --no-cache curl
-        echo "BC Sync cron started — full sync every 15 minutes"
+        echo "BC Sync cron started — incremental sync every 5 minutes"
         while true; do
-          sleep 900
-          echo "[$(date)] Triggering full BC sync..."
+          sleep 300
+          echo "[$(date)] Triggering BC incremental sync..."
           curl -sf -H "Authorization: Bearer $${CRON_SECRET}" \
             "http://evergreen:3000/api/sync/bc" \
             -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
-            --max-time 290 || echo "[$(date)] Full sync failed"
+            --max-time 290 || echo "[$(date)] BC sync failed"
         done
 
   followup-cron:
