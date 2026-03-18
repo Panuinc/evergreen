@@ -3,17 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
-import {
-  getBankStatements,
-  createBankStatement,
-  getBankStatementDetail,
-  parseBankStatement,
-  runAutoMatch,
-  manualMatchEntry,
-  deleteBankStatement,
-  getSalesInvoices,
-  getAgedReceivables,
-} from "@/modules/finance/actions";
+import { get, post, put, del } from "@/lib/apiClient";
 
 export function useBankRecon() {
 
@@ -38,7 +28,7 @@ export function useBankRecon() {
   const loadStatements = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getBankStatements();
+      const data = await get("/api/finance/bankRecon");
       setStatements(data || []);
     } catch (err) {
       console.error("Load statements error:", err);
@@ -61,7 +51,7 @@ export function useBankRecon() {
     }
     try {
       setLoading(true);
-      const data = await getBankStatementDetail(id);
+      const data = await get(`/api/finance/bankRecon/${id}`);
       setDetail(data);
     } catch (err) {
       console.error("Load detail error:", err);
@@ -75,7 +65,7 @@ export function useBankRecon() {
   const handleUpload = useCallback(
     async (fileUrl, fileName, bankCode = "KBANK") => {
       try {
-        const stmt = await createBankStatement({ fileUrl, fileName, bankCode });
+        const stmt = await post("/api/finance/bankRecon", { fileUrl, fileName, bankCode });
         setStatements((prev) => [stmt, ...prev]);
         toast.success("อัพโหลดสำเร็จ");
         return stmt;
@@ -92,7 +82,7 @@ export function useBankRecon() {
     async (id) => {
       setParsing(true);
       try {
-        const result = await parseBankStatement(id);
+        const result = await post(`/api/finance/bankRecon/${id}/parse`);
         toast.success(`แยกข้อมูลสำเร็จ ${result.entryCount} รายการ`);
         await selectStatement(id);
         await loadStatements();
@@ -112,7 +102,7 @@ export function useBankRecon() {
       if (!selectedId) return;
       setMatching(true);
       try {
-        const result = await runAutoMatch(selectedId);
+        const result = await post(`/api/finance/bankRecon/${selectedId}/match`);
         toast.success(
           `Match สำเร็จ: ${result.matchCount} รายการ` +
             (result.suggestedCount ? `, แนะนำ ${result.suggestedCount} รายการ` : ""),
@@ -134,7 +124,7 @@ export function useBankRecon() {
     async (entryId, invoiceData) => {
       if (!selectedId) return;
       try {
-        await manualMatchEntry(selectedId, {
+        await put(`/api/finance/bankRecon/${selectedId}/match`, {
           action: "match",
           entryId,
           ...invoiceData,
@@ -154,7 +144,7 @@ export function useBankRecon() {
     async (entryId) => {
       if (!selectedId) return;
       try {
-        await manualMatchEntry(selectedId, { action: "unmatch", entryId });
+        await put(`/api/finance/bankRecon/${selectedId}/match`, { action: "unmatch", entryId });
         toast.success("ยกเลิก Match สำเร็จ");
         await selectStatement(selectedId);
       } catch (err) {
@@ -169,7 +159,7 @@ export function useBankRecon() {
     async (entryId, note) => {
       if (!selectedId) return;
       try {
-        await manualMatchEntry(selectedId, { action: "exclude", entryId, note });
+        await put(`/api/finance/bankRecon/${selectedId}/match`, { action: "exclude", entryId, note });
         toast.success("ยกเว้นรายการสำเร็จ");
         await selectStatement(selectedId);
       } catch (err) {
@@ -183,7 +173,7 @@ export function useBankRecon() {
   const handleDelete = useCallback(
     async (id) => {
       try {
-        await deleteBankStatement(id);
+        await del(`/api/finance/bankRecon/${id}`);
         setStatements((prev) => prev.filter((s) => s.id !== id));
         if (selectedId === id) {
           setSelectedId(null);
@@ -204,7 +194,7 @@ export function useBankRecon() {
 
       if (openInvoices.length === 0) {
         try {
-          const invs = await getSalesInvoices("Open", false);
+          const invs = await get("/api/finance/salesInvoices?status=Open&expand=false");
           setOpenInvoices(invs || []);
         } catch (err) {
           console.error("Load invoices error:", err);
@@ -219,7 +209,7 @@ export function useBankRecon() {
   const loadArData = useCallback(async () => {
     setArLoading(true);
     try {
-      const rows = await getAgedReceivables();
+      const rows = await get("/api/finance/agedReceivables");
       setArData((rows || []).filter((r) => r.customerNumber && Number(r.balanceDue) !== 0));
     } catch (err) {
       console.error("Load AR data error:", err);

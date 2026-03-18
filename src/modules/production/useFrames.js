@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getFrameMaterials } from "@/modules/production/actions";
+import { get } from "@/lib/apiClient";
 
 const EMPTY_FRAMES = { rubberwood: [], sadao: [], lvl: [] };
 
@@ -17,7 +17,7 @@ export function useFrames() {
   const loadFrames = async () => {
     try {
       setLoading(true);
-      const data = await getFrameMaterials();
+      const data = await get("/api/production/frames");
       setFrames(data);
     } catch (error) {
       toast.error("โหลดข้อมูลกรอบไม้ล้มเหลว");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useSalesQuotationEditor } from "@/modules/sales/hooks/useSalesQuotationEditor";
+import { useSalesQuotationEditor } from "@/modules/sales/useSalesQuotationEditor";
 import QuotationEditorView from "@/modules/sales/components/QuotationEditorView";
 
 export default function QuotationEditorPage() {

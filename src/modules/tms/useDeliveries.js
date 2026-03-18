@@ -3,16 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
-import {
-  getDeliveries,
-  createDelivery,
-  updateDelivery,
-  deleteDelivery,
-  getShipments,
-  getShipmentById,
-  updateShipmentStatus,
-  getDeliveryPlanByShipmentId,
-} from "@/modules/tms/actions";
+import { get, post, put, del } from "@/lib/apiClient";
 
 const emptyForm = {
   tmsDeliveryShipmentId: "",
@@ -82,7 +73,7 @@ export function useDeliveries(fromShipmentId = null) {
 
   useEffect(() => {
     if (!fromShipmentId) return;
-    getShipmentById(fromShipmentId)
+    get(`/api/tms/shipments/${fromShipmentId}`)
       .then(async (shipment) => {
         if (!shipment) return;
         setFormData({
@@ -94,7 +85,7 @@ export function useDeliveries(fromShipmentId = null) {
 
 
         try {
-          const plans = await getDeliveryPlanByShipmentId(fromShipmentId);
+          const plans = await get(`/api/tms/deliveryPlans?shipmentId=${fromShipmentId}`);
           const plan = plans?.[0];
           if (plan?.tmsDeliveryPlanItem?.length > 0) {
             setDeliveryItems(
@@ -127,8 +118,8 @@ export function useDeliveries(fromShipmentId = null) {
     try {
       setLoading(true);
       const [delData, shipData] = await Promise.all([
-        getDeliveries(),
-        getShipments(),
+        get("/api/tms/deliveries"),
+        get("/api/tms/shipments"),
       ]);
       setDeliveries(delData);
       setShipments(shipData);
@@ -194,10 +185,10 @@ export function useDeliveries(fromShipmentId = null) {
       };
 
       if (editingDelivery) {
-        await updateDelivery(editingDelivery.tmsDeliveryId, payload);
+        await put(`/api/tms/deliveries/${editingDelivery.tmsDeliveryId}`, payload);
         toast.success("อัปเดตการส่งมอบสำเร็จ");
       } else {
-        await createDelivery(payload);
+        await post("/api/tms/deliveries", payload);
         toast.success("สร้างการส่งมอบสำเร็จ");
       }
 
@@ -207,7 +198,7 @@ export function useDeliveries(fromShipmentId = null) {
         try {
           const targetStatus =
             autoStatus === "delivered_ok" ? "pod_confirmed" : "delivered";
-          await updateShipmentStatus(shipmentId, targetStatus);
+          await put(`/api/tms/shipments/${shipmentId}/status`, { tmsShipmentStatus: targetStatus });
         } catch {
 
         }
@@ -229,7 +220,7 @@ export function useDeliveries(fromShipmentId = null) {
   const handleDelete = async () => {
     if (!deletingDelivery) return;
     try {
-      await deleteDelivery(deletingDelivery.tmsDeliveryId);
+      await del(`/api/tms/deliveries/${deletingDelivery.tmsDeliveryId}`);
       toast.success("ลบการส่งมอบสำเร็จ");
       deleteModal.onClose();
       setDeletingDelivery(null);

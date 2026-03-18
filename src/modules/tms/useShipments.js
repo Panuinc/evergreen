@@ -3,20 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
-import {
-  getShipments,
-  createShipment,
-  updateShipment,
-  deleteShipment,
-  updateShipmentStatus,
-  getVehicles,
-  getDeliveryPlans,
-  getDeliveryPlanById,
-  updateDeliveryPlan,
-  calculateDistance,
-} from "@/modules/tms/actions";
-import { getEmployees } from "@/modules/hr/actions";
-import { authFetch } from "@/lib/apiClient";
+import { get, post, put, del, authFetch } from "@/lib/apiClient";
 import { COMPANY_HQ } from "@/modules/tms/constants";
 
 const DEFAULT_FUEL_PRICE = 30;
@@ -134,7 +121,8 @@ export function useShipments(fromPlanId = null) {
     if (!destination || destination.trim().length < 5) return;
     try {
       setDistanceLoading(true);
-      const result = await calculateDistance(null, destination, COMPANY_HQ.lat, COMPANY_HQ.lng);
+      const params = new URLSearchParams({ destination, originLat: COMPANY_HQ.lat, originLng: COMPANY_HQ.lng });
+      const result = await get(`/api/tms/distance?${params}`);
       if (result?.distanceKm) {
         setFormData((prev) => ({
           ...prev,
@@ -165,8 +153,8 @@ export function useShipments(fromPlanId = null) {
       const nextMonth = new Date(now);
       nextMonth.setMonth(now.getMonth() + 1);
       const [cur, next] = await Promise.all([
-        getDeliveryPlans(getMonthKey(now)),
-        getDeliveryPlans(getMonthKey(nextMonth)),
+        get(`/api/tms/deliveryPlans?month=${getMonthKey(now)}`),
+        get(`/api/tms/deliveryPlans?month=${getMonthKey(nextMonth)}`),
       ]);
       const all = [...(cur || []), ...(next || [])];
 
@@ -358,7 +346,7 @@ export function useShipments(fromPlanId = null) {
 
   useEffect(() => {
     if (!fromPlanId) return;
-    getDeliveryPlanById(fromPlanId)
+    get(`/api/tms/deliveryPlans/${fromPlanId}`)
       .then((plan) => {
         if (!plan) return;
         const filled = fillFormFromPlan(plan);
@@ -380,9 +368,9 @@ export function useShipments(fromPlanId = null) {
     try {
       setLoading(true);
       const [shipData, vehData, empData] = await Promise.all([
-        getShipments(),
-        getVehicles(),
-        getEmployees(),
+        get("/api/tms/shipments"),
+        get("/api/tms/vehicles"),
+        get("/api/hr/employees"),
       ]);
       setShipments(shipData);
       setVehicles(vehData);
@@ -502,10 +490,10 @@ export function useShipments(fromPlanId = null) {
       }
 
       if (editingShipment) {
-        await updateShipment(editingShipment.tmsShipmentId, saveData);
+        await put(`/api/tms/shipments/${editingShipment.tmsShipmentId}`, saveData);
         toast.success("อัปเดตการจัดส่งสำเร็จ");
       } else {
-        const newShipment = await createShipment(saveData);
+        const newShipment = await post("/api/tms/shipments", saveData);
         toast.success("สร้างการจัดส่งสำเร็จ");
 
 
@@ -513,7 +501,7 @@ export function useShipments(fromPlanId = null) {
         if (planIdsToLink.length > 0 && newShipment?.tmsShipmentId) {
           await Promise.all(
             planIdsToLink.map((pid) =>
-              updateDeliveryPlan(pid, {
+              put(`/api/tms/deliveryPlans/${pid}`, {
                 tmsDeliveryPlanShipmentId: newShipment.tmsShipmentId,
                 tmsDeliveryPlanShipmentNumber: newShipment.tmsShipmentNumber,
                 tmsDeliveryPlanStatus: "in_progress",
@@ -533,7 +521,7 @@ export function useShipments(fromPlanId = null) {
 
   const handleStatusChange = async (shipmentId, newStatus) => {
     try {
-      await updateShipmentStatus(shipmentId, newStatus);
+      await put(`/api/tms/shipments/${shipmentId}/status`, { tmsShipmentStatus: newStatus });
       toast.success("อัปเดตสถานะการจัดส่งสำเร็จ");
       loadData();
     } catch (error) {
@@ -549,7 +537,7 @@ export function useShipments(fromPlanId = null) {
   const handleDelete = async () => {
     if (!deletingShipment) return;
     try {
-      await deleteShipment(deletingShipment.tmsShipmentId);
+      await del(`/api/tms/shipments/${deletingShipment.tmsShipmentId}`);
       toast.success("ลบการจัดส่งสำเร็จ");
       deleteModal.onClose();
       setDeletingShipment(null);
@@ -561,7 +549,7 @@ export function useShipments(fromPlanId = null) {
 
   const toggleActive = async (item) => {
     try {
-      await updateShipment(item.tmsShipmentId, { isActive: !item.isActive });
+      await put(`/api/tms/shipments/${item.tmsShipmentId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       loadData();
     } catch {

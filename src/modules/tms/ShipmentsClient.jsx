@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useShipments } from "@/modules/tms/hooks/useShipments";
+import { useShipments } from "@/modules/tms/useShipments";
 import ShipmentsView from "@/modules/tms/components/ShipmentsView";
 
 function ShipmentsInner({ initialShipments, initialVehicles }) {

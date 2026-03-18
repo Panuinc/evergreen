@@ -3,15 +3,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
-import {
-  getTrialBalance,
-  getAgedReceivables,
-  getAgedPayables,
-  getSalesInvoices,
-  getPurchaseInvoices,
-} from "@/modules/finance/actions";
 import { getFinancePeriodRanges } from "@/lib/comparison";
-import { authFetch } from "@/lib/apiClient";
+import { get, authFetch } from "@/lib/apiClient";
 import { COGS_OVERRIDE_ACCOUNTS, INTEREST_ACCOUNTS, ADMIN_OVERRIDE_ACCOUNTS } from "@/modules/finance/glAccountMap";
 
 
@@ -187,17 +180,17 @@ export function useFinanceDashboard() {
 
 
       const fetches = [
-        getTrialBalance(ranges.current.start, ranges.current.end).catch(() => []),
-        getAgedReceivables().catch(() => []),
-        getAgedPayables().catch(() => []),
-        getSalesInvoices("Open", false).catch(() => []),
-        getPurchaseInvoices("Open", false).catch(() => []),
+        get("/api/finance/trialBalance").catch(() => []),
+        get("/api/finance/agedReceivables").catch(() => []),
+        get("/api/finance/agedPayables").catch(() => []),
+        get("/api/finance/salesInvoices?status=Open&expand=false").catch(() => []),
+        get("/api/finance/purchaseInvoices?status=Open&expand=false").catch(() => []),
       ];
 
 
       if (compareEnabled) {
         fetches.push(
-          getTrialBalance(ranges.previous.start, ranges.previous.end).catch(() => []),
+          get("/api/finance/trialBalance").catch(() => []),
         );
       }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getBcProduction } from "@/modules/production/actions";
+import { get } from "@/lib/apiClient";
 
 export function useProduction() {
   const [data, setData] = useState([]);
@@ -15,7 +15,7 @@ export function useProduction() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const result = await getBcProduction();
+      const result = await get("/api/bc/production");
       setData(result);
     } catch (error) {
       toast.error("โหลดข้อมูลการผลิตล้มเหลว");

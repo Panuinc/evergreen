@@ -1,6 +1,6 @@
 "use client";
 
-import { useWorkOrders } from "@/modules/marketing/hooks/useWorkOrders";
+import { useWorkOrders } from "@/modules/marketing/useWorkOrders";
 import WorkOrdersView from "@/modules/marketing/components/WorkOrdersView";
 
 export default function WorkOrdersPage() {

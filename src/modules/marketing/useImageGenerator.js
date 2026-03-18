@@ -2,10 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import {
-  generateMarketingImage,
-  getImageGenerationHistory,
-} from "@/modules/marketing/actions";
+import { get, authFetch } from "@/lib/apiClient";
 
 export function useImageGenerator() {
   const [generating, setGenerating] = useState(false);
@@ -31,7 +28,13 @@ export function useImageGenerator() {
       setGenerating(true);
       setResult(null);
       setBatchResults([]);
-      const data = await generateMarketingImage(imageFile, prompt, size);
+      const form = new FormData();
+      form.append("image", imageFile);
+      form.append("prompt", prompt);
+      form.append("size", size);
+      const res = await authFetch("/api/marketing/ai/generate-image", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Image generation failed");
       setResult(data);
       toast.success("สร้างรูปภาพสำเร็จ");
       return data;
@@ -67,7 +70,13 @@ export function useImageGenerator() {
       setBatchProgress({ current: i + 1, total: imageFiles.length });
 
       try {
-        const data = await generateMarketingImage(imageFiles[i], prompt, size);
+        const batchForm = new FormData();
+        batchForm.append("image", imageFiles[i]);
+        batchForm.append("prompt", prompt);
+        batchForm.append("size", size);
+        const batchRes = await authFetch("/api/marketing/ai/generate-image", { method: "POST", body: batchForm });
+        const data = await batchRes.json();
+        if (!batchRes.ok) throw new Error(data.error || "Image generation failed");
         results.push({ file: imageFiles[i].name, ...data, status: "success" });
         successCount++;
       } catch (error) {
@@ -92,7 +101,7 @@ export function useImageGenerator() {
   const loadHistory = async (limit = 50) => {
     try {
       setLoadingHistory(true);
-      const data = await getImageGenerationHistory(limit);
+      const data = await get(`/api/marketing/ai/generate-image?limit=${limit}`);
       setHistory(data);
     } catch (error) {
       toast.error("โหลดประวัติล้มเหลว");

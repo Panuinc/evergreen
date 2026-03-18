@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getWarehouseInventory } from "@/modules/warehouse/actions";
+import { get } from "@/lib/apiClient";
 
 export function useWarehouseInventory(group) {
   const [items, setItems] = useState([]);
@@ -16,7 +16,8 @@ export function useWarehouseInventory(group) {
   const loadItems = async () => {
     try {
       setLoading(true);
-      const data = await getWarehouseInventory(group);
+      const params = group ? `?group=${encodeURIComponent(group)}` : "";
+      const data = await get(`/api/warehouse/inventory${params}`);
       setItems(data);
     } catch (error) {
       toast.error("ไม่สามารถโหลดข้อมูลคลังสินค้าได้");

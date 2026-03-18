@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useOmQuotationEditor } from "@/modules/marketing/hooks/useOmQuotationEditor";
+import { useOmQuotationEditor } from "@/modules/marketing/useOmQuotationEditor";
 import OmnichannelQuotationEditorView from "@/modules/marketing/components/OmnichannelQuotationEditorView";
 
 export default function QuotationEditorPage() {

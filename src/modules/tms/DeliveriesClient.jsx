@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useDeliveries } from "@/modules/tms/hooks/useDeliveries";
+import { useDeliveries } from "@/modules/tms/useDeliveries";
 import DeliveriesView from "@/modules/tms/components/DeliveriesView";
 
 function DeliveriesInner({ initialDeliveries, initialShipments }) {

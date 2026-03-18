@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
-import { getAgedReceivables, getCollections, createFollowUp } from "@/modules/finance/actions";
-import { authFetch } from "@/lib/apiClient";
+import { get, post, authFetch } from "@/lib/apiClient";
 
 function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
@@ -50,7 +49,7 @@ export function useCollections() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [ar, fu] = await Promise.all([getAgedReceivables(), getCollections()]);
+      const [ar, fu] = await Promise.all([get("/api/finance/agedReceivables"), get("/api/finance/collections")]);
       setArData(ar || []);
       setFollowUps(fu || []);
     } catch (err) {
@@ -190,7 +189,7 @@ export function useCollections() {
     if (!form.reason || !selectedCustomer) return;
     setSubmitting(true);
     try {
-      const result = await createFollowUp({
+      const result = await post("/api/finance/collections", {
         customerNumber: selectedCustomer.customerNumber,
         customerName: selectedCustomer.name,
         ...form,

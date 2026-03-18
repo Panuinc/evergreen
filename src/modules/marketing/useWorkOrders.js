@@ -3,15 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
-import {
-  getWorkOrders,
-  createWorkOrder,
-  updateWorkOrder,
-  deleteWorkOrder,
-  getWorkOrderProgressLogs,
-  createWorkOrderProgressLog,
-} from "@/modules/marketing/actions";
-import { getEmployees } from "@/modules/hr/actions";
+import { get, post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -63,7 +55,7 @@ export function useWorkOrders() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [data, emps] = await Promise.all([getWorkOrders(), getEmployees().catch(() => [])]);
+      const [data, emps] = await Promise.all([get("/api/marketing/workOrders"), get("/api/hr/employees").catch(() => [])]);
       setWorkOrders(data);
       setEmployees(emps);
       if (user?.id) {
@@ -123,10 +115,10 @@ export function useWorkOrders() {
         mktWorkOrderProgress: parseInt(formData.mktWorkOrderProgress) || 0,
       };
       if (editingWorkOrder) {
-        await updateWorkOrder(editingWorkOrder.id, payload);
+        await put(`/api/marketing/workOrders/${editingWorkOrder.id}`, payload);
         toast.success("อัปเดตใบสั่งงานสำเร็จ");
       } else {
-        await createWorkOrder(payload);
+        await post("/api/marketing/workOrders", payload);
         toast.success("สร้างใบสั่งงานสำเร็จ");
       }
       onClose();
@@ -146,7 +138,7 @@ export function useWorkOrders() {
   const handleDelete = async () => {
     if (!deletingWorkOrder) return;
     try {
-      await deleteWorkOrder(deletingWorkOrder.id);
+      await del(`/api/marketing/workOrders/${deletingWorkOrder.id}`);
       toast.success("ลบใบสั่งงานสำเร็จ");
       deleteModal.onClose();
       setDeletingWorkOrder(null);
@@ -158,7 +150,7 @@ export function useWorkOrders() {
 
   const toggleActive = async (item) => {
     try {
-      await updateWorkOrder(item.id, { isActive: !item.isActive });
+      await put(`/api/marketing/workOrders/${item.id}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       loadData();
     } catch (error) {
@@ -179,7 +171,7 @@ export function useWorkOrders() {
     progressModal.onOpen();
     try {
       setProgressLoading(true);
-      const logs = await getWorkOrderProgressLogs(workOrder.id);
+      const logs = await get(`/api/marketing/workOrders/${workOrder.id}/progress`);
       setProgressLogs(logs);
     } catch {
       toast.error("โหลดบันทึกความคืบหน้าล้มเหลว");
@@ -200,14 +192,14 @@ export function useWorkOrders() {
 
     try {
       setProgressSaving(true);
-      await createWorkOrderProgressLog(selectedWorkOrder.id, {
+      await post(`/api/marketing/workOrders/${selectedWorkOrder.id}/progress`, {
         mktWorkOrderProgressLogDescription: progressForm.mktWorkOrderProgressLogDescription,
         mktWorkOrderProgressLogProgress: parseInt(progressForm.mktWorkOrderProgressLogProgress) || 0,
         mktWorkOrderProgressLogCreatedBy: progressForm.mktWorkOrderProgressLogCreatedBy,
       });
       toast.success("อัปเดตความคืบหน้าสำเร็จ");
 
-      const logs = await getWorkOrderProgressLogs(selectedWorkOrder.id);
+      const logs = await get(`/api/marketing/workOrders/${selectedWorkOrder.id}/progress`);
       setProgressLogs(logs);
       setProgressForm({
         ...emptyProgressForm,

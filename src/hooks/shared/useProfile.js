@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getProfile, changePassword } from "@/modules/profile/actions";
+import { get, put } from "@/lib/apiClient";
 
 export function useProfile() {
   const [profile, setProfile] = useState(null);
@@ -21,7 +21,7 @@ export function useProfile() {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const data = await getProfile();
+      const data = await get("/api/profile");
       setProfile(data);
     } catch (error) {
       toast.error("โหลดข้อมูลโปรไฟล์ล้มเหลว");
@@ -46,10 +46,10 @@ export function useProfile() {
 
     setChanging(true);
     try {
-      await changePassword(
-        passwordForm.currentPassword,
-        passwordForm.newPassword,
-      );
+      await put("/api/profile/changePassword", {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
       toast.success("เปลี่ยนรหัสผ่านสำเร็จ");
       setPasswordForm({
         currentPassword: "",

@@ -2,11 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import {
-  getQuotation,
-  updateQuotation,
-  quotationAction,
-} from "@/modules/sales/actions";
+import { get, put, post } from "@/lib/apiClient";
 
 const emptyLine = {
   crmQuotationLineProductName: "",
@@ -33,7 +29,7 @@ export function useSalesQuotationEditor(quotationId) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getQuotation(quotationId);
+      const data = await get(`/api/sales/quotations/${quotationId}`);
       setQuotation(data);
       setLines(data.lines || []);
       setDiscount(parseFloat(data.crmQuotationDiscount) || 0);
@@ -81,7 +77,7 @@ export function useSalesQuotationEditor(quotationId) {
       const subtotal = calcSubtotal();
       const total = calcTotal();
 
-      await updateQuotation(quotationId, {
+      await put(`/api/sales/quotations/${quotationId}`, {
         crmQuotationSubtotal: subtotal,
         crmQuotationDiscount: discount,
         crmQuotationTax: tax,
@@ -109,7 +105,7 @@ export function useSalesQuotationEditor(quotationId) {
       if (["submit"].includes(action)) {
         await handleSave();
       }
-      const result = await quotationAction(quotationId, action, note);
+      const result = await post(`/api/sales/quotations/${quotationId}`, { action, note });
       const messages = {
         submit: "ส่งใบเสนอราคาเพื่ออนุมัติแล้ว",
         approve: "อนุมัติใบเสนอราคาแล้ว",

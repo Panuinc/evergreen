@@ -1,6 +1,6 @@
 "use client";
 
-import { useBciProjects } from "@/modules/sales/hooks/useBciProjects";
+import { useBciProjects } from "@/modules/sales/useBciProjects";
 import BciProjectsView from "@/modules/sales/components/BciProjectsView";
 
 export default function BciProjectsPage() {

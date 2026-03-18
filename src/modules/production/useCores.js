@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getCoreMaterials } from "@/modules/production/actions";
+import { get } from "@/lib/apiClient";
 
 const EMPTY_CORES = {
   foam: [],
@@ -23,7 +23,7 @@ export function useCores() {
   const loadCores = async () => {
     try {
       setLoading(true);
-      const data = await getCoreMaterials();
+      const data = await get("/api/production/cores");
       setCores(data);
     } catch (error) {
       toast.error("โหลดข้อมูลไส้ล้มเหลว");

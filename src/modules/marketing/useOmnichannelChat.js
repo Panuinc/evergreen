@@ -3,15 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
-import {
-  getConversations,
-  getMessages,
-  sendMessage as sendMessageAction,
-  logNote as logNoteAction,
-  updateConversation,
-  deleteConversation as deleteConversationAction,
-  suggestReply as suggestReplyAction,
-} from "@/modules/marketing/actions";
+import { get, post, put, del } from "@/lib/apiClient";
 
 const POLL_INTERVAL = 3000;
 
@@ -39,7 +31,8 @@ export function useOmnichannelChat() {
       if (statusFilter !== "all") params.status = statusFilter;
       if (channelFilter !== "all") params.channel = channelFilter;
       if (searchQuery) params.search = searchQuery;
-      const data = await getConversations(params);
+      const qs = new URLSearchParams(params).toString();
+      const data = await get(`/api/marketing/omnichannel/conversations${qs ? `?${qs}` : ""}`);
       setConversations(data);
     } catch (error) {
       toast.error("โหลดการสนทนาล้มเหลว");
@@ -62,12 +55,12 @@ export function useOmnichannelChat() {
 
     try {
       setMessagesLoading(true);
-      const data = await getMessages(conversation.omConversationId);
+      const data = await get(`/api/marketing/omnichannel/conversations/${conversation.omConversationId}/messages`);
       setMessages(data);
 
 
       if (conversation.omConversationUnreadCount > 0) {
-        await updateConversation(conversation.omConversationId, {
+        await put(`/api/marketing/omnichannel/conversations/${conversation.omConversationId}`, {
           omConversationUnreadCount: 0,
         });
         setConversations((prev) =>
@@ -105,7 +98,7 @@ export function useOmnichannelChat() {
       try {
         setSending(true);
         setSuggestedText("");
-        const savedMsg = await sendMessageAction(selectedConversation.omConversationId, content);
+        const savedMsg = await post("/api/marketing/omnichannel/send", { conversationId: selectedConversation.omConversationId, content });
 
         setMessages((prev) =>
           prev.map((m) => (m.omMessageId === tempId ? savedMsg : m))
@@ -126,7 +119,7 @@ export function useOmnichannelChat() {
     async (content) => {
       if (!selectedConversation || !content.trim()) return;
       try {
-        const savedMsg = await logNoteAction(selectedConversation.omConversationId, content);
+        const savedMsg = await post("/api/marketing/omnichannel/logNote", { conversationId: selectedConversation.omConversationId, content });
         setMessages((prev) => [...prev, savedMsg]);
         toast.success("บันทึกข้อความเรียบร้อย");
       } catch (error) {
@@ -139,7 +132,7 @@ export function useOmnichannelChat() {
   const handleUpdateStatus = useCallback(
     async (conversationId, status) => {
       try {
-        const updated = await updateConversation(conversationId, {
+        const updated = await put(`/api/marketing/omnichannel/conversations/${conversationId}`, {
           omConversationStatus: status,
         });
         setConversations((prev) =>
@@ -185,7 +178,7 @@ export function useOmnichannelChat() {
   const handleDeleteConversation = useCallback(
     async (conversationId) => {
       try {
-        await deleteConversationAction(conversationId);
+        await del(`/api/marketing/omnichannel/conversations/${conversationId}`);
         setConversations((prev) =>
           prev.filter((c) => c.omConversationId !== conversationId)
         );
@@ -205,7 +198,7 @@ export function useOmnichannelChat() {
   const handleToggleAiAutoReply = useCallback(
     async (conversationId, enabled) => {
       try {
-        const updated = await updateConversation(conversationId, {
+        const updated = await put(`/api/marketing/omnichannel/conversations/${conversationId}`, {
           omConversationAiAutoReply: enabled,
         });
         setConversations((prev) =>
@@ -228,7 +221,7 @@ export function useOmnichannelChat() {
     try {
       setSuggestLoading(true);
       setSuggestedText("");
-      const result = await suggestReplyAction(selectedConversation.omConversationId);
+      const result = await post("/api/marketing/omnichannel/ai/suggest", { conversationId: selectedConversation.omConversationId });
       setSuggestedText(result.suggestion);
     } catch (error) {
       toast.error("AI ไม่สามารถแนะนำคำตอบได้");
@@ -250,7 +243,7 @@ export function useOmnichannelChat() {
 
       if (currentConv) {
         try {
-          const freshMessages = await getMessages(currentConv.omConversationId);
+          const freshMessages = await get(`/api/marketing/omnichannel/conversations/${currentConv.omConversationId}/messages`);
           setMessages((prev) => {
 
             if (freshMessages.length !== prev.length ||
@@ -274,7 +267,8 @@ export function useOmnichannelChat() {
         if (statusFilter !== "all") params.status = statusFilter;
         if (channelFilter !== "all") params.channel = channelFilter;
         if (searchQuery) params.search = searchQuery;
-        const freshConvs = await getConversations(params);
+        const pollQs = new URLSearchParams(params).toString();
+        const freshConvs = await get(`/api/marketing/omnichannel/conversations${pollQs ? `?${pollQs}` : ""}`);
         setConversations(freshConvs);
       } catch {
 

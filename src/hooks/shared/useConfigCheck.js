@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { getConfigCheck } from "@/modules/settings/actions";
+import { get } from "@/lib/apiClient";
 
 export function useConfigCheck() {
   const [status, setStatus] = useState(null);
@@ -11,7 +11,7 @@ export function useConfigCheck() {
   const refetch = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getConfigCheck();
+      const data = await get("/api/configCheck");
       setStatus(data);
     } catch (error) {
       toast.error("ตรวจสอบสถานะการตั้งค่าล้มเหลว");

@@ -41,7 +41,7 @@ import jsPDF from "jspdf";
 import { svg2pdf } from "svg2pdf.js";
 import * as htmlToImage from "html-to-image";
 import BomAIPanel from "@/modules/production/components/BomAIPanel";
-import { useBomAI } from "@/modules/production/hooks/useBomAI";
+import { useBomAI } from "@/modules/production/useBomAI";
 
 const GLUE_THICKNESS = 1;
 const LOCK_BLOCK_HEIGHT = 400;

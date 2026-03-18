@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
-import { getSalesOrder } from "@/modules/marketing/actions";
+import { get } from "@/lib/apiClient";
 
 export function useMarketingSalesOrderDetail(no) {
   const [order, setOrder] = useState(null);
@@ -13,7 +13,7 @@ export function useMarketingSalesOrderDetail(no) {
   const loadOrder = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getSalesOrder(decodeURIComponent(no));
+      const data = await get(`/api/marketing/salesOrders/${encodeURIComponent(decodeURIComponent(no))}`);
       setOrder(data.order || null);
       setCustomerPhone(data.customerPhone || "");
     } finally {

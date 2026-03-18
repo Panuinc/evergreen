@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import { getGlMonthlySummary } from "@/modules/finance/actions";
+import { get } from "@/lib/apiClient";
 import {
   classifyAccount,
   computeAdjustedCogs,
@@ -91,7 +91,7 @@ export function useGlMonthlyData(year, enabled = true) {
       try {
 
         const results = await Promise.all(
-          years.map((y) => getGlMonthlySummary(y)),
+          years.map((y) => get(`/api/finance/glEntries?start=${y}-01-01&end=${y}-12-31&summarize=monthly`)),
         );
 
         if (!cancelled) {

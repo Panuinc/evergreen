@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button, Input, Chip, Textarea } from "@heroui/react";
 import { X, Plus, Tag, StickyNote, FileText, ExternalLink, Clock, CalendarPlus } from "lucide-react";
-import { getQuotationsByConversation, getFollowUps, createFollowUp, deleteFollowUp as deleteFollowUpAction } from "@/modules/marketing/actions";
+import { get, post, del } from "@/lib/apiClient";
 import ChannelBadge from "./ChannelBadge";
 
 export default function ConversationDetail({ conversation, onUpdateContact, onClose }) {
@@ -20,10 +20,10 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
 
   useEffect(() => {
     if (!conversation?.omConversationId) return;
-    getQuotationsByConversation(conversation.omConversationId)
+    get(`/api/marketing/omnichannel/quotations?conversationId=${conversation.omConversationId}`)
       .then((data) => setQuotations(data || []))
       .catch(() => setQuotations([]));
-    getFollowUps({ conversationId: conversation.omConversationId })
+    get(`/api/marketing/omnichannel/followUp?conversationId=${conversation.omConversationId}`)
       .then((data) => setFollowUps(data || []))
       .catch(() => setFollowUps([]));
   }, [conversation?.omConversationId]);
@@ -55,7 +55,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
     if (!followUpDate) return;
     try {
       const scheduledAt = new Date(`${followUpDate}T${followUpTime || "10:00"}:00+07:00`).toISOString();
-      const result = await createFollowUp({
+      const result = await post("/api/marketing/omnichannel/followUp", {
         conversationId: conversation.omConversationId,
         scheduledAt,
         message: followUpMessage || null,
@@ -72,7 +72,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
 
   const handleDeleteFollowUp = async (id) => {
     try {
-      await deleteFollowUpAction(id);
+      await del(`/api/marketing/omnichannel/followUp/${id}`);
       setFollowUps((prev) => prev.filter((f) => f.omFollowUpId !== id));
     } catch {
       // handled in actions

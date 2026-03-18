@@ -3,9 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
-import { getLatestPositions, createGpsLog, getVehicles, getGpsLogs } from "@/modules/tms/actions";
+import { get, post, authFetch } from "@/lib/apiClient";
 import { validateForm, isRequired, isValidLatitude, isValidLongitude } from "@/lib/validation";
-import { authFetch } from "@/lib/apiClient";
 
 export function useGpsTracking() {
   const [positions, setPositions] = useState([]);
@@ -92,8 +91,8 @@ export function useGpsTracking() {
     try {
       setLoading(true);
       const [posData, vehData, ftData] = await Promise.all([
-        getLatestPositions(),
-        getVehicles(),
+        get("/api/tms/gpsLogs/latest"),
+        get("/api/tms/vehicles"),
         authFetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
       ]);
       setVehicles(vehData);
@@ -114,7 +113,7 @@ export function useGpsTracking() {
     const interval = setInterval(async () => {
       try {
         const [posData, ftData] = await Promise.all([
-          getLatestPositions(),
+          get("/api/tms/gpsLogs/latest"),
           authFetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
         ]);
         setVehicles((prev) => {
@@ -162,7 +161,7 @@ export function useGpsTracking() {
     setValidationErrors({});
     try {
       setSaving(true);
-      await createGpsLog({
+      await post("/api/tms/gpsLogs", {
         tmsGpsLogVehicleId: formData.tmsGpsLogVehicleId,
         tmsGpsLogLatitude: parseFloat(formData.tmsGpsLogLatitude),
         tmsGpsLogLongitude: parseFloat(formData.tmsGpsLogLongitude),
@@ -199,7 +198,11 @@ export function useGpsTracking() {
     try {
       setLoadingRoute(true);
       setSelectedVehicleId(vehicleId);
-      const logs = await getGpsLogs(vehicleId, targetDate);
+      const params = new URLSearchParams();
+      if (vehicleId) params.set("vehicleId", vehicleId);
+      if (targetDate) params.set("date", targetDate);
+      const qs = params.toString();
+      const logs = await get(qs ? `/api/tms/gpsLogs?${qs}` : "/api/tms/gpsLogs");
       setRouteHistory(
         logs.sort(
           (a, b) => new Date(a.tmsGpsLogRecordedAt) - new Date(b.tmsGpsLogRecordedAt)
@@ -218,7 +221,11 @@ export function useGpsTracking() {
     if (selectedVehicleId && routeModal.isOpen) {
       try {
         setLoadingRoute(true);
-        const logs = await getGpsLogs(selectedVehicleId, newDate);
+        const gpsParams = new URLSearchParams();
+        if (selectedVehicleId) gpsParams.set("vehicleId", selectedVehicleId);
+        if (newDate) gpsParams.set("date", newDate);
+        const gpsQs = gpsParams.toString();
+        const logs = await get(gpsQs ? `/api/tms/gpsLogs?${gpsQs}` : "/api/tms/gpsLogs");
         setRouteHistory(
           logs.sort(
             (a, b) => new Date(a.tmsGpsLogRecordedAt) - new Date(b.tmsGpsLogRecordedAt)

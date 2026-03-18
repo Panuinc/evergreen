@@ -1,6 +1,6 @@
 "use client";
 
-import { useCollections } from "@/modules/finance/hooks/useCollections";
+import { useCollections } from "@/modules/finance/useCollections";
 import CollectionsView from "@/modules/finance/components/CollectionsView";
 
 export default function CollectionsClient() {

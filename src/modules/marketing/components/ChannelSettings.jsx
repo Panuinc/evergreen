@@ -14,7 +14,7 @@ import {
 } from "@heroui/react";
 import { Facebook, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
-import { getAiSettings, updateAiSettings } from "@/modules/marketing/actions";
+import { get, put } from "@/lib/apiClient";
 import { toast } from "sonner";
 
 export default function ChannelSettings({ isOpen, onClose }) {
@@ -61,7 +61,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
 
   const loadAiSettings = async () => {
     try {
-      const data = await getAiSettings();
+      const data = await get("/api/marketing/omnichannel/ai/settings");
       if (data) {
         setAiSystemPrompt(data.omAiSettingSystemPrompt || "");
         setAiMaxHistory(String(data.omAiSettingMaxHistoryMessages || 20));
@@ -104,7 +104,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
 
 
       try {
-        await updateAiSettings({
+        await put("/api/marketing/omnichannel/ai/settings", {
           omAiSettingSystemPrompt: aiSystemPrompt,
           omAiSettingMaxHistoryMessages: parseInt(aiMaxHistory) || 20,
           omAiSettingBankAccountInfo: aiBankAccountInfo,

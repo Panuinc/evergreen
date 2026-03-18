@@ -1,6 +1,6 @@
 "use client";
 
-import { useGpsTracking } from "@/modules/tms/hooks/useGpsTracking";
+import { useGpsTracking } from "@/modules/tms/useGpsTracking";
 import TrackingView from "@/modules/tms/components/TrackingView";
 
 export default function TrackingClient() {

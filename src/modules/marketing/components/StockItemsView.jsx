@@ -14,7 +14,7 @@ import {
 } from "@heroui/react";
 import { Save, FileEdit } from "lucide-react";
 import { toast } from "sonner";
-import { saveStockItemPrices } from "@/modules/marketing/actions";
+import { post } from "@/lib/apiClient";
 import DataTable from "@/components/ui/DataTable";
 
 const FIXED_PACKET_COST = 25;
@@ -107,7 +107,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
       }
 
       const promises = [];
-      if (toSave.length > 0) promises.push(saveStockItemPrices(toSave));
+      if (toSave.length > 0) promises.push(post("/api/marketing/omnichannel/stockItems", { items: toSave }));
       if (saveAllProductInfo) promises.push(saveAllProductInfo());
       await Promise.all(promises);
 

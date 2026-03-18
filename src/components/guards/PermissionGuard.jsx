@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRBAC } from "@/contexts/RBACContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { logAccess } from "@/modules/rbac/actions";
+import { post } from "@/lib/apiClient";
 import Loading from "@/components/ui/Loading";
 import Forbidden from "@/app/forbidden";
 
@@ -27,7 +27,13 @@ export default function PermissionGuard({ permission, moduleId, children }) {
 
     const timer = setTimeout(() => {
       loggedRef.current = true;
-      logAccess(user.id, resource, "access", hasAccess);
+      post("/api/rbac/accessLogs", {
+        rbacAccessLogUserId: user.id,
+        rbacAccessLogResource: resource,
+        rbacAccessLogAction: "access",
+        rbacAccessLogGranted: hasAccess,
+        rbacAccessLogMetadata: null,
+      }).catch(() => {});
     }, 300);
 
     return () => clearTimeout(timer);

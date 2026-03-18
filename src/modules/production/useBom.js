@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo, useRef, useCallback } from "react";
-import { useFrames } from "@/modules/production/hooks/useFrames";
-import { useCores } from "@/modules/production/hooks/useCores";
+import { useFrames } from "@/modules/production/useFrames";
+import { useCores } from "@/modules/production/useCores";
 
 const GLUE_THICKNESS = 1;
 const LOCK_BLOCK_HEIGHT = 400;

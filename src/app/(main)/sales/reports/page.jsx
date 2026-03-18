@@ -1,6 +1,6 @@
 "use client";
 
-import { useSalesDashboard } from "@/modules/sales/hooks/useSalesDashboard";
+import { useSalesDashboard } from "@/modules/sales/useSalesDashboard";
 import ReportsView from "@/modules/sales/components/ReportsView";
 
 export default function SalesReportsPage() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useOmnichannelChat } from "@/modules/marketing/hooks/useOmnichannelChat";
+import { useOmnichannelChat } from "@/modules/marketing/useOmnichannelChat";
 import OmnichannelView from "@/modules/marketing/components/OmnichannelView";
 
 export default function OmnichannelClient() {

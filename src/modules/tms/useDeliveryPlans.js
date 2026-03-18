@@ -2,14 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import {
-  getDeliveryPlans,
-  createDeliveryPlan,
-  updateDeliveryPlan,
-  deleteDeliveryPlan,
-  getDeliveryPlanSalesOrders,
-  getDeliveryPlanSalesOrderLines,
-} from "@/modules/tms/actions";
+import { get, post, put, del } from "@/lib/apiClient";
 
 export function useDeliveryPlans() {
   const today = new Date();
@@ -41,7 +34,7 @@ export function useDeliveryPlans() {
     async (date) => {
       try {
         setLoading(true);
-        const data = await getDeliveryPlans(getMonthKey(date));
+        const data = await get(`/api/tms/deliveryPlans?month=${getMonthKey(date)}`);
         setPlans(data || []);
       } catch {
         toast.error("โหลดแผนส่งของล้มเหลว");
@@ -111,7 +104,7 @@ export function useDeliveryPlans() {
   const searchSalesOrders = async (search) => {
     try {
       setSoLoading(true);
-      const data = await getDeliveryPlanSalesOrders(search);
+      const data = await get(`/api/tms/deliveryPlans/salesOrders?search=${encodeURIComponent(search)}`);
       setSalesOrders(data || []);
     } catch {
       toast.error("โหลด Sales Order ล้มเหลว");
@@ -126,8 +119,8 @@ export function useDeliveryPlans() {
     if (!so) return;
     try {
       setSoLinesLoading(true);
-      const lines = await getDeliveryPlanSalesOrderLines(
-        so.bcSalesOrderNoValue
+      const lines = await get(
+        `/api/tms/deliveryPlans/salesOrders/${encodeURIComponent(so.bcSalesOrderNoValue)}/lines`
       );
       setSoLines(lines || []);
     } catch {
@@ -142,10 +135,10 @@ export function useDeliveryPlans() {
     try {
       setSaving(true);
       if (editingPlan) {
-        await updateDeliveryPlan(editingPlan.tmsDeliveryPlanId, planData);
+        await put(`/api/tms/deliveryPlans/${editingPlan.tmsDeliveryPlanId}`, planData);
         toast.success("แก้ไขแผนส่งของแล้ว");
       } else {
-        await createDeliveryPlan(planData);
+        await post("/api/tms/deliveryPlans", planData);
         toast.success("เพิ่มแผนส่งของแล้ว");
       }
       await loadPlans(currentDate);
@@ -160,7 +153,7 @@ export function useDeliveryPlans() {
 
   const handleDelete = async (id) => {
     try {
-      await deleteDeliveryPlan(id);
+      await del(`/api/tms/deliveryPlans/${id}`);
       toast.success("ลบแผนส่งของแล้ว");
       await loadPlans(currentDate);
     } catch {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useBom } from "@/modules/production/hooks/useBom";
+import { useBom } from "@/modules/production/useBom";
 import BomView from "@/modules/production/components/BomView";
 
 export default function BomClient() {

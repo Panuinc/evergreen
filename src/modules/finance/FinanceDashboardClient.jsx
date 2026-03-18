@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { useFinanceDashboard } from "@/modules/finance/hooks/useFinanceDashboard";
-import { useGlMonthlyData } from "@/modules/finance/hooks/useGlMonthlyData";
+import { useFinanceDashboard } from "@/modules/finance/useFinanceDashboard";
+import { useGlMonthlyData } from "@/modules/finance/useGlMonthlyData";
 import FinanceDashboardView from "@/modules/finance/components/FinanceDashboardView";
 import { INVENTORY_ACCOUNTS } from "@/modules/finance/glAccountMap";
 

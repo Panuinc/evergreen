@@ -1,7 +1,7 @@
 "use client";
 
-import { useSyncBc } from "@/modules/settings/hooks/useSyncBc";
-import { useBciImport } from "@/modules/settings/hooks/useBciImport";
+import { useSyncBc } from "@/modules/settings/useSyncBc";
+import { useBciImport } from "@/modules/settings/useBciImport";
 import SyncBcView from "@/modules/settings/components/SyncBcView";
 
 export default function SyncBcClient() {

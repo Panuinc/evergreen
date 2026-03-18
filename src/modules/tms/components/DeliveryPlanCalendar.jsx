@@ -2,7 +2,7 @@
 
 import { Tabs, Tab, Button, Chip} from "@heroui/react";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { useDeliveryPlans } from "@/modules/tms/hooks/useDeliveryPlans";
+import { useDeliveryPlans } from "@/modules/tms/useDeliveryPlans";
 import DeliveryPlanModal from "./DeliveryPlanModal";
 import Loading from "@/components/ui/Loading";
 

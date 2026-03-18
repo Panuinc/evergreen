@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { getQuotation, updateQuotation, quotationAction } from "@/modules/marketing/actions";
+import { get, put, patch } from "@/lib/apiClient";
 
 export function useOmQuotationEditor(id) {
   const [quotation, setQuotation] = useState(null);
@@ -13,7 +13,7 @@ export function useOmQuotationEditor(id) {
   const loadQuotation = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getQuotation(id);
+      const data = await get(`/api/marketing/omnichannel/quotations/${id}`);
       setQuotation(data);
       setLines(data.lines || []);
     } catch (err) {
@@ -39,7 +39,7 @@ export function useOmQuotationEditor(id) {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await updateQuotation(id, {
+      await put(`/api/marketing/omnichannel/quotations/${id}`, {
         omQuotationCustomerName: quotation.omQuotationCustomerName,
         omQuotationCustomerPhone: quotation.omQuotationCustomerPhone,
         omQuotationCustomerAddress: quotation.omQuotationCustomerAddress,
@@ -67,7 +67,7 @@ export function useOmQuotationEditor(id) {
       setSaving(true);
 
       if (action === "submit") {
-        await updateQuotation(id, {
+        await put(`/api/marketing/omnichannel/quotations/${id}`, {
           omQuotationCustomerName: quotation.omQuotationCustomerName,
           omQuotationCustomerPhone: quotation.omQuotationCustomerPhone,
           omQuotationCustomerAddress: quotation.omQuotationCustomerAddress,
@@ -82,7 +82,7 @@ export function useOmQuotationEditor(id) {
           })),
         });
       }
-      await quotationAction(id, action, note);
+      await patch(`/api/marketing/omnichannel/quotations/${id}`, { action, note });
       const messages = {
         submit: "ส่งอนุมัติเรียบร้อย",
         approve: "อนุมัติเรียบร้อย ส่งลิงก์และข้อมูลชำระเงินให้ลูกค้าแล้ว",

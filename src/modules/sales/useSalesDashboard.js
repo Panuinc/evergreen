@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { getSalesDashboard } from "@/modules/sales/actions";
+import { get } from "@/lib/apiClient";
 
 export function useSalesDashboard() {
   const [data, setData] = useState(null);
@@ -12,7 +12,8 @@ export function useSalesDashboard() {
   const loadData = useCallback(async (mode) => {
     try {
       setLoading(true);
-      const result = await getSalesDashboard(mode);
+      const params = mode ? `?compareMode=${mode}` : "";
+      const result = await get(`/api/sales/dashboard${params}`);
       setData(result);
     } catch (error) {
       toast.error("โหลดแดชบอร์ดล้มเหลว");

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { getUserPermissions } from "@/modules/rbac/actions";
+import { get } from "@/lib/apiClient";
 
 const RBACContext = createContext({});
 
@@ -25,7 +25,7 @@ export function RBACProvider({ children }) {
 
     const loadPermissions = async () => {
       try {
-        const data = await getUserPermissions(userId);
+        const data = await get(`/api/rbac/userPermissions/${userId}`);
         const permStrings = data
           .map((d) => d.permission)
           .filter((p) => p !== "__superadmin__");
@@ -72,7 +72,7 @@ export function RBACProvider({ children }) {
     if (!user) return;
     setRbacLoading(true);
     try {
-      const data = await getUserPermissions(user.id);
+      const data = await get(`/api/rbac/userPermissions/${user.id}`);
       const permStrings = data
         .map((d) => d.permission)
         .filter((p) => p !== "__superadmin__");
