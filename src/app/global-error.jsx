@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { CircleAlert } from "lucide-react";
 
-export default function GlobalError({ error, reset }) {
+export default function GlobalError({ error, unstable_retry }) {
   useEffect(() => {
     console.error("Global error caught:", error);
   }, [error]);
@@ -53,7 +53,7 @@ export default function GlobalError({ error, reset }) {
               An unexpected error occurred. Please try again.
             </p>
             <button
-              onClick={() => reset()}
+              onClick={() => unstable_retry()}
               style={{
                 padding: "8px 16px",
                 borderRadius: "12px",

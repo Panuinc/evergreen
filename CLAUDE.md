@@ -1270,3 +1270,53 @@ module.exports = {
 | `favicon.ico` | Browser tab icon | In root `app/` |
 | `robots.txt` | Crawler rules | In root `app/` |
 | `sitemap.xml` | SEO sitemap | In root `app/` |
+
+---
+
+## 17. Naming Conventions
+
+### File Names
+- **camelCase for all files** — `financeDashboardClient.jsx`, `signInPasswordForm.jsx`, `authContext.jsx`
+- **Exception — Next.js special files:** `page.jsx`, `layout.jsx`, `error.jsx`, `loading.jsx`, `not-found.jsx`, `global-error.jsx`, `forbidden.jsx`, `providers.jsx`, `route.js`, `proxy.js`, `default.jsx`, `template.jsx` — stay lowercase as-is
+- **Never use PascalCase for file names** even for component files
+
+```
+// CORRECT
+src/components/layout/header.jsx
+src/modules/finance/financeDashboardClient.jsx
+src/contexts/authContext.jsx
+
+// WRONG
+src/components/layout/Header.jsx
+src/modules/finance/FinanceDashboardClient.jsx
+```
+
+### Variable & Constant Names
+- **camelCase for all identifiers** — variables, functions, constants
+- **Never use UPPER_SNAKE_CASE** for constants — use camelCase
+
+```js
+// CORRECT
+const sender = { name: "Company", address: "..." }
+const statusColors = { active: "success", inactive: "default" }
+const urlRegex = /(https?:\/\/[^\s]+)/g
+
+// WRONG
+const SENDER = { ... }
+const STATUS_COLORS = { ... }
+const URL_REGEX = /...
+```
+
+### Component / Function Names
+- **React components must remain PascalCase** (React treats lowercase as HTML elements)
+- The component EXPORT name is PascalCase, but the FILE name is camelCase
+
+```jsx
+// file: src/components/layout/header.jsx
+export default function Header() {   // ← PascalCase component name (required by React)
+  return <nav>...</nav>
+}
+
+// import in another file:
+import Header from "@/components/layout/header"  // ← camelCase path
+```

@@ -1,4 +1,4 @@
-import BankReconClient from "@/modules/finance/BankReconClient";
+import BankReconClient from "@/modules/finance/bankReconClient";
 
 export default async function BankReconPage() {
   // Bank reconciliation relies on complex client-side state (file uploads,

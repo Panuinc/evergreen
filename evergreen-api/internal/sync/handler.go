@@ -1,25 +1,25 @@
 package sync
 
 import (
-	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/evergreen/api/internal/clients"
 	"github.com/evergreen/api/internal/config"
-	"github.com/evergreen/api/internal/external"
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/evergreen/api/pkg/logger"
+	"github.com/evergreen/api/pkg/response"
 )
 
 // Handler serves the /sync routes.
 type Handler struct {
 	engine     *SyncEngine
 	cfg        *config.Config
-	pool       *pgxpool.Pool
-	forthtrack *external.ForthTrackClient
+	store      *Store
+	forthtrack *clients.ForthTrackClient
 
 	mu       sync.Mutex
 	lockTime *time.Time
@@ -29,20 +29,12 @@ const lockTTL = 5 * time.Minute
 
 // NewHandler creates a new sync Handler.
 func NewHandler(engine *SyncEngine, cfg *config.Config, pool *pgxpool.Pool) *Handler {
-	var ft *external.ForthTrackClient
+	var ft *clients.ForthTrackClient
 	if cfg.ForthTrackLoginURL != "" {
-		ft = external.NewForthTrackClient(cfg.ForthTrackLoginURL, cfg.ForthTrackAPIBase,
+		ft = clients.NewForthTrackClient(cfg.ForthTrackLoginURL, cfg.ForthTrackAPIBase,
 			cfg.ForthTrackClientID, cfg.ForthTrackClientSecret, cfg.ForthTrackUsername, cfg.ForthTrackPassword)
 	}
-	return &Handler{engine: engine, cfg: cfg, pool: pool, forthtrack: ft}
-}
-
-// Routes returns a chi.Router mounted under /sync.
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Get("/bc", h.handleBCSync)
-	r.Get("/forthtrack", h.handleForthTrackSync)
-	return r
+	return &Handler{engine: engine, cfg: cfg, store: NewStore(pool), forthtrack: ft}
 }
 
 // handleBCSync validates auth, manages the sync lock, and runs the sync.
@@ -53,7 +45,7 @@ func (h *Handler) handleBCSync(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		expected := "Bearer " + h.cfg.CronSecret
 		if authHeader != expected {
-			http.Error(w, `{"error":"Unauthorized"}`, http.StatusUnauthorized)
+			response.Unauthorized(w, "Unauthorized")
 			return
 		}
 	}
@@ -63,9 +55,7 @@ func (h *Handler) handleBCSync(w http.ResponseWriter, r *http.Request) {
 	if h.lockTime != nil && time.Since(*h.lockTime) < lockTTL {
 		lockedSince := h.lockTime.Format(time.RFC3339)
 		h.mu.Unlock()
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusTooManyRequests)
-		fmt.Fprintf(w, `{"error":"Sync is already running","lockedSince":%q}`, lockedSince)
+		response.Error(w, http.StatusTooManyRequests, "Sync is already running: "+lockedSince)
 		return
 	}
 	now := time.Now()
@@ -104,7 +94,7 @@ func (h *Handler) handleBCSync(w http.ResponseWriter, r *http.Request) {
 	// SSE streaming
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-		http.Error(w, "streaming not supported", http.StatusInternalServerError)
+		response.Error(w, http.StatusInternalServerError, "streaming not supported")
 		return
 	}
 
@@ -124,35 +114,27 @@ func (h *Handler) handleBCSync(w http.ResponseWriter, r *http.Request) {
 // handleForthTrackSync is a placeholder for ForthTrack GPS sync.
 func (h *Handler) handleForthTrackSync(w http.ResponseWriter, r *http.Request) {
 	if h.forthtrack == nil {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": "ForthTrack not configured"})
+		response.OK(w, map[string]any{"ok": false, "error": "ForthTrack not configured"})
 		return
 	}
 
 	data, err := h.forthtrack.FetchTracking()
 	if err != nil {
-		slog.Error("ForthTrack fetch failed", "error", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
+		logger.Error("ForthTrack fetch failed", "error", err)
+		response.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	// Get vehicle mapping (forthtrackId/plateNumber → vehicleId)
-	vehicles, _ := h.pool.Query(r.Context(), `SELECT "tmsVehicleId","tmsVehicleForthtrackId","tmsVehiclePlateNumber" FROM "tmsVehicle" WHERE "isActive"=true`)
+	mappings, _ := h.store.GetActiveVehicles(r.Context())
 	vehicleMap := map[string]string{} // forthtrackId → vehicleId
 	plateMap := map[string]string{}   // plateNumber → vehicleId
-	if vehicles != nil {
-		defer vehicles.Close()
-		for vehicles.Next() {
-			var vid, ftid, plate *string
-			vehicles.Scan(&vid, &ftid, &plate)
-			if vid != nil && ftid != nil && *ftid != "" {
-				vehicleMap[*ftid] = *vid
-			}
-			if vid != nil && plate != nil && *plate != "" {
-				plateMap[*plate] = *vid
-			}
+	for _, m := range mappings {
+		if m.ForthtrackID != "" {
+			vehicleMap[m.ForthtrackID] = m.VehicleID
+		}
+		if m.PlateNumber != "" {
+			plateMap[m.PlateNumber] = m.VehicleID
 		}
 	}
 
@@ -173,18 +155,12 @@ func (h *Handler) handleForthTrackSync(w http.ResponseWriter, r *http.Request) {
 		lng, _ := d["longitude"].(float64)
 		speed, _ := d["speed"].(float64)
 
-		_, err := h.pool.Exec(r.Context(), `
-			INSERT INTO "tmsGpsLog" ("tmsGpsLogVehicleId","tmsGpsLogLatitude","tmsGpsLogLongitude","tmsGpsLogSpeed",
-				"tmsGpsLogEngine","tmsGpsLogDriver","tmsGpsLogAddress","tmsGpsLogFuel","tmsGpsLogForthtrackId","tmsGpsLogSource","tmsGpsLogRecordedAt")
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'forthtrack',now())
-			ON CONFLICT ("tmsGpsLogForthtrackId","tmsGpsLogRecordedAt") DO NOTHING
-		`, vehicleID, lat, lng, speed, d["engine"], d["driver"], d["address"], d["fuel"], gpsID)
+		err := h.store.UpsertGpsLog(r.Context(), vehicleID, lat, lng, speed, d["engine"], d["driver"], d["address"], d["fuel"], gpsID)
 		if err == nil {
 			synced++
 		}
 	}
 
-	slog.Info("ForthTrack sync completed", "fetched", len(data), "synced", synced)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"ok": true, "vehicles": len(data), "synced": synced})
+	logger.Info("ForthTrack sync completed", "fetched", len(data), "synced", synced)
+	response.OK(w, map[string]any{"ok": true, "vehicles": len(data), "synced": synced})
 }

@@ -9,88 +9,18 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/internal/clients"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	pool *pgxpool.Pool
+	store *Store
+	ai    *clients.OpenRouterClient
 }
 
-func New(pool *pgxpool.Pool) *Handler {
-	return &Handler{pool: pool}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-
-	r.Route("/vehicles", func(r chi.Router) {
-		r.Get("/", h.ListVehicles)
-		r.Post("/", h.CreateVehicle)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetVehicle)
-			r.Put("/", h.UpdateVehicle)
-			r.Delete("/", h.DeleteVehicle)
-		})
-	})
-
-	r.Route("/shipments", func(r chi.Router) {
-		r.Get("/", h.ListShipments)
-		r.Post("/", h.CreateShipment)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetShipment)
-			r.Put("/", h.UpdateShipment)
-			r.Delete("/", h.DeleteShipment)
-			r.Put("/status", h.UpdateShipmentStatus)
-		})
-	})
-
-	r.Route("/deliveries", func(r chi.Router) {
-		r.Get("/", h.ListDeliveries)
-		r.Post("/", h.CreateDelivery)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetDelivery)
-			r.Put("/", h.UpdateDelivery)
-			r.Delete("/", h.DeleteDelivery)
-		})
-	})
-
-	r.Route("/deliveryPlans", func(r chi.Router) {
-		r.Get("/", h.ListDeliveryPlans)
-		r.Post("/", h.CreateDeliveryPlan)
-		r.Get("/salesOrders", h.ListUnshippedSalesOrders)
-		r.Get("/salesOrders/{no}/lines", h.GetSalesOrderLines)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetDeliveryPlan)
-			r.Put("/", h.UpdateDeliveryPlan)
-			r.Delete("/", h.DeleteDeliveryPlan)
-		})
-	})
-
-	r.Route("/fuelLogs", func(r chi.Router) {
-		r.Get("/", h.ListFuelLogs)
-		r.Post("/", h.CreateFuelLog)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetFuelLog)
-			r.Put("/", h.UpdateFuelLog)
-			r.Delete("/", h.DeleteFuelLog)
-		})
-	})
-
-	r.Route("/gpsLogs", func(r chi.Router) {
-		r.Get("/", h.ListGpsLogs)
-		r.Post("/", h.CreateGpsLog)
-		r.Get("/latest", h.LatestGpsLogs)
-	})
-
-	r.Get("/dashboard", h.Dashboard)
-	r.Get("/distance", h.Distance)
-	r.Post("/routeOptimize", h.RouteOptimize)
-	r.Post("/aiAnalysis", h.AiAnalysis)
-	r.Get("/forthtrack", h.Forthtrack)
-
-	return r
+func New(pool *pgxpool.Pool, ai *clients.OpenRouterClient) *Handler {
+	return &Handler{store: NewStore(pool), ai: ai}
 }
 
 // ---- Vehicles ----
@@ -99,27 +29,7 @@ func (h *Handler) ListVehicles(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
 	search := r.URL.Query().Get("search")
 	isActive := r.URL.Query().Get("isActive")
-
-	q := `SELECT * FROM "tmsVehicle" WHERE 1=1`
-	args := []any{}
-	argIdx := 1
-
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	if isActive != "" {
-		q += fmt.Sprintf(` AND "isActive" = $%d`, argIdx)
-		args = append(args, isActive == "true")
-		argIdx++
-	}
-	if search != "" {
-		q += fmt.Sprintf(` AND ("tmsVehiclePlateNumber" ILIKE $%d OR "tmsVehicleName" ILIKE $%d)`, argIdx, argIdx+1)
-		p := "%" + search + "%"
-		args = append(args, p, p)
-	}
-	q += ` ORDER BY "tmsVehicleCreatedAt" DESC`
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListVehicles(r.Context(), sa, isActive, search)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -133,10 +43,8 @@ func (h *Handler) CreateVehicle(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "tmsVehicle" ("tmsVehiclePlateNumber", "tmsVehicleName", "tmsVehicleStatus", "tmsVehicleCapacityKg", "tmsVehicleFuelType", "tmsVehicleForthtrackId")
-		VALUES ($1, $2, $3, $4, $5, $6) RETURNING *
-	`, body["tmsVehiclePlateNumber"], body["tmsVehicleName"], body["tmsVehicleStatus"],
+	data, err := h.store.CreateVehicle(r.Context(),
+		body["tmsVehiclePlateNumber"], body["tmsVehicleName"], body["tmsVehicleStatus"],
 		body["tmsVehicleCapacityKg"], body["tmsVehicleFuelType"], body["tmsVehicleForthtrackId"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
@@ -148,11 +56,7 @@ func (h *Handler) CreateVehicle(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetVehicle(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "tmsVehicle" WHERE "tmsVehicleId" = $1`
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	data, err := db.QueryRow(r.Context(), h.pool, q, id)
+	data, err := h.store.GetVehicle(r.Context(), id, sa)
 	if err != nil {
 		response.NotFound(w, "ไม่พบยานพาหนะ")
 		return
@@ -167,17 +71,8 @@ func (h *Handler) UpdateVehicle(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "tmsVehicle" SET
-			"tmsVehiclePlateNumber" = COALESCE($2, "tmsVehiclePlateNumber"),
-			"tmsVehicleName" = COALESCE($3, "tmsVehicleName"),
-			"tmsVehicleStatus" = COALESCE($4, "tmsVehicleStatus"),
-			"tmsVehicleCapacityKg" = COALESCE($5, "tmsVehicleCapacityKg"),
-			"tmsVehicleFuelType" = COALESCE($6, "tmsVehicleFuelType"),
-			"tmsVehicleForthtrackId" = COALESCE($7, "tmsVehicleForthtrackId"),
-			"isActive" = COALESCE($8, "isActive")
-		WHERE "tmsVehicleId" = $1 RETURNING *
-	`, id, body["tmsVehiclePlateNumber"], body["tmsVehicleName"], body["tmsVehicleStatus"],
+	data, err := h.store.UpdateVehicle(r.Context(),
+		id, body["tmsVehiclePlateNumber"], body["tmsVehicleName"], body["tmsVehicleStatus"],
 		body["tmsVehicleCapacityKg"], body["tmsVehicleFuelType"], body["tmsVehicleForthtrackId"], body["isActive"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
@@ -188,8 +83,7 @@ func (h *Handler) UpdateVehicle(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteVehicle(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "tmsVehicle" SET "isActive" = false WHERE "tmsVehicleId" = $1`, id)
-	if err != nil {
+	if err := h.store.SoftDeleteVehicle(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -202,27 +96,7 @@ func (h *Handler) ListShipments(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
 	search := r.URL.Query().Get("search")
 	status := r.URL.Query().Get("status")
-
-	q := `SELECT * FROM "tmsShipment" WHERE 1=1`
-	args := []any{}
-	argIdx := 1
-
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	if status != "" {
-		q += fmt.Sprintf(` AND "tmsShipmentStatus" = $%d`, argIdx)
-		args = append(args, status)
-		argIdx++
-	}
-	if search != "" {
-		q += fmt.Sprintf(` AND ("tmsShipmentNumber" ILIKE $%d OR "tmsShipmentCustomerName" ILIKE $%d)`, argIdx, argIdx+1)
-		p := "%" + search + "%"
-		args = append(args, p, p)
-	}
-	q += ` ORDER BY "tmsShipmentCreatedAt" DESC`
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListShipments(r.Context(), sa, status, search)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -242,9 +116,7 @@ func (h *Handler) CreateShipment(w http.ResponseWriter, r *http.Request) {
 	// Auto-generate shipment number: SHP-YYMMDD-###
 	today := time.Now().Format("060102")
 	prefix := "SHP-" + today + "-"
-	countRow, err := db.QueryRow(r.Context(), h.pool, `
-		SELECT COUNT(*) as cnt FROM "tmsShipment" WHERE "tmsShipmentNumber" LIKE $1
-	`, prefix+"%")
+	countRow, err := h.store.CountShipmentsByPrefix(r.Context(), prefix)
 	seq := 1
 	if err == nil {
 		if cnt, ok := countRow["cnt"].(int64); ok {
@@ -253,11 +125,8 @@ func (h *Handler) CreateShipment(w http.ResponseWriter, r *http.Request) {
 	}
 	number := fmt.Sprintf("%s%03d", prefix, seq)
 
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "tmsShipment" ("tmsShipmentNumber", "tmsShipmentCustomerName", "tmsShipmentCustomerPhone", "tmsShipmentStatus",
-			"tmsShipmentDate", "tmsShipmentVehicleId", "tmsShipmentDriverId", "tmsShipmentCreatedBy")
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
-	`, number, body["tmsShipmentCustomerName"], body["tmsShipmentCustomerPhone"], body["tmsShipmentStatus"],
+	data, err := h.store.CreateShipment(r.Context(),
+		number, body["tmsShipmentCustomerName"], body["tmsShipmentCustomerPhone"], body["tmsShipmentStatus"],
 		body["tmsShipmentDate"], body["tmsShipmentVehicleId"], body["tmsShipmentDriverId"], userID)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
@@ -269,11 +138,7 @@ func (h *Handler) CreateShipment(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetShipment(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "tmsShipment" WHERE "tmsShipmentId" = $1`
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	data, err := db.QueryRow(r.Context(), h.pool, q, id)
+	data, err := h.store.GetShipment(r.Context(), id, sa)
 	if err != nil {
 		response.NotFound(w, "ไม่พบการจัดส่ง")
 		return
@@ -288,16 +153,8 @@ func (h *Handler) UpdateShipment(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "tmsShipment" SET
-			"tmsShipmentCustomerName" = COALESCE($2, "tmsShipmentCustomerName"),
-			"tmsShipmentCustomerPhone" = COALESCE($3, "tmsShipmentCustomerPhone"),
-			"tmsShipmentStatus" = COALESCE($4, "tmsShipmentStatus"),
-			"tmsShipmentDate" = COALESCE($5, "tmsShipmentDate"),
-			"tmsShipmentVehicleId" = COALESCE($6, "tmsShipmentVehicleId"),
-			"tmsShipmentDriverId" = COALESCE($7, "tmsShipmentDriverId")
-		WHERE "tmsShipmentId" = $1 RETURNING *
-	`, id, body["tmsShipmentCustomerName"], body["tmsShipmentCustomerPhone"], body["tmsShipmentStatus"],
+	data, err := h.store.UpdateShipment(r.Context(),
+		id, body["tmsShipmentCustomerName"], body["tmsShipmentCustomerPhone"], body["tmsShipmentStatus"],
 		body["tmsShipmentDate"], body["tmsShipmentVehicleId"], body["tmsShipmentDriverId"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
@@ -308,8 +165,7 @@ func (h *Handler) UpdateShipment(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteShipment(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "tmsShipment" SET "isActive" = false WHERE "tmsShipmentId" = $1`, id)
-	if err != nil {
+	if err := h.store.SoftDeleteShipment(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -323,10 +179,7 @@ func (h *Handler) UpdateShipmentStatus(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "tmsShipment" SET "tmsShipmentStatus" = $2
-		WHERE "tmsShipmentId" = $1 RETURNING *
-	`, id, body["tmsShipmentStatus"])
+	data, err := h.store.UpdateShipmentStatus(r.Context(), id, body["tmsShipmentStatus"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -339,22 +192,7 @@ func (h *Handler) UpdateShipmentStatus(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ListDeliveries(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
 	shipmentId := r.URL.Query().Get("shipmentId")
-
-	q := `SELECT * FROM "tmsDelivery" WHERE 1=1`
-	args := []any{}
-	argIdx := 1
-
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	if shipmentId != "" {
-		q += fmt.Sprintf(` AND "tmsDeliveryShipmentId" = $%d`, argIdx)
-		args = append(args, shipmentId)
-		argIdx++
-	}
-	q += ` ORDER BY "tmsDeliveryCreatedAt" DESC`
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListDeliveries(r.Context(), sa, shipmentId)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -368,10 +206,7 @@ func (h *Handler) CreateDelivery(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "tmsDelivery" ("tmsDeliveryShipmentId", "tmsDeliveryStatus")
-		VALUES ($1, $2) RETURNING *
-	`, body["tmsDeliveryShipmentId"], body["tmsDeliveryStatus"])
+	data, err := h.store.CreateDelivery(r.Context(), body["tmsDeliveryShipmentId"], body["tmsDeliveryStatus"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -382,11 +217,7 @@ func (h *Handler) CreateDelivery(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetDelivery(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "tmsDelivery" WHERE "tmsDeliveryId" = $1`
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	data, err := db.QueryRow(r.Context(), h.pool, q, id)
+	data, err := h.store.GetDelivery(r.Context(), id, sa)
 	if err != nil {
 		response.NotFound(w, "ไม่พบการจัดส่ง")
 		return
@@ -401,12 +232,7 @@ func (h *Handler) UpdateDelivery(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "tmsDelivery" SET
-			"tmsDeliveryShipmentId" = COALESCE($2, "tmsDeliveryShipmentId"),
-			"tmsDeliveryStatus" = COALESCE($3, "tmsDeliveryStatus")
-		WHERE "tmsDeliveryId" = $1 RETURNING *
-	`, id, body["tmsDeliveryShipmentId"], body["tmsDeliveryStatus"])
+	data, err := h.store.UpdateDelivery(r.Context(), id, body["tmsDeliveryShipmentId"], body["tmsDeliveryStatus"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -416,8 +242,7 @@ func (h *Handler) UpdateDelivery(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteDelivery(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "tmsDelivery" SET "isActive" = false WHERE "tmsDeliveryId" = $1`, id)
-	if err != nil {
+	if err := h.store.SoftDeleteDelivery(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -428,19 +253,7 @@ func (h *Handler) DeleteDelivery(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ListDeliveryPlans(w http.ResponseWriter, r *http.Request) {
 	month := r.URL.Query().Get("month")
-
-	q := `SELECT * FROM "tmsDeliveryPlan" WHERE 1=1`
-	args := []any{}
-	argIdx := 1
-
-	if month != "" {
-		q += fmt.Sprintf(` AND to_char("tmsDeliveryPlanDate", 'YYYY-MM') = $%d`, argIdx)
-		args = append(args, month)
-		argIdx++
-	}
-	q += ` ORDER BY "tmsDeliveryPlanDate" DESC`
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListDeliveryPlans(r.Context(), month)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -455,10 +268,7 @@ func (h *Handler) CreateDeliveryPlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userID := middleware.UserID(r.Context())
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "tmsDeliveryPlan" ("tmsDeliveryPlanDate", "tmsDeliveryPlanStatus", "tmsDeliveryPlanCreatedBy")
-		VALUES ($1, $2, $3) RETURNING *
-	`, body["tmsDeliveryPlanDate"], body["tmsDeliveryPlanStatus"], userID)
+	data, err := h.store.CreateDeliveryPlan(r.Context(), body["tmsDeliveryPlanDate"], body["tmsDeliveryPlanStatus"], userID)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -468,7 +278,7 @@ func (h *Handler) CreateDeliveryPlan(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetDeliveryPlan(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	data, err := db.QueryRow(r.Context(), h.pool, `SELECT * FROM "tmsDeliveryPlan" WHERE "tmsDeliveryPlanId" = $1`, id)
+	data, err := h.store.GetDeliveryPlan(r.Context(), id)
 	if err != nil {
 		response.NotFound(w, "ไม่พบแผนจัดส่ง")
 		return
@@ -483,12 +293,7 @@ func (h *Handler) UpdateDeliveryPlan(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "tmsDeliveryPlan" SET
-			"tmsDeliveryPlanDate" = COALESCE($2, "tmsDeliveryPlanDate"),
-			"tmsDeliveryPlanStatus" = COALESCE($3, "tmsDeliveryPlanStatus")
-		WHERE "tmsDeliveryPlanId" = $1 RETURNING *
-	`, id, body["tmsDeliveryPlanDate"], body["tmsDeliveryPlanStatus"])
+	data, err := h.store.UpdateDeliveryPlan(r.Context(), id, body["tmsDeliveryPlanDate"], body["tmsDeliveryPlanStatus"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -498,8 +303,7 @@ func (h *Handler) UpdateDeliveryPlan(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteDeliveryPlan(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `DELETE FROM "tmsDeliveryPlan" WHERE "tmsDeliveryPlanId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeleteDeliveryPlan(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -507,11 +311,7 @@ func (h *Handler) DeleteDeliveryPlan(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ListUnshippedSalesOrders(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcSalesOrder"
-		WHERE "bcSalesOrderStatus" != 'shipped'
-		ORDER BY "bcSalesOrderNo"
-	`)
+	data, err := h.store.ListUnshippedSalesOrders(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -521,11 +321,7 @@ func (h *Handler) ListUnshippedSalesOrders(w http.ResponseWriter, r *http.Reques
 
 func (h *Handler) GetSalesOrderLines(w http.ResponseWriter, r *http.Request) {
 	no := chi.URLParam(r, "no")
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcSalesOrderLine"
-		WHERE "bcSalesOrderLineDocumentNo" = $1 AND "bcSalesOrderLineOutstandingQuantity" > 0
-		ORDER BY "bcSalesOrderLineLineNo"
-	`, no)
+	data, err := h.store.GetSalesOrderLines(r.Context(), no)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -538,22 +334,7 @@ func (h *Handler) GetSalesOrderLines(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ListFuelLogs(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
 	vehicleId := r.URL.Query().Get("vehicleId")
-
-	q := `SELECT * FROM "tmsFuelLog" WHERE 1=1`
-	args := []any{}
-	argIdx := 1
-
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	if vehicleId != "" {
-		q += fmt.Sprintf(` AND "tmsFuelLogVehicleId" = $%d`, argIdx)
-		args = append(args, vehicleId)
-		argIdx++
-	}
-	q += ` ORDER BY "tmsFuelLogDate" DESC`
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListFuelLogs(r.Context(), sa, vehicleId)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -567,10 +348,8 @@ func (h *Handler) CreateFuelLog(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "tmsFuelLog" ("tmsFuelLogVehicleId", "tmsFuelLogDate", "tmsFuelLogLiters", "tmsFuelLogPricePerLiter", "tmsFuelLogTotalCost")
-		VALUES ($1, $2, $3, $4, $5) RETURNING *
-	`, body["tmsFuelLogVehicleId"], body["tmsFuelLogDate"], body["tmsFuelLogLiters"],
+	data, err := h.store.CreateFuelLog(r.Context(),
+		body["tmsFuelLogVehicleId"], body["tmsFuelLogDate"], body["tmsFuelLogLiters"],
 		body["tmsFuelLogPricePerLiter"], body["tmsFuelLogTotalCost"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
@@ -582,11 +361,7 @@ func (h *Handler) CreateFuelLog(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetFuelLog(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "tmsFuelLog" WHERE "tmsFuelLogId" = $1`
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	data, err := db.QueryRow(r.Context(), h.pool, q, id)
+	data, err := h.store.GetFuelLog(r.Context(), id, sa)
 	if err != nil {
 		response.NotFound(w, "ไม่พบบันทึกเชื้อเพลิง")
 		return
@@ -601,15 +376,8 @@ func (h *Handler) UpdateFuelLog(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "tmsFuelLog" SET
-			"tmsFuelLogVehicleId" = COALESCE($2, "tmsFuelLogVehicleId"),
-			"tmsFuelLogDate" = COALESCE($3, "tmsFuelLogDate"),
-			"tmsFuelLogLiters" = COALESCE($4, "tmsFuelLogLiters"),
-			"tmsFuelLogPricePerLiter" = COALESCE($5, "tmsFuelLogPricePerLiter"),
-			"tmsFuelLogTotalCost" = COALESCE($6, "tmsFuelLogTotalCost")
-		WHERE "tmsFuelLogId" = $1 RETURNING *
-	`, id, body["tmsFuelLogVehicleId"], body["tmsFuelLogDate"], body["tmsFuelLogLiters"],
+	data, err := h.store.UpdateFuelLog(r.Context(),
+		id, body["tmsFuelLogVehicleId"], body["tmsFuelLogDate"], body["tmsFuelLogLiters"],
 		body["tmsFuelLogPricePerLiter"], body["tmsFuelLogTotalCost"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
@@ -620,8 +388,7 @@ func (h *Handler) UpdateFuelLog(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteFuelLog(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "tmsFuelLog" SET "isActive" = false WHERE "tmsFuelLogId" = $1`, id)
-	if err != nil {
+	if err := h.store.SoftDeleteFuelLog(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -633,24 +400,7 @@ func (h *Handler) DeleteFuelLog(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ListGpsLogs(w http.ResponseWriter, r *http.Request) {
 	vehicleId := r.URL.Query().Get("vehicleId")
 	date := r.URL.Query().Get("date")
-
-	q := `SELECT * FROM "tmsGpsLog" WHERE 1=1`
-	args := []any{}
-	argIdx := 1
-
-	if vehicleId != "" {
-		q += fmt.Sprintf(` AND "tmsGpsLogVehicleId" = $%d`, argIdx)
-		args = append(args, vehicleId)
-		argIdx++
-	}
-	if date != "" {
-		q += fmt.Sprintf(` AND "tmsGpsLogRecordedAt"::date = $%d`, argIdx)
-		args = append(args, date)
-		argIdx++
-	}
-	q += ` ORDER BY "tmsGpsLogRecordedAt" DESC LIMIT 1000`
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListGpsLogs(r.Context(), vehicleId, date)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -664,10 +414,8 @@ func (h *Handler) CreateGpsLog(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "tmsGpsLog" ("tmsGpsLogVehicleId", "tmsGpsLogLatitude", "tmsGpsLogLongitude", "tmsGpsLogSpeed", "tmsGpsLogRecordedAt")
-		VALUES ($1, $2, $3, $4, $5) RETURNING *
-	`, body["tmsGpsLogVehicleId"], body["tmsGpsLogLatitude"], body["tmsGpsLogLongitude"],
+	data, err := h.store.CreateGpsLog(r.Context(),
+		body["tmsGpsLogVehicleId"], body["tmsGpsLogLatitude"], body["tmsGpsLogLongitude"],
 		body["tmsGpsLogSpeed"], body["tmsGpsLogRecordedAt"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
@@ -677,11 +425,7 @@ func (h *Handler) CreateGpsLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) LatestGpsLogs(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT DISTINCT ON ("tmsGpsLogVehicleId") *
-		FROM "tmsGpsLog"
-		ORDER BY "tmsGpsLogVehicleId", "tmsGpsLogRecordedAt" DESC
-	`)
+	data, err := h.store.LatestGpsLogs(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -694,9 +438,9 @@ func (h *Handler) LatestGpsLogs(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	vehicles, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "tmsVehicle" WHERE "isActive" = true`)
-	shipments, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "tmsShipment" WHERE "isActive" = true`)
-	fuelLogs, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "tmsFuelLog" WHERE "isActive" = true`)
+	vehicles, _ := h.store.DashboardVehicles(ctx)
+	shipments, _ := h.store.DashboardShipments(ctx)
+	fuelLogs, _ := h.store.DashboardFuelLogs(ctx)
 
 	byStatus := map[string]int{}
 	for _, s := range shipments {
@@ -791,8 +535,8 @@ func (h *Handler) AiAnalysis(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&body)
 
 	// Get fleet summary for AI context
-	vehicles, _ := db.QueryRows(r.Context(), h.pool, `SELECT count(*) as total, count(*) FILTER (WHERE "tmsVehicleStatus"='available') as available FROM "tmsVehicle" WHERE "isActive"=true`)
-	shipments, _ := db.QueryRows(r.Context(), h.pool, `SELECT "tmsShipmentStatus", count(*) as cnt FROM "tmsShipment" WHERE "isActive"=true GROUP BY "tmsShipmentStatus"`)
+	vehicles, _ := h.store.AiVehicleSummary(r.Context())
+	shipments, _ := h.store.AiShipmentSummary(r.Context())
 
 	snapshot, _ := json.Marshal(map[string]any{"vehicles": vehicles, "shipments": shipments, "custom": body.Snapshot})
 

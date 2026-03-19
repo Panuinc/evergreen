@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import { Button, Input, Chip, Textarea } from "@heroui/react";
 import { X, Plus, Tag, StickyNote, FileText, ExternalLink, Clock, CalendarPlus } from "lucide-react";
 import { get, post, del } from "@/lib/apiClient";
@@ -11,22 +12,21 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   const [newTag, setNewTag] = useState("");
   const [notes, setNotes] = useState(contact?.omContactNotes || "");
   const [editingNotes, setEditingNotes] = useState(false);
-  const [quotations, setQuotations] = useState([]);
-  const [followUps, setFollowUps] = useState([]);
+  const convId = conversation?.omConversationId;
+  const { data: quotations = [] } = useSWR(
+    convId ? `/api/marketing/omnichannel/quotations?conversationId=${convId}` : null,
+    (url) => get(url).catch(() => []),
+  );
+  const { data: followUpsData = [], mutate: mutateFollowUps } = useSWR(
+    convId ? `/api/marketing/omnichannel/followUp?conversationId=${convId}` : null,
+    (url) => get(url).catch(() => []),
+  );
+  const followUps = followUpsData;
   const [showFollowUpForm, setShowFollowUpForm] = useState(false);
   const [followUpDate, setFollowUpDate] = useState("");
   const [followUpTime, setFollowUpTime] = useState("10:00");
   const [followUpMessage, setFollowUpMessage] = useState("");
 
-  useEffect(() => {
-    if (!conversation?.omConversationId) return;
-    get(`/api/marketing/omnichannel/quotations?conversationId=${conversation.omConversationId}`)
-      .then((data) => setQuotations(data || []))
-      .catch(() => setQuotations([]));
-    get(`/api/marketing/omnichannel/followUp?conversationId=${conversation.omConversationId}`)
-      .then((data) => setFollowUps(data || []))
-      .catch(() => setFollowUps([]));
-  }, [conversation?.omConversationId]);
 
   if (!conversation || !contact) return null;
 
@@ -60,7 +60,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
         scheduledAt,
         message: followUpMessage || null,
       });
-      setFollowUps((prev) => [...prev, result]);
+      mutateFollowUps((prev = []) => [...prev, result], { revalidate: false });
       setShowFollowUpForm(false);
       setFollowUpDate("");
       setFollowUpTime("10:00");
@@ -73,7 +73,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   const handleDeleteFollowUp = async (id) => {
     try {
       await del(`/api/marketing/omnichannel/followUp/${id}`);
-      setFollowUps((prev) => prev.filter((f) => f.omFollowUpId !== id));
+      mutateFollowUps((prev = []) => prev.filter((f) => f.omFollowUpId !== id), { revalidate: false });
     } catch {
       // handled in actions
     }

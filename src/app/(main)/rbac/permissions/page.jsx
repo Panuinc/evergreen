@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import PermissionsClient from "@/modules/rbac/PermissionsClient";
+import PermissionsClient from "@/modules/rbac/permissionsClient";
 
 export default async function PermissionsPage() {
   const [resources, actions, permissions] = await Promise.all([

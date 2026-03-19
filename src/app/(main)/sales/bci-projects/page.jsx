@@ -1,4 +1,4 @@
-import BciProjectsClient from "@/modules/sales/BciProjectsClient";
+import BciProjectsClient from "@/modules/sales/bciProjectsClient";
 
 export default function BciProjectsPage() {
   return <BciProjectsClient />;

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import ItDashboardClient from "@/modules/it/ItDashboardClient";
+import ItDashboardClient from "@/modules/it/itDashboardClient";
 
 export default async function ITDashboardPage() {
   const stats = await api("/api/it/dashboard");

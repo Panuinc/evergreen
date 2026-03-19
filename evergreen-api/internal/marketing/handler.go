@@ -5,82 +5,28 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/evergreen/api/internal/clients"
 	"github.com/evergreen/api/internal/config"
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/external"
 	"github.com/evergreen/api/internal/marketing/omnichannel"
-	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/pkg/logger"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	pool *pgxpool.Pool
-	cfg  *config.Config
-	om   *omnichannel.Handler
+	store *Store
+	cfg   *config.Config
+	om    *omnichannel.Handler
 }
 
 func New(pool *pgxpool.Pool, cfg *config.Config) *Handler {
-	return &Handler{pool: pool, cfg: cfg, om: omnichannel.New(pool)}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-
-	// Omnichannel sub-routes
-	r.Mount("/omnichannel", h.om.Routes())
-
-	// NOTE: Webhooks must be mounted OUTSIDE the JWT auth group in main.go
-	// These are kept here for reference but the actual mounting happens in main.go
-
-	// Analytics
-	r.Get("/analytics", h.Analytics)
-
-	// Sales Orders (from Supabase BC data)
-	r.Get("/salesOrders", h.ListSalesOrders)
-	r.Get("/salesOrders/{no}", h.GetSalesOrder)
-
-	// Work Orders
-	r.Route("/workOrders", func(r chi.Router) {
-		r.Get("/", h.ListWorkOrders)
-		r.Post("/", h.CreateWorkOrder)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetWorkOrder)
-			r.Put("/", h.UpdateWorkOrder)
-			r.Delete("/", h.DeleteWorkOrder)
-			r.Get("/progress", h.ListWorkOrderProgress)
-			r.Post("/progress", h.CreateWorkOrderProgress)
-		})
-	})
-
-	// Label Designs
-	r.Route("/labelDesigns", func(r chi.Router) {
-		r.Get("/", h.ListLabelDesigns)
-		r.Post("/", h.CreateLabelDesign)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Put("/", h.UpdateLabelDesign)
-			r.Delete("/", h.DeleteLabelDesign)
-		})
-	})
-
-	// Printer endpoints (placeholder)
-	r.Post("/labelDesigner/print", h.PrintLabel)
-	r.Get("/labelDesigner/print/status", h.PrintStatus)
-	r.Post("/labelDesigner/print/cancel", h.PrintCancel)
-	r.Post("/shippingLabel/print", h.PrintShippingLabel)
-
-	// AI Image Gen (placeholder)
-	r.Post("/ai/generate-image", h.GenerateImage)
-	r.Get("/ai/generate-image", h.ImageHistory)
-
-	return r
+	return &Handler{store: NewStore(pool), cfg: cfg, om: omnichannel.New(pool)}
 }
 
 // ---- Webhooks (placeholder — need LINE/Facebook SDK) ----
@@ -175,28 +121,18 @@ func (h *Handler) processIncomingMessage(r *http.Request, channelType, externalI
 	ctx := r.Context()
 
 	// Upsert contact
-	contact, _ := db.QueryRow(ctx, h.pool, `
-		INSERT INTO "omContact" ("omContactChannelType","omContactExternalId","omContactDisplayName")
-		VALUES ($1,$2,$2)
-		ON CONFLICT ("omContactChannelType","omContactExternalId") DO UPDATE SET "omContactDisplayName"=EXCLUDED."omContactDisplayName"
-		RETURNING *
-	`, channelType, externalID)
+	contact, _ := h.store.UpsertContact(ctx, channelType, externalID)
 
 	if contact == nil {
-		slog.Error("failed to upsert contact", "channelType", channelType, "externalID", externalID)
+		logger.Error("failed to upsert contact", "channelType", channelType, "externalID", externalID)
 		return
 	}
 	contactID, _ := contact["omContactId"].(string)
 
 	// Find or create conversation
-	conv, err := db.QueryRow(ctx, h.pool, `
-		SELECT * FROM "omConversation" WHERE "omConversationContactId"=$1 AND "omConversationChannelType"=$2 AND "isActive"=true LIMIT 1
-	`, contactID, channelType)
+	conv, err := h.store.FindActiveConversation(ctx, contactID, channelType)
 	if err != nil {
-		conv, _ = db.QueryRow(ctx, h.pool, `
-			INSERT INTO "omConversation" ("omConversationContactId","omConversationChannelType","omConversationStatus","omConversationAiAutoReply")
-			VALUES ($1,$2,'open',true) RETURNING *
-		`, contactID, channelType)
+		conv, _ = h.store.CreateConversation(ctx, contactID, channelType)
 	}
 	if conv == nil {
 		return
@@ -208,19 +144,12 @@ func (h *Handler) processIncomingMessage(r *http.Request, channelType, externalI
 	if len([]rune(preview)) > 100 {
 		preview = string([]rune(preview)[:100]) + "..."
 	}
-	h.pool.Exec(ctx, `
-		INSERT INTO "omMessage" ("omMessageConversationId","omMessageSenderType","omMessageSenderId","omMessageContent","omMessageType","omMessageExternalId")
-		VALUES ($1,'customer',$2,$3,'text',$4)
-	`, convID, senderID, text, externalMsgID)
+	h.store.InsertIncomingMessage(ctx, convID, senderID, text, externalMsgID)
 
 	// Update conversation
-	h.pool.Exec(ctx, `
-		UPDATE "omConversation" SET "omConversationLastMessageAt"=now(),"omConversationLastMessagePreview"=$2,
-			"omConversationUnreadCount"=COALESCE("omConversationUnreadCount",0)+1,"omConversationStatus"='open'
-		WHERE "omConversationId"=$1
-	`, convID, preview)
+	h.store.UpdateConversationOnIncoming(ctx, convID, preview)
 
-	slog.Info("webhook message processed", "channel", channelType, "contactId", contactID, "convId", convID)
+	logger.Info("webhook message processed", "channel", channelType, "contactId", contactID, "convId", convID)
 }
 
 // ---- Analytics ----
@@ -229,15 +158,8 @@ func (h *Handler) Analytics(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Get ONLINE sales orders with lines
-	orders, _ := db.QueryRows(ctx, h.pool, `
-		SELECT * FROM "bcSalesOrder" WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
-		ORDER BY "bcSalesOrderOrderDate" DESC
-	`)
-	lines, _ := db.QueryRows(ctx, h.pool, `
-		SELECT l.* FROM "bcSalesOrderLine" l
-		JOIN "bcSalesOrder" o ON o."bcSalesOrderNoValue" = l."bcSalesOrderLineDocumentNo"
-		WHERE o."bcSalesOrderSalespersonCode" = 'ONLINE'
-	`)
+	orders, _ := h.store.GetOnlineSalesOrders(ctx)
+	lines, _ := h.store.GetOnlineSalesOrderLines(ctx)
 
 	// Aggregation
 	totalOrders := len(orders)
@@ -270,13 +192,13 @@ func (h *Handler) Analytics(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.OK(w, map[string]any{
-		"totalOrders":    totalOrders,
-		"totalAmount":    totalAmount,
-		"shippedCount":   shippedCount,
-		"pendingCount":   totalOrders - shippedCount,
-		"byStatus":       byStatus,
-		"totalItems":     len(lines),
-		"totalQty":       totalQty,
+		"totalOrders":     totalOrders,
+		"totalAmount":     totalAmount,
+		"shippedCount":    shippedCount,
+		"pendingCount":    totalOrders - shippedCount,
+		"byStatus":        byStatus,
+		"totalItems":      len(lines),
+		"totalQty":        totalQty,
 		"totalLineAmount": totalLineAmount,
 	})
 }
@@ -284,10 +206,7 @@ func (h *Handler) Analytics(w http.ResponseWriter, r *http.Request) {
 // ---- Sales Orders (from Supabase) ----
 
 func (h *Handler) ListSalesOrders(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcSalesOrder" WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
-		ORDER BY "bcSalesOrderOrderDate" DESC
-	`)
+	data, err := h.store.ListSalesOrders(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -297,20 +216,18 @@ func (h *Handler) ListSalesOrders(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetSalesOrder(w http.ResponseWriter, r *http.Request) {
 	no := chi.URLParam(r, "no")
-	order, err := db.QueryRow(r.Context(), h.pool, `SELECT * FROM "bcSalesOrder" WHERE "bcSalesOrderNoValue"=$1`, no)
+	order, err := h.store.GetSalesOrder(r.Context(), no)
 	if err != nil {
 		response.NotFound(w, "ไม่พบ Sales Order")
 		return
 	}
-	lines, _ := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcSalesOrderLine" WHERE "bcSalesOrderLineDocumentNo"=$1 ORDER BY "bcSalesOrderLineLineNo"
-	`, no)
+	lines, _ := h.store.GetSalesOrderLines(r.Context(), no)
 	order["lines"] = lines
 
 	// Get customer phone
 	custNo, _ := order["bcSalesOrderSellToCustomerNo"].(string)
 	if custNo != "" {
-		cust, _ := db.QueryRow(r.Context(), h.pool, `SELECT "bcCustomerPhoneNo" FROM "bcCustomer" WHERE "bcCustomerNo"=$1`, custNo)
+		cust, _ := h.store.GetCustomerPhone(r.Context(), custNo)
 		if cust != nil {
 			order["customerPhone"] = cust["bcCustomerPhoneNo"]
 		}
@@ -323,20 +240,7 @@ func (h *Handler) GetSalesOrder(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ListWorkOrders(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
 	search := r.URL.Query().Get("search")
-	q := `SELECT * FROM "mktWorkOrder" WHERE 1=1`
-	args := []any{}
-	argIdx := 1
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	if search != "" {
-		q += fmt.Sprintf(` AND ("mktWorkOrderNo" ILIKE $%d OR "mktWorkOrderTitle" ILIKE $%d OR "mktWorkOrderRequestedBy" ILIKE $%d OR "mktWorkOrderAssignedTo" ILIKE $%d)`,
-			argIdx, argIdx+1, argIdx+2, argIdx+3)
-		p := "%" + search + "%"
-		args = append(args, p, p, p, p)
-	}
-	q += ` ORDER BY "mktWorkOrderCreatedAt" DESC`
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListWorkOrders(r.Context(), sa, search)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -347,14 +251,7 @@ func (h *Handler) ListWorkOrders(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateWorkOrder(w http.ResponseWriter, r *http.Request) {
 	var body map[string]any
 	json.NewDecoder(r.Body).Decode(&body)
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "mktWorkOrder" ("mktWorkOrderNo","mktWorkOrderTitle","mktWorkOrderDescription","mktWorkOrderType",
-			"mktWorkOrderRequestedBy","mktWorkOrderRequestedDepartment","mktWorkOrderAssignedTo","mktWorkOrderPriority",
-			"mktWorkOrderStartDate","mktWorkOrderDueDate","mktWorkOrderNotes")
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *
-	`, body["mktWorkOrderNo"], body["mktWorkOrderTitle"], body["mktWorkOrderDescription"], body["mktWorkOrderType"],
-		body["mktWorkOrderRequestedBy"], body["mktWorkOrderRequestedDepartment"], body["mktWorkOrderAssignedTo"],
-		body["mktWorkOrderPriority"], body["mktWorkOrderStartDate"], body["mktWorkOrderDueDate"], body["mktWorkOrderNotes"])
+	data, err := h.store.CreateWorkOrder(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -364,7 +261,7 @@ func (h *Handler) CreateWorkOrder(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetWorkOrder(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	data, err := db.QueryRow(r.Context(), h.pool, `SELECT * FROM "mktWorkOrder" WHERE id=$1`, id)
+	data, err := h.store.GetWorkOrder(r.Context(), id)
 	if err != nil {
 		response.NotFound(w, "ไม่พบ Work Order")
 		return
@@ -376,16 +273,7 @@ func (h *Handler) UpdateWorkOrder(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	var body map[string]any
 	json.NewDecoder(r.Body).Decode(&body)
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "mktWorkOrder" SET
-			"mktWorkOrderTitle"=COALESCE($2,"mktWorkOrderTitle"),"mktWorkOrderDescription"=COALESCE($3,"mktWorkOrderDescription"),
-			"mktWorkOrderAssignedTo"=COALESCE($4,"mktWorkOrderAssignedTo"),"mktWorkOrderPriority"=COALESCE($5,"mktWorkOrderPriority"),
-			"mktWorkOrderStatus"=COALESCE($6,"mktWorkOrderStatus"),"mktWorkOrderProgress"=COALESCE($7,"mktWorkOrderProgress"),
-			"mktWorkOrderDueDate"=COALESCE($8,"mktWorkOrderDueDate"),"mktWorkOrderNotes"=COALESCE($9,"mktWorkOrderNotes")
-		WHERE id=$1 RETURNING *
-	`, id, body["mktWorkOrderTitle"], body["mktWorkOrderDescription"], body["mktWorkOrderAssignedTo"],
-		body["mktWorkOrderPriority"], body["mktWorkOrderStatus"], body["mktWorkOrderProgress"],
-		body["mktWorkOrderDueDate"], body["mktWorkOrderNotes"])
+	data, err := h.store.UpdateWorkOrder(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -395,16 +283,13 @@ func (h *Handler) UpdateWorkOrder(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteWorkOrder(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	h.pool.Exec(r.Context(), `UPDATE "mktWorkOrder" SET "isActive"=false WHERE id=$1`, id)
+	h.store.SoftDeleteWorkOrder(r.Context(), id)
 	response.OK(w, map[string]bool{"success": true})
 }
 
 func (h *Handler) ListWorkOrderProgress(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "mktWorkOrderProgressLog" WHERE "mktWorkOrderProgressLogWorkOrderId"=$1
-		ORDER BY "mktWorkOrderProgressLogCreatedAt" DESC
-	`, id)
+	data, err := h.store.ListWorkOrderProgress(r.Context(), id)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -416,23 +301,20 @@ func (h *Handler) CreateWorkOrderProgress(w http.ResponseWriter, r *http.Request
 	id := chi.URLParam(r, "id")
 	var body map[string]any
 	json.NewDecoder(r.Body).Decode(&body)
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "mktWorkOrderProgressLog" ("mktWorkOrderProgressLogWorkOrderId","mktWorkOrderProgressLogDescription","mktWorkOrderProgressLogProgress","mktWorkOrderProgressLogCreatedBy")
-		VALUES ($1,$2,$3,$4) RETURNING *
-	`, id, body["description"], body["progress"], body["createdBy"])
+	data, err := h.store.CreateWorkOrderProgress(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	// Auto-update work order progress
-	h.pool.Exec(r.Context(), `UPDATE "mktWorkOrder" SET "mktWorkOrderProgress"=$2 WHERE id=$1`, id, body["progress"])
+	h.store.UpdateWorkOrderProgress(r.Context(), id, body["progress"])
 	response.Created(w, data)
 }
 
 // ---- Label Designs ----
 
 func (h *Handler) ListLabelDesigns(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `SELECT * FROM "labelDesign" ORDER BY "labelDesignCreatedAt" DESC`)
+	data, err := h.store.ListLabelDesigns(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -444,11 +326,7 @@ func (h *Handler) CreateLabelDesign(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.UserID(r.Context())
 	var body map[string]any
 	json.NewDecoder(r.Body).Decode(&body)
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "labelDesign" ("labelDesignName","labelDesignWidth","labelDesignHeight","labelDesignPreset","labelDesignElements","labelDesignCreatedBy")
-		VALUES ($1,$2,$3,$4,$5,$6) RETURNING *
-	`, body["labelDesignName"], body["labelDesignWidth"], body["labelDesignHeight"],
-		body["labelDesignPreset"], body["labelDesignElements"], userID)
+	data, err := h.store.CreateLabelDesign(r.Context(), body, userID)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -460,13 +338,7 @@ func (h *Handler) UpdateLabelDesign(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	var body map[string]any
 	json.NewDecoder(r.Body).Decode(&body)
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "labelDesign" SET
-			"labelDesignName"=COALESCE($2,"labelDesignName"),"labelDesignWidth"=COALESCE($3,"labelDesignWidth"),
-			"labelDesignHeight"=COALESCE($4,"labelDesignHeight"),"labelDesignElements"=COALESCE($5,"labelDesignElements"),
-			"labelDesignUpdatedAt"=now()
-		WHERE "labelDesignId"=$1 RETURNING *
-	`, id, body["labelDesignName"], body["labelDesignWidth"], body["labelDesignHeight"], body["labelDesignElements"])
+	data, err := h.store.UpdateLabelDesign(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -476,7 +348,7 @@ func (h *Handler) UpdateLabelDesign(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteLabelDesign(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	h.pool.Exec(r.Context(), `DELETE FROM "labelDesign" WHERE "labelDesignId"=$1`, id)
+	h.store.DeleteLabelDesign(r.Context(), id)
 	response.OK(w, map[string]bool{"success": true})
 }
 
@@ -484,29 +356,41 @@ func (h *Handler) DeleteLabelDesign(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) PrintLabel(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Images      []string                `json:"images"`
-		LabelWidth  float64                 `json:"labelWidth"`
-		LabelHeight float64                 `json:"labelHeight"`
-		Gap         float64                 `json:"gap"`
-		Config      *external.PrintConfig   `json:"printerConfig"`
+		Images      []string             `json:"images"`
+		LabelWidth  float64              `json:"labelWidth"`
+		LabelHeight float64              `json:"labelHeight"`
+		Gap         float64              `json:"gap"`
+		Config      *clients.PrintConfig `json:"printerConfig"`
 	}
 	json.NewDecoder(r.Body).Decode(&body)
 	if len(body.Images) == 0 {
 		response.BadRequest(w, "กรุณาระบุ images")
 		return
 	}
-	if body.LabelWidth == 0 { body.LabelWidth = 100 }
-	if body.LabelHeight == 0 { body.LabelHeight = 30 }
-	if body.Gap == 0 { body.Gap = 3 }
-	cfg := external.DefaultPrintConfig()
-	if body.Config != nil { cfg = *body.Config }
+	if body.LabelWidth == 0 {
+		body.LabelWidth = 100
+	}
+	if body.LabelHeight == 0 {
+		body.LabelHeight = 30
+	}
+	if body.Gap == 0 {
+		body.Gap = 3
+	}
+	cfg := clients.DefaultPrintConfig()
+	if body.Config != nil {
+		cfg = *body.Config
+	}
 
-	printer := external.NewTSCPrinter()
+	printer := clients.NewTSCPrinter()
 	results, _ := printer.PrintLabels(body.Images, body.LabelWidth, body.LabelHeight, body.Gap, cfg)
 
 	success, failed := 0, 0
 	for _, r := range results {
-		if r.Success { success++ } else { failed++ }
+		if r.Success {
+			success++
+		} else {
+			failed++
+		}
 	}
 	response.OK(w, map[string]any{"success": true, "data": map[string]any{"results": results, "summary": map[string]int{"total": len(results), "success": success, "failed": failed}}})
 }
@@ -521,21 +405,24 @@ func (h *Handler) PrintCancel(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) PrintShippingLabel(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Images []string              `json:"images"`
-		Config *external.PrintConfig `json:"printerConfig"`
+		Images []string             `json:"images"`
+		Config *clients.PrintConfig `json:"printerConfig"`
 	}
 	json.NewDecoder(r.Body).Decode(&body)
 	if len(body.Images) == 0 {
 		response.BadRequest(w, "กรุณาระบุ images")
 		return
 	}
-	cfg := external.DefaultPrintConfig()
-	if body.Config != nil { cfg = *body.Config }
+	cfg := clients.DefaultPrintConfig()
+	if body.Config != nil {
+		cfg = *body.Config
+	}
 
-	printer := external.NewTSCPrinter()
+	printer := clients.NewTSCPrinter()
 	results, _ := printer.PrintLabels(body.Images, 100, 150, 3, cfg) // A6 size
 	response.OK(w, map[string]any{"success": true, "data": map[string]any{"results": results}})
 }
+
 func (h *Handler) GenerateImage(w http.ResponseWriter, r *http.Request) {
 	// Parse multipart form
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
@@ -553,10 +440,7 @@ func (h *Handler) GenerateImage(w http.ResponseWriter, r *http.Request) {
 
 	// For image generation, call OpenRouter with image model
 	// Store the result in mktGeneratedImage table
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "mktGeneratedImage" ("mktGeneratedImagePrompt","mktGeneratedImageSize","mktGeneratedImageCreatedBy","mktGeneratedImageResultUrl")
-		VALUES ($1,$2,$3,$4) RETURNING *
-	`, prompt, size, userID, "pending")
+	data, err := h.store.CreateGeneratedImage(r.Context(), prompt, size, userID)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -568,6 +452,6 @@ func (h *Handler) GenerateImage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ImageHistory(w http.ResponseWriter, r *http.Request) {
-	data, _ := db.QueryRows(r.Context(), h.pool, `SELECT * FROM "mktGeneratedImage" WHERE "isActive"=true ORDER BY "mktGeneratedImageCreatedAt" DESC LIMIT 50`)
+	data, _ := h.store.ListGeneratedImages(r.Context())
 	response.OK(w, data)
 }

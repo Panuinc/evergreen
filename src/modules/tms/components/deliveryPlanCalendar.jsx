@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
+import useSWR from "swr";
 import { Tabs, Tab, Button, Chip} from "@heroui/react";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
@@ -34,6 +35,12 @@ function toDateString(date) {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
+}
+
+function getMonthKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
 }
 
 function isToday(date) {
@@ -266,8 +273,13 @@ function WeekView({ currentDate, getPlansForDate, onDateClick }) {
 export default function DeliveryPlanCalendar() {
   // --- Delivery Plans logic (inlined from useDeliveryPlans) ---
   const todayDate = new Date();
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const monthKey = getMonthKey(currentDate);
+  const { data: plansData, isLoading: loading, mutate: mutatePlans } = useSWR(
+    `/api/tms/deliveryPlans?month=${monthKey}`,
+    (url) => get(url),
+    { onError: () => toast.error("โหลดแผนส่งของล้มเหลว") },
+  );
+  const plans = plansData || [];
   const [saving, setSaving] = useState(false);
   const [currentDate, setCurrentDate] = useState(todayDate);
   const [viewMode, setViewMode] = useState("month");
@@ -282,30 +294,6 @@ export default function DeliveryPlanCalendar() {
   const [soLines, setSoLines] = useState([]);
   const [soLinesLoading, setSoLinesLoading] = useState(false);
 
-  const getMonthKey = useCallback((date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    return `${y}-${m}`;
-  }, []);
-
-  const loadPlans = useCallback(
-    async (date) => {
-      try {
-        setLoading(true);
-        const data = await get(`/api/tms/deliveryPlans?month=${getMonthKey(date)}`);
-        setPlans(data || []);
-      } catch {
-        toast.error("โหลดแผนส่งของล้มเหลว");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [getMonthKey]
-  );
-
-  useEffect(() => {
-    loadPlans(currentDate);
-  }, [currentDate, loadPlans]);
 
   const goToPrev = () => {
     setCurrentDate((prev) => {
@@ -389,7 +377,7 @@ export default function DeliveryPlanCalendar() {
         await post("/api/tms/deliveryPlans", planData);
         toast.success("เพิ่มแผนส่งของแล้ว");
       }
-      await loadPlans(currentDate);
+      await mutatePlans();
       closeModal();
     } catch {
       toast.error("บันทึกแผนส่งของล้มเหลว");
@@ -402,7 +390,7 @@ export default function DeliveryPlanCalendar() {
     try {
       await del(`/api/tms/deliveryPlans/${id}`);
       toast.success("ลบแผนส่งของแล้ว");
-      await loadPlans(currentDate);
+      await mutatePlans();
     } catch {
       toast.error("ลบแผนส่งของล้มเหลว");
     }

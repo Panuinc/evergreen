@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import AgedReceivablesClient from "@/modules/finance/AgedReceivablesClient";
+import AgedReceivablesClient from "@/modules/finance/agedReceivablesClient";
 
 export default async function AgedReceivablesPage() {
   const raw = await api("/api/finance/agedReceivables");

@@ -7,94 +7,24 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	pool *pgxpool.Pool
+	store *Store
 }
 
 func New(pool *pgxpool.Pool) *Handler {
-	return &Handler{pool: pool}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-
-	r.Route("/roles", func(r chi.Router) {
-		r.Get("/", h.ListRoles)
-		r.Post("/", h.CreateRole)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetRole)
-			r.Put("/", h.UpdateRole)
-			r.Delete("/", h.DeleteRole)
-		})
-	})
-
-	r.Route("/permissions", func(r chi.Router) {
-		r.Get("/", h.ListPermissions)
-		r.Post("/", h.CreatePermission)
-		r.Delete("/{id}", h.DeletePermission)
-	})
-
-	r.Route("/resources", func(r chi.Router) {
-		r.Get("/", h.ListResources)
-		r.Post("/", h.CreateResource)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Put("/", h.UpdateResource)
-			r.Delete("/", h.DeleteResource)
-		})
-	})
-
-	r.Route("/actions", func(r chi.Router) {
-		r.Get("/", h.ListActions)
-		r.Post("/", h.CreateAction)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Put("/", h.UpdateAction)
-			r.Delete("/", h.DeleteAction)
-		})
-	})
-
-	r.Route("/rolePermissions/{roleId}", func(r chi.Router) {
-		r.Get("/", h.ListRolePermissions)
-		r.Post("/", h.AddRolePermission)
-		r.Delete("/", h.RemoveRolePermission)
-	})
-
-	r.Get("/userRoles", h.ListUserRoles)
-	r.Route("/userRoles/{userId}", func(r chi.Router) {
-		r.Get("/", h.GetUserRoles)
-		r.Post("/", h.AssignUserRole)
-		r.Patch("/", h.ToggleUserActive)
-		r.Delete("/", h.RemoveUserRole)
-	})
-
-	r.Get("/userPermissions/{userId}", h.GetUserPermissions)
-
-	r.Route("/accessLogs", func(r chi.Router) {
-		r.Get("/", h.ListAccessLogs)
-		r.Post("/", h.CreateAccessLog)
-	})
-
-	return r
+	return &Handler{store: NewStore(pool)}
 }
 
 // ---- Roles ----
 
 func (h *Handler) ListRoles(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT r.*,
-		(SELECT count(*) FROM "rbacUserRole" ur WHERE ur."rbacUserRoleRoleId" = r."rbacRoleId" AND ur."isActive" = true) as "userCount",
-		(SELECT count(*) FROM "rbacRolePermission" rp WHERE rp."rbacRolePermissionRoleId" = r."rbacRoleId" AND rp."isActive" = true) as "permissionCount"
-		FROM "rbacRole" r`
-	if !sa {
-		q += ` WHERE r."isActive" = true`
-	}
-	q += ` ORDER BY r."rbacRoleCreatedAt" DESC`
 
-	data, err := db.QueryRows(r.Context(), h.pool, q)
+	data, err := h.store.ListRoles(r.Context(), sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -109,11 +39,7 @@ func (h *Handler) CreateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "rbacRole" ("rbacRoleName", "rbacRoleDescription", "rbacRoleIsSuperadmin")
-		VALUES ($1, $2, $3)
-		RETURNING *
-	`, body["rbacRoleName"], body["rbacRoleDescription"], body["rbacRoleIsSuperadmin"])
+	data, err := h.store.CreateRole(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -125,25 +51,13 @@ func (h *Handler) GetRole(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	sa := middleware.IsSuperAdmin(r.Context())
 
-	q := `SELECT * FROM "rbacRole" WHERE "rbacRoleId" = $1`
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	role, err := db.QueryRow(r.Context(), h.pool, q, id)
+	role, err := h.store.GetRole(r.Context(), id, sa)
 	if err != nil {
 		response.NotFound(w, "ไม่พบ Role")
 		return
 	}
 
-	// Get role permissions with nested data
-	perms, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT rp.*, p.*, res.*, act.*
-		FROM "rbacRolePermission" rp
-		JOIN "rbacPermission" p ON p."rbacPermissionId" = rp."rbacRolePermissionPermissionId"
-		LEFT JOIN "rbacResource" res ON res."rbacResourceId" = p."rbacPermissionResourceId"
-		LEFT JOIN "rbacAction" act ON act."rbacActionId" = p."rbacPermissionActionId"
-		WHERE rp."rbacRolePermissionRoleId" = $1 AND rp."isActive" = true
-	`, id)
+	perms, err := h.store.GetRolePermissions(r.Context(), id)
 	if err != nil {
 		perms = []map[string]any{}
 	}
@@ -160,14 +74,7 @@ func (h *Handler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "rbacRole" SET
-			"rbacRoleName" = COALESCE($2, "rbacRoleName"),
-			"rbacRoleDescription" = COALESCE($3, "rbacRoleDescription"),
-			"rbacRoleIsSuperadmin" = COALESCE($4, "rbacRoleIsSuperadmin")
-		WHERE "rbacRoleId" = $1
-		RETURNING *
-	`, id, body["rbacRoleName"], body["rbacRoleDescription"], body["rbacRoleIsSuperadmin"])
+	data, err := h.store.UpdateRole(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -177,8 +84,7 @@ func (h *Handler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteRole(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "rbacRole" SET "isActive" = false WHERE "rbacRoleId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeleteRole(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -189,18 +95,8 @@ func (h *Handler) DeleteRole(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ListPermissions(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT p.*,
-		row_to_json(res.*) as "rbacResource",
-		row_to_json(act.*) as "rbacAction"
-		FROM "rbacPermission" p
-		LEFT JOIN "rbacResource" res ON res."rbacResourceId" = p."rbacPermissionResourceId"
-		LEFT JOIN "rbacAction" act ON act."rbacActionId" = p."rbacPermissionActionId"`
-	if !sa {
-		q += ` WHERE p."isActive" = true`
-	}
-	q += ` ORDER BY p."rbacPermissionCreatedAt" DESC`
 
-	data, err := db.QueryRows(r.Context(), h.pool, q)
+	data, err := h.store.ListPermissions(r.Context(), sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -215,11 +111,7 @@ func (h *Handler) CreatePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "rbacPermission" ("rbacPermissionResourceId", "rbacPermissionActionId")
-		VALUES ($1, $2)
-		RETURNING *
-	`, body["rbacPermissionResourceId"], body["rbacPermissionActionId"])
+	data, err := h.store.CreatePermission(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -229,8 +121,7 @@ func (h *Handler) CreatePermission(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeletePermission(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "rbacPermission" SET "isActive" = false WHERE "rbacPermissionId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeletePermission(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -241,13 +132,8 @@ func (h *Handler) DeletePermission(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ListResources(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "rbacResource"`
-	if !sa {
-		q += ` WHERE "isActive" = true`
-	}
-	q += ` ORDER BY "rbacResourceName"`
 
-	data, err := db.QueryRows(r.Context(), h.pool, q)
+	data, err := h.store.ListResources(r.Context(), sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -261,10 +147,7 @@ func (h *Handler) CreateResource(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "rbacResource" ("rbacResourceName", "rbacResourceDescription")
-		VALUES ($1, $2) RETURNING *
-	`, body["rbacResourceName"], body["rbacResourceDescription"])
+	data, err := h.store.CreateResource(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -279,12 +162,7 @@ func (h *Handler) UpdateResource(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "rbacResource" SET
-			"rbacResourceName" = COALESCE($2, "rbacResourceName"),
-			"rbacResourceDescription" = COALESCE($3, "rbacResourceDescription")
-		WHERE "rbacResourceId" = $1 RETURNING *
-	`, id, body["rbacResourceName"], body["rbacResourceDescription"])
+	data, err := h.store.UpdateResource(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -294,8 +172,7 @@ func (h *Handler) UpdateResource(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteResource(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "rbacResource" SET "isActive" = false WHERE "rbacResourceId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeleteResource(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -306,13 +183,8 @@ func (h *Handler) DeleteResource(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ListActions(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "rbacAction"`
-	if !sa {
-		q += ` WHERE "isActive" = true`
-	}
-	q += ` ORDER BY "rbacActionName"`
 
-	data, err := db.QueryRows(r.Context(), h.pool, q)
+	data, err := h.store.ListActions(r.Context(), sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -326,10 +198,7 @@ func (h *Handler) CreateAction(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "rbacAction" ("rbacActionName", "rbacActionDescription")
-		VALUES ($1, $2) RETURNING *
-	`, body["rbacActionName"], body["rbacActionDescription"])
+	data, err := h.store.CreateAction(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -344,12 +213,7 @@ func (h *Handler) UpdateAction(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "rbacAction" SET
-			"rbacActionName" = COALESCE($2, "rbacActionName"),
-			"rbacActionDescription" = COALESCE($3, "rbacActionDescription")
-		WHERE "rbacActionId" = $1 RETURNING *
-	`, id, body["rbacActionName"], body["rbacActionDescription"])
+	data, err := h.store.UpdateAction(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -359,8 +223,7 @@ func (h *Handler) UpdateAction(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteAction(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "rbacAction" SET "isActive" = false WHERE "rbacActionId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeleteAction(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -373,20 +236,7 @@ func (h *Handler) ListRolePermissions(w http.ResponseWriter, r *http.Request) {
 	roleId := chi.URLParam(r, "roleId")
 	sa := middleware.IsSuperAdmin(r.Context())
 
-	q := `SELECT rp.*,
-		row_to_json(p.*) as "rbacPermission",
-		row_to_json(res.*) as "rbacResource",
-		row_to_json(act.*) as "rbacAction"
-		FROM "rbacRolePermission" rp
-		JOIN "rbacPermission" p ON p."rbacPermissionId" = rp."rbacRolePermissionPermissionId"
-		LEFT JOIN "rbacResource" res ON res."rbacResourceId" = p."rbacPermissionResourceId"
-		LEFT JOIN "rbacAction" act ON act."rbacActionId" = p."rbacPermissionActionId"
-		WHERE rp."rbacRolePermissionRoleId" = $1`
-	if !sa {
-		q += ` AND rp."isActive" = true`
-	}
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, roleId)
+	data, err := h.store.ListRolePermissions(r.Context(), roleId, sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -404,10 +254,7 @@ func (h *Handler) AddRolePermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "rbacRolePermission" ("rbacRolePermissionRoleId", "rbacRolePermissionPermissionId")
-		VALUES ($1, $2) RETURNING *
-	`, roleId, body.PermissionID)
+	data, err := h.store.AddRolePermission(r.Context(), roleId, body.PermissionID)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -419,11 +266,7 @@ func (h *Handler) RemoveRolePermission(w http.ResponseWriter, r *http.Request) {
 	roleId := chi.URLParam(r, "roleId")
 	permId := r.URL.Query().Get("permissionId")
 
-	_, err := h.pool.Exec(r.Context(), `
-		UPDATE "rbacRolePermission" SET "isActive" = false
-		WHERE "rbacRolePermissionRoleId" = $1 AND "rbacRolePermissionPermissionId" = $2
-	`, roleId, permId)
-	if err != nil {
+	if err := h.store.RemoveRolePermission(r.Context(), roleId, permId); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -433,28 +276,18 @@ func (h *Handler) RemoveRolePermission(w http.ResponseWriter, r *http.Request) {
 // ---- User Roles ----
 
 func (h *Handler) ListUserRoles(w http.ResponseWriter, r *http.Request) {
-	// Get all users
-	users, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "rbacUserProfile" ORDER BY "rbacUserProfileCreatedAt" DESC
-	`)
+	users, err := h.store.ListAllUserProfiles(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
 	}
 
-	// Get all active user-role mappings
-	userRoles, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT ur.*, row_to_json(r.*) as "rbacRole"
-		FROM "rbacUserRole" ur
-		JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
-		WHERE ur."isActive" = true
-	`)
+	userRoles, err := h.store.ListActiveUserRoles(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
 	}
 
-	// Client-side join
 	for i, user := range users {
 		uid, _ := user["rbacUserProfileId"].(string)
 		var matched []map[string]any
@@ -484,15 +317,7 @@ func (h *Handler) GetUserRoles(w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "userId")
 	sa := middleware.IsSuperAdmin(r.Context())
 
-	q := `SELECT ur.*, row_to_json(r.*) as "rbacRole"
-		FROM "rbacUserRole" ur
-		JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
-		WHERE ur."rbacUserRoleUserId" = $1`
-	if !sa {
-		q += ` AND ur."isActive" = true`
-	}
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, userId)
+	data, err := h.store.GetUserRoles(r.Context(), userId, sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -513,10 +338,7 @@ func (h *Handler) AssignUserRole(w http.ResponseWriter, r *http.Request) {
 		roleId = body["roleId"]
 	}
 
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "rbacUserRole" ("rbacUserRoleUserId", "rbacUserRoleRoleId")
-		VALUES ($1, $2) RETURNING *
-	`, userId, roleId)
+	data, err := h.store.AssignUserRole(r.Context(), userId, roleId)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -539,10 +361,7 @@ func (h *Handler) ToggleUserActive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := h.pool.Exec(r.Context(), `
-		UPDATE "rbacUserProfile" SET "isActive" = $2 WHERE "rbacUserProfileId" = $1
-	`, userId, *body.IsActive)
-	if err != nil {
+	if err := h.store.SetUserActive(r.Context(), userId, *body.IsActive); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -556,11 +375,7 @@ func (h *Handler) RemoveUserRole(w http.ResponseWriter, r *http.Request) {
 		roleId = r.URL.Query().Get("roleId")
 	}
 
-	_, err := h.pool.Exec(r.Context(), `
-		UPDATE "rbacUserRole" SET "isActive" = false
-		WHERE "rbacUserRoleUserId" = $1 AND "rbacUserRoleRoleId" = $2
-	`, userId, roleId)
-	if err != nil {
+	if err := h.store.RemoveUserRole(r.Context(), userId, roleId); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -571,29 +386,10 @@ func (h *Handler) RemoveUserRole(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetUserPermissions(w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "userId")
-
-	rows, err := h.pool.Query(r.Context(), `SELECT * FROM get_user_permissions($1)`, userId)
+	result, err := h.store.GetUserPermissions(r.Context(), userId)
 	if err != nil {
 		response.InternalError(w, err)
 		return
-	}
-	defer rows.Close()
-
-	var result []map[string]any
-	for rows.Next() {
-		var resourceName, actionName string
-		var isSuperadmin bool
-		if err := rows.Scan(&resourceName, &actionName, &isSuperadmin); err != nil {
-			response.InternalError(w, err)
-			return
-		}
-		result = append(result, map[string]any{
-			"permission":  resourceName + ":" + actionName,
-			"isSuperadmin": isSuperadmin,
-		})
-	}
-	if result == nil {
-		result = []map[string]any{}
 	}
 	response.OK(w, result)
 }
@@ -601,11 +397,7 @@ func (h *Handler) GetUserPermissions(w http.ResponseWriter, r *http.Request) {
 // ---- Access Logs ----
 
 func (h *Handler) ListAccessLogs(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "rbacAccessLog"
-		ORDER BY "rbacAccessLogCreatedAt" DESC
-		LIMIT 200
-	`)
+	data, err := h.store.ListAccessLogs(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -626,11 +418,7 @@ func (h *Handler) CreateAccessLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := h.pool.Exec(r.Context(), `
-		INSERT INTO "rbacAccessLog" ("rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction", "rbacAccessLogGranted", "rbacAccessLogMetadata")
-		VALUES ($1, $2, $3, $4, $5)
-	`, body.UserID, body.Resource, body.Action, body.Granted, body.Metadata)
-	if err != nil {
+	if err := h.store.CreateAccessLog(r.Context(), body.UserID, body.Resource, body.Action, body.Granted, body.Metadata); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}

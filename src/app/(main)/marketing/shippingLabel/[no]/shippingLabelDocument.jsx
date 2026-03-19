@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import JsBarcode from "jsbarcode";
 
 const sender = {
@@ -159,10 +160,11 @@ export default function ShippingLabelDocument({ orderNo }) {
                   flexShrink: 0,
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src="/logo/logo-03.png"
                   alt="Evergreen"
+                  width={56}
+                  height={56}
                   style={{
                     width: "14mm",
                     height: "14mm",
@@ -345,15 +347,12 @@ export default function ShippingLabelDocument({ orderNo }) {
                 <div>ไม่มีหลักฐานงดเคลมทุกกรณี</div>
               </div>
               <div style={{ flexShrink: 0, textAlign: "center" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src="/qrCode/lineEvergreen.png"
                   alt="LINE QR"
-                  style={{
-                    width: "48px",
-                    height: "48px",
-                    objectFit: "contain",
-                  }}
+                  width={48}
+                  height={48}
+                  style={{ objectFit: "contain" }}
                 />
                 <div
                   style={{

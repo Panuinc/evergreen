@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import DevRequestsClient from "@/modules/it/DevRequestsClient";
+import DevRequestsClient from "@/modules/it/devRequestsClient";
 
 export default async function DevelopmentPage() {
   const [requests, employees] = await Promise.all([

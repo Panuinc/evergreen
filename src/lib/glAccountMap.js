@@ -1,7 +1,7 @@
 
 
 
-export const COGS_OVERRIDE_ACCOUNTS = new Set([
+export const cogsOverrideAccounts = new Set([
   "52000-09",
   "53200-06",
   "53200-08",
@@ -13,7 +13,7 @@ export const COGS_OVERRIDE_ACCOUNTS = new Set([
 ]);
 
 
-export const INTEREST_ACCOUNTS = new Set([
+export const interestAccounts = new Set([
   "53710-01",
   "53710-02",
   "53710-03",
@@ -22,12 +22,12 @@ export const INTEREST_ACCOUNTS = new Set([
 ]);
 
 
-export const ADMIN_OVERRIDE_ACCOUNTS = new Set([
+export const adminOverrideAccounts = new Set([
   "52000-10",
 ]);
 
 
-export const COGS_STRUCTURE = [
+export const cogsStructure = [
   {
     key: "beginningInventory",
     label: "สินค้าคงเหลือต้นงวด",
@@ -159,8 +159,8 @@ export const COGS_STRUCTURE = [
 ];
 
 
-export const CAL_MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-export const CAL_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+export const calMonths = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+export const calMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
 
 export function calMonthBE(i, adYear) {
@@ -168,14 +168,14 @@ export function calMonthBE(i, adYear) {
 }
 
 
-export const INVENTORY_ACCOUNTS = [
+export const inventoryAccounts = [
   { key: "rawMaterial", label: "วัตถุดิบคงเหลือ", labelEn: "Raw Material", account: "11500-01" },
   { key: "wip", label: "สินค้าระหว่างผลิต", labelEn: "Work-in-Process", account: "11500-02" },
   { key: "finishedGoods", label: "สินค้าสำเร็จรูป", labelEn: "Finished Goods", account: "11500-03" },
 ];
 
 
-export const PNL_ROWS = [
+export const pnlRows = [
 
   { key: "h_revenue", label: "รายได้", type: "header" },
   { key: "41000-01", label: "รายได้จากการขายสินค้า", type: "account", prefix: "41000-01" },
@@ -209,11 +209,11 @@ export const PNL_ROWS = [
 export function classifyAccount(accountNumber) {
   if (!accountNumber) return "other";
 
-  if (COGS_OVERRIDE_ACCOUNTS.has(accountNumber)) return "cogs";
+  if (cogsOverrideAccounts.has(accountNumber)) return "cogs";
 
-  if (INTEREST_ACCOUNTS.has(accountNumber)) return "interest";
+  if (interestAccounts.has(accountNumber)) return "interest";
 
-  if (ADMIN_OVERRIDE_ACCOUNTS.has(accountNumber)) return "admin";
+  if (adminOverrideAccounts.has(accountNumber)) return "admin";
   const prefix = accountNumber.substring(0, 2);
   switch (prefix) {
     case "11": case "12": return "assets";
@@ -231,13 +231,13 @@ export function classifyAccount(accountNumber) {
 
 
 
-const MONTHS = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
 
 export function computeAdjustedCogs(byAccount, monthlyTotals) {
   const raw = monthlyTotals?.["cogs"] || { months: {}, total: 0 };
   const months = {};
-  for (const m of MONTHS) months[m] = raw.months[m] || 0;
+  for (const m of months) months[m] = raw.months[m] || 0;
   return { months, total: raw.total };
 }
 
@@ -283,9 +283,9 @@ export function aggregateGlEntries(entries) {
     const cat = acct.category;
     if (!monthlyTotals[cat]) {
       monthlyTotals[cat] = { months: {}, total: 0 };
-      for (const m of MONTHS) monthlyTotals[cat].months[m] = 0;
+      for (const m of months) monthlyTotals[cat].months[m] = 0;
     }
-    for (const m of MONTHS) {
+    for (const m of months) {
       monthlyTotals[cat].months[m] += acct.months[m] || 0;
     }
     monthlyTotals[cat].total += acct.total;
@@ -301,7 +301,7 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
   const mt = (cat) => monthlyTotals[cat] || { months: {}, total: 0 };
   const sumMonths = (...cats) => {
     const result = {};
-    for (const m of MONTHS) {
+    for (const m of months) {
       result[m] = cats.reduce((sum, cat) => sum + (mt(cat).months[m] || 0), 0);
     }
     return result;
@@ -325,7 +325,7 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
 
 
   const grossMonths = {};
-  for (const m of MONTHS) grossMonths[m] = (totalRevMonths[m] || 0) - (cogsMonths[m] || 0);
+  for (const m of months) grossMonths[m] = (totalRevMonths[m] || 0) - (cogsMonths[m] || 0);
   const grossTotal = totalRevTotal - cogsTotal;
 
 
@@ -338,14 +338,14 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
 
 
   const opMonths = {};
-  for (const m of MONTHS) {
+  for (const m of months) {
     opMonths[m] = (grossMonths[m] || 0) - (sellingMonths[m] || 0) - (adminMonths[m] || 0);
   }
   const opTotal = grossTotal - sellingTotal - adminTotal;
 
 
   const netMonths = {};
-  for (const m of MONTHS) {
+  for (const m of months) {
     netMonths[m] = (opMonths[m] || 0) - (interestMonths[m] || 0);
   }
   const netTotal = opTotal - interestTotal;
@@ -378,7 +378,7 @@ export function computeCogsDetail(byAccount) {
     for (const acctNo of struct.accounts) {
       const acct = byAccount[acctNo];
       if (!acct) continue;
-      for (const m of MONTHS) {
+      for (const m of months) {
         if (!months[m]) months[m] = 0;
         months[m] += acct.months[m] || 0;
       }
@@ -387,13 +387,13 @@ export function computeCogsDetail(byAccount) {
     return { key: struct.key, label: struct.label, labelEn: struct.labelEn, months, total, type: "item" };
   };
 
-  const rows = COGS_STRUCTURE.map(getRow);
+  const rows = cogsStructure.map(getRow);
 
 
   const prodMonths = {};
   let prodTotal = 0;
   for (const row of rows) {
-    for (const m of MONTHS) {
+    for (const m of months) {
       if (!prodMonths[m]) prodMonths[m] = 0;
       prodMonths[m] += row.months[m] || 0;
     }
@@ -402,13 +402,13 @@ export function computeCogsDetail(byAccount) {
   rows.push({ key: "productionTotal", label: "ต้นทุนสินค้าที่ผลิตได้", type: "subtotal", months: prodMonths, total: prodTotal });
 
 
-  const knownInvAccounts = new Set(INVENTORY_ACCOUNTS.map((i) => i.account));
-  const invRows = INVENTORY_ACCOUNTS.map((inv) => {
+  const knownInvAccounts = new Set(inventoryAccounts.map((i) => i.account));
+  const invRows = inventoryAccounts.map((inv) => {
     const acct = byAccount[inv.account];
     const months = {};
     let total = 0;
     if (acct) {
-      for (const m of MONTHS) {
+      for (const m of months) {
         months[m] = -(acct.months[m] || 0);
       }
       total = -acct.total;
@@ -421,7 +421,7 @@ export function computeCogsDetail(byAccount) {
     if (!acctNo.startsWith("115") || knownInvAccounts.has(acctNo)) continue;
     const months = {};
     let total = 0;
-    for (const m of MONTHS) months[m] = -(acct.months[m] || 0);
+    for (const m of months) months[m] = -(acct.months[m] || 0);
     total = -acct.total;
     invRows.push({ key: acctNo, label: `หัก: ${acct.name || acctNo}`, months, total, type: "deduction" });
   }
@@ -431,7 +431,7 @@ export function computeCogsDetail(byAccount) {
   const endInvMonths = {};
   let endInvTotal = 0;
   for (const r of invRows) {
-    for (const m of MONTHS) {
+    for (const m of months) {
       if (!endInvMonths[m]) endInvMonths[m] = 0;
       endInvMonths[m] += r.months[m] || 0;
     }
@@ -445,12 +445,12 @@ export function computeCogsDetail(byAccount) {
   const beginInvMonths = {};
   let beginInvTotal = 0;
   if (beginInv) {
-    for (const m of MONTHS) beginInvMonths[m] = beginInv.months[m] || 0;
+    for (const m of months) beginInvMonths[m] = beginInv.months[m] || 0;
     beginInvTotal = beginInv.total || 0;
   }
 
   const cogsMonths = {};
-  for (const m of MONTHS) {
+  for (const m of months) {
     cogsMonths[m] = (prodMonths[m] || 0) - (beginInvMonths[m] || 0) + (endInvMonths[m] || 0);
   }
   const cogsTotal = prodTotal - beginInvTotal + endInvTotal;
@@ -479,7 +479,7 @@ export function computeExpenseDetail(byAccount, type) {
       total: acct.total,
       type: "item",
     });
-    for (const m of MONTHS) {
+    for (const m of months) {
       if (!totalMonths[m]) totalMonths[m] = 0;
       totalMonths[m] += acct.months[m] || 0;
     }
@@ -523,7 +523,7 @@ export function computeRevenueDetail(byAccount) {
       total: acct.total,
       type: "item",
     });
-    for (const m of MONTHS) {
+    for (const m of months) {
       if (!totalMonths[m]) totalMonths[m] = 0;
       totalMonths[m] += acct.months[m] || 0;
     }

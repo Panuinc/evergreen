@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { getFinancePeriodRanges } from "@/lib/comparison";
 import { get, authFetch } from "@/lib/apiClient";
 import {
@@ -212,13 +213,19 @@ const invOverrideKey = (year) => `chh_inventory_override_${year}`;
 
 export default function FinanceDashboardClient() {
   /* ── Trial Balance / Dashboard state (was useFinanceDashboard) ── */
-  const [trialBalance, setTrialBalance] = useState([]);
-  const [prevTrialBalance, setPrevTrialBalance] = useState([]);
-  const [agedReceivables, setAgedReceivables] = useState([]);
-  const [agedPayables, setAgedPayables] = useState([]);
-  const [salesInvoices, setSalesInvoices] = useState([]);
-  const [purchaseInvoices, setPurchaseInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const fetcher = (url) => get(url).catch(() => []);
+  const { data: tbData, isLoading: tbLoading, mutate: mutateTb } = useSWR("/api/finance/trialBalance", fetcher);
+  const { data: arData, isLoading: arLoading } = useSWR("/api/finance/agedReceivables", fetcher);
+  const { data: apData, isLoading: apLoading } = useSWR("/api/finance/agedPayables", fetcher);
+  const { data: siData, isLoading: siLoading } = useSWR("/api/finance/salesInvoices?status=Open&expand=false", fetcher);
+  const { data: piData, isLoading: piLoading } = useSWR("/api/finance/purchaseInvoices?status=Open&expand=false", fetcher);
+
+  const trialBalance = tbData || [];
+  const agedReceivables = arData || [];
+  const agedPayables = apData || [];
+  const salesInvoices = siData || [];
+  const purchaseInvoices = piData || [];
+  const loading = tbLoading || arLoading || apLoading || siLoading || piLoading;
 
   const now = new Date();
   const [periodType, setPeriodType] = useState("year");
@@ -227,45 +234,15 @@ export default function FinanceDashboardClient() {
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [compareEnabled, setCompareEnabled] = useState(false);
 
+  // prevTrialBalance: when compare is enabled, reuse the same trial balance data
+  const prevTrialBalance = compareEnabled ? trialBalance : [];
+
   const periodRanges = useMemo(() => {
     const periodValue = { year: selectedYear, quarter: selectedQuarter, month: selectedMonth };
     return getFinancePeriodRanges(periodType, periodValue);
   }, [periodType, selectedYear, selectedQuarter, selectedMonth]);
 
-  const loadAll = useCallback(async () => {
-    try {
-      setLoading(true);
-      const fetches = [
-        get("/api/finance/trialBalance").catch(() => []),
-        get("/api/finance/agedReceivables").catch(() => []),
-        get("/api/finance/agedPayables").catch(() => []),
-        get("/api/finance/salesInvoices?status=Open&expand=false").catch(() => []),
-        get("/api/finance/purchaseInvoices?status=Open&expand=false").catch(() => []),
-      ];
-
-      if (compareEnabled) {
-        fetches.push(get("/api/finance/trialBalance").catch(() => []));
-      }
-
-      const results = await Promise.all(fetches);
-      const [tb, ar, ap, si, pi] = results;
-
-      setTrialBalance(tb);
-      setAgedReceivables(ar);
-      setAgedPayables(ap);
-      setSalesInvoices(si);
-      setPurchaseInvoices(pi);
-      setPrevTrialBalance(compareEnabled ? results[5] : []);
-    } catch {
-      toast.error("โหลดข้อมูลรายงานการเงินล้มเหลว");
-    } finally {
-      setLoading(false);
-    }
-  }, [compareEnabled]);
-
-  useEffect(() => {
-    loadAll();
-  }, [periodType, selectedYear, selectedQuarter, selectedMonth, compareEnabled, loadAll]);
+  const loadAll = useCallback(() => { mutateTb(); }, [mutateTb]);
 
   const tbFinancials = useMemo(() => computeFinancials(trialBalance), [trialBalance]);
   const prevFinancials = useMemo(() => computeFinancials(prevTrialBalance), [prevTrialBalance]);
@@ -567,40 +544,21 @@ export default function FinanceDashboardClient() {
   const [cashFlowLoading, setCashFlowLoading] = useState(false);
 
   /* ── GL Monthly Data (was useGlMonthlyData) ── */
-  const [allYearsData, setAllYearsData] = useState({});
-  const [glLoading, setGlLoading] = useState(false);
-  const [glError, setGlError] = useState(null);
-
   const glYears = useMemo(() => [selectedYear - 2, selectedYear - 1, selectedYear], [selectedYear]);
 
-  useEffect(() => {
-    if (!selectedYear) return;
-    let cancelled = false;
+  const glFetcher = (url) => get(url).catch((e) => { toast.error("โหลดข้อมูล GL ล้มเหลว: " + e.message); return {}; });
+  const { data: glY0, isLoading: glY0Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 2}-01-01&end=${selectedYear - 2}-12-31&summarize=monthly` : null, glFetcher);
+  const { data: glY1, isLoading: glY1Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 1}-01-01&end=${selectedYear - 1}-12-31&summarize=monthly` : null, glFetcher);
+  const { data: glY2, isLoading: glY2Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear}-01-01&end=${selectedYear}-12-31&summarize=monthly` : null, glFetcher);
 
-    async function loadGl() {
-      setGlLoading(true);
-      setGlError(null);
-      try {
-        const results = await Promise.all(
-          glYears.map((y) => get(`/api/finance/glEntries?start=${y}-01-01&end=${y}-12-31&summarize=monthly`)),
-        );
-        if (!cancelled) {
-          const data = {};
-          glYears.forEach((y, i) => { data[y] = results[i]; });
-          setAllYearsData(data);
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setGlError(e.message);
-          toast.error("โหลดข้อมูล GL ล้มเหลว: " + e.message);
-        }
-      } finally {
-        if (!cancelled) setGlLoading(false);
-      }
-    }
-    loadGl();
-    return () => { cancelled = true; };
-  }, [selectedYear, glYears]);
+  const glLoading = glY0Loading || glY1Loading || glY2Loading;
+  const glError = null;
+
+  const allYearsData = useMemo(() => ({
+    [selectedYear - 2]: glY0 || {},
+    [selectedYear - 1]: glY1 || {},
+    [selectedYear]: glY2 || {},
+  }), [selectedYear, glY0, glY1, glY2]);
 
   const yearlyAggregates = useMemo(() => {
     const result = {};

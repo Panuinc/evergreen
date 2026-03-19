@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import SalesInvoicesClient from "@/modules/finance/SalesInvoicesClient";
+import SalesInvoicesClient from "@/modules/finance/salesInvoicesClient";
 
 function calcDaysOverdue(dueDate) {
   if (!dueDate || dueDate === "0001-01-01") return 0;

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { CircleAlert } from "lucide-react";
 import Link from "next/link";
 
-export default function MainError({ error, reset }) {
+export default function MainError({ error, unstable_retry }) {
   useEffect(() => {
     console.error("Error:", error);
   }, [error]);
@@ -21,7 +21,7 @@ export default function MainError({ error, reset }) {
         </p>
         <div className="flex flex-row items-center gap-2">
           <button
-            onClick={() => reset()}
+            onClick={() => unstable_retry()}
             className="px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary-600"
           >
             Try again

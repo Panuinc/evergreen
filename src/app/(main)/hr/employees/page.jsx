@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import EmployeesClient from "@/modules/hr/EmployeesClient";
+import EmployeesClient from "@/modules/hr/employeesClient";
 
 export default async function EmployeesPage() {
   const [employees, divisions, departments, positions] = await Promise.all([

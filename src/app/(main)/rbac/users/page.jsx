@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import UsersClient from "@/modules/rbac/UsersClient";
+import UsersClient from "@/modules/rbac/usersClient";
 
 export default async function UsersPage() {
   const [users, roles] = await Promise.all([

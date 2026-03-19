@@ -1,4 +1,4 @@
-import WorkOrdersClient from "@/modules/marketing/WorkOrdersClient";
+import WorkOrdersClient from "@/modules/marketing/workOrdersClient";
 
 export default function WorkOrdersPage() {
   return <WorkOrdersClient />;

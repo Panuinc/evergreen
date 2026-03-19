@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import AssetsClient from "@/modules/it/AssetsClient";
+import AssetsClient from "@/modules/it/assetsClient";
 
 export default async function AssetsPage() {
   const [assets, employees] = await Promise.all([

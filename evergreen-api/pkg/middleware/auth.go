@@ -3,16 +3,17 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strings"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/lestrrat-go/httprc/v3"
 	"github.com/lestrrat-go/jwx/v3/jwk"
-	"github.com/lestrrat-go/jwx/v3/jwt"
 
 	"github.com/evergreen/api/internal/config"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/pkg/logger"
+	"github.com/evergreen/api/pkg/response"
+	"github.com/evergreen/api/pkg/security"
 )
 
 type contextKey string
@@ -63,7 +64,7 @@ func NewAuth(cfg *config.Config, db *pgxpool.Pool) (*Auth, error) {
 		return nil, fmt.Errorf("initial JWKS fetch from %s: %w", jwksURL, err)
 	}
 
-	slog.Info("JWKS cache initialized", "url", jwksURL)
+	logger.Info("JWKS cache initialized", "url", jwksURL)
 	return &Auth{jwkCache: cache, jwksURL: jwksURL, db: db}, nil
 }
 
@@ -79,13 +80,13 @@ func (a *Auth) Authenticate(next http.Handler) http.Handler {
 		// Get JWKS from cache
 		keySet, err := a.jwkCache.Lookup(r.Context(), a.jwksURL)
 		if err != nil {
-			slog.Error("JWKS lookup failed", "error", err)
+			logger.Error("JWKS lookup failed", "error", err)
 			response.InternalError(w, err)
 			return
 		}
 
 		// Parse and validate JWT with JWKS
-		parsed, err := jwt.Parse([]byte(token), jwt.WithKeySet(keySet))
+		parsed, err := security.ParseJWT([]byte(token), keySet)
 		if err != nil {
 			response.Unauthorized(w, "Unauthorized")
 			return
@@ -101,7 +102,7 @@ func (a *Auth) Authenticate(next http.Handler) http.Handler {
 		// Check user access (active status + superadmin)
 		isSuperAdmin, isActive, err := a.checkUserAccess(r.Context(), userID)
 		if err != nil {
-			slog.Error("check user access failed", "error", err, "userID", userID)
+			logger.Error("check user access failed", "error", err, "userID", userID)
 			response.InternalError(w, err)
 			return
 		}

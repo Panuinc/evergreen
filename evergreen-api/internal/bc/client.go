@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log/slog"
 	"math"
 	"net/http"
 	"net/url"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"github.com/evergreen/api/internal/config"
+	"github.com/evergreen/api/pkg/logger"
 )
 
 // Client is a Business Central API client with OAuth2 token caching and retry.
@@ -79,7 +79,7 @@ func (c *Client) getToken() (string, error) {
 	c.token = result.AccessToken
 	c.expiresAt = time.Now().Add(time.Duration(result.ExpiresIn) * time.Second)
 
-	slog.Info("BC token refreshed", "expiresIn", result.ExpiresIn)
+	logger.Info("BC token refreshed", "expiresIn", result.ExpiresIn)
 	return c.token, nil
 }
 
@@ -104,7 +104,7 @@ func (c *Client) fetchWithRetry(url string, timeout time.Duration, maxRetries in
 		if err != nil {
 			if attempt < maxRetries {
 				sleep := time.Duration(math.Pow(2, float64(attempt))) * 2 * time.Second
-				slog.Warn("BC request error, retrying", "attempt", attempt, "sleep", sleep, "error", err)
+				logger.Warn("BC request error, retrying", "attempt", attempt, "sleep", sleep, "error", err)
 				time.Sleep(sleep)
 				continue
 			}
@@ -117,7 +117,7 @@ func (c *Client) fetchWithRetry(url string, timeout time.Duration, maxRetries in
 			if retryAfter < 1 {
 				retryAfter = 5
 			}
-			slog.Warn("BC rate limited", "retryAfter", retryAfter)
+			logger.Warn("BC rate limited", "retryAfter", retryAfter)
 			time.Sleep(time.Duration(retryAfter) * time.Second)
 			continue
 		}
@@ -126,7 +126,7 @@ func (c *Client) fetchWithRetry(url string, timeout time.Duration, maxRetries in
 
 		if resp.StatusCode >= 500 && attempt < maxRetries {
 			sleep := time.Duration(math.Pow(2, float64(attempt))) * 2 * time.Second
-			slog.Warn("BC server error, retrying", "status", resp.StatusCode, "attempt", attempt)
+			logger.Warn("BC server error, retrying", "status", resp.StatusCode, "attempt", attempt)
 			time.Sleep(sleep)
 			continue
 		}

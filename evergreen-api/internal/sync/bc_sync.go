@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"sort"
 	"strconv"
 	"strings"
@@ -12,20 +11,21 @@ import (
 	"time"
 
 	"github.com/evergreen/api/internal/bc"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/evergreen/api/pkg/logger"
 )
 
 // SyncEngine orchestrates the BC-to-Supabase synchronisation.
 type SyncEngine struct {
-	pool *pgxpool.Pool
-	bc   *bc.Client
+	store *Store
+	bc    *bc.Client
 }
 
 // NewSyncEngine creates a new SyncEngine.
 func NewSyncEngine(pool *pgxpool.Pool, bcClient *bc.Client) *SyncEngine {
-	return &SyncEngine{pool: pool, bc: bcClient}
+	return &SyncEngine{store: NewStore(pool), bc: bcClient}
 }
 
 // entityResult tracks per-entity counts.
@@ -37,40 +37,11 @@ type entityResult struct {
 
 // SyncResult is returned at the end of a sync run.
 type SyncResult struct {
-	OK       bool                      `json:"ok"`
-	SyncedAt string                    `json:"syncedAt"`
-	Mode     string                    `json:"mode"`
-	Results  map[string]*entityResult  `json:"results"`
-	Errors   map[string]string         `json:"errors,omitempty"`
-}
-
-// ── Sync state helpers ──
-
-func (s *SyncEngine) getSyncState(ctx context.Context, key string) (string, error) {
-	var val *string
-	err := s.pool.QueryRow(ctx,
-		`SELECT "value" FROM "bcSyncState" WHERE "key" = $1`, key,
-	).Scan(&val)
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			return "", nil
-		}
-		return "", err
-	}
-	if val == nil {
-		return "", nil
-	}
-	return *val, nil
-}
-
-func (s *SyncEngine) setSyncState(ctx context.Context, key, value string) error {
-	_, err := s.pool.Exec(ctx,
-		`INSERT INTO "bcSyncState" ("key", "value", "updatedAt")
-		 VALUES ($1, $2, $3)
-		 ON CONFLICT ("key") DO UPDATE SET "value" = EXCLUDED."value", "updatedAt" = EXCLUDED."updatedAt"`,
-		key, value, time.Now().UTC().Format(time.RFC3339),
-	)
-	return err
+	OK       bool                     `json:"ok"`
+	SyncedAt string                   `json:"syncedAt"`
+	Mode     string                   `json:"mode"`
+	Results  map[string]*entityResult `json:"results"`
+	Errors   map[string]string        `json:"errors,omitempty"`
 }
 
 // ── Main sync orchestrator ──
@@ -140,11 +111,9 @@ func (s *SyncEngine) RunSync(ctx context.Context, mode string, send func(event, 
 	// ── Full sync: delete all rows ──
 	if isFullSync {
 		sendProgress("truncate", "truncating", "Deleting all rows...", nil)
-		allTables := getAllSupabaseTables()
-		for _, table := range allTables {
-			_, err := s.pool.Exec(ctx, fmt.Sprintf(`DELETE FROM %q WHERE "id" >= 0`, table))
-			if err != nil {
-				slog.Warn("truncate error", "table", table, "error", err)
+		for _, table := range getAllSupabaseTables() {
+			if err := s.store.TruncateTable(ctx, table); err != nil {
+				logger.Warn("truncate error", "table", table, "error", err)
 			}
 		}
 		sendProgress("truncate", "done", "Tables cleared", nil)
@@ -250,13 +219,13 @@ func (s *SyncEngine) RunSync(ctx context.Context, mode string, send func(event, 
 	}
 
 	// ── Update sync state ──
-	if err := s.setSyncState(ctx, "lastSyncTime", now); err != nil {
+	if err := s.store.SetSyncState(ctx, "lastSyncTime", now); err != nil {
 		setError("syncState", err.Error())
 	}
 	for _, cfg := range bc.SyncConfig {
 		if cfg.SyncGroup == "ledger" {
 			if r := getResult(cfg.BCEndpoint); r != nil && r.MaxEntryNo > 0 {
-				if err := s.setSyncState(ctx, "lastEntryNo:"+cfg.SupabaseTable, strconv.Itoa(r.MaxEntryNo)); err != nil {
+				if err := s.store.SetSyncState(ctx, "lastEntryNo:"+cfg.SupabaseTable, strconv.Itoa(r.MaxEntryNo)); err != nil {
 					setError("syncState", err.Error())
 				}
 			}
@@ -312,8 +281,8 @@ func (s *SyncEngine) syncEntity(
 
 	// Incremental filter
 	if !isFullSync && !noFilter && cfg.IncrementalFilterType != "" {
-		lastSync, _ := s.getSyncState(ctx, "lastSyncTime")
-		lastEntryNo, _ := s.getSyncState(ctx, "lastEntryNo:"+cfg.SupabaseTable)
+		lastSync, _ := s.store.GetSyncState(ctx, "lastSyncTime")
+		lastEntryNo, _ := s.store.GetSyncState(ctx, "lastEntryNo:"+cfg.SupabaseTable)
 
 		switch cfg.IncrementalFilterType {
 		case "entryNo":
@@ -398,7 +367,7 @@ func (s *SyncEngine) syncEntity(
 		if endpoint == "items" && isFullSync {
 			concurrency = 1
 		}
-		if err := batchUpsert(ctx, s.pool, cfg.SupabaseTable, cfg.SupabaseConflictCol, headerRows, 1000, concurrency); err != nil {
+		if err := s.store.BatchUpsert(ctx, cfg.SupabaseTable, cfg.SupabaseConflictCol, headerRows, 1000, concurrency); err != nil {
 			setError(endpoint, err.Error())
 			sendProgress(endpoint, "error", err.Error(), map[string]any{"error": err.Error()})
 			return
@@ -409,7 +378,7 @@ func (s *SyncEngine) syncEntity(
 	if len(lineRows) > 0 && cfg.LinesTable != "" && cfg.LinesConflictCols != "" {
 		sendProgress(endpoint+"-lines", "saving",
 			fmt.Sprintf("Saving %s lines: %d records...", cfg.Name, len(lineRows)), nil)
-		if err := batchUpsert(ctx, s.pool, cfg.LinesTable, cfg.LinesConflictCols, lineRows, 1000, 3); err != nil {
+		if err := s.store.BatchUpsert(ctx, cfg.LinesTable, cfg.LinesConflictCols, lineRows, 1000, 3); err != nil {
 			setError(endpoint+"-lines", err.Error())
 			sendProgress(endpoint+"-lines", "error", err.Error(), map[string]any{"error": err.Error()})
 			return
@@ -445,34 +414,14 @@ func (s *SyncEngine) assignRfidCodesIncremental(
 	table := cfg.SupabaseTable
 	pkCol := "bcItemNo"
 
-	// Get max existing RFID
-	var maxExisting int
-	err := s.pool.QueryRow(ctx,
-		fmt.Sprintf(`SELECT COALESCE(MAX(CAST("bcItemRfidCode" AS INTEGER)), 0) FROM %q WHERE "bcItemRfidCode" IS NOT NULL`, table),
-	).Scan(&maxExisting)
+	maxExisting, err := s.store.GetMaxItemRfidCode(ctx, table)
 	if err != nil {
 		return fmt.Errorf("getting max RFID: %w", err)
 	}
 
-	// Find items without RFID, ordered by genProdPostingGroup, then pkCol
-	rows, err := s.pool.Query(ctx,
-		fmt.Sprintf(`SELECT %q FROM %q WHERE "bcItemRfidCode" IS NULL ORDER BY "bcItemGenProdPostingGroup" ASC, %q ASC`, pkCol, table, pkCol),
-	)
+	noRfid, err := s.store.GetItemsWithoutRfid(ctx, table, pkCol)
 	if err != nil {
 		return fmt.Errorf("querying items without RFID: %w", err)
-	}
-	defer rows.Close()
-
-	var noRfid []string
-	for rows.Next() {
-		var itemNo string
-		if err := rows.Scan(&itemNo); err != nil {
-			return err
-		}
-		noRfid = append(noRfid, itemNo)
-	}
-	if err := rows.Err(); err != nil {
-		return err
 	}
 
 	if len(noRfid) == 0 {
@@ -489,121 +438,7 @@ func (s *SyncEngine) assignRfidCodesIncremental(
 		nextCode++
 	}
 
-	return batchUpsert(ctx, s.pool, table, pkCol, updates, 1000, 3)
-}
-
-// ── Batch upsert ──
-
-// batchUpsert inserts rows into table, using INSERT ... ON CONFLICT DO UPDATE.
-// conflictCols is a comma-separated list of conflict columns (e.g. "col1,col2").
-// It processes rows in batches of batchSize with up to concurrency parallel batches.
-func batchUpsert(
-	ctx context.Context,
-	pool *pgxpool.Pool,
-	table, conflictCols string,
-	records []map[string]any,
-	batchSize, concurrency int,
-) error {
-	if len(records) == 0 {
-		return nil
-	}
-
-	// Determine stable column order from first record
-	cols := stableColumns(records[0])
-	conflictColList := strings.Split(conflictCols, ",")
-
-	// Build the SET clause (exclude conflict columns from update)
-	conflictSet := make(map[string]bool)
-	for _, c := range conflictColList {
-		conflictSet[strings.TrimSpace(c)] = true
-	}
-
-	var setClauses []string
-	for _, col := range cols {
-		if !conflictSet[col] {
-			setClauses = append(setClauses, fmt.Sprintf("%q = EXCLUDED.%q", col, col))
-		}
-	}
-	// If every column is a conflict column, do a no-op update on the first column
-	if len(setClauses) == 0 {
-		setClauses = append(setClauses, fmt.Sprintf("%q = EXCLUDED.%q", cols[0], cols[0]))
-	}
-
-	// Split into batches
-	var batches [][]map[string]any
-	for i := 0; i < len(records); i += batchSize {
-		end := i + batchSize
-		if end > len(records) {
-			end = len(records)
-		}
-		batches = append(batches, records[i:end])
-	}
-
-	g, gCtx := errgroup.WithContext(ctx)
-	g.SetLimit(concurrency)
-
-	for _, batch := range batches {
-		batch := batch
-		g.Go(func() error {
-			return execBatchInsert(gCtx, pool, table, cols, conflictColList, setClauses, batch)
-		})
-	}
-
-	return g.Wait()
-}
-
-// execBatchInsert builds and executes a single batch INSERT ... ON CONFLICT DO UPDATE.
-func execBatchInsert(
-	ctx context.Context,
-	pool *pgxpool.Pool,
-	table string,
-	cols []string,
-	conflictCols []string,
-	setClauses []string,
-	batch []map[string]any,
-) error {
-	numCols := len(cols)
-	numRows := len(batch)
-
-	// Build column list
-	quotedCols := make([]string, numCols)
-	for i, c := range cols {
-		quotedCols[i] = fmt.Sprintf("%q", c)
-	}
-
-	// Build value placeholders and args
-	args := make([]any, 0, numCols*numRows)
-	var valueParts []string
-	for rowIdx, record := range batch {
-		var placeholders []string
-		for colIdx, col := range cols {
-			paramNum := rowIdx*numCols + colIdx + 1
-			placeholders = append(placeholders, fmt.Sprintf("$%d", paramNum))
-			args = append(args, record[col])
-		}
-		valueParts = append(valueParts, "("+strings.Join(placeholders, ", ")+")")
-	}
-
-	// Build conflict column list
-	quotedConflict := make([]string, len(conflictCols))
-	for i, c := range conflictCols {
-		quotedConflict[i] = fmt.Sprintf("%q", strings.TrimSpace(c))
-	}
-
-	query := fmt.Sprintf(
-		`INSERT INTO %q (%s) VALUES %s ON CONFLICT (%s) DO UPDATE SET %s`,
-		table,
-		strings.Join(quotedCols, ", "),
-		strings.Join(valueParts, ", "),
-		strings.Join(quotedConflict, ", "),
-		strings.Join(setClauses, ", "),
-	)
-
-	_, err := pool.Exec(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("batch upsert into %q: %w", table, err)
-	}
-	return nil
+	return s.store.BatchUpsert(ctx, table, pkCol, updates, 1000, 3)
 }
 
 // ── Helpers ──
@@ -615,15 +450,6 @@ func buildSelectParam(fieldMap map[string]string) string {
 	}
 	sort.Strings(keys)
 	return strings.Join(keys, ",")
-}
-
-func stableColumns(record map[string]any) []string {
-	cols := make([]string, 0, len(record))
-	for k := range record {
-		cols = append(cols, k)
-	}
-	sort.Strings(cols)
-	return cols
 }
 
 func getAllSupabaseTables() []string {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import useSWR from "swr";
 import {
   Modal,
   ModalContent,
@@ -19,12 +20,10 @@ import { toast } from "sonner";
 
 export default function ChannelSettings({ isOpen, onClose }) {
   const [channels, setChannels] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [fbToken, setFbToken] = useState("");
   const [fbPageId, setFbPageId] = useState("");
   const [lineToken, setLineToken] = useState("");
-
 
   const [aiSystemPrompt, setAiSystemPrompt] = useState("");
   const [aiMaxHistory, setAiMaxHistory] = useState("20");
@@ -33,47 +32,34 @@ export default function ChannelSettings({ isOpen, onClose }) {
   const [aiAfterSalesInfo, setAiAfterSalesInfo] = useState("");
   const [aiBrandStory, setAiBrandStory] = useState("");
 
+  const { data: settingsData, isLoading: loading } = useSWR(
+    isOpen ? "channel-settings" : null,
+    async () => {
+      const [{ data: channelsData }, aiData] = await Promise.all([
+        supabase.from("omChannel").select("*"),
+        get("/api/marketing/omnichannel/ai/settings").catch(() => null),
+      ]);
+      return { channels: channelsData || [], aiSettings: aiData };
+    },
+  );
+
   useEffect(() => {
-    if (isOpen) {
-      loadChannels();
-      loadAiSettings();
+    if (!settingsData) return;
+    const { channels: ch, aiSettings } = settingsData;
+    setChannels(ch);
+    const fb = ch.find((c) => c.omChannelType === "facebook");
+    const line = ch.find((c) => c.omChannelType === "line");
+    if (fb) { setFbToken(fb.omChannelAccessToken || ""); setFbPageId(fb.omChannelPageId || ""); }
+    if (line) { setLineToken(line.omChannelAccessToken || ""); }
+    if (aiSettings) {
+      setAiSystemPrompt(aiSettings.omAiSettingSystemPrompt || "");
+      setAiMaxHistory(String(aiSettings.omAiSettingMaxHistoryMessages || 20));
+      setAiBankAccountInfo(aiSettings.omAiSettingBankAccountInfo || "");
+      setAiShippingInfo(aiSettings.omAiSettingShippingInfo || "");
+      setAiAfterSalesInfo(aiSettings.omAiSettingAfterSalesInfo || "");
+      setAiBrandStory(aiSettings.omAiSettingBrandStory || "");
     }
-  }, [isOpen]);
-
-  const loadChannels = async () => {
-    try {
-      setLoading(true);
-      const { data } = await supabase.from("omChannel").select("*");
-      setChannels(data || []);
-      const fb = data?.find((c) => c.omChannelType === "facebook");
-      const line = data?.find((c) => c.omChannelType === "line");
-      if (fb) {
-        setFbToken(fb.omChannelAccessToken || "");
-        setFbPageId(fb.omChannelPageId || "");
-      }
-      if (line) {
-        setLineToken(line.omChannelAccessToken || "");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadAiSettings = async () => {
-    try {
-      const data = await get("/api/marketing/omnichannel/ai/settings");
-      if (data) {
-        setAiSystemPrompt(data.omAiSettingSystemPrompt || "");
-        setAiMaxHistory(String(data.omAiSettingMaxHistoryMessages || 20));
-        setAiBankAccountInfo(data.omAiSettingBankAccountInfo || "");
-        setAiShippingInfo(data.omAiSettingShippingInfo || "");
-        setAiAfterSalesInfo(data.omAiSettingAfterSalesInfo || "");
-        setAiBrandStory(data.omAiSettingBrandStory || "");
-      }
-    } catch {
-
-    }
-  };
+  }, [settingsData]);
 
   const handleSave = async () => {
     try {

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import TmsDashboardClient from "@/modules/tms/TmsDashboardClient";
+import TmsDashboardClient from "@/modules/tms/tmsDashboardClient";
 
 export default async function TmsDashboardPage() {
   const stats = await api("/api/tms/dashboard");

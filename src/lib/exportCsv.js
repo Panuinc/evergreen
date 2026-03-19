@@ -1,10 +1,10 @@
 export function exportToCsv(filename, columns, data) {
-  const BOM = "\uFEFF";
+  const bom = "\uFEFF";
   const header = columns.map((c) => escapeCell(c.header)).join(",");
   const rows = data.map((row) =>
     columns.map((c) => escapeCell(getCellValue(row, c.key, c.formatter))).join(",")
   );
-  const csv = BOM + [header, ...rows].join("\n");
+  const csv = bom + [header, ...rows].join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

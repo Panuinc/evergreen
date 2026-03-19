@@ -3,37 +3,29 @@ package chat
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/external"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/internal/clients"
+	"github.com/evergreen/api/pkg/logger"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	pool *pgxpool.Pool
-	ai   *external.OpenRouterClient
+	store *Store
+	ai    *clients.OpenRouterClient
 }
 
-func New(pool *pgxpool.Pool, ai *external.OpenRouterClient) *Handler {
-	return &Handler{pool: pool, ai: ai}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Post("/", h.Chat)
-	return r
+func New(pool *pgxpool.Pool, ai *clients.OpenRouterClient) *Handler {
+	return &Handler{store: NewStore(pool), ai: ai}
 }
 
 // Chat handles POST /api/chat — orchestrator with specialist agents.
 func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Messages []external.Message `json:"messages"`
-		Message  string             `json:"message"` // shorthand
+		Messages []clients.Message `json:"messages"`
+		Message  string            `json:"message"` // shorthand
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
@@ -48,7 +40,7 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	// Build messages
 	messages := body.Messages
 	if body.Message != "" && len(messages) == 0 {
-		messages = []external.Message{{Role: "user", Content: body.Message}}
+		messages = []clients.Message{{Role: "user", Content: body.Message}}
 	}
 	if len(messages) == 0 {
 		response.BadRequest(w, "กรุณาระบุข้อความ")
@@ -57,11 +49,8 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 
 	// Fetch context data for the orchestrator
 	ctx := r.Context()
-	hrCount := 0
-	db.QueryRows(ctx, h.pool, `SELECT count(*) FROM "hrEmployee" WHERE "isActive"=true`)
-	custCount := 0
-	h.pool.QueryRow(ctx, `SELECT count(*) FROM "bcCustomer"`).Scan(&custCount)
-	h.pool.QueryRow(ctx, `SELECT count(*) FROM "hrEmployee" WHERE "isActive"=true`).Scan(&hrCount)
+	hrCount := h.store.CountEmployees(ctx)
+	custCount := h.store.CountCustomers(ctx)
 
 	systemPrompt := fmt.Sprintf(`คุณเป็น AI ผู้ช่วยของบริษัท C.H.H. Industries (โรงงานผลิตประตู)
 ตอบเป็นภาษาไทย ใช้ markdown formatting
@@ -69,16 +58,16 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 คุณสามารถตอบคำถามเกี่ยวกับ HR, การขาย, การเงิน, การผลิต, คลังสินค้า, และขนส่ง`, hrCount, custCount)
 
 	// Prepend system message
-	fullMessages := append([]external.Message{{Role: "system", Content: systemPrompt}}, messages...)
+	fullMessages := append([]clients.Message{{Role: "system", Content: systemPrompt}}, messages...)
 
 	// First try: non-streaming call to check if tools needed
-	aiResp, err := h.ai.Chat(external.ChatRequest{
+	aiResp, err := h.ai.Chat(clients.ChatRequest{
 		Model:       "google/gemini-2.5-flash-lite",
 		Messages:    fullMessages,
 		Temperature: 0.5,
 	})
 	if err != nil {
-		slog.Error("AI chat error", "error", err)
+		logger.Error("AI chat error", "error", err)
 		response.InternalError(w, err)
 		return
 	}
@@ -103,7 +92,7 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 
-		h.ai.ChatStream(external.ChatRequest{
+		h.ai.ChatStream(clients.ChatRequest{
 			Model:       "google/gemini-2.5-flash-lite",
 			Messages:    fullMessages,
 			Temperature: 0.5,
@@ -124,20 +113,20 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 		var query string
 		json.Unmarshal([]byte(tc.Function.Arguments), &struct{ Query *string }{&query})
 
-		slog.Info("agent called", "agent", agentName, "query", query)
+		logger.Info("agent called", "agent", agentName, "query", query)
 		result := h.runAgent(r, agentName, query)
 		agentResults = append(agentResults, fmt.Sprintf("[%s]: %s", agentName, result))
 	}
 
 	// Send agent results back to AI for final answer
 	agentMsg := "ข้อมูลจาก agents:\n" + fmt.Sprintf("%v", agentResults)
-	finalMessages := append(fullMessages, external.Message{Role: "assistant", Content: content})
-	finalMessages = append(finalMessages, external.Message{Role: "user", Content: agentMsg})
+	finalMessages := append(fullMessages, clients.Message{Role: "assistant", Content: content})
+	finalMessages = append(finalMessages, clients.Message{Role: "user", Content: agentMsg})
 
 	// Stream final response
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-		resp, _ := h.ai.Chat(external.ChatRequest{Model: "google/gemini-2.5-flash-lite", Messages: finalMessages})
+		resp, _ := h.ai.Chat(clients.ChatRequest{Model: "google/gemini-2.5-flash-lite", Messages: finalMessages})
 		if resp != nil && len(resp.Choices) > 0 {
 			response.OK(w, map[string]string{"response": resp.Choices[0].Message.Content})
 		}
@@ -148,7 +137,7 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	h.ai.ChatStream(external.ChatRequest{
+	h.ai.ChatStream(clients.ChatRequest{
 		Model:       "google/gemini-2.5-flash-lite",
 		Messages:    finalMessages,
 		Temperature: 0.5,
@@ -169,21 +158,13 @@ func (h *Handler) runAgent(r *http.Request, agent, query string) string {
 
 	switch agent {
 	case "ask_hr_agent":
-		data, err = db.QueryRows(ctx, h.pool, `
-			SELECT * FROM "hrEmployee" WHERE "isActive"=true LIMIT 50
-		`)
+		data, err = h.store.GetHRAgentData(ctx)
 	case "ask_sales_agent":
-		data, err = db.QueryRows(ctx, h.pool, `
-			SELECT * FROM "bcCustomer" ORDER BY "bcCustomerBalanceDueLCY" DESC LIMIT 20
-		`)
+		data, err = h.store.GetSalesAgentData(ctx)
 	case "ask_tms_agent":
-		data, err = db.QueryRows(ctx, h.pool, `
-			SELECT * FROM "tmsVehicle" WHERE "isActive"=true
-		`)
+		data, err = h.store.GetTMSAgentData(ctx)
 	case "ask_finance_agent":
-		data, err = db.QueryRows(ctx, h.pool, `
-			SELECT * FROM "bcGLAccount" WHERE "bcGLAccountBalance" != 0 LIMIT 30
-		`)
+		data, err = h.store.GetFinanceAgentData(ctx)
 	default:
 		return "Unknown agent: " + agent
 	}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { get } from "@/lib/apiClient";
 
 const glueThickness = 1;
@@ -1190,40 +1191,13 @@ export default function BomClient() {
 
 
   // --- Frames data (inlined from useFrames) ---
-  const [erpFrames, setErpFrames] = useState({ rubberwood: [], sadao: [], lvl: [] });
-  const [framesLoading, setFramesLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setFramesLoading(true);
-        const data = await get("/api/production/frames");
-        setErpFrames(data);
-      } catch (error) {
-        toast.error("โหลดข้อมูลกรอบไม้ล้มเหลว");
-      } finally {
-        setFramesLoading(false);
-      }
-    })();
-  }, []);
+  const fetcher = (url) => get(url);
+  const { data: framesData, isLoading: framesLoading } = useSWR("/api/production/frames", fetcher);
+  const erpFrames = framesData || { rubberwood: [], sadao: [], lvl: [] };
 
   // --- Cores data (inlined from useCores) ---
-  const [coreItems, setCoreItems] = useState({ foam: [], rockwool: [], particle: [], plywood: [], honeycomb: [] });
-  const [coresLoading, setCoresLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setCoresLoading(true);
-        const data = await get("/api/production/cores");
-        setCoreItems(data);
-      } catch (error) {
-        toast.error("โหลดข้อมูลไส้ล้มเหลว");
-      } finally {
-        setCoresLoading(false);
-      }
-    })();
-  }, []);
+  const { data: coresData, isLoading: coresLoading } = useSWR("/api/production/cores", fetcher);
+  const coreItems = coresData || { foam: [], rockwool: [], particle: [], plywood: [], honeycomb: [] };
 
   const formRef = useRef(null);
   const [customerPO, setCustomerPO] = useState("");

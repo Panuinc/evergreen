@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { CircleAlert } from "lucide-react";
 
-export default function AuthError({ error, reset }) {
+export default function AuthError({ error, unstable_retry }) {
   useEffect(() => {
     console.error("Auth error:", error);
   }, [error]);
@@ -16,7 +16,7 @@ export default function AuthError({ error, reset }) {
         </div>
         <p className="text-xs text-foreground">Something went wrong</p>
         <button
-          onClick={() => reset()}
+          onClick={() => unstable_retry()}
           className="px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary-600"
         >
           Try again

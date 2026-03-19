@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { get, post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import { useAuth } from "@/contexts/authContext";
@@ -30,10 +31,26 @@ const emptyProgressForm = {
 
 export default function WorkOrdersClient() {
   const { user } = useAuth();
-  const [workOrders, setWorkOrders] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [currentEmployeeName, setCurrentEmployeeName] = useState("");
-  const [loading, setLoading] = useState(true);
+  const fetcher = (url) => get(url);
+  const { data: workOrdersData, isLoading: woLoading, mutate: mutateWorkOrders } = useSWR(
+    user ? "/api/marketing/workOrders" : null,
+    fetcher,
+  );
+  const { data: employeesData, isLoading: empLoading } = useSWR(
+    user ? "/api/hr/employees" : null,
+    (url) => get(url).catch(() => []),
+  );
+
+  const workOrders = workOrdersData || [];
+  const employees = employeesData || [];
+  const loading = woLoading || empLoading;
+
+  const currentEmployeeName = useMemo(() => {
+    if (!user?.id || !employees.length) return user?.email || "";
+    const myEmp = employees.find((e) => e.hrEmployeeUserId === user.id);
+    return myEmp ? `${myEmp.hrEmployeeFirstName} ${myEmp.hrEmployeeLastName}` : (user.email || "");
+  }, [user, employees]);
+
   const [saving, setSaving] = useState(false);
   const [editingWorkOrder, setEditingWorkOrder] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
@@ -49,30 +66,6 @@ export default function WorkOrdersClient() {
   const [progressSaving, setProgressSaving] = useState(false);
   const [progressForm, setProgressForm] = useState(emptyProgressForm);
 
-  useEffect(() => {
-    if (user) loadData();
-  }, [user]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [data, emps] = await Promise.all([get("/api/marketing/workOrders"), get("/api/hr/employees").catch(() => [])]);
-      setWorkOrders(data);
-      setEmployees(emps);
-      if (user?.id) {
-        const myEmp = emps.find((e) => e.hrEmployeeUserId === user.id);
-        if (myEmp) {
-          setCurrentEmployeeName(`${myEmp.hrEmployeeFirstName} ${myEmp.hrEmployeeLastName}`);
-        } else {
-          setCurrentEmployeeName(user.email || "");
-        }
-      }
-    } catch (error) {
-      toast.error("โหลดใบสั่งงานล้มเหลว");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleOpen = (workOrder = null) => {
     if (workOrder) {
@@ -123,7 +116,7 @@ export default function WorkOrdersClient() {
         toast.success("สร้างใบสั่งงานสำเร็จ");
       }
       onClose();
-      loadData();
+      mutateWorkOrders();
     } catch (error) {
       toast.error(error.message || "บันทึกใบสั่งงานล้มเหลว");
     } finally {
@@ -143,7 +136,7 @@ export default function WorkOrdersClient() {
       toast.success("ลบใบสั่งงานสำเร็จ");
       deleteModal.onClose();
       setDeletingWorkOrder(null);
-      loadData();
+      mutateWorkOrders();
     } catch (error) {
       toast.error(error.message || "ลบใบสั่งงานล้มเหลว");
     }
@@ -153,7 +146,7 @@ export default function WorkOrdersClient() {
     try {
       await put(`/api/marketing/workOrders/${item.id}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
-      loadData();
+      mutateWorkOrders();
     } catch (error) {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
@@ -206,7 +199,7 @@ export default function WorkOrdersClient() {
         ...emptyProgressForm,
         mktWorkOrderProgressLogProgress: progressForm.mktWorkOrderProgressLogProgress,
       });
-      loadData();
+      mutateWorkOrders();
 
       setSelectedWorkOrder((prev) => ({
         ...prev,

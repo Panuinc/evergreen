@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import ResourcesClient from "@/modules/rbac/ResourcesClient";
+import ResourcesClient from "@/modules/rbac/resourcesClient";
 
 export default async function ResourcesPage() {
   const resources = await api("/api/rbac/resources");

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import ConfigCheckClient from "@/modules/settings/ConfigCheckClient";
+import ConfigCheckClient from "@/modules/settings/configCheckClient";
 
 export default async function ConfigCheckPage() {
   const status = await api("/api/configCheck");

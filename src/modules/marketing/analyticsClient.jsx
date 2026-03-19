@@ -1,50 +1,37 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
+import { get } from "@/lib/apiClient";
 import AnalyticsView from "@/modules/marketing/components/analyticsView";
 
+const fetcher = (url) => get(url);
+
 export default function AnalyticsClient({ initialData }) {
-  const [stats, setStats] = useState(initialData?.stats || null);
-  const [loading, setLoading] = useState(false);
   const [period, setPeriodState] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const loadData = useCallback(async (refresh = false, p = "all", sd, ed) => {
+  const swrKey = period !== "all" && period !== "custom"
+    ? `/api/marketing/analytics?period=${period}`
+    : null;
+
+  const { data: swrData, isLoading: loading, mutate } = useSWR(swrKey, fetcher, {
+    onError: () => toast.error("ไม่สามารถโหลดข้อมูล Analytics ได้"),
+  });
+
+  const stats = swrData?.stats ?? initialData?.stats ?? null;
+
+  const searchCustomRange = useCallback(async () => {
+    if (!startDate || !endDate) return;
     try {
-      setLoading(true);
-      const { get } = await import("@/lib/apiClient");
-      const params = new URLSearchParams();
-      if (refresh) params.set("refresh", "1");
-      if (sd && ed) {
-        params.set("startDate", sd);
-        params.set("endDate", ed);
-      } else if (p && p !== "all") {
-        params.set("period", p);
-      }
-      const qs = params.toString();
-      const data = await get(`/api/marketing/analytics${qs ? `?${qs}` : ""}`);
-      setStats(data.stats || null);
-    } catch (error) {
+      const data = await get(`/api/marketing/analytics?startDate=${startDate}&endDate=${endDate}`);
+      mutate(data, false);
+    } catch {
       toast.error("ไม่สามารถโหลดข้อมูล Analytics ได้");
-      console.error("[Marketing Analytics]", error);
-    } finally {
-      setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    if (period !== "all" && period !== "custom") {
-      loadData(false, period);
-    }
-  }, [period, loadData]);
-
-  const searchCustomRange = useCallback(() => {
-    if (startDate && endDate) {
-      loadData(false, "custom", startDate, endDate);
-    }
-  }, [startDate, endDate, loadData]);
+  }, [startDate, endDate, mutate]);
 
   const setPeriod = useCallback((p) => {
     if (p !== "custom") {
@@ -54,13 +41,18 @@ export default function AnalyticsClient({ initialData }) {
     setPeriodState(p);
   }, []);
 
-  const reload = useCallback(() => {
+  const reload = useCallback(async () => {
     if (period === "custom" && startDate && endDate) {
-      loadData(true, "custom", startDate, endDate);
+      try {
+        const data = await get(`/api/marketing/analytics?refresh=1&startDate=${startDate}&endDate=${endDate}`);
+        mutate(data, false);
+      } catch {
+        toast.error("ไม่สามารถโหลดข้อมูล Analytics ได้");
+      }
     } else {
-      loadData(true, period);
+      mutate();
     }
-  }, [loadData, period, startDate, endDate]);
+  }, [period, startDate, endDate, mutate]);
 
   return (
     <AnalyticsView

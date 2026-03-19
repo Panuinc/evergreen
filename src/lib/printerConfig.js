@@ -1,6 +1,6 @@
-const STORAGE_KEY = "cp30-printer-config";
+const storageKey = "cp30-printer-config";
 
-const DEFAULT_CONFIG = {
+const defaultConfig = {
   dpi: 300,
   labelWidth: 73,
   labelHeight: 21,
@@ -14,20 +14,20 @@ const DEFAULT_CONFIG = {
 };
 
 export function getPrinterConfig() {
-  if (typeof window === "undefined") return DEFAULT_CONFIG;
+  if (typeof window === "undefined") return defaultConfig;
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
-      return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+      return { ...defaultConfig, ...JSON.parse(saved) };
     }
   } catch {}
-  return DEFAULT_CONFIG;
+  return defaultConfig;
 }
 
 export function savePrinterConfig(config) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  localStorage.setItem(storageKey, JSON.stringify(config));
 }
 
 export function getDefaultConfig() {
-  return { ...DEFAULT_CONFIG };
+  return { ...defaultConfig };
 }

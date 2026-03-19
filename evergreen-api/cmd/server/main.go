@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -21,18 +20,19 @@ import (
 	"github.com/evergreen/api/internal/chat"
 	"github.com/evergreen/api/internal/config"
 	cronpkg "github.com/evergreen/api/internal/cron"
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/external"
+	"github.com/evergreen/api/internal/clients"
 	"github.com/evergreen/api/internal/finance"
 	"github.com/evergreen/api/internal/hr"
 	"github.com/evergreen/api/internal/it"
 	"github.com/evergreen/api/internal/marketing"
-	"github.com/evergreen/api/internal/middleware"
 	"github.com/evergreen/api/internal/production"
 	"github.com/evergreen/api/internal/profile"
 	"github.com/evergreen/api/internal/rbac"
-	"github.com/evergreen/api/internal/response"
 	"github.com/evergreen/api/internal/sales"
+	"github.com/evergreen/api/pkg/db"
+	"github.com/evergreen/api/pkg/logger"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
 	syncpkg "github.com/evergreen/api/internal/sync"
 	"github.com/evergreen/api/internal/tms"
 	"github.com/evergreen/api/internal/warehouse"
@@ -40,12 +40,10 @@ import (
 
 func main() {
 	// Structured logging
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	})))
+	logger.Init()
 
 	if err := run(); err != nil {
-		slog.Error("server failed", "error", err)
+		logger.Error("server failed", "error", err)
 		os.Exit(1)
 	}
 }
@@ -59,7 +57,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("loading config: %w", err)
 	}
-	slog.Info("config loaded", "port", cfg.Port, "supabaseURL", cfg.SupabaseURL)
+	logger.Info("config loaded", "port", cfg.Port, "supabaseURL", cfg.SupabaseURL)
 
 	// Database pool
 	pool, err := db.NewPool(ctx, cfg.DatabaseURL)
@@ -67,14 +65,14 @@ func run() error {
 		return fmt.Errorf("creating database pool: %w", err)
 	}
 	defer pool.Close()
-	slog.Info("database connected")
+	logger.Info("database connected")
 
 	// Auth middleware (JWKS)
 	auth, err := middleware.NewAuth(cfg, pool)
 	if err != nil {
 		return fmt.Errorf("creating auth middleware: %w", err)
 	}
-	slog.Info("JWKS auth initialized")
+	logger.Info("JWKS auth initialized")
 
 	// Router
 	r := newRouter(cfg, pool, auth)
@@ -91,7 +89,7 @@ func run() error {
 	// Start server in goroutine
 	errCh := make(chan error, 1)
 	go func() {
-		slog.Info("server starting", "addr", srv.Addr)
+		logger.Info("server starting", "addr", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			errCh <- err
 		}
@@ -102,7 +100,7 @@ func run() error {
 	case err := <-errCh:
 		return fmt.Errorf("server error: %w", err)
 	case <-ctx.Done():
-		slog.Info("shutting down gracefully...")
+		logger.Info("shutting down gracefully...")
 	}
 
 	// Graceful shutdown with 30s timeout
@@ -113,7 +111,7 @@ func run() error {
 		return fmt.Errorf("server shutdown: %w", err)
 	}
 
-	slog.Info("server stopped")
+	logger.Info("server stopped")
 	return nil
 }
 
@@ -127,7 +125,7 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 	r.Use(httprate.LimitByIP(100, time.Minute))
 
 	// Supabase Auth client (for login, admin ops)
-	supaAuth := external.NewSupabaseAuth(cfg.SupabaseURL, cfg.SupabaseAnonKey, cfg.SupabaseServiceKey)
+	supaAuth := clients.NewSupabaseAuth(cfg.SupabaseURL, cfg.SupabaseAnonKey, cfg.SupabaseServiceKey)
 
 	// Phase 1 handlers
 	authHandler := auth.New(pool, supaAuth, jwtAuth)
@@ -144,7 +142,7 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 	syncHandler := syncpkg.NewHandler(syncpkg.NewSyncEngine(pool, bcClient), cfg, pool)
 
 	// Shared AI client
-	aiClient := external.NewOpenRouterClient(cfg.OpenRouterAPIKey)
+	aiClient := clients.NewOpenRouterClient(cfg.OpenRouterAPIKey)
 
 	// Phase 4 handlers
 	salesHandler := sales.New(pool)
@@ -154,7 +152,7 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 	marketingHandler := marketing.New(pool, cfg)
 
 	// Phase 6 handlers
-	tmsHandler := tms.New(pool)
+	tmsHandler := tms.New(pool, aiClient)
 	warehouseHandler := warehouse.New(pool)
 	productionHandler := production.New(pool)
 
@@ -173,7 +171,7 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 		r.Get("/configCheck", configCheckHandler(cfg, pool))
 
 		// Public auth routes (no JWT required)
-		r.Mount("/auth", authHandler.Routes())
+		r.Mount("/auth", auth.Routes(authHandler))
 
 		// Webhook routes (signature auth, no JWT)
 		r.Get("/marketing/omnichannel/webhooks/facebook", marketingHandler.FacebookVerify)
@@ -183,7 +181,7 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 		// Cron routes (bearer CRON_SECRET)
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.CronAuth(cfg.CronSecret))
-			r.Mount("/sync", syncHandler.Routes())
+			r.Mount("/sync", syncpkg.Routes(syncHandler))
 		})
 
 		// Authenticated routes (JWT auth)
@@ -191,21 +189,21 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 			r.Use(jwtAuth.Authenticate)
 
 			// Phase 1
-			r.Mount("/admin", adminHandler.Routes())
-			r.Mount("/profile", profileHandler.Routes())
-			r.Mount("/rbac", rbacHandler.Routes())
+			r.Mount("/admin", admin.Routes(adminHandler))
+			r.Mount("/profile", profile.Routes(profileHandler))
+			r.Mount("/rbac", rbac.Routes(rbacHandler))
 
-			r.Mount("/hr", hrHandler.Routes())
-			r.Mount("/bc", bcHandler.Routes())
-			r.Mount("/sales", salesHandler.Routes())
-			r.Mount("/finance", financeHandler.Routes())
-			r.Mount("/marketing", marketingHandler.Routes())
-			r.Mount("/tms", tmsHandler.Routes())
-			r.Mount("/warehouse", warehouseHandler.Routes())
-			r.Mount("/production", productionHandler.Routes())
-			r.Mount("/chat", chatHandler.Routes())
-			r.Mount("/it", itHandler.Routes())
-			r.Mount("/bci", bciHandler.Routes())
+			r.Mount("/hr", hr.Routes(hrHandler))
+			r.Mount("/bc", bc.Routes(bcHandler))
+			r.Mount("/sales", sales.Routes(salesHandler))
+			r.Mount("/finance", finance.Routes(financeHandler))
+			r.Mount("/marketing", marketing.Routes(marketingHandler))
+			r.Mount("/tms", tms.Routes(tmsHandler))
+			r.Mount("/warehouse", warehouse.Routes(warehouseHandler))
+			r.Mount("/production", production.Routes(productionHandler))
+			r.Mount("/chat", chat.Routes(chatHandler))
+			r.Mount("/it", it.Routes(itHandler))
+			r.Mount("/bci", bci.Routes(bciHandler))
 		})
 	})
 

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import StockItemsClient from "@/modules/marketing/StockItemsClient";
+import StockItemsClient from "@/modules/marketing/stockItemsClient";
 
 export default async function StockItemsPage() {
   const [stockItems, productInfo, promotions] = await Promise.all([

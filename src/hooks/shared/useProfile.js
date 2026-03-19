@@ -1,34 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { get, put } from "@/lib/apiClient";
 
 export function useProfile() {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data: profile, isLoading: loading } = useSWR("/api/profile", (url) => get(url), {
+    onError: () => toast.error("โหลดข้อมูลโปรไฟล์ล้มเหลว"),
+  });
+
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
   const [changing, setChanging] = useState(false);
-
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      const data = await get("/api/profile");
-      setProfile(data);
-    } catch (error) {
-      toast.error("โหลดข้อมูลโปรไฟล์ล้มเหลว");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChangePassword = async () => {
     if (!passwordForm.currentPassword || !passwordForm.newPassword) {

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import TrialBalanceClient from "@/modules/finance/TrialBalanceClient";
+import TrialBalanceClient from "@/modules/finance/trialBalanceClient";
 
 export default async function TrialBalancePage() {
   const data = await api("/api/finance/trialBalance");

@@ -1,4 +1,4 @@
-import QuotationEditorClient from "@/modules/sales/QuotationEditorClient";
+import QuotationEditorClient from "@/modules/sales/quotationEditorClient";
 
 export default function QuotationEditorPage() {
   return <QuotationEditorClient />;

@@ -1,40 +1,30 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import useSWR from "swr";
 import { get, post, del } from "@/lib/apiClient";
 import { supabase } from "@/lib/supabase/client";
 
 export function usePin() {
-  const [pinEnabled, setPinEnabled] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const checkPinStatus = useCallback(async () => {
-    try {
-      const data = await get("/api/auth/pin");
-      setPinEnabled(data.pinEnabled);
-    } catch {
-      setPinEnabled(false);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    checkPinStatus();
-  }, [checkPinStatus]);
+  const { data, isLoading: loading, mutate } = useSWR(
+    "/api/auth/pin",
+    (url) => get(url),
+    { onError: () => {} },
+  );
+  const pinEnabled = data?.pinEnabled ?? false;
+  const checkPinStatus = mutate;
 
   const setupPin = async (pin) => {
-    const data = await post("/api/auth/pin", { pin });
-    if (data.error) throw new Error(data.error);
-    setPinEnabled(true);
-    return data;
+    const result = await post("/api/auth/pin", { pin });
+    if (result.error) throw new Error(result.error);
+    mutate({ pinEnabled: true }, { revalidate: false });
+    return result;
   };
 
   const removePin = async () => {
-    const data = await del("/api/auth/pin");
-    if (data.error) throw new Error(data.error);
-    setPinEnabled(false);
-    return data;
+    const result = await del("/api/auth/pin");
+    if (result.error) throw new Error(result.error);
+    mutate({ pinEnabled: false }, { revalidate: false });
+    return result;
   };
 
   const verifyPin = async (email, pin) => {
@@ -44,15 +34,14 @@ export function usePin() {
       body: JSON.stringify({ email, pin }),
     });
 
-    const data = await res.json();
+    const result = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || "การยืนยันล้มเหลว");
+      throw new Error(result.error || "การยืนยันล้มเหลว");
     }
 
-
     const { error } = await supabase.auth.verifyOtp({
-      token_hash: data.token_hash,
+      token_hash: result.token_hash,
       type: "magiclink",
     });
 

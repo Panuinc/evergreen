@@ -3,36 +3,23 @@ package bc
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/pkg/response"
 )
 
 // Handler serves BC data read endpoints.
 type Handler struct {
-	pool *pgxpool.Pool
+	store *Store
 }
 
 // NewHandler creates a new BC data handler.
 func NewHandler(pool *pgxpool.Pool) *Handler {
-	return &Handler{pool: pool}
-}
-
-// Routes returns BC data routes.
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Get("/customers", h.ListCustomers)
-	r.Get("/items", h.ListItems)
-	r.Get("/salesOrders", h.ListSalesOrders)
-	r.Get("/production", h.ListProduction)
-	r.Get("/productionOrders", h.ListProductionOrders)
-	return r
+	return &Handler{store: NewStore(pool)}
 }
 
 func (h *Handler) ListCustomers(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `SELECT * FROM "bcCustomer" ORDER BY "bcCustomerNo"`)
+	data, err := h.store.ListCustomers(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -41,9 +28,7 @@ func (h *Handler) ListCustomers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ListItems(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcItem" ORDER BY "bcItemNo"
-	`)
+	data, err := h.store.ListItems(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -52,9 +37,7 @@ func (h *Handler) ListItems(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ListSalesOrders(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcSalesOrder" ORDER BY "bcSalesOrderNoValue" DESC
-	`)
+	data, err := h.store.ListSalesOrders(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -63,9 +46,7 @@ func (h *Handler) ListSalesOrders(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ListProduction(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcItemLedgerEntry" ORDER BY "bcItemLedgerEntryEntryNo" DESC LIMIT 1000
-	`)
+	data, err := h.store.ListProduction(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -74,9 +55,7 @@ func (h *Handler) ListProduction(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ListProductionOrders(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcProductionOrder" ORDER BY "bcProductionOrderNo" DESC
-	`)
+	data, err := h.store.ListProductionOrders(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return

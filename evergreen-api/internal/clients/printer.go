@@ -1,4 +1,4 @@
-package external
+package clients
 
 import (
 	"encoding/base64"

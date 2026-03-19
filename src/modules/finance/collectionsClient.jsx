@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
+import useSWR from "swr";
 import { get, post, authFetch } from "@/lib/apiClient";
 import CollectionsView from "@/modules/finance/components/collectionsView";
 
@@ -27,10 +28,16 @@ const initialForm = {
   nextFollowUpDate: "",
 };
 
+const fetcher = (url) => get(url);
+
 export default function CollectionsClient() {
-  const [arData, setArData] = useState([]);
-  const [followUps, setFollowUps] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: arRaw, isLoading: arLoading, mutate: mutateAr } = useSWR("/api/finance/agedReceivables", fetcher);
+  const { data: fuRaw, isLoading: fuLoading, mutate: mutateFu } = useSWR("/api/finance/collections", fetcher);
+
+  const arData = arRaw || [];
+  const followUps = fuRaw || [];
+  const loading = arLoading || fuLoading;
+
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [form, setForm] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
@@ -43,21 +50,6 @@ export default function CollectionsClient() {
     return bkDate.slice(0, 7) + "-01";
   });
   const [reportUntil, setReportUntil] = useState(() => new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" }));
-
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [ar, fu] = await Promise.all([get("/api/finance/agedReceivables"), get("/api/finance/collections")]);
-      setArData(ar || []);
-      setFollowUps(fu || []);
-    } catch (err) {
-      console.error("Error loading collections data:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { loadData(); }, [loadData]);
 
   const mergedData = useMemo(() => {
     const fuByCustomer = {};
@@ -179,13 +171,13 @@ export default function CollectionsClient() {
     if (!form.reason || !selectedCustomer) return;
     setSubmitting(true);
     try {
-      const result = await post("/api/finance/collections", {
+      await post("/api/finance/collections", {
         customerNumber: selectedCustomer.customerNumber,
         customerName: selectedCustomer.name,
         ...form,
         promiseAmount: form.promiseAmount ? Number(form.promiseAmount) : null,
       });
-      setFollowUps((prev) => [result, ...prev]);
+      mutateFu();
       addModal.onClose();
     } catch (err) {
       console.error("Error creating follow-up:", err);
@@ -300,7 +292,7 @@ export default function CollectionsClient() {
       reportUntil={reportUntil}
       onReportUntilChange={setReportUntil}
       reportData={reportData}
-      onReload={loadData}
+      onReload={() => { mutateAr(); mutateFu(); }}
       followUps={followUps}
       aiAnalysis={aiAnalysis}
       aiLoading={aiLoading}

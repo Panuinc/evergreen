@@ -1,34 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDisclosure } from "@heroui/react";
+import useSWR from "swr";
 import { get } from "@/lib/apiClient";
 import SalesOrderDetailView from "@/modules/marketing/components/salesOrderDetailView";
+
+const fetcher = (url) => get(url);
 
 export default function SalesOrderDetailClient() {
   const { no } = useParams();
   const router = useRouter();
-
-  const [order, setOrder] = useState(null);
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [loading, setLoading] = useState(true);
   const labelModal = useDisclosure();
 
-  const loadOrder = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await get(`/api/marketing/salesOrders/${encodeURIComponent(decodeURIComponent(no))}`);
-      setOrder(data.order || null);
-      setCustomerPhone(data.customerPhone || "");
-    } finally {
-      setLoading(false);
-    }
-  }, [no]);
+  const encodedNo = encodeURIComponent(decodeURIComponent(no));
+  const { data, isLoading: loading } = useSWR(`/api/marketing/salesOrders/${encodedNo}`, fetcher);
 
-  useEffect(() => {
-    loadOrder();
-  }, [loadOrder]);
+  const order = data?.order || null;
+  const customerPhone = data?.customerPhone || "";
 
   return (
     <SalesOrderDetailView
@@ -40,3 +29,4 @@ export default function SalesOrderDetailClient() {
     />
   );
 }
+

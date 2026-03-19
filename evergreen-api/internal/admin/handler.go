@@ -4,28 +4,20 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/external"
-	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/internal/clients"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	db   *pgxpool.Pool
-	auth *external.SupabaseAuth
+	store *Store
+	auth  *clients.SupabaseAuth
 }
 
-func New(db *pgxpool.Pool, supaAuth *external.SupabaseAuth) *Handler {
-	return &Handler{db: db, auth: supaAuth}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Post("/createUser", h.CreateUser)
-	r.Post("/resetPassword", h.ResetPassword)
-	return r
+func New(db *pgxpool.Pool, supaAuth *clients.SupabaseAuth) *Handler {
+	return &Handler{store: NewStore(db), auth: supaAuth}
 }
 
 // hasPermission checks if user has a specific permission or is superadmin.
@@ -34,17 +26,14 @@ func (h *Handler) hasPermission(r *http.Request, perm string) bool {
 		return true
 	}
 	userID := middleware.UserID(r.Context())
-	rows, err := h.db.Query(r.Context(), `SELECT * FROM get_user_permissions($1)`, userID)
+	permissions, err := h.store.GetUserPermissions(r.Context(), userID)
 	if err != nil {
 		return false
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var resourceName, actionName string
-		var isSuperadmin bool
-		if err := rows.Scan(&resourceName, &actionName, &isSuperadmin); err != nil {
-			continue
-		}
+	for _, p := range permissions {
+		resourceName, _ := p[0].(string)
+		actionName, _ := p[1].(string)
+		isSuperadmin, _ := p[2].(bool)
 		if isSuperadmin || resourceName+":"+actionName == perm {
 			return true
 		}
@@ -89,21 +78,13 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	result := map[string]any{"user": user}
 
 	// Create rbacUserProfile
-	_, err = h.db.Exec(r.Context(), `
-		INSERT INTO "rbacUserProfile" ("rbacUserProfileId", "rbacUserProfileEmail")
-		VALUES ($1, $2)
-	`, userID, email)
-	if err != nil {
+	if err := h.store.CreateUserProfile(r.Context(), userID, email); err != nil {
 		result["warning"] = "สร้างผู้ใช้สำเร็จ แต่ไม่สามารถสร้างโปรไฟล์ได้: " + err.Error()
 	}
 
 	// Link to employee if provided
 	if body.EmployeeID != "" {
-		_, err = h.db.Exec(r.Context(), `
-			UPDATE "hrEmployee" SET "hrEmployeeUserId" = $1
-			WHERE "hrEmployeeId" = $2
-		`, userID, body.EmployeeID)
-		if err != nil {
+		if err := h.store.LinkEmployeeToUser(r.Context(), userID, body.EmployeeID); err != nil {
 			result["warning"] = "สร้างผู้ใช้สำเร็จ แต่ไม่สามารถเชื่อมต่อพนักงานได้: " + err.Error()
 		}
 	}

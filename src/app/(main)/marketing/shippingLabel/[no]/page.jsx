@@ -1,4 +1,4 @@
-import ShippingLabelClient from "@/modules/marketing/ShippingLabelClient";
+import ShippingLabelClient from "@/modules/marketing/shippingLabelClient";
 
 export default async function ShippingLabelPage({ params }) {
   const { no } = await params;

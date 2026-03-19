@@ -4,6 +4,12 @@ const nextConfig = {
   reactCompiler: true,
   cacheComponents: true,
   transpilePackages: ["@heroui/react"],
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**" },
+      { protocol: "http", hostname: "**" },
+    ],
+  },
   experimental: {
     optimizePackageImports: ["@heroui/react", "lucide-react"],
   },

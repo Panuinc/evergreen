@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
+import useSWR from "swr";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { get, post, authFetch } from "@/lib/apiClient";
@@ -8,9 +9,6 @@ import { validateForm, isRequired, isValidLatitude, isValidLongitude } from "@/l
 import TrackingView from "@/modules/tms/components/trackingView";
 
 export default function TrackingClient() {
-  const [positions, setPositions] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
@@ -82,42 +80,31 @@ export default function TrackingClient() {
     return Object.values(merged);
   }, []);
 
-  const loadData = useCallback(async () => {
+  const trackingFetcher = useCallback(async () => {
     try {
-      setLoading(true);
       const [posData, vehData, ftData] = await Promise.all([
         get("/api/tms/gpsLogs/latest"),
         get("/api/tms/vehicles"),
         authFetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
       ]);
-      setVehicles(vehData);
-      setPositions(mergeForthTrack(posData, vehData, Array.isArray(ftData) ? ftData : []));
+      return {
+        vehicles: vehData,
+        positions: mergeForthTrack(posData, vehData, Array.isArray(ftData) ? ftData : []),
+      };
     } catch {
       toast.error("โหลดข้อมูล GPS ล้มเหลว");
-    } finally {
-      setLoading(false);
+      return { vehicles: [], positions: [] };
     }
   }, [mergeForthTrack]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  const { data: trackingData, isLoading: loading, mutate: loadData } = useSWR(
+    "tracking-positions",
+    trackingFetcher,
+    { refreshInterval: 30000 },
+  );
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const [posData, ftData] = await Promise.all([
-          get("/api/tms/gpsLogs/latest"),
-          authFetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
-        ]);
-        setVehicles((prev) => {
-          setPositions(mergeForthTrack(posData, prev, Array.isArray(ftData) ? ftData : []));
-          return prev;
-        });
-      } catch {}
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [mergeForthTrack]);
+  const vehicles = trackingData?.vehicles || [];
+  const positions = trackingData?.positions || [];
 
   const handleOpenManualUpdate = (vehicle = null) => {
     setSelectedVehicle(vehicle);

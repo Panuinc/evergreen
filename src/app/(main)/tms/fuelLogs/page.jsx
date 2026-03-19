@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import FuelLogsClient from "@/modules/tms/FuelLogsClient";
+import FuelLogsClient from "@/modules/tms/fuelLogsClient";
 
 export default async function FuelLogsPage() {
   const [fuelLogs, vehicles] = await Promise.all([

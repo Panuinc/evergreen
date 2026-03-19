@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { get, post, put, del, authFetch } from "@/lib/apiClient";
 import { companyHq } from "@/lib/tmsConstants";
 import ShipmentsView from "@/modules/tms/components/shipmentsView";
@@ -90,10 +91,16 @@ function ShipmentsInner() {
   const searchParams = useSearchParams();
   const fromPlanId = searchParams.get("planId") || null;
 
-  const [shipments, setShipments] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const fetcher = (url) => get(url);
+  const { data: shipmentsData, isLoading: shipmentsLoading, mutate: mutateShipments } = useSWR("/api/tms/shipments", fetcher);
+  const { data: vehiclesData, isLoading: vehiclesLoading } = useSWR("/api/tms/vehicles", fetcher);
+  const { data: employeesData, isLoading: employeesLoading } = useSWR("/api/hr/employees", fetcher);
+
+  const shipments = shipmentsData || [];
+  const vehicles = vehiclesData || [];
+  const employees = employeesData || [];
+  const loading = shipmentsLoading || vehiclesLoading || employeesLoading;
+
   const [saving, setSaving] = useState(false);
   const [editingShipment, setEditingShipment] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
@@ -119,11 +126,6 @@ function ShipmentsInner() {
   const [routeResult, setRouteResult] = useState(null);
   const [routeAiAnalysis, setRouteAiAnalysis] = useState("");
   const [routeLoading, setRouteLoading] = useState(false);
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
 
   const fetchDistance = useCallback(async (destination) => {
     if (!destination || destination.trim().length < 5) return;
@@ -352,43 +354,27 @@ function ShipmentsInner() {
   };
 
 
-  useEffect(() => {
-    if (!fromPlanId) return;
-    get(`/api/tms/deliveryPlans/${fromPlanId}`)
-      .then((plan) => {
-        if (!plan) return;
-        const filled = fillFormFromPlan(plan);
-        filled.tmsShipmentFuelPricePerLiter = String(defaultFuelPrice);
-        setFormData(filled);
-        setShipmentItems(buildPlanItems(plan));
-        if (filled.tmsShipmentDestination) {
-          fetchDistance(filled.tmsShipmentDestination);
-        }
-        setSelectedPlanIds([String(fromPlanId)]);
-        setEditingShipment(null);
-        onOpen();
-      })
-      .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fromPlanId]);
+  const fromPlanInitialized = useRef(false);
+  const { data: fromPlanPrefill } = useSWR(
+    fromPlanId ? `/api/tms/deliveryPlans/${fromPlanId}` : null,
+    (url) => get(url),
+    { revalidateOnFocus: false, revalidateOnReconnect: false },
+  );
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [shipData, vehData, empData] = await Promise.all([
-        get("/api/tms/shipments"),
-        get("/api/tms/vehicles"),
-        get("/api/hr/employees"),
-      ]);
-      setShipments(shipData);
-      setVehicles(vehData);
-      setEmployees(empData || []);
-    } catch {
-      toast.error("โหลดข้อมูลล้มเหลว");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!fromPlanPrefill || fromPlanInitialized.current) return;
+    fromPlanInitialized.current = true;
+    const filled = fillFormFromPlan(fromPlanPrefill);
+    filled.tmsShipmentFuelPricePerLiter = String(defaultFuelPrice);
+    setFormData(filled);
+    setShipmentItems(buildPlanItems(fromPlanPrefill));
+    if (filled.tmsShipmentDestination) {
+      fetchDistance(filled.tmsShipmentDestination);
     }
-  };
+    setSelectedPlanIds([String(fromPlanId)]);
+    setEditingShipment(null);
+    onOpen();
+  }, [fromPlanPrefill, fromPlanId, onOpen]);
 
   const handleOpen = (shipment = null) => {
     if (shipment) {
@@ -519,7 +505,7 @@ function ShipmentsInner() {
         }
       }
       onClose();
-      loadData();
+      mutateShipments();
     } catch (error) {
       toast.error(error.message || "บันทึกการจัดส่งล้มเหลว");
     } finally {
@@ -531,7 +517,7 @@ function ShipmentsInner() {
     try {
       await put(`/api/tms/shipments/${shipmentId}/status`, { tmsShipmentStatus: newStatus });
       toast.success("อัปเดตสถานะการจัดส่งสำเร็จ");
-      loadData();
+      mutateShipments();
     } catch (error) {
       toast.error(error.message || "อัปเดตสถานะล้มเหลว");
     }
@@ -549,7 +535,7 @@ function ShipmentsInner() {
       toast.success("ลบการจัดส่งสำเร็จ");
       deleteModal.onClose();
       setDeletingShipment(null);
-      loadData();
+      mutateShipments();
     } catch (error) {
       toast.error(error.message || "ลบการจัดส่งล้มเหลว");
     }
@@ -559,7 +545,7 @@ function ShipmentsInner() {
     try {
       await put(`/api/tms/shipments/${item.tmsShipmentId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
-      loadData();
+      mutateShipments();
     } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }

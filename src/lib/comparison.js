@@ -69,7 +69,7 @@ export function groupByMonth(arr, dateField) {
 
 export function getFinancePeriodRanges(periodType, periodValue) {
   const { year } = periodValue;
-  const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  const thaiMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   const pad = (n) => String(n).padStart(2, "0");
   const be = (y) => String((y + 543) % 100).padStart(2, "0");
 
@@ -118,12 +118,12 @@ export function getFinancePeriodRanges(periodType, periodValue) {
     current: {
       start: `${year}-${pad(m)}-01`,
       end: `${year}-${pad(m)}-${pad(lastDay)}`,
-      label: `${THAI_MONTHS_SHORT[m - 1]} ${be(year)}`,
+      label: `${thaiMonthsShort[m - 1]} ${be(year)}`,
     },
     previous: {
       start: `${year - 1}-${pad(m)}-01`,
       end: `${year - 1}-${pad(m)}-${pad(prevLastDay)}`,
-      label: `${THAI_MONTHS_SHORT[m - 1]} ${be(year - 1)}`,
+      label: `${thaiMonthsShort[m - 1]} ${be(year - 1)}`,
     },
   };
 }

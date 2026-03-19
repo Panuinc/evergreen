@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"golang.org/x/crypto/bcrypt"
 
-	"github.com/evergreen/api/internal/external"
-	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/internal/clients"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
+	"github.com/evergreen/api/pkg/security"
 )
 
 var pinRegex = regexp.MustCompile(`^\d{6}$`)
@@ -19,31 +18,13 @@ var pinRegex = regexp.MustCompile(`^\d{6}$`)
 const maxPINAttempts = 5
 
 type Handler struct {
-	db       *pgxpool.Pool
-	auth     *external.SupabaseAuth
-	jwtAuth  *middleware.Auth
+	store   *Store
+	auth    *clients.SupabaseAuth
+	jwtAuth *middleware.Auth
 }
 
-func New(db *pgxpool.Pool, supaAuth *external.SupabaseAuth, jwtAuth *middleware.Auth) *Handler {
-	return &Handler{db: db, auth: supaAuth, jwtAuth: jwtAuth}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-	// Public routes (no JWT auth)
-	r.Post("/login", h.Login)
-	r.Post("/refresh", h.Refresh)
-	r.Post("/verify", h.Verify)
-
-	// PIN routes - pin/verify is public, pin GET/POST/DELETE need auth
-	r.Post("/pin/verify", h.PINVerify)
-	r.Group(func(r chi.Router) {
-		r.Use(h.jwtAuth.Authenticate)
-		r.Get("/pin", h.PINStatus)
-		r.Post("/pin", h.PINSet)
-		r.Delete("/pin", h.PINDelete)
-	})
-	return r
+func New(db *pgxpool.Pool, supaAuth *clients.SupabaseAuth, jwtAuth *middleware.Auth) *Handler {
+	return &Handler{store: NewStore(db), auth: supaAuth, jwtAuth: jwtAuth}
 }
 
 // Login handles POST /api/auth/login
@@ -72,11 +53,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if user != nil {
 		userID, _ := user["id"].(string)
 		if userID != "" {
-			var isActive *bool
-			_ = h.db.QueryRow(r.Context(), `
-				SELECT "isActive" FROM "rbacUserProfile"
-				WHERE "rbacUserProfileId" = $1
-			`, userID).Scan(&isActive)
+			isActive, _ := h.store.GetUserIsActive(r.Context(), userID)
 			if isActive != nil && !*isActive {
 				response.Forbidden(w, "บัญชีถูกปิดใช้งาน")
 				return
@@ -165,7 +142,7 @@ func (h *Handler) PINSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(body.PIN), 10)
+	hashStr, err := security.HashPassword(body.PIN)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -173,7 +150,7 @@ func (h *Handler) PINSet(w http.ResponseWriter, r *http.Request) {
 
 	_, err = h.auth.AdminUpdateUser(userID, map[string]any{
 		"app_metadata": map[string]any{
-			"pinHash":           string(hash),
+			"pinHash":           hashStr,
 			"pinFailedAttempts": 0,
 			"pinLockedUntil":    nil,
 		},
@@ -256,7 +233,7 @@ func (h *Handler) PINVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify PIN
-	if err := bcrypt.CompareHashAndPassword([]byte(pinHash), []byte(body.PIN)); err != nil {
+	if err := security.CheckPassword(pinHash, body.PIN); err != nil {
 		// Failed attempt
 		attempts, _ := meta["pinFailedAttempts"].(float64)
 		attempts++

@@ -9,62 +9,17 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
 )
 
+
 type Handler struct {
-	pool *pgxpool.Pool
+	store *Store
 }
 
 func New(pool *pgxpool.Pool) *Handler {
-	return &Handler{pool: pool}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-
-	r.Get("/inventory", h.ListInventory)
-
-	r.Route("/orders", func(r chi.Router) {
-		r.Get("/", h.ListOrders)
-		r.Route("/{no}", func(r chi.Router) {
-			r.Post("/match", h.CreateOrderMatch)
-		})
-	})
-
-	r.Route("/sessions", func(r chi.Router) {
-		r.Get("/", h.ListSessions)
-		r.Post("/", h.CreateSession)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetSession)
-			r.Put("/", h.UpdateSession)
-			r.Get("/records", h.ListSessionRecords)
-			r.Post("/records", h.CreateSessionRecords)
-		})
-	})
-
-	r.Route("/transfers", func(r chi.Router) {
-		r.Get("/", h.ListTransfers)
-		r.Post("/", h.CreateTransfer)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetTransfer)
-			r.Put("/", h.UpdateTransfer)
-		})
-	})
-
-	r.Route("/rfid", func(r chi.Router) {
-		r.Post("/decode", h.RfidDecode)
-		r.Post("/assign", h.RfidAssign)
-		r.Delete("/assign", h.RfidUnassign)
-	})
-
-	r.Post("/print", h.Print)
-	r.Get("/dashboard", h.Dashboard)
-	r.Get("/app-version", h.AppVersion)
-
-	return r
+	return &Handler{store: NewStore(pool)}
 }
 
 // ---- Inventory ----
@@ -72,24 +27,7 @@ func (h *Handler) Routes() chi.Router {
 func (h *Handler) ListInventory(w http.ResponseWriter, r *http.Request) {
 	group := r.URL.Query().Get("group")
 	category := r.URL.Query().Get("category")
-
-	q := `SELECT * FROM "bcItem" WHERE ("bcItemBlocked" IS NULL OR "bcItemBlocked" != 'true') AND "bcItemInventory" > 0`
-	args := []any{}
-	argIdx := 1
-
-	if group != "" {
-		q += fmt.Sprintf(` AND "bcItemItemCategoryCode" = $%d`, argIdx)
-		args = append(args, group)
-		argIdx++
-	}
-	if category != "" {
-		q += fmt.Sprintf(` AND "bcItemGenProdPostingGroup" = $%d`, argIdx)
-		args = append(args, category)
-		argIdx++
-	}
-	q += ` ORDER BY "bcItemNo"`
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListInventory(r.Context(), group, category)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -100,9 +38,7 @@ func (h *Handler) ListInventory(w http.ResponseWriter, r *http.Request) {
 // ---- Orders ----
 
 func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcSalesOrder" ORDER BY "bcSalesOrderNoValue" DESC
-	`)
+	data, err := h.store.ListOrders(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -117,11 +53,7 @@ func (h *Handler) CreateOrderMatch(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	body["whOrderMatchOrderNo"] = no
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "whOrderMatch" ("whOrderMatchOrderNo", "whOrderMatchItemNo", "whOrderMatchQuantity", "whOrderMatchCreatedBy")
-		VALUES ($1, $2, $3, $4) RETURNING *
-	`, no, body["whOrderMatchItemNo"], body["whOrderMatchQuantity"], middleware.UserID(r.Context()))
+	data, err := h.store.CreateOrderMatch(r.Context(), no, body["whOrderMatchItemNo"], body["whOrderMatchQuantity"], middleware.UserID(r.Context()))
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -133,11 +65,7 @@ func (h *Handler) CreateOrderMatch(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ListSessions(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.UserID(r.Context())
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "whScanSession"
-		WHERE "whScanSessionUserId" = $1
-		ORDER BY "whScanSessionStartedAt" DESC
-	`, userID)
+	data, err := h.store.ListSessions(r.Context(), userID)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -152,10 +80,7 @@ func (h *Handler) CreateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userID := middleware.UserID(r.Context())
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "whScanSession" ("whScanSessionType", "whScanSessionStatus", "whScanSessionCreatedBy")
-		VALUES ($1, $2, $3) RETURNING *
-	`, body["whScanSessionType"], body["whScanSessionStatus"], userID)
+	data, err := h.store.CreateSession(r.Context(), body["whScanSessionType"], body["whScanSessionStatus"], userID)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -165,7 +90,7 @@ func (h *Handler) CreateSession(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetSession(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	data, err := db.QueryRow(r.Context(), h.pool, `SELECT * FROM "whScanSession" WHERE "whScanSessionId" = $1`, id)
+	data, err := h.store.GetSession(r.Context(), id)
 	if err != nil {
 		response.NotFound(w, "ไม่พบ Session")
 		return
@@ -180,11 +105,7 @@ func (h *Handler) UpdateSession(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "whScanSession" SET
-			"whScanSessionStatus" = COALESCE($2, "whScanSessionStatus")
-		WHERE "whScanSessionId" = $1 RETURNING *
-	`, id, body["whScanSessionStatus"])
+	data, err := h.store.UpdateSession(r.Context(), id, body["whScanSessionStatus"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -194,11 +115,7 @@ func (h *Handler) UpdateSession(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ListSessionRecords(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "whScanRecord"
-		WHERE "whScanRecordSessionId" = $1
-		ORDER BY "whScanRecordCreatedAt" DESC
-	`, id)
+	data, err := h.store.ListSessionRecords(r.Context(), id)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -218,10 +135,7 @@ func (h *Handler) CreateSessionRecords(w http.ResponseWriter, r *http.Request) {
 
 	var results []map[string]any
 	for _, rec := range body.Records {
-		data, err := db.QueryRow(r.Context(), h.pool, `
-			INSERT INTO "whScanRecord" ("whScanRecordSessionId", "whScanRecordBarcode", "whScanRecordItemNo", "whScanRecordQuantity")
-			VALUES ($1, $2, $3, $4) RETURNING *
-		`, id, rec["whScanRecordBarcode"], rec["whScanRecordItemNo"], rec["whScanRecordQuantity"])
+		data, err := h.store.CreateScanRecord(r.Context(), id, rec["whScanRecordBarcode"], rec["whScanRecordItemNo"], rec["whScanRecordQuantity"])
 		if err != nil {
 			response.Error(w, http.StatusBadRequest, err.Error())
 			return
@@ -238,11 +152,7 @@ func (h *Handler) CreateSessionRecords(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ListTransfers(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.UserID(r.Context())
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "whTransfer"
-		WHERE "whTransferUserId" = $1
-		ORDER BY "whTransferCreatedAt" DESC
-	`, userID)
+	data, err := h.store.ListTransfers(r.Context(), userID)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -261,9 +171,7 @@ func (h *Handler) CreateTransfer(w http.ResponseWriter, r *http.Request) {
 	// Auto-generate transfer number: TRF-YYYYMMDD-####
 	today := time.Now().Format("20060102")
 	prefix := "TRF-" + today + "-"
-	countRow, err := db.QueryRow(r.Context(), h.pool, `
-		SELECT COUNT(*) as cnt FROM "whTransfer" WHERE "whTransferNumber" LIKE $1
-	`, prefix+"%")
+	countRow, err := h.store.CountTransfersByPrefix(r.Context(), prefix)
 	seq := 1
 	if err == nil {
 		if cnt, ok := countRow["cnt"].(int64); ok {
@@ -272,10 +180,7 @@ func (h *Handler) CreateTransfer(w http.ResponseWriter, r *http.Request) {
 	}
 	number := fmt.Sprintf("%s%04d", prefix, seq)
 
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "whTransfer" ("whTransferNumber", "whTransferFromLocation", "whTransferToLocation", "whTransferStatus", "whTransferCreatedBy")
-		VALUES ($1, $2, $3, $4, $5) RETURNING *
-	`, number, body["whTransferFromLocation"], body["whTransferToLocation"], body["whTransferStatus"], userID)
+	data, err := h.store.CreateTransfer(r.Context(), number, body["whTransferFromLocation"], body["whTransferToLocation"], body["whTransferStatus"], userID)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -285,7 +190,7 @@ func (h *Handler) CreateTransfer(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetTransfer(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	data, err := db.QueryRow(r.Context(), h.pool, `SELECT * FROM "whTransfer" WHERE "whTransferId" = $1`, id)
+	data, err := h.store.GetTransfer(r.Context(), id)
 	if err != nil {
 		response.NotFound(w, "ไม่พบ Transfer")
 		return
@@ -300,13 +205,7 @@ func (h *Handler) UpdateTransfer(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "whTransfer" SET
-			"whTransferFromLocation" = COALESCE($2, "whTransferFromLocation"),
-			"whTransferToLocation" = COALESCE($3, "whTransferToLocation"),
-			"whTransferStatus" = COALESCE($4, "whTransferStatus")
-		WHERE "whTransferId" = $1 RETURNING *
-	`, id, body["whTransferFromLocation"], body["whTransferToLocation"], body["whTransferStatus"])
+	data, err := h.store.UpdateTransfer(r.Context(), id, body["whTransferFromLocation"], body["whTransferToLocation"], body["whTransferStatus"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -336,9 +235,7 @@ func (h *Handler) RfidDecode(w http.ResponseWriter, r *http.Request) {
 
 	// Try to find item by rfidCode
 	// Simple approach: look up bcItem by rfidCode matching part of EPC
-	items, _ := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcItem" WHERE "bcItemRfidCode" IS NOT NULL
-	`)
+	items, _ := h.store.GetItemsWithRfidCode(r.Context())
 
 	var matched map[string]any
 	for _, item := range items {
@@ -359,10 +256,7 @@ func (h *Handler) RfidAssign(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "whRfidTag" ("whRfidTagCode", "whRfidTagItemNo", "whRfidTagAssignedBy")
-		VALUES ($1, $2, $3) RETURNING *
-	`, body["whRfidTagCode"], body["whRfidTagItemNo"], middleware.UserID(r.Context()))
+	data, err := h.store.RfidAssign(r.Context(), body["whRfidTagCode"], body["whRfidTagItemNo"], middleware.UserID(r.Context()))
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -376,8 +270,7 @@ func (h *Handler) RfidUnassign(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	_, err := h.pool.Exec(r.Context(), `DELETE FROM "whRfidTag" WHERE "whRfidTagCode" = $1`, body["whRfidTagCode"])
-	if err != nil {
+	if err := h.store.RfidUnassign(r.Context(), body["whRfidTagCode"]); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -402,9 +295,7 @@ func (h *Handler) Print(w http.ResponseWriter, r *http.Request) {
 			response.BadRequest(w, "กรุณาระบุ itemNumber")
 			return
 		}
-		item, err := db.QueryRow(r.Context(), h.pool, `
-			SELECT * FROM "bcItem" WHERE "bcItemNo"=$1
-		`, body.ItemNumber)
+		item, err := h.store.GetItemByNo(r.Context(), body.ItemNumber)
 		if err != nil {
 			response.NotFound(w, "ไม่พบสินค้า")
 			return
@@ -423,8 +314,8 @@ func (h *Handler) Print(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	sessions, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "whScanSession"`)
-	transfers, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "whTransfer"`)
+	sessions, _ := h.store.DashboardSessions(ctx)
+	transfers, _ := h.store.DashboardTransfers(ctx)
 
 	sessionsByStatus := map[string]int{}
 	for _, s := range sessions {
@@ -451,9 +342,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 // ---- App Version ----
 
 func (h *Handler) AppVersion(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		SELECT * FROM "whAppVersion" ORDER BY "whAppVersionCreatedAt" DESC LIMIT 1
-	`)
+	data, err := h.store.GetLatestAppVersion(r.Context())
 	if err != nil {
 		response.NotFound(w, "ไม่พบเวอร์ชัน")
 		return

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { get, put, post } from "@/lib/apiClient";
 import QuotationEditorView from "@/modules/sales/components/quotationEditorView";
 
@@ -20,32 +21,26 @@ export default function QuotationEditorClient() {
   const quotationId = params.id;
   const router = useRouter();
 
+  const fetcher = (url) => get(url);
+  const { data: swrData, isLoading: loading, mutate } = useSWR(
+    quotationId ? `/api/sales/quotations/${quotationId}` : null,
+    fetcher,
+  );
+
   const [quotation, setQuotation] = useState(null);
   const [lines, setLines] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [tax, setTax] = useState(0);
 
   useEffect(() => {
-    if (quotationId) loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quotationId]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const data = await get(`/api/sales/quotations/${quotationId}`);
-      setQuotation(data);
-      setLines(data.lines || []);
-      setDiscount(parseFloat(data.crmQuotationDiscount) || 0);
-      setTax(parseFloat(data.crmQuotationTax) || 0);
-    } catch (error) {
-      toast.error("โหลดใบเสนอราคาล้มเหลว");
-    } finally {
-      setLoading(false);
+    if (swrData) {
+      setQuotation(swrData);
+      setLines(swrData.lines || []);
+      setDiscount(parseFloat(swrData.crmQuotationDiscount) || 0);
+      setTax(parseFloat(swrData.crmQuotationTax) || 0);
     }
-  };
+  }, [swrData]);
 
   const addLine = () => {
     setLines((prev) => [...prev, { ...emptyLine }]);
@@ -96,7 +91,7 @@ export default function QuotationEditorClient() {
         lines,
       });
       toast.success("บันทึกใบเสนอราคาสำเร็จ");
-      loadData();
+      mutate();
     } catch (error) {
       toast.error(error.message || "บันทึกใบเสนอราคาล้มเหลว");
     } finally {
@@ -119,7 +114,7 @@ export default function QuotationEditorClient() {
         convert_order: "สร้างคำสั่งซื้อจากใบเสนอราคาสำเร็จ",
       };
       toast.success(messages[action] || "ดำเนินการสำเร็จ");
-      loadData();
+      mutate();
       return result;
     } catch (error) {
       toast.error(error.message || "ดำเนินการล้มเหลว");

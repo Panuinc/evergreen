@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import RolesClient from "@/modules/rbac/RolesClient";
+import RolesClient from "@/modules/rbac/rolesClient";
 
 export default async function RolesPage() {
   const roles = await api("/api/rbac/roles");

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
+import useSWR from "swr";
 import {
   Card,
   CardBody,
@@ -47,24 +48,20 @@ const initialColumns = [
   "poTotalQty",
 ];
 
-export default function FgCoverageView({ initialData = null }) {
-  const [data, setData] = useState(initialData);
-  const [loading, setLoading] = useState(!initialData);
+const fgFetcher = async (url) => {
+  const res = await authFetch(url);
+  if (!res.ok) throw new Error("Failed to fetch");
+  return res.json();
+};
 
-  useEffect(() => {
-    if (initialData) return;
-    (async () => {
-      try {
-        const res = await authFetch("/api/production/fgCoverage");
-        if (!res.ok) throw new Error("Failed to fetch");
-        setData(await res.json());
-      } catch {
-        toast.error("โหลดข้อมูลสถานะตั๋วผลิตล้มเหลว");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [initialData]);
+export default function FgCoverageView({ initialData = null }) {
+  const { data: swrData, isLoading } = useSWR(
+    initialData ? null : "/api/production/fgCoverage",
+    fgFetcher,
+    { onError: () => toast.error("โหลดข้อมูลสถานะตั๋วผลิตล้มเหลว") },
+  );
+  const data = initialData ?? swrData ?? null;
+  const loading = !initialData && isLoading;
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {

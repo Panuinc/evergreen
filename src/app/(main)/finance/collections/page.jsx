@@ -1,4 +1,4 @@
-import CollectionsClient from "@/modules/finance/CollectionsClient";
+import CollectionsClient from "@/modules/finance/collectionsClient";
 
 export default async function CollectionsPage() {
   // Collections page relies heavily on client-side hooks (useCollections)

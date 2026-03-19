@@ -3,31 +3,17 @@ package production
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	pool *pgxpool.Pool
+	store *Store
 }
 
 func New(pool *pgxpool.Pool) *Handler {
-	return &Handler{pool: pool}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-
-	r.Get("/dashboard", h.Dashboard)
-	r.Get("/cores", h.ListCores)
-	r.Get("/frames", h.ListFrames)
-	r.Get("/fgCoverage", h.FgCoverage)
-	r.Post("/bom/ai", h.BomAi)
-
-	return r
+	return &Handler{store: NewStore(pool)}
 }
 
 // ---- Dashboard ----
@@ -35,7 +21,7 @@ func (h *Handler) Routes() chi.Router {
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	prodOrders, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "bcProductionOrder"`)
+	prodOrders, _ := h.store.GetProductionOrders(ctx)
 
 	byStatus := map[string]int{}
 	for _, po := range prodOrders {
@@ -44,11 +30,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	outputQty, _ := db.QueryRows(ctx, h.pool, `
-		SELECT COALESCE(SUM("bcItemLedgerEntryQuantity"), 0) as "totalOutput"
-		FROM "bcItemLedgerEntry"
-		WHERE "bcItemLedgerEntryEntryType" = 'Output'
-	`)
+	outputQty, _ := h.store.GetOutputQty(ctx)
 
 	totalOutput := 0.0
 	if len(outputQty) > 0 {
@@ -67,12 +49,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 // ---- Cores ----
 
 func (h *Handler) ListCores(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcItem"
-		WHERE "bcItemGenProdPostingGroup" = 'RM'
-			AND ("bcItemNo" LIKE 'RM-16-07%' OR "bcItemNo" LIKE 'RM-16-08%')
-		ORDER BY "bcItemNo"
-	`)
+	data, err := h.store.ListCores(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -83,13 +60,7 @@ func (h *Handler) ListCores(w http.ResponseWriter, r *http.Request) {
 // ---- Frames ----
 
 func (h *Handler) ListFrames(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "bcItem"
-		WHERE "bcItemNo" LIKE 'RM-14-01%'
-			OR "bcItemNo" LIKE 'RM-14-04%'
-			OR "bcItemNo" LIKE 'RM-16-19%'
-		ORDER BY "bcItemNo"
-	`)
+	data, err := h.store.ListFrames(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -100,34 +71,12 @@ func (h *Handler) ListFrames(w http.ResponseWriter, r *http.Request) {
 // ---- FG Coverage ----
 
 func (h *Handler) FgCoverage(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT
-			i."bcItemNo",
-			i."bcItemDescription",
-			i."bcItemInventory",
-			COALESCE(so."totalOrdered", 0) as "totalOrdered",
-			COALESCE(po."totalProduction", 0) as "totalProduction"
-		FROM "bcItem" i
-		LEFT JOIN (
-			SELECT "bcSalesOrderLineNoValue", SUM("bcSalesOrderLineOutstandingQuantity") as "totalOrdered"
-			FROM "bcSalesOrderLine"
-			WHERE "bcSalesOrderLineOutstandingQuantity" > 0
-			GROUP BY "bcSalesOrderLineNoValue"
-		) so ON so."bcSalesOrderLineNoValue" = i."bcItemNo"
-		LEFT JOIN (
-			SELECT "bcProductionOrderSourceNo", SUM("bcProductionOrderQuantity") as "totalProduction"
-			FROM "bcProductionOrder"
-			WHERE "bcProductionOrderStatus" IN ('Planned', 'Firm_x0020_Planned', 'Released')
-			GROUP BY "bcProductionOrderSourceNo"
-		) po ON po."bcProductionOrderSourceNo" = i."bcItemNo"
-		WHERE i."bcItemGenProdPostingGroup" = 'FG'
-		ORDER BY i."bcItemNo"
-	`)
+	data, err := h.store.FgCoverage(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
 	}
-	response.OK(w, data)
+	response.OK(w, map[string]any{"fgCoverage": data})
 }
 
 // ---- BOM AI ----

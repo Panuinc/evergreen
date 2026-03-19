@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import PositionsClient from "@/modules/hr/PositionsClient";
+import PositionsClient from "@/modules/hr/positionsClient";
 
 export default async function PositionsPage() {
   const [positions, departments] = await Promise.all([

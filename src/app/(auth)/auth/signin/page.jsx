@@ -1,9 +1,9 @@
 "use client";
 
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/ui/loading";
 import { useSignIn } from "@/hooks/shared/useSignin";
-import SignInPasswordForm from "@/components/auth/SignInPasswordForm";
-import SignInPinForm from "@/components/auth/SignInPinForm";
+import SignInPasswordForm from "@/components/auth/signInPasswordForm";
+import SignInPinForm from "@/components/auth/signInPinForm";
 
 export default function SignInPage() {
   const {

@@ -1,4 +1,4 @@
-import ComingSoon from "@/components/ui/ComingSoon";
+import ComingSoon from "@/components/ui/comingSoon";
 export default function OperationsPage() {
   return <ComingSoon title="ระบบปฏิบัติการ" />;
 }

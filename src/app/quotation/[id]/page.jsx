@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import QuotationDocument from "./QuotationDocument";
+import QuotationDocument from "./quotationDocument";
 
 function getSupabase() {
   return createClient(

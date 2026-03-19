@@ -1,1 +1,1 @@
-export { useRBAC } from "@/contexts/RBACContext";
+export { useRBAC } from "@/contexts/rbacContext";

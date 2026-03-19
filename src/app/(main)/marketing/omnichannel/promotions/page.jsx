@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import PromotionsClient from "@/modules/marketing/PromotionsClient";
+import PromotionsClient from "@/modules/marketing/promotionsClient";
 
 export default async function PromotionsPage() {
   const [promotions, stockItems] = await Promise.all([

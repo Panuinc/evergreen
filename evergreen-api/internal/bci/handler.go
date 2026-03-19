@@ -2,50 +2,28 @@ package bci
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/xuri/excelize/v2"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/pkg/logger"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	pool *pgxpool.Pool
+	store *Store
 }
 
 func New(pool *pgxpool.Pool) *Handler {
-	return &Handler{pool: pool}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Route("/projects", func(r chi.Router) {
-		r.Get("/", h.ListProjects)
-		r.Post("/", h.CreateProject)
-	})
-	r.Post("/import", h.ImportExcel)
-	return r
+	return &Handler{store: NewStore(pool)}
 }
 
 func (h *Handler) ListProjects(w http.ResponseWriter, r *http.Request) {
 	search := r.URL.Query().Get("search")
-	q := `SELECT * FROM "bciProject" WHERE 1=1`
-	var args []any
-	argIdx := 1
-	if search != "" {
-		q += fmt.Sprintf(` AND ("bciProjectName" ILIKE $%d OR "bciProjectOwnerCompany" ILIKE $%d OR "bciProjectContractorCompany" ILIKE $%d)`, argIdx, argIdx+1, argIdx+2)
-		pattern := "%" + search + "%"
-		args = append(args, pattern, pattern, pattern)
-	}
-	q += ` ORDER BY "bciProjectModifiedDate" DESC NULLS LAST`
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListProjects(r.Context(), search)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -59,17 +37,7 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "bciProject" ("bciProjectName","bciProjectType","bciProjectDescription","bciProjectStreetName",
-			"bciProjectCityOrTown","bciProjectStateProvince","bciProjectRegion","bciProjectCountry",
-			"bciProjectValue","bciProjectCurrency","bciProjectStage","bciProjectStageStatus",
-			"bciProjectCategory","bciProjectSubCategory","bciProjectOwnerCompany")
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *
-	`, body["bciProjectName"], body["bciProjectType"], body["bciProjectDescription"],
-		body["bciProjectStreetName"], body["bciProjectCityOrTown"], body["bciProjectStateProvince"],
-		body["bciProjectRegion"], body["bciProjectCountry"], body["bciProjectValue"],
-		body["bciProjectCurrency"], body["bciProjectStage"], body["bciProjectStageStatus"],
-		body["bciProjectCategory"], body["bciProjectSubCategory"], body["bciProjectOwnerCompany"])
+	data, err := h.store.CreateProject(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -125,7 +93,7 @@ func (h *Handler) ImportExcel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	slog.Info("BCI import started", "filename", header.Filename, "size", header.Size)
+	logger.Info("BCI import started", "filename", header.Filename, "size", header.Size)
 
 	// Read Excel
 	data, _ := io.ReadAll(file)
@@ -148,8 +116,8 @@ func (h *Handler) ImportExcel(w http.ResponseWriter, r *http.Request) {
 	headerRow := rows[0]
 	colMapping := make([]string, len(headerRow)) // index → db column name
 	mapped := 0
-	for i, h := range headerRow {
-		key := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(h), " ", ""))
+	for i, hdr := range headerRow {
+		key := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(hdr), " ", ""))
 		if dbCol, ok := columnMap[key]; ok {
 			colMapping[i] = dbCol
 			mapped++
@@ -185,35 +153,15 @@ func (h *Handler) ImportExcel(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// Build upsert
-		cols := []string{}
-		vals := []any{}
-		placeholders := []string{}
-		updates := []string{}
-		idx := 1
-		for col, val := range record {
-			cols = append(cols, fmt.Sprintf(`"%s"`, col))
-			vals = append(vals, val)
-			placeholders = append(placeholders, fmt.Sprintf("$%d", idx))
-			if col != "bciProjectExternalId" {
-				updates = append(updates, fmt.Sprintf(`"%s"=EXCLUDED."%s"`, col, col))
-			}
-			idx++
-		}
-
-		q := fmt.Sprintf(`INSERT INTO "bciProject" (%s) VALUES (%s) ON CONFLICT ("bciProjectExternalId") DO UPDATE SET %s`,
-			strings.Join(cols, ","), strings.Join(placeholders, ","), strings.Join(updates, ","))
-
-		_, err := h.pool.Exec(ctx, q, vals...)
-		if err != nil {
-			slog.Warn("BCI import row error", "row", rowIdx+1, "error", err)
+		if err := h.store.UpsertProjectRecord(ctx, record); err != nil {
+			logger.Warn("BCI import row error", "row", rowIdx+1, "error", err)
 			errors++
 		} else {
 			imported++
 		}
 	}
 
-	slog.Info("BCI import completed", "imported", imported, "errors", errors, "total", len(rows)-1)
+	logger.Info("BCI import completed", "imported", imported, "errors", errors, "total", len(rows)-1)
 	response.OK(w, map[string]any{
 		"ok":       true,
 		"imported": imported,

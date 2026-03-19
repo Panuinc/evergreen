@@ -1,9 +1,9 @@
 import { getPrinterConfig } from "./printerConfig";
 
-const PRINT_API = "/api/warehouse/print";
+const printApi = "/api/warehouse/print";
 
 async function callPrintApi(body) {
-  const response = await fetch(PRINT_API, {
+  const response = await fetch(printApi, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

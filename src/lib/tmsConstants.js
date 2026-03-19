@@ -1,4 +1,4 @@
-export const COMPANY_HQ = {
+export const companyHq = {
   address:
     "9/1 หมู่ที่ 2 ถนนบางเลน-ลาดหลุมแก้ว ตำบลขุนศรี อำเภอไทรน้อย จ.นนทบุรี 11150",
   lat: 13.9523,

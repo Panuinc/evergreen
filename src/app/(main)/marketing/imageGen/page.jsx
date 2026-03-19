@@ -1,4 +1,4 @@
-import ImageGenClient from "@/modules/marketing/ImageGenClient";
+import ImageGenClient from "@/modules/marketing/imageGenClient";
 
 export default async function ImageGenPage() {
   return <ImageGenClient />;

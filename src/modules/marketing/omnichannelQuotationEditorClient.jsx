@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { get, put, patch } from "@/lib/apiClient";
 import OmnichannelQuotationEditorView from "@/modules/marketing/components/omnichannelQuotationEditorView";
+
+const fetcher = (url) => get(url);
 
 export default function OmnichannelQuotationEditorClient() {
   const { id } = useParams();
@@ -12,25 +15,20 @@ export default function OmnichannelQuotationEditorClient() {
 
   const [quotation, setQuotation] = useState(null);
   const [lines, setLines] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const loadQuotation = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await get(`/api/marketing/omnichannel/quotations/${id}`);
-      setQuotation(data);
-      setLines(data.lines || []);
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const { data: swrData, isLoading: loading, mutate } = useSWR(
+    id ? `/api/marketing/omnichannel/quotations/${id}` : null,
+    fetcher,
+    { onError: (err) => toast.error(err.message) },
+  );
 
   useEffect(() => {
-    loadQuotation();
-  }, [loadQuotation]);
+    if (swrData) {
+      setQuotation(swrData);
+      setLines(swrData.lines || []);
+    }
+  }, [swrData]);
 
   const updateLine = (index, field, value) => {
     setLines((prev) =>
@@ -59,7 +57,7 @@ export default function OmnichannelQuotationEditorClient() {
         })),
       });
       toast.success("บันทึกเรียบร้อย");
-      await loadQuotation();
+      await mutate();
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -95,7 +93,7 @@ export default function OmnichannelQuotationEditorClient() {
         confirm_payment: "ยืนยันชำระเงินเรียบร้อย",
       };
       toast.success(messages[action] || "ดำเนินการเรียบร้อย");
-      await loadQuotation();
+      await mutate();
     } catch (err) {
       toast.error(err.message);
     } finally {

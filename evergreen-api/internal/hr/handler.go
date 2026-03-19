@@ -2,94 +2,28 @@ package hr
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	pool *pgxpool.Pool
+	store *Store
 }
 
 func New(pool *pgxpool.Pool) *Handler {
-	return &Handler{pool: pool}
+	return &Handler{store: NewStore(pool)}
 }
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-
-	r.Route("/employees", func(r chi.Router) {
-		r.Get("/", h.ListEmployees)
-		r.Post("/", h.CreateEmployee)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", h.GetEmployee)
-			r.Put("/", h.UpdateEmployee)
-			r.Delete("/", h.DeleteEmployee)
-		})
-	})
-
-	r.Route("/departments", func(r chi.Router) {
-		r.Get("/", h.ListDepartments)
-		r.Post("/", h.CreateDepartment)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Put("/", h.UpdateDepartment)
-			r.Delete("/", h.DeleteDepartment)
-		})
-	})
-
-	r.Route("/divisions", func(r chi.Router) {
-		r.Get("/", h.ListDivisions)
-		r.Post("/", h.CreateDivision)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Put("/", h.UpdateDivision)
-			r.Delete("/", h.DeleteDivision)
-		})
-	})
-
-	r.Route("/positions", func(r chi.Router) {
-		r.Get("/", h.ListPositions)
-		r.Post("/", h.CreatePosition)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Put("/", h.UpdatePosition)
-			r.Delete("/", h.DeletePosition)
-		})
-	})
-
-	r.Get("/dashboard", h.Dashboard)
-	r.Get("/unlinkedEmployees", h.UnlinkedEmployees)
-	r.Get("/unlinkedUsers", h.UnlinkedUsers)
-
-	return r
-}
-
-// ---- Employees ----
 
 func (h *Handler) ListEmployees(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
 	search := r.URL.Query().Get("search")
-
-	q := `SELECT * FROM "hrEmployee" WHERE 1=1`
-	var args []any
-	argIdx := 1
-
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	if search != "" {
-		q += fmt.Sprintf(` AND ("hrEmployeeFirstName" ILIKE $%d OR "hrEmployeeLastName" ILIKE $%d OR "hrEmployeeEmail" ILIKE $%d)`, argIdx, argIdx+1, argIdx+2)
-		pattern := "%" + search + "%"
-		args = append(args, pattern, pattern, pattern)
-	}
-	q += ` ORDER BY "hrEmployeeCreatedAt" DESC`
-
-	data, err := db.QueryRows(r.Context(), h.pool, q, args...)
+	data, err := h.store.ListEmployees(r.Context(), search, sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -103,11 +37,7 @@ func (h *Handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "hrEmployee" ("hrEmployeeFirstName", "hrEmployeeLastName", "hrEmployeeEmail", "hrEmployeePhone", "hrEmployeeDivision", "hrEmployeeDepartment", "hrEmployeePosition")
-		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
-	`, body["hrEmployeeFirstName"], body["hrEmployeeLastName"], body["hrEmployeeEmail"],
-		body["hrEmployeePhone"], body["hrEmployeeDivision"], body["hrEmployeeDepartment"], body["hrEmployeePosition"])
+	data, err := h.store.CreateEmployee(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -118,11 +48,7 @@ func (h *Handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetEmployee(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "hrEmployee" WHERE "hrEmployeeId" = $1`
-	if !sa {
-		q += ` AND "isActive" = true`
-	}
-	data, err := db.QueryRow(r.Context(), h.pool, q, id)
+	data, err := h.store.GetEmployee(r.Context(), id, sa)
 	if err != nil {
 		response.NotFound(w, "ไม่พบพนักงาน")
 		return
@@ -137,18 +63,7 @@ func (h *Handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "hrEmployee" SET
-			"hrEmployeeFirstName" = COALESCE($2, "hrEmployeeFirstName"),
-			"hrEmployeeLastName" = COALESCE($3, "hrEmployeeLastName"),
-			"hrEmployeeEmail" = COALESCE($4, "hrEmployeeEmail"),
-			"hrEmployeePhone" = COALESCE($5, "hrEmployeePhone"),
-			"hrEmployeeDivision" = COALESCE($6, "hrEmployeeDivision"),
-			"hrEmployeeDepartment" = COALESCE($7, "hrEmployeeDepartment"),
-			"hrEmployeePosition" = COALESCE($8, "hrEmployeePosition")
-		WHERE "hrEmployeeId" = $1 RETURNING *
-	`, id, body["hrEmployeeFirstName"], body["hrEmployeeLastName"], body["hrEmployeeEmail"],
-		body["hrEmployeePhone"], body["hrEmployeeDivision"], body["hrEmployeeDepartment"], body["hrEmployeePosition"])
+	data, err := h.store.UpdateEmployee(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -158,24 +73,16 @@ func (h *Handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "hrEmployee" SET "isActive" = false WHERE "hrEmployeeId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeleteEmployee(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
-// ---- Departments ----
-
 func (h *Handler) ListDepartments(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "hrDepartment"`
-	if !sa {
-		q += ` WHERE "isActive" = true`
-	}
-	q += ` ORDER BY "hrDepartmentName"`
-	data, err := db.QueryRows(r.Context(), h.pool, q)
+	data, err := h.store.ListDepartments(r.Context(), sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -189,10 +96,7 @@ func (h *Handler) CreateDepartment(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "hrDepartment" ("hrDepartmentName", "hrDepartmentDescription", "hrDepartmentDivision")
-		VALUES ($1, $2, $3) RETURNING *
-	`, body["hrDepartmentName"], body["hrDepartmentDescription"], body["hrDepartmentDivision"])
+	data, err := h.store.CreateDepartment(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -207,13 +111,7 @@ func (h *Handler) UpdateDepartment(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "hrDepartment" SET
-			"hrDepartmentName" = COALESCE($2, "hrDepartmentName"),
-			"hrDepartmentDescription" = COALESCE($3, "hrDepartmentDescription"),
-			"hrDepartmentDivision" = COALESCE($4, "hrDepartmentDivision")
-		WHERE "hrDepartmentId" = $1 RETURNING *
-	`, id, body["hrDepartmentName"], body["hrDepartmentDescription"], body["hrDepartmentDivision"])
+	data, err := h.store.UpdateDepartment(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -223,24 +121,16 @@ func (h *Handler) UpdateDepartment(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteDepartment(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "hrDepartment" SET "isActive" = false WHERE "hrDepartmentId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeleteDepartment(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
-// ---- Divisions ----
-
 func (h *Handler) ListDivisions(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "hrDivision"`
-	if !sa {
-		q += ` WHERE "isActive" = true`
-	}
-	q += ` ORDER BY "hrDivisionName"`
-	data, err := db.QueryRows(r.Context(), h.pool, q)
+	data, err := h.store.ListDivisions(r.Context(), sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -254,10 +144,7 @@ func (h *Handler) CreateDivision(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "hrDivision" ("hrDivisionName", "hrDivisionDescription")
-		VALUES ($1, $2) RETURNING *
-	`, body["hrDivisionName"], body["hrDivisionDescription"])
+	data, err := h.store.CreateDivision(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -272,12 +159,7 @@ func (h *Handler) UpdateDivision(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "hrDivision" SET
-			"hrDivisionName" = COALESCE($2, "hrDivisionName"),
-			"hrDivisionDescription" = COALESCE($3, "hrDivisionDescription")
-		WHERE "hrDivisionId" = $1 RETURNING *
-	`, id, body["hrDivisionName"], body["hrDivisionDescription"])
+	data, err := h.store.UpdateDivision(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -287,24 +169,16 @@ func (h *Handler) UpdateDivision(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteDivision(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "hrDivision" SET "isActive" = false WHERE "hrDivisionId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeleteDivision(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
-// ---- Positions ----
-
 func (h *Handler) ListPositions(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
-	q := `SELECT * FROM "hrPosition"`
-	if !sa {
-		q += ` WHERE "isActive" = true`
-	}
-	q += ` ORDER BY "hrPositionTitle"`
-	data, err := db.QueryRows(r.Context(), h.pool, q)
+	data, err := h.store.ListPositions(r.Context(), sa)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -318,10 +192,7 @@ func (h *Handler) CreatePosition(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		INSERT INTO "hrPosition" ("hrPositionTitle", "hrPositionDescription", "hrPositionDepartment")
-		VALUES ($1, $2, $3) RETURNING *
-	`, body["hrPositionTitle"], body["hrPositionDescription"], body["hrPositionDepartment"])
+	data, err := h.store.CreatePosition(r.Context(), body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -336,13 +207,7 @@ func (h *Handler) UpdatePosition(w http.ResponseWriter, r *http.Request) {
 		response.BadRequest(w, "ข้อมูลไม่ถูกต้อง")
 		return
 	}
-	data, err := db.QueryRow(r.Context(), h.pool, `
-		UPDATE "hrPosition" SET
-			"hrPositionTitle" = COALESCE($2, "hrPositionTitle"),
-			"hrPositionDescription" = COALESCE($3, "hrPositionDescription"),
-			"hrPositionDepartment" = COALESCE($4, "hrPositionDepartment")
-		WHERE "hrPositionId" = $1 RETURNING *
-	`, id, body["hrPositionTitle"], body["hrPositionDescription"], body["hrPositionDepartment"])
+	data, err := h.store.UpdatePosition(r.Context(), id, body)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -352,30 +217,23 @@ func (h *Handler) UpdatePosition(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeletePosition(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	_, err := h.pool.Exec(r.Context(), `UPDATE "hrPosition" SET "isActive" = false WHERE "hrPositionId" = $1`, id)
-	if err != nil {
+	if err := h.store.DeletePosition(r.Context(), id); err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
-// ---- Dashboard ----
-
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
-	employees, err := db.QueryRows(ctx, h.pool, `SELECT * FROM "hrEmployee"`)
+	employees, err := h.store.ListAllEmployees(ctx)
 	if err != nil {
 		response.InternalError(w, err)
 		return
 	}
-
-	divisions, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "hrDivision" WHERE "isActive" = true`)
-	departments, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "hrDepartment" WHERE "isActive" = true`)
-	positions, _ := db.QueryRows(ctx, h.pool, `SELECT * FROM "hrPosition" WHERE "isActive" = true`)
-
-	// Build division/department name maps
+	divisions, _ := h.store.ListActiveDivisions(ctx)
+	departments, _ := h.store.ListActiveDepartments(ctx)
+	positions, _ := h.store.ListActivePositions(ctx)
 	divMap := make(map[string]string)
 	for _, d := range divisions {
 		if id, ok := d["hrDivisionId"].(string); ok {
@@ -392,8 +250,6 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
-	// Aggregations
 	total := len(employees)
 	active := 0
 	newThisMonth := 0
@@ -401,7 +257,6 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	byDept := map[string]int{}
 	now := time.Now()
 	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local)
-
 	for _, e := range employees {
 		if isActive, ok := e["isActive"].(bool); ok && isActive {
 			active++
@@ -424,7 +279,6 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			byDept[name]++
 		}
 	}
-
 	response.OK(w, map[string]any{
 		"totalEmployees":   total,
 		"activeEmployees":  active,
@@ -437,14 +291,8 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ---- Unlinked ----
-
 func (h *Handler) UnlinkedEmployees(w http.ResponseWriter, r *http.Request) {
-	data, err := db.QueryRows(r.Context(), h.pool, `
-		SELECT * FROM "hrEmployee"
-		WHERE "isActive" = true AND "hrEmployeeUserId" IS NULL
-		ORDER BY "hrEmployeeFirstName"
-	`)
+	data, err := h.store.ListUnlinkedEmployees(r.Context())
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -454,28 +302,22 @@ func (h *Handler) UnlinkedEmployees(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) UnlinkedUsers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	users, err := db.QueryRows(ctx, h.pool, `SELECT * FROM "rbacUserProfile"`)
+	users, err := h.store.ListAllUserProfiles(ctx)
 	if err != nil {
 		response.InternalError(w, err)
 		return
 	}
-
-	linked, err := db.QueryRows(ctx, h.pool, `
-		SELECT * FROM "hrEmployee"
-		WHERE "isActive" = true AND "hrEmployeeUserId" IS NOT NULL
-	`)
+	linked, err := h.store.ListLinkedEmployees(ctx)
 	if err != nil {
 		response.InternalError(w, err)
 		return
 	}
-
 	linkedSet := make(map[string]bool)
 	for _, l := range linked {
 		if uid, ok := l["hrEmployeeUserId"].(string); ok {
 			linkedSet[uid] = true
 		}
 	}
-
 	var result []map[string]any
 	for _, u := range users {
 		if uid, ok := u["rbacUserProfileId"].(string); ok && !linkedSet[uid] {

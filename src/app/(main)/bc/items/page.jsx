@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import BcItemsView from "@/modules/bc/components/BcItemsView";
+import BcItemsView from "@/modules/bc/components/bcItemsView";
 
 export default async function BcItemsPage() {
   const items = await api("/api/bc/items");

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import SalesDashboardClient from "@/modules/sales/SalesDashboardClient";
+import SalesDashboardClient from "@/modules/sales/salesDashboardClient";
 
 export default async function SalesDashboardPage() {
   const data = await api("/api/sales/dashboard");

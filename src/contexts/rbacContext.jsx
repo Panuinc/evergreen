@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useCallback, useMemo } from "react";
+import useSWR from "swr";
 import { useAuth } from "@/contexts/authContext";
 import { get } from "@/lib/apiClient";
 
@@ -9,40 +10,24 @@ const RBACContext = createContext({});
 export function RBACProvider({ children }) {
   const { user } = useAuth();
   const userId = user?.id;
-  const [permissions, setPermissions] = useState([]);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const [rbacLoading, setRbacLoading] = useState(true);
 
-  useEffect(() => {
-    if (!userId) {
-      setPermissions([]);
-      setIsSuperAdmin(false);
-      setRbacLoading(false);
-      return;
-    }
+  const { data, isLoading, mutate: mutatePermissions } = useSWR(
+    userId ? `/api/rbac/userPermissions/${userId}` : null,
+    (url) => get(url),
+    { onError: (err) => console.error("Failed to load permissions:", err) },
+  );
 
-    setRbacLoading(true);
+  const rbacLoading = userId ? isLoading : false;
 
-    const loadPermissions = async () => {
-      try {
-        const data = await get(`/api/rbac/userPermissions/${userId}`);
-        const permStrings = data
-          .map((d) => d.permission)
-          .filter((p) => p !== "__superadmin__");
-        const superAdmin = data.some((d) => d.isSuperadmin);
-        setPermissions(permStrings);
-        setIsSuperAdmin(superAdmin);
-      } catch (error) {
-        console.error("Failed to load permissions:", error);
-        setPermissions([]);
-        setIsSuperAdmin(false);
-      } finally {
-        setRbacLoading(false);
-      }
-    };
+  const permissions = useMemo(
+    () => (data ? data.map((d) => d.permission).filter((p) => p !== "__superadmin__") : []),
+    [data],
+  );
 
-    loadPermissions();
-  }, [userId]);
+  const isSuperAdmin = useMemo(
+    () => (data ? data.some((d) => d.isSuperadmin) : false),
+    [data],
+  );
 
   const hasPermission = useCallback(
     (permission) => {
@@ -68,23 +53,7 @@ export function RBACProvider({ children }) {
     [permissions, isSuperAdmin],
   );
 
-  const reloadPermissions = useCallback(async () => {
-    if (!user) return;
-    setRbacLoading(true);
-    try {
-      const data = await get(`/api/rbac/userPermissions/${user.id}`);
-      const permStrings = data
-        .map((d) => d.permission)
-        .filter((p) => p !== "__superadmin__");
-      const superAdmin = data.some((d) => d.isSuperadmin);
-      setPermissions(permStrings);
-      setIsSuperAdmin(superAdmin);
-    } catch (error) {
-      console.error("Failed to reload permissions:", error);
-    } finally {
-      setRbacLoading(false);
-    }
-  }, [user]);
+  const reloadPermissions = mutatePermissions;
 
   return (
     <RBACContext.Provider

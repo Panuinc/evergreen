@@ -3,10 +3,11 @@ package middleware
 import (
 	"bytes"
 	"io"
-	"log/slog"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/evergreen/api/pkg/logger"
 )
 
 type responseWriter struct {
@@ -71,13 +72,13 @@ func Logger(next http.Handler) http.Handler {
 				attrs = append(attrs, "responseBody", rw.body.String())
 			}
 			if rw.status >= 500 {
-				slog.Error("❌ API ERROR", attrs...)
+				logger.Error("❌ API ERROR", attrs...)
 			} else {
-				slog.Warn("⚠️ API FAIL", attrs...)
+				logger.Warn("⚠️ API FAIL", attrs...)
 			}
 		} else {
 			// Success: compact log
-			slog.Info("✅",
+			logger.Info("✅",
 				"method", r.Method,
 				"path", r.URL.Path,
 				"status", rw.status,
@@ -93,7 +94,7 @@ func Recoverer(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rec := recover(); rec != nil {
-				slog.Error("🔥 PANIC", "panic", rec, "path", r.URL.Path, "method", r.Method)
+				logger.Error("🔥 PANIC", "panic", rec, "path", r.URL.Path, "method", r.Method)
 				http.Error(w, `{"error":"เกิดข้อผิดพลาดภายใน"}`, http.StatusInternalServerError)
 			}
 		}()

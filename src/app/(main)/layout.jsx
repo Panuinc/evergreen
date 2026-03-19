@@ -11,10 +11,10 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { menuData, findActiveMenuByPathname } from "@/config/menu";
-import Header from "@/components/layout/Header";
-import Sidebar from "@/components/layout/Sidebar";
-import SubMenuPanel from "@/components/layout/SubMenuPanel";
-import ChatBot from "@/components/ui/ChatBot";
+import Header from "@/components/layout/header";
+import Sidebar from "@/components/layout/sidebar";
+import SubMenuPanel from "@/components/layout/subMenuPanel";
+import ChatBot from "@/components/ui/chatBot";
 
 export default function MainLayout({ children }) {
   const pathname = usePathname();

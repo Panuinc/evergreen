@@ -2,8 +2,9 @@ package response
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
+
+	"github.com/evergreen/api/pkg/logger"
 )
 
 // JSON writes a JSON response with the given status code.
@@ -12,7 +13,7 @@ func JSON(w http.ResponseWriter, status int, data any) {
 	w.WriteHeader(status)
 	if data != nil {
 		if err := json.NewEncoder(w).Encode(data); err != nil {
-			slog.Error("failed to encode response", "error", err)
+			logger.Error("failed to encode response", "error", err)
 		}
 	}
 }
@@ -54,7 +55,7 @@ func NotFound(w http.ResponseWriter, message string) {
 
 // InternalError writes a 500 error (logs the real error, returns generic message).
 func InternalError(w http.ResponseWriter, err error) {
-	slog.Error("internal server error", "error", err)
+	logger.Error("internal server error", "error", err)
 	Error(w, http.StatusInternalServerError, "เกิดข้อผิดพลาดภายใน")
 }
 

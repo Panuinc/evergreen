@@ -2,17 +2,17 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { supabase } from "@/lib/supabase/client";
 import { get, post, put, del } from "@/lib/apiClient";
 import OmnichannelView from "@/modules/marketing/components/omnichannelView";
 
 const pollInterval = 3000;
+const fetcher = (url) => get(url);
 
 export default function OmnichannelClient() {
-  const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [suggestLoading, setSuggestLoading] = useState(false);
@@ -22,28 +22,22 @@ export default function OmnichannelClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const selectedConvRef = useRef(null);
   const realtimeConnected = useRef(false);
-  const pollTimerRef = useRef(null);
+  // conversations is SWR-managed — use mutateConversations to update
 
-  const loadConversations = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = {};
-      if (statusFilter !== "all") params.status = statusFilter;
-      if (channelFilter !== "all") params.channel = channelFilter;
-      if (searchQuery) params.search = searchQuery;
-      const qs = new URLSearchParams(params).toString();
-      const data = await get(`/api/marketing/omnichannel/conversations${qs ? `?${qs}` : ""}`);
-      setConversations(data);
-    } catch (error) {
-      toast.error("โหลดการสนทนาล้มเหลว");
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter, channelFilter, searchQuery]);
+  const convParams = new URLSearchParams();
+  if (statusFilter !== "all") convParams.set("status", statusFilter);
+  if (channelFilter !== "all") convParams.set("channel", channelFilter);
+  if (searchQuery) convParams.set("search", searchQuery);
+  const qs = convParams.toString();
+  const convUrl = `/api/marketing/omnichannel/conversations${qs ? `?${qs}` : ""}`;
 
-  useEffect(() => {
-    loadConversations();
-  }, [loadConversations]);
+  const { data: conversations = [], isLoading: loading, mutate: mutateConversations } = useSWR(
+    convUrl,
+    fetcher,
+    { refreshInterval: pollInterval },
+  );
+
+  const loadConversations = mutateConversations;
 
   const selectConversation = useCallback(async (conversation) => {
     setSelectedConversation(conversation);
@@ -61,12 +55,11 @@ export default function OmnichannelClient() {
         await put(`/api/marketing/omnichannel/conversations/${conversation.omConversationId}`, {
           omConversationUnreadCount: 0,
         });
-        setConversations((prev) =>
-          prev.map((c) =>
-            c.omConversationId === conversation.omConversationId
-              ? { ...c, omConversationUnreadCount: 0 }
-              : c
-          )
+        mutateConversations(
+          (prev = []) => prev.map((c) =>
+            c.omConversationId === conversation.omConversationId ? { ...c, omConversationUnreadCount: 0 } : c
+          ),
+          { revalidate: false },
         );
       }
     } catch (error) {
@@ -129,8 +122,9 @@ export default function OmnichannelClient() {
         const updated = await put(`/api/marketing/omnichannel/conversations/${conversationId}`, {
           omConversationStatus: status,
         });
-        setConversations((prev) =>
-          prev.map((c) => (c.omConversationId === conversationId ? updated : c))
+        mutateConversations(
+          (prev = []) => prev.map((c) => (c.omConversationId === conversationId ? updated : c)),
+          { revalidate: false },
         );
         if (selectedConversation?.omConversationId === conversationId) {
           setSelectedConversation(updated);
@@ -170,8 +164,9 @@ export default function OmnichannelClient() {
     async (conversationId) => {
       try {
         await del(`/api/marketing/omnichannel/conversations/${conversationId}`);
-        setConversations((prev) =>
-          prev.filter((c) => c.omConversationId !== conversationId)
+        mutateConversations(
+          (prev = []) => prev.filter((c) => c.omConversationId !== conversationId),
+          { revalidate: false },
         );
         if (selectedConversation?.omConversationId === conversationId) {
           setSelectedConversation(null);
@@ -191,8 +186,9 @@ export default function OmnichannelClient() {
         const updated = await put(`/api/marketing/omnichannel/conversations/${conversationId}`, {
           omConversationAiAutoReply: enabled,
         });
-        setConversations((prev) =>
-          prev.map((c) => (c.omConversationId === conversationId ? updated : c))
+        mutateConversations(
+          (prev = []) => prev.map((c) => (c.omConversationId === conversationId ? updated : c)),
+          { revalidate: false },
         );
         if (selectedConversation?.omConversationId === conversationId) {
           setSelectedConversation(updated);
@@ -223,46 +219,29 @@ export default function OmnichannelClient() {
     selectedConvRef.current = selectedConversation;
   }, [selectedConversation]);
 
-  /* Polling */
+  /* Message polling */
   useEffect(() => {
     const poll = async () => {
       const currentConv = selectedConvRef.current;
-
-      if (currentConv) {
-        try {
-          const freshMessages = await get(`/api/marketing/omnichannel/conversations/${currentConv.omConversationId}/messages`);
-          setMessages((prev) => {
-            if (freshMessages.length !== prev.length ||
-                (freshMessages.length > 0 && prev.length > 0 &&
-                 freshMessages[freshMessages.length - 1]?.omMessageId !== prev[prev.length - 1]?.omMessageId &&
-                 !prev[prev.length - 1]?.omMessageId?.startsWith?.("temp-"))) {
-              const tempMsgs = prev.filter((m) => m.omMessageId?.startsWith?.("temp-"));
-              return [...freshMessages, ...tempMsgs];
-            }
-            return prev;
-          });
-        } catch {}
-      }
-
+      if (!currentConv) return;
       try {
-        const params = {};
-        if (statusFilter !== "all") params.status = statusFilter;
-        if (channelFilter !== "all") params.channel = channelFilter;
-        if (searchQuery) params.search = searchQuery;
-        const pollQs = new URLSearchParams(params).toString();
-        const freshConvs = await get(`/api/marketing/omnichannel/conversations${pollQs ? `?${pollQs}` : ""}`);
-        setConversations(freshConvs);
+        const freshMessages = await get(`/api/marketing/omnichannel/conversations/${currentConv.omConversationId}/messages`);
+        setMessages((prev) => {
+          if (freshMessages.length !== prev.length ||
+              (freshMessages.length > 0 && prev.length > 0 &&
+               freshMessages[freshMessages.length - 1]?.omMessageId !== prev[prev.length - 1]?.omMessageId &&
+               !prev[prev.length - 1]?.omMessageId?.startsWith?.("temp-"))) {
+            const tempMsgs = prev.filter((m) => m.omMessageId?.startsWith?.("temp-"));
+            return [...freshMessages, ...tempMsgs];
+          }
+          return prev;
+        });
       } catch {}
     };
 
-    pollTimerRef.current = setInterval(poll, pollInterval);
-
-    return () => {
-      if (pollTimerRef.current) {
-        clearInterval(pollTimerRef.current);
-      }
-    };
-  }, [statusFilter, channelFilter, searchQuery]);
+    const timer = setInterval(poll, pollInterval);
+    return () => clearInterval(timer);
+  }, []);
 
   /* Realtime */
   useEffect(() => {
@@ -296,8 +275,8 @@ export default function OmnichannelClient() {
             });
           }
 
-          setConversations((prev) =>
-            prev.map((c) => {
+          mutateConversations(
+            (prev = []) => prev.map((c) => {
               if (c.omConversationId === newMessage.omMessageConversationId) {
                 return {
                   ...c,
@@ -310,7 +289,8 @@ export default function OmnichannelClient() {
                 };
               }
               return c;
-            })
+            }),
+            { revalidate: false },
           );
         }
       )
@@ -321,12 +301,11 @@ export default function OmnichannelClient() {
           const updated = payload.new;
           const currentConv = selectedConvRef.current;
 
-          setConversations((prev) =>
-            prev.map((c) =>
-              c.omConversationId === updated.omConversationId
-                ? { ...c, ...updated }
-                : c
-            )
+          mutateConversations(
+            (prev = []) => prev.map((c) =>
+              c.omConversationId === updated.omConversationId ? { ...c, ...updated } : c
+            ),
+            { revalidate: false },
           );
           if (currentConv?.omConversationId === updated.omConversationId) {
             setSelectedConversation((prev) => ({ ...prev, ...updated }));
@@ -348,7 +327,7 @@ export default function OmnichannelClient() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [loadConversations]);
+  }, [mutateConversations]);
 
   return (
     <OmnichannelView

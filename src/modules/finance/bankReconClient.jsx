@@ -1,17 +1,23 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { get, post, put, del } from "@/lib/apiClient";
 import BankReconView from "@/modules/finance/components/bankReconView";
 
+const fetcher = (url) => get(url);
+
 export default function BankReconClient() {
-  const [statements, setStatements] = useState([]);
+  const { data: statementsData, isLoading: statementsLoading, mutate: mutateStatements } = useSWR("/api/finance/bankRecon", fetcher);
+  const statements = statementsData || [];
+
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const loading = statementsLoading || detailLoading;
   const [openInvoices, setOpenInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [parsing, setParsing] = useState(false);
   const [matching, setMatching] = useState(false);
   const [filter, setFilter] = useState("all");
@@ -22,23 +28,6 @@ export default function BankReconClient() {
   const matchModal = useDisclosure();
   const [matchEntry, setMatchEntry] = useState(null);
 
-  const loadStatements = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await get("/api/finance/bankRecon");
-      setStatements(data || []);
-    } catch (err) {
-      console.error("Load statements error:", err);
-      toast.error("โหลดข้อมูลล้มเหลว");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadStatements();
-  }, [loadStatements]);
-
   const selectStatement = useCallback(async (id) => {
     setSelectedId(id);
     if (!id) {
@@ -46,14 +35,14 @@ export default function BankReconClient() {
       return;
     }
     try {
-      setLoading(true);
+      setDetailLoading(true);
       const data = await get(`/api/finance/bankRecon/${id}`);
       setDetail(data);
     } catch (err) {
       console.error("Load detail error:", err);
       toast.error("โหลดรายละเอียดล้มเหลว");
     } finally {
-      setLoading(false);
+      setDetailLoading(false);
     }
   }, []);
 
@@ -61,7 +50,7 @@ export default function BankReconClient() {
     async (fileUrl, fileName, bankCode = "KBANK") => {
       try {
         const stmt = await post("/api/finance/bankRecon", { fileUrl, fileName, bankCode });
-        setStatements((prev) => [stmt, ...prev]);
+        mutateStatements();
         toast.success("อัพโหลดสำเร็จ");
         return stmt;
       } catch (err) {
@@ -79,7 +68,7 @@ export default function BankReconClient() {
         const result = await post(`/api/finance/bankRecon/${id}/parse`);
         toast.success(`แยกข้อมูลสำเร็จ ${result.entryCount} รายการ`);
         await selectStatement(id);
-        await loadStatements();
+        mutateStatements();
       } catch (err) {
         console.error("Parse error:", err);
         toast.error("แยกข้อมูลล้มเหลว: " + err.message);
@@ -87,7 +76,7 @@ export default function BankReconClient() {
         setParsing(false);
       }
     },
-    [selectStatement, loadStatements],
+    [selectStatement, mutateStatements],
   );
 
   const handleAutoMatch = useCallback(
@@ -101,7 +90,7 @@ export default function BankReconClient() {
             (result.suggestedCount ? `, แนะนำ ${result.suggestedCount} รายการ` : ""),
         );
         await selectStatement(selectedId);
-        await loadStatements();
+        mutateStatements();
       } catch (err) {
         console.error("Auto match error:", err);
         toast.error("Auto Match ล้มเหลว: " + err.message);
@@ -109,7 +98,7 @@ export default function BankReconClient() {
         setMatching(false);
       }
     },
-    [selectedId, selectStatement, loadStatements],
+    [selectedId, selectStatement, mutateStatements],
   );
 
   const handleManualMatch = useCallback(
@@ -163,7 +152,7 @@ export default function BankReconClient() {
     async (id) => {
       try {
         await del(`/api/finance/bankRecon/${id}`);
-        setStatements((prev) => prev.filter((s) => s.id !== id));
+        mutateStatements();
         if (selectedId === id) {
           setSelectedId(null);
           setDetail(null);
@@ -363,7 +352,7 @@ export default function BankReconClient() {
         openInvoices,
         matchModal,
         matchEntry,
-        loadStatements,
+        loadStatements: mutateStatements,
         selectStatement,
         handleUpload,
         handleParse,

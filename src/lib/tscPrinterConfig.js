@@ -1,6 +1,6 @@
-const STORAGE_KEY = "tsc-te-printer-config";
+const storageKey = "tsc-te-printer-config";
 
-const DEFAULT_CONFIG = {
+const defaultConfig = {
   host: "192.168.1.117",
   port: 9100,
   dpi: 203,
@@ -12,20 +12,20 @@ const DEFAULT_CONFIG = {
 };
 
 export function getTscPrinterConfig() {
-  if (typeof window === "undefined") return DEFAULT_CONFIG;
+  if (typeof window === "undefined") return defaultConfig;
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
-      return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+      return { ...defaultConfig, ...JSON.parse(saved) };
     }
   } catch {}
-  return DEFAULT_CONFIG;
+  return defaultConfig;
 }
 
 export function saveTscPrinterConfig(config) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  localStorage.setItem(storageKey, JSON.stringify(config));
 }
 
 export function getTscDefaultConfig() {
-  return { ...DEFAULT_CONFIG };
+  return { ...defaultConfig };
 }

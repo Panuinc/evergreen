@@ -1,8 +1,8 @@
 import { JetBrains_Mono, Bai_Jamjuree } from "next/font/google";
 import "@/styles/globals.css";
 import { Providers } from "./providers";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { RBACProvider } from "@/contexts/RBACContext";
+import { AuthProvider } from "@/contexts/authContext";
+import { RBACProvider } from "@/contexts/rbacContext";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",

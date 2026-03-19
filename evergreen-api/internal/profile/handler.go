@@ -4,29 +4,20 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/evergreen/api/internal/db"
-	"github.com/evergreen/api/internal/external"
-	"github.com/evergreen/api/internal/middleware"
-	"github.com/evergreen/api/internal/response"
+	"github.com/evergreen/api/internal/clients"
+	"github.com/evergreen/api/pkg/middleware"
+	"github.com/evergreen/api/pkg/response"
 )
 
 type Handler struct {
-	db   *pgxpool.Pool
-	auth *external.SupabaseAuth
+	store *Store
+	auth  *clients.SupabaseAuth
 }
 
-func New(db *pgxpool.Pool, supaAuth *external.SupabaseAuth) *Handler {
-	return &Handler{db: db, auth: supaAuth}
-}
-
-func (h *Handler) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Get("/", h.GetProfile)
-	r.Put("/changePassword", h.ChangePassword)
-	return r
+func New(db *pgxpool.Pool, supaAuth *clients.SupabaseAuth) *Handler {
+	return &Handler{store: NewStore(db), auth: supaAuth}
 }
 
 // GetProfile handles GET /api/profile
@@ -35,7 +26,7 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.UserID(ctx)
 
 	// Get user info from rbacUserProfile (instead of Supabase Auth API)
-	profile, _ := db.QueryRow(ctx, h.db, `SELECT * FROM "rbacUserProfile" WHERE "rbacUserProfileId" = $1`, userID)
+	profile, _ := h.store.GetUserProfile(ctx, userID)
 
 	userInfo := map[string]any{
 		"id":    userID,
@@ -47,16 +38,10 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get employee info
-	employee, _ := db.QueryRow(ctx, h.db, `SELECT * FROM "hrEmployee" WHERE "hrEmployeeUserId" = $1 LIMIT 1`, userID)
+	employee, _ := h.store.GetEmployee(ctx, userID)
 
 	// Get roles
-	roles, err := db.QueryRows(ctx, h.db, `
-		SELECT r.*
-		FROM "rbacUserRole" ur
-		JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
-		WHERE ur."rbacUserRoleUserId" = $1
-		  AND ur."isActive" = true
-	`, userID)
+	roles, err := h.store.GetUserRoles(ctx, userID)
 	if err != nil || roles == nil {
 		roles = []map[string]any{}
 	}

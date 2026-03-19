@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 
-const API_BASE = process.env.GO_API_URL || "http://localhost:8080";
+const apiBase = process.env.GO_API_URL || "http://localhost:8080";
 
 /**
  * Server-side fetch helper — reads auth token from Supabase session cookie
@@ -17,7 +17,7 @@ export async function api(path) {
     headers["Authorization"] = `Bearer ${session.access_token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${apiBase}${path}`, {
     headers,
     cache: "no-store",
   });
@@ -49,7 +49,7 @@ export async function apiMutate(path, method = "POST", body = null) {
     options.body = JSON.stringify(body);
   }
 
-  const res = await fetch(`${API_BASE}${path}`, options);
+  const res = await fetch(`${apiBase}${path}`, options);
   const data = await res.json();
 
   if (!res.ok) {

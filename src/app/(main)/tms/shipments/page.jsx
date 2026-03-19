@@ -1,5 +1,5 @@
 import { api } from "@/lib/api.server";
-import ShipmentsClient from "@/modules/tms/ShipmentsClient";
+import ShipmentsClient from "@/modules/tms/shipmentsClient";
 
 export default async function ShipmentsPage() {
   const [shipments, vehicles] = await Promise.all([

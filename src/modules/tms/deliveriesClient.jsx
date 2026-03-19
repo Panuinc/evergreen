@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { get, post, put, del } from "@/lib/apiClient";
 import DeliveriesView from "@/modules/tms/components/deliveriesView";
 
@@ -60,9 +61,14 @@ function DeliveriesInner() {
   const searchParams = useSearchParams();
   const fromShipmentId = searchParams.get("shipmentId") || null;
 
-  const [deliveries, setDeliveries] = useState([]);
-  const [shipments, setShipments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const fetcher = (url) => get(url);
+  const { data: deliveriesData, isLoading: deliveriesLoading, mutate: mutateDeliveries } = useSWR("/api/tms/deliveries", fetcher);
+  const { data: shipmentsData, isLoading: shipmentsLoading } = useSWR("/api/tms/shipments", fetcher);
+
+  const deliveries = deliveriesData || [];
+  const shipments = shipmentsData || [];
+  const loading = deliveriesLoading || shipmentsLoading;
+
   const [saving, setSaving] = useState(false);
   const [editingDelivery, setEditingDelivery] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
@@ -71,67 +77,48 @@ function DeliveriesInner() {
   const [deletingDelivery, setDeletingDelivery] = useState(null);
   const [deliveryItems, setDeliveryItems] = useState([]);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const fromShipmentInitialized = useRef(false);
+  const { data: fromShipmentPrefill } = useSWR(
+    fromShipmentId ? ["init-delivery", fromShipmentId] : null,
+    async ([, shipmentId]) => {
+      const shipment = await get(`/api/tms/shipments/${shipmentId}`);
+      if (!shipment) return null;
+      const plans = await get(`/api/tms/deliveryPlans?shipmentId=${shipmentId}`).catch(() => []);
+      return { shipment, plans };
+    },
+    { revalidateOnFocus: false, revalidateOnReconnect: false },
+  );
 
   useEffect(() => {
-    if (!fromShipmentId) return;
-    get(`/api/tms/shipments/${fromShipmentId}`)
-      .then(async (shipment) => {
-        if (!shipment) return;
-        setFormData({
-          ...emptyForm,
-          tmsDeliveryShipmentId: String(shipment.tmsShipmentId),
-          tmsDeliveryReceiverName: shipment.tmsShipmentCustomerName || "",
-          tmsDeliveryReceiverPhone: shipment.tmsShipmentCustomerPhone || "",
-        });
-
-        try {
-          const plans = await get(`/api/tms/deliveryPlans?shipmentId=${fromShipmentId}`);
-          const plan = plans?.[0];
-          if (plan?.tmsDeliveryPlanItem?.length > 0) {
-            setDeliveryItems(
-              plan.tmsDeliveryPlanItem.map((i) => ({
-                tmsDeliveryItemDescription: i.tmsDeliveryPlanItemDescription || "",
-                tmsDeliveryItemUom: i.tmsDeliveryPlanItemUom || "",
-                tmsDeliveryItemSoNo: i.tmsDeliveryPlanItemSalesOrderNo || "",
-                tmsDeliveryItemPlannedQty: parseFloat(i.tmsDeliveryPlanItemPlannedQty) || 0,
-                tmsDeliveryItemDeliveredQty: parseFloat(i.tmsDeliveryPlanItemPlannedQty) || 0,
-                tmsDeliveryItemDamagedQty: 0,
-                tmsDeliveryItemReturnedQty: 0,
-                tmsDeliveryItemDamageNotes: "",
-              }))
-            );
-          } else {
-            setDeliveryItems(parseItemsSummary(shipment.tmsShipmentItemsSummary));
-          }
-        } catch {
-          setDeliveryItems(parseItemsSummary(shipment.tmsShipmentItemsSummary));
-        }
-
-        setEditingDelivery(null);
-        onOpen();
-      })
-      .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fromShipmentId]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [delData, shipData] = await Promise.all([
-        get("/api/tms/deliveries"),
-        get("/api/tms/shipments"),
-      ]);
-      setDeliveries(delData);
-      setShipments(shipData);
-    } catch {
-      toast.error("โหลดข้อมูลล้มเหลว");
-    } finally {
-      setLoading(false);
+    if (!fromShipmentPrefill || fromShipmentInitialized.current) return;
+    fromShipmentInitialized.current = true;
+    const { shipment, plans } = fromShipmentPrefill;
+    setFormData({
+      ...emptyForm,
+      tmsDeliveryShipmentId: String(shipment.tmsShipmentId),
+      tmsDeliveryReceiverName: shipment.tmsShipmentCustomerName || "",
+      tmsDeliveryReceiverPhone: shipment.tmsShipmentCustomerPhone || "",
+    });
+    const plan = plans?.[0];
+    if (plan?.tmsDeliveryPlanItem?.length > 0) {
+      setDeliveryItems(
+        plan.tmsDeliveryPlanItem.map((i) => ({
+          tmsDeliveryItemDescription: i.tmsDeliveryPlanItemDescription || "",
+          tmsDeliveryItemUom: i.tmsDeliveryPlanItemUom || "",
+          tmsDeliveryItemSoNo: i.tmsDeliveryPlanItemSalesOrderNo || "",
+          tmsDeliveryItemPlannedQty: parseFloat(i.tmsDeliveryPlanItemPlannedQty) || 0,
+          tmsDeliveryItemDeliveredQty: parseFloat(i.tmsDeliveryPlanItemPlannedQty) || 0,
+          tmsDeliveryItemDamagedQty: 0,
+          tmsDeliveryItemReturnedQty: 0,
+          tmsDeliveryItemDamageNotes: "",
+        }))
+      );
+    } else {
+      setDeliveryItems(parseItemsSummary(shipment.tmsShipmentItemsSummary));
     }
-  };
+    setEditingDelivery(null);
+    onOpen();
+  }, [fromShipmentPrefill, onOpen]);
 
   const handleOpen = (delivery = null) => {
     if (delivery) {
@@ -203,7 +190,7 @@ function DeliveriesInner() {
         } catch {}
       }
       onClose();
-      loadData();
+      mutateDeliveries();
     } catch (error) {
       toast.error(error.message || "บันทึกการส่งมอบล้มเหลว");
     } finally {
@@ -223,7 +210,7 @@ function DeliveriesInner() {
       toast.success("ลบการส่งมอบสำเร็จ");
       deleteModal.onClose();
       setDeletingDelivery(null);
-      loadData();
+      mutateDeliveries();
     } catch (error) {
       toast.error(error.message || "ลบการส่งมอบล้มเหลว");
     }
