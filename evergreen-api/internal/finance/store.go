@@ -20,22 +20,72 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Sales Invoices ----
 
 func (s *Store) ListSalesInvoices(ctx context.Context, status string) ([]map[string]any, error) {
-	if status == "all" || status == "" {
-		return db.QueryRows(ctx, s.pool, `SELECT * FROM "bcPostedSalesInvoice" ORDER BY "bcPostedSalesInvoicePostingDate" DESC`)
+	where := ""
+	if status == "Open" {
+		where = `WHERE i."bcPostedSalesInvoiceClosedValue" = 'false'`
+	} else if status != "all" && status != "" {
+		where = `WHERE i."bcPostedSalesInvoiceClosedValue" = 'true'`
 	}
-	closed := "false"
-	if status != "Open" {
-		closed = "true"
-	}
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "bcPostedSalesInvoice" WHERE "bcPostedSalesInvoiceClosedValue" = $1 ORDER BY "bcPostedSalesInvoicePostingDate" DESC`, closed)
+	q := fmt.Sprintf(`
+		SELECT
+			i.id,
+			i."bcPostedSalesInvoiceNoValue",
+			i."bcPostedSalesInvoicePostingDate",
+			i."bcPostedSalesInvoiceDueDate",
+			i."bcPostedSalesInvoiceSellToCustomerNo",
+			i."bcPostedSalesInvoiceSellToCustomerName",
+			i."bcPostedSalesInvoiceSalespersonCode",
+			i."bcPostedSalesInvoiceAmountIncludingVAT",
+			i."bcPostedSalesInvoiceAmountValue",
+			(i."bcPostedSalesInvoiceAmountIncludingVAT" - i."bcPostedSalesInvoiceAmountValue") AS "totalTaxAmount",
+			i."bcPostedSalesInvoiceRemainingAmount",
+			CASE WHEN i."bcPostedSalesInvoiceClosedValue" = 'true' THEN 'Paid' ELSE 'Open' END AS "status",
+			CASE WHEN i."bcPostedSalesInvoiceClosedValue" = 'true' OR i."bcPostedSalesInvoiceDueDate" IS NULL
+				THEN 0
+				ELSE GREATEST(0, CURRENT_DATE - i."bcPostedSalesInvoiceDueDate")
+			END AS "daysOverdue",
+			COALESCE(lines.data, '[]') AS "salesInvoiceLines"
+		FROM "bcPostedSalesInvoice" i
+		LEFT JOIN LATERAL (
+			SELECT json_agg(to_json(l.*) ORDER BY l."bcPostedSalesInvoiceLineLineNo") AS data
+			FROM "bcPostedSalesInvoiceLine" l
+			WHERE l."bcPostedSalesInvoiceLineDocumentNo" = i."bcPostedSalesInvoiceNoValue"
+		) lines ON true
+		%s
+		ORDER BY i."bcPostedSalesInvoicePostingDate" DESC
+	`, where)
+	return db.QueryRows(ctx, s.pool, q)
 }
 
 // ---- Purchase Invoices ----
 
 func (s *Store) ListPurchaseInvoices(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcPostedPurchInvoice"
-		ORDER BY "bcPostedPurchInvoicePostingDate" DESC
+		SELECT
+			i.id,
+			i."bcPostedPurchInvoiceNoValue",
+			i."bcPostedPurchInvoiceVendorInvoiceNo",
+			i."bcPostedPurchInvoicePostingDate",
+			i."bcPostedPurchInvoiceDueDate",
+			i."bcPostedPurchInvoiceBuyFromVendorNo",
+			i."bcPostedPurchInvoiceBuyFromVendorName",
+			i."bcPostedPurchInvoicePurchaserCode",
+			i."bcPostedPurchInvoiceAmountIncludingVAT",
+			i."bcPostedPurchInvoiceAmountValue",
+			(i."bcPostedPurchInvoiceAmountIncludingVAT" - i."bcPostedPurchInvoiceAmountValue") AS "totalTaxAmount",
+			CASE WHEN i."bcPostedPurchInvoiceClosedValue" = 'true' THEN 'Paid' ELSE 'Open' END AS "status",
+			CASE WHEN i."bcPostedPurchInvoiceClosedValue" = 'true' OR i."bcPostedPurchInvoiceDueDate" IS NULL
+				THEN 0
+				ELSE GREATEST(0, CURRENT_DATE - i."bcPostedPurchInvoiceDueDate")
+			END AS "daysOverdue",
+			COALESCE(lines.data, '[]') AS "purchaseInvoiceLines"
+		FROM "bcPostedPurchInvoice" i
+		LEFT JOIN LATERAL (
+			SELECT json_agg(to_json(l.*) ORDER BY l."bcPostedPurchInvoiceLineLineNo") AS data
+			FROM "bcPostedPurchInvoiceLine" l
+			WHERE l."bcPostedPurchInvoiceLineDocumentNo" = i."bcPostedPurchInvoiceNoValue"
+		) lines ON true
+		ORDER BY i."bcPostedPurchInvoicePostingDate" DESC
 	`)
 }
 
@@ -44,14 +94,14 @@ func (s *Store) ListPurchaseInvoices(ctx context.Context) ([]map[string]any, err
 func (s *Store) AgedReceivables(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			"bcCustomerLedgerEntryCustomerNo" as "customerNo",
-			"bcCustomerLedgerEntryCustomerName" as "customerName",
-			SUM(CASE WHEN "bcCustomerLedgerEntryRemainingAmount" != 0 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) as "totalRemaining",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) as "current",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE AND "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) as "days1to30",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 30 AND "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) as "days31to60",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 60 AND "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 90 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) as "days61to90",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 90 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) as "over90"
+			"bcCustomerLedgerEntryCustomerNo",
+			"bcCustomerLedgerEntryCustomerName",
+			MAX("bcCustomerLedgerEntryCurrencyCode") AS "bcCustomerLedgerEntryCurrencyCode",
+			SUM(CASE WHEN "bcCustomerLedgerEntryRemainingAmount" != 0 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "totalRemaining",
+			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "current",
+			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE AND "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "days1to30",
+			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 30 AND "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "days31to60",
+			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 60 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "days61plus"
 		FROM "bcCustomerLedgerEntry"
 		WHERE "bcCustomerLedgerEntryOpenValue" = 'true'
 		GROUP BY "bcCustomerLedgerEntryCustomerNo", "bcCustomerLedgerEntryCustomerName"
@@ -65,14 +115,14 @@ func (s *Store) AgedReceivables(ctx context.Context) ([]map[string]any, error) {
 func (s *Store) AgedPayables(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			"bcVendorLedgerEntryVendorNo" as "vendorNo",
-			MAX("bcVendorLedgerEntryVendorName") as "vendorName",
-			SUM(CASE WHEN "bcVendorLedgerEntryRemainingAmount" != 0 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) as "totalRemaining",
-			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" >= CURRENT_DATE THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) as "current",
-			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE AND "bcVendorLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) as "days1to30",
-			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE - 30 AND "bcVendorLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) as "days31to60",
-			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE - 60 AND "bcVendorLedgerEntryDueDate" >= CURRENT_DATE - 90 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) as "days61to90",
-			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE - 90 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) as "over90"
+			"bcVendorLedgerEntryVendorNo",
+			MAX("bcVendorLedgerEntryVendorName") AS "bcVendorLedgerEntryVendorName",
+			MAX("bcVendorLedgerEntryCurrencyCode") AS "bcVendorLedgerEntryCurrencyCode",
+			SUM(CASE WHEN "bcVendorLedgerEntryRemainingAmount" != 0 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "totalRemaining",
+			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" >= CURRENT_DATE THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "current",
+			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE AND "bcVendorLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "days1to30",
+			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE - 30 AND "bcVendorLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "days31to60",
+			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE - 60 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "days61plus"
 		FROM "bcVendorLedgerEntry"
 		WHERE "bcVendorLedgerEntryOpenValue" = 'true'
 		GROUP BY "bcVendorLedgerEntryVendorNo"

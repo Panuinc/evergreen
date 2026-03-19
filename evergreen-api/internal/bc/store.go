@@ -27,7 +27,16 @@ func (s *Store) ListItems(ctx context.Context) ([]map[string]any, error) {
 }
 
 func (s *Store) ListSalesOrders(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "bcSalesOrder" ORDER BY "bcSalesOrderNoValue" DESC`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT so.*, COALESCE(lines.data, '[]') AS "salesOrderLines"
+		FROM "bcSalesOrder" so
+		LEFT JOIN LATERAL (
+			SELECT json_agg(to_json(l.*) ORDER BY l."bcSalesOrderLineLineNo") AS data
+			FROM "bcSalesOrderLine" l
+			WHERE l."bcSalesOrderLineDocumentNo" = so."bcSalesOrderNoValue"
+		) lines ON true
+		ORDER BY so."bcSalesOrderNoValue" DESC
+	`)
 }
 
 func (s *Store) ListProduction(ctx context.Context) ([]map[string]any, error) {

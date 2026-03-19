@@ -36,27 +36,27 @@ function daysColor(days) {
 }
 
 const columns = [
-  { name: "เลขที่", uid: "number", sortable: true },
-  { name: "วันที่ออก", uid: "invoiceDate", sortable: true },
-  { name: "วันครบกำหนด", uid: "dueDate", sortable: true },
-  { name: "รหัสลูกค้า", uid: "customerNumber", sortable: true },
-  { name: "ชื่อลูกค้า", uid: "customerName", sortable: true },
-  { name: "พนักงานขาย", uid: "salesperson", sortable: true },
-  { name: "ยอดรวม (รวม VAT)", uid: "totalAmountIncludingTax", sortable: true },
-  { name: "ยอดค้างชำระ", uid: "remainingAmount", sortable: true },
+  { name: "เลขที่", uid: "bcPostedSalesInvoiceNoValue", sortable: true },
+  { name: "วันที่ออก", uid: "bcPostedSalesInvoicePostingDate", sortable: true },
+  { name: "วันครบกำหนด", uid: "bcPostedSalesInvoiceDueDate", sortable: true },
+  { name: "รหัสลูกค้า", uid: "bcPostedSalesInvoiceSellToCustomerNo", sortable: true },
+  { name: "ชื่อลูกค้า", uid: "bcPostedSalesInvoiceSellToCustomerName", sortable: true },
+  { name: "พนักงานขาย", uid: "bcPostedSalesInvoiceSalespersonCode", sortable: true },
+  { name: "ยอดรวม (รวม VAT)", uid: "bcPostedSalesInvoiceAmountIncludingVAT", sortable: true },
+  { name: "ยอดค้างชำระ", uid: "bcPostedSalesInvoiceRemainingAmount", sortable: true },
   { name: "ค้าง (วัน)", uid: "daysOverdue", sortable: true },
   { name: "สถานะ", uid: "status", sortable: true },
   { name: "รายการ", uid: "actions" },
 ];
 
 const initialVisibleColumns = [
-  "number",
-  "invoiceDate",
-  "dueDate",
-  "customerNumber",
-  "customerName",
-  "totalAmountIncludingTax",
-  "remainingAmount",
+  "bcPostedSalesInvoiceNoValue",
+  "bcPostedSalesInvoicePostingDate",
+  "bcPostedSalesInvoiceDueDate",
+  "bcPostedSalesInvoiceSellToCustomerNo",
+  "bcPostedSalesInvoiceSellToCustomerName",
+  "bcPostedSalesInvoiceAmountIncludingVAT",
+  "bcPostedSalesInvoiceRemainingAmount",
   "daysOverdue",
   "status",
   "actions",
@@ -81,28 +81,28 @@ const statusLabelMap = {
 export default function SalesInvoicesView({ data, loading, selected, isOpen, onClose, openLines }) {
   const renderCell = useCallback((item, key) => {
     switch (key) {
-      case "number":
-        return <span className="font-mono font-light">{item.number}</span>;
-      case "invoiceDate":
-        return fmtDate(item.invoiceDate);
-      case "dueDate": {
+      case "bcPostedSalesInvoiceNoValue":
+        return <span className="font-mono font-light">{item.bcPostedSalesInvoiceNoValue}</span>;
+      case "bcPostedSalesInvoicePostingDate":
+        return fmtDate(item.bcPostedSalesInvoicePostingDate);
+      case "bcPostedSalesInvoiceDueDate": {
         const days = item.daysOverdue || 0;
         return (
           <span className={days > 0 ? "font-light text-danger" : ""}>
-            {fmtDate(item.dueDate)}
+            {fmtDate(item.bcPostedSalesInvoiceDueDate)}
           </span>
         );
       }
-      case "customerNumber":
-        return <span className="font-mono">{item.customerNumber}</span>;
-      case "customerName":
-        return <span className="font-light">{item.customerName}</span>;
-      case "salesperson":
-        return <span className="text-muted-foreground">{item.salesperson || "-"}</span>;
-      case "totalAmountIncludingTax":
-        return <span>{fmt(item.totalAmountIncludingTax)}</span>;
-      case "remainingAmount": {
-        const v = item.remainingAmount || 0;
+      case "bcPostedSalesInvoiceSellToCustomerNo":
+        return <span className="font-mono">{item.bcPostedSalesInvoiceSellToCustomerNo}</span>;
+      case "bcPostedSalesInvoiceSellToCustomerName":
+        return <span className="font-light">{item.bcPostedSalesInvoiceSellToCustomerName}</span>;
+      case "bcPostedSalesInvoiceSalespersonCode":
+        return <span className="text-muted-foreground">{item.bcPostedSalesInvoiceSalespersonCode || "-"}</span>;
+      case "bcPostedSalesInvoiceAmountIncludingVAT":
+        return <span>{fmt(item.bcPostedSalesInvoiceAmountIncludingVAT)}</span>;
+      case "bcPostedSalesInvoiceRemainingAmount": {
+        const v = item.bcPostedSalesInvoiceRemainingAmount || 0;
         return <span className={v > 0 ? "font-light text-warning" : "text-success"}>{fmt(v)}</span>;
       }
       case "daysOverdue": {
@@ -131,7 +131,9 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
     }
   }, [openLines]);
 
-  const lines = (selected?.salesInvoiceLines || []).filter((l) => l.lineType !== "Comment");
+  const lines = (selected?.salesInvoiceLines || []).filter(
+    (l) => l.bcPostedSalesInvoiceLineTypeValue !== "Comment"
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -143,8 +145,8 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาเลขที่ใบแจ้งหนี้, ลูกค้า..."
-        searchKeys={["number", "customerNumber", "customerName", "salesperson"]}
-        defaultSortDescriptor={{ column: "invoiceDate", direction: "descending" }}
+        searchKeys={["bcPostedSalesInvoiceNoValue", "bcPostedSalesInvoiceSellToCustomerNo", "bcPostedSalesInvoiceSellToCustomerName", "bcPostedSalesInvoiceSalespersonCode"]}
+        defaultSortDescriptor={{ column: "bcPostedSalesInvoicePostingDate", direction: "descending" }}
         emptyContent="ไม่พบใบแจ้งหนี้ขาย"
         getRowClassName={(item) =>
           item.daysOverdue > 0 ? "bg-danger-50/50" : undefined
@@ -158,9 +160,9 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
       <Modal isOpen={isOpen} onClose={onClose} size="5xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            <span>รายการสินค้า — {selected?.number}</span>
+            <span>รายการสินค้า — {selected?.bcPostedSalesInvoiceNoValue}</span>
             <span className="text-xs font-light text-muted-foreground">
-              {selected?.customerName} | ยอดรวม {fmt(selected?.totalAmountIncludingTax)} | ค้างชำระ {fmt(selected?.remainingAmount)}
+              {selected?.bcPostedSalesInvoiceSellToCustomerName} | ยอดรวม {fmt(selected?.bcPostedSalesInvoiceAmountIncludingVAT)} | ค้างชำระ {fmt(selected?.bcPostedSalesInvoiceRemainingAmount)}
             </span>
           </ModalHeader>
           <ModalBody>
@@ -180,16 +182,16 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
                   <TableRow key={line.id || idx}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
-                      <Chip size="md" variant="flat" color={line.lineType === "Item" ? "primary" : "default"}>
-                        {line.lineType}
+                      <Chip size="md" variant="flat" color={line.bcPostedSalesInvoiceLineTypeValue === "Item" ? "primary" : "default"}>
+                        {line.bcPostedSalesInvoiceLineTypeValue}
                       </Chip>
                     </TableCell>
-                    <TableCell className="font-mono">{line.lineObjectNumber || "-"}</TableCell>
-                    <TableCell>{line.description || "-"}</TableCell>
-                    <TableCell>{line.quantity ? Number(line.quantity).toLocaleString("th-TH") : "-"}</TableCell>
-                    <TableCell className="text-muted-foreground">{line.unitOfMeasureCode || "-"}</TableCell>
-                    <TableCell>{fmt(line.unitPrice)}</TableCell>
-                    <TableCell className="font-light">{fmt(line.amountIncludingTax)}</TableCell>
+                    <TableCell className="font-mono">{line.bcPostedSalesInvoiceLineNoValue || "-"}</TableCell>
+                    <TableCell>{line.bcPostedSalesInvoiceLineDescriptionValue || "-"}</TableCell>
+                    <TableCell>{line.bcPostedSalesInvoiceLineQuantityValue ? Number(line.bcPostedSalesInvoiceLineQuantityValue).toLocaleString("th-TH") : "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{line.bcPostedSalesInvoiceLineUnitOfMeasureCode || "-"}</TableCell>
+                    <TableCell>{fmt(line.bcPostedSalesInvoiceLineUnitPrice)}</TableCell>
+                    <TableCell className="font-light">{fmt(line.bcPostedSalesInvoiceLineAmountIncludingVAT)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -197,9 +199,9 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
           </ModalBody>
           <ModalFooter>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span>ก่อน VAT: {fmt(selected?.totalAmountExcludingTax)}</span>
+              <span>ก่อน VAT: {fmt(selected?.bcPostedSalesInvoiceAmountValue)}</span>
               <span>VAT: {fmt(selected?.totalTaxAmount)}</span>
-              <span className="font-light text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>
+              <span className="font-light text-foreground">รวม: {fmt(selected?.bcPostedSalesInvoiceAmountIncludingVAT)}</span>
             </div>
             <Button variant="flat" size="md" onPress={onClose}>ปิด</Button>
           </ModalFooter>

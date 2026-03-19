@@ -36,26 +36,26 @@ function daysColor(days) {
 }
 
 const columns = [
-  { name: "เลขที่", uid: "number", sortable: true },
-  { name: "เลขที่ใบแจ้งหนี้ผู้ขาย", uid: "vendorInvoiceNumber", sortable: true },
-  { name: "วันที่ออก", uid: "invoiceDate", sortable: true },
-  { name: "วันครบกำหนด", uid: "dueDate", sortable: true },
-  { name: "รหัสเจ้าหนี้", uid: "vendorNumber", sortable: true },
-  { name: "ชื่อเจ้าหนี้", uid: "vendorName", sortable: true },
-  { name: "ผู้จัดซื้อ", uid: "purchaser", sortable: true },
-  { name: "ยอดรวม (รวม VAT)", uid: "totalAmountIncludingTax", sortable: true },
+  { name: "เลขที่", uid: "bcPostedPurchInvoiceNoValue", sortable: true },
+  { name: "เลขที่ใบแจ้งหนี้ผู้ขาย", uid: "bcPostedPurchInvoiceVendorInvoiceNo", sortable: true },
+  { name: "วันที่ออก", uid: "bcPostedPurchInvoicePostingDate", sortable: true },
+  { name: "วันครบกำหนด", uid: "bcPostedPurchInvoiceDueDate", sortable: true },
+  { name: "รหัสเจ้าหนี้", uid: "bcPostedPurchInvoiceBuyFromVendorNo", sortable: true },
+  { name: "ชื่อเจ้าหนี้", uid: "bcPostedPurchInvoiceBuyFromVendorName", sortable: true },
+  { name: "ผู้จัดซื้อ", uid: "bcPostedPurchInvoicePurchaserCode", sortable: true },
+  { name: "ยอดรวม (รวม VAT)", uid: "bcPostedPurchInvoiceAmountIncludingVAT", sortable: true },
   { name: "ค้าง (วัน)", uid: "daysOverdue", sortable: true },
   { name: "สถานะ", uid: "status", sortable: true },
   { name: "รายการ", uid: "actions" },
 ];
 
 const initialVisibleColumns = [
-  "number",
-  "invoiceDate",
-  "dueDate",
-  "vendorNumber",
-  "vendorName",
-  "totalAmountIncludingTax",
+  "bcPostedPurchInvoiceNoValue",
+  "bcPostedPurchInvoicePostingDate",
+  "bcPostedPurchInvoiceDueDate",
+  "bcPostedPurchInvoiceBuyFromVendorNo",
+  "bcPostedPurchInvoiceBuyFromVendorName",
+  "bcPostedPurchInvoiceAmountIncludingVAT",
   "daysOverdue",
   "status",
   "actions",
@@ -78,28 +78,28 @@ const statusLabelMap = {
 export default function PurchaseInvoicesView({ data, loading, selected, isOpen, onClose, openLines }) {
   const renderCell = useCallback((item, key) => {
     switch (key) {
-      case "number":
-        return <span className="font-mono font-light">{item.number}</span>;
-      case "vendorInvoiceNumber":
-        return <span className="text-muted-foreground">{item.vendorInvoiceNumber || "-"}</span>;
-      case "invoiceDate":
-        return fmtDate(item.invoiceDate);
-      case "dueDate": {
+      case "bcPostedPurchInvoiceNoValue":
+        return <span className="font-mono font-light">{item.bcPostedPurchInvoiceNoValue}</span>;
+      case "bcPostedPurchInvoiceVendorInvoiceNo":
+        return <span className="text-muted-foreground">{item.bcPostedPurchInvoiceVendorInvoiceNo || "-"}</span>;
+      case "bcPostedPurchInvoicePostingDate":
+        return fmtDate(item.bcPostedPurchInvoicePostingDate);
+      case "bcPostedPurchInvoiceDueDate": {
         const days = item.daysOverdue || 0;
         return (
           <span className={days > 0 ? "font-light text-danger" : ""}>
-            {fmtDate(item.dueDate)}
+            {fmtDate(item.bcPostedPurchInvoiceDueDate)}
           </span>
         );
       }
-      case "vendorNumber":
-        return <span className="font-mono">{item.vendorNumber}</span>;
-      case "vendorName":
-        return <span className="font-light">{item.vendorName}</span>;
-      case "purchaser":
-        return <span className="text-muted-foreground">{item.purchaser || "-"}</span>;
-      case "totalAmountIncludingTax":
-        return <span>{fmt(item.totalAmountIncludingTax)}</span>;
+      case "bcPostedPurchInvoiceBuyFromVendorNo":
+        return <span className="font-mono">{item.bcPostedPurchInvoiceBuyFromVendorNo}</span>;
+      case "bcPostedPurchInvoiceBuyFromVendorName":
+        return <span className="font-light">{item.bcPostedPurchInvoiceBuyFromVendorName}</span>;
+      case "bcPostedPurchInvoicePurchaserCode":
+        return <span className="text-muted-foreground">{item.bcPostedPurchInvoicePurchaserCode || "-"}</span>;
+      case "bcPostedPurchInvoiceAmountIncludingVAT":
+        return <span>{fmt(item.bcPostedPurchInvoiceAmountIncludingVAT)}</span>;
       case "daysOverdue": {
         const days = item.daysOverdue || 0;
         if (item.status !== "Open") return <span className="text-muted-foreground">-</span>;
@@ -126,7 +126,9 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
     }
   }, [openLines]);
 
-  const lines = (selected?.purchaseInvoiceLines || []).filter((l) => l.lineType !== "Comment");
+  const lines = (selected?.purchaseInvoiceLines || []).filter(
+    (l) => l.bcPostedPurchInvoiceLineTypeValue !== "Comment"
+  );
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -138,8 +140,8 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาเลขที่ใบแจ้งหนี้, เจ้าหนี้..."
-        searchKeys={["number", "vendorInvoiceNumber", "vendorNumber", "vendorName", "purchaser"]}
-        defaultSortDescriptor={{ column: "invoiceDate", direction: "descending" }}
+        searchKeys={["bcPostedPurchInvoiceNoValue", "bcPostedPurchInvoiceVendorInvoiceNo", "bcPostedPurchInvoiceBuyFromVendorNo", "bcPostedPurchInvoiceBuyFromVendorName", "bcPostedPurchInvoicePurchaserCode"]}
+        defaultSortDescriptor={{ column: "bcPostedPurchInvoicePostingDate", direction: "descending" }}
         emptyContent="ไม่พบใบแจ้งหนี้ซื้อ"
         getRowClassName={(item) =>
           item.daysOverdue > 0 ? "bg-danger-50/50" : undefined
@@ -153,10 +155,10 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
       <Modal isOpen={isOpen} onClose={onClose} size="5xl" scrollBehavior="inside">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            <span>รายการสินค้า — {selected?.number}</span>
+            <span>รายการสินค้า — {selected?.bcPostedPurchInvoiceNoValue}</span>
             <span className="text-xs font-light text-muted-foreground">
-              {selected?.vendorName} | {selected?.vendorInvoiceNumber ? `Ref: ${selected.vendorInvoiceNumber} | ` : ""}
-              ยอดรวม {fmt(selected?.totalAmountIncludingTax)}
+              {selected?.bcPostedPurchInvoiceBuyFromVendorName} | {selected?.bcPostedPurchInvoiceVendorInvoiceNo ? `Ref: ${selected.bcPostedPurchInvoiceVendorInvoiceNo} | ` : ""}
+              ยอดรวม {fmt(selected?.bcPostedPurchInvoiceAmountIncludingVAT)}
             </span>
           </ModalHeader>
           <ModalBody>
@@ -176,16 +178,16 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
                   <TableRow key={line.id || idx}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>
-                      <Chip size="md" variant="flat" color={line.lineType === "Item" ? "primary" : "default"}>
-                        {line.lineType}
+                      <Chip size="md" variant="flat" color={line.bcPostedPurchInvoiceLineTypeValue === "Item" ? "primary" : "default"}>
+                        {line.bcPostedPurchInvoiceLineTypeValue}
                       </Chip>
                     </TableCell>
-                    <TableCell className="font-mono">{line.lineObjectNumber || "-"}</TableCell>
-                    <TableCell>{line.description || "-"}</TableCell>
-                    <TableCell>{line.quantity ? Number(line.quantity).toLocaleString("th-TH") : "-"}</TableCell>
-                    <TableCell className="text-muted-foreground">{line.unitOfMeasureCode || "-"}</TableCell>
-                    <TableCell>{fmt(line.unitCost)}</TableCell>
-                    <TableCell className="font-light">{fmt(line.netAmountIncludingTax)}</TableCell>
+                    <TableCell className="font-mono">{line.bcPostedPurchInvoiceLineNoValue || "-"}</TableCell>
+                    <TableCell>{line.bcPostedPurchInvoiceLineDescriptionValue || "-"}</TableCell>
+                    <TableCell>{line.bcPostedPurchInvoiceLineQuantityValue ? Number(line.bcPostedPurchInvoiceLineQuantityValue).toLocaleString("th-TH") : "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{line.bcPostedPurchInvoiceLineUnitOfMeasureCode || "-"}</TableCell>
+                    <TableCell>{fmt(line.bcPostedPurchInvoiceLineDirectUnitCost)}</TableCell>
+                    <TableCell className="font-light">{fmt(line.bcPostedPurchInvoiceLineAmountIncludingVAT)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -193,9 +195,9 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
           </ModalBody>
           <ModalFooter>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span>ก่อน VAT: {fmt(selected?.totalAmountExcludingTax)}</span>
+              <span>ก่อน VAT: {fmt(selected?.bcPostedPurchInvoiceAmountValue)}</span>
               <span>VAT: {fmt(selected?.totalTaxAmount)}</span>
-              <span className="font-light text-foreground">รวม: {fmt(selected?.totalAmountIncludingTax)}</span>
+              <span className="font-light text-foreground">รวม: {fmt(selected?.bcPostedPurchInvoiceAmountIncludingVAT)}</span>
             </div>
             <Button variant="flat" size="md" onPress={onClose}>ปิด</Button>
           </ModalFooter>
