@@ -186,7 +186,7 @@ export default function BankReconClient() {
     setArLoading(true);
     try {
       const rows = await get("/api/finance/agedReceivables");
-      setArData((rows || []).filter((r) => r.customerNumber && Number(r.balanceDue) !== 0));
+      setArData((rows || []).filter((r) => r.bcCustomerLedgerEntryCustomerNo && Number(r.totalRemaining) !== 0));
     } catch (err) {
       console.error("Load AR data error:", err);
       toast.error("โหลดข้อมูล AR ล้มเหลว");
@@ -220,16 +220,16 @@ export default function BankReconClient() {
 
     const arMap = new Map();
     for (const ar of arData) {
-      arMap.set(ar.customerNumber, ar);
+      arMap.set(ar.bcCustomerLedgerEntryCustomerNo, ar);
     }
 
     const result = [];
     const seen = new Set();
 
     for (const ar of arData) {
-      const matched = matchedByCustomer.get(ar.customerNumber);
+      const matched = matchedByCustomer.get(ar.bcCustomerLedgerEntryCustomerNo);
       const matchedTotal = matched?.matchedTotal || 0;
-      const arBalance = Number(ar.balanceDue || 0);
+      const arBalance = Number(ar.totalRemaining || 0);
       const difference = arBalance - matchedTotal;
 
       let status;
@@ -238,19 +238,19 @@ export default function BankReconClient() {
       else status = "จ่ายเกิน";
 
       result.push({
-        customerNumber: ar.customerNumber,
-        customerName: matched?.customerName || ar.name,
+        customerNumber: ar.bcCustomerLedgerEntryCustomerNo,
+        customerName: matched?.customerName || ar.bcCustomerLedgerEntryCustomerName,
         matchedTotal,
         invoiceCount: matched?.invoiceCount || 0,
         arBalanceDue: arBalance,
-        arCurrent: Number(ar.currentAmount || 0),
-        arPeriod1: Number(ar.period1Amount || 0),
-        arPeriod2: Number(ar.period2Amount || 0),
-        arPeriod3: Number(ar.period3Amount || 0),
+        arCurrent: Number(ar.current || 0),
+        arPeriod1: Number(ar.days1to30 || 0),
+        arPeriod2: Number(ar.days31to60 || 0),
+        arPeriod3: Number(ar.days61plus || 0),
         difference,
         status,
       });
-      seen.add(ar.customerNumber);
+      seen.add(ar.bcCustomerLedgerEntryCustomerNo);
     }
 
     for (const [key, matched] of matchedByCustomer) {

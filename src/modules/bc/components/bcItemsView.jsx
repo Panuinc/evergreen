@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { Chip } from "@heroui/react";
-import DataTable from "@/components/ui/DataTable";
+import DataTable from "@/components/ui/dataTable";
 
 const columns = [
   { name: "เลขที่", uid: "bcItemNo", sortable: true },

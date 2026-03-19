@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import DataTable from "@/components/ui/DataTable";
+import DataTable from "@/components/ui/dataTable";
 
 const columns = [
   { name: "เลขที่", uid: "bcCustomerNo", sortable: true },

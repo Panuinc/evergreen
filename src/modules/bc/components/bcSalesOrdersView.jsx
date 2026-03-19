@@ -17,7 +17,7 @@ import {
   TableCell,
 } from "@heroui/react";
 import { Eye } from "lucide-react";
-import DataTable from "@/components/ui/DataTable";
+import DataTable from "@/components/ui/dataTable";
 
 const columns = [
   { name: "เลขที่", uid: "bcSalesOrderNoValue", sortable: true },
