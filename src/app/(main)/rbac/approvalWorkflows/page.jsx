@@ -1,5 +1,3 @@
-"use client";
-
 import { Workflow } from "lucide-react";
 
 export default function ApprovalWorkflowsPage() {

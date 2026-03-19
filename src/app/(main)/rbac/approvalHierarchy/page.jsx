@@ -1,5 +1,3 @@
-"use client";
-
 import { GitBranch } from "lucide-react";
 
 export default function ApprovalHierarchyPage() {
