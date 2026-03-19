@@ -1880,7 +1880,7 @@ const UIDoorBom = ({
   setLockBlockPosition,
   lockBlockPiecesPerSide,
   setLockBlockPiecesPerSide,
-  doubleFrameSides,
+  doubleFrameSides: doubleFrameSidesState,
   doubleFrameCount,
   setDoubleFrameCount,
   coreType,
@@ -2571,8 +2571,8 @@ const UIDoorBom = ({
                   {doubleFrameSides.map(({ key, label }) => (
                     <Button
                       key={key}
-                      color={doubleFrameSides[key] ? "default" : "default"}
-                      variant={doubleFrameSides[key] ? "shadow" : "bordered"}
+                      color={doubleFrameSidesState[key] ? "default" : "default"}
+                      variant={doubleFrameSidesState[key] ? "shadow" : "bordered"}
                       size="md"
                       radius="md"
                       onPress={() => handleToggleDoubleSide(key)}

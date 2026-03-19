@@ -1185,7 +1185,7 @@ const useCoreCalculation = (results, coreType) => {
     };
   }, [results, coreType]);
 };
-import BomView from "@/modules/production/components/BomView";
+import BomView from "@/modules/production/components/bomView";
 
 export default function BomClient() {
 

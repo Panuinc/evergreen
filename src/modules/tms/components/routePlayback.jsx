@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/loading";
-const RoutePlaybackInner = dynamic(() => import("./RoutePlaybackInner"), {
+const RoutePlaybackInner = dynamic(() => import("./routePlaybackInner"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full min-h-[300px]">

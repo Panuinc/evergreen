@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Input, Button } from "@heroui/react";
 import { Search, MapPin, X } from "lucide-react";
 
-const MapInner = dynamic(() => import("./DeliveryPlanMapPickerInner"), {
+const MapInner = dynamic(() => import("./deliveryPlanMapPickerInner"), {
   ssr: false,
   loading: () => (
     <div className="h-[220px] w-full rounded-xl bg-default-100 flex items-center justify-center">
