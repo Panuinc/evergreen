@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httprate"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 
 	"github.com/evergreen/api/internal/admin"
 	"github.com/evergreen/api/internal/auth"
@@ -39,6 +40,9 @@ import (
 )
 
 func main() {
+	// Load .env file if present (local dev convenience)
+	_ = godotenv.Load()
+
 	// Structured logging
 	logger.Init()
 
