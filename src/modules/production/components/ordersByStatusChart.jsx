@@ -23,7 +23,7 @@ export default function OrdersByStatusChart({ data = [] }) {
           paddingAngle={2}
         >
           {data.map((_, i) => (
-            <Cell key={i} fill={colors[i % COLORS.length]} />
+            <Cell key={i} fill={colors[i % colors.length]} />
           ))}
         </Pie>
         <Tooltip formatter={(value) => [`${value} ใบ`, "จำนวน"]} />
