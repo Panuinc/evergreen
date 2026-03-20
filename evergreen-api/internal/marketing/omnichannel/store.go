@@ -204,7 +204,7 @@ func (s *Store) CreateRelatedProduct(ctx context.Context, body map[string]any) (
 	return db.QueryRow(ctx, s.pool, `
 		INSERT INTO "mktRelatedProduct" ("mktRelatedProductSourceItem","mktRelatedProductTargetItem","mktRelatedProductType","mktRelatedProductReason")
 		VALUES ($1,$2,$3,$4) RETURNING *
-	`, body["mktRelatedProductSourceItem"], body["mktRelatedProductTargetItem"], body["mktRelatedProductType"], body["mktRelatedProductReason"])
+	`, body["sourceItem"], body["targetItem"], body["type"], body["reason"])
 }
 
 func (s *Store) DeleteRelatedProduct(ctx context.Context, id string) {
@@ -266,7 +266,7 @@ func (s *Store) CreateFollowUp(ctx context.Context, body map[string]any) (map[st
 	return db.QueryRow(ctx, s.pool, `
 		INSERT INTO "mktFollowUp" ("mktFollowUpConversationId","mktFollowUpScheduledAt","mktFollowUpMessage")
 		VALUES ($1,$2,$3) RETURNING *
-	`, body["mktFollowUpConversationId"], body["mktFollowUpScheduledAt"], body["mktFollowUpMessage"])
+	`, body["conversationId"], body["scheduledAt"], body["message"])
 }
 
 func (s *Store) UpdateFollowUp(ctx context.Context, id string, body map[string]any) (map[string]any, error) {

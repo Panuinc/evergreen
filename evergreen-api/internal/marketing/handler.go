@@ -307,7 +307,7 @@ func (h *Handler) CreateWorkOrderProgress(w http.ResponseWriter, r *http.Request
 		return
 	}
 	// Auto-update work order progress
-	h.store.UpdateWorkOrderProgress(r.Context(), id, body["progress"])
+	h.store.UpdateWorkOrderProgress(r.Context(), id, body["mktWorkOrderProgressLogProgress"])
 	response.Created(w, data)
 }
 

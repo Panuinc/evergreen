@@ -130,18 +130,12 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
         return <span className="text-muted-foreground">{emp.hrEmployeeEmail || "-"}</span>;
       case "hrEmployeePhone":
         return <span className="text-muted-foreground">{emp.hrEmployeePhone || "-"}</span>;
-      case "hrEmployeeHrDivisionId": {
-        const div = divisions.find((d) => d.hrDivisionId === emp.hrEmployeeHrDivisionId);
-        return div ? div.hrDivisionName : "-";
-      }
-      case "hrEmployeeHrDepartmentId": {
-        const dept = departments.find((d) => d.hrDepartmentId === emp.hrEmployeeHrDepartmentId);
-        return dept ? dept.hrDepartmentName : "-";
-      }
-      case "hrEmployeeHrPositionId": {
-        const pos = positions.find((p) => p.hrPositionId === emp.hrEmployeeHrPositionId);
-        return pos ? pos.hrPositionTitle : "-";
-      }
+      case "hrEmployeeHrDivisionId":
+        return emp.divisionName || "-";
+      case "hrEmployeeHrDepartmentId":
+        return emp.departmentName || "-";
+      case "hrEmployeeHrPositionId":
+        return emp.positionName || "-";
       case "isActive":
         return <Chip variant="flat" size="md" radius="md" color={emp.isActive ? "success" : "default"}>{emp.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}</Chip>;
       case "actions":

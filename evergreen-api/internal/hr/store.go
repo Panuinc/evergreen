@@ -20,18 +20,26 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Employees ----
 
 func (s *Store) ListEmployees(ctx context.Context, search string, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT * FROM "hrEmployee" WHERE 1=1`
+	q := `SELECT e.*,
+		d."hrDivisionName" AS "divisionName",
+		dept."hrDepartmentName" AS "departmentName",
+		p."hrPositionTitle" AS "positionName"
+	FROM "hrEmployee" e
+	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
+	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"
+	LEFT JOIN "hrPosition" p ON p."hrPositionId" = e."hrEmployeeHrPositionId"
+	WHERE 1=1`
 	var args []any
 	idx := 1
 	if !includeInactive {
-		q += ` AND "isActive" = true`
+		q += ` AND e."isActive" = true`
 	}
 	if search != "" {
-		q += fmt.Sprintf(` AND ("hrEmployeeFirstName" ILIKE $%d OR "hrEmployeeLastName" ILIKE $%d OR "hrEmployeeEmail" ILIKE $%d)`, idx, idx+1, idx+2)
+		q += fmt.Sprintf(` AND (e."hrEmployeeFirstName" ILIKE $%d OR e."hrEmployeeLastName" ILIKE $%d OR e."hrEmployeeEmail" ILIKE $%d)`, idx, idx+1, idx+2)
 		pattern := "%" + search + "%"
 		args = append(args, pattern, pattern, pattern)
 	}
-	q += ` ORDER BY "hrEmployeeCreatedAt" DESC`
+	q += ` ORDER BY e."hrEmployeeCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -44,9 +52,17 @@ func (s *Store) CreateEmployee(ctx context.Context, body map[string]any) (map[st
 }
 
 func (s *Store) GetEmployee(ctx context.Context, id string, includeInactive bool) (map[string]any, error) {
-	q := `SELECT * FROM "hrEmployee" WHERE "hrEmployeeId" = $1`
+	q := `SELECT e.*,
+		d."hrDivisionName" AS "divisionName",
+		dept."hrDepartmentName" AS "departmentName",
+		p."hrPositionTitle" AS "positionName"
+	FROM "hrEmployee" e
+	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
+	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"
+	LEFT JOIN "hrPosition" p ON p."hrPositionId" = e."hrEmployeeHrPositionId"
+	WHERE e."hrEmployeeId" = $1`
 	if !includeInactive {
-		q += ` AND "isActive" = true`
+		q += ` AND e."isActive" = true`
 	}
 	return db.QueryRow(ctx, s.pool, q, id)
 }
@@ -172,7 +188,14 @@ func (s *Store) DeletePosition(ctx context.Context, id string) error {
 // ---- Dashboard ----
 
 func (s *Store) ListAllEmployees(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "hrEmployee"`)
+	return db.QueryRows(ctx, s.pool, `SELECT e.*,
+		d."hrDivisionName" AS "divisionName",
+		dept."hrDepartmentName" AS "departmentName",
+		p."hrPositionTitle" AS "positionName"
+	FROM "hrEmployee" e
+	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
+	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"
+	LEFT JOIN "hrPosition" p ON p."hrPositionId" = e."hrEmployeeHrPositionId"`)
 }
 
 func (s *Store) ListActiveDivisions(ctx context.Context) ([]map[string]any, error) {

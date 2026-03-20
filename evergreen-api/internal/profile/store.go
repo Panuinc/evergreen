@@ -21,9 +21,17 @@ func (s *Store) GetUserProfile(ctx context.Context, userID string) (map[string]a
 	return db.QueryRow(ctx, s.pool, `SELECT * FROM "rbacUserProfile" WHERE "rbacUserProfileId" = $1`, userID)
 }
 
-// GetEmployee returns the hrEmployee row linked to a given user ID.
+// GetEmployee returns the hrEmployee row linked to a given user ID, with resolved division/department/position names.
 func (s *Store) GetEmployee(ctx context.Context, userID string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "hrEmployee" WHERE "hrEmployeeUserId" = $1 LIMIT 1`, userID)
+	return db.QueryRow(ctx, s.pool, `SELECT e.*,
+		d."hrDivisionName" AS "divisionName",
+		dept."hrDepartmentName" AS "departmentName",
+		p."hrPositionTitle" AS "positionName"
+	FROM "hrEmployee" e
+	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
+	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"
+	LEFT JOIN "hrPosition" p ON p."hrPositionId" = e."hrEmployeeHrPositionId"
+	WHERE e."hrEmployeeUserId" = $1 LIMIT 1`, userID)
 }
 
 // GetUserRoles returns all active roles assigned to a given user ID.

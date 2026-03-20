@@ -164,7 +164,7 @@ func (s *Store) CreateWorkOrderProgress(ctx context.Context, id string, body map
 	return db.QueryRow(ctx, s.pool, `
 		INSERT INTO "mktWorkOrderProgressLog" ("mktWorkOrderProgressLogWorkOrderId","mktWorkOrderProgressLogDescription","mktWorkOrderProgressLogProgress","mktWorkOrderProgressLogCreatedBy")
 		VALUES ($1,$2,$3,$4) RETURNING *
-	`, id, body["description"], body["progress"], body["createdBy"])
+	`, id, body["mktWorkOrderProgressLogDescription"], body["mktWorkOrderProgressLogProgress"], body["mktWorkOrderProgressLogCreatedBy"])
 }
 
 func (s *Store) UpdateWorkOrderProgress(ctx context.Context, id string, progress any) {

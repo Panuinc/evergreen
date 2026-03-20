@@ -310,9 +310,11 @@ func (h *Handler) ListProductInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpsertProductInfo(w http.ResponseWriter, r *http.Request) {
-	var body []map[string]any
-	json.NewDecoder(r.Body).Decode(&body)
-	for _, item := range body {
+	var wrapper struct {
+		Items []map[string]any `json:"items"`
+	}
+	json.NewDecoder(r.Body).Decode(&wrapper)
+	for _, item := range wrapper.Items {
 		h.store.UpsertProductInfo(r.Context(), item)
 	}
 	response.OK(w, map[string]bool{"success": true})

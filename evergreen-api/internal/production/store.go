@@ -19,14 +19,96 @@ func NewStore(pool *pgxpool.Pool) *Store {
 }
 
 func (s *Store) GetProductionOrders(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "bcProductionOrder"`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			po."bcProductionOrderNo"                   AS "orderNo",
+			po."bcProductionOrderStatus"               AS "status",
+			po."bcProductionOrderDescription"           AS "description",
+			po."bcProductionOrderSourceNo"              AS "sourceNo",
+			po."bcProductionOrderQuantity"              AS "quantity",
+			po."bcProductionOrderDueDate"               AS "dueDate",
+			po."bcProductionOrderFinishedDate"          AS "finishedDate",
+			po."bcProductionOrderStartingDateTime"      AS "startingDateTime",
+			po."bcProductionOrderShortcutDimension1Code" AS "dim1Code",
+			po."bcProductionOrderShortcutDimension2Code" AS "dim2Code",
+			po."bcProductionOrderLocationCode"          AS "locationCode",
+			po."bcProductionOrderUnitCost"              AS "unitCost",
+			i."bcItemDescription"                       AS "itemDescription",
+			i."bcItemBaseUnitOfMeasure"                 AS "uom",
+			i."bcItemItemCategoryCode"                  AS "itemCategory",
+			i."bcItemUnitPrice"                         AS "itemUnitPrice"
+		FROM "bcProductionOrder" po
+		LEFT JOIN "bcItem" i ON i."bcItemNo" = po."bcProductionOrderSourceNo"
+	`)
 }
 
-func (s *Store) GetOutputQty(ctx context.Context) ([]map[string]any, error) {
+// GetItemLedgerEntries returns output and consumption entries linked to production orders.
+func (s *Store) GetItemLedgerEntries(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT COALESCE(SUM("bcItemLedgerEntryQuantityValue"), 0) as "totalOutput"
-		FROM "bcItemLedgerEntry"
-		WHERE "bcItemLedgerEntryEntryType" = 'Output'
+		SELECT
+			ile."bcItemLedgerEntryEntryType"          AS "entryType",
+			ile."bcItemLedgerEntryItemNo"              AS "itemNo",
+			ile."bcItemLedgerEntryQuantityValue"       AS "quantity",
+			ile."bcItemLedgerEntryPostingDate"         AS "postingDate",
+			ile."bcItemLedgerEntryOrderNo"             AS "orderNo",
+			ile."bcItemLedgerEntryDocumentNo"          AS "documentNo",
+			ile."bcItemLedgerEntryDescriptionValue"    AS "description",
+			ile."bcItemLedgerEntryGlobalDimension1Code" AS "dim1Code",
+			ile."bcItemLedgerEntryGlobalDimension2Code" AS "dim2Code",
+			ile."bcItemLedgerEntryItemCategoryCode"    AS "itemCategory",
+			i."bcItemDescription"                      AS "itemDescription",
+			i."bcItemUnitPrice"                        AS "itemUnitPrice"
+		FROM "bcItemLedgerEntry" ile
+		LEFT JOIN "bcItem" i ON i."bcItemNo" = ile."bcItemLedgerEntryItemNo"
+		WHERE ile."bcItemLedgerEntryEntryType" IN ('Output', 'Consumption')
+		  AND ile."bcItemLedgerEntryOrderNo" IS NOT NULL
+		  AND ile."bcItemLedgerEntryOrderNo" != ''
+	`)
+}
+
+// GetConsumptionCosts returns consumption costs aggregated by order from value entries.
+func (s *Store) GetConsumptionCosts(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			ve."bcValueEntryOrderNo"              AS "orderNo",
+			ve."bcValueEntryItemNo"               AS "itemNo",
+			ve."bcValueEntryPostingDate"          AS "postingDate",
+			ve."bcValueEntryGlobalDimension1Code" AS "dim1Code",
+			ve."bcValueEntryGlobalDimension2Code" AS "dim2Code",
+			ve."bcValueEntryDescriptionValue"     AS "description",
+			ABS(ve."bcValueEntryCostPerUnit" * ve."bcValueEntryValuedQuantity") AS "costAmount",
+			ABS(ve."bcValueEntryValuedQuantity")  AS "quantity",
+			i."bcItemDescription"                 AS "itemDescription"
+		FROM "bcValueEntry" ve
+		LEFT JOIN "bcItem" i ON i."bcItemNo" = ve."bcValueEntryItemNo"
+		WHERE ve."bcValueEntryItemLedgerEntryType" = 'Consumption'
+		  AND ve."bcValueEntryOrderNo" IS NOT NULL
+		  AND ve."bcValueEntryOrderNo" != ''
+	`)
+}
+
+// GetSalesPriceMap returns the latest unit price for each item from sales order lines.
+func (s *Store) GetSalesPriceMap(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			"bcSalesOrderLineNoValue"    AS "itemNo",
+			MAX("bcSalesOrderLineUnitPrice") AS "unitPrice"
+		FROM "bcSalesOrderLine"
+		WHERE "bcSalesOrderLineTypeValue" = 'Item'
+		  AND "bcSalesOrderLineUnitPrice" > 0
+		GROUP BY "bcSalesOrderLineNoValue"
+	`)
+}
+
+// GetDimensionNames returns dimension value names for dim1 and dim2.
+func (s *Store) GetDimensionNames(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			"bcDimensionSetEntryDimensionCode"      AS "dimCode",
+			"bcDimensionSetEntryDimensionValueCode"  AS "valueCode",
+			"bcDimensionSetEntryDimensionValueName"  AS "valueName"
+		FROM "bcDimensionSetEntry"
+		WHERE "bcDimensionSetEntryDimensionCode" IN ('DEPARTMENT', 'PROJECT')
 	`)
 }
 

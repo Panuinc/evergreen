@@ -234,22 +234,6 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	divisions, _ := h.store.ListActiveDivisions(ctx)
 	departments, _ := h.store.ListActiveDepartments(ctx)
 	positions, _ := h.store.ListActivePositions(ctx)
-	divMap := make(map[string]string)
-	for _, d := range divisions {
-		if id, ok := d["hrDivisionId"].(string); ok {
-			if name, ok := d["hrDivisionName"].(string); ok {
-				divMap[id] = name
-			}
-		}
-	}
-	deptMap := make(map[string]string)
-	for _, d := range departments {
-		if id, ok := d["hrDepartmentId"].(string); ok {
-			if name, ok := d["hrDepartmentName"].(string); ok {
-				deptMap[id] = name
-			}
-		}
-	}
 	total := len(employees)
 	active := 0
 	newThisMonth := 0
@@ -264,18 +248,10 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		if createdAt, ok := e["hrEmployeeCreatedAt"].(time.Time); ok && createdAt.After(monthStart) {
 			newThisMonth++
 		}
-		if div, ok := e["hrEmployeeHrDivisionId"].(string); ok && div != "" {
-			name := divMap[div]
-			if name == "" {
-				name = div
-			}
+		if name, ok := e["divisionName"].(string); ok && name != "" {
 			byDiv[name]++
 		}
-		if dept, ok := e["hrEmployeeHrDepartmentId"].(string); ok && dept != "" {
-			name := deptMap[dept]
-			if name == "" {
-				name = dept
-			}
+		if name, ok := e["departmentName"].(string); ok && name != "" {
 			byDept[name]++
 		}
 	}
