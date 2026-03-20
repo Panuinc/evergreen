@@ -56,7 +56,7 @@ export default function ImageGeneratorView({
 
   useEffect(() => {
     if (showHistory && history.length === 0) loadHistory();
-  }, [showHistory]);
+  }, [showHistory, history.length, loadHistory]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);

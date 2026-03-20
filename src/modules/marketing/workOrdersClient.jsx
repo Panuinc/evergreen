@@ -42,7 +42,7 @@ export default function WorkOrdersClient() {
   );
 
   const workOrders = workOrdersData || [];
-  const employees = employeesData || [];
+  const employees = useMemo(() => employeesData || [], [employeesData]);
   const loading = woLoading || empLoading;
 
   const currentEmployeeName = useMemo(() => {

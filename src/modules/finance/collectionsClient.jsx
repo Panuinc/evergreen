@@ -34,8 +34,8 @@ export default function CollectionsClient() {
   const { data: arRaw, isLoading: arLoading, mutate: mutateAr } = useSWR("/api/finance/agedReceivables", fetcher);
   const { data: fuRaw, isLoading: fuLoading, mutate: mutateFu } = useSWR("/api/finance/collections", fetcher);
 
-  const arData = arRaw || [];
-  const followUps = fuRaw || [];
+  const arData = useMemo(() => arRaw || [], [arRaw]);
+  const followUps = useMemo(() => fuRaw || [], [fuRaw]);
   const loading = arLoading || fuLoading;
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -184,7 +184,7 @@ export default function CollectionsClient() {
     } finally {
       setSubmitting(false);
     }
-  }, [form, selectedCustomer, addModal]);
+  }, [form, selectedCustomer, addModal, mutateFu]);
 
   const setField = useCallback((key, val) => setForm((prev) => ({ ...prev, [key]: val })), []);
 

@@ -374,7 +374,7 @@ function ShipmentsInner() {
     setSelectedPlanIds([String(fromPlanId)]);
     setEditingShipment(null);
     onOpen();
-  }, [fromPlanPrefill, fromPlanId, onOpen]);
+  }, [fromPlanPrefill, fromPlanId, onOpen, fetchDistance]);
 
   const handleOpen = (shipment = null) => {
     if (shipment) {

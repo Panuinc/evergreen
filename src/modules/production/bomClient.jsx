@@ -1197,7 +1197,7 @@ export default function BomClient() {
 
   // --- Cores data (inlined from useCores) ---
   const { data: coresData, isLoading: coresLoading } = useSWR("/api/production/cores", fetcher);
-  const coreItems = coresData || { foam: [], rockwool: [], particle: [], plywood: [], honeycomb: [] };
+  const coreItems = useMemo(() => coresData || { foam: [], rockwool: [], particle: [], plywood: [], honeycomb: [] }, [coresData]);
 
   const formRef = useRef(null);
   const [customerPO, setCustomerPO] = useState("");

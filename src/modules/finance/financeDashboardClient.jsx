@@ -220,11 +220,11 @@ export default function FinanceDashboardClient() {
   const { data: siData, isLoading: siLoading } = useSWR("/api/finance/salesInvoices?status=Open&expand=false", fetcher);
   const { data: piData, isLoading: piLoading } = useSWR("/api/finance/purchaseInvoices?status=Open&expand=false", fetcher);
 
-  const trialBalance = tbData || [];
-  const agedReceivables = arData || [];
-  const agedPayables = apData || [];
-  const salesInvoices = siData || [];
-  const purchaseInvoices = piData || [];
+  const trialBalance = useMemo(() => tbData || [], [tbData]);
+  const agedReceivables = useMemo(() => arData || [], [arData]);
+  const agedPayables = useMemo(() => apData || [], [apData]);
+  const salesInvoices = useMemo(() => siData || [], [siData]);
+  const purchaseInvoices = useMemo(() => piData || [], [piData]);
   const loading = tbLoading || arLoading || apLoading || siLoading || piLoading;
 
   const now = new Date();
@@ -235,7 +235,7 @@ export default function FinanceDashboardClient() {
   const [compareEnabled, setCompareEnabled] = useState(false);
 
   // prevTrialBalance: when compare is enabled, reuse the same trial balance data
-  const prevTrialBalance = compareEnabled ? trialBalance : [];
+  const prevTrialBalance = useMemo(() => compareEnabled ? trialBalance : [], [compareEnabled, trialBalance]);
 
   const periodRanges = useMemo(() => {
     const periodValue = { year: selectedYear, quarter: selectedQuarter, month: selectedMonth };
@@ -701,7 +701,6 @@ export default function FinanceDashboardClient() {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(invOverrideKey(selectedYear));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInventoryOverride(stored ? JSON.parse(stored) : null);
     } catch { setInventoryOverride(null); }
   }, [selectedYear]);

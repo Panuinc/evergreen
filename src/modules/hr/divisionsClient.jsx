@@ -49,15 +49,15 @@ export default function DivisionsClient({ initialDivisions }) {
   const deleteModal = useDisclosure();
   const [deletingDiv, setDeletingDiv] = useState(null);
 
-  const reloadDivisions = async () => {
+  const reloadDivisions = useCallback(async () => {
     try {
       const { get } = await import("@/lib/apiClient");
       const data = await get("/api/hr/divisions");
       setDivisions(data);
     } catch {}
-  };
+  }, []);
 
-  const handleOpen = (div = null) => {
+  const handleOpen = useCallback((div = null) => {
     if (div) {
       setEditingDiv(div);
       setFormData({
@@ -69,7 +69,7 @@ export default function DivisionsClient({ initialDivisions }) {
       setFormData(emptyForm);
     }
     onOpen();
-  };
+  }, [onOpen]);
 
   const handleSave = async () => {
     if (!formData.hrDivisionName.trim()) {
@@ -94,10 +94,10 @@ export default function DivisionsClient({ initialDivisions }) {
     }
   };
 
-  const confirmDelete = (div) => {
+  const confirmDelete = useCallback((div) => {
     setDeletingDiv(div);
     deleteModal.onOpen();
-  };
+  }, [deleteModal]);
 
   const handleDelete = async () => {
     if (!deletingDiv) return;
@@ -112,7 +112,7 @@ export default function DivisionsClient({ initialDivisions }) {
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = useCallback(async (item) => {
     try {
       await put(`/api/hr/divisions/${item.hrDivisionId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -120,7 +120,7 @@ export default function DivisionsClient({ initialDivisions }) {
     } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
-  };
+  }, [reloadDivisions]);
 
   const initialVisibleColumns = useMemo(() => {
     if (isSuperAdmin) {
@@ -204,7 +204,7 @@ export default function DivisionsClient({ initialDivisions }) {
           return div[columnKey] || "-";
       }
     },
-    [isSuperAdmin],
+    [isSuperAdmin, confirmDelete, handleOpen, toggleActive],
   );
 
   return (

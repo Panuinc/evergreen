@@ -47,7 +47,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
 
   const updateField = (field, value) => setFormData((prev) => ({ ...prev, [field]: value }));
 
-  const handleOpen = (employee = null) => {
+  const handleOpen = useCallback((employee = null) => {
     if (employee) {
       setEditingEmployee(employee);
       setFormData({
@@ -64,15 +64,15 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
       setFormData(emptyForm);
     }
     onOpen();
-  };
+  }, [onOpen]);
 
-  const reloadEmployees = async () => {
+  const reloadEmployees = useCallback(async () => {
     try {
       const { get } = await import("@/lib/apiClient");
       const data = await get("/api/hr/employees");
       setEmployees(data);
     } catch {}
-  };
+  }, []);
 
   const handleSave = async () => {
     if (!formData.hrEmployeeFirstName.trim() || !formData.hrEmployeeLastName.trim()) {
@@ -97,7 +97,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
     }
   };
 
-  const confirmDelete = (employee) => { setDeletingEmployee(employee); deleteModal.onOpen(); };
+  const confirmDelete = useCallback((employee) => { setDeletingEmployee(employee); deleteModal.onOpen(); }, [deleteModal]);
 
   const handleDelete = async () => {
     if (!deletingEmployee) return;
@@ -112,7 +112,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = useCallback(async (item) => {
     try {
       await put(`/api/hr/employees/${item.hrEmployeeId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -120,7 +120,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
     } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
-  };
+  }, [reloadEmployees]);
 
   const renderCell = useCallback((emp, columnKey) => {
     switch (columnKey) {
@@ -150,7 +150,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
       default:
         return emp[columnKey] || "-";
     }
-  }, [isSuperAdmin]);
+  }, [isSuperAdmin, confirmDelete, handleOpen, toggleActive]);
 
   return (
     <div className="flex flex-col w-full h-full gap-4">

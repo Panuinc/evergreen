@@ -55,15 +55,15 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
   const deleteModal = useDisclosure();
   const [deletingDept, setDeletingDept] = useState(null);
 
-  const reloadDepartments = async () => {
+  const reloadDepartments = useCallback(async () => {
     try {
       const { get } = await import("@/lib/apiClient");
       const data = await get("/api/hr/departments");
       setDepartments(data);
     } catch {}
-  };
+  }, []);
 
-  const handleOpen = (dept = null) => {
+  const handleOpen = useCallback((dept = null) => {
     if (dept) {
       setEditingDept(dept);
       setFormData({
@@ -76,7 +76,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
       setFormData(emptyForm);
     }
     onOpen();
-  };
+  }, [onOpen]);
 
   const handleSave = async () => {
     if (!formData.hrDepartmentName.trim()) {
@@ -101,10 +101,10 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
     }
   };
 
-  const confirmDelete = (dept) => {
+  const confirmDelete = useCallback((dept) => {
     setDeletingDept(dept);
     deleteModal.onOpen();
-  };
+  }, [deleteModal]);
 
   const handleDelete = async () => {
     if (!deletingDept) return;
@@ -119,7 +119,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = useCallback(async (item) => {
     try {
       await put(`/api/hr/departments/${item.hrDepartmentId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -127,7 +127,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
     } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
-  };
+  }, [reloadDepartments]);
 
   const initialVisibleColumns = useMemo(() => {
     if (isSuperAdmin) {
@@ -215,7 +215,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
           return dept[columnKey] || "-";
       }
     },
-    [isSuperAdmin],
+    [isSuperAdmin, confirmDelete, divisions, handleOpen, toggleActive],
   );
 
   return (

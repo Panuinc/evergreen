@@ -66,7 +66,7 @@ export default function OmnichannelClient() {
     } finally {
       setMessagesLoading(false);
     }
-  }, []);
+  }, [mutateConversations]);
 
   const sendMessage = useCallback(
     async (content) => {
@@ -133,7 +133,7 @@ export default function OmnichannelClient() {
         toast.error("อัปเดตสถานะล้มเหลว");
       }
     },
-    [selectedConversation]
+    [selectedConversation, mutateConversations]
   );
 
   const updateContact = useCallback(
@@ -172,7 +172,7 @@ export default function OmnichannelClient() {
         toast.error("ลบการสนทนาล้มเหลว");
       }
     },
-    [selectedConversation]
+    [selectedConversation, mutateConversations]
   );
 
   const toggleAiAutoReply = useCallback(
@@ -193,7 +193,7 @@ export default function OmnichannelClient() {
         toast.error("เปลี่ยนสถานะ AI Auto-Reply ล้มเหลว");
       }
     },
-    [selectedConversation]
+    [selectedConversation, mutateConversations]
   );
 
   const suggestReply = useCallback(async () => {
@@ -322,7 +322,7 @@ export default function OmnichannelClient() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [mutateConversations]);
+  }, [mutateConversations, loadConversations]);
 
   return (
     <OmnichannelView

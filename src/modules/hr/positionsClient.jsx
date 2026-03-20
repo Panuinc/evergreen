@@ -54,15 +54,15 @@ export default function PositionsClient({ initialPositions, initialDepartments }
   const deleteModal = useDisclosure();
   const [deletingPos, setDeletingPos] = useState(null);
 
-  const reloadPositions = async () => {
+  const reloadPositions = useCallback(async () => {
     try {
       const { get } = await import("@/lib/apiClient");
       const data = await get("/api/hr/positions");
       setPositions(data);
     } catch {}
-  };
+  }, []);
 
-  const handleOpen = (pos = null) => {
+  const handleOpen = useCallback((pos = null) => {
     if (pos) {
       setEditingPos(pos);
       setFormData({
@@ -75,7 +75,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
       setFormData(emptyForm);
     }
     onOpen();
-  };
+  }, [onOpen]);
 
   const handleSave = async () => {
     if (!formData.hrPositionTitle.trim()) {
@@ -100,10 +100,10 @@ export default function PositionsClient({ initialPositions, initialDepartments }
     }
   };
 
-  const confirmDelete = (pos) => {
+  const confirmDelete = useCallback((pos) => {
     setDeletingPos(pos);
     deleteModal.onOpen();
-  };
+  }, [deleteModal]);
 
   const handleDelete = async () => {
     if (!deletingPos) return;
@@ -118,7 +118,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = useCallback(async (item) => {
     try {
       await put(`/api/hr/positions/${item.hrPositionId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -126,7 +126,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
     } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
-  };
+  }, [reloadPositions]);
 
   const initialVisibleColumns = useMemo(() => {
     if (isSuperAdmin) {
@@ -219,7 +219,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
           return pos[columnKey] || "-";
       }
     },
-    [isSuperAdmin],
+    [isSuperAdmin, confirmDelete, departments, handleOpen, toggleActive],
   );
 
   return (
