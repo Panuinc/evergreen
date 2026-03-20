@@ -82,7 +82,7 @@ function ExpenseTable({ title, data, year, color, chipLabel, compYears = [], com
                   label={({ name, value }) => `${name} ${fmtPie(value)}`}
                   labelLine={false}
                 >
-                  {pieData.map((_, i) => <Cell key={i} fill={colors[i % COLORS.length]} />)}
+                  {pieData.map((_, i) => <Cell key={i} fill={colors[i % colors.length]} />)}
                 </Pie>
                 <RechartsTooltip formatter={(v) => fmt(v)} />
               </PieChart>

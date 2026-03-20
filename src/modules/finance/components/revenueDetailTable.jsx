@@ -85,7 +85,7 @@ export default function RevenueDetailTable({ data, loading, year, compYears = []
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
                   labelLine={false}
                 >
-                  {pieData.map((_, i) => <Cell key={i} fill={colors[i % COLORS.length]} />)}
+                  {pieData.map((_, i) => <Cell key={i} fill={colors[i % colors.length]} />)}
                 </Pie>
                 <RechartsTooltip formatter={(v) => fmt(v)} />
                 <Legend />

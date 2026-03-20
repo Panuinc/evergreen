@@ -28,7 +28,7 @@ func (s *Store) ListSalesInvoices(ctx context.Context, status string) ([]map[str
 	}
 	q := fmt.Sprintf(`
 		SELECT
-			i.id,
+			i."bcPostedSalesInvoiceId",
 			i."bcPostedSalesInvoiceNoValue" AS "invoiceNumber",
 			i."bcPostedSalesInvoicePostingDate" AS "invoiceDate",
 			i."bcPostedSalesInvoiceDueDate" AS "dueDate",
@@ -71,7 +71,7 @@ func (s *Store) ListSalesInvoices(ctx context.Context, status string) ([]map[str
 func (s *Store) ListPurchaseInvoices(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			i.id,
+			i."bcPostedPurchInvoiceId",
 			i."bcPostedPurchInvoiceNoValue" AS "invoiceNumber",
 			i."bcPostedPurchInvoiceVendorInvoiceNo" AS "vendorInvoiceNumber",
 			i."bcPostedPurchInvoicePostingDate" AS "invoiceDate",

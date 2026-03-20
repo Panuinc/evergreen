@@ -373,18 +373,18 @@ export function computeCogsDetail(byAccount) {
   if (!byAccount || !Object.keys(byAccount).length) return [];
 
   const getRow = (struct) => {
-    const months = {};
+    const result = {};
     let total = 0;
     for (const acctNo of struct.accounts) {
       const acct = byAccount[acctNo];
       if (!acct) continue;
       for (const m of months) {
-        if (!months[m]) months[m] = 0;
-        months[m] += acct.months[m] || 0;
+        if (!result[m]) result[m] = 0;
+        result[m] += acct.months[m] || 0;
       }
       total += acct.total;
     }
-    return { key: struct.key, label: struct.label, labelEn: struct.labelEn, months, total, type: "item" };
+    return { key: struct.key, label: struct.label, labelEn: struct.labelEn, months: result, total, type: "item" };
   };
 
   const rows = cogsStructure.map(getRow);
@@ -405,25 +405,25 @@ export function computeCogsDetail(byAccount) {
   const knownInvAccounts = new Set(inventoryAccounts.map((i) => i.account));
   const invRows = inventoryAccounts.map((inv) => {
     const acct = byAccount[inv.account];
-    const months = {};
+    const mths = {};
     let total = 0;
     if (acct) {
       for (const m of months) {
-        months[m] = -(acct.months[m] || 0);
+        mths[m] = -(acct.months[m] || 0);
       }
       total = -acct.total;
     }
-    return { key: inv.key, label: `หัก: ${inv.label}`, labelEn: `Less: ${inv.labelEn}`, months, total, type: "deduction" };
+    return { key: inv.key, label: `หัก: ${inv.label}`, labelEn: `Less: ${inv.labelEn}`, months: mths, total, type: "deduction" };
   });
 
 
   for (const [acctNo, acct] of Object.entries(byAccount)) {
     if (!acctNo.startsWith("115") || knownInvAccounts.has(acctNo)) continue;
-    const months = {};
+    const mths = {};
     let total = 0;
-    for (const m of months) months[m] = -(acct.months[m] || 0);
+    for (const m of months) mths[m] = -(acct.months[m] || 0);
     total = -acct.total;
-    invRows.push({ key: acctNo, label: `หัก: ${acct.name || acctNo}`, months, total, type: "deduction" });
+    invRows.push({ key: acctNo, label: `หัก: ${acct.name || acctNo}`, months: mths, total, type: "deduction" });
   }
   rows.push(...invRows);
 
