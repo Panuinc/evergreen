@@ -16,6 +16,7 @@ func Routes(h *Handler) chi.Router {
 		})
 	})
 
+	r.Put("/contacts/{id}", h.UpdateContact)
 	r.Post("/send", h.SendMessage)
 	r.Post("/logNote", h.LogNote)
 

@@ -18,12 +18,18 @@ func NewStore(pool *pgxpool.Pool) *Store {
 
 // GetUserProfile returns the rbacUserProfile row for a given user ID.
 func (s *Store) GetUserProfile(ctx context.Context, userID string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "rbacUserProfile" WHERE "rbacUserProfileId" = $1`, userID)
+	return db.QueryRow(ctx, s.pool, `SELECT "rbacUserProfileId", "rbacUserProfileEmail", "rbacUserProfileCreatedAt" FROM "rbacUserProfile" WHERE "rbacUserProfileId" = $1`, userID)
 }
 
 // GetEmployee returns the hrEmployee row linked to a given user ID, with resolved division/department/position names.
 func (s *Store) GetEmployee(ctx context.Context, userID string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT e.*,
+	return db.QueryRow(ctx, s.pool, `SELECT
+		e."hrEmployeeId",
+		e."hrEmployeeFirstName",
+		e."hrEmployeeLastName",
+		e."hrEmployeeEmail",
+		e."hrEmployeePhone",
+		e."isActive",
 		d."hrDivisionName" AS "divisionName",
 		dept."hrDepartmentName" AS "departmentName",
 		p."hrPositionTitle" AS "positionName"
@@ -37,7 +43,7 @@ func (s *Store) GetEmployee(ctx context.Context, userID string) (map[string]any,
 // GetUserRoles returns all active roles assigned to a given user ID.
 func (s *Store) GetUserRoles(ctx context.Context, userID string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT r.*
+		SELECT r."rbacRoleId", r."rbacRoleName", r."rbacRoleIsSuperadmin"
 		FROM "rbacUserRole" ur
 		JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
 		WHERE ur."rbacUserRoleUserId" = $1

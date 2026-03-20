@@ -20,7 +20,11 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Vehicles ----
 
 func (s *Store) ListVehicles(ctx context.Context, isSuperAdmin bool, isActive, search string) ([]map[string]any, error) {
-	q := `SELECT * FROM "tmsVehicle" WHERE 1=1`
+	q := `SELECT "tmsVehicleId", "tmsVehiclePlateNumber", "tmsVehicleName",
+		"tmsVehicleWidth", "tmsVehicleLength", "tmsVehicleHeight",
+		"tmsVehicleCapacityKg", "tmsVehicleFuelType", "tmsVehicleFuelConsumptionRate",
+		"tmsVehicleStatus", "tmsVehicleForthtrackRef", "tmsVehicleCreatedAt", "isActive"
+		FROM "tmsVehicle" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
@@ -41,7 +45,11 @@ func (s *Store) ListVehicles(ctx context.Context, isSuperAdmin bool, isActive, s
 }
 
 func (s *Store) GetVehicle(ctx context.Context, id string, isSuperAdmin bool) (map[string]any, error) {
-	q := `SELECT * FROM "tmsVehicle" WHERE "tmsVehicleId" = $1`
+	q := `SELECT "tmsVehicleId", "tmsVehiclePlateNumber", "tmsVehicleName",
+		"tmsVehicleWidth", "tmsVehicleLength", "tmsVehicleHeight",
+		"tmsVehicleCapacityKg", "tmsVehicleFuelType", "tmsVehicleFuelConsumptionRate",
+		"tmsVehicleStatus", "tmsVehicleForthtrackRef", "tmsVehicleCreatedAt", "isActive"
+		FROM "tmsVehicle" WHERE "tmsVehicleId" = $1`
 	if !isSuperAdmin {
 		q += ` AND "isActive" = true`
 	}
@@ -77,7 +85,15 @@ func (s *Store) SoftDeleteVehicle(ctx context.Context, id string) error {
 // ---- Shipments ----
 
 func (s *Store) ListShipments(ctx context.Context, isSuperAdmin bool, status, search string) ([]map[string]any, error) {
-	q := `SELECT * FROM "tmsShipment" WHERE 1=1`
+	q := `SELECT "tmsShipmentId", "tmsShipmentNumber", "tmsShipmentDate",
+		"tmsShipmentCustomerName", "tmsShipmentCustomerPhone", "tmsShipmentCustomerAddress",
+		"tmsShipmentDestination", "tmsShipmentVehicleId", "tmsShipmentDriverId",
+		"tmsShipmentDriverWage", "tmsShipmentAssistants", "tmsShipmentAssistantId",
+		"tmsShipmentAssistantWage", "tmsShipmentSalesOrderRef", "tmsShipmentItemsSummary",
+		"tmsShipmentDistance", "tmsShipmentFuelPricePerLiter", "tmsShipmentFuelCost",
+		"tmsShipmentExtras", "tmsShipmentNotes", "tmsShipmentStatus", "tmsShipmentStops",
+		"tmsShipmentEstimatedArrival", "tmsShipmentCreatedAt", "isActive"
+		FROM "tmsShipment" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
@@ -98,7 +114,15 @@ func (s *Store) ListShipments(ctx context.Context, isSuperAdmin bool, status, se
 }
 
 func (s *Store) GetShipment(ctx context.Context, id string, isSuperAdmin bool) (map[string]any, error) {
-	q := `SELECT * FROM "tmsShipment" WHERE "tmsShipmentId" = $1`
+	q := `SELECT "tmsShipmentId", "tmsShipmentNumber", "tmsShipmentDate",
+		"tmsShipmentCustomerName", "tmsShipmentCustomerPhone", "tmsShipmentCustomerAddress",
+		"tmsShipmentDestination", "tmsShipmentVehicleId", "tmsShipmentDriverId",
+		"tmsShipmentDriverWage", "tmsShipmentAssistants", "tmsShipmentAssistantId",
+		"tmsShipmentAssistantWage", "tmsShipmentSalesOrderRef", "tmsShipmentItemsSummary",
+		"tmsShipmentDistance", "tmsShipmentFuelPricePerLiter", "tmsShipmentFuelCost",
+		"tmsShipmentExtras", "tmsShipmentNotes", "tmsShipmentStatus", "tmsShipmentStops",
+		"tmsShipmentEstimatedArrival", "tmsShipmentCreatedAt", "isActive"
+		FROM "tmsShipment" WHERE "tmsShipmentId" = $1`
 	if !isSuperAdmin {
 		q += ` AND "isActive" = true`
 	}
@@ -147,7 +171,11 @@ func (s *Store) SoftDeleteShipment(ctx context.Context, id string) error {
 // ---- Deliveries ----
 
 func (s *Store) ListDeliveries(ctx context.Context, isSuperAdmin bool, shipmentId string) ([]map[string]any, error) {
-	q := `SELECT * FROM "tmsDelivery" WHERE 1=1`
+	q := `SELECT "tmsDeliveryId", "tmsDeliveryShipmentId", "tmsDeliveryReceiverName",
+		"tmsDeliveryReceiverPhone", "tmsDeliveryStatus", "tmsDeliveryNotes",
+		"tmsDeliverySignatureUrl", "tmsDeliveryPhotoUrls", "tmsDeliveryReceivedAt",
+		"tmsDeliveryItem", "tmsDeliveryCreatedAt", "isActive"
+		FROM "tmsDelivery" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
@@ -162,7 +190,11 @@ func (s *Store) ListDeliveries(ctx context.Context, isSuperAdmin bool, shipmentI
 }
 
 func (s *Store) GetDelivery(ctx context.Context, id string, isSuperAdmin bool) (map[string]any, error) {
-	q := `SELECT * FROM "tmsDelivery" WHERE "tmsDeliveryId" = $1`
+	q := `SELECT "tmsDeliveryId", "tmsDeliveryShipmentId", "tmsDeliveryReceiverName",
+		"tmsDeliveryReceiverPhone", "tmsDeliveryStatus", "tmsDeliveryNotes",
+		"tmsDeliverySignatureUrl", "tmsDeliveryPhotoUrls", "tmsDeliveryReceivedAt",
+		"tmsDeliveryItem", "tmsDeliveryCreatedAt", "isActive"
+		FROM "tmsDelivery" WHERE "tmsDeliveryId" = $1`
 	if !isSuperAdmin {
 		q += ` AND "isActive" = true`
 	}
@@ -193,7 +225,11 @@ func (s *Store) SoftDeleteDelivery(ctx context.Context, id string) error {
 // ---- Delivery Plans ----
 
 func (s *Store) ListDeliveryPlans(ctx context.Context, month string) ([]map[string]any, error) {
-	q := `SELECT * FROM "tmsDeliveryPlan" WHERE 1=1`
+	q := `SELECT "tmsDeliveryPlanId", "tmsDeliveryPlanDate", "tmsDeliveryPlanStatus",
+		"tmsDeliveryPlanPriority", "tmsDeliveryPlanNotes", "tmsDeliveryPlanAddress",
+		"tmsDeliveryPlanLat", "tmsDeliveryPlanLng", "tmsDeliveryPlanItem",
+		"tmsDeliveryPlanShipmentId", "tmsDeliveryPlanShipmentNumber", "tmsDeliveryPlanCreatedBy"
+		FROM "tmsDeliveryPlan" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if month != "" {
@@ -212,7 +248,11 @@ func (s *Store) CreateDeliveryPlan(ctx context.Context, date, status, createdBy 
 }
 
 func (s *Store) GetDeliveryPlan(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "tmsDeliveryPlan" WHERE "tmsDeliveryPlanId" = $1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT "tmsDeliveryPlanId", "tmsDeliveryPlanDate", "tmsDeliveryPlanStatus",
+		"tmsDeliveryPlanPriority", "tmsDeliveryPlanNotes", "tmsDeliveryPlanAddress",
+		"tmsDeliveryPlanLat", "tmsDeliveryPlanLng", "tmsDeliveryPlanItem",
+		"tmsDeliveryPlanShipmentId", "tmsDeliveryPlanShipmentNumber", "tmsDeliveryPlanCreatedBy"
+		FROM "tmsDeliveryPlan" WHERE "tmsDeliveryPlanId" = $1`, id)
 }
 
 func (s *Store) UpdateDeliveryPlan(ctx context.Context, id, date, status any) (map[string]any, error) {
@@ -231,7 +271,8 @@ func (s *Store) DeleteDeliveryPlan(ctx context.Context, id string) error {
 
 func (s *Store) ListUnshippedSalesOrders(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcSalesOrder"
+		SELECT "bcSalesOrderNoValue", "bcSalesOrderSellToCustomerName", "bcSalesOrderCompletelyShipped"
+		FROM "bcSalesOrder"
 		WHERE "bcSalesOrderCompletelyShipped" IS DISTINCT FROM 'true'
 		ORDER BY "bcSalesOrderNoValue"
 	`)
@@ -239,7 +280,11 @@ func (s *Store) ListUnshippedSalesOrders(ctx context.Context) ([]map[string]any,
 
 func (s *Store) GetSalesOrderLines(ctx context.Context, no string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcSalesOrderLine"
+		SELECT "bcSalesOrderLineLineNo", "bcSalesOrderLineDocumentNo",
+		"bcSalesOrderLineNoValue", "bcSalesOrderLineDescriptionValue",
+		"bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineQuantityValue",
+		"bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"
+		FROM "bcSalesOrderLine"
 		WHERE "bcSalesOrderLineDocumentNo" = $1 AND "bcSalesOrderLineOutstandingQuantity" > 0
 		ORDER BY "bcSalesOrderLineLineNo"
 	`, no)
@@ -248,7 +293,10 @@ func (s *Store) GetSalesOrderLines(ctx context.Context, no string) ([]map[string
 // ---- Fuel Logs ----
 
 func (s *Store) ListFuelLogs(ctx context.Context, isSuperAdmin bool, vehicleId string) ([]map[string]any, error) {
-	q := `SELECT * FROM "tmsFuelLog" WHERE 1=1`
+	q := `SELECT "tmsFuelLogId", "tmsFuelLogVehicleId", "tmsFuelLogDate",
+		"tmsFuelLogFuelType", "tmsFuelLogLiters", "tmsFuelLogPricePerLiter",
+		"tmsFuelLogTotalCost", "tmsFuelLogReceiptUrl", "tmsFuelLogCreatedAt", "isActive"
+		FROM "tmsFuelLog" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
@@ -263,7 +311,10 @@ func (s *Store) ListFuelLogs(ctx context.Context, isSuperAdmin bool, vehicleId s
 }
 
 func (s *Store) GetFuelLog(ctx context.Context, id string, isSuperAdmin bool) (map[string]any, error) {
-	q := `SELECT * FROM "tmsFuelLog" WHERE "tmsFuelLogId" = $1`
+	q := `SELECT "tmsFuelLogId", "tmsFuelLogVehicleId", "tmsFuelLogDate",
+		"tmsFuelLogFuelType", "tmsFuelLogLiters", "tmsFuelLogPricePerLiter",
+		"tmsFuelLogTotalCost", "tmsFuelLogReceiptUrl", "tmsFuelLogCreatedAt", "isActive"
+		FROM "tmsFuelLog" WHERE "tmsFuelLogId" = $1`
 	if !isSuperAdmin {
 		q += ` AND "isActive" = true`
 	}
@@ -297,7 +348,9 @@ func (s *Store) SoftDeleteFuelLog(ctx context.Context, id string) error {
 // ---- GPS Logs ----
 
 func (s *Store) ListGpsLogs(ctx context.Context, vehicleId, date string) ([]map[string]any, error) {
-	q := `SELECT * FROM "tmsGpsLog" WHERE 1=1`
+	q := `SELECT "tmsGpsLogId", "tmsGpsLogVehicleId", "tmsGpsLogLatitude",
+		"tmsGpsLogLongitude", "tmsGpsLogSpeed", "tmsGpsLogRecordedAt", "tmsGpsLogSource"
+		FROM "tmsGpsLog" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if vehicleId != "" {
@@ -322,7 +375,9 @@ func (s *Store) CreateGpsLog(ctx context.Context, vehicleId, latitude, longitude
 
 func (s *Store) LatestGpsLogs(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT DISTINCT ON ("tmsGpsLogVehicleId") *
+		SELECT DISTINCT ON ("tmsGpsLogVehicleId")
+		"tmsGpsLogId", "tmsGpsLogVehicleId", "tmsGpsLogLatitude",
+		"tmsGpsLogLongitude", "tmsGpsLogSpeed", "tmsGpsLogRecordedAt", "tmsGpsLogSource"
 		FROM "tmsGpsLog"
 		ORDER BY "tmsGpsLogVehicleId", "tmsGpsLogRecordedAt" DESC
 	`)
@@ -331,15 +386,15 @@ func (s *Store) LatestGpsLogs(ctx context.Context) ([]map[string]any, error) {
 // ---- Dashboard ----
 
 func (s *Store) DashboardVehicles(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "tmsVehicle" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "tmsVehicleId", "tmsVehicleStatus" FROM "tmsVehicle" WHERE "isActive" = true`)
 }
 
 func (s *Store) DashboardShipments(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "tmsShipment" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "tmsShipmentId", "tmsShipmentStatus" FROM "tmsShipment" WHERE "isActive" = true`)
 }
 
 func (s *Store) DashboardFuelLogs(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "tmsFuelLog" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "tmsFuelLogId", "tmsFuelLogTotalCost" FROM "tmsFuelLog" WHERE "isActive" = true`)
 }
 
 // ---- AI Analysis ----

@@ -20,7 +20,16 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Conversations ----
 
 func (s *Store) ListConversations(ctx context.Context, status, channel string) ([]map[string]any, error) {
-	q := `SELECT c.*, row_to_json(ct.*) as "mktContact"
+	q := `SELECT c."mktConversationId", c."mktConversationContactId", c."mktConversationChannelType",
+			c."mktConversationStatus", c."mktConversationLastMessageAt", c."mktConversationLastMessagePreview",
+			c."mktConversationUnreadCount", c."mktConversationAiAutoReply",
+			json_build_object(
+				'mktContactId', ct."mktContactId",
+				'mktContactDisplayName', ct."mktContactDisplayName",
+				'mktContactChannelType', ct."mktContactChannelType",
+				'mktContactExternalRef', ct."mktContactExternalRef",
+				'mktContactAvatarUrl', ct."mktContactAvatarUrl"
+			) as "mktContact"
 		FROM "mktConversation" c
 		LEFT JOIN "mktContact" ct ON ct."mktContactId" = c."mktConversationContactId"
 		WHERE c."isActive" = true`
@@ -41,7 +50,18 @@ func (s *Store) ListConversations(ctx context.Context, status, channel string) (
 
 func (s *Store) GetConversation(ctx context.Context, id string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		SELECT c.*, row_to_json(ct.*) as "mktContact"
+		SELECT c."mktConversationId", c."mktConversationContactId", c."mktConversationChannelType",
+			c."mktConversationStatus", c."mktConversationLastMessageAt", c."mktConversationLastMessagePreview",
+			c."mktConversationUnreadCount", c."mktConversationAiAutoReply", c."mktConversationAssignedTo",
+			json_build_object(
+				'mktContactId', ct."mktContactId",
+				'mktContactDisplayName', ct."mktContactDisplayName",
+				'mktContactChannelType', ct."mktContactChannelType",
+				'mktContactExternalRef', ct."mktContactExternalRef",
+				'mktContactAvatarUrl', ct."mktContactAvatarUrl",
+				'mktContactTags', ct."mktContactTags",
+				'mktContactNotes', ct."mktContactNotes"
+			) as "mktContact"
 		FROM "mktConversation" c LEFT JOIN "mktContact" ct ON ct."mktContactId"=c."mktConversationContactId"
 		WHERE c."mktConversationId"=$1`, id)
 }
@@ -65,7 +85,10 @@ func (s *Store) SoftDeleteConversation(ctx context.Context, id string) {
 
 func (s *Store) ListMessages(ctx context.Context, id string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "mktMessage" WHERE "mktMessageConversationId"=$1 AND "isActive"=true
+		SELECT "mktMessageId", "mktMessageConversationId", "mktMessageSenderType", "mktMessageContent",
+			"mktMessageType", "mktMessageImageUrl", "mktMessageIsAi", "mktMessageOcrData",
+			"mktMessageCreatedAt"
+		FROM "mktMessage" WHERE "mktMessageConversationId"=$1 AND "isActive"=true
 		ORDER BY "mktMessageCreatedAt" ASC
 	`, id)
 }
@@ -73,15 +96,40 @@ func (s *Store) ListMessages(ctx context.Context, id string) ([]map[string]any, 
 // ---- Send Message ----
 
 func (s *Store) GetConversationByID(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktConversation" WHERE "mktConversationId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `
+		SELECT "mktConversationId", "mktConversationContactId", "mktConversationChannelType",
+			"mktConversationStatus", "mktConversationAiAutoReply"
+		FROM "mktConversation" WHERE "mktConversationId"=$1
+	`, id)
 }
 
 func (s *Store) GetContactByID(ctx context.Context, contactID string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktContact" WHERE "mktContactId"=$1`, contactID)
+	return db.QueryRow(ctx, s.pool, `
+		SELECT "mktContactId", "mktContactDisplayName", "mktContactChannelType",
+			"mktContactExternalRef", "mktContactAvatarUrl"
+		FROM "mktContact" WHERE "mktContactId"=$1
+	`, contactID)
+}
+
+func (s *Store) UpdateContact(ctx context.Context, contactID string, body map[string]any) (map[string]any, error) {
+	return db.QueryRow(ctx, s.pool, `
+		UPDATE "mktContact" SET
+			"mktContactName"=COALESCE($2,"mktContactName"),
+			"mktContactPhone"=COALESCE($3,"mktContactPhone"),
+			"mktContactEmail"=COALESCE($4,"mktContactEmail"),
+			"mktContactCompany"=COALESCE($5,"mktContactCompany"),
+			"mktContactNotes"=COALESCE($6,"mktContactNotes"),
+			"mktContactUpdatedAt"=now()
+		WHERE "mktContactId"=$1 RETURNING *
+	`, contactID, body["mktContactName"], body["mktContactPhone"],
+		body["mktContactEmail"], body["mktContactCompany"], body["mktContactNotes"])
 }
 
 func (s *Store) GetActiveChannel(ctx context.Context, channelType string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktChannel" WHERE "mktChannelType"=$1 AND "mktChannelStatus"='active' LIMIT 1`, channelType)
+	return db.QueryRow(ctx, s.pool, `
+		SELECT "mktChannelId", "mktChannelType", "mktChannelAccessToken", "mktChannelPageRef", "mktChannelStatus"
+		FROM "mktChannel" WHERE "mktChannelType"=$1 AND "mktChannelStatus"='active' LIMIT 1
+	`, channelType)
 }
 
 func (s *Store) InsertAgentMessage(ctx context.Context, conversationID, content, msgType string) (map[string]any, error) {
@@ -101,7 +149,14 @@ func (s *Store) UpdateConversationAfterSend(ctx context.Context, conversationID,
 // ---- Quotations ----
 
 func (s *Store) ListQuotations(ctx context.Context, convID, status string) ([]map[string]any, error) {
-	q := `SELECT q.*, row_to_json(ct.*) as "mktContact"
+	q := `SELECT q."mktQuotationId", q."mktQuotationNumber", q."mktQuotationConversationId",
+			q."mktQuotationContactId", q."mktQuotationCustomerName", q."mktQuotationStatus",
+			q."mktQuotationCreatedAt", q."isActive",
+			json_build_object(
+				'mktContactId', ct."mktContactId",
+				'mktContactDisplayName', ct."mktContactDisplayName",
+				'mktContactChannelType', ct."mktContactChannelType"
+			) as "mktContact"
 		FROM "mktQuotation" q LEFT JOIN "mktContact" ct ON ct."mktContactId"=q."mktQuotationContactId"
 		WHERE 1=1`
 	args := []any{}
@@ -120,12 +175,23 @@ func (s *Store) ListQuotations(ctx context.Context, convID, status string) ([]ma
 }
 
 func (s *Store) GetQuotation(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktQuotation" WHERE "mktQuotationId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `
+		SELECT "mktQuotationId", "mktQuotationNumber", "mktQuotationConversationId",
+			"mktQuotationContactId", "mktQuotationCustomerName", "mktQuotationCustomerPhone",
+			"mktQuotationCustomerAddress", "mktQuotationPaymentMethod", "mktQuotationNotes",
+			"mktQuotationStatus", "mktQuotationApprovalNote", "mktQuotationSubmittedBy",
+			"mktQuotationApprovedBy", "mktQuotationCreatedAt", "mktQuotationUpdatedAt"
+		FROM "mktQuotation" WHERE "mktQuotationId"=$1
+	`, id)
 }
 
 func (s *Store) GetQuotationLines(ctx context.Context, id string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "mktQuotationLine" WHERE "mktQuotationLineQuotationId"=$1 ORDER BY "mktQuotationLineOrder"
+		SELECT "mktQuotationLineId", "mktQuotationLineQuotationId", "mktQuotationLineProductName",
+			"mktQuotationLineVariant", "mktQuotationLineQuantity", "mktQuotationLineUnitPrice",
+			"mktQuotationLineOrder"
+		FROM "mktQuotationLine" WHERE "mktQuotationLineQuotationId"=$1
+		ORDER BY "mktQuotationLineOrder"
 	`, id)
 }
 
@@ -166,7 +232,12 @@ func (s *Store) CancelQuotation(ctx context.Context, id string) {
 // ---- Promotions ----
 
 func (s *Store) ListPromotions(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktPromotion" ORDER BY "mktPromotionCreatedAt" DESC`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT "mktPromotionId", "mktPromotionName", "mktPromotionDescription", "mktPromotionType",
+			"mktPromotionValue", "mktPromotionMinQuantity", "mktPromotionApplicableProducts",
+			"mktPromotionStartDate", "mktPromotionEndDate", "mktPromotionIsActive", "mktPromotionCreatedAt"
+		FROM "mktPromotion" ORDER BY "mktPromotionCreatedAt" DESC
+	`)
 }
 
 func (s *Store) CreatePromotion(ctx context.Context, body map[string]any) (map[string]any, error) {
@@ -197,7 +268,11 @@ func (s *Store) DeletePromotion(ctx context.Context, id string) {
 // ---- Related Products ----
 
 func (s *Store) ListRelatedProducts(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktRelatedProduct" ORDER BY "mktRelatedProductCreatedAt" DESC`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT "mktRelatedProductId", "mktRelatedProductSourceItem", "mktRelatedProductTargetItem",
+			"mktRelatedProductType", "mktRelatedProductReason", "mktRelatedProductCreatedAt"
+		FROM "mktRelatedProduct" ORDER BY "mktRelatedProductCreatedAt" DESC
+	`)
 }
 
 func (s *Store) CreateRelatedProduct(ctx context.Context, body map[string]any) (map[string]any, error) {
@@ -215,12 +290,17 @@ func (s *Store) DeleteRelatedProduct(ctx context.Context, id string) {
 
 func (s *Store) ListStockItems(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcItem" WHERE "bcItemNo" LIKE 'FG-%' AND "bcItemBlocked" != 'true' ORDER BY "bcItemNo"
+		SELECT "bcItemNo", "bcItemDescription", "bcItemInventory", "bcItemUnitPrice", "bcItemUnitCost"
+		FROM "bcItem" WHERE "bcItemNo" LIKE 'FG-%' AND "bcItemBlocked" != 'true'
+		ORDER BY "bcItemNo"
 	`)
 }
 
 func (s *Store) ListPriceItems(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktPriceItem"`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT "mktPriceItemNumber", "mktPriceItemName", "mktPriceItemUnitPrice"
+		FROM "mktPriceItem"
+	`)
 }
 
 func (s *Store) UpsertPriceItem(ctx context.Context, item map[string]any, userID string) {
@@ -232,7 +312,11 @@ func (s *Store) UpsertPriceItem(ctx context.Context, item map[string]any, userID
 }
 
 func (s *Store) ListProductInfo(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktProductInfo" ORDER BY "mktProductInfoItemNumber"`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT "mktProductInfoItemNumber", "mktProductInfoDescription", "mktProductInfoHighlights",
+			"mktProductInfoCategory", "mktProductInfoImageUrl"
+		FROM "mktProductInfo" ORDER BY "mktProductInfoItemNumber"
+	`)
 }
 
 func (s *Store) UpsertProductInfo(ctx context.Context, item map[string]any) {
@@ -246,7 +330,9 @@ func (s *Store) UpsertProductInfo(ctx context.Context, item map[string]any) {
 // ---- Follow-ups ----
 
 func (s *Store) ListFollowUps(ctx context.Context, status, convID string) ([]map[string]any, error) {
-	q := `SELECT * FROM "mktFollowUp" WHERE 1=1`
+	q := `SELECT "mktFollowUpId", "mktFollowUpConversationId", "mktFollowUpScheduledAt",
+			"mktFollowUpMessage", "mktFollowUpStatus", "mktFollowUpSentAt", "mktFollowUpCreatedAt"
+		FROM "mktFollowUp" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if status != "" {
@@ -285,7 +371,9 @@ func (s *Store) CancelFollowUp(ctx context.Context, id string) {
 
 func (s *Store) ListPendingFollowUps(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "mktFollowUp" WHERE "mktFollowUpStatus"='pending' AND "mktFollowUpScheduledAt" <= now() LIMIT 20
+		SELECT "mktFollowUpId", "mktFollowUpConversationId", "mktFollowUpScheduledAt",
+			"mktFollowUpMessage", "mktFollowUpStatus"
+		FROM "mktFollowUp" WHERE "mktFollowUpStatus"='pending' AND "mktFollowUpScheduledAt" <= now() LIMIT 20
 	`)
 }
 
@@ -296,7 +384,13 @@ func (s *Store) MarkFollowUpSent(ctx context.Context, id string) {
 // ---- AI Settings ----
 
 func (s *Store) GetAISettings(ctx context.Context) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktAiSetting" LIMIT 1`)
+	return db.QueryRow(ctx, s.pool, `
+		SELECT "mktAiSettingId", "mktAiSettingSystemPrompt", "mktAiSettingModel",
+			"mktAiSettingTemperature", "mktAiSettingMaxHistoryMessages",
+			"mktAiSettingBankAccountInfo", "mktAiSettingShippingInfo",
+			"mktAiSettingAfterSalesInfo", "mktAiSettingBrandStory"
+		FROM "mktAiSetting" LIMIT 1
+	`)
 }
 
 func (s *Store) UpdateAISettings(ctx context.Context, body map[string]any) (map[string]any, error) {

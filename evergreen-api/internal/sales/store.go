@@ -20,29 +20,32 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Dashboard ----
 
 func (s *Store) DashboardLeads(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesLead" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "salesLeadId" FROM "salesLead" WHERE "isActive" = true`)
 }
 
 func (s *Store) DashboardOpportunities(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesOpportunity" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "salesOpportunityId" FROM "salesOpportunity" WHERE "isActive" = true`)
 }
 
 func (s *Store) DashboardOrders(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesOrder" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "salesOrderId" FROM "salesOrder" WHERE "isActive" = true`)
 }
 
 func (s *Store) DashboardActivities(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesActivity" WHERE "isActive" = true ORDER BY "salesActivityCreatedAt" DESC LIMIT 10`)
+	return db.QueryRows(ctx, s.pool, `SELECT "salesActivityType", "salesActivitySubject", "salesActivityDueDate" FROM "salesActivity" WHERE "isActive" = true ORDER BY "salesActivityCreatedAt" DESC LIMIT 10`)
 }
 
 func (s *Store) DashboardStages(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesPipelineStage" ORDER BY "salesPipelineStageOrder"`)
+	return db.QueryRows(ctx, s.pool, `SELECT "salesPipelineStageId", "salesPipelineStageName", "salesPipelineStageOrder", "salesPipelineStageColor" FROM "salesPipelineStage" ORDER BY "salesPipelineStageOrder"`)
 }
 
 // ---- Leads ----
 
 func (s *Store) ListLeads(ctx context.Context, isSuperAdmin bool, search string) ([]map[string]any, error) {
-	q := `SELECT * FROM "salesLead" WHERE 1=1`
+	q := `SELECT "salesLeadId", "salesLeadNo", "salesLeadName", "salesLeadEmail", "salesLeadPhone",
+		"salesLeadCompany", "salesLeadPosition", "salesLeadSource", "salesLeadScore", "salesLeadStatus",
+		"salesLeadAssignedTo", "salesLeadNotes", "salesLeadCreatedAt", "isActive"
+		FROM "salesLead" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
@@ -67,7 +70,10 @@ func (s *Store) CreateLead(ctx context.Context, body map[string]any) (map[string
 }
 
 func (s *Store) GetLead(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesLead" WHERE "salesLeadId" = $1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT "salesLeadId", "salesLeadNo", "salesLeadName", "salesLeadEmail", "salesLeadPhone",
+		"salesLeadCompany", "salesLeadPosition", "salesLeadSource", "salesLeadScore", "salesLeadStatus",
+		"salesLeadAssignedTo", "salesLeadNotes", "salesLeadCreatedAt", "isActive"
+		FROM "salesLead" WHERE "salesLeadId" = $1`, id)
 }
 
 func (s *Store) UpdateLead(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
@@ -110,7 +116,11 @@ func (s *Store) DeleteLead(ctx context.Context, id string) error {
 // ---- Contacts ----
 
 func (s *Store) ListContacts(ctx context.Context, isSuperAdmin bool, search string) ([]map[string]any, error) {
-	q := `SELECT c.*, row_to_json(a.*) as "salesAccount" FROM "salesContact" c LEFT JOIN "salesAccount" a ON a."salesAccountId" = c."salesContactAccountId" WHERE 1=1`
+	q := `SELECT c."salesContactId", c."salesContactNo", c."salesContactFirstName", c."salesContactLastName",
+		c."salesContactEmail", c."salesContactPhone", c."salesContactPosition", c."salesContactAccountId",
+		c."salesContactAddress", c."salesContactTags", c."salesContactNotes", c."salesContactCreatedAt", c."isActive",
+		CASE WHEN a."salesAccountId" IS NOT NULL THEN json_build_object('salesAccountId', a."salesAccountId", 'salesAccountName', a."salesAccountName") ELSE NULL END AS "salesAccount"
+		FROM "salesContact" c LEFT JOIN "salesAccount" a ON a."salesAccountId" = c."salesContactAccountId" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
@@ -134,7 +144,11 @@ func (s *Store) CreateContact(ctx context.Context, body map[string]any) (map[str
 }
 
 func (s *Store) GetContact(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT c.*, row_to_json(a.*) as "salesAccount" FROM "salesContact" c LEFT JOIN "salesAccount" a ON a."salesAccountId"=c."salesContactAccountId" WHERE c."salesContactId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT c."salesContactId", c."salesContactNo", c."salesContactFirstName", c."salesContactLastName",
+		c."salesContactEmail", c."salesContactPhone", c."salesContactPosition", c."salesContactAccountId",
+		c."salesContactAddress", c."salesContactTags", c."salesContactNotes", c."salesContactCreatedAt", c."isActive",
+		CASE WHEN a."salesAccountId" IS NOT NULL THEN json_build_object('salesAccountId', a."salesAccountId", 'salesAccountName', a."salesAccountName") ELSE NULL END AS "salesAccount"
+		FROM "salesContact" c LEFT JOIN "salesAccount" a ON a."salesAccountId"=c."salesContactAccountId" WHERE c."salesContactId"=$1`, id)
 }
 
 func (s *Store) UpdateContact(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
@@ -156,7 +170,10 @@ func (s *Store) DeleteContact(ctx context.Context, id string) error {
 // ---- Accounts ----
 
 func (s *Store) ListAccounts(ctx context.Context, isSuperAdmin bool, search string) ([]map[string]any, error) {
-	q := `SELECT * FROM "salesAccount" WHERE 1=1`
+	q := `SELECT "salesAccountId", "salesAccountNo", "salesAccountName", "salesAccountIndustry",
+		"salesAccountPhone", "salesAccountEmail", "salesAccountWebsite", "salesAccountEmployees",
+		"salesAccountAnnualRevenue", "salesAccountAddress", "salesAccountNotes", "salesAccountCreatedAt", "isActive"
+		FROM "salesAccount" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
@@ -180,7 +197,10 @@ func (s *Store) CreateAccount(ctx context.Context, body map[string]any) (map[str
 }
 
 func (s *Store) GetAccount(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesAccount" WHERE "salesAccountId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT "salesAccountId", "salesAccountNo", "salesAccountName", "salesAccountIndustry",
+		"salesAccountPhone", "salesAccountEmail", "salesAccountWebsite", "salesAccountEmployees",
+		"salesAccountAnnualRevenue", "salesAccountAddress", "salesAccountNotes", "salesAccountCreatedAt", "isActive"
+		FROM "salesAccount" WHERE "salesAccountId"=$1`, id)
 }
 
 func (s *Store) UpdateAccount(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
@@ -202,7 +222,12 @@ func (s *Store) DeleteAccount(ctx context.Context, id string) error {
 // ---- Opportunities ----
 
 func (s *Store) ListOpportunities(ctx context.Context, isSuperAdmin bool, stage string) ([]map[string]any, error) {
-	q := `SELECT o.*, row_to_json(c.*) as "salesContact", row_to_json(a.*) as "salesAccount"
+	q := `SELECT o."salesOpportunityId", o."salesOpportunityNo", o."salesOpportunityName", o."salesOpportunityStage",
+		o."salesOpportunityAmount", o."salesOpportunityProbability", o."salesOpportunityExpectedCloseDate",
+		o."salesOpportunityContactId", o."salesOpportunityAccountId", o."salesOpportunityAssignedTo",
+		o."salesOpportunitySource", o."salesOpportunityNotes", o."salesOpportunityCreatedAt", o."isActive",
+		CASE WHEN c."salesContactId" IS NOT NULL THEN json_build_object('salesContactId', c."salesContactId", 'salesContactFirstName', c."salesContactFirstName", 'salesContactLastName', c."salesContactLastName") ELSE NULL END AS "salesContact",
+		CASE WHEN a."salesAccountId" IS NOT NULL THEN json_build_object('salesAccountId', a."salesAccountId", 'salesAccountName', a."salesAccountName") ELSE NULL END AS "salesAccount"
 		FROM "salesOpportunity" o
 		LEFT JOIN "salesContact" c ON c."salesContactId"=o."salesOpportunityContactId"
 		LEFT JOIN "salesAccount" a ON a."salesAccountId"=o."salesOpportunityAccountId"
@@ -231,7 +256,12 @@ func (s *Store) CreateOpportunity(ctx context.Context, body map[string]any) (map
 }
 
 func (s *Store) GetOpportunity(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT o.*, row_to_json(c.*) as "salesContact", row_to_json(a.*) as "salesAccount"
+	return db.QueryRow(ctx, s.pool, `SELECT o."salesOpportunityId", o."salesOpportunityNo", o."salesOpportunityName", o."salesOpportunityStage",
+		o."salesOpportunityAmount", o."salesOpportunityProbability", o."salesOpportunityExpectedCloseDate",
+		o."salesOpportunityContactId", o."salesOpportunityAccountId", o."salesOpportunityAssignedTo",
+		o."salesOpportunitySource", o."salesOpportunityNotes", o."salesOpportunityCreatedAt", o."isActive",
+		CASE WHEN c."salesContactId" IS NOT NULL THEN json_build_object('salesContactId', c."salesContactId", 'salesContactFirstName', c."salesContactFirstName", 'salesContactLastName', c."salesContactLastName") ELSE NULL END AS "salesContact",
+		CASE WHEN a."salesAccountId" IS NOT NULL THEN json_build_object('salesAccountId', a."salesAccountId", 'salesAccountName', a."salesAccountName") ELSE NULL END AS "salesAccount"
 		FROM "salesOpportunity" o LEFT JOIN "salesContact" c ON c."salesContactId"=o."salesOpportunityContactId"
 		LEFT JOIN "salesAccount" a ON a."salesAccountId"=o."salesOpportunityAccountId" WHERE o."salesOpportunityId"=$1`, id)
 }
@@ -255,7 +285,11 @@ func (s *Store) DeleteOpportunity(ctx context.Context, id string) error {
 // ---- Quotations ----
 
 func (s *Store) ListQuotations(ctx context.Context, isSuperAdmin bool, status string) ([]map[string]any, error) {
-	q := `SELECT q.*, row_to_json(c.*) as "salesContact", row_to_json(a.*) as "salesAccount"
+	q := `SELECT q."salesQuotationId", q."salesQuotationNo", q."salesQuotationStatus", q."salesQuotationTotal",
+		q."salesQuotationValidUntil", q."salesQuotationCreatedAt", q."salesQuotationContactId", q."salesQuotationAccountId",
+		q."salesQuotationOpportunityId", q."isActive",
+		CASE WHEN c."salesContactId" IS NOT NULL THEN json_build_object('salesContactId', c."salesContactId", 'salesContactFirstName', c."salesContactFirstName", 'salesContactLastName', c."salesContactLastName") ELSE NULL END AS "salesContact",
+		CASE WHEN a."salesAccountId" IS NOT NULL THEN json_build_object('salesAccountId', a."salesAccountId", 'salesAccountName', a."salesAccountName") ELSE NULL END AS "salesAccount"
 		FROM "salesQuotation" q
 		LEFT JOIN "salesContact" c ON c."salesContactId"=q."salesQuotationContactId"
 		LEFT JOIN "salesAccount" a ON a."salesAccountId"=q."salesQuotationAccountId"
@@ -285,11 +319,19 @@ func (s *Store) CreateQuotation(ctx context.Context, body map[string]any) (map[s
 }
 
 func (s *Store) GetQuotationByID(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesQuotation" WHERE "salesQuotationId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT "salesQuotationId", "salesQuotationNo", "salesQuotationStatus",
+		"salesQuotationSubtotal", "salesQuotationDiscount", "salesQuotationTax", "salesQuotationTotal",
+		"salesQuotationValidUntil", "salesQuotationContactId", "salesQuotationAccountId", "salesQuotationOpportunityId",
+		"salesQuotationNotes", "salesQuotationTerms", "salesQuotationApprovalNote", "salesQuotationApprovedBy",
+		"salesQuotationCreatedAt", "isActive"
+		FROM "salesQuotation" WHERE "salesQuotationId"=$1`, id)
 }
 
 func (s *Store) GetQuotationLines(ctx context.Context, id string) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesQuotationLine" WHERE "salesQuotationLineQuotationId"=$1 AND "isActive"=true ORDER BY "salesQuotationLineOrder"`, id)
+	return db.QueryRows(ctx, s.pool, `SELECT "salesQuotationLineId", "salesQuotationLineQuotationId", "salesQuotationLineOrder",
+		"salesQuotationLineProductName", "salesQuotationLineDescription", "salesQuotationLineQuantity",
+		"salesQuotationLineUnitPrice", "salesQuotationLineDiscount", "salesQuotationLineAmount"
+		FROM "salesQuotationLine" WHERE "salesQuotationLineQuotationId"=$1 AND "isActive"=true ORDER BY "salesQuotationLineOrder"`, id)
 }
 
 func (s *Store) UpdateQuotation(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
@@ -356,7 +398,11 @@ func (s *Store) DeleteQuotation(ctx context.Context, id string) error {
 // ---- Orders ----
 
 func (s *Store) ListOrders(ctx context.Context, isSuperAdmin bool, status string) ([]map[string]any, error) {
-	q := `SELECT o.*, row_to_json(c.*) as "salesContact", row_to_json(a.*) as "salesAccount"
+	q := `SELECT o."salesOrderId", o."salesOrderNo", o."salesOrderStatus", o."salesOrderTotal",
+		o."salesOrderTrackingNumber", o."salesOrderDeliveryDate", o."salesOrderShippingAddress",
+		o."salesOrderNotes", o."salesOrderQuotationId", o."salesOrderCreatedAt", o."isActive",
+		CASE WHEN c."salesContactId" IS NOT NULL THEN json_build_object('salesContactId', c."salesContactId", 'salesContactFirstName', c."salesContactFirstName", 'salesContactLastName', c."salesContactLastName") ELSE NULL END AS "salesContact",
+		CASE WHEN a."salesAccountId" IS NOT NULL THEN json_build_object('salesAccountId', a."salesAccountId", 'salesAccountName', a."salesAccountName") ELSE NULL END AS "salesAccount"
 		FROM "salesOrder" o
 		LEFT JOIN "salesContact" c ON c."salesContactId"=o."salesOrderContactId"
 		LEFT JOIN "salesAccount" a ON a."salesAccountId"=o."salesOrderAccountId"
@@ -385,7 +431,11 @@ func (s *Store) CreateOrder(ctx context.Context, body map[string]any, userID str
 }
 
 func (s *Store) GetOrder(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesOrder" WHERE "salesOrderId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT "salesOrderId", "salesOrderNo", "salesOrderStatus", "salesOrderTotal",
+		"salesOrderTrackingNumber", "salesOrderDeliveryDate", "salesOrderShippingAddress",
+		"salesOrderNotes", "salesOrderQuotationId", "salesOrderContactId", "salesOrderAccountId",
+		"salesOrderCreatedAt", "salesOrderCreatedBy", "isActive"
+		FROM "salesOrder" WHERE "salesOrderId"=$1`, id)
 }
 
 func (s *Store) UpdateOrder(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
@@ -406,7 +456,10 @@ func (s *Store) DeleteOrder(ctx context.Context, id string) error {
 // ---- Activities ----
 
 func (s *Store) ListActivities(ctx context.Context, isSuperAdmin bool, actType, status string) ([]map[string]any, error) {
-	q := `SELECT * FROM "salesActivity" WHERE 1=1`
+	q := `SELECT "salesActivityId", "salesActivityType", "salesActivitySubject", "salesActivityDescription",
+		"salesActivityStatus", "salesActivityPriority", "salesActivityDueDate", "salesActivityContactId",
+		"salesActivityOpportunityId", "salesActivityAccountId", "salesActivityAssignedTo", "salesActivityCreatedAt", "isActive"
+		FROM "salesActivity" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {

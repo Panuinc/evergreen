@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/lestrrat-go/httprc/v3"
@@ -22,7 +24,46 @@ const (
 	UserIDKey       contextKey = "userID"
 	UserEmailKey    contextKey = "userEmail"
 	IsSuperAdminKey contextKey = "isSuperAdmin"
+
+	authCacheTTL = 5 * time.Minute
 )
+
+// authCacheEntry holds cached user access data.
+type authCacheEntry struct {
+	isSuperAdmin bool
+	isActive     bool
+	cachedAt     time.Time
+}
+
+// authCache is an in-memory cache for user access checks.
+type authCache struct {
+	mu      sync.RWMutex
+	entries map[string]authCacheEntry
+}
+
+func newAuthCache() *authCache {
+	return &authCache{entries: make(map[string]authCacheEntry)}
+}
+
+func (c *authCache) get(userID string) (authCacheEntry, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	entry, ok := c.entries[userID]
+	if !ok || time.Since(entry.cachedAt) > authCacheTTL {
+		return authCacheEntry{}, false
+	}
+	return entry, true
+}
+
+func (c *authCache) set(userID string, isSuperAdmin, isActive bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.entries[userID] = authCacheEntry{
+		isSuperAdmin: isSuperAdmin,
+		isActive:     isActive,
+		cachedAt:     time.Now(),
+	}
+}
 
 // UserID extracts the user ID from request context.
 func UserID(ctx context.Context) string {
@@ -38,9 +79,10 @@ func IsSuperAdmin(ctx context.Context) bool {
 
 // Auth is middleware that validates Supabase JWTs via JWKS.
 type Auth struct {
-	jwkCache *jwk.Cache
-	jwksURL  string
-	db       *pgxpool.Pool
+	jwkCache  *jwk.Cache
+	jwksURL   string
+	db        *pgxpool.Pool
+	userCache *authCache
 }
 
 // NewAuth creates an Auth middleware with JWKS caching.
@@ -65,7 +107,7 @@ func NewAuth(cfg *config.Config, db *pgxpool.Pool) (*Auth, error) {
 	}
 
 	logger.Info("JWKS cache initialized", "url", jwksURL)
-	return &Auth{jwkCache: cache, jwksURL: jwksURL, db: db}, nil
+	return &Auth{jwkCache: cache, jwksURL: jwksURL, db: db, userCache: newAuthCache()}, nil
 }
 
 // Authenticate is HTTP middleware that validates the JWT and injects user context.
@@ -129,50 +171,41 @@ func (a *Auth) Authenticate(next http.Handler) http.Handler {
 }
 
 // checkUserAccess queries RBAC tables for active status and superadmin flag.
-// Port of checkUserAccess() from auth.js
+// Uses in-memory cache with 5-minute TTL to avoid hitting DB on every request.
+// Combined into a single query: JOIN rbacUserRole + rbacRole + rbacUserProfile.
 func (a *Auth) checkUserAccess(ctx context.Context, userID string) (isSuperAdmin bool, isActive bool, err error) {
-	// Default: active unless proven otherwise
-	isActive = true
-
-	// Check superadmin roles
-	rows, err := a.db.Query(ctx, `
-		SELECT r."rbacRoleIsSuperadmin"
-		FROM "rbacUserRole" ur
-		JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
-		WHERE ur."rbacUserRoleUserId" = $1
-		  AND ur."isActive" = true
-	`, userID)
-	if err != nil {
-		return false, false, fmt.Errorf("querying user roles: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var superadmin bool
-		if err := rows.Scan(&superadmin); err != nil {
-			return false, false, fmt.Errorf("scanning role: %w", err)
-		}
-		if superadmin {
-			isSuperAdmin = true
-		}
+	// Check cache first
+	if entry, ok := a.userCache.get(userID); ok {
+		return entry.isSuperAdmin, entry.isActive, nil
 	}
 
-	// Check user profile active status
+	// Single combined query for superadmin flag + profile active status
+	var superAdmin bool
 	var profileActive *bool
 	err = a.db.QueryRow(ctx, `
-		SELECT "isActive"
-		FROM "rbacUserProfile"
-		WHERE "rbacUserProfileId" = $1
-	`, userID).Scan(&profileActive)
+		SELECT
+			COALESCE(bool_or(r."rbacRoleIsSuperadmin"), false) AS "isSuperAdmin",
+			p."isActive" AS "profileActive"
+		FROM "rbacUserProfile" p
+		LEFT JOIN "rbacUserRole" ur ON ur."rbacUserRoleUserId" = p."rbacUserProfileId" AND ur."isActive" = true
+		LEFT JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
+		WHERE p."rbacUserProfileId" = $1
+		GROUP BY p."isActive"
+	`, userID).Scan(&superAdmin, &profileActive)
 	if err != nil {
-		// If no profile found, default to active
-		return isSuperAdmin, true, nil
+		// If no profile found, default to active, not superadmin
+		a.userCache.set(userID, false, true)
+		return false, true, nil
 	}
+
+	isActive = true
 	if profileActive != nil {
 		isActive = *profileActive
 	}
 
-	return isSuperAdmin, isActive, nil
+	// Cache the result
+	a.userCache.set(userID, superAdmin, isActive)
+	return superAdmin, isActive, nil
 }
 
 // extractBearerToken extracts the token from the Authorization header.

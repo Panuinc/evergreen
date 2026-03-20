@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { supabase } from "@/lib/supabase/client";
 import { get, post, put, del } from "@/lib/apiClient";
 import OmnichannelView from "@/modules/marketing/components/omnichannelView";
 
@@ -140,11 +139,7 @@ export default function OmnichannelClient() {
   const updateContact = useCallback(
     async (contactId, updates) => {
       try {
-        const { error } = await supabase
-          .from("mktContact")
-          .update(updates)
-          .eq("mktContactId", contactId);
-        if (error) throw error;
+        await put(`/api/marketing/omnichannel/contacts/${contactId}`, updates);
 
         if (selectedConversation) {
           setSelectedConversation((prev) => ({

@@ -31,7 +31,10 @@ func (s *Store) UpsertContact(ctx context.Context, channelType, externalID strin
 
 func (s *Store) FindActiveConversation(ctx context.Context, contactID, channelType string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		SELECT * FROM "mktConversation" WHERE "mktConversationContactId"=$1 AND "mktConversationChannelType"=$2 AND "isActive"=true LIMIT 1
+		SELECT "mktConversationId", "mktConversationContactId", "mktConversationChannelType",
+			"mktConversationStatus", "mktConversationAiAutoReply"
+		FROM "mktConversation"
+		WHERE "mktConversationContactId"=$1 AND "mktConversationChannelType"=$2 AND "isActive"=true LIMIT 1
 	`, contactID, channelType)
 }
 
@@ -64,14 +67,21 @@ func (s *Store) UpdateConversationOnIncoming(ctx context.Context, convID, previe
 
 func (s *Store) GetOnlineSalesOrders(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcSalesOrder" WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
+		SELECT "bcSalesOrderNoValue", "bcSalesOrderAmountIncludingVAT",
+			"bcSalesOrderCompletelyShipped", "bcSalesOrderStatus", "bcSalesOrderOrderDate",
+			"bcSalesOrderSellToCustomerName", "bcSalesOrderSellToCustomerNo",
+			"bcSalesOrderLocationCode"
+		FROM "bcSalesOrder" WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
 		ORDER BY "bcSalesOrderOrderDate" DESC
 	`)
 }
 
 func (s *Store) GetOnlineSalesOrderLines(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT l.* FROM "bcSalesOrderLine" l
+		SELECT l."bcSalesOrderLineDocumentNo", l."bcSalesOrderLineLineNo",
+			l."bcSalesOrderLineQuantityValue", l."bcSalesOrderLineAmountValue",
+			l."bcSalesOrderLineNoValue", l."bcSalesOrderLineDescriptionValue"
+		FROM "bcSalesOrderLine" l
 		JOIN "bcSalesOrder" o ON o."bcSalesOrderNoValue" = l."bcSalesOrderLineDocumentNo"
 		WHERE o."bcSalesOrderSalespersonCode" = 'ONLINE'
 	`)
@@ -81,18 +91,35 @@ func (s *Store) GetOnlineSalesOrderLines(ctx context.Context) ([]map[string]any,
 
 func (s *Store) ListSalesOrders(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcSalesOrder" WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
+		SELECT "bcSalesOrderNoValue", "bcSalesOrderSellToCustomerName", "bcSalesOrderOrderDate",
+			"bcSalesOrderStatus", "bcSalesOrderAmountIncludingVAT", "bcSalesOrderCompletelyShipped",
+			"isActive"
+		FROM "bcSalesOrder" WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
 		ORDER BY "bcSalesOrderOrderDate" DESC
 	`)
 }
 
 func (s *Store) GetSalesOrder(ctx context.Context, no string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "bcSalesOrder" WHERE "bcSalesOrderNoValue"=$1`, no)
+	return db.QueryRow(ctx, s.pool, `
+		SELECT "bcSalesOrderNoValue", "bcSalesOrderSellToCustomerName", "bcSalesOrderSellToCustomerNo",
+			"bcSalesOrderSellToAddress", "bcSalesOrderSellToCity", "bcSalesOrderSellToPostCode",
+			"bcSalesOrderShipToName", "bcSalesOrderShipToAddress", "bcSalesOrderShipToCity", "bcSalesOrderShipToPostCode",
+			"bcSalesOrderOrderDate", "bcSalesOrderDueDate", "bcSalesOrderExternalDocumentNo",
+			"bcSalesOrderStatus", "bcSalesOrderCompletelyShipped", "bcSalesOrderAmountIncludingVAT",
+			"bcSalesOrderSalespersonCode"
+		FROM "bcSalesOrder" WHERE "bcSalesOrderNoValue"=$1
+	`, no)
 }
 
 func (s *Store) GetSalesOrderLines(ctx context.Context, no string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcSalesOrderLine" WHERE "bcSalesOrderLineDocumentNo"=$1 ORDER BY "bcSalesOrderLineLineNo"
+		SELECT "bcSalesOrderLineLineNo", "bcSalesOrderLineLineNoValue", "bcSalesOrderLineNoValue",
+			"bcSalesOrderLineDescriptionValue", "bcSalesOrderLineTypeValue",
+			"bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode",
+			"bcSalesOrderLineUnitPrice", "bcSalesOrderLineAmountValue",
+			"bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"
+		FROM "bcSalesOrderLine" WHERE "bcSalesOrderLineDocumentNo"=$1
+		ORDER BY "bcSalesOrderLineLineNo"
 	`, no)
 }
 
@@ -103,7 +130,11 @@ func (s *Store) GetCustomerPhone(ctx context.Context, custNo string) (map[string
 // ---- Work Orders ----
 
 func (s *Store) ListWorkOrders(ctx context.Context, isSuperAdmin bool, search string) ([]map[string]any, error) {
-	q := `SELECT * FROM "mktWorkOrder" WHERE 1=1`
+	q := `SELECT "mktWorkOrderId", "mktWorkOrderNo", "mktWorkOrderTitle", "mktWorkOrderType",
+			"mktWorkOrderRequestedBy", "mktWorkOrderAssignedTo", "mktWorkOrderPriority",
+			"mktWorkOrderProgress", "mktWorkOrderStatus", "mktWorkOrderDueDate",
+			"mktWorkOrderCreatedAt", "isActive"
+		FROM "mktWorkOrder" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
@@ -131,7 +162,14 @@ func (s *Store) CreateWorkOrder(ctx context.Context, body map[string]any) (map[s
 }
 
 func (s *Store) GetWorkOrder(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktWorkOrder" WHERE id=$1`, id)
+	return db.QueryRow(ctx, s.pool, `
+		SELECT "mktWorkOrderId", "mktWorkOrderNo", "mktWorkOrderTitle", "mktWorkOrderDescription",
+			"mktWorkOrderType", "mktWorkOrderRequestedBy", "mktWorkOrderRequestedDepartment",
+			"mktWorkOrderAssignedTo", "mktWorkOrderPriority", "mktWorkOrderProgress",
+			"mktWorkOrderStatus", "mktWorkOrderStartDate", "mktWorkOrderDueDate",
+			"mktWorkOrderNotes", "mktWorkOrderCreatedAt", "isActive"
+		FROM "mktWorkOrder" WHERE "mktWorkOrderId"=$1
+	`, id)
 }
 
 func (s *Store) UpdateWorkOrder(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
@@ -141,21 +179,24 @@ func (s *Store) UpdateWorkOrder(ctx context.Context, id string, body map[string]
 			"mktWorkOrderAssignedTo"=COALESCE($4,"mktWorkOrderAssignedTo"),"mktWorkOrderPriority"=COALESCE($5,"mktWorkOrderPriority"),
 			"mktWorkOrderStatus"=COALESCE($6,"mktWorkOrderStatus"),"mktWorkOrderProgress"=COALESCE($7,"mktWorkOrderProgress"),
 			"mktWorkOrderDueDate"=COALESCE($8,"mktWorkOrderDueDate"),"mktWorkOrderNotes"=COALESCE($9,"mktWorkOrderNotes")
-		WHERE id=$1 RETURNING *
+		WHERE "mktWorkOrderId"=$1 RETURNING *
 	`, id, body["mktWorkOrderTitle"], body["mktWorkOrderDescription"], body["mktWorkOrderAssignedTo"],
 		body["mktWorkOrderPriority"], body["mktWorkOrderStatus"], body["mktWorkOrderProgress"],
 		body["mktWorkOrderDueDate"], body["mktWorkOrderNotes"])
 }
 
 func (s *Store) SoftDeleteWorkOrder(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "mktWorkOrder" SET "isActive"=false WHERE id=$1`, id)
+	s.pool.Exec(ctx, `UPDATE "mktWorkOrder" SET "isActive"=false WHERE "mktWorkOrderId"=$1`, id)
 }
 
 // ---- Work Order Progress ----
 
 func (s *Store) ListWorkOrderProgress(ctx context.Context, id string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "mktWorkOrderProgressLog" WHERE "mktWorkOrderProgressLogWorkOrderId"=$1
+		SELECT "mktWorkOrderProgressLogId", "mktWorkOrderProgressLogDescription",
+			"mktWorkOrderProgressLogProgress", "mktWorkOrderProgressLogCreatedBy",
+			"mktWorkOrderProgressLogCreatedAt"
+		FROM "mktWorkOrderProgressLog" WHERE "mktWorkOrderProgressLogWorkOrderId"=$1
 		ORDER BY "mktWorkOrderProgressLogCreatedAt" DESC
 	`, id)
 }
@@ -168,13 +209,17 @@ func (s *Store) CreateWorkOrderProgress(ctx context.Context, id string, body map
 }
 
 func (s *Store) UpdateWorkOrderProgress(ctx context.Context, id string, progress any) {
-	s.pool.Exec(ctx, `UPDATE "mktWorkOrder" SET "mktWorkOrderProgress"=$2 WHERE id=$1`, id, progress)
+	s.pool.Exec(ctx, `UPDATE "mktWorkOrder" SET "mktWorkOrderProgress"=$2 WHERE "mktWorkOrderId"=$1`, id, progress)
 }
 
 // ---- Label Designs ----
 
 func (s *Store) ListLabelDesigns(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "labelDesign" ORDER BY "labelDesignCreatedAt" DESC`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT "labelDesignId", "labelDesignName", "labelDesignWidth", "labelDesignHeight",
+			"labelDesignPreset", "labelDesignElements", "labelDesignCreatedAt"
+		FROM "labelDesign" ORDER BY "labelDesignCreatedAt" DESC
+	`)
 }
 
 func (s *Store) CreateLabelDesign(ctx context.Context, body map[string]any, userID string) (map[string]any, error) {
@@ -209,5 +254,10 @@ func (s *Store) CreateGeneratedImage(ctx context.Context, prompt, size, userID s
 }
 
 func (s *Store) ListGeneratedImages(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktGeneratedImage" WHERE "isActive"=true ORDER BY "mktGeneratedImageCreatedAt" DESC LIMIT 50`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT "mktGeneratedImageId", "mktGeneratedImagePrompt", "mktGeneratedImageSize",
+			"mktGeneratedImageOriginalUrl", "mktGeneratedImageResultUrl", "mktGeneratedImageCreatedAt"
+		FROM "mktGeneratedImage" WHERE "isActive"=true
+		ORDER BY "mktGeneratedImageCreatedAt" DESC LIMIT 50
+	`)
 }

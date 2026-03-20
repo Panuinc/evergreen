@@ -76,6 +76,20 @@ func (h *Handler) ListMessages(w http.ResponseWriter, r *http.Request) {
 	response.OK(w, data)
 }
 
+// ---- Contacts ----
+
+func (h *Handler) UpdateContact(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	var body map[string]any
+	json.NewDecoder(r.Body).Decode(&body)
+	data, err := h.store.UpdateContact(r.Context(), id, body)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	response.OK(w, data)
+}
+
 // ---- Send Message ----
 
 func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {

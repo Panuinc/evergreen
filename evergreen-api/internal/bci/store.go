@@ -22,13 +22,24 @@ func NewStore(pool *pgxpool.Pool) *Store {
 
 // ListProjects returns all projects, optionally filtered by a search term.
 func (s *Store) ListProjects(ctx context.Context, search string) ([]map[string]any, error) {
+	cols := `"bciProjectId", "bciProjectExternalRef", "bciProjectName", "bciProjectType", "bciProjectDescription",
+		"bciProjectStreetName", "bciProjectCityOrTown", "bciProjectStateProvince", "bciProjectRegion", "bciProjectCountry",
+		"bciProjectValue", "bciProjectCurrency", "bciProjectStage", "bciProjectStageStatus",
+		"bciProjectCategory", "bciProjectSubCategory", "bciProjectDevelopmentType", "bciProjectOwnershipType",
+		"bciProjectOwnerCompany", "bciProjectOwnerContact", "bciProjectOwnerPhone", "bciProjectOwnerEmail",
+		"bciProjectArchitectCompany", "bciProjectArchitectContact", "bciProjectArchitectPhone", "bciProjectArchitectEmail",
+		"bciProjectContractorCompany", "bciProjectContractorContact", "bciProjectContractorPhone", "bciProjectContractorEmail",
+		"bciProjectPmCompany", "bciProjectPmContact", "bciProjectPmPhone", "bciProjectPmEmail",
+		"bciProjectStoreys", "bciProjectFloorArea", "bciProjectSiteArea",
+		"bciProjectConstructionStartDate", "bciProjectConstructionStartString", "bciProjectConstructionEndDate", "bciProjectConstructionEndString",
+		"bciProjectRemarks", "bciProjectModifiedDate"`
 	if search != "" {
 		pattern := "%" + search + "%"
 		return db.QueryRows(ctx, s.pool,
-			`SELECT * FROM "bciProject" WHERE ("bciProjectName" ILIKE $1 OR "bciProjectOwnerCompany" ILIKE $2 OR "bciProjectContractorCompany" ILIKE $3) ORDER BY "bciProjectModifiedDate" DESC NULLS LAST`,
+			`SELECT `+cols+` FROM "bciProject" WHERE ("bciProjectName" ILIKE $1 OR "bciProjectOwnerCompany" ILIKE $2 OR "bciProjectContractorCompany" ILIKE $3) ORDER BY "bciProjectModifiedDate" DESC NULLS LAST`,
 			pattern, pattern, pattern)
 	}
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "bciProject" ORDER BY "bciProjectModifiedDate" DESC NULLS LAST`)
+	return db.QueryRows(ctx, s.pool, `SELECT `+cols+` FROM "bciProject" ORDER BY "bciProjectModifiedDate" DESC NULLS LAST`)
 }
 
 // CreateProject inserts a new bciProject row and returns it.

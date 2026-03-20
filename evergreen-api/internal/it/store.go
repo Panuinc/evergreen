@@ -20,7 +20,7 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Assets ----
 
 func (s *Store) ListAssets(ctx context.Context, search string, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT * FROM "itAsset" WHERE 1=1`
+	q := `SELECT "itAssetId", "itAssetName", "itAssetTag", "itAssetCategory", "itAssetBrand", "itAssetModel", "itAssetSerialNumber", "itAssetStatus", "itAssetAssignedTo", "itAssetPurchaseDate", "itAssetWarrantyExpiry", "itAssetLocation", "itAssetNotes", "itAssetCreatedAt", "isActive" FROM "itAsset" WHERE 1=1`
 	var args []any
 	idx := 1
 	if !includeInactive {
@@ -43,7 +43,7 @@ func (s *Store) CreateAsset(ctx context.Context, args ...any) (map[string]any, e
 }
 
 func (s *Store) GetAsset(ctx context.Context, id string, includeInactive bool) (map[string]any, error) {
-	q := `SELECT * FROM "itAsset" WHERE "itAssetId" = $1`
+	q := `SELECT "itAssetId", "itAssetName", "itAssetTag", "itAssetCategory", "itAssetBrand", "itAssetModel", "itAssetSerialNumber", "itAssetStatus", "itAssetAssignedTo", "itAssetPurchaseDate", "itAssetWarrantyExpiry", "itAssetLocation", "itAssetNotes", "itAssetCreatedAt", "isActive" FROM "itAsset" WHERE "itAssetId" = $1`
 	if !includeInactive {
 		q += ` AND "isActive" = true`
 	}
@@ -77,7 +77,7 @@ func (s *Store) DeleteAsset(ctx context.Context, id string) error {
 // ---- Dev Requests ----
 
 func (s *Store) ListDevRequests(ctx context.Context, search string, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT * FROM "itDevRequest" WHERE 1=1`
+	q := `SELECT "itDevRequestId", "itDevRequestNo", "itDevRequestTitle", "itDevRequestDescription", "itDevRequestRequestedBy", "itDevRequestAssignedTo", "itDevRequestStatus", "itDevRequestPriority", "itDevRequestDueDate", "itDevRequestStartDate", "itDevRequestProgress", "itDevRequestCompletedAt", "itDevRequestNotes", "itDevRequestCreatedAt", "isActive" FROM "itDevRequest" WHERE 1=1`
 	var args []any
 	idx := 1
 	if !includeInactive {
@@ -100,7 +100,7 @@ func (s *Store) CreateDevRequest(ctx context.Context, args ...any) (map[string]a
 }
 
 func (s *Store) GetDevRequest(ctx context.Context, id string, includeInactive bool) (map[string]any, error) {
-	q := `SELECT * FROM "itDevRequest" WHERE "itDevRequestId" = $1`
+	q := `SELECT "itDevRequestId", "itDevRequestNo", "itDevRequestTitle", "itDevRequestDescription", "itDevRequestRequestedBy", "itDevRequestAssignedTo", "itDevRequestStatus", "itDevRequestPriority", "itDevRequestDueDate", "itDevRequestStartDate", "itDevRequestProgress", "itDevRequestCompletedAt", "itDevRequestNotes", "itDevRequestCreatedAt", "isActive" FROM "itDevRequest" WHERE "itDevRequestId" = $1`
 	if !includeInactive {
 		q += ` AND "isActive" = true`
 	}
@@ -133,7 +133,8 @@ func (s *Store) DeleteDevRequest(ctx context.Context, id string) error {
 
 func (s *Store) ListProgressLogs(ctx context.Context, id string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "itDevProgressLog"
+		SELECT "itDevProgressLogId", "itDevProgressLogRequestId", "itDevProgressLogProgress", "itDevProgressLogDescription", "itDevProgressLogCreatedBy", "itDevProgressLogCreatedAt"
+		FROM "itDevProgressLog"
 		WHERE "itDevProgressLogRequestId" = $1
 		ORDER BY "itDevProgressLogCreatedAt" DESC
 	`, id)
@@ -173,9 +174,9 @@ func (s *Store) UpdateDevRequestProgress(ctx context.Context, id string, progres
 // ---- Dashboard ----
 
 func (s *Store) ListActiveAssets(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "itAsset" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "itAssetId", "itAssetName", "itAssetCategory", "itAssetStatus", "itAssetCreatedAt" FROM "itAsset" WHERE "isActive" = true`)
 }
 
 func (s *Store) ListActiveDevRequests(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "itDevRequest" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "itDevRequestId", "itDevRequestNo", "itDevRequestStatus", "itDevRequestPriority", "itDevRequestCreatedAt" FROM "itDevRequest" WHERE "isActive" = true`)
 }

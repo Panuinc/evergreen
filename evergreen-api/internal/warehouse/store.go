@@ -20,7 +20,7 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Inventory ----
 
 func (s *Store) ListInventory(ctx context.Context, group, category string) ([]map[string]any, error) {
-	q := `SELECT * FROM "bcItem" WHERE ("bcItemBlocked" IS NULL OR "bcItemBlocked" != 'true') AND "bcItemInventory" > 0`
+	q := `SELECT "bcItemNo" AS "number", "bcItemDisplayName" AS "displayName", "bcItemDescription", "bcItemType" AS "type", "bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "baseUnitOfMeasure", "bcItemUnitPrice" AS "unitPrice", "bcItemUnitCost" AS "unitCost", "bcItemItemCategoryCode" AS "itemCategoryCode", "bcItemGenProdPostingGroup" AS "generalProductPostingGroupCode", "bcItemGlobalDimension1Code" AS "projectName", "bcItemRfidCode" FROM "bcItem" WHERE ("bcItemBlocked" IS NULL OR "bcItemBlocked" != 'true') AND "bcItemInventory" > 0`
 	args := []any{}
 	argIdx := 1
 	if group != "" {
@@ -38,13 +38,15 @@ func (s *Store) ListInventory(ctx context.Context, group, category string) ([]ma
 
 func (s *Store) GetItemByNo(ctx context.Context, itemNo string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		SELECT * FROM "bcItem" WHERE "bcItemNo"=$1
+		SELECT "bcItemNo" AS "number", "bcItemDisplayName" AS "displayName", "bcItemDescription", "bcItemType" AS "type", "bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "baseUnitOfMeasure", "bcItemUnitPrice" AS "unitPrice", "bcItemUnitCost" AS "unitCost", "bcItemItemCategoryCode" AS "itemCategoryCode", "bcItemGenProdPostingGroup" AS "generalProductPostingGroupCode", "bcItemRfidCode"
+		FROM "bcItem" WHERE "bcItemNo"=$1
 	`, itemNo)
 }
 
 func (s *Store) GetItemsWithRfidCode(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcItem" WHERE "bcItemRfidCode" IS NOT NULL
+		SELECT "bcItemNo" AS "number", "bcItemDisplayName" AS "displayName", "bcItemRfidCode"
+		FROM "bcItem" WHERE "bcItemRfidCode" IS NOT NULL
 	`)
 }
 
@@ -52,7 +54,8 @@ func (s *Store) GetItemsWithRfidCode(ctx context.Context) ([]map[string]any, err
 
 func (s *Store) ListOrders(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcSalesOrder" ORDER BY "bcSalesOrderNoValue" DESC
+		SELECT "bcSalesOrderId", "bcSalesOrderNoValue" AS "orderNo", "bcSalesOrderSellToCustomerNo" AS "customerNo", "bcSalesOrderSellToCustomerName" AS "customerName", "bcSalesOrderStatus" AS "status", "bcSalesOrderOrderDate" AS "orderDate"
+		FROM "bcSalesOrder" ORDER BY "bcSalesOrderNoValue" DESC
 	`)
 }
 
@@ -67,7 +70,8 @@ func (s *Store) CreateOrderMatch(ctx context.Context, orderNo, itemNo, quantity,
 
 func (s *Store) ListSessions(ctx context.Context, userID any) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "whScanSession"
+		SELECT "whScanSessionId", "whScanSessionType", "whScanSessionStatus", "whScanSessionCreatedBy", "whScanSessionStartedAt", "whScanSessionUserId"
+		FROM "whScanSession"
 		WHERE "whScanSessionUserId" = $1
 		ORDER BY "whScanSessionStartedAt" DESC
 	`, userID)
@@ -81,7 +85,7 @@ func (s *Store) CreateSession(ctx context.Context, sessionType, status, createdB
 }
 
 func (s *Store) GetSession(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "whScanSession" WHERE "whScanSessionId" = $1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT "whScanSessionId", "whScanSessionType", "whScanSessionStatus", "whScanSessionCreatedBy", "whScanSessionStartedAt", "whScanSessionUserId" FROM "whScanSession" WHERE "whScanSessionId" = $1`, id)
 }
 
 func (s *Store) UpdateSession(ctx context.Context, id, status any) (map[string]any, error) {
@@ -94,7 +98,8 @@ func (s *Store) UpdateSession(ctx context.Context, id, status any) (map[string]a
 
 func (s *Store) ListSessionRecords(ctx context.Context, sessionId string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "whScanRecord"
+		SELECT "whScanRecordId", "whScanRecordSessionId", "whScanRecordBarcode", "whScanRecordItemNo", "whScanRecordQuantity", "whScanRecordCreatedAt"
+		FROM "whScanRecord"
 		WHERE "whScanRecordSessionId" = $1
 		ORDER BY "whScanRecordCreatedAt" DESC
 	`, sessionId)
@@ -111,7 +116,8 @@ func (s *Store) CreateScanRecord(ctx context.Context, sessionId, barcode, itemNo
 
 func (s *Store) ListTransfers(ctx context.Context, userID any) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "whTransfer"
+		SELECT "whTransferId", "whTransferNumber", "whTransferFromLocation", "whTransferToLocation", "whTransferStatus", "whTransferCreatedBy", "whTransferCreatedAt", "whTransferUserId"
+		FROM "whTransfer"
 		WHERE "whTransferUserId" = $1
 		ORDER BY "whTransferCreatedAt" DESC
 	`, userID)
@@ -131,7 +137,7 @@ func (s *Store) CreateTransfer(ctx context.Context, number, fromLocation, toLoca
 }
 
 func (s *Store) GetTransfer(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "whTransfer" WHERE "whTransferId" = $1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT "whTransferId", "whTransferNumber", "whTransferFromLocation", "whTransferToLocation", "whTransferStatus", "whTransferCreatedBy", "whTransferCreatedAt", "whTransferUserId" FROM "whTransfer" WHERE "whTransferId" = $1`, id)
 }
 
 func (s *Store) UpdateTransfer(ctx context.Context, id, fromLocation, toLocation, status any) (map[string]any, error) {
@@ -161,17 +167,18 @@ func (s *Store) RfidUnassign(ctx context.Context, tagCode any) error {
 // ---- Dashboard ----
 
 func (s *Store) DashboardSessions(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "whScanSession"`)
+	return db.QueryRows(ctx, s.pool, `SELECT "whScanSessionId", "whScanSessionStatus" FROM "whScanSession"`)
 }
 
 func (s *Store) DashboardTransfers(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "whTransfer"`)
+	return db.QueryRows(ctx, s.pool, `SELECT "whTransferId", "whTransferStatus" FROM "whTransfer"`)
 }
 
 // ---- App Version ----
 
 func (s *Store) GetLatestAppVersion(ctx context.Context) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		SELECT * FROM "whAppVersion" ORDER BY "whAppVersionCreatedAt" DESC LIMIT 1
+		SELECT "whAppVersionId", "whAppVersionNumber", "whAppVersionNotes", "whAppVersionUrl", "whAppVersionCreatedAt"
+		FROM "whAppVersion" ORDER BY "whAppVersionCreatedAt" DESC LIMIT 1
 	`)
 }

@@ -114,7 +114,11 @@ func (s *Store) GetDimensionNames(ctx context.Context) ([]map[string]any, error)
 
 func (s *Store) ListCores(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcItem"
+		SELECT "bcItemNo" AS "code", "bcItemDescription" AS "desc",
+			"bcItemUnitCost" AS "unitCost", "bcItemUnitPrice" AS "unitPrice",
+			"bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "uom",
+			"bcItemItemCategoryCode" AS "category"
+		FROM "bcItem"
 		WHERE "bcItemGenProdPostingGroup" = 'RM'
 			AND ("bcItemNo" LIKE 'RM-16-07%' OR "bcItemNo" LIKE 'RM-16-08%')
 		ORDER BY "bcItemNo"
@@ -123,7 +127,11 @@ func (s *Store) ListCores(ctx context.Context) ([]map[string]any, error) {
 
 func (s *Store) ListFrames(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "bcItem"
+		SELECT "bcItemNo" AS "code", "bcItemDescription" AS "desc",
+			"bcItemUnitCost" AS "unitCost", "bcItemUnitPrice" AS "unitPrice",
+			"bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "uom",
+			"bcItemItemCategoryCode" AS "category"
+		FROM "bcItem"
 		WHERE "bcItemNo" LIKE 'RM-14-01%'
 			OR "bcItemNo" LIKE 'RM-14-04%'
 			OR "bcItemNo" LIKE 'RM-16-19%'

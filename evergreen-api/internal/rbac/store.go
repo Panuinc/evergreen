@@ -19,7 +19,7 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Roles ----
 
 func (s *Store) ListRoles(ctx context.Context, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT r.*,
+	q := `SELECT r."rbacRoleId", r."rbacRoleName", r."rbacRoleDescription", r."rbacRoleIsSuperadmin", r."rbacRoleCreatedAt", r."isActive",
 		(SELECT count(*) FROM "rbacUserRole" ur WHERE ur."rbacUserRoleRoleId" = r."rbacRoleId" AND ur."isActive" = true) as "userCount",
 		(SELECT count(*) FROM "rbacRolePermission" rp WHERE rp."rbacRolePermissionRoleId" = r."rbacRoleId" AND rp."isActive" = true) as "permissionCount"
 		FROM "rbacRole" r`
@@ -39,7 +39,7 @@ func (s *Store) CreateRole(ctx context.Context, body map[string]any) (map[string
 }
 
 func (s *Store) GetRole(ctx context.Context, id string, includeInactive bool) (map[string]any, error) {
-	q := `SELECT * FROM "rbacRole" WHERE "rbacRoleId" = $1`
+	q := `SELECT "rbacRoleId", "rbacRoleName", "rbacRoleDescription", "rbacRoleIsSuperadmin", "rbacRoleCreatedAt", "isActive" FROM "rbacRole" WHERE "rbacRoleId" = $1`
 	if !includeInactive {
 		q += ` AND "isActive" = true`
 	}
@@ -48,7 +48,10 @@ func (s *Store) GetRole(ctx context.Context, id string, includeInactive bool) (m
 
 func (s *Store) GetRolePermissions(ctx context.Context, id string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT rp.*, p.*, res.*, act.*
+		SELECT rp."rbacRolePermissionId", rp."rbacRolePermissionRoleId", rp."rbacRolePermissionPermissionId", rp."isActive",
+			p."rbacPermissionId", p."rbacPermissionResourceId", p."rbacPermissionActionId",
+			res."rbacResourceId", res."rbacResourceName",
+			act."rbacActionId", act."rbacActionName"
 		FROM "rbacRolePermission" rp
 		JOIN "rbacPermission" p ON p."rbacPermissionId" = rp."rbacRolePermissionPermissionId"
 		LEFT JOIN "rbacResource" res ON res."rbacResourceId" = p."rbacPermissionResourceId"
@@ -76,9 +79,9 @@ func (s *Store) DeleteRole(ctx context.Context, id string) error {
 // ---- Permissions ----
 
 func (s *Store) ListPermissions(ctx context.Context, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT p.*,
-		row_to_json(res.*) as "rbacResource",
-		row_to_json(act.*) as "rbacAction"
+	q := `SELECT p."rbacPermissionId", p."rbacPermissionResourceId", p."rbacPermissionActionId", p."rbacPermissionCreatedAt", p."isActive",
+		json_build_object('rbacResourceId', res."rbacResourceId", 'rbacResourceName', res."rbacResourceName", 'rbacResourceDescription', res."rbacResourceDescription") as "rbacResource",
+		json_build_object('rbacActionId', act."rbacActionId", 'rbacActionName', act."rbacActionName") as "rbacAction"
 		FROM "rbacPermission" p
 		LEFT JOIN "rbacResource" res ON res."rbacResourceId" = p."rbacPermissionResourceId"
 		LEFT JOIN "rbacAction" act ON act."rbacActionId" = p."rbacPermissionActionId"`
@@ -105,7 +108,7 @@ func (s *Store) DeletePermission(ctx context.Context, id string) error {
 // ---- Resources ----
 
 func (s *Store) ListResources(ctx context.Context, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT * FROM "rbacResource"`
+	q := `SELECT "rbacResourceId", "rbacResourceName", "rbacResourceDescription", "rbacResourceModuleRef", "rbacResourceCreatedAt", "isActive" FROM "rbacResource"`
 	if !includeInactive {
 		q += ` WHERE "isActive" = true`
 	}
@@ -137,7 +140,7 @@ func (s *Store) DeleteResource(ctx context.Context, id string) error {
 // ---- Actions ----
 
 func (s *Store) ListActions(ctx context.Context, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT * FROM "rbacAction"`
+	q := `SELECT "rbacActionId", "rbacActionName", "rbacActionDescription", "rbacActionCreatedAt", "isActive" FROM "rbacAction"`
 	if !includeInactive {
 		q += ` WHERE "isActive" = true`
 	}
@@ -169,10 +172,10 @@ func (s *Store) DeleteAction(ctx context.Context, id string) error {
 // ---- Role Permissions ----
 
 func (s *Store) ListRolePermissions(ctx context.Context, roleId string, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT rp.*,
-		row_to_json(p.*) as "rbacPermission",
-		row_to_json(res.*) as "rbacResource",
-		row_to_json(act.*) as "rbacAction"
+	q := `SELECT rp."rbacRolePermissionId", rp."rbacRolePermissionRoleId", rp."rbacRolePermissionPermissionId", rp."isActive",
+		json_build_object('rbacPermissionId', p."rbacPermissionId", 'rbacPermissionResourceId', p."rbacPermissionResourceId", 'rbacPermissionActionId', p."rbacPermissionActionId") as "rbacPermission",
+		json_build_object('rbacResourceId', res."rbacResourceId", 'rbacResourceName', res."rbacResourceName") as "rbacResource",
+		json_build_object('rbacActionId', act."rbacActionId", 'rbacActionName', act."rbacActionName") as "rbacAction"
 		FROM "rbacRolePermission" rp
 		JOIN "rbacPermission" p ON p."rbacPermissionId" = rp."rbacRolePermissionPermissionId"
 		LEFT JOIN "rbacResource" res ON res."rbacResourceId" = p."rbacPermissionResourceId"
@@ -203,13 +206,14 @@ func (s *Store) RemoveRolePermission(ctx context.Context, roleId string, permId 
 
 func (s *Store) ListAllUserProfiles(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "rbacUserProfile" ORDER BY "rbacUserProfileCreatedAt" DESC
+		SELECT "rbacUserProfileId", "rbacUserProfileEmail", "rbacUserProfileCreatedAt", "isActive" FROM "rbacUserProfile" ORDER BY "rbacUserProfileCreatedAt" DESC
 	`)
 }
 
 func (s *Store) ListActiveUserRoles(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT ur.*, row_to_json(r.*) as "rbacRole"
+		SELECT ur."rbacUserRoleId", ur."rbacUserRoleUserId", ur."rbacUserRoleRoleId", ur."isActive",
+			json_build_object('rbacRoleId', r."rbacRoleId", 'rbacRoleName', r."rbacRoleName", 'rbacRoleIsSuperadmin', r."rbacRoleIsSuperadmin", 'rbacRoleDescription', r."rbacRoleDescription") as "rbacRole"
 		FROM "rbacUserRole" ur
 		JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
 		WHERE ur."isActive" = true
@@ -217,7 +221,8 @@ func (s *Store) ListActiveUserRoles(ctx context.Context) ([]map[string]any, erro
 }
 
 func (s *Store) GetUserRoles(ctx context.Context, userId string, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT ur.*, row_to_json(r.*) as "rbacRole"
+	q := `SELECT ur."rbacUserRoleId", ur."rbacUserRoleUserId", ur."rbacUserRoleRoleId", ur."isActive",
+		json_build_object('rbacRoleId', r."rbacRoleId", 'rbacRoleName', r."rbacRoleName", 'rbacRoleIsSuperadmin', r."rbacRoleIsSuperadmin", 'rbacRoleDescription', r."rbacRoleDescription") as "rbacRole"
 		FROM "rbacUserRole" ur
 		JOIN "rbacRole" r ON r."rbacRoleId" = ur."rbacUserRoleRoleId"
 		WHERE ur."rbacUserRoleUserId" = $1`
@@ -280,7 +285,8 @@ func (s *Store) GetUserPermissions(ctx context.Context, userId string) ([]map[st
 
 func (s *Store) ListAccessLogs(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "rbacAccessLog"
+		SELECT "rbacAccessLogId", "rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction", "rbacAccessLogGranted", "rbacAccessLogCreatedAt"
+		FROM "rbacAccessLog"
 		ORDER BY "rbacAccessLogCreatedAt" DESC
 		LIMIT 200
 	`)

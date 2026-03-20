@@ -153,7 +153,25 @@ func (s *Store) AgedPayables(ctx context.Context) ([]map[string]any, error) {
 // ---- GL Entries ----
 
 func (s *Store) ListGLEntries(ctx context.Context, start, end string) ([]map[string]any, error) {
-	q := `SELECT * FROM "bcGLEntry" WHERE 1=1`
+	q := `SELECT
+			"bcGLEntryEntryNo" AS "entryNo",
+			"bcGLEntryGLAccountNo" AS "accountNo",
+			"bcGLEntryGLAccountName" AS "accountName",
+			"bcGLEntryPostingDate" AS "postingDate",
+			"bcGLEntryDocumentType" AS "documentType",
+			"bcGLEntryDocumentNo" AS "documentNo",
+			"bcGLEntryDescriptionValue" AS "description",
+			"bcGLEntryAmountValue" AS "amount",
+			"bcGLEntryDebitAmount" AS "debitAmount",
+			"bcGLEntryCreditAmount" AS "creditAmount",
+			"bcGLEntryGlobalDimension1Code" AS "dimension1Code",
+			"bcGLEntryGlobalDimension2Code" AS "dimension2Code",
+			"bcGLEntrySourceType" AS "sourceType",
+			"bcGLEntrySourceNo" AS "sourceNo",
+			"bcGLEntryDocumentDate" AS "documentDate",
+			"bcGLEntryExternalDocumentNo" AS "externalDocumentNo",
+			"bcGLEntryVATAmount" AS "vatAmount"
+		FROM "bcGLEntry" WHERE 1=1`
 	var args []any
 	idx := 1
 	if start != "" {
@@ -233,7 +251,22 @@ func (s *Store) TrialBalance(ctx context.Context) ([]map[string]any, error) {
 // ---- Collections ----
 
 func (s *Store) ListCollections(ctx context.Context, customerNumber, status, since, until string) ([]map[string]any, error) {
-	q := `SELECT * FROM "arFollowUp" WHERE 1=1`
+	q := `SELECT
+			"arFollowUpId",
+			"arFollowUpCustomerNumber",
+			"arFollowUpCustomerName",
+			"arFollowUpInvoiceNumber",
+			"arFollowUpContactDate",
+			"arFollowUpContactMethod",
+			"arFollowUpReason",
+			"arFollowUpReasonDetail",
+			"arFollowUpNote",
+			"arFollowUpPromiseDate",
+			"arFollowUpPromiseAmount",
+			"arFollowUpStatus",
+			"arFollowUpNextFollowUpDate",
+			"arFollowUpCreatedByName"
+		FROM "arFollowUp" WHERE 1=1`
 	var args []any
 	idx := 1
 	if customerNumber != "" {
