@@ -100,7 +100,7 @@ func (s *Store) SetSyncState(ctx context.Context, key, value string) error {
 
 // TruncateTable deletes all rows from a table (used for full sync reset).
 func (s *Store) TruncateTable(ctx context.Context, table string) error {
-	_, err := s.pool.Exec(ctx, fmt.Sprintf(`DELETE FROM %q WHERE "id" >= 0`, table))
+	_, err := s.pool.Exec(ctx, fmt.Sprintf(`TRUNCATE %q CASCADE`, table))
 	return err
 }
 
