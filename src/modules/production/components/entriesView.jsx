@@ -122,11 +122,11 @@ const statusOptions = [
 
 export default function EntriesView({ data, loading }) {
   const wpcData = useMemo(
-    () => data.filter((r) => r.bcItemLedgerEntryGlobalDimension1Code === "WPC"),
+    () => (data || []).filter((r) => r.bcItemLedgerEntryGlobalDimension1Code === "WPC"),
     [data],
   );
   const otherData = useMemo(
-    () => data.filter((r) => r.bcItemLedgerEntryGlobalDimension1Code !== "WPC"),
+    () => (data || []).filter((r) => r.bcItemLedgerEntryGlobalDimension1Code !== "WPC"),
     [data],
   );
 

@@ -117,7 +117,6 @@ export default function DashboardClient({ initialStats }) {
             key={card.title}
             title={card.title}
             value={card.value}
-            unit={card.unit}
             color={card.color}
             subtitle={card.sub}
             currentRaw={card.currentRaw}
@@ -130,19 +129,19 @@ export default function DashboardClient({ initialStats }) {
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-xs font-light mb-3">พนักงานตามฝ่าย</p>
-            <EmployeeByDivisionChart data={d.byDivision} />
+            <EmployeeByDivisionChart data={d.byDivision || []} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-xs font-light mb-3">พนักงานตามแผนก</p>
-            <EmployeeByDepartmentChart data={d.byDepartment} />
+            <EmployeeByDepartmentChart data={d.byDepartment || []} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-5">
             <p className="text-xs font-light mb-3">สถานะพนักงาน</p>
-            <EmployeeStatusChart data={d.byStatus} />
+            <EmployeeStatusChart data={d.byStatus || []} />
           </CardBody>
         </Card>
         <Card shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
@@ -150,7 +149,7 @@ export default function DashboardClient({ initialStats }) {
             <p className="text-xs font-light mb-3">
               แนวโน้มพนักงานใหม่ (6 เดือนล่าสุด)
             </p>
-            <NewEmployeeTrendChart data={d.trend} />
+            <NewEmployeeTrendChart data={d.trend || []} />
           </CardBody>
         </Card>
       </div>

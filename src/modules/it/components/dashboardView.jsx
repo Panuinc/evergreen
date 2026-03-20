@@ -1,4 +1,6 @@
-import { Card, CardBody} from "@heroui/react";
+"use client";
+
+import { Card, CardBody } from "@heroui/react";
 import { Server } from "lucide-react";
 import CompareToggle from "@/components/ui/compareToggle";
 import CompareKpiCard from "@/components/ui/compareKpiCard";

@@ -66,7 +66,7 @@ export default function VehiclePerformanceTable({ data = [] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {sorted.map((v) => (
-        <Card key={v.vehicleId} shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
+        <Card key={v.tmsVehicleId || v.vehicleId} shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-4 gap-3">
             {}
             <div className="flex items-center justify-between">

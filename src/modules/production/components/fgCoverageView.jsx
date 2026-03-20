@@ -131,7 +131,7 @@ export default function FgCoverageView({ initialData = null }) {
         }
         return (
           <div className="flex flex-col gap-1">
-            {item.productionOrders.map((po) => (
+            {(item.productionOrders || []).map((po) => (
               <Tooltip
                 key={po.orderNo}
                 content={`${po.orderNo} • ${po.status} • จำนวน ${fmt(po.quantity)}${po.dueDate ? ` • กำหนด ${po.dueDate}` : ""}`}

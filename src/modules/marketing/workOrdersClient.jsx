@@ -109,7 +109,7 @@ export default function WorkOrdersClient() {
         mktWorkOrderProgress: parseInt(formData.mktWorkOrderProgress) || 0,
       };
       if (editingWorkOrder) {
-        await put(`/api/marketing/workOrders/${editingWorkOrder.id}`, payload);
+        await put(`/api/marketing/workOrders/${editingWorkOrder.mktWorkOrderId}`, payload);
         toast.success("อัปเดตใบสั่งงานสำเร็จ");
       } else {
         await post("/api/marketing/workOrders", payload);
@@ -132,7 +132,7 @@ export default function WorkOrdersClient() {
   const handleDelete = async () => {
     if (!deletingWorkOrder) return;
     try {
-      await del(`/api/marketing/workOrders/${deletingWorkOrder.id}`);
+      await del(`/api/marketing/workOrders/${deletingWorkOrder.mktWorkOrderId}`);
       toast.success("ลบใบสั่งงานสำเร็จ");
       deleteModal.onClose();
       setDeletingWorkOrder(null);
@@ -144,7 +144,7 @@ export default function WorkOrdersClient() {
 
   const toggleActive = async (item) => {
     try {
-      await put(`/api/marketing/workOrders/${item.id}`, { isActive: !item.isActive });
+      await put(`/api/marketing/workOrders/${item.mktWorkOrderId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       mutateWorkOrders();
     } catch (error) {
@@ -165,7 +165,7 @@ export default function WorkOrdersClient() {
     progressModal.onOpen();
     try {
       setProgressLoading(true);
-      const logs = await get(`/api/marketing/workOrders/${workOrder.id}/progress`);
+      const logs = await get(`/api/marketing/workOrders/${workOrder.mktWorkOrderId}/progress`);
       setProgressLogs(logs);
     } catch {
       toast.error("โหลดบันทึกความคืบหน้าล้มเหลว");
@@ -186,14 +186,14 @@ export default function WorkOrdersClient() {
 
     try {
       setProgressSaving(true);
-      await post(`/api/marketing/workOrders/${selectedWorkOrder.id}/progress`, {
+      await post(`/api/marketing/workOrders/${selectedWorkOrder.mktWorkOrderId}/progress`, {
         mktWorkOrderProgressLogDescription: progressForm.mktWorkOrderProgressLogDescription,
         mktWorkOrderProgressLogProgress: parseInt(progressForm.mktWorkOrderProgressLogProgress) || 0,
         mktWorkOrderProgressLogCreatedBy: progressForm.mktWorkOrderProgressLogCreatedBy,
       });
       toast.success("อัปเดตความคืบหน้าสำเร็จ");
 
-      const logs = await get(`/api/marketing/workOrders/${selectedWorkOrder.id}/progress`);
+      const logs = await get(`/api/marketing/workOrders/${selectedWorkOrder.mktWorkOrderId}/progress`);
       setProgressLogs(logs);
       setProgressForm({
         ...emptyProgressForm,
