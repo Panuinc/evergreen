@@ -211,14 +211,14 @@ const invOverrideKey = (year) => `chh_inventory_override_${year}`;
 
 /* ── Component ───────────────────────────────────────── */
 
-export default function FinanceDashboardClient() {
+export default function FinanceDashboardClient({ initialTb = [], initialAr = [], initialAp = [], initialSi = [], initialPi = [] }) {
   /* ── Trial Balance / Dashboard state (was useFinanceDashboard) ── */
   const fetcher = (url) => get(url).catch(() => []);
-  const { data: tbData, isLoading: tbLoading, mutate: mutateTb } = useSWR("/api/finance/trialBalance", fetcher);
-  const { data: arData, isLoading: arLoading } = useSWR("/api/finance/agedReceivables", fetcher);
-  const { data: apData, isLoading: apLoading } = useSWR("/api/finance/agedPayables", fetcher);
-  const { data: siData, isLoading: siLoading } = useSWR("/api/finance/salesInvoices?status=Open&expand=false", fetcher);
-  const { data: piData, isLoading: piLoading } = useSWR("/api/finance/purchaseInvoices?status=Open&expand=false", fetcher);
+  const { data: tbData, isLoading: tbLoading, mutate: mutateTb } = useSWR("/api/finance/trialBalance", fetcher, { fallbackData: initialTb });
+  const { data: arData, isLoading: arLoading } = useSWR("/api/finance/agedReceivables", fetcher, { fallbackData: initialAr });
+  const { data: apData, isLoading: apLoading } = useSWR("/api/finance/agedPayables", fetcher, { fallbackData: initialAp });
+  const { data: siData, isLoading: siLoading } = useSWR("/api/finance/salesInvoices?status=Open&expand=false", fetcher, { fallbackData: initialSi });
+  const { data: piData, isLoading: piLoading } = useSWR("/api/finance/purchaseInvoices?status=Open&expand=false", fetcher, { fallbackData: initialPi });
 
   const trialBalance = useMemo(() => tbData || [], [tbData]);
   const agedReceivables = useMemo(() => arData || [], [arData]);

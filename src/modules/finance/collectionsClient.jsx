@@ -30,9 +30,9 @@ const initialForm = {
 
 const fetcher = (url) => get(url);
 
-export default function CollectionsClient() {
-  const { data: arRaw, isLoading: arLoading, mutate: mutateAr } = useSWR("/api/finance/agedReceivables", fetcher);
-  const { data: fuRaw, isLoading: fuLoading, mutate: mutateFu } = useSWR("/api/finance/collections", fetcher);
+export default function CollectionsClient({ initialAr = [], initialFu = [] }) {
+  const { data: arRaw, isLoading: arLoading, mutate: mutateAr } = useSWR("/api/finance/agedReceivables", fetcher, { fallbackData: initialAr });
+  const { data: fuRaw, isLoading: fuLoading, mutate: mutateFu } = useSWR("/api/finance/collections", fetcher, { fallbackData: initialFu });
 
   const arData = useMemo(() => arRaw || [], [arRaw]);
   const followUps = useMemo(() => fuRaw || [], [fuRaw]);

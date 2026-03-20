@@ -1,8 +1,16 @@
+import { api } from "@/lib/api.server";
 import CollectionsClient from "@/modules/finance/collectionsClient";
 
 export default async function CollectionsPage() {
-  // Collections page relies heavily on client-side hooks (useCollections)
-  // with AI streaming, follow-up mutations, and complex form state.
-  // Keep data fetching in the client hook; this page is a Server Component.
-  return <CollectionsClient />;
+  const [arData, fuData] = await Promise.all([
+    api("/api/finance/agedReceivables"),
+    api("/api/finance/collections"),
+  ]);
+
+  return (
+    <CollectionsClient
+      initialAr={arData || []}
+      initialFu={fuData || []}
+    />
+  );
 }
