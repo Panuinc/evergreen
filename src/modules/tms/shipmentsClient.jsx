@@ -425,6 +425,17 @@ function ShipmentsInner() {
     onOpen();
   };
 
+  const getWageForPerson = (person, data = formData) => {
+    if (person === "driver") return parseFloat(data.tmsShipmentDriverWage) || 0;
+    const match = person?.match(/^assistant-(\d+)$/);
+    if (match) {
+      const idx = parseInt(match[1]);
+      const assistants = data.tmsShipmentAssistants || [];
+      return parseFloat(assistants[idx]?.wage) || 0;
+    }
+    return 0;
+  };
+
   const handleSave = async () => {
     if (
       !formData.tmsShipmentCustomerName.trim() ||
@@ -549,17 +560,6 @@ function ShipmentsInner() {
     } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
-  };
-
-  const getWageForPerson = (person, data = formData) => {
-    if (person === "driver") return parseFloat(data.tmsShipmentDriverWage) || 0;
-    const match = person?.match(/^assistant-(\d+)$/);
-    if (match) {
-      const idx = parseInt(match[1]);
-      const assistants = data.tmsShipmentAssistants || [];
-      return parseFloat(assistants[idx]?.wage) || 0;
-    }
-    return 0;
   };
 
   const addExtra = () => {

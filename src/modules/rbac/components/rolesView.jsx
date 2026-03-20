@@ -100,9 +100,9 @@ export default function RolesView({
             </Chip>
           );
         case "userCount":
-          return role.rbacUserRole?.[0]?.count ?? 0;
+          return role.userCount ?? 0;
         case "permCount":
-          return role.rbacRolePermission?.[0]?.count ?? 0;
+          return role.permissionCount ?? 0;
         case "isActive":
           return (
             <Chip
