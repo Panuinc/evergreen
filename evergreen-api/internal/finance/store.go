@@ -112,19 +112,20 @@ func (s *Store) ListPurchaseInvoices(ctx context.Context) ([]map[string]any, err
 func (s *Store) AgedReceivables(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			"bcCustomerLedgerEntryCustomerNo" AS "customerNumber",
-			"bcCustomerLedgerEntryCustomerName" AS "name",
-			MAX("bcCustomerLedgerEntryCurrencyCode") AS "currencyCode",
-			SUM(CASE WHEN "bcCustomerLedgerEntryRemainingAmount" != 0 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "balanceDue",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "currentAmount",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE AND "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period1Amount",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 30 AND "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period2Amount",
-			SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 60 THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period3Amount"
-		FROM "bcCustomerLedgerEntry"
-		WHERE "bcCustomerLedgerEntryOpenValue" = 'true'
-		GROUP BY "bcCustomerLedgerEntryCustomerNo", "bcCustomerLedgerEntryCustomerName"
-		HAVING SUM("bcCustomerLedgerEntryRemainingAmount") != 0
-		ORDER BY SUM("bcCustomerLedgerEntryRemainingAmount") DESC
+			e."bcCustomerLedgerEntryCustomerNo" AS "customerNumber",
+			COALESCE(c."bcCustomerNameValue", e."bcCustomerLedgerEntryCustomerNo") AS "name",
+			MAX(e."bcCustomerLedgerEntryCurrencyCode") AS "currencyCode",
+			SUM(CASE WHEN e."bcCustomerLedgerEntryRemainingAmount" != 0 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "balanceDue",
+			SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "currentAmount",
+			SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" < CURRENT_DATE AND e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period1Amount",
+			SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 30 AND e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period2Amount",
+			SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 60 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period3Amount"
+		FROM "bcCustomerLedgerEntry" e
+		LEFT JOIN "bcCustomer" c ON c."bcCustomerNo" = e."bcCustomerLedgerEntryCustomerNo"
+		WHERE e."bcCustomerLedgerEntryOpenValue" = 'true'
+		GROUP BY e."bcCustomerLedgerEntryCustomerNo", c."bcCustomerNameValue"
+		HAVING SUM(e."bcCustomerLedgerEntryRemainingAmount") != 0
+		ORDER BY SUM(e."bcCustomerLedgerEntryRemainingAmount") DESC
 	`)
 }
 

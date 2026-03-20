@@ -203,7 +203,16 @@ func (s *Store) execBatchInsert(ctx context.Context, table string, cols []string
 		for colIdx, col := range cols {
 			paramNum := rowIdx*numCols + colIdx + 1
 			placeholders = append(placeholders, fmt.Sprintf("$%d", paramNum))
-			args = append(args, record[col])
+			val := record[col]
+			// pgx v5: bool cannot be encoded into text columns — convert to string
+			if b, ok := val.(bool); ok {
+				if b {
+					val = "true"
+				} else {
+					val = "false"
+				}
+			}
+			args = append(args, val)
 		}
 		valueParts = append(valueParts, "("+strings.Join(placeholders, ", ")+")")
 	}
