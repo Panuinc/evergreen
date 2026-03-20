@@ -144,6 +144,40 @@ CREATE TABLE hrEmployee (
 
 ---
 
+# Backend SQL Rules (MANDATORY)
+
+1. **ห้าม SELECT *** — ต้อง SELECT เฉพาะ column ที่ frontend ใช้ พร้อม alias ให้ clean name
+2. **ทุก column ที่ใช้ใน WHERE, JOIN, GROUP BY, ORDER BY ต้องมี index** — ถ้าเขียน query ใหม่ ต้องตรวจว่ามี index แล้ว ถ้าไม่มีต้องสร้าง
+3. **Query ที่มี aggregate (SUM, COUNT) ต้อง filter ให้แคบก่อน GROUP BY** — ใช้ WHERE ตัดข้อมูลที่ไม่ต้องการออกก่อน aggregate
+4. **LATERAL subquery กับ json_agg ต้อง SELECT เฉพาะ column ที่ใช้** — ห้าม `to_json(l.*)` ต้อง `json_build_object('field1', l."col1", ...)`
+
+---
+
+# Frontend Fetching Rules (MANDATORY)
+
+1. **ถ้า fetch หลาย endpoint ใน page เดียว ต้อง fetch แบบ parallel** — ห้าม waterfall (sequential) fetch
+   - Server Component: ใช้ `Promise.all([fetch1(), fetch2()])`
+   - Client Component (SWR): SWR จะ parallel อัตโนมัติถ้าไม่มี dependency ระหว่าง key
+2. **ข้อมูลที่โหลดตอน page load ให้ใช้ Server Component fetch ก่อน** แล้วส่ง props ลง Client Component
+3. **ใช้ client-side fetch (SWR/useEffect) เฉพาะข้อมูลที่ต้อง refresh แบบ realtime** หรือขึ้นกับ user interaction
+
+---
+
+# API Response Rules (MANDATORY)
+
+1. **Endpoint ที่ return list ต้อง support pagination** — default limit 50, ใช้ query param `?limit=50&offset=0`
+2. **ห้าม return nested data ถ้า frontend ไม่ได้ใช้** — ใช้ `?expand=true` เมื่อต้องการ nested relations
+3. **Response field names ต้อง camelCase** ตรงกับ frontend property names (สอดคล้องกับ Data Flow Architecture Rule #4)
+
+---
+
+# Middleware Rules (MANDATORY)
+
+1. **Auth check result ต้อง cache** (in-memory หรือ Redis) TTL 5 นาที — ห้าม query DB ซ้ำทุก request สำหรับข้อมูลที่ไม่เปลี่ยนบ่อย (role, permission)
+2. **Middleware/Auth ควรทำ 1 query รวม** แทนหลาย query แยก — JOIN rbacUserRole + rbacUserProfile + rbacRole ในครั้งเดียว
+
+---
+
 # Next.js Development Rules
 
 Sources: Official Next.js 16.2.0 Documentation
