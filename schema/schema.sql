@@ -22,60 +22,6 @@ CREATE TABLE public.arFollowUp (
   updatedAt timestamp with time zone DEFAULT now(),
   CONSTRAINT arFollowUp_pkey PRIMARY KEY (id)
 );
-CREATE TABLE public.bankEntry (
-  id uuid NOT NULL DEFAULT gen_random_uuid(),
-  statementId uuid NOT NULL,
-  lineNumber integer NOT NULL,
-  txDate date NOT NULL,
-  txTime time without time zone,
-  channel text,
-  description text,
-  txType text,
-  amount numeric NOT NULL,
-  balance numeric,
-  direction text NOT NULL,
-  matchStatus text NOT NULL DEFAULT 'unmatched'::text,
-  matchConfidence numeric,
-  matchMethod text,
-  matchNote text,
-  matchedBy uuid,
-  matchedAt timestamp with time zone,
-  createdAt timestamp with time zone DEFAULT now(),
-  CONSTRAINT bankEntry_pkey PRIMARY KEY (id),
-  CONSTRAINT bankEntry_statementId_fkey FOREIGN KEY (statementId) REFERENCES public.bankStatement(id)
-);
-CREATE TABLE public.bankMatch (
-  id uuid NOT NULL DEFAULT gen_random_uuid(),
-  entryId uuid NOT NULL,
-  invoiceNumber text NOT NULL,
-  customerNumber text,
-  customerName text,
-  invoiceAmount numeric,
-  remainingAmount numeric,
-  matchedAmount numeric NOT NULL,
-  createdAt timestamp with time zone DEFAULT now(),
-  CONSTRAINT bankMatch_pkey PRIMARY KEY (id),
-  CONSTRAINT bankMatch_entryId_fkey FOREIGN KEY (entryId) REFERENCES public.bankEntry(id)
-);
-CREATE TABLE public.bankStatement (
-  id uuid NOT NULL DEFAULT gen_random_uuid(),
-  bankCode text NOT NULL DEFAULT 'KBANK'::text,
-  accountNumber text,
-  periodStart date,
-  periodEnd date,
-  fileName text NOT NULL,
-  fileUrl text NOT NULL,
-  openingBalance numeric,
-  closingBalance numeric,
-  entryCount integer DEFAULT 0,
-  matchedCount integer DEFAULT 0,
-  status text NOT NULL DEFAULT 'pending'::text,
-  parseError text,
-  createdBy uuid,
-  createdByName text,
-  createdAt timestamp with time zone DEFAULT now(),
-  CONSTRAINT bankStatement_pkey PRIMARY KEY (id)
-);
 CREATE TABLE public.bcBankAccount (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   bcBankAccountNo text NOT NULL UNIQUE,

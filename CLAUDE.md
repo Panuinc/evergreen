@@ -1,3 +1,44 @@
+# Data Flow Architecture (MANDATORY)
+
+## Data Direction: Supabase → Backend → Frontend
+
+Priority:
+1. **Supabase** — single source of truth (database)
+2. **Backend (Go API)** — reads from Supabase, serves to frontend
+3. **Frontend (Next.js)** — reads from Backend API only
+
+### Rules
+
+1. **Backend MUST always read from Supabase** — never hardcode or fabricate data.
+2. **Frontend MUST always read from Backend API** — never query Supabase directly from client components.
+3. **Field names MUST be identical across all 3 layers:**
+   - If a Supabase column is `customerNumber`, the Go API SQL query MUST return it as `customerNumber` (use `AS` alias if the raw column name differs).
+   - The frontend MUST use `data.customerNumber` — the exact same name.
+4. When the Supabase column has a long prefix (e.g., `bcCustomerLedgerEntryCustomerNo`), the Go API MUST alias it to a clean name (e.g., `AS "customerNumber"`) and the frontend uses that clean name.
+5. **Before writing any endpoint or component**, verify field name alignment:
+   - Check the Supabase table/column names
+   - Ensure the Go SQL query returns aliased names matching the frontend contract
+   - Ensure the frontend accesses the exact same property names
+
+### Example
+
+```sql
+-- Go store.go — alias Supabase columns to clean names
+SELECT
+  "bcCustomerLedgerEntryCustomerNo" AS "customerNumber",
+  "bcCustomerLedgerEntryCustomerName" AS "name",
+  SUM(...) AS "totalRemaining"
+FROM "bcCustomerLedgerEntry"
+```
+
+```javascript
+// Frontend — uses the same clean names
+const data = await get("/api/finance/agedReceivables");
+data.map(r => r.customerNumber); // matches Go alias exactly
+```
+
+---
+
 # Next.js Development Rules
 
 Sources: Official Next.js 16.2.0 Documentation

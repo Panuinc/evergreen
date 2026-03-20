@@ -417,7 +417,7 @@ export default function FinanceDashboardClient() {
         ? Math.floor((today - due) / 86400000)
         : 0;
       map[inv.customerNumber].push({
-        number: inv.number,
+        invoiceNumber: inv.invoiceNumber,
         invoiceDate: inv.invoiceDate,
         dueDate: inv.dueDate,
         totalAmountIncludingTax: inv.totalAmountIncludingTax,
@@ -442,7 +442,7 @@ export default function FinanceDashboardClient() {
         ? Math.floor((today - due) / 86400000)
         : 0;
       map[inv.vendorNumber].push({
-        number: inv.number,
+        invoiceNumber: inv.invoiceNumber,
         invoiceDate: inv.invoiceDate,
         dueDate: inv.dueDate,
         totalAmountIncludingTax: inv.totalAmountIncludingTax,

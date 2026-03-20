@@ -8,45 +8,45 @@ function fmt(v) {
 }
 
 const columns = [
-  { name: "รหัสลูกค้า", uid: "bcCustomerLedgerEntryCustomerNo", sortable: true },
-  { name: "ชื่อลูกค้า", uid: "bcCustomerLedgerEntryCustomerName", sortable: true },
-  { name: "สกุลเงิน", uid: "bcCustomerLedgerEntryCurrencyCode", sortable: true },
-  { name: "ปัจจุบัน", uid: "current", sortable: true },
-  { name: "ค้าง 1-30 วัน", uid: "days1to30", sortable: true },
-  { name: "ค้าง 31-60 วัน", uid: "days31to60", sortable: true },
-  { name: "ค้าง 61+ วัน", uid: "days61plus", sortable: true },
-  { name: "ยอดค้างชำระ", uid: "totalRemaining", sortable: true },
+  { name: "รหัสลูกค้า", uid: "customerNumber", sortable: true },
+  { name: "ชื่อลูกค้า", uid: "name", sortable: true },
+  { name: "สกุลเงิน", uid: "currencyCode", sortable: true },
+  { name: "ปัจจุบัน", uid: "currentAmount", sortable: true },
+  { name: "ค้าง 1-30 วัน", uid: "period1Amount", sortable: true },
+  { name: "ค้าง 31-60 วัน", uid: "period2Amount", sortable: true },
+  { name: "ค้าง 61+ วัน", uid: "period3Amount", sortable: true },
+  { name: "ยอดค้างชำระ", uid: "balanceDue", sortable: true },
 ];
 
 const initialVisibleColumns = [
-  "bcCustomerLedgerEntryCustomerNo",
-  "bcCustomerLedgerEntryCustomerName",
-  "current",
-  "days1to30",
-  "days31to60",
-  "days61plus",
-  "totalRemaining",
+  "customerNumber",
+  "name",
+  "currentAmount",
+  "period1Amount",
+  "period2Amount",
+  "period3Amount",
+  "balanceDue",
 ];
 
 export default function AgedReceivablesView({ data, loading }) {
   const renderCell = useCallback((item, key) => {
     switch (key) {
-      case "bcCustomerLedgerEntryCustomerNo":
-        return <span className="font-mono">{item.bcCustomerLedgerEntryCustomerNo}</span>;
-      case "bcCustomerLedgerEntryCustomerName":
-        return <span className="font-light">{item.bcCustomerLedgerEntryCustomerName}</span>;
-      case "bcCustomerLedgerEntryCurrencyCode":
-        return <span className="text-muted-foreground">{item.bcCustomerLedgerEntryCurrencyCode || "-"}</span>;
-      case "current":
-        return <span className="text-success">{fmt(item.current)}</span>;
-      case "days1to30":
-        return <span className="text-warning">{fmt(item.days1to30)}</span>;
-      case "days31to60":
-        return <span className="text-warning">{fmt(item.days31to60)}</span>;
-      case "days61plus":
-        return <span className="text-danger">{fmt(item.days61plus)}</span>;
-      case "totalRemaining":
-        return <span className="font-light">{fmt(item.totalRemaining)}</span>;
+      case "customerNumber":
+        return <span className="font-mono">{item.customerNumber}</span>;
+      case "name":
+        return <span className="font-light">{item.name}</span>;
+      case "currencyCode":
+        return <span className="text-muted-foreground">{item.currencyCode || "-"}</span>;
+      case "currentAmount":
+        return <span className="text-success">{fmt(item.currentAmount)}</span>;
+      case "period1Amount":
+        return <span className="text-warning">{fmt(item.period1Amount)}</span>;
+      case "period2Amount":
+        return <span className="text-warning">{fmt(item.period2Amount)}</span>;
+      case "period3Amount":
+        return <span className="text-danger">{fmt(item.period3Amount)}</span>;
+      case "balanceDue":
+        return <span className="font-light">{fmt(item.balanceDue)}</span>;
       default:
         return item[key] || "-";
     }
@@ -58,12 +58,12 @@ export default function AgedReceivablesView({ data, loading }) {
         columns={columns}
         data={data}
         renderCell={renderCell}
-        rowKey="bcCustomerLedgerEntryCustomerNo"
+        rowKey="customerNumber"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหารหัสหรือชื่อลูกค้า..."
-        searchKeys={["bcCustomerLedgerEntryCustomerNo", "bcCustomerLedgerEntryCustomerName"]}
-        defaultSortDescriptor={{ column: "totalRemaining", direction: "descending" }}
+        searchKeys={["customerNumber", "name"]}
+        defaultSortDescriptor={{ column: "balanceDue", direction: "descending" }}
         emptyContent="ไม่พบข้อมูลลูกหนี้ค้างชำระ"
         enableCardView
       />

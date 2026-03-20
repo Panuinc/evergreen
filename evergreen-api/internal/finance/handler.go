@@ -2,11 +2,8 @@ package finance
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/evergreen/api/internal/clients"
@@ -79,6 +76,17 @@ func (h *Handler) AgedPayables(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GLEntries(w http.ResponseWriter, r *http.Request) {
 	start := r.URL.Query().Get("start")
 	end := r.URL.Query().Get("end")
+	summarize := r.URL.Query().Get("summarize")
+
+	if summarize == "monthly" && start != "" && end != "" {
+		data, err := h.store.GLEntriesMonthly(r.Context(), start, end)
+		if err != nil {
+			response.InternalError(w, err)
+			return
+		}
+		response.OK(w, data)
+		return
+	}
 
 	data, err := h.store.ListGLEntries(r.Context(), start, end)
 	if err != nil {
@@ -129,196 +137,6 @@ func (h *Handler) CreateCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.Created(w, data)
-}
-
-// ---- Bank Recon ----
-
-func (h *Handler) ListBankStatements(w http.ResponseWriter, r *http.Request) {
-	status := r.URL.Query().Get("status")
-
-	data, err := h.store.ListBankStatements(r.Context(), status)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
-	response.OK(w, data)
-}
-
-func (h *Handler) CreateBankStatement(w http.ResponseWriter, r *http.Request) {
-	userID := middleware.UserID(r.Context())
-	var body map[string]any
-	json.NewDecoder(r.Body).Decode(&body)
-	data, err := h.store.CreateBankStatement(r.Context(), body, userID)
-	if err != nil {
-		response.Error(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	response.Created(w, data)
-}
-
-func (h *Handler) GetBankStatement(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	stmt, entries, err := h.store.GetBankStatementWithEntries(r.Context(), id)
-	if err != nil {
-		response.NotFound(w, "ไม่พบ Bank Statement")
-		return
-	}
-	stmt["entries"] = entries
-	response.OK(w, stmt)
-}
-
-func (h *Handler) DeleteBankStatement(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	h.store.DeleteBankStatement(r.Context(), id)
-	response.OK(w, map[string]bool{"success": true})
-}
-
-func (h *Handler) ParseBankStatement(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	ctx := r.Context()
-
-	// Get statement
-	stmt, err := h.store.GetBankStatementByID(ctx, id)
-	if err != nil {
-		response.NotFound(w, "ไม่พบ Bank Statement")
-		return
-	}
-
-	fileUrl, _ := stmt["fileUrl"].(string)
-	bankCode, _ := stmt["bankCode"].(string)
-	if bankCode == "" {
-		bankCode = "KBANK"
-	}
-
-	// Download PDF
-	httpResp, err := http.Get(fileUrl)
-	if err != nil {
-		response.Error(w, http.StatusBadGateway, "ไม่สามารถดาวน์โหลดไฟล์ PDF: "+err.Error())
-		return
-	}
-	defer httpResp.Body.Close()
-	pdfData, _ := io.ReadAll(httpResp.Body)
-
-	// Use AI to parse the PDF text (send raw text to OpenRouter for extraction)
-	pdfText := string(pdfData) // simplified — in production use pdf-parse lib
-	if len(pdfText) > 50000 {
-		pdfText = pdfText[:50000]
-	}
-
-	if h.ai == nil {
-		response.Error(w, http.StatusServiceUnavailable, "AI ยังไม่ได้ตั้งค่า")
-		return
-	}
-
-	// Use AI to extract bank statement entries
-	aiResp, err := h.ai.Chat(clients.ChatRequest{
-		Model: "google/gemini-2.5-flash-lite",
-		Messages: []clients.Message{
-			{Role: "system", Content: fmt.Sprintf(`คุณเป็นผู้เชี่ยวชาญในการอ่าน bank statement ของธนาคาร %s
-ให้แยกรายการทุกรายการจาก statement แล้วตอบกลับเป็น JSON array:
-[{"lineNumber":1,"txDate":"YYYY-MM-DD","txTime":"HH:MM","description":"...","amount":1234.56,"direction":"credit/debit","balance":5678.90}]
-ถ้ามี metadata เช่น accountNumber, periodStart, periodEnd, openingBalance, closingBalance ให้ใส่ใน field "metadata" ด้วย
-ตอบ JSON เท่านั้น ไม่ต้องอธิบาย`, bankCode)},
-			{Role: "user", Content: "Parse this bank statement:\n" + pdfText},
-		},
-		Temperature: 0,
-	})
-	if err != nil {
-		h.store.UpdateBankStatementError(ctx, id, err.Error())
-		response.InternalError(w, err)
-		return
-	}
-
-	if len(aiResp.Choices) == 0 {
-		response.Error(w, http.StatusBadGateway, "AI ไม่สามารถ parse ได้")
-		return
-	}
-
-	// Parse AI response
-	content := aiResp.Choices[0].Message.Content
-	var entries []map[string]any
-	if err := json.Unmarshal([]byte(content), &entries); err != nil {
-		// Try to extract JSON from markdown code block
-		response.OK(w, map[string]any{"ok": true, "raw": content, "note": "AI response needs manual parsing"})
-		return
-	}
-
-	// Delete existing entries
-	h.store.DeleteBankEntries(ctx, id)
-
-	// Insert entries
-	entryCount := 0
-	for _, entry := range entries {
-		if err := h.store.InsertBankEntry(ctx, id, entry); err == nil {
-			entryCount++
-		}
-	}
-
-	// Update statement
-	h.store.UpdateBankStatementParsed(ctx, id, entryCount)
-
-	response.OK(w, map[string]any{"ok": true, "entryCount": entryCount})
-}
-
-func (h *Handler) AutoMatch(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-
-	// Auto-match using Supabase data instead of BC API
-	entries, _ := h.store.GetUnmatchedCreditEntries(r.Context(), id)
-
-	// Get open invoices from synced data
-	invoices, _ := h.store.GetOpenSalesInvoices(r.Context())
-
-	customers, _ := h.store.GetAllCustomers(r.Context())
-
-	matchCount := 0
-	for _, entry := range entries {
-		amount, _ := entry["amount"].(float64)
-		for _, inv := range invoices {
-			remaining, _ := inv["bcPostedSalesInvoiceRemainingAmount"].(float64)
-			if amount == remaining {
-				// Exact match
-				h.store.InsertBankMatch(r.Context(),
-					entry["id"], inv["bcPostedSalesInvoiceNoValue"], inv["bcPostedSalesInvoiceSellToCustomerNo"],
-					inv["bcPostedSalesInvoiceSellToCustomerName"], inv["bcPostedSalesInvoiceAmountIncludingVAT"],
-					remaining, amount)
-				entryID, _ := entry["id"].(string)
-				h.store.UpdateBankEntryMatched(r.Context(), entryID, 1, "exact_amount")
-				matchCount++
-				break
-			}
-		}
-	}
-	_ = customers // used for advanced matching in future
-
-	response.OK(w, map[string]any{"ok": true, "matchCount": matchCount, "entries": len(entries)})
-}
-
-func (h *Handler) ManualMatch(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		Action  string  `json:"action"`
-		EntryID string  `json:"entryId"`
-		Invoice string  `json:"invoiceNumber"`
-		Amount  float64 `json:"matchedAmount"`
-	}
-	json.NewDecoder(r.Body).Decode(&body)
-	userID := middleware.UserID(r.Context())
-
-	switch body.Action {
-	case "match":
-		h.store.ManualMatchEntry(r.Context(), body.EntryID, body.Invoice, body.Amount)
-		h.store.SetBankEntryMatchedManual(r.Context(), body.EntryID, userID)
-	case "unmatch":
-		h.store.UnmatchEntry(r.Context(), body.EntryID)
-	case "exclude":
-		h.store.ExcludeEntry(r.Context(), body.EntryID, userID)
-	}
-	response.OK(w, map[string]bool{"ok": true})
-}
-
-func (h *Handler) ExportBankRecon(w http.ResponseWriter, r *http.Request) {
-	// XLSX export requires external lib — placeholder
-	response.OK(w, map[string]string{"status": "export_not_implemented_yet"})
 }
 
 // ---- AI Endpoints (streaming via OpenRouter) ----

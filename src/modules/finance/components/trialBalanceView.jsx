@@ -24,8 +24,8 @@ const columns = [
   { name: "เลขที่บัญชี", uid: "number", sortable: true },
   { name: "ชื่อบัญชี", uid: "display", sortable: true },
   { name: "ประเภท", uid: "accountType", sortable: true },
-  { name: "เดบิตรวม", uid: "totalDebit", sortable: true },
-  { name: "เครดิตรวม", uid: "totalCredit", sortable: true },
+  { name: "ยอดคงเหลือ", uid: "balance", sortable: true },
+  { name: "เปลี่ยนแปลงสุทธิ", uid: "netChange", sortable: true },
   { name: "ยอดเดบิต ณ วันที่", uid: "balanceAtDateDebit", sortable: true },
   { name: "ยอดเครดิต ณ วันที่", uid: "balanceAtDateCredit", sortable: true },
 ];
@@ -53,13 +53,13 @@ export default function TrialBalanceView({ data, loading }) {
           </Chip>
         );
       }
-      case "totalDebit": {
-        const v = parseNum(item.totalDebit);
-        return <span className={v > 0 ? "text-primary" : "text-muted-foreground"}>{fmt(v)}</span>;
+      case "balance": {
+        const v = parseNum(item.balance);
+        return <span className={v > 0 ? "text-primary" : v < 0 ? "text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
-      case "totalCredit": {
-        const v = parseNum(item.totalCredit);
-        return <span className={v > 0 ? "text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
+      case "netChange": {
+        const v = parseNum(item.netChange);
+        return <span className={v > 0 ? "text-primary" : v < 0 ? "text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       case "balanceAtDateDebit": {
         const v = parseNum(item.balanceAtDateDebit);
@@ -80,7 +80,7 @@ export default function TrialBalanceView({ data, loading }) {
         columns={columns}
         data={data}
         renderCell={renderCell}
-        rowKey="accountId"
+        rowKey="number"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาเลขที่หรือชื่อบัญชี..."

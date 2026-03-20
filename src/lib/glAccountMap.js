@@ -236,9 +236,9 @@ const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"
 
 export function computeAdjustedCogs(byAccount, monthlyTotals) {
   const raw = monthlyTotals?.["cogs"] || { months: {}, total: 0 };
-  const months = {};
-  for (const m of months) months[m] = raw.months[m] || 0;
-  return { months, total: raw.total };
+  const result = {};
+  for (const m of months) result[m] = raw.months[m] || 0;
+  return { months: result, total: raw.total };
 }
 
 

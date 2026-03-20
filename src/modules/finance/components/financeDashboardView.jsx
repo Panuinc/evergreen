@@ -1655,8 +1655,8 @@ export default function FinanceDashboardView({
               </TableHeader>
               <TableBody emptyContent="ไม่มีใบแจ้งหนี้">
                 {agingInvoices.map((inv) => (
-                  <TableRow key={inv.number}>
-                    <TableCell className="font-mono font-light">{inv.number}</TableCell>
+                  <TableRow key={inv.invoiceNumber}>
+                    <TableCell className="font-mono font-light">{inv.invoiceNumber}</TableCell>
                     <TableCell>{fmtDate(inv.invoiceDate)}</TableCell>
                     <TableCell>
                       <span className={inv.daysOverdue > 0 ? "text-danger" : ""}>{fmtDate(inv.dueDate)}</span>
