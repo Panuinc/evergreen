@@ -31,24 +31,24 @@ import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
 
 const baseColumns = [
-  { name: "ประเภท", uid: "crmActivityType" },
-  { name: "หัวข้อ", uid: "crmActivitySubject", sortable: true },
+  { name: "ประเภท", uid: "salesActivityType" },
+  { name: "หัวข้อ", uid: "salesActivitySubject", sortable: true },
   { name: "ผู้ติดต่อ", uid: "contact" },
   { name: "โอกาสขาย", uid: "opportunity" },
-  { name: "ความสำคัญ", uid: "crmActivityPriority" },
-  { name: "สถานะ", uid: "crmActivityStatus" },
-  { name: "วันครบกำหนด", uid: "crmActivityDueDate" },
-  { name: "ผู้รับผิดชอบ", uid: "crmActivityAssignedTo" },
+  { name: "ความสำคัญ", uid: "salesActivityPriority" },
+  { name: "สถานะ", uid: "salesActivityStatus" },
+  { name: "วันครบกำหนด", uid: "salesActivityDueDate" },
+  { name: "ผู้รับผิดชอบ", uid: "salesActivityAssignedTo" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const baseVisibleColumns = [
-  "crmActivityType",
-  "crmActivitySubject",
+  "salesActivityType",
+  "salesActivitySubject",
   "contact",
-  "crmActivityPriority",
-  "crmActivityStatus",
-  "crmActivityDueDate",
+  "salesActivityPriority",
+  "salesActivityStatus",
+  "salesActivityDueDate",
   "actions",
 ];
 
@@ -118,54 +118,54 @@ export default function ActivitiesView({
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "crmActivityType": {
-          const Icon = typeIconMap[item.crmActivityType] || ClipboardList;
+        case "salesActivityType": {
+          const Icon = typeIconMap[item.salesActivityType] || ClipboardList;
           return (
             <div className="flex items-center gap-2">
               <Icon />
-              <span className="capitalize">{item.crmActivityType}</span>
+              <span className="capitalize">{item.salesActivityType}</span>
             </div>
           );
         }
-        case "crmActivitySubject":
+        case "salesActivitySubject":
           return (
-            <span className="font-light">{item.crmActivitySubject || "-"}</span>
+            <span className="font-light">{item.salesActivitySubject || "-"}</span>
           );
         case "contact":
-          return item.crmContact
-            ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
+          return item.salesContact
+            ? `${item.salesContact.salesContactFirstName} ${item.salesContact.salesContactLastName}`
             : "-";
         case "opportunity":
-          return item.salesOpportunity?.crmOpportunityName || "-";
-        case "crmActivityPriority": {
-          const color = priorityColorMap[item.crmActivityPriority] || "default";
+          return item.salesOpportunity?.salesOpportunityName || "-";
+        case "salesActivityPriority": {
+          const color = priorityColorMap[item.salesActivityPriority] || "default";
           return (
             <Chip variant="flat" size="md" radius="md" color={color}>
-              {item.crmActivityPriority}
+              {item.salesActivityPriority}
             </Chip>
           );
         }
-        case "crmActivityStatus": {
-          const color = statusColorMap[item.crmActivityStatus] || "default";
+        case "salesActivityStatus": {
+          const color = statusColorMap[item.salesActivityStatus] || "default";
           return (
             <Chip variant="flat" size="md" radius="md" color={color}>
-              {item.crmActivityStatus}
+              {item.salesActivityStatus}
             </Chip>
           );
         }
-        case "crmActivityDueDate": {
-          if (!item.crmActivityDueDate) return "-";
-          const dueDate = new Date(item.crmActivityDueDate);
+        case "salesActivityDueDate": {
+          if (!item.salesActivityDueDate) return "-";
+          const dueDate = new Date(item.salesActivityDueDate);
           const isOverdue =
-            dueDate < new Date() && item.crmActivityStatus !== "completed";
+            dueDate < new Date() && item.salesActivityStatus !== "completed";
           return (
             <span className={isOverdue ? "text-danger font-light" : ""}>
               {dueDate.toLocaleString("th-TH")}
             </span>
           );
         }
-        case "crmActivityAssignedTo":
-          return item.crmActivityAssignedTo || "-";
+        case "salesActivityAssignedTo":
+          return item.salesActivityAssignedTo || "-";
         case "isActive":
           return (
             <Chip
@@ -190,7 +190,7 @@ export default function ActivitiesView({
                 <CheckCircle
 
                   className={
-                    item.crmActivityStatus === "completed" ? "text-success" : ""
+                    item.salesActivityStatus === "completed" ? "text-success" : ""
                   }
                 />
               </Button>
@@ -250,15 +250,15 @@ export default function ActivitiesView({
         data={activities}
         renderCell={renderCell}
         enableCardView
-        rowKey="crmActivityId"
+        rowKey="salesActivityId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหากิจกรรม..."
-        searchKeys={["crmActivitySubject", "crmActivityAssignedTo"]}
+        searchKeys={["salesActivitySubject", "salesActivityAssignedTo"]}
         emptyContent="ไม่พบกิจกรรม"
         actionMenuItems={(item) =>
           [
-            { key: "complete", label: item.crmActivityStatus === "completed" ? "ยกเลิกเสร็จสิ้น" : "เสร็จสิ้น", icon: <CheckCircle />, onPress: () => handleToggleComplete(item) },
+            { key: "complete", label: item.salesActivityStatus === "completed" ? "ยกเลิกเสร็จสิ้น" : "เสร็จสิ้น", icon: <CheckCircle />, onPress: () => handleToggleComplete(item) },
             { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
             isSuperAdmin
               ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
@@ -299,9 +299,9 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.crmActivityType]}
+                    selectedKeys={[formData.salesActivityType]}
                     onChange={(e) =>
-                      updateField("crmActivityType", e.target.value)
+                      updateField("salesActivityType", e.target.value)
                     }
                   >
                     <SelectItem key="task">งาน</SelectItem>
@@ -318,13 +318,13 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmActivitySubject}
+                    value={formData.salesActivitySubject}
                     onChange={(e) =>
-                      updateField("crmActivitySubject", e.target.value)
+                      updateField("salesActivitySubject", e.target.value)
                     }
                     isRequired
-                    isInvalid={!!validationErrors?.crmActivitySubject}
-                    errorMessage={validationErrors?.crmActivitySubject}
+                    isInvalid={!!validationErrors?.salesActivitySubject}
+                    errorMessage={validationErrors?.salesActivitySubject}
                   />
                 </div>
               </div>
@@ -336,9 +336,9 @@ export default function ActivitiesView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.crmActivityDescription}
+                  value={formData.salesActivityDescription}
                   onChange={(e) =>
-                    updateField("crmActivityDescription", e.target.value)
+                    updateField("salesActivityDescription", e.target.value)
                   }
                 />
               </div>
@@ -350,9 +350,9 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.crmActivityPriority]}
+                    selectedKeys={[formData.salesActivityPriority]}
                     onChange={(e) =>
-                      updateField("crmActivityPriority", e.target.value)
+                      updateField("salesActivityPriority", e.target.value)
                     }
                   >
                     <SelectItem key="low">ต่ำ</SelectItem>
@@ -367,9 +367,9 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={[formData.crmActivityStatus]}
+                    selectedKeys={[formData.salesActivityStatus]}
                     onChange={(e) =>
-                      updateField("crmActivityStatus", e.target.value)
+                      updateField("salesActivityStatus", e.target.value)
                     }
                   >
                     <SelectItem key="pending">รอดำเนินการ</SelectItem>
@@ -384,9 +384,9 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmActivityDueDate}
+                    value={formData.salesActivityDueDate}
                     onChange={(e) =>
-                      updateField("crmActivityDueDate", e.target.value)
+                      updateField("salesActivityDueDate", e.target.value)
                     }
                   />
                 </div>
@@ -398,9 +398,9 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmActivityContactId}
+                    value={formData.salesActivityContactId}
                     onChange={(e) =>
-                      updateField("crmActivityContactId", e.target.value)
+                      updateField("salesActivityContactId", e.target.value)
                     }
                   />
                 </div>
@@ -412,9 +412,9 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmActivityOpportunityId}
+                    value={formData.salesActivityOpportunityId}
                     onChange={(e) =>
-                      updateField("crmActivityOpportunityId", e.target.value)
+                      updateField("salesActivityOpportunityId", e.target.value)
                     }
                   />
                 </div>
@@ -426,9 +426,9 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmActivityAccountId}
+                    value={formData.salesActivityAccountId}
                     onChange={(e) =>
-                      updateField("crmActivityAccountId", e.target.value)
+                      updateField("salesActivityAccountId", e.target.value)
                     }
                   />
                 </div>
@@ -440,9 +440,9 @@ export default function ActivitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmActivityAssignedTo}
+                    value={formData.salesActivityAssignedTo}
                     onChange={(e) =>
-                      updateField("crmActivityAssignedTo", e.target.value)
+                      updateField("salesActivityAssignedTo", e.target.value)
                     }
                   />
                 </div>
@@ -474,7 +474,7 @@ export default function ActivitiesView({
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-light">
-                {deletingActivity?.crmActivitySubject}
+                {deletingActivity?.salesActivitySubject}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

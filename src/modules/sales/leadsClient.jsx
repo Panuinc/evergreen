@@ -8,16 +8,16 @@ import { validateForm, isRequired } from "@/lib/validation";
 import LeadsView from "@/modules/sales/components/leadsView";
 
 const emptyForm = {
-  crmLeadName: "",
-  crmLeadEmail: "",
-  crmLeadPhone: "",
-  crmLeadCompany: "",
-  crmLeadPosition: "",
-  crmLeadSource: "website",
-  crmLeadScore: "warm",
-  crmLeadStatus: "new",
-  crmLeadAssignedTo: "",
-  crmLeadNotes: "",
+  salesLeadName: "",
+  salesLeadEmail: "",
+  salesLeadPhone: "",
+  salesLeadCompany: "",
+  salesLeadPosition: "",
+  salesLeadSource: "website",
+  salesLeadScore: "warm",
+  salesLeadStatus: "new",
+  salesLeadAssignedTo: "",
+  salesLeadNotes: "",
 };
 
 export default function LeadsClient({ initialLeads }) {
@@ -42,16 +42,16 @@ export default function LeadsClient({ initialLeads }) {
     if (lead) {
       setEditingLead(lead);
       setFormData({
-        crmLeadName: lead.crmLeadName || "",
-        crmLeadEmail: lead.crmLeadEmail || "",
-        crmLeadPhone: lead.crmLeadPhone || "",
-        crmLeadCompany: lead.crmLeadCompany || "",
-        crmLeadPosition: lead.crmLeadPosition || "",
-        crmLeadSource: lead.crmLeadSource || "website",
-        crmLeadScore: lead.crmLeadScore || "warm",
-        crmLeadStatus: lead.crmLeadStatus || "new",
-        crmLeadAssignedTo: lead.crmLeadAssignedTo || "",
-        crmLeadNotes: lead.crmLeadNotes || "",
+        salesLeadName: lead.salesLeadName || "",
+        salesLeadEmail: lead.salesLeadEmail || "",
+        salesLeadPhone: lead.salesLeadPhone || "",
+        salesLeadCompany: lead.salesLeadCompany || "",
+        salesLeadPosition: lead.salesLeadPosition || "",
+        salesLeadSource: lead.salesLeadSource || "website",
+        salesLeadScore: lead.salesLeadScore || "warm",
+        salesLeadStatus: lead.salesLeadStatus || "new",
+        salesLeadAssignedTo: lead.salesLeadAssignedTo || "",
+        salesLeadNotes: lead.salesLeadNotes || "",
       });
     } else {
       setEditingLead(null);
@@ -63,7 +63,7 @@ export default function LeadsClient({ initialLeads }) {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      crmLeadName: [(v) => !isRequired(v) && "กรุณาระบุชื่อลีด"],
+      salesLeadName: [(v) => !isRequired(v) && "กรุณาระบุชื่อลีด"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -75,7 +75,7 @@ export default function LeadsClient({ initialLeads }) {
     try {
       setSaving(true);
       if (editingLead) {
-        await put(`/api/sales/leads/${editingLead.crmLeadId}`, formData);
+        await put(`/api/sales/leads/${editingLead.salesLeadId}`, formData);
         toast.success("อัปเดตลีดสำเร็จ");
       } else {
         await post("/api/sales/leads", formData);
@@ -98,7 +98,7 @@ export default function LeadsClient({ initialLeads }) {
   const handleDelete = async () => {
     if (!deletingLead) return;
     try {
-      await del(`/api/sales/leads/${deletingLead.crmLeadId}`);
+      await del(`/api/sales/leads/${deletingLead.salesLeadId}`);
       toast.success("ลบลีดสำเร็จ");
       deleteModal.onClose();
       setDeletingLead(null);
@@ -110,7 +110,7 @@ export default function LeadsClient({ initialLeads }) {
 
   const handleConvert = async (lead) => {
     try {
-      await post(`/api/sales/leads/${lead.crmLeadId}`, { action: "convert" });
+      await post(`/api/sales/leads/${lead.salesLeadId}`, { action: "convert" });
       toast.success("แปลงลีดเป็นลูกค้าสำเร็จ");
       reloadLeads();
     } catch (error) {
@@ -120,7 +120,7 @@ export default function LeadsClient({ initialLeads }) {
 
   const toggleActive = async (item) => {
     try {
-      await put(`/api/sales/leads/${item.crmLeadId}`, { isActive: !item.isActive });
+      await put(`/api/sales/leads/${item.salesLeadId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       reloadLeads();
     } catch {

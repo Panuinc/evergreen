@@ -50,7 +50,7 @@ func (s *Store) GetVehicle(ctx context.Context, id string, isSuperAdmin bool) (m
 
 func (s *Store) CreateVehicle(ctx context.Context, plateNumber, name, status, capacityKg, fuelType, forthtrackId any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "tmsVehicle" ("tmsVehiclePlateNumber", "tmsVehicleName", "tmsVehicleStatus", "tmsVehicleCapacityKg", "tmsVehicleFuelType", "tmsVehicleForthtrackId")
+		INSERT INTO "tmsVehicle" ("tmsVehiclePlateNumber", "tmsVehicleName", "tmsVehicleStatus", "tmsVehicleCapacityKg", "tmsVehicleFuelType", "tmsVehicleForthtrackRef")
 		VALUES ($1, $2, $3, $4, $5, $6) RETURNING *
 	`, plateNumber, name, status, capacityKg, fuelType, forthtrackId)
 }
@@ -63,7 +63,7 @@ func (s *Store) UpdateVehicle(ctx context.Context, id, plateNumber, name, status
 			"tmsVehicleStatus" = COALESCE($4, "tmsVehicleStatus"),
 			"tmsVehicleCapacityKg" = COALESCE($5, "tmsVehicleCapacityKg"),
 			"tmsVehicleFuelType" = COALESCE($6, "tmsVehicleFuelType"),
-			"tmsVehicleForthtrackId" = COALESCE($7, "tmsVehicleForthtrackId"),
+			"tmsVehicleForthtrackRef" = COALESCE($7, "tmsVehicleForthtrackRef"),
 			"isActive" = COALESCE($8, "isActive")
 		WHERE "tmsVehicleId" = $1 RETURNING *
 	`, id, plateNumber, name, status, capacityKg, fuelType, forthtrackId, isActive)

@@ -25,7 +25,7 @@ export default function OrdersClient({ initialOrders }) {
   const handleStatusChange = async (order, newStatus) => {
     try {
       setSaving(true);
-      await put(`/api/sales/orders/${order.crmOrderId}`, { crmOrderStatus: newStatus });
+      await put(`/api/sales/orders/${order.salesOrderId}`, { salesOrderStatus: newStatus });
       toast.success(`เปลี่ยนสถานะคำสั่งซื้อเป็น ${newStatus} สำเร็จ`);
       reloadOrders();
     } catch (error) {
@@ -48,7 +48,7 @@ export default function OrdersClient({ initialOrders }) {
   const handleDelete = async () => {
     if (!deletingOrder) return;
     try {
-      await del(`/api/sales/orders/${deletingOrder.crmOrderId}`);
+      await del(`/api/sales/orders/${deletingOrder.salesOrderId}`);
       toast.success("ลบคำสั่งซื้อสำเร็จ");
       deleteModal.onClose();
       setDeletingOrder(null);

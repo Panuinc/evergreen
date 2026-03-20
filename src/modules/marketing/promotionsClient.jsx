@@ -18,14 +18,14 @@ export default function PromotionsClient({ initialPromotions, initialStockItems 
 
   const update = async (id, data) => {
     const result = await put(`/api/marketing/omnichannel/promotions/${id}`, data);
-    setPromotions((prev) => prev.map((p) => (p.omPromotionId === id ? result : p)));
+    setPromotions((prev) => prev.map((p) => (p.mktPromotionId === id ? result : p)));
     toast.success("อัปเดตโปรโมชั่นเรียบร้อย");
     return result;
   };
 
   const remove = async (id) => {
     await del(`/api/marketing/omnichannel/promotions/${id}`);
-    setPromotions((prev) => prev.filter((p) => p.omPromotionId !== id));
+    setPromotions((prev) => prev.filter((p) => p.mktPromotionId !== id));
     toast.success("ลบโปรโมชั่นเรียบร้อย");
   };
 

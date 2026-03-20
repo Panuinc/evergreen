@@ -236,32 +236,32 @@ func (s *Store) ListCollections(ctx context.Context, customerNumber, status, sin
 	var args []any
 	idx := 1
 	if customerNumber != "" {
-		q += fmt.Sprintf(` AND "customerNumber" = $%d`, idx)
+		q += fmt.Sprintf(` AND "arFollowUpCustomerNumber" = $%d`, idx)
 		args = append(args, customerNumber)
 		idx++
 	}
 	if status != "" && status != "all" {
-		q += fmt.Sprintf(` AND "status" = $%d`, idx)
+		q += fmt.Sprintf(` AND "arFollowUpStatus" = $%d`, idx)
 		args = append(args, status)
 		idx++
 	}
 	if since != "" {
-		q += fmt.Sprintf(` AND "contactDate" >= $%d`, idx)
+		q += fmt.Sprintf(` AND "arFollowUpContactDate" >= $%d`, idx)
 		args = append(args, since)
 		idx++
 	}
 	if until != "" {
-		q += fmt.Sprintf(` AND "contactDate" <= $%d`, idx)
+		q += fmt.Sprintf(` AND "arFollowUpContactDate" <= $%d`, idx)
 		args = append(args, until)
 	}
-	q += ` ORDER BY "contactDate" DESC, "createdAt" DESC`
+	q += ` ORDER BY "arFollowUpContactDate" DESC, "arFollowUpCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) CreateCollection(ctx context.Context, body map[string]any, userID string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "arFollowUp" ("customerNumber","customerName","invoiceNumber","contactDate","contactMethod",
-			"reason","reasonDetail","note","promiseDate","promiseAmount","status","nextFollowUpDate","assignedTo","createdBy","createdByName")
+		INSERT INTO "arFollowUp" ("arFollowUpCustomerNumber","arFollowUpCustomerName","arFollowUpInvoiceNumber","arFollowUpContactDate","arFollowUpContactMethod",
+			"arFollowUpReason","arFollowUpReasonDetail","arFollowUpNote","arFollowUpPromiseDate","arFollowUpPromiseAmount","arFollowUpStatus","arFollowUpNextFollowUpDate","arFollowUpAssignedTo","arFollowUpCreatedBy","arFollowUpCreatedByName")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *
 	`, body["customerNumber"], body["customerName"], body["invoiceNumber"], body["contactDate"],
 		body["contactMethod"], body["reason"], body["reasonDetail"], body["note"],

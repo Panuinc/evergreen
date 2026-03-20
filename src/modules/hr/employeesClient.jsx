@@ -15,9 +15,9 @@ const columns = [
   { name: "ชื่อ", uid: "name", sortable: true },
   { name: "อีเมล", uid: "hrEmployeeEmail", sortable: true },
   { name: "โทรศัพท์", uid: "hrEmployeePhone" },
-  { name: "ฝ่าย", uid: "hrEmployeeDivision", sortable: true },
-  { name: "แผนก", uid: "hrEmployeeDepartment", sortable: true },
-  { name: "ตำแหน่ง", uid: "hrEmployeePosition", sortable: true },
+  { name: "ฝ่าย", uid: "hrEmployeeHrDivisionId", sortable: true },
+  { name: "แผนก", uid: "hrEmployeeHrDepartmentId", sortable: true },
+  { name: "ตำแหน่ง", uid: "hrEmployeeHrPositionId", sortable: true },
   { name: "สถานะ", uid: "isActive", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
@@ -29,7 +29,7 @@ const statusOptions = [
 
 const emptyForm = {
   hrEmployeeFirstName: "", hrEmployeeLastName: "", hrEmployeeEmail: "",
-  hrEmployeePhone: "", hrEmployeeDivision: "", hrEmployeeDepartment: "", hrEmployeePosition: "",
+  hrEmployeePhone: "", hrEmployeeHrDivisionId: "", hrEmployeeHrDepartmentId: "", hrEmployeeHrPositionId: "",
 };
 
 export default function EmployeesClient({ initialEmployees, initialDivisions, initialDepartments, initialPositions }) {
@@ -55,9 +55,9 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
         hrEmployeeLastName: employee.hrEmployeeLastName || "",
         hrEmployeeEmail: employee.hrEmployeeEmail || "",
         hrEmployeePhone: employee.hrEmployeePhone || "",
-        hrEmployeeDivision: employee.hrEmployeeDivision || "",
-        hrEmployeeDepartment: employee.hrEmployeeDepartment || "",
-        hrEmployeePosition: employee.hrEmployeePosition || "",
+        hrEmployeeHrDivisionId: employee.hrEmployeeHrDivisionId || "",
+        hrEmployeeHrDepartmentId: employee.hrEmployeeHrDepartmentId || "",
+        hrEmployeeHrPositionId: employee.hrEmployeeHrPositionId || "",
       });
     } else {
       setEditingEmployee(null);
@@ -130,6 +130,18 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
         return <span className="text-muted-foreground">{emp.hrEmployeeEmail || "-"}</span>;
       case "hrEmployeePhone":
         return <span className="text-muted-foreground">{emp.hrEmployeePhone || "-"}</span>;
+      case "hrEmployeeHrDivisionId": {
+        const div = divisions.find((d) => d.hrDivisionId === emp.hrEmployeeHrDivisionId);
+        return div ? div.hrDivisionName : "-";
+      }
+      case "hrEmployeeHrDepartmentId": {
+        const dept = departments.find((d) => d.hrDepartmentId === emp.hrEmployeeHrDepartmentId);
+        return dept ? dept.hrDepartmentName : "-";
+      }
+      case "hrEmployeeHrPositionId": {
+        const pos = positions.find((p) => p.hrPositionId === emp.hrEmployeeHrPositionId);
+        return pos ? pos.hrPositionTitle : "-";
+      }
       case "isActive":
         return <Chip variant="flat" size="md" radius="md" color={emp.isActive ? "success" : "default"}>{emp.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}</Chip>;
       case "actions":
@@ -150,9 +162,9 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
     <div className="flex flex-col w-full h-full gap-4">
       <DataTable
         columns={columns} data={employees} renderCell={renderCell} enableCardView
-        rowKey="hrEmployeeId" initialVisibleColumns={["name","hrEmployeeEmail","hrEmployeeDivision","hrEmployeeDepartment","hrEmployeePosition","isActive","actions"]}
+        rowKey="hrEmployeeId" initialVisibleColumns={["name","hrEmployeeEmail","hrEmployeeHrDivisionId","hrEmployeeHrDepartmentId","hrEmployeeHrPositionId","isActive","actions"]}
         searchPlaceholder="ค้นหาตามชื่อ, อีเมล, แผนก, ตำแหน่ง..."
-        searchKeys={["hrEmployeeFirstName","hrEmployeeLastName","hrEmployeeEmail","hrEmployeePhone","hrEmployeeDivision","hrEmployeeDepartment","hrEmployeePosition"]}
+        searchKeys={["hrEmployeeFirstName","hrEmployeeLastName","hrEmployeeEmail","hrEmployeePhone"]}
         statusField="isActive" statusOptions={statusOptions} emptyContent="ไม่พบพนักงาน"
         topEndContent={<Button variant="bordered" size="md" radius="md" startContent={<Plus />} onPress={() => handleOpen()}>เพิ่มพนักงาน</Button>}
         actionMenuItems={(item) => [
@@ -174,25 +186,25 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
               <div className="p-2"><Input label="โทรศัพท์" labelPlacement="outside" placeholder="ใส่เบอร์โทรศัพท์" variant="bordered" size="md" radius="md" value={formData.hrEmployeePhone} onChange={(e) => updateField("hrEmployeePhone", e.target.value)} /></div>
               <div className="p-2">
                 <Select label="ฝ่าย" labelPlacement="outside" placeholder="เลือกฝ่าย" variant="bordered" size="md" radius="md"
-                  selectedKeys={formData.hrEmployeeDivision ? [formData.hrEmployeeDivision] : []}
-                  onSelectionChange={(keys) => { updateField("hrEmployeeDivision", Array.from(keys)[0] || ""); updateField("hrEmployeeDepartment", ""); updateField("hrEmployeePosition", ""); }}>
-                  {divisions.map((d) => <SelectItem key={d.hrDivisionName}>{d.hrDivisionName}</SelectItem>)}
+                  selectedKeys={formData.hrEmployeeHrDivisionId ? [formData.hrEmployeeHrDivisionId] : []}
+                  onSelectionChange={(keys) => { updateField("hrEmployeeHrDivisionId", Array.from(keys)[0] || ""); updateField("hrEmployeeHrDepartmentId", ""); updateField("hrEmployeeHrPositionId", ""); }}>
+                  {divisions.map((d) => <SelectItem key={d.hrDivisionId}>{d.hrDivisionName}</SelectItem>)}
                 </Select>
               </div>
               <div className="p-2">
-                <Select label="แผนก" labelPlacement="outside" placeholder={formData.hrEmployeeDivision ? "เลือกแผนก" : "เลือกฝ่ายก่อน"} variant="bordered" size="md" radius="md"
-                  isDisabled={!formData.hrEmployeeDivision}
-                  selectedKeys={formData.hrEmployeeDepartment ? [formData.hrEmployeeDepartment] : []}
-                  onSelectionChange={(keys) => { updateField("hrEmployeeDepartment", Array.from(keys)[0] || ""); updateField("hrEmployeePosition", ""); }}>
-                  {departments.filter((d) => d.hrDepartmentDivision === formData.hrEmployeeDivision).map((d) => <SelectItem key={d.hrDepartmentName}>{d.hrDepartmentName}</SelectItem>)}
+                <Select label="แผนก" labelPlacement="outside" placeholder={formData.hrEmployeeHrDivisionId ? "เลือกแผนก" : "เลือกฝ่ายก่อน"} variant="bordered" size="md" radius="md"
+                  isDisabled={!formData.hrEmployeeHrDivisionId}
+                  selectedKeys={formData.hrEmployeeHrDepartmentId ? [formData.hrEmployeeHrDepartmentId] : []}
+                  onSelectionChange={(keys) => { updateField("hrEmployeeHrDepartmentId", Array.from(keys)[0] || ""); updateField("hrEmployeeHrPositionId", ""); }}>
+                  {departments.filter((d) => d.hrDepartmentHrDivisionId === formData.hrEmployeeHrDivisionId).map((d) => <SelectItem key={d.hrDepartmentId}>{d.hrDepartmentName}</SelectItem>)}
                 </Select>
               </div>
               <div className="p-2">
-                <Select label="ตำแหน่ง" labelPlacement="outside" placeholder={formData.hrEmployeeDepartment ? "เลือกตำแหน่ง" : "เลือกแผนกก่อน"} variant="bordered" size="md" radius="md"
-                  isDisabled={!formData.hrEmployeeDepartment}
-                  selectedKeys={formData.hrEmployeePosition ? [formData.hrEmployeePosition] : []}
-                  onSelectionChange={(keys) => updateField("hrEmployeePosition", Array.from(keys)[0] || "")}>
-                  {positions.filter((p) => p.hrPositionDepartment === formData.hrEmployeeDepartment).map((p) => <SelectItem key={p.hrPositionTitle}>{p.hrPositionTitle}</SelectItem>)}
+                <Select label="ตำแหน่ง" labelPlacement="outside" placeholder={formData.hrEmployeeHrDepartmentId ? "เลือกตำแหน่ง" : "เลือกแผนกก่อน"} variant="bordered" size="md" radius="md"
+                  isDisabled={!formData.hrEmployeeHrDepartmentId}
+                  selectedKeys={formData.hrEmployeeHrPositionId ? [formData.hrEmployeeHrPositionId] : []}
+                  onSelectionChange={(keys) => updateField("hrEmployeeHrPositionId", Array.from(keys)[0] || "")}>
+                  {positions.filter((p) => p.hrPositionHrDepartmentId === formData.hrEmployeeHrDepartmentId).map((p) => <SelectItem key={p.hrPositionId}>{p.hrPositionTitle}</SelectItem>)}
                 </Select>
               </div>
             </div>

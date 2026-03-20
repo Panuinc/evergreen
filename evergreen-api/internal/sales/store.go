@@ -32,11 +32,11 @@ func (s *Store) DashboardOrders(ctx context.Context) ([]map[string]any, error) {
 }
 
 func (s *Store) DashboardActivities(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesActivity" WHERE "isActive" = true ORDER BY "crmActivityCreatedAt" DESC LIMIT 10`)
+	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesActivity" WHERE "isActive" = true ORDER BY "salesActivityCreatedAt" DESC LIMIT 10`)
 }
 
 func (s *Store) DashboardStages(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesPipelineStage" ORDER BY "crmPipelineStageOrder"`)
+	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesPipelineStage" ORDER BY "salesPipelineStageOrder"`)
 }
 
 // ---- Leads ----
@@ -49,107 +49,107 @@ func (s *Store) ListLeads(ctx context.Context, isSuperAdmin bool, search string)
 		q += ` AND "isActive" = true`
 	}
 	if search != "" {
-		q += fmt.Sprintf(` AND ("crmLeadName" ILIKE $%d OR "crmLeadEmail" ILIKE $%d OR "crmLeadCompany" ILIKE $%d OR "crmLeadPhone" ILIKE $%d)`, argIdx, argIdx+1, argIdx+2, argIdx+3)
+		q += fmt.Sprintf(` AND ("salesLeadName" ILIKE $%d OR "salesLeadEmail" ILIKE $%d OR "salesLeadCompany" ILIKE $%d OR "salesLeadPhone" ILIKE $%d)`, argIdx, argIdx+1, argIdx+2, argIdx+3)
 		p := "%" + search + "%"
 		args = append(args, p, p, p, p)
 	}
-	q += ` ORDER BY "crmLeadCreatedAt" DESC`
+	q += ` ORDER BY "salesLeadCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) CreateLead(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesLead" ("crmLeadName","crmLeadEmail","crmLeadPhone","crmLeadCompany","crmLeadPosition","crmLeadSource","crmLeadScore","crmLeadStatus","crmLeadAssignedTo","crmLeadNotes")
+		INSERT INTO "salesLead" ("salesLeadName","salesLeadEmail","salesLeadPhone","salesLeadCompany","salesLeadPosition","salesLeadSource","salesLeadScore","salesLeadStatus","salesLeadAssignedTo","salesLeadNotes")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *
-	`, body["crmLeadName"], body["crmLeadEmail"], body["crmLeadPhone"], body["crmLeadCompany"],
-		body["crmLeadPosition"], body["crmLeadSource"], body["crmLeadScore"], body["crmLeadStatus"],
-		body["crmLeadAssignedTo"], body["crmLeadNotes"])
+	`, body["salesLeadName"], body["salesLeadEmail"], body["salesLeadPhone"], body["salesLeadCompany"],
+		body["salesLeadPosition"], body["salesLeadSource"], body["salesLeadScore"], body["salesLeadStatus"],
+		body["salesLeadAssignedTo"], body["salesLeadNotes"])
 }
 
 func (s *Store) GetLead(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesLead" WHERE "crmLeadId" = $1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesLead" WHERE "salesLeadId" = $1`, id)
 }
 
 func (s *Store) UpdateLead(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
 		UPDATE "salesLead" SET
-			"crmLeadName"=COALESCE($2,"crmLeadName"), "crmLeadEmail"=COALESCE($3,"crmLeadEmail"),
-			"crmLeadPhone"=COALESCE($4,"crmLeadPhone"), "crmLeadCompany"=COALESCE($5,"crmLeadCompany"),
-			"crmLeadStatus"=COALESCE($6,"crmLeadStatus"), "crmLeadScore"=COALESCE($7,"crmLeadScore"),
-			"crmLeadAssignedTo"=COALESCE($8,"crmLeadAssignedTo"), "crmLeadNotes"=COALESCE($9,"crmLeadNotes")
-		WHERE "crmLeadId"=$1 RETURNING *
-	`, id, body["crmLeadName"], body["crmLeadEmail"], body["crmLeadPhone"], body["crmLeadCompany"],
-		body["crmLeadStatus"], body["crmLeadScore"], body["crmLeadAssignedTo"], body["crmLeadNotes"])
+			"salesLeadName"=COALESCE($2,"salesLeadName"), "salesLeadEmail"=COALESCE($3,"salesLeadEmail"),
+			"salesLeadPhone"=COALESCE($4,"salesLeadPhone"), "salesLeadCompany"=COALESCE($5,"salesLeadCompany"),
+			"salesLeadStatus"=COALESCE($6,"salesLeadStatus"), "salesLeadScore"=COALESCE($7,"salesLeadScore"),
+			"salesLeadAssignedTo"=COALESCE($8,"salesLeadAssignedTo"), "salesLeadNotes"=COALESCE($9,"salesLeadNotes")
+		WHERE "salesLeadId"=$1 RETURNING *
+	`, id, body["salesLeadName"], body["salesLeadEmail"], body["salesLeadPhone"], body["salesLeadCompany"],
+		body["salesLeadStatus"], body["salesLeadScore"], body["salesLeadAssignedTo"], body["salesLeadNotes"])
 }
 
 func (s *Store) InsertLeadContact(ctx context.Context, name, email, phone, position any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesContact" ("crmContactFirstName","crmContactLastName","crmContactEmail","crmContactPhone","crmContactPosition")
+		INSERT INTO "salesContact" ("salesContactFirstName","salesContactLastName","salesContactEmail","salesContactPhone","salesContactPosition")
 		VALUES ($1,'',$2,$3,$4) RETURNING *
 	`, name, email, phone, position)
 }
 
 func (s *Store) InsertLeadOpportunity(ctx context.Context, company, contactID, source any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesOpportunity" ("crmOpportunityName","crmOpportunityContactId","crmOpportunitySource","crmOpportunityStage")
+		INSERT INTO "salesOpportunity" ("salesOpportunityName","salesOpportunityContactId","salesOpportunitySource","salesOpportunityStage")
 		VALUES ($1,$2,$3,'qualification') RETURNING *
 	`, company, contactID, source)
 }
 
 func (s *Store) MarkLeadConverted(ctx context.Context, id string, contactID, oppID any) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesLead" SET "crmLeadStatus"='converted',"crmLeadConvertedContactId"=$2,"crmLeadConvertedOpportunityId"=$3 WHERE "crmLeadId"=$1`,
+	_, err := s.pool.Exec(ctx, `UPDATE "salesLead" SET "salesLeadStatus"='converted',"salesLeadConvertedContactId"=$2,"salesLeadConvertedOpportunityId"=$3 WHERE "salesLeadId"=$1`,
 		id, contactID, oppID)
 	return err
 }
 
 func (s *Store) DeleteLead(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesLead" SET "isActive"=false WHERE "crmLeadId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesLead" SET "isActive"=false WHERE "salesLeadId"=$1`, id)
 	return err
 }
 
 // ---- Contacts ----
 
 func (s *Store) ListContacts(ctx context.Context, isSuperAdmin bool, search string) ([]map[string]any, error) {
-	q := `SELECT c.*, row_to_json(a.*) as "salesAccount" FROM "salesContact" c LEFT JOIN "salesAccount" a ON a."crmAccountId" = c."crmContactAccountId" WHERE 1=1`
+	q := `SELECT c.*, row_to_json(a.*) as "salesAccount" FROM "salesContact" c LEFT JOIN "salesAccount" a ON a."salesAccountId" = c."salesContactAccountId" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if !isSuperAdmin {
 		q += ` AND c."isActive" = true`
 	}
 	if search != "" {
-		q += fmt.Sprintf(` AND (c."crmContactFirstName" ILIKE $%d OR c."crmContactLastName" ILIKE $%d OR c."crmContactEmail" ILIKE $%d)`, argIdx, argIdx+1, argIdx+2)
+		q += fmt.Sprintf(` AND (c."salesContactFirstName" ILIKE $%d OR c."salesContactLastName" ILIKE $%d OR c."salesContactEmail" ILIKE $%d)`, argIdx, argIdx+1, argIdx+2)
 		p := "%" + search + "%"
 		args = append(args, p, p, p)
 	}
-	q += ` ORDER BY c."crmContactCreatedAt" DESC`
+	q += ` ORDER BY c."salesContactCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) CreateContact(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesContact" ("crmContactFirstName","crmContactLastName","crmContactEmail","crmContactPhone","crmContactPosition","crmContactAccountId","crmContactNotes","crmContactAddress")
+		INSERT INTO "salesContact" ("salesContactFirstName","salesContactLastName","salesContactEmail","salesContactPhone","salesContactPosition","salesContactAccountId","salesContactNotes","salesContactAddress")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *
-	`, body["crmContactFirstName"], body["crmContactLastName"], body["crmContactEmail"], body["crmContactPhone"],
-		body["crmContactPosition"], body["crmContactAccountId"], body["crmContactNotes"], body["crmContactAddress"])
+	`, body["salesContactFirstName"], body["salesContactLastName"], body["salesContactEmail"], body["salesContactPhone"],
+		body["salesContactPosition"], body["salesContactAccountId"], body["salesContactNotes"], body["salesContactAddress"])
 }
 
 func (s *Store) GetContact(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT c.*, row_to_json(a.*) as "salesAccount" FROM "salesContact" c LEFT JOIN "salesAccount" a ON a."crmAccountId"=c."crmContactAccountId" WHERE c."crmContactId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT c.*, row_to_json(a.*) as "salesAccount" FROM "salesContact" c LEFT JOIN "salesAccount" a ON a."salesAccountId"=c."salesContactAccountId" WHERE c."salesContactId"=$1`, id)
 }
 
 func (s *Store) UpdateContact(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "salesContact" SET "crmContactFirstName"=COALESCE($2,"crmContactFirstName"),"crmContactLastName"=COALESCE($3,"crmContactLastName"),
-			"crmContactEmail"=COALESCE($4,"crmContactEmail"),"crmContactPhone"=COALESCE($5,"crmContactPhone"),
-			"crmContactPosition"=COALESCE($6,"crmContactPosition"),"crmContactAccountId"=COALESCE($7,"crmContactAccountId"),
-			"crmContactNotes"=COALESCE($8,"crmContactNotes")
-		WHERE "crmContactId"=$1 RETURNING *
-	`, id, body["crmContactFirstName"], body["crmContactLastName"], body["crmContactEmail"],
-		body["crmContactPhone"], body["crmContactPosition"], body["crmContactAccountId"], body["crmContactNotes"])
+		UPDATE "salesContact" SET "salesContactFirstName"=COALESCE($2,"salesContactFirstName"),"salesContactLastName"=COALESCE($3,"salesContactLastName"),
+			"salesContactEmail"=COALESCE($4,"salesContactEmail"),"salesContactPhone"=COALESCE($5,"salesContactPhone"),
+			"salesContactPosition"=COALESCE($6,"salesContactPosition"),"salesContactAccountId"=COALESCE($7,"salesContactAccountId"),
+			"salesContactNotes"=COALESCE($8,"salesContactNotes")
+		WHERE "salesContactId"=$1 RETURNING *
+	`, id, body["salesContactFirstName"], body["salesContactLastName"], body["salesContactEmail"],
+		body["salesContactPhone"], body["salesContactPosition"], body["salesContactAccountId"], body["salesContactNotes"])
 }
 
 func (s *Store) DeleteContact(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesContact" SET "isActive"=false WHERE "crmContactId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesContact" SET "isActive"=false WHERE "salesContactId"=$1`, id)
 	return err
 }
 
@@ -163,39 +163,39 @@ func (s *Store) ListAccounts(ctx context.Context, isSuperAdmin bool, search stri
 		q += ` AND "isActive" = true`
 	}
 	if search != "" {
-		q += fmt.Sprintf(` AND ("crmAccountName" ILIKE $%d OR "crmAccountIndustry" ILIKE $%d OR "crmAccountEmail" ILIKE $%d)`, argIdx, argIdx+1, argIdx+2)
+		q += fmt.Sprintf(` AND ("salesAccountName" ILIKE $%d OR "salesAccountIndustry" ILIKE $%d OR "salesAccountEmail" ILIKE $%d)`, argIdx, argIdx+1, argIdx+2)
 		p := "%" + search + "%"
 		args = append(args, p, p, p)
 	}
-	q += ` ORDER BY "crmAccountCreatedAt" DESC`
+	q += ` ORDER BY "salesAccountCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) CreateAccount(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesAccount" ("crmAccountName","crmAccountIndustry","crmAccountEmail","crmAccountPhone","crmAccountWebsite","crmAccountAddress","crmAccountNotes")
+		INSERT INTO "salesAccount" ("salesAccountName","salesAccountIndustry","salesAccountEmail","salesAccountPhone","salesAccountWebsite","salesAccountAddress","salesAccountNotes")
 		VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *
-	`, body["crmAccountName"], body["crmAccountIndustry"], body["crmAccountEmail"], body["crmAccountPhone"],
-		body["crmAccountWebsite"], body["crmAccountAddress"], body["crmAccountNotes"])
+	`, body["salesAccountName"], body["salesAccountIndustry"], body["salesAccountEmail"], body["salesAccountPhone"],
+		body["salesAccountWebsite"], body["salesAccountAddress"], body["salesAccountNotes"])
 }
 
 func (s *Store) GetAccount(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesAccount" WHERE "crmAccountId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesAccount" WHERE "salesAccountId"=$1`, id)
 }
 
 func (s *Store) UpdateAccount(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "salesAccount" SET "crmAccountName"=COALESCE($2,"crmAccountName"),"crmAccountIndustry"=COALESCE($3,"crmAccountIndustry"),
-			"crmAccountEmail"=COALESCE($4,"crmAccountEmail"),"crmAccountPhone"=COALESCE($5,"crmAccountPhone"),
-			"crmAccountWebsite"=COALESCE($6,"crmAccountWebsite"),"crmAccountAddress"=COALESCE($7,"crmAccountAddress"),
-			"crmAccountNotes"=COALESCE($8,"crmAccountNotes")
-		WHERE "crmAccountId"=$1 RETURNING *
-	`, id, body["crmAccountName"], body["crmAccountIndustry"], body["crmAccountEmail"],
-		body["crmAccountPhone"], body["crmAccountWebsite"], body["crmAccountAddress"], body["crmAccountNotes"])
+		UPDATE "salesAccount" SET "salesAccountName"=COALESCE($2,"salesAccountName"),"salesAccountIndustry"=COALESCE($3,"salesAccountIndustry"),
+			"salesAccountEmail"=COALESCE($4,"salesAccountEmail"),"salesAccountPhone"=COALESCE($5,"salesAccountPhone"),
+			"salesAccountWebsite"=COALESCE($6,"salesAccountWebsite"),"salesAccountAddress"=COALESCE($7,"salesAccountAddress"),
+			"salesAccountNotes"=COALESCE($8,"salesAccountNotes")
+		WHERE "salesAccountId"=$1 RETURNING *
+	`, id, body["salesAccountName"], body["salesAccountIndustry"], body["salesAccountEmail"],
+		body["salesAccountPhone"], body["salesAccountWebsite"], body["salesAccountAddress"], body["salesAccountNotes"])
 }
 
 func (s *Store) DeleteAccount(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesAccount" SET "isActive"=false WHERE "crmAccountId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesAccount" SET "isActive"=false WHERE "salesAccountId"=$1`, id)
 	return err
 }
 
@@ -204,8 +204,8 @@ func (s *Store) DeleteAccount(ctx context.Context, id string) error {
 func (s *Store) ListOpportunities(ctx context.Context, isSuperAdmin bool, stage string) ([]map[string]any, error) {
 	q := `SELECT o.*, row_to_json(c.*) as "salesContact", row_to_json(a.*) as "salesAccount"
 		FROM "salesOpportunity" o
-		LEFT JOIN "salesContact" c ON c."crmContactId"=o."crmOpportunityContactId"
-		LEFT JOIN "salesAccount" a ON a."crmAccountId"=o."crmOpportunityAccountId"
+		LEFT JOIN "salesContact" c ON c."salesContactId"=o."salesOpportunityContactId"
+		LEFT JOIN "salesAccount" a ON a."salesAccountId"=o."salesOpportunityAccountId"
 		WHERE 1=1`
 	args := []any{}
 	argIdx := 1
@@ -213,42 +213,42 @@ func (s *Store) ListOpportunities(ctx context.Context, isSuperAdmin bool, stage 
 		q += ` AND o."isActive" = true`
 	}
 	if stage != "" {
-		q += fmt.Sprintf(` AND o."crmOpportunityStage" = $%d`, argIdx)
+		q += fmt.Sprintf(` AND o."salesOpportunityStage" = $%d`, argIdx)
 		args = append(args, stage)
 	}
-	q += ` ORDER BY o."crmOpportunityCreatedAt" DESC`
+	q += ` ORDER BY o."salesOpportunityCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) CreateOpportunity(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesOpportunity" ("crmOpportunityName","crmOpportunityStage","crmOpportunityAmount","crmOpportunityProbability",
-			"crmOpportunityExpectedCloseDate","crmOpportunityContactId","crmOpportunityAccountId","crmOpportunityAssignedTo","crmOpportunitySource","crmOpportunityNotes")
+		INSERT INTO "salesOpportunity" ("salesOpportunityName","salesOpportunityStage","salesOpportunityAmount","salesOpportunityProbability",
+			"salesOpportunityExpectedCloseDate","salesOpportunityContactId","salesOpportunityAccountId","salesOpportunityAssignedTo","salesOpportunitySource","salesOpportunityNotes")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *
-	`, body["crmOpportunityName"], body["crmOpportunityStage"], body["crmOpportunityAmount"], body["crmOpportunityProbability"],
-		body["crmOpportunityExpectedCloseDate"], body["crmOpportunityContactId"], body["crmOpportunityAccountId"],
-		body["crmOpportunityAssignedTo"], body["crmOpportunitySource"], body["crmOpportunityNotes"])
+	`, body["salesOpportunityName"], body["salesOpportunityStage"], body["salesOpportunityAmount"], body["salesOpportunityProbability"],
+		body["salesOpportunityExpectedCloseDate"], body["salesOpportunityContactId"], body["salesOpportunityAccountId"],
+		body["salesOpportunityAssignedTo"], body["salesOpportunitySource"], body["salesOpportunityNotes"])
 }
 
 func (s *Store) GetOpportunity(ctx context.Context, id string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `SELECT o.*, row_to_json(c.*) as "salesContact", row_to_json(a.*) as "salesAccount"
-		FROM "salesOpportunity" o LEFT JOIN "salesContact" c ON c."crmContactId"=o."crmOpportunityContactId"
-		LEFT JOIN "salesAccount" a ON a."crmAccountId"=o."crmOpportunityAccountId" WHERE o."crmOpportunityId"=$1`, id)
+		FROM "salesOpportunity" o LEFT JOIN "salesContact" c ON c."salesContactId"=o."salesOpportunityContactId"
+		LEFT JOIN "salesAccount" a ON a."salesAccountId"=o."salesOpportunityAccountId" WHERE o."salesOpportunityId"=$1`, id)
 }
 
 func (s *Store) UpdateOpportunity(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
 		UPDATE "salesOpportunity" SET
-			"crmOpportunityName"=COALESCE($2,"crmOpportunityName"),"crmOpportunityStage"=COALESCE($3,"crmOpportunityStage"),
-			"crmOpportunityAmount"=COALESCE($4,"crmOpportunityAmount"),"crmOpportunityProbability"=COALESCE($5,"crmOpportunityProbability"),
-			"crmOpportunityNotes"=COALESCE($6,"crmOpportunityNotes"),"crmOpportunityAssignedTo"=COALESCE($7,"crmOpportunityAssignedTo")
-		WHERE "crmOpportunityId"=$1 RETURNING *
-	`, id, body["crmOpportunityName"], body["crmOpportunityStage"], body["crmOpportunityAmount"],
-		body["crmOpportunityProbability"], body["crmOpportunityNotes"], body["crmOpportunityAssignedTo"])
+			"salesOpportunityName"=COALESCE($2,"salesOpportunityName"),"salesOpportunityStage"=COALESCE($3,"salesOpportunityStage"),
+			"salesOpportunityAmount"=COALESCE($4,"salesOpportunityAmount"),"salesOpportunityProbability"=COALESCE($5,"salesOpportunityProbability"),
+			"salesOpportunityNotes"=COALESCE($6,"salesOpportunityNotes"),"salesOpportunityAssignedTo"=COALESCE($7,"salesOpportunityAssignedTo")
+		WHERE "salesOpportunityId"=$1 RETURNING *
+	`, id, body["salesOpportunityName"], body["salesOpportunityStage"], body["salesOpportunityAmount"],
+		body["salesOpportunityProbability"], body["salesOpportunityNotes"], body["salesOpportunityAssignedTo"])
 }
 
 func (s *Store) DeleteOpportunity(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesOpportunity" SET "isActive"=false WHERE "crmOpportunityId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesOpportunity" SET "isActive"=false WHERE "salesOpportunityId"=$1`, id)
 	return err
 }
 
@@ -257,8 +257,8 @@ func (s *Store) DeleteOpportunity(ctx context.Context, id string) error {
 func (s *Store) ListQuotations(ctx context.Context, isSuperAdmin bool, status string) ([]map[string]any, error) {
 	q := `SELECT q.*, row_to_json(c.*) as "salesContact", row_to_json(a.*) as "salesAccount"
 		FROM "salesQuotation" q
-		LEFT JOIN "salesContact" c ON c."crmContactId"=q."crmQuotationContactId"
-		LEFT JOIN "salesAccount" a ON a."crmAccountId"=q."crmQuotationAccountId"
+		LEFT JOIN "salesContact" c ON c."salesContactId"=q."salesQuotationContactId"
+		LEFT JOIN "salesAccount" a ON a."salesAccountId"=q."salesQuotationAccountId"
 		WHERE 1=1`
 	args := []any{}
 	argIdx := 1
@@ -266,90 +266,90 @@ func (s *Store) ListQuotations(ctx context.Context, isSuperAdmin bool, status st
 		q += ` AND q."isActive" = true`
 	}
 	if status != "" {
-		q += fmt.Sprintf(` AND q."crmQuotationStatus" = $%d`, argIdx)
+		q += fmt.Sprintf(` AND q."salesQuotationStatus" = $%d`, argIdx)
 		args = append(args, status)
 	}
-	q += ` ORDER BY q."crmQuotationCreatedAt" DESC`
+	q += ` ORDER BY q."salesQuotationCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) CreateQuotation(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesQuotation" ("crmQuotationOpportunityId","crmQuotationContactId","crmQuotationAccountId",
-			"crmQuotationSubtotal","crmQuotationDiscount","crmQuotationTax","crmQuotationTotal","crmQuotationNotes",
-			"crmQuotationTerms","crmQuotationValidUntil")
+		INSERT INTO "salesQuotation" ("salesQuotationOpportunityId","salesQuotationContactId","salesQuotationAccountId",
+			"salesQuotationSubtotal","salesQuotationDiscount","salesQuotationTax","salesQuotationTotal","salesQuotationNotes",
+			"salesQuotationTerms","salesQuotationValidUntil")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *
-	`, body["crmQuotationOpportunityId"], body["crmQuotationContactId"], body["crmQuotationAccountId"],
-		body["crmQuotationSubtotal"], body["crmQuotationDiscount"], body["crmQuotationTax"], body["crmQuotationTotal"],
-		body["crmQuotationNotes"], body["crmQuotationTerms"], body["crmQuotationValidUntil"])
+	`, body["salesQuotationOpportunityId"], body["salesQuotationContactId"], body["salesQuotationAccountId"],
+		body["salesQuotationSubtotal"], body["salesQuotationDiscount"], body["salesQuotationTax"], body["salesQuotationTotal"],
+		body["salesQuotationNotes"], body["salesQuotationTerms"], body["salesQuotationValidUntil"])
 }
 
 func (s *Store) GetQuotationByID(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesQuotation" WHERE "crmQuotationId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesQuotation" WHERE "salesQuotationId"=$1`, id)
 }
 
 func (s *Store) GetQuotationLines(ctx context.Context, id string) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesQuotationLine" WHERE "crmQuotationLineQuotationId"=$1 AND "isActive"=true ORDER BY "crmQuotationLineOrder"`, id)
+	return db.QueryRows(ctx, s.pool, `SELECT * FROM "salesQuotationLine" WHERE "salesQuotationLineQuotationId"=$1 AND "isActive"=true ORDER BY "salesQuotationLineOrder"`, id)
 }
 
 func (s *Store) UpdateQuotation(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
 		UPDATE "salesQuotation" SET
-			"crmQuotationSubtotal"=COALESCE($2,"crmQuotationSubtotal"),"crmQuotationDiscount"=COALESCE($3,"crmQuotationDiscount"),
-			"crmQuotationTax"=COALESCE($4,"crmQuotationTax"),"crmQuotationTotal"=COALESCE($5,"crmQuotationTotal"),
-			"crmQuotationNotes"=COALESCE($6,"crmQuotationNotes"),"crmQuotationTerms"=COALESCE($7,"crmQuotationTerms"),
-			"crmQuotationValidUntil"=COALESCE($8,"crmQuotationValidUntil")
-		WHERE "crmQuotationId"=$1 RETURNING *
-	`, id, body["crmQuotationSubtotal"], body["crmQuotationDiscount"], body["crmQuotationTax"],
-		body["crmQuotationTotal"], body["crmQuotationNotes"], body["crmQuotationTerms"], body["crmQuotationValidUntil"])
+			"salesQuotationSubtotal"=COALESCE($2,"salesQuotationSubtotal"),"salesQuotationDiscount"=COALESCE($3,"salesQuotationDiscount"),
+			"salesQuotationTax"=COALESCE($4,"salesQuotationTax"),"salesQuotationTotal"=COALESCE($5,"salesQuotationTotal"),
+			"salesQuotationNotes"=COALESCE($6,"salesQuotationNotes"),"salesQuotationTerms"=COALESCE($7,"salesQuotationTerms"),
+			"salesQuotationValidUntil"=COALESCE($8,"salesQuotationValidUntil")
+		WHERE "salesQuotationId"=$1 RETURNING *
+	`, id, body["salesQuotationSubtotal"], body["salesQuotationDiscount"], body["salesQuotationTax"],
+		body["salesQuotationTotal"], body["salesQuotationNotes"], body["salesQuotationTerms"], body["salesQuotationValidUntil"])
 }
 
 func (s *Store) DeactivateQuotationLines(ctx context.Context, quotationID string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotationLine" SET "isActive"=false WHERE "crmQuotationLineQuotationId"=$1`, quotationID)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotationLine" SET "isActive"=false WHERE "salesQuotationLineQuotationId"=$1`, quotationID)
 	return err
 }
 
 func (s *Store) InsertQuotationLine(ctx context.Context, quotationID string, order int, line map[string]any) error {
 	_, err := s.pool.Exec(ctx, `
-		INSERT INTO "salesQuotationLine" ("crmQuotationLineQuotationId","crmQuotationLineOrder","crmQuotationLineProductName",
-			"crmQuotationLineDescription","crmQuotationLineQuantity","crmQuotationLineUnitPrice","crmQuotationLineDiscount","crmQuotationLineAmount")
+		INSERT INTO "salesQuotationLine" ("salesQuotationLineQuotationId","salesQuotationLineOrder","salesQuotationLineProductName",
+			"salesQuotationLineDescription","salesQuotationLineQuantity","salesQuotationLineUnitPrice","salesQuotationLineDiscount","salesQuotationLineAmount")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-	`, quotationID, order, line["crmQuotationLineProductName"], line["crmQuotationLineDescription"],
-		line["crmQuotationLineQuantity"], line["crmQuotationLineUnitPrice"], line["crmQuotationLineDiscount"], line["crmQuotationLineAmount"])
+	`, quotationID, order, line["salesQuotationLineProductName"], line["salesQuotationLineDescription"],
+		line["salesQuotationLineQuantity"], line["salesQuotationLineUnitPrice"], line["salesQuotationLineDiscount"], line["salesQuotationLineAmount"])
 	return err
 }
 
 func (s *Store) SubmitQuotation(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "crmQuotationStatus"='submitted' WHERE "crmQuotationId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "salesQuotationStatus"='submitted' WHERE "salesQuotationId"=$1`, id)
 	return err
 }
 
 func (s *Store) ApproveQuotation(ctx context.Context, id, userID string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "crmQuotationStatus"='approved',"crmQuotationApprovedBy"=$2 WHERE "crmQuotationId"=$1`, id, userID)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "salesQuotationStatus"='approved',"salesQuotationApprovedBy"=$2 WHERE "salesQuotationId"=$1`, id, userID)
 	return err
 }
 
 func (s *Store) RejectQuotation(ctx context.Context, id, note string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "crmQuotationStatus"='rejected',"crmQuotationApprovalNote"=$2 WHERE "crmQuotationId"=$1`, id, note)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "salesQuotationStatus"='rejected',"salesQuotationApprovalNote"=$2 WHERE "salesQuotationId"=$1`, id, note)
 	return err
 }
 
 func (s *Store) CreateOrderFromQuotation(ctx context.Context, quotationID, userID string, q map[string]any) error {
 	_, err := s.pool.Exec(ctx, `
-		INSERT INTO "salesOrder" ("crmOrderQuotationId","crmOrderContactId","crmOrderAccountId","crmOrderSubtotal","crmOrderDiscount","crmOrderTax","crmOrderTotal","crmOrderCreatedBy")
+		INSERT INTO "salesOrder" ("salesOrderQuotationId","salesOrderContactId","salesOrderAccountId","salesOrderSubtotal","salesOrderDiscount","salesOrderTax","salesOrderTotal","salesOrderCreatedBy")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-	`, quotationID, q["crmQuotationContactId"], q["crmQuotationAccountId"], q["crmQuotationSubtotal"],
-		q["crmQuotationDiscount"], q["crmQuotationTax"], q["crmQuotationTotal"], userID)
+	`, quotationID, q["salesQuotationContactId"], q["salesQuotationAccountId"], q["salesQuotationSubtotal"],
+		q["salesQuotationDiscount"], q["salesQuotationTax"], q["salesQuotationTotal"], userID)
 	return err
 }
 
 func (s *Store) ConvertQuotation(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "crmQuotationStatus"='converted' WHERE "crmQuotationId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "salesQuotationStatus"='converted' WHERE "salesQuotationId"=$1`, id)
 	return err
 }
 
 func (s *Store) DeleteQuotation(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "isActive"=false WHERE "crmQuotationId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesQuotation" SET "isActive"=false WHERE "salesQuotationId"=$1`, id)
 	return err
 }
 
@@ -358,8 +358,8 @@ func (s *Store) DeleteQuotation(ctx context.Context, id string) error {
 func (s *Store) ListOrders(ctx context.Context, isSuperAdmin bool, status string) ([]map[string]any, error) {
 	q := `SELECT o.*, row_to_json(c.*) as "salesContact", row_to_json(a.*) as "salesAccount"
 		FROM "salesOrder" o
-		LEFT JOIN "salesContact" c ON c."crmContactId"=o."crmOrderContactId"
-		LEFT JOIN "salesAccount" a ON a."crmAccountId"=o."crmOrderAccountId"
+		LEFT JOIN "salesContact" c ON c."salesContactId"=o."salesOrderContactId"
+		LEFT JOIN "salesAccount" a ON a."salesAccountId"=o."salesOrderAccountId"
 		WHERE 1=1`
 	args := []any{}
 	argIdx := 1
@@ -367,39 +367,39 @@ func (s *Store) ListOrders(ctx context.Context, isSuperAdmin bool, status string
 		q += ` AND o."isActive" = true`
 	}
 	if status != "" {
-		q += fmt.Sprintf(` AND o."crmOrderStatus" = $%d`, argIdx)
+		q += fmt.Sprintf(` AND o."salesOrderStatus" = $%d`, argIdx)
 		args = append(args, status)
 	}
-	q += ` ORDER BY o."crmOrderCreatedAt" DESC`
+	q += ` ORDER BY o."salesOrderCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) CreateOrder(ctx context.Context, body map[string]any, userID string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesOrder" ("crmOrderQuotationId","crmOrderContactId","crmOrderAccountId","crmOrderStatus",
-			"crmOrderSubtotal","crmOrderDiscount","crmOrderTax","crmOrderTotal","crmOrderShippingAddress","crmOrderNotes","crmOrderCreatedBy")
+		INSERT INTO "salesOrder" ("salesOrderQuotationId","salesOrderContactId","salesOrderAccountId","salesOrderStatus",
+			"salesOrderSubtotal","salesOrderDiscount","salesOrderTax","salesOrderTotal","salesOrderShippingAddress","salesOrderNotes","salesOrderCreatedBy")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *
-	`, body["crmOrderQuotationId"], body["crmOrderContactId"], body["crmOrderAccountId"], body["crmOrderStatus"],
-		body["crmOrderSubtotal"], body["crmOrderDiscount"], body["crmOrderTax"], body["crmOrderTotal"],
-		body["crmOrderShippingAddress"], body["crmOrderNotes"], userID)
+	`, body["salesOrderQuotationId"], body["salesOrderContactId"], body["salesOrderAccountId"], body["salesOrderStatus"],
+		body["salesOrderSubtotal"], body["salesOrderDiscount"], body["salesOrderTax"], body["salesOrderTotal"],
+		body["salesOrderShippingAddress"], body["salesOrderNotes"], userID)
 }
 
 func (s *Store) GetOrder(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesOrder" WHERE "crmOrderId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "salesOrder" WHERE "salesOrderId"=$1`, id)
 }
 
 func (s *Store) UpdateOrder(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "salesOrder" SET "crmOrderStatus"=COALESCE($2,"crmOrderStatus"),"crmOrderShippingAddress"=COALESCE($3,"crmOrderShippingAddress"),
-			"crmOrderTrackingNumber"=COALESCE($4,"crmOrderTrackingNumber"),"crmOrderNotes"=COALESCE($5,"crmOrderNotes"),
-			"crmOrderDeliveryDate"=COALESCE($6,"crmOrderDeliveryDate")
-		WHERE "crmOrderId"=$1 RETURNING *
-	`, id, body["crmOrderStatus"], body["crmOrderShippingAddress"], body["crmOrderTrackingNumber"],
-		body["crmOrderNotes"], body["crmOrderDeliveryDate"])
+		UPDATE "salesOrder" SET "salesOrderStatus"=COALESCE($2,"salesOrderStatus"),"salesOrderShippingAddress"=COALESCE($3,"salesOrderShippingAddress"),
+			"salesOrderTrackingNumber"=COALESCE($4,"salesOrderTrackingNumber"),"salesOrderNotes"=COALESCE($5,"salesOrderNotes"),
+			"salesOrderDeliveryDate"=COALESCE($6,"salesOrderDeliveryDate")
+		WHERE "salesOrderId"=$1 RETURNING *
+	`, id, body["salesOrderStatus"], body["salesOrderShippingAddress"], body["salesOrderTrackingNumber"],
+		body["salesOrderNotes"], body["salesOrderDeliveryDate"])
 }
 
 func (s *Store) DeleteOrder(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesOrder" SET "isActive"=false WHERE "crmOrderId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesOrder" SET "isActive"=false WHERE "salesOrderId"=$1`, id)
 	return err
 }
 
@@ -413,38 +413,38 @@ func (s *Store) ListActivities(ctx context.Context, isSuperAdmin bool, actType, 
 		q += ` AND "isActive" = true`
 	}
 	if actType != "" {
-		q += fmt.Sprintf(` AND "crmActivityType" = $%d`, argIdx)
+		q += fmt.Sprintf(` AND "salesActivityType" = $%d`, argIdx)
 		args = append(args, actType)
 		argIdx++
 	}
 	if status != "" {
-		q += fmt.Sprintf(` AND "crmActivityStatus" = $%d`, argIdx)
+		q += fmt.Sprintf(` AND "salesActivityStatus" = $%d`, argIdx)
 		args = append(args, status)
 	}
-	q += ` ORDER BY "crmActivityDueDate" ASC NULLS LAST`
+	q += ` ORDER BY "salesActivityDueDate" ASC NULLS LAST`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) DeleteActivity(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE "salesActivity" SET "isActive"=false WHERE "crmActivityId"=$1`, id)
+	_, err := s.pool.Exec(ctx, `UPDATE "salesActivity" SET "isActive"=false WHERE "salesActivityId"=$1`, id)
 	return err
 }
 
 func (s *Store) UpdateActivity(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "salesActivity" SET "crmActivitySubject"=COALESCE($2,"crmActivitySubject"),
-			"crmActivityStatus"=COALESCE($3,"crmActivityStatus"),"crmActivityDueDate"=COALESCE($4,"crmActivityDueDate"),
-			"crmActivityDescription"=COALESCE($5,"crmActivityDescription")
-		WHERE "crmActivityId"=$1 RETURNING *
-	`, id, body["crmActivitySubject"], body["crmActivityStatus"], body["crmActivityDueDate"], body["crmActivityDescription"])
+		UPDATE "salesActivity" SET "salesActivitySubject"=COALESCE($2,"salesActivitySubject"),
+			"salesActivityStatus"=COALESCE($3,"salesActivityStatus"),"salesActivityDueDate"=COALESCE($4,"salesActivityDueDate"),
+			"salesActivityDescription"=COALESCE($5,"salesActivityDescription")
+		WHERE "salesActivityId"=$1 RETURNING *
+	`, id, body["salesActivitySubject"], body["salesActivityStatus"], body["salesActivityDueDate"], body["salesActivityDescription"])
 }
 
 func (s *Store) CreateActivity(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "salesActivity" ("crmActivityType","crmActivityStatus","crmActivitySubject","crmActivityDueDate",
-			"crmActivityContactId","crmActivityOpportunityId","crmActivityAccountId","crmActivityAssignedTo","crmActivityDescription","crmActivityPriority")
+		INSERT INTO "salesActivity" ("salesActivityType","salesActivityStatus","salesActivitySubject","salesActivityDueDate",
+			"salesActivityContactId","salesActivityOpportunityId","salesActivityAccountId","salesActivityAssignedTo","salesActivityDescription","salesActivityPriority")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *
-	`, body["crmActivityType"], body["crmActivityStatus"], body["crmActivitySubject"], body["crmActivityDueDate"],
-		body["crmActivityContactId"], body["crmActivityOpportunityId"], body["crmActivityAccountId"],
-		body["crmActivityAssignedTo"], body["crmActivityDescription"], body["crmActivityPriority"])
+	`, body["salesActivityType"], body["salesActivityStatus"], body["salesActivitySubject"], body["salesActivityDueDate"],
+		body["salesActivityContactId"], body["salesActivityOpportunityId"], body["salesActivityAccountId"],
+		body["salesActivityAssignedTo"], body["salesActivityDescription"], body["salesActivityPriority"])
 }

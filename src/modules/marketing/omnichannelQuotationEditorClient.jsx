@@ -37,23 +37,23 @@ export default function OmnichannelQuotationEditorClient() {
   };
 
   const calcTotal = () =>
-    lines.reduce((sum, l) => sum + (l.omQuotationLineQuantity || 0) * (l.omQuotationLineUnitPrice || 0), 0);
+    lines.reduce((sum, l) => sum + (l.mktQuotationLineQuantity || 0) * (l.mktQuotationLineUnitPrice || 0), 0);
 
   const handleSave = async () => {
     try {
       setSaving(true);
       await put(`/api/marketing/omnichannel/quotations/${id}`, {
-        omQuotationCustomerName: quotation.omQuotationCustomerName,
-        omQuotationCustomerPhone: quotation.omQuotationCustomerPhone,
-        omQuotationCustomerAddress: quotation.omQuotationCustomerAddress,
-        omQuotationPaymentMethod: quotation.omQuotationPaymentMethod,
-        omQuotationNotes: quotation.omQuotationNotes,
+        mktQuotationCustomerName: quotation.mktQuotationCustomerName,
+        mktQuotationCustomerPhone: quotation.mktQuotationCustomerPhone,
+        mktQuotationCustomerAddress: quotation.mktQuotationCustomerAddress,
+        mktQuotationPaymentMethod: quotation.mktQuotationPaymentMethod,
+        mktQuotationNotes: quotation.mktQuotationNotes,
         lines: lines.map((l) => ({
-          omQuotationLineId: l.omQuotationLineId,
-          omQuotationLineProductName: l.omQuotationLineProductName,
-          omQuotationLineVariant: l.omQuotationLineVariant,
-          omQuotationLineQuantity: l.omQuotationLineQuantity,
-          omQuotationLineUnitPrice: l.omQuotationLineUnitPrice,
+          mktQuotationLineId: l.mktQuotationLineId,
+          mktQuotationLineProductName: l.mktQuotationLineProductName,
+          mktQuotationLineVariant: l.mktQuotationLineVariant,
+          mktQuotationLineQuantity: l.mktQuotationLineQuantity,
+          mktQuotationLineUnitPrice: l.mktQuotationLineUnitPrice,
         })),
       });
       toast.success("บันทึกเรียบร้อย");
@@ -71,17 +71,17 @@ export default function OmnichannelQuotationEditorClient() {
 
       if (action === "submit") {
         await put(`/api/marketing/omnichannel/quotations/${id}`, {
-          omQuotationCustomerName: quotation.omQuotationCustomerName,
-          omQuotationCustomerPhone: quotation.omQuotationCustomerPhone,
-          omQuotationCustomerAddress: quotation.omQuotationCustomerAddress,
-          omQuotationPaymentMethod: quotation.omQuotationPaymentMethod,
-          omQuotationNotes: quotation.omQuotationNotes,
+          mktQuotationCustomerName: quotation.mktQuotationCustomerName,
+          mktQuotationCustomerPhone: quotation.mktQuotationCustomerPhone,
+          mktQuotationCustomerAddress: quotation.mktQuotationCustomerAddress,
+          mktQuotationPaymentMethod: quotation.mktQuotationPaymentMethod,
+          mktQuotationNotes: quotation.mktQuotationNotes,
           lines: lines.map((l) => ({
-            omQuotationLineId: l.omQuotationLineId,
-            omQuotationLineProductName: l.omQuotationLineProductName,
-            omQuotationLineVariant: l.omQuotationLineVariant,
-            omQuotationLineQuantity: l.omQuotationLineQuantity,
-            omQuotationLineUnitPrice: l.omQuotationLineUnitPrice,
+            mktQuotationLineId: l.mktQuotationLineId,
+            mktQuotationLineProductName: l.mktQuotationLineProductName,
+            mktQuotationLineVariant: l.mktQuotationLineVariant,
+            mktQuotationLineQuantity: l.mktQuotationLineQuantity,
+            mktQuotationLineUnitPrice: l.mktQuotationLineUnitPrice,
           })),
         });
       }

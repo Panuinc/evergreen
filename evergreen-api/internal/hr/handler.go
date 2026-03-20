@@ -264,14 +264,14 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		if createdAt, ok := e["hrEmployeeCreatedAt"].(time.Time); ok && createdAt.After(monthStart) {
 			newThisMonth++
 		}
-		if div, ok := e["hrEmployeeDivision"].(string); ok && div != "" {
+		if div, ok := e["hrEmployeeHrDivisionId"].(string); ok && div != "" {
 			name := divMap[div]
 			if name == "" {
 				name = div
 			}
 			byDiv[name]++
 		}
-		if dept, ok := e["hrEmployeeDepartment"].(string); ok && dept != "" {
+		if dept, ok := e["hrEmployeeHrDepartmentId"].(string); ok && dept != "" {
 			name := deptMap[dept]
 			if name == "" {
 				name = dept

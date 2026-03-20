@@ -12,19 +12,19 @@ const statusMap = {
 };
 
 const baseColumns = [
-  { name: "เลขที่", uid: "omQuotationNumber", sortable: true },
+  { name: "เลขที่", uid: "mktQuotationNumber", sortable: true },
   { name: "ลูกค้า", uid: "customerName", sortable: true },
   { name: "ช่องทาง", uid: "channelType", sortable: true },
-  { name: "สถานะ", uid: "omQuotationStatus", sortable: true },
-  { name: "วันที่สร้าง", uid: "omQuotationCreatedAt", sortable: true },
+  { name: "สถานะ", uid: "mktQuotationStatus", sortable: true },
+  { name: "วันที่สร้าง", uid: "mktQuotationCreatedAt", sortable: true },
 ];
 
 const initialVisibleColumns = [
-  "omQuotationNumber",
+  "mktQuotationNumber",
   "customerName",
   "channelType",
-  "omQuotationStatus",
-  "omQuotationCreatedAt",
+  "mktQuotationStatus",
+  "mktQuotationCreatedAt",
 ];
 
 export default function OmnichannelQuotationsView({
@@ -51,23 +51,23 @@ export default function OmnichannelQuotationsView({
       quotations.map((q) => ({
         ...q,
         customerName:
-          q.omQuotationCustomerName ||
-          q.omContact?.omContactDisplayName ||
+          q.mktQuotationCustomerName ||
+          q.mktContact?.mktContactDisplayName ||
           "-",
-        channelType: q.omContact?.omContactChannelType || "-",
+        channelType: q.mktContact?.mktContactChannelType || "-",
       })),
     [quotations]
   );
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "omQuotationNumber":
+      case "mktQuotationNumber":
         return (
           <span
             className="text-primary cursor-pointer"
-            onClick={() => onNavigateToQuotation(item.omQuotationId)}
+            onClick={() => onNavigateToQuotation(item.mktQuotationId)}
           >
-            {item.omQuotationNumber}
+            {item.mktQuotationNumber}
           </span>
         );
       case "channelType":
@@ -76,16 +76,16 @@ export default function OmnichannelQuotationsView({
             {item.channelType}
           </Chip>
         );
-      case "omQuotationStatus": {
-        const s = statusMap[item.omQuotationStatus] || statusMap.draft;
+      case "mktQuotationStatus": {
+        const s = statusMap[item.mktQuotationStatus] || statusMap.draft;
         return (
           <Chip variant="flat" size="md" radius="md" color={s.color}>
             {s.label}
           </Chip>
         );
       }
-      case "omQuotationCreatedAt":
-        return new Date(item.omQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" });
+      case "mktQuotationCreatedAt":
+        return new Date(item.mktQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" });
       case "isActive":
         return (
           <Chip
@@ -125,11 +125,11 @@ export default function OmnichannelQuotationsView({
         columns={columns}
         data={tableData}
         renderCell={renderCell}
-        rowKey="omQuotationId"
+        rowKey="mktQuotationId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาด้วยเลขที่, ชื่อลูกค้า..."
-        searchKeys={["omQuotationNumber", "customerName"]}
+        searchKeys={["mktQuotationNumber", "customerName"]}
         emptyContent="ไม่มีใบเสนอราคา"
         enableCardView
       />

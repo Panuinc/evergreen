@@ -16,15 +16,15 @@ import { Eye, Trash2, Edit } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 
 const columns = [
-  { name: "เลขที่คำสั่ง", uid: "crmOrderNo", sortable: true },
+  { name: "เลขที่คำสั่ง", uid: "salesOrderNo", sortable: true },
   { name: "ผู้ติดต่อ", uid: "contact" },
   { name: "บัญชี", uid: "account" },
   { name: "ใบเสนอราคา", uid: "quotation" },
-  { name: "สถานะ", uid: "crmOrderStatus" },
-  { name: "ยอดรวม", uid: "crmOrderTotal" },
-  { name: "เลขติดตาม", uid: "crmOrderTrackingNumber" },
-  { name: "วันส่ง", uid: "crmOrderDeliveryDate" },
-  { name: "สร้างเมื่อ", uid: "crmOrderCreatedAt" },
+  { name: "สถานะ", uid: "salesOrderStatus" },
+  { name: "ยอดรวม", uid: "salesOrderTotal" },
+  { name: "เลขติดตาม", uid: "salesOrderTrackingNumber" },
+  { name: "วันส่ง", uid: "salesOrderDeliveryDate" },
+  { name: "สร้างเมื่อ", uid: "salesOrderCreatedAt" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -38,12 +38,12 @@ const statusOptions = [
 ];
 
 const initialVisibleColumns = [
-  "crmOrderNo",
+  "salesOrderNo",
   "contact",
-  "crmOrderStatus",
-  "crmOrderTotal",
-  "crmOrderTrackingNumber",
-  "crmOrderCreatedAt",
+  "salesOrderStatus",
+  "salesOrderTotal",
+  "salesOrderTrackingNumber",
+  "salesOrderCreatedAt",
   "actions",
 ];
 
@@ -63,17 +63,17 @@ export default function OrdersView({
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "crmOrderNo":
-          return <span className="font-light">{item.crmOrderNo || "-"}</span>;
+        case "salesOrderNo":
+          return <span className="font-light">{item.salesOrderNo || "-"}</span>;
         case "contact":
-          return item.crmContact
-            ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
+          return item.salesContact
+            ? `${item.salesContact.salesContactFirstName} ${item.salesContact.salesContactLastName}`
             : "-";
         case "account":
-          return item.salesAccount?.crmAccountName || "-";
+          return item.salesAccount?.salesAccountName || "-";
         case "quotation":
-          return item.salesQuotation?.crmQuotationNo || "-";
-        case "crmOrderStatus": {
+          return item.salesQuotation?.salesQuotationNo || "-";
+        case "salesOrderStatus": {
           const colorMap = {
             pending: "default",
             confirmed: "primary",
@@ -87,27 +87,27 @@ export default function OrdersView({
               variant="flat"
               size="md"
               radius="md"
-              color={colorMap[item.crmOrderStatus] || "default"}
+              color={colorMap[item.salesOrderStatus] || "default"}
             >
-              {item.crmOrderStatus}
+              {item.salesOrderStatus}
             </Chip>
           );
         }
-        case "crmOrderTotal":
-          return item.crmOrderTotal
-            ? `฿${Number(item.crmOrderTotal).toLocaleString()}`
+        case "salesOrderTotal":
+          return item.salesOrderTotal
+            ? `฿${Number(item.salesOrderTotal).toLocaleString()}`
             : "-";
-        case "crmOrderTrackingNumber":
+        case "salesOrderTrackingNumber":
           return (
             <span className="text-muted-foreground">
-              {item.crmOrderTrackingNumber || "-"}
+              {item.salesOrderTrackingNumber || "-"}
             </span>
           );
-        case "crmOrderDeliveryDate":
-          return item.crmOrderDeliveryDate || "-";
-        case "crmOrderCreatedAt":
-          return item.crmOrderCreatedAt
-            ? new Date(item.crmOrderCreatedAt).toLocaleDateString()
+        case "salesOrderDeliveryDate":
+          return item.salesOrderDeliveryDate || "-";
+        case "salesOrderCreatedAt":
+          return item.salesOrderCreatedAt
+            ? new Date(item.salesOrderCreatedAt).toLocaleDateString()
             : "-";
         case "actions":
           return (
@@ -126,11 +126,11 @@ export default function OrdersView({
                 variant="bordered"
                 radius="md"
                 aria-label="Change status"
-                selectedKeys={[item.crmOrderStatus]}
+                selectedKeys={[item.salesOrderStatus]}
                 className="w-32"
                 onSelectionChange={(keys) => {
                   const newStatus = Array.from(keys)[0];
-                  if (newStatus && newStatus !== item.crmOrderStatus) {
+                  if (newStatus && newStatus !== item.salesOrderStatus) {
                     handleStatusChange(item, newStatus);
                   }
                 }}
@@ -167,16 +167,16 @@ export default function OrdersView({
         data={orders}
         renderCell={renderCell}
         enableCardView
-        rowKey="crmOrderId"
+        rowKey="salesOrderId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาคำสั่งซื้อ..."
         searchKeys={[
-          "crmOrderNo",
-          "crmOrderShippingAddress",
-          "crmOrderTrackingNumber",
+          "salesOrderNo",
+          "salesOrderShippingAddress",
+          "salesOrderTrackingNumber",
         ]}
-        statusField="crmOrderStatus"
+        statusField="salesOrderStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำสั่งซื้อ"
         actionMenuItems={(item) => [
@@ -207,27 +207,27 @@ export default function OrdersView({
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">เลขที่คำสั่ง</span>
                     <span className="font-light">
-                      {selectedOrder.crmOrderNo || "-"}
+                      {selectedOrder.salesOrderNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">ผู้ติดต่อ</span>
                     <span className="font-light">
-                      {selectedOrder.crmContact
-                        ? `${selectedOrder.crmContact.crmContactFirstName} ${selectedOrder.crmContact.crmContactLastName}`
+                      {selectedOrder.salesContact
+                        ? `${selectedOrder.salesContact.salesContactFirstName} ${selectedOrder.salesContact.salesContactLastName}`
                         : "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">บัญชี</span>
                     <span className="font-light">
-                      {selectedOrder.salesAccount?.crmAccountName || "-"}
+                      {selectedOrder.salesAccount?.salesAccountName || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">ใบเสนอราคา</span>
                     <span className="font-light">
-                      {selectedOrder.salesQuotation?.crmQuotationNo || "-"}
+                      {selectedOrder.salesQuotation?.salesQuotationNo || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -248,10 +248,10 @@ export default function OrdersView({
                             size="md"
                             radius="md"
                             color={
-                              colorMap[selectedOrder.crmOrderStatus] || "default"
+                              colorMap[selectedOrder.salesOrderStatus] || "default"
                             }
                           >
-                            {selectedOrder.crmOrderStatus}
+                            {selectedOrder.salesOrderStatus}
                           </Chip>
                         );
                       })()}
@@ -260,8 +260,8 @@ export default function OrdersView({
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">ยอดรวม</span>
                     <span className="font-light">
-                      {selectedOrder.crmOrderTotal
-                        ? `฿${Number(selectedOrder.crmOrderTotal).toLocaleString()}`
+                      {selectedOrder.salesOrderTotal
+                        ? `฿${Number(selectedOrder.salesOrderTotal).toLocaleString()}`
                         : "-"}
                     </span>
                   </div>
@@ -270,7 +270,7 @@ export default function OrdersView({
                       ที่อยู่จัดส่ง
                     </span>
                     <span className="font-light">
-                      {selectedOrder.crmOrderShippingAddress || "-"}
+                      {selectedOrder.salesOrderShippingAddress || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -278,7 +278,7 @@ export default function OrdersView({
                       เลขติดตาม
                     </span>
                     <span className="font-light">
-                      {selectedOrder.crmOrderTrackingNumber || "-"}
+                      {selectedOrder.salesOrderTrackingNumber || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -286,25 +286,25 @@ export default function OrdersView({
                       วันส่ง
                     </span>
                     <span className="font-light">
-                      {selectedOrder.crmOrderDeliveryDate || "-"}
+                      {selectedOrder.salesOrderDeliveryDate || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">สร้างเมื่อ</span>
                     <span className="font-light">
-                      {selectedOrder.crmOrderCreatedAt
+                      {selectedOrder.salesOrderCreatedAt
                         ? new Date(
-                            selectedOrder.crmOrderCreatedAt,
+                            selectedOrder.salesOrderCreatedAt,
                           ).toLocaleDateString()
                         : "-"}
                     </span>
                   </div>
                 </div>
-                {selectedOrder.crmOrderNotes && (
+                {selectedOrder.salesOrderNotes && (
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">หมายเหตุ</span>
                     <span className="font-light">
-                      {selectedOrder.crmOrderNotes}
+                      {selectedOrder.salesOrderNotes}
                     </span>
                   </div>
                 )}
@@ -332,7 +332,7 @@ export default function OrdersView({
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-light">
-                {deletingOrder?.crmOrderNo}
+                {deletingOrder?.salesOrderNo}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

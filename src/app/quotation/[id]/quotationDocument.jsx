@@ -62,33 +62,33 @@ export default function QuotationDocument({ quotation, lines }) {
           <div className="flex flex-col gap-1">
             <div className="flex gap-2">
               <span className="font-light w-24">ลูกค้า:</span>
-              <span>{quotation.omQuotationCustomerName || "-"}</span>
+              <span>{quotation.mktQuotationCustomerName || "-"}</span>
             </div>
             <div className="flex gap-2">
               <span className="font-light w-24">เบอร์โทร:</span>
-              <span>{quotation.omQuotationCustomerPhone || "-"}</span>
+              <span>{quotation.mktQuotationCustomerPhone || "-"}</span>
             </div>
             <div className="flex gap-2">
               <span className="font-light w-24">ที่อยู่จัดส่ง:</span>
-              <span className="max-w-xs">{quotation.omQuotationCustomerAddress || "-"}</span>
+              <span className="max-w-xs">{quotation.mktQuotationCustomerAddress || "-"}</span>
             </div>
             <div className="flex gap-2">
               <span className="font-light w-24">ชำระเงิน:</span>
-              <span>{quotation.omQuotationPaymentMethod || "-"}</span>
+              <span>{quotation.mktQuotationPaymentMethod || "-"}</span>
             </div>
           </div>
           <div className="flex flex-col gap-1 text-right">
             <div className="flex gap-2 justify-end">
               <span className="font-light">เลขที่:</span>
-              <span>{quotation.omQuotationNumber}</span>
+              <span>{quotation.mktQuotationNumber}</span>
             </div>
             <div className="flex gap-2 justify-end">
               <span className="font-light">วันที่:</span>
-              <span>{formatThaiDate(quotation.omQuotationCreatedAt)}</span>
+              <span>{formatThaiDate(quotation.mktQuotationCreatedAt)}</span>
             </div>
             <div className="flex gap-2 justify-end">
               <span className="font-light">สถานะ:</span>
-              <span>{statusMap[quotation.omQuotationStatus] || quotation.omQuotationStatus}</span>
+              <span>{statusMap[quotation.mktQuotationStatus] || quotation.mktQuotationStatus}</span>
             </div>
           </div>
         </div>
@@ -106,20 +106,20 @@ export default function QuotationDocument({ quotation, lines }) {
           </thead>
           <tbody>
             {lines.map((line, i) => (
-              <tr key={line.omQuotationLineId} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                <td className="border border-gray-300 px-3 py-2 text-center">{line.omQuotationLineOrder}</td>
+              <tr key={line.mktQuotationLineId} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                <td className="border border-gray-300 px-3 py-2 text-center">{line.mktQuotationLineOrder}</td>
                 <td className="border border-gray-300 px-3 py-2">
-                  {line.omQuotationLineProductName}
-                  {line.omQuotationLineVariant && (
-                    <span className="text-gray-500 text-xs ml-2">({line.omQuotationLineVariant})</span>
+                  {line.mktQuotationLineProductName}
+                  {line.mktQuotationLineVariant && (
+                    <span className="text-gray-500 text-xs ml-2">({line.mktQuotationLineVariant})</span>
                   )}
                 </td>
-                <td className="border border-gray-300 px-3 py-2 text-center">{line.omQuotationLineQuantity}</td>
+                <td className="border border-gray-300 px-3 py-2 text-center">{line.mktQuotationLineQuantity}</td>
                 <td className="border border-gray-300 px-3 py-2 text-right">
-                  {formatPrice(line.omQuotationLineUnitPrice)}
+                  {formatPrice(line.mktQuotationLineUnitPrice)}
                 </td>
                 <td className="border border-gray-300 px-3 py-2 text-right">
-                  {formatPrice(line.omQuotationLineAmount)}
+                  {formatPrice(line.mktQuotationLineAmount)}
                 </td>
               </tr>
             ))}
@@ -134,10 +134,10 @@ export default function QuotationDocument({ quotation, lines }) {
         </table>
 
         {}
-        {quotation.omQuotationNotes && (
+        {quotation.mktQuotationNotes && (
           <div className="mb-6 p-3 bg-gray-50 rounded border border-gray-200">
             <p className="font-light text-xs mb-1">หมายเหตุ:</p>
-            <p className="whitespace-pre-wrap">{quotation.omQuotationNotes}</p>
+            <p className="whitespace-pre-wrap">{quotation.mktQuotationNotes}</p>
           </div>
         )}
 

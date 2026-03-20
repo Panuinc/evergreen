@@ -17,24 +17,24 @@ import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
 
 const baseColumns = [
-  { name: "เลขที่บัญชี", uid: "crmAccountNo", sortable: true },
-  { name: "ชื่อบัญชี", uid: "crmAccountName", sortable: true },
-  { name: "อุตสาหกรรม", uid: "crmAccountIndustry" },
-  { name: "โทรศัพท์", uid: "crmAccountPhone" },
-  { name: "อีเมล", uid: "crmAccountEmail" },
-  { name: "จำนวนพนักงาน", uid: "crmAccountEmployees" },
-  { name: "รายได้ต่อปี", uid: "crmAccountAnnualRevenue" },
+  { name: "เลขที่บัญชี", uid: "salesAccountNo", sortable: true },
+  { name: "ชื่อบัญชี", uid: "salesAccountName", sortable: true },
+  { name: "อุตสาหกรรม", uid: "salesAccountIndustry" },
+  { name: "โทรศัพท์", uid: "salesAccountPhone" },
+  { name: "อีเมล", uid: "salesAccountEmail" },
+  { name: "จำนวนพนักงาน", uid: "salesAccountEmployees" },
+  { name: "รายได้ต่อปี", uid: "salesAccountAnnualRevenue" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [];
 
 const baseVisibleColumns = [
-  "crmAccountNo",
-  "crmAccountName",
-  "crmAccountIndustry",
-  "crmAccountPhone",
-  "crmAccountAnnualRevenue",
+  "salesAccountNo",
+  "salesAccountName",
+  "salesAccountIndustry",
+  "salesAccountPhone",
+  "salesAccountAnnualRevenue",
   "actions",
 ];
 
@@ -80,23 +80,23 @@ export default function AccountsView({
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "crmAccountNo":
-          return <span className="text-muted-foreground">{item.crmAccountNo || "-"}</span>;
-        case "crmAccountName":
-          return <span className="font-light">{item.crmAccountName}</span>;
-        case "crmAccountIndustry":
-          return item.crmAccountIndustry || "-";
-        case "crmAccountPhone":
-          return item.crmAccountPhone || "-";
-        case "crmAccountEmail":
-          return item.crmAccountEmail || "-";
-        case "crmAccountEmployees":
-          return item.crmAccountEmployees
-            ? Number(item.crmAccountEmployees).toLocaleString()
+        case "salesAccountNo":
+          return <span className="text-muted-foreground">{item.salesAccountNo || "-"}</span>;
+        case "salesAccountName":
+          return <span className="font-light">{item.salesAccountName}</span>;
+        case "salesAccountIndustry":
+          return item.salesAccountIndustry || "-";
+        case "salesAccountPhone":
+          return item.salesAccountPhone || "-";
+        case "salesAccountEmail":
+          return item.salesAccountEmail || "-";
+        case "salesAccountEmployees":
+          return item.salesAccountEmployees
+            ? Number(item.salesAccountEmployees).toLocaleString()
             : "-";
-        case "crmAccountAnnualRevenue":
-          return item.crmAccountAnnualRevenue
-            ? Number(item.crmAccountAnnualRevenue).toLocaleString("th-TH")
+        case "salesAccountAnnualRevenue":
+          return item.salesAccountAnnualRevenue
+            ? Number(item.salesAccountAnnualRevenue).toLocaleString("th-TH")
             : "-";
         case "isActive":
           return (
@@ -154,15 +154,15 @@ export default function AccountsView({
         data={accounts}
         renderCell={renderCell}
         enableCardView
-        rowKey="crmAccountId"
+        rowKey="salesAccountId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาบัญชี..."
         searchKeys={[
-          "crmAccountName",
-          "crmAccountIndustry",
-          "crmAccountEmail",
-          "crmAccountPhone",
+          "salesAccountName",
+          "salesAccountIndustry",
+          "salesAccountEmail",
+          "salesAccountPhone",
         ]}
         emptyContent="ไม่พบบัญชี"
         actionMenuItems={(item) =>
@@ -208,11 +208,11 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmAccountName}
-                    onChange={(e) => updateField("crmAccountName", e.target.value)}
+                    value={formData.salesAccountName}
+                    onChange={(e) => updateField("salesAccountName", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.crmAccountName}
-                    errorMessage={validationErrors?.crmAccountName}
+                    isInvalid={!!validationErrors?.salesAccountName}
+                    errorMessage={validationErrors?.salesAccountName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -223,10 +223,10 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.crmAccountIndustry ? [formData.crmAccountIndustry] : []}
+                    selectedKeys={formData.salesAccountIndustry ? [formData.salesAccountIndustry] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("crmAccountIndustry", val);
+                      updateField("salesAccountIndustry", val);
                     }}
                   >
                     <SelectItem key="technology">เทคโนโลยี</SelectItem>
@@ -247,8 +247,8 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmAccountWebsite}
-                    onChange={(e) => updateField("crmAccountWebsite", e.target.value)}
+                    value={formData.salesAccountWebsite}
+                    onChange={(e) => updateField("salesAccountWebsite", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -259,8 +259,8 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmAccountPhone}
-                    onChange={(e) => updateField("crmAccountPhone", e.target.value)}
+                    value={formData.salesAccountPhone}
+                    onChange={(e) => updateField("salesAccountPhone", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -271,8 +271,8 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmAccountEmail}
-                    onChange={(e) => updateField("crmAccountEmail", e.target.value)}
+                    value={formData.salesAccountEmail}
+                    onChange={(e) => updateField("salesAccountEmail", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -284,8 +284,8 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmAccountEmployees}
-                    onChange={(e) => updateField("crmAccountEmployees", e.target.value)}
+                    value={formData.salesAccountEmployees}
+                    onChange={(e) => updateField("salesAccountEmployees", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -297,8 +297,8 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmAccountAnnualRevenue}
-                    onChange={(e) => updateField("crmAccountAnnualRevenue", e.target.value)}
+                    value={formData.salesAccountAnnualRevenue}
+                    onChange={(e) => updateField("salesAccountAnnualRevenue", e.target.value)}
                   />
                 </div>
               </div>
@@ -310,8 +310,8 @@ export default function AccountsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.crmAccountAddress}
-                  onChange={(e) => updateField("crmAccountAddress", e.target.value)}
+                  value={formData.salesAccountAddress}
+                  onChange={(e) => updateField("salesAccountAddress", e.target.value)}
                 />
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -322,8 +322,8 @@ export default function AccountsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.crmAccountNotes}
-                  onChange={(e) => updateField("crmAccountNotes", e.target.value)}
+                  value={formData.salesAccountNotes}
+                  onChange={(e) => updateField("salesAccountNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function AccountsView({
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-light">
-                {deletingAccount?.crmAccountName}
+                {deletingAccount?.salesAccountName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

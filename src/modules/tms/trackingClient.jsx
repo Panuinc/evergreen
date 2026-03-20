@@ -25,7 +25,7 @@ export default function TrackingClient() {
 
     const gpsIdMap = {};
     for (const v of internalVehicles) {
-      if (v.tmsVehicleForthtrackId) gpsIdMap[v.tmsVehicleForthtrackId] = v;
+      if (v.tmsVehicleForthtrackRef) gpsIdMap[v.tmsVehicleForthtrackRef] = v;
     }
     const plateMap = {};
     for (const v of internalVehicles) {

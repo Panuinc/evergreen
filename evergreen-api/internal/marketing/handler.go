@@ -127,7 +127,7 @@ func (h *Handler) processIncomingMessage(r *http.Request, channelType, externalI
 		logger.Error("failed to upsert contact", "channelType", channelType, "externalID", externalID)
 		return
 	}
-	contactID, _ := contact["omContactId"].(string)
+	contactID, _ := contact["mktContactId"].(string)
 
 	// Find or create conversation
 	conv, err := h.store.FindActiveConversation(ctx, contactID, channelType)
@@ -137,7 +137,7 @@ func (h *Handler) processIncomingMessage(r *http.Request, channelType, externalI
 	if conv == nil {
 		return
 	}
-	convID, _ := conv["omConversationId"].(string)
+	convID, _ := conv["mktConversationId"].(string)
 
 	// Insert message
 	preview := text

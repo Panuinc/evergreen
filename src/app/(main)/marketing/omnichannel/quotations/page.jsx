@@ -1,8 +1,8 @@
 import { api } from "@/lib/api.server";
-import OmQuotationsClient from "@/modules/marketing/omQuotationsClient";
+import MktQuotationsClient from "@/modules/marketing/mktQuotationsClient";
 
 export default async function QuotationListPage() {
   const quotations = await api("/api/marketing/omnichannel/quotations");
 
-  return <OmQuotationsClient initialQuotations={quotations || []} />;
+  return <MktQuotationsClient initialQuotations={quotations || []} />;
 }

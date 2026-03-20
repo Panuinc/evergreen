@@ -47,7 +47,7 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 
 // columnMap maps Excel header names (case-insensitive) to DB column names.
 var columnMap = map[string]string{
-	"externalid":        "bciProjectExternalId",
+	"externalid":        "bciProjectExternalRef",
 	"name":              "bciProjectName",
 	"type":              "bciProjectType",
 	"description":       "bciProjectDescription",
@@ -61,7 +61,7 @@ var columnMap = map[string]string{
 	"stage":             "bciProjectStage",
 	"stagestatus":       "bciProjectStageStatus",
 	"category":          "bciProjectCategory",
-	"categoryid":        "bciProjectCategoryId",
+	"categoryid":        "bciProjectCategoryRef",
 	"subcategory":       "bciProjectSubCategory",
 	"ownercompany":      "bciProjectOwnerCompany",
 	"ownercontact":      "bciProjectOwnerContact",
@@ -147,7 +147,7 @@ func (h *Handler) ImportExcel(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Must have externalId
-		extID, ok := record["bciProjectExternalId"].(string)
+		extID, ok := record["bciProjectExternalRef"].(string)
 		if !ok || extID == "" {
 			errors++
 			continue

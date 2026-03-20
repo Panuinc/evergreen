@@ -289,10 +289,12 @@ func (s *SyncEngine) syncEntity(
 		case "entryNo":
 			if lastEntryNo != "" {
 				params["$filter"] = fmt.Sprintf("entryNo gt %s", lastEntryNo)
+				logger.Info("incremental filter", "entity", endpoint, "filter", params["$filter"])
 			}
 		case "timestamp":
 			if lastSync != "" {
 				params["$filter"] = fmt.Sprintf("lastModifiedDateTime gt %s", lastSync)
+				logger.Info("incremental filter", "entity", endpoint, "filter", params["$filter"])
 			}
 		}
 	}

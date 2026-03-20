@@ -190,7 +190,7 @@ func buildURL(base, endpoint string, params map[string]string) string {
 
 	for k, v := range params {
 		if strings.HasPrefix(k, "$") {
-			odataParts = append(odataParts, k+"="+v)
+			odataParts = append(odataParts, k+"="+url.QueryEscape(v))
 		} else {
 			queryParts = append(queryParts, k+"="+url.QueryEscape(v))
 		}

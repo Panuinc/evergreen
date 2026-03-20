@@ -75,7 +75,7 @@ export default function QuotationEditorView({
     );
   }
 
-  const status = quotation.crmQuotationStatus || "draft";
+  const status = quotation.salesQuotationStatus || "draft";
   const statusColor = statusColorMap[status] || "default";
   const canEdit = ["draft", "rejected"].includes(status);
   const canSubmit = canEdit;
@@ -97,7 +97,7 @@ export default function QuotationEditorView({
             <ArrowLeft />
           </Button>
           <p className="text-xs font-light">
-            {quotation.crmQuotationNo || "ใบเสนอราคาใหม่"}
+            {quotation.salesQuotationNo || "ใบเสนอราคาใหม่"}
           </p>
           <Chip variant="flat" size="md" radius="md" color={statusColor}>
             {status}
@@ -178,9 +178,9 @@ export default function QuotationEditorView({
                 variant="bordered"
                 size="md"
                 radius="md"
-                value={quotation.crmQuotationValidUntil || ""}
+                value={quotation.salesQuotationValidUntil || ""}
                 onChange={(e) =>
-                  updateQuotationField("crmQuotationValidUntil", e.target.value)
+                  updateQuotationField("salesQuotationValidUntil", e.target.value)
                 }
                 isReadOnly={!canEdit}
               />
@@ -193,9 +193,9 @@ export default function QuotationEditorView({
                 variant="bordered"
                 size="md"
                 radius="md"
-                value={quotation.crmQuotationContactId || ""}
+                value={quotation.salesQuotationContactId || ""}
                 onChange={(e) =>
-                  updateQuotationField("crmQuotationContactId", e.target.value)
+                  updateQuotationField("salesQuotationContactId", e.target.value)
                 }
                 isReadOnly={!canEdit}
               />
@@ -208,9 +208,9 @@ export default function QuotationEditorView({
                 variant="bordered"
                 size="md"
                 radius="md"
-                value={quotation.crmQuotationAccountId || ""}
+                value={quotation.salesQuotationAccountId || ""}
                 onChange={(e) =>
-                  updateQuotationField("crmQuotationAccountId", e.target.value)
+                  updateQuotationField("salesQuotationAccountId", e.target.value)
                 }
                 isReadOnly={!canEdit}
               />
@@ -248,13 +248,13 @@ export default function QuotationEditorView({
                           variant="bordered"
                           size="md"
                           radius="md"
-                          value={line.crmQuotationLineProductName || ""}
+                          value={line.salesQuotationLineProductName || ""}
                           onChange={(e) =>
-                            updateLine(index, "crmQuotationLineProductName", e.target.value)
+                            updateLine(index, "salesQuotationLineProductName", e.target.value)
                           }
                         />
                       ) : (
-                        line.crmQuotationLineProductName || "-"
+                        line.salesQuotationLineProductName || "-"
                       )}
                     </td>
                     <td className="p-2">
@@ -263,13 +263,13 @@ export default function QuotationEditorView({
                           variant="bordered"
                           size="md"
                           radius="md"
-                          value={line.crmQuotationLineDescription || ""}
+                          value={line.salesQuotationLineDescription || ""}
                           onChange={(e) =>
-                            updateLine(index, "crmQuotationLineDescription", e.target.value)
+                            updateLine(index, "salesQuotationLineDescription", e.target.value)
                           }
                         />
                       ) : (
-                        line.crmQuotationLineDescription || "-"
+                        line.salesQuotationLineDescription || "-"
                       )}
                     </td>
                     <td className="p-2">
@@ -280,18 +280,18 @@ export default function QuotationEditorView({
                           radius="md"
                           type="number"
                           classNames={{ input: "text-right" }}
-                          value={String(line.crmQuotationLineQuantity || "")}
+                          value={String(line.salesQuotationLineQuantity || "")}
                           onChange={(e) =>
                             updateLine(
                               index,
-                              "crmQuotationLineQuantity",
+                              "salesQuotationLineQuantity",
                               Number(e.target.value) || 0,
                             )
                           }
                         />
                       ) : (
                         <span className="block text-right">
-                          {line.crmQuotationLineQuantity}
+                          {line.salesQuotationLineQuantity}
                         </span>
                       )}
                     </td>
@@ -303,18 +303,18 @@ export default function QuotationEditorView({
                           radius="md"
                           type="number"
                           classNames={{ input: "text-right" }}
-                          value={String(line.crmQuotationLineUnitPrice || "")}
+                          value={String(line.salesQuotationLineUnitPrice || "")}
                           onChange={(e) =>
                             updateLine(
                               index,
-                              "crmQuotationLineUnitPrice",
+                              "salesQuotationLineUnitPrice",
                               Number(e.target.value) || 0,
                             )
                           }
                         />
                       ) : (
                         <span className="block text-right">
-                          {(line.crmQuotationLineUnitPrice || 0).toLocaleString("th-TH", {
+                          {(line.salesQuotationLineUnitPrice || 0).toLocaleString("th-TH", {
                             minimumFractionDigits: 2,
                           })}
                         </span>
@@ -328,18 +328,18 @@ export default function QuotationEditorView({
                           radius="md"
                           type="number"
                           classNames={{ input: "text-right" }}
-                          value={String(line.crmQuotationLineDiscount || "")}
+                          value={String(line.salesQuotationLineDiscount || "")}
                           onChange={(e) =>
                             updateLine(
                               index,
-                              "crmQuotationLineDiscount",
+                              "salesQuotationLineDiscount",
                               Number(e.target.value) || 0,
                             )
                           }
                         />
                       ) : (
                         <span className="block text-right">
-                          {(line.crmQuotationLineDiscount || 0).toLocaleString("th-TH", {
+                          {(line.salesQuotationLineDiscount || 0).toLocaleString("th-TH", {
                             minimumFractionDigits: 2,
                           })}
                         </span>
@@ -347,7 +347,7 @@ export default function QuotationEditorView({
                     </td>
                     <td className="p-2">
                       <span className="block text-right font-light">
-                        {(line.crmQuotationLineAmount || 0).toLocaleString("th-TH", {
+                        {(line.salesQuotationLineAmount || 0).toLocaleString("th-TH", {
                           minimumFractionDigits: 2,
                         })}
                       </span>
@@ -450,8 +450,8 @@ export default function QuotationEditorView({
               size="md"
               minRows={2}
               placeholder="ใส่หมายเหตุ..."
-              value={quotation.crmQuotationNotes || ""}
-              onValueChange={(v) => updateQuotationField("crmQuotationNotes", v)}
+              value={quotation.salesQuotationNotes || ""}
+              onValueChange={(v) => updateQuotationField("salesQuotationNotes", v)}
               isReadOnly={!canEdit}
             />
             <Textarea
@@ -462,20 +462,20 @@ export default function QuotationEditorView({
               size="md"
               minRows={2}
               placeholder="ใส่เงื่อนไข..."
-              value={quotation.crmQuotationTerms || ""}
-              onValueChange={(v) => updateQuotationField("crmQuotationTerms", v)}
+              value={quotation.salesQuotationTerms || ""}
+              onValueChange={(v) => updateQuotationField("salesQuotationTerms", v)}
               isReadOnly={!canEdit}
             />
           </div>
         </Card>
 
         {}
-        {quotation.crmQuotationApprovalNote && (
+        {quotation.salesQuotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
             <p className="text-xs font-light text-danger mb-1">
               หมายเหตุการปฏิเสธ:
             </p>
-            <p className="text-xs">{quotation.crmQuotationApprovalNote}</p>
+            <p className="text-xs">{quotation.salesQuotationApprovalNote}</p>
           </div>
         )}
       </div>

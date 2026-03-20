@@ -8,15 +8,15 @@ import { validateForm, isRequired } from "@/lib/validation";
 import ContactsView from "@/modules/sales/components/contactsView";
 
 const emptyForm = {
-  crmContactFirstName: "",
-  crmContactLastName: "",
-  crmContactEmail: "",
-  crmContactPhone: "",
-  crmContactPosition: "",
-  crmContactAccountId: "",
-  crmContactAddress: "",
-  crmContactTags: "",
-  crmContactNotes: "",
+  salesContactFirstName: "",
+  salesContactLastName: "",
+  salesContactEmail: "",
+  salesContactPhone: "",
+  salesContactPosition: "",
+  salesContactAccountId: "",
+  salesContactAddress: "",
+  salesContactTags: "",
+  salesContactNotes: "",
 };
 
 export default function ContactsClient({ initialContacts }) {
@@ -41,15 +41,15 @@ export default function ContactsClient({ initialContacts }) {
     if (contact) {
       setEditingContact(contact);
       setFormData({
-        crmContactFirstName: contact.crmContactFirstName || "",
-        crmContactLastName: contact.crmContactLastName || "",
-        crmContactEmail: contact.crmContactEmail || "",
-        crmContactPhone: contact.crmContactPhone || "",
-        crmContactPosition: contact.crmContactPosition || "",
-        crmContactAccountId: contact.crmContactAccountId || "",
-        crmContactAddress: contact.crmContactAddress || "",
-        crmContactTags: contact.crmContactTags || "",
-        crmContactNotes: contact.crmContactNotes || "",
+        salesContactFirstName: contact.salesContactFirstName || "",
+        salesContactLastName: contact.salesContactLastName || "",
+        salesContactEmail: contact.salesContactEmail || "",
+        salesContactPhone: contact.salesContactPhone || "",
+        salesContactPosition: contact.salesContactPosition || "",
+        salesContactAccountId: contact.salesContactAccountId || "",
+        salesContactAddress: contact.salesContactAddress || "",
+        salesContactTags: contact.salesContactTags || "",
+        salesContactNotes: contact.salesContactNotes || "",
       });
     } else {
       setEditingContact(null);
@@ -61,7 +61,7 @@ export default function ContactsClient({ initialContacts }) {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      crmContactFirstName: [(v) => !isRequired(v) && "กรุณาระบุชื่อ"],
+      salesContactFirstName: [(v) => !isRequired(v) && "กรุณาระบุชื่อ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -73,10 +73,10 @@ export default function ContactsClient({ initialContacts }) {
     try {
       setSaving(true);
       const payload = { ...formData };
-      if (!payload.crmContactAccountId) delete payload.crmContactAccountId;
+      if (!payload.salesContactAccountId) delete payload.salesContactAccountId;
 
       if (editingContact) {
-        await put(`/api/sales/contacts/${editingContact.crmContactId}`, payload);
+        await put(`/api/sales/contacts/${editingContact.salesContactId}`, payload);
         toast.success("อัปเดตผู้ติดต่อสำเร็จ");
       } else {
         await post("/api/sales/contacts", payload);
@@ -99,7 +99,7 @@ export default function ContactsClient({ initialContacts }) {
   const handleDelete = async () => {
     if (!deletingContact) return;
     try {
-      await del(`/api/sales/contacts/${deletingContact.crmContactId}`);
+      await del(`/api/sales/contacts/${deletingContact.salesContactId}`);
       toast.success("ลบผู้ติดต่อสำเร็จ");
       deleteModal.onClose();
       setDeletingContact(null);
@@ -111,7 +111,7 @@ export default function ContactsClient({ initialContacts }) {
 
   const toggleActive = async (item) => {
     try {
-      await put(`/api/sales/contacts/${item.crmContactId}`, { isActive: !item.isActive });
+      await put(`/api/sales/contacts/${item.salesContactId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       reloadContacts();
     } catch {

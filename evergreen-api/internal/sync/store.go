@@ -29,7 +29,7 @@ type VehicleMapping struct {
 
 // GetActiveVehicles returns all active vehicles with their tracking identifiers.
 func (s *Store) GetActiveVehicles(ctx context.Context) ([]VehicleMapping, error) {
-	rows, err := s.pool.Query(ctx, `SELECT "tmsVehicleId","tmsVehicleForthtrackId","tmsVehiclePlateNumber" FROM "tmsVehicle" WHERE "isActive"=true`)
+	rows, err := s.pool.Query(ctx, `SELECT "tmsVehicleId","tmsVehicleForthtrackRef","tmsVehiclePlateNumber" FROM "tmsVehicle" WHERE "isActive"=true`)
 	if err != nil {
 		return nil, err
 	}
@@ -58,9 +58,9 @@ func (s *Store) GetActiveVehicles(ctx context.Context) ([]VehicleMapping, error)
 func (s *Store) UpsertGpsLog(ctx context.Context, vehicleID string, lat, lng, speed float64, engine, driver, address, fuel, gpsID any) error {
 	_, err := s.pool.Exec(ctx, `
 		INSERT INTO "tmsGpsLog" ("tmsGpsLogVehicleId","tmsGpsLogLatitude","tmsGpsLogLongitude","tmsGpsLogSpeed",
-			"tmsGpsLogEngine","tmsGpsLogDriver","tmsGpsLogAddress","tmsGpsLogFuel","tmsGpsLogForthtrackId","tmsGpsLogSource","tmsGpsLogRecordedAt")
+			"tmsGpsLogEngine","tmsGpsLogDriver","tmsGpsLogAddress","tmsGpsLogFuel","tmsGpsLogForthtrackRef","tmsGpsLogSource","tmsGpsLogRecordedAt")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'forthtrack',now())
-		ON CONFLICT ("tmsGpsLogForthtrackId","tmsGpsLogRecordedAt") DO NOTHING
+		ON CONFLICT ("tmsGpsLogForthtrackRef","tmsGpsLogRecordedAt") DO NOTHING
 	`, vehicleID, lat, lng, speed, engine, driver, address, fuel, gpsID)
 	return err
 }
@@ -71,7 +71,7 @@ func (s *Store) UpsertGpsLog(ctx context.Context, vehicleID string, lat, lng, sp
 func (s *Store) GetSyncState(ctx context.Context, key string) (string, error) {
 	var val *string
 	err := s.pool.QueryRow(ctx,
-		`SELECT "value" FROM "bcSyncState" WHERE "key" = $1`, key,
+		`SELECT "bcSyncStateValue" FROM "bcSyncState" WHERE "bcSyncStateKey" = $1`, key,
 	).Scan(&val)
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -88,9 +88,9 @@ func (s *Store) GetSyncState(ctx context.Context, key string) (string, error) {
 // SetSyncState upserts a sync state key-value pair.
 func (s *Store) SetSyncState(ctx context.Context, key, value string) error {
 	_, err := s.pool.Exec(ctx,
-		`INSERT INTO "bcSyncState" ("key", "value", "updatedAt")
+		`INSERT INTO "bcSyncState" ("bcSyncStateKey", "bcSyncStateValue", "bcSyncStateUpdatedAt")
 		 VALUES ($1, $2, $3)
-		 ON CONFLICT ("key") DO UPDATE SET "value" = EXCLUDED."value", "updatedAt" = EXCLUDED."updatedAt"`,
+		 ON CONFLICT ("bcSyncStateKey") DO UPDATE SET "bcSyncStateValue" = EXCLUDED."bcSyncStateValue", "bcSyncStateUpdatedAt" = EXCLUDED."bcSyncStateUpdatedAt"`,
 		key, value, time.Now().UTC().Format(time.RFC3339),
 	)
 	return err

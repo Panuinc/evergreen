@@ -22,29 +22,29 @@ func NewStore(pool *pgxpool.Pool) *Store {
 
 func (s *Store) UpsertContact(ctx context.Context, channelType, externalID string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "omContact" ("omContactChannelType","omContactExternalId","omContactDisplayName")
+		INSERT INTO "mktContact" ("mktContactChannelType","mktContactExternalRef","mktContactDisplayName")
 		VALUES ($1,$2,$2)
-		ON CONFLICT ("omContactChannelType","omContactExternalId") DO UPDATE SET "omContactDisplayName"=EXCLUDED."omContactDisplayName"
+		ON CONFLICT ("mktContactChannelType","mktContactExternalRef") DO UPDATE SET "mktContactDisplayName"=EXCLUDED."mktContactDisplayName"
 		RETURNING *
 	`, channelType, externalID)
 }
 
 func (s *Store) FindActiveConversation(ctx context.Context, contactID, channelType string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		SELECT * FROM "omConversation" WHERE "omConversationContactId"=$1 AND "omConversationChannelType"=$2 AND "isActive"=true LIMIT 1
+		SELECT * FROM "mktConversation" WHERE "mktConversationContactId"=$1 AND "mktConversationChannelType"=$2 AND "isActive"=true LIMIT 1
 	`, contactID, channelType)
 }
 
 func (s *Store) CreateConversation(ctx context.Context, contactID, channelType string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "omConversation" ("omConversationContactId","omConversationChannelType","omConversationStatus","omConversationAiAutoReply")
+		INSERT INTO "mktConversation" ("mktConversationContactId","mktConversationChannelType","mktConversationStatus","mktConversationAiAutoReply")
 		VALUES ($1,$2,'open',true) RETURNING *
 	`, contactID, channelType)
 }
 
 func (s *Store) InsertIncomingMessage(ctx context.Context, convID, senderID, text, externalMsgID string) {
 	_, err := s.pool.Exec(ctx, `
-		INSERT INTO "omMessage" ("omMessageConversationId","omMessageSenderType","omMessageSenderId","omMessageContent","omMessageType","omMessageExternalId")
+		INSERT INTO "mktMessage" ("mktMessageConversationId","mktMessageSenderType","mktMessageSenderRef","mktMessageContent","mktMessageType","mktMessageExternalRef")
 		VALUES ($1,'customer',$2,$3,'text',$4)
 	`, convID, senderID, text, externalMsgID)
 	if err != nil {
@@ -54,9 +54,9 @@ func (s *Store) InsertIncomingMessage(ctx context.Context, convID, senderID, tex
 
 func (s *Store) UpdateConversationOnIncoming(ctx context.Context, convID, preview string) {
 	s.pool.Exec(ctx, `
-		UPDATE "omConversation" SET "omConversationLastMessageAt"=now(),"omConversationLastMessagePreview"=$2,
-			"omConversationUnreadCount"=COALESCE("omConversationUnreadCount",0)+1,"omConversationStatus"='open'
-		WHERE "omConversationId"=$1
+		UPDATE "mktConversation" SET "mktConversationLastMessageAt"=now(),"mktConversationLastMessagePreview"=$2,
+			"mktConversationUnreadCount"=COALESCE("mktConversationUnreadCount",0)+1,"mktConversationStatus"='open'
+		WHERE "mktConversationId"=$1
 	`, convID, preview)
 }
 

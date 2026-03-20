@@ -12,7 +12,7 @@ export default function ResourcesClient({ initialResources }) {
   const [editingResource, setEditingResource] = useState(null);
   const [formData, setFormData] = useState({
     rbacResourceName: "",
-    rbacResourceModuleId: "",
+    rbacResourceModuleRef: "",
     rbacResourceDescription: "",
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -34,14 +34,14 @@ export default function ResourcesClient({ initialResources }) {
       setEditingResource(resource);
       setFormData({
         rbacResourceName: resource.rbacResourceName,
-        rbacResourceModuleId: resource.rbacResourceModuleId || "",
+        rbacResourceModuleRef: resource.rbacResourceModuleRef || "",
         rbacResourceDescription: resource.rbacResourceDescription || "",
       });
     } else {
       setEditingResource(null);
       setFormData({
         rbacResourceName: "",
-        rbacResourceModuleId: "",
+        rbacResourceModuleRef: "",
         rbacResourceDescription: "",
       });
     }

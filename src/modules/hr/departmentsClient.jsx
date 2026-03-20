@@ -24,7 +24,7 @@ import { post, put, del } from "@/lib/apiClient";
 
 const baseColumns = [
   { name: "ชื่อ", uid: "hrDepartmentName", sortable: true },
-  { name: "ฝ่าย", uid: "hrDepartmentDivision", sortable: true },
+  { name: "ฝ่าย", uid: "hrDepartmentHrDivisionId", sortable: true },
   { name: "รายละเอียด", uid: "hrDepartmentDescription" },
   { name: "วันที่สร้าง", uid: "hrDepartmentCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
@@ -32,7 +32,7 @@ const baseColumns = [
 
 const baseVisibleColumns = [
   "hrDepartmentName",
-  "hrDepartmentDivision",
+  "hrDepartmentHrDivisionId",
   "hrDepartmentDescription",
   "hrDepartmentCreatedAt",
   "actions",
@@ -41,7 +41,7 @@ const baseVisibleColumns = [
 const emptyForm = {
   hrDepartmentName: "",
   hrDepartmentDescription: "",
-  hrDepartmentDivision: "",
+  hrDepartmentHrDivisionId: "",
 };
 
 export default function DepartmentsClient({ initialDepartments, initialDivisions }) {
@@ -69,7 +69,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
       setFormData({
         hrDepartmentName: dept.hrDepartmentName || "",
         hrDepartmentDescription: dept.hrDepartmentDescription || "",
-        hrDepartmentDivision: dept.hrDepartmentDivision || "",
+        hrDepartmentHrDivisionId: dept.hrDepartmentHrDivisionId || "",
       });
     } else {
       setEditingDept(null);
@@ -153,8 +153,10 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
       switch (columnKey) {
         case "hrDepartmentName":
           return <span className="font-light">{dept.hrDepartmentName}</span>;
-        case "hrDepartmentDivision":
-          return dept.hrDepartmentDivision || "-";
+        case "hrDepartmentHrDivisionId": {
+          const div = divisions.find((d) => d.hrDivisionId === dept.hrDepartmentHrDivisionId);
+          return div ? div.hrDivisionName : "-";
+        }
         case "hrDepartmentDescription":
           return (
             <span className="text-muted-foreground">
@@ -226,7 +228,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
         rowKey="hrDepartmentId"
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, ฝ่าย, รายละเอียด..."
-        searchKeys={["hrDepartmentName", "hrDepartmentDivision", "hrDepartmentDescription"]}
+        searchKeys={["hrDepartmentName", "hrDepartmentDescription"]}
         emptyContent="ไม่พบแผนก"
         topEndContent={
           <Button
@@ -263,17 +265,17 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
                   size="md"
                   radius="md"
                   selectedKeys={
-                    formData.hrDepartmentDivision
-                      ? [formData.hrDepartmentDivision]
+                    formData.hrDepartmentHrDivisionId
+                      ? [formData.hrDepartmentHrDivisionId]
                       : []
                   }
                   onSelectionChange={(keys) => {
                     const val = Array.from(keys)[0] || "";
-                    setFormData({ ...formData, hrDepartmentDivision: val });
+                    setFormData({ ...formData, hrDepartmentHrDivisionId: val });
                   }}
                 >
                   {divisions.map((div) => (
-                    <SelectItem key={div.hrDivisionName}>
+                    <SelectItem key={div.hrDivisionId}>
                       {div.hrDivisionName}
                     </SelectItem>
                   ))}

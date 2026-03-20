@@ -83,8 +83,8 @@ export default function ChatWindow({
     }
   }, [messages]);
 
-  const contact = conversation?.omContact;
-  const isClosed = conversation?.omConversationStatus === "closed";
+  const contact = conversation?.mktContact;
+  const isClosed = conversation?.mktConversationStatus === "closed";
 
   return (
     <div className="flex flex-col h-full min-w-0 overflow-hidden">
@@ -98,15 +98,15 @@ export default function ChatWindow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="font-light truncate text-sm">
-              {contact?.omContactDisplayName || "ไม่ทราบ"}
+              {contact?.mktContactDisplayName || "ไม่ทราบ"}
             </span>
-            <ChannelBadge channelType={conversation?.omConversationChannelType} />
+            <ChannelBadge channelType={conversation?.mktConversationChannelType} />
             <Chip
               size="sm"
-              color={statusColors[conversation?.omConversationStatus] || "default"}
+              color={statusColors[conversation?.mktConversationStatus] || "default"}
               variant="flat"
             >
-              {conversation?.omConversationStatus}
+              {conversation?.mktConversationStatus}
             </Chip>
           </div>
         </div>
@@ -117,8 +117,8 @@ export default function ChatWindow({
               <Switch
                 size="sm"
                 color="secondary"
-                isSelected={conversation?.omConversationAiAutoReply || false}
-                onValueChange={(val) => onToggleAiAutoReply(conversation.omConversationId, val)}
+                isSelected={conversation?.mktConversationAiAutoReply || false}
+                onValueChange={(val) => onToggleAiAutoReply(conversation.mktConversationId, val)}
               />
             </div>
           </Tooltip>
@@ -140,7 +140,7 @@ export default function ChatWindow({
               size="sm"
               radius="md"
               className="md:hidden"
-              onPress={() => onUpdateStatus(conversation.omConversationId, "open")}
+              onPress={() => onUpdateStatus(conversation.mktConversationId, "open")}
             >
               <RotateCcw size={16} />
             </Button>
@@ -152,7 +152,7 @@ export default function ChatWindow({
               radius="md"
               color="danger"
               className="md:hidden"
-              onPress={() => onUpdateStatus(conversation.omConversationId, "closed")}
+              onPress={() => onUpdateStatus(conversation.mktConversationId, "closed")}
             >
               <CloseIcon size={16} />
             </Button>
@@ -163,7 +163,7 @@ export default function ChatWindow({
               variant="flat"
               radius="md"
               startContent={<RotateCcw size={14} />}
-              onPress={() => onUpdateStatus(conversation.omConversationId, "open")}
+              onPress={() => onUpdateStatus(conversation.mktConversationId, "open")}
               className="hidden md:flex"
             >
               เปิดอีกครั้ง
@@ -175,7 +175,7 @@ export default function ChatWindow({
               radius="md"
               color="danger"
               startContent={<CloseIcon size={14} />}
-              onPress={() => onUpdateStatus(conversation.omConversationId, "closed")}
+              onPress={() => onUpdateStatus(conversation.mktConversationId, "closed")}
               className="hidden md:flex"
             >
               ปิด
@@ -216,45 +216,45 @@ export default function ChatWindow({
           <div className="flex flex-col gap-3">
             {messages.map((msg) => (
               <div
-                key={msg.omMessageId}
-                className={`flex ${msg.omMessageSenderType === "agent" ? "justify-end" : "justify-start"}`}
+                key={msg.mktMessageId}
+                className={`flex ${msg.mktMessageSenderType === "agent" ? "justify-end" : "justify-start"}`}
               >
                 <div
                   className={`max-w-[85%] md:max-w-[75%] px-3 py-2 rounded-xl text-xs overflow-hidden break-words ${
-                    msg.omMessageSenderType === "agent"
-                      ? msg.omMessageIsAi
+                    msg.mktMessageSenderType === "agent"
+                      ? msg.mktMessageIsAi
                         ? "bg-secondary text-secondary-foreground"
                         : "bg-primary text-primary-foreground"
                       : "bg-default-100"
                   }`}
                 >
-                  {msg.omMessageIsAi && (
+                  {msg.mktMessageIsAi && (
                     <div className="flex items-center gap-1 mb-1 text-xs opacity-70">
                       <Sparkles />
                       <span>AI</span>
                     </div>
                   )}
-                  {msg.omMessageType === "file" && msg.omMessageImageUrl ? (
+                  {msg.mktMessageType === "file" && msg.mktMessageImageUrl ? (
                     <a
-                      href={msg.omMessageImageUrl}
+                      href={msg.mktMessageImageUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-default-50 border border-border hover:bg-default-100 transition-colors"
                     >
                       <FileText size={20} className="text-primary shrink-0" />
                       <span className="text-sm truncate max-w-[200px]">
-                        {msg.omMessageContent && msg.omMessageContent !== "[file]"
-                          ? msg.omMessageContent
+                        {msg.mktMessageContent && msg.mktMessageContent !== "[file]"
+                          ? msg.mktMessageContent
                           : "ไฟล์แนบ"}
                       </span>
                       <FileDown size={16} className="text-default-400 shrink-0 ml-auto" />
                     </a>
-                  ) : msg.omMessageType === "image" && msg.omMessageImageUrl ? (
+                  ) : msg.mktMessageType === "image" && msg.mktMessageImageUrl ? (
                     <div className="space-y-2">
-                      <a href={msg.omMessageImageUrl} target="_blank" rel="noopener noreferrer">
+                      <a href={msg.mktMessageImageUrl} target="_blank" rel="noopener noreferrer">
                         <div className="relative max-w-full" style={{ maxHeight: 300 }}>
                           <Image
-                            src={msg.omMessageImageUrl}
+                            src={msg.mktMessageImageUrl}
                             alt="รูปภาพ"
                             width={0}
                             height={0}
@@ -264,58 +264,58 @@ export default function ChatWindow({
                           />
                         </div>
                       </a>
-                      {msg.omMessageOcrData && (
+                      {msg.mktMessageOcrData && (
                         <div className="bg-default-50 rounded-lg p-2 text-xs space-y-1 border border-border">
                           <div className="flex items-center gap-1 font-light text-foreground mb-1">
                             <Receipt />
                             <span>ข้อมูลสลิป</span>
                           </div>
-                          {msg.omMessageOcrData.amount && (
+                          {msg.mktMessageOcrData.amount && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">ยอดเงิน</span>
-                              <span className="font-light">{Number(msg.omMessageOcrData.amount).toLocaleString()} บาท</span>
+                              <span className="font-light">{Number(msg.mktMessageOcrData.amount).toLocaleString()} บาท</span>
                             </div>
                           )}
-                          {msg.omMessageOcrData.fromBank && (
+                          {msg.mktMessageOcrData.fromBank && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">จาก</span>
-                              <span>{msg.omMessageOcrData.fromBank}</span>
+                              <span>{msg.mktMessageOcrData.fromBank}</span>
                             </div>
                           )}
-                          {msg.omMessageOcrData.toBank && (
+                          {msg.mktMessageOcrData.toBank && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">ไปยัง</span>
-                              <span>{msg.omMessageOcrData.toBank}</span>
+                              <span>{msg.mktMessageOcrData.toBank}</span>
                             </div>
                           )}
-                          {msg.omMessageOcrData.datetime && (
+                          {msg.mktMessageOcrData.datetime && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">วันเวลา</span>
-                              <span>{msg.omMessageOcrData.datetime}</span>
+                              <span>{msg.mktMessageOcrData.datetime}</span>
                             </div>
                           )}
-                          {msg.omMessageOcrData.reference && (
+                          {msg.mktMessageOcrData.reference && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">อ้างอิง</span>
-                              <span>{msg.omMessageOcrData.reference}</span>
+                              <span>{msg.mktMessageOcrData.reference}</span>
                             </div>
                           )}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <p className="whitespace-pre-wrap break-words">{renderMessageContent(msg.omMessageContent)}</p>
+                    <p className="whitespace-pre-wrap break-words">{renderMessageContent(msg.mktMessageContent)}</p>
                   )}
                   <p
                     className={`text-xs mt-1 ${
-                      msg.omMessageSenderType === "agent"
-                        ? msg.omMessageIsAi
+                      msg.mktMessageSenderType === "agent"
+                        ? msg.mktMessageIsAi
                           ? "text-secondary-foreground/70"
                           : "text-primary-foreground/70"
                         : "text-muted-foreground"
                     }`}
                   >
-                    {formatMessageTime(msg.omMessageCreatedAt)}
+                    {formatMessageTime(msg.mktMessageCreatedAt)}
                   </p>
                 </div>
               </div>
@@ -339,7 +339,7 @@ export default function ChatWindow({
         <ModalContent>
           <ModalHeader>ยืนยันการลบ</ModalHeader>
           <ModalBody>
-            <p>ต้องการลบการสนทนากับ <strong>{contact?.omContactDisplayName || "ไม่ทราบ"}</strong> หรือไม่?</p>
+            <p>ต้องการลบการสนทนากับ <strong>{contact?.mktContactDisplayName || "ไม่ทราบ"}</strong> หรือไม่?</p>
             <p className="text-xs text-muted-foreground">ข้อความทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้</p>
           </ModalBody>
           <ModalFooter>
@@ -351,7 +351,7 @@ export default function ChatWindow({
               size="md"
               radius="md"
               onPress={() => {
-                onDelete(conversation.omConversationId);
+                onDelete(conversation.mktConversationId);
                 deleteModal.onClose();
               }}
             >

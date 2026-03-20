@@ -26,15 +26,15 @@ const kanbanStages = [
 ];
 
 const baseColumns = [
-  { name: "เลขที่", uid: "crmOpportunityNo", sortable: true },
-  { name: "ชื่อ", uid: "crmOpportunityName", sortable: true },
+  { name: "เลขที่", uid: "salesOpportunityNo", sortable: true },
+  { name: "ชื่อ", uid: "salesOpportunityName", sortable: true },
   { name: "ผู้ติดต่อ", uid: "contact" },
   { name: "บัญชี", uid: "account" },
-  { name: "ขั้นตอน", uid: "crmOpportunityStage" },
-  { name: "มูลค่า", uid: "crmOpportunityAmount" },
-  { name: "ความน่าจะเป็น", uid: "crmOpportunityProbability" },
+  { name: "ขั้นตอน", uid: "salesOpportunityStage" },
+  { name: "มูลค่า", uid: "salesOpportunityAmount" },
+  { name: "ความน่าจะเป็น", uid: "salesOpportunityProbability" },
   { name: "มูลค่าถ่วงน้ำหนัก", uid: "weightedValue" },
-  { name: "คาดว่าปิดเมื่อ", uid: "crmOpportunityExpectedCloseDate" },
+  { name: "คาดว่าปิดเมื่อ", uid: "salesOpportunityExpectedCloseDate" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -48,12 +48,12 @@ const statusOptions = [
 ];
 
 const baseVisibleColumns = [
-  "crmOpportunityNo",
-  "crmOpportunityName",
+  "salesOpportunityNo",
+  "salesOpportunityName",
   "contact",
-  "crmOpportunityStage",
-  "crmOpportunityAmount",
-  "crmOpportunityProbability",
+  "salesOpportunityStage",
+  "salesOpportunityAmount",
+  "salesOpportunityProbability",
   "actions",
 ];
 
@@ -106,23 +106,23 @@ export default function OpportunitiesView({
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "crmOpportunityNo":
+        case "salesOpportunityNo":
           return (
             <span className="text-muted-foreground">
-              {item.crmOpportunityNo || "-"}
+              {item.salesOpportunityNo || "-"}
             </span>
           );
-        case "crmOpportunityName":
+        case "salesOpportunityName":
           return (
-            <span className="font-light">{item.crmOpportunityName}</span>
+            <span className="font-light">{item.salesOpportunityName}</span>
           );
         case "contact":
-          return item.crmContact
-            ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
+          return item.salesContact
+            ? `${item.salesContact.salesContactFirstName} ${item.salesContact.salesContactLastName}`
             : "-";
         case "account":
-          return item.salesAccount?.crmAccountName || "-";
-        case "crmOpportunityStage": {
+          return item.salesAccount?.salesAccountName || "-";
+        case "salesOpportunityStage": {
           const colorMap = {
             prospecting: "default",
             qualification: "primary",
@@ -136,28 +136,28 @@ export default function OpportunitiesView({
               variant="flat"
               size="md"
               radius="md"
-              color={colorMap[item.crmOpportunityStage] || "default"}
+              color={colorMap[item.salesOpportunityStage] || "default"}
             >
-              {item.crmOpportunityStage}
+              {item.salesOpportunityStage}
             </Chip>
           );
         }
-        case "crmOpportunityAmount":
-          return item.crmOpportunityAmount
-            ? `฿${Number(item.crmOpportunityAmount).toLocaleString()}`
+        case "salesOpportunityAmount":
+          return item.salesOpportunityAmount
+            ? `฿${Number(item.salesOpportunityAmount).toLocaleString()}`
             : "-";
-        case "crmOpportunityProbability":
-          return item.crmOpportunityProbability != null
-            ? `${item.crmOpportunityProbability}%`
+        case "salesOpportunityProbability":
+          return item.salesOpportunityProbability != null
+            ? `${item.salesOpportunityProbability}%`
             : "-";
         case "weightedValue": {
-          const amount = Number(item.crmOpportunityAmount) || 0;
-          const probability = Number(item.crmOpportunityProbability) || 0;
+          const amount = Number(item.salesOpportunityAmount) || 0;
+          const probability = Number(item.salesOpportunityProbability) || 0;
           const weighted = (amount * probability) / 100;
           return `฿${weighted.toLocaleString()}`;
         }
-        case "crmOpportunityExpectedCloseDate":
-          return item.crmOpportunityExpectedCloseDate || "-";
+        case "salesOpportunityExpectedCloseDate":
+          return item.salesOpportunityExpectedCloseDate || "-";
         case "isActive":
           return (
             <Chip
@@ -215,12 +215,12 @@ export default function OpportunitiesView({
           data={opportunities}
           renderCell={renderCell}
           enableCardView
-          rowKey="crmOpportunityId"
+          rowKey="salesOpportunityId"
           isLoading={loading}
           initialVisibleColumns={initialVisibleColumns}
           searchPlaceholder="ค้นหาโอกาสขาย..."
-          searchKeys={["crmOpportunityName", "crmOpportunityAssignedTo"]}
-          statusField="crmOpportunityStage"
+          searchKeys={["salesOpportunityName", "salesOpportunityAssignedTo"]}
+          statusField="salesOpportunityStage"
           statusOptions={statusOptions}
           emptyContent="ไม่พบโอกาสขาย"
           actionMenuItems={(item) =>
@@ -299,10 +299,10 @@ export default function OpportunitiesView({
           <div className="flex gap-4 overflow-x-auto pb-4">
             {kanbanStages.map((stage) => {
               const stageOpps = opportunities.filter(
-                (opp) => opp.crmOpportunityStage === stage.key,
+                (opp) => opp.salesOpportunityStage === stage.key,
               );
               const totalValue = stageOpps.reduce(
-                (sum, opp) => sum + (Number(opp.crmOpportunityAmount) || 0),
+                (sum, opp) => sum + (Number(opp.salesOpportunityAmount) || 0),
                 0,
               );
               return (
@@ -327,28 +327,28 @@ export default function OpportunitiesView({
                   <div className="flex flex-col gap-2 p-2 overflow-y-auto max-h-[calc(100vh-240px)]">
                     {stageOpps.map((opp) => (
                       <div
-                        key={opp.crmOpportunityId}
+                        key={opp.salesOpportunityId}
                         className="flex flex-col gap-1 p-3 bg-background rounded-md border border-border cursor-pointer hover:border-border transition-colors"
                         onClick={() => handleOpen(opp)}
                       >
                         <span className="font-light text-xs">
-                          {opp.crmOpportunityName}
+                          {opp.salesOpportunityName}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {opp.crmContact
-                            ? `${opp.crmContact.crmContactFirstName} ${opp.crmContact.crmContactLastName}`
+                          {opp.salesContact
+                            ? `${opp.salesContact.salesContactFirstName} ${opp.salesContact.salesContactLastName}`
                             : "-"}
                         </span>
                         <div className="flex items-center justify-between mt-1">
                           <span className="text-xs font-light">
                             ฿
                             {Number(
-                              opp.crmOpportunityAmount || 0,
+                              opp.salesOpportunityAmount || 0,
                             ).toLocaleString()}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {opp.crmOpportunityProbability != null
-                              ? `${opp.crmOpportunityProbability}%`
+                            {opp.salesOpportunityProbability != null
+                              ? `${opp.salesOpportunityProbability}%`
                               : "-"}
                           </span>
                         </div>
@@ -389,13 +389,13 @@ export default function OpportunitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmOpportunityName}
+                    value={formData.salesOpportunityName}
                     onChange={(e) =>
-                      updateField("crmOpportunityName", e.target.value)
+                      updateField("salesOpportunityName", e.target.value)
                     }
                     isRequired
-                    isInvalid={!!validationErrors?.crmOpportunityName}
-                    errorMessage={validationErrors?.crmOpportunityName}
+                    isInvalid={!!validationErrors?.salesOpportunityName}
+                    errorMessage={validationErrors?.salesOpportunityName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -407,13 +407,13 @@ export default function OpportunitiesView({
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.crmOpportunityStage
-                        ? [formData.crmOpportunityStage]
+                      formData.salesOpportunityStage
+                        ? [formData.salesOpportunityStage]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("crmOpportunityStage", val);
+                      updateField("salesOpportunityStage", val);
                     }}
                   >
                     <SelectItem key="prospecting">สำรวจ</SelectItem>
@@ -433,9 +433,9 @@ export default function OpportunitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmOpportunityAmount}
+                    value={formData.salesOpportunityAmount}
                     onChange={(e) =>
-                      updateField("crmOpportunityAmount", e.target.value)
+                      updateField("salesOpportunityAmount", e.target.value)
                     }
                   />
                 </div>
@@ -448,9 +448,9 @@ export default function OpportunitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmOpportunityProbability}
+                    value={formData.salesOpportunityProbability}
                     onChange={(e) =>
-                      updateField("crmOpportunityProbability", e.target.value)
+                      updateField("salesOpportunityProbability", e.target.value)
                     }
                   />
                 </div>
@@ -463,10 +463,10 @@ export default function OpportunitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmOpportunityExpectedCloseDate}
+                    value={formData.salesOpportunityExpectedCloseDate}
                     onChange={(e) =>
                       updateField(
-                        "crmOpportunityExpectedCloseDate",
+                        "salesOpportunityExpectedCloseDate",
                         e.target.value,
                       )
                     }
@@ -481,13 +481,13 @@ export default function OpportunitiesView({
                     size="md"
                     radius="md"
                     selectedKeys={
-                      formData.crmOpportunitySource
-                        ? [formData.crmOpportunitySource]
+                      formData.salesOpportunitySource
+                        ? [formData.salesOpportunitySource]
                         : []
                     }
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("crmOpportunitySource", val);
+                      updateField("salesOpportunitySource", val);
                     }}
                   >
                     <SelectItem key="website">เว็บไซต์</SelectItem>
@@ -509,9 +509,9 @@ export default function OpportunitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmOpportunityContactId}
+                    value={formData.salesOpportunityContactId}
                     onChange={(e) =>
-                      updateField("crmOpportunityContactId", e.target.value)
+                      updateField("salesOpportunityContactId", e.target.value)
                     }
                   />
                 </div>
@@ -523,9 +523,9 @@ export default function OpportunitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmOpportunityAccountId}
+                    value={formData.salesOpportunityAccountId}
                     onChange={(e) =>
-                      updateField("crmOpportunityAccountId", e.target.value)
+                      updateField("salesOpportunityAccountId", e.target.value)
                     }
                   />
                 </div>
@@ -537,9 +537,9 @@ export default function OpportunitiesView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmOpportunityAssignedTo}
+                    value={formData.salesOpportunityAssignedTo}
                     onChange={(e) =>
-                      updateField("crmOpportunityAssignedTo", e.target.value)
+                      updateField("salesOpportunityAssignedTo", e.target.value)
                     }
                   />
                 </div>
@@ -552,9 +552,9 @@ export default function OpportunitiesView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.crmOpportunityNotes}
+                  value={formData.salesOpportunityNotes}
                   onChange={(e) =>
-                    updateField("crmOpportunityNotes", e.target.value)
+                    updateField("salesOpportunityNotes", e.target.value)
                   }
                 />
               </div>
@@ -585,7 +585,7 @@ export default function OpportunitiesView({
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-light">
-                {deletingOpp?.crmOpportunityName}
+                {deletingOpp?.salesOpportunityName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

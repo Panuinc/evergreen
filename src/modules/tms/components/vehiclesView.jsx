@@ -371,8 +371,8 @@ export default function VehiclesView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.tmsVehicleForthtrackId}
-                  onChange={(e) => updateField("tmsVehicleForthtrackId", e.target.value)}
+                  value={formData.tmsVehicleForthtrackRef}
+                  onChange={(e) => updateField("tmsVehicleForthtrackRef", e.target.value)}
                 />
               </div>
 

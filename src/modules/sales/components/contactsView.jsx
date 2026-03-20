@@ -15,24 +15,24 @@ import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
 
 const baseColumns = [
-  { name: "เลขที่ผู้ติดต่อ", uid: "crmContactNo", sortable: true },
-  { name: "ชื่อ", uid: "crmContactName" },
-  { name: "อีเมล", uid: "crmContactEmail" },
-  { name: "โทรศัพท์", uid: "crmContactPhone" },
-  { name: "ตำแหน่ง", uid: "crmContactPosition" },
-  { name: "บัญชี", uid: "crmAccountName" },
-  { name: "แท็ก", uid: "crmContactTags" },
+  { name: "เลขที่ผู้ติดต่อ", uid: "salesContactNo", sortable: true },
+  { name: "ชื่อ", uid: "salesContactName" },
+  { name: "อีเมล", uid: "salesContactEmail" },
+  { name: "โทรศัพท์", uid: "salesContactPhone" },
+  { name: "ตำแหน่ง", uid: "salesContactPosition" },
+  { name: "บัญชี", uid: "salesAccountName" },
+  { name: "แท็ก", uid: "salesContactTags" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const statusOptions = [];
 
 const baseVisibleColumns = [
-  "crmContactNo",
-  "crmContactName",
-  "crmContactEmail",
-  "crmContactPhone",
-  "crmAccountName",
+  "salesContactNo",
+  "salesContactName",
+  "salesContactEmail",
+  "salesContactPhone",
+  "salesAccountName",
   "actions",
 ];
 
@@ -78,26 +78,26 @@ export default function ContactsView({
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "crmContactNo":
-          return <span className="text-muted-foreground">{item.crmContactNo || "-"}</span>;
-        case "crmContactName":
+        case "salesContactNo":
+          return <span className="text-muted-foreground">{item.salesContactNo || "-"}</span>;
+        case "salesContactName":
           return (
             <span className="font-light">
-              {item.crmContactFirstName} {item.crmContactLastName}
+              {item.salesContactFirstName} {item.salesContactLastName}
             </span>
           );
-        case "crmContactEmail":
-          return item.crmContactEmail || "-";
-        case "crmContactPhone":
-          return item.crmContactPhone || "-";
-        case "crmContactPosition":
-          return item.crmContactPosition || "-";
-        case "crmAccountName":
-          return item.salesAccount?.crmAccountName || "-";
-        case "crmContactTags":
-          return item.crmContactTags ? (
+        case "salesContactEmail":
+          return item.salesContactEmail || "-";
+        case "salesContactPhone":
+          return item.salesContactPhone || "-";
+        case "salesContactPosition":
+          return item.salesContactPosition || "-";
+        case "salesAccountName":
+          return item.salesAccount?.salesAccountName || "-";
+        case "salesContactTags":
+          return item.salesContactTags ? (
             <Chip variant="flat" size="md" radius="md" color="primary">
-              {item.crmContactTags}
+              {item.salesContactTags}
             </Chip>
           ) : (
             "-"
@@ -158,15 +158,15 @@ export default function ContactsView({
         data={contacts}
         renderCell={renderCell}
         enableCardView
-        rowKey="crmContactId"
+        rowKey="salesContactId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาผู้ติดต่อ..."
         searchKeys={[
-          "crmContactFirstName",
-          "crmContactLastName",
-          "crmContactEmail",
-          "crmContactPhone",
+          "salesContactFirstName",
+          "salesContactLastName",
+          "salesContactEmail",
+          "salesContactPhone",
         ]}
         emptyContent="ไม่พบผู้ติดต่อ"
         actionMenuItems={(item) =>
@@ -212,11 +212,11 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmContactFirstName}
-                    onChange={(e) => updateField("crmContactFirstName", e.target.value)}
+                    value={formData.salesContactFirstName}
+                    onChange={(e) => updateField("salesContactFirstName", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.crmContactFirstName}
-                    errorMessage={validationErrors?.crmContactFirstName}
+                    isInvalid={!!validationErrors?.salesContactFirstName}
+                    errorMessage={validationErrors?.salesContactFirstName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -227,8 +227,8 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmContactLastName}
-                    onChange={(e) => updateField("crmContactLastName", e.target.value)}
+                    value={formData.salesContactLastName}
+                    onChange={(e) => updateField("salesContactLastName", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -239,8 +239,8 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmContactEmail}
-                    onChange={(e) => updateField("crmContactEmail", e.target.value)}
+                    value={formData.salesContactEmail}
+                    onChange={(e) => updateField("salesContactEmail", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -251,8 +251,8 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmContactPhone}
-                    onChange={(e) => updateField("crmContactPhone", e.target.value)}
+                    value={formData.salesContactPhone}
+                    onChange={(e) => updateField("salesContactPhone", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -263,8 +263,8 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmContactPosition}
-                    onChange={(e) => updateField("crmContactPosition", e.target.value)}
+                    value={formData.salesContactPosition}
+                    onChange={(e) => updateField("salesContactPosition", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -275,8 +275,8 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmContactAccountId}
-                    onChange={(e) => updateField("crmContactAccountId", e.target.value)}
+                    value={formData.salesContactAccountId}
+                    onChange={(e) => updateField("salesContactAccountId", e.target.value)}
                   />
                 </div>
               </div>
@@ -288,8 +288,8 @@ export default function ContactsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.crmContactAddress}
-                  onChange={(e) => updateField("crmContactAddress", e.target.value)}
+                  value={formData.salesContactAddress}
+                  onChange={(e) => updateField("salesContactAddress", e.target.value)}
                 />
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -300,8 +300,8 @@ export default function ContactsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.crmContactTags}
-                  onChange={(e) => updateField("crmContactTags", e.target.value)}
+                  value={formData.salesContactTags}
+                  onChange={(e) => updateField("salesContactTags", e.target.value)}
                 />
               </div>
               <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -312,8 +312,8 @@ export default function ContactsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.crmContactNotes}
-                  onChange={(e) => updateField("crmContactNotes", e.target.value)}
+                  value={formData.salesContactNotes}
+                  onChange={(e) => updateField("salesContactNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function ContactsView({
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-light">
-                {deletingContact?.crmContactFirstName} {deletingContact?.crmContactLastName}
+                {deletingContact?.salesContactFirstName} {deletingContact?.salesContactLastName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

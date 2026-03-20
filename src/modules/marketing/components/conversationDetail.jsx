@@ -8,11 +8,11 @@ import { get, post, del } from "@/lib/apiClient";
 import ChannelBadge from "./channelBadge";
 
 export default function ConversationDetail({ conversation, onUpdateContact, onClose }) {
-  const contact = conversation?.omContact;
+  const contact = conversation?.mktContact;
   const [newTag, setNewTag] = useState("");
-  const [notes, setNotes] = useState(contact?.omContactNotes || "");
+  const [notes, setNotes] = useState(contact?.mktContactNotes || "");
   const [editingNotes, setEditingNotes] = useState(false);
-  const convId = conversation?.omConversationId;
+  const convId = conversation?.mktConversationId;
   const { data: quotations = [] } = useSWR(
     convId ? `/api/marketing/omnichannel/quotations?conversationId=${convId}` : null,
     (url) => get(url).catch(() => []),
@@ -33,21 +33,21 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   const handleAddTag = () => {
     const tag = newTag.trim();
     if (!tag) return;
-    const currentTags = contact.omContactTags || [];
+    const currentTags = contact.mktContactTags || [];
     if (currentTags.includes(tag)) return;
-    onUpdateContact(contact.omContactId, { omContactTags: [...currentTags, tag] });
+    onUpdateContact(contact.mktContactId, { mktContactTags: [...currentTags, tag] });
     setNewTag("");
   };
 
   const handleRemoveTag = (tag) => {
-    const currentTags = contact.omContactTags || [];
-    onUpdateContact(contact.omContactId, {
-      omContactTags: currentTags.filter((t) => t !== tag),
+    const currentTags = contact.mktContactTags || [];
+    onUpdateContact(contact.mktContactId, {
+      mktContactTags: currentTags.filter((t) => t !== tag),
     });
   };
 
   const handleSaveNotes = () => {
-    onUpdateContact(contact.omContactId, { omContactNotes: notes });
+    onUpdateContact(contact.mktContactId, { mktContactNotes: notes });
     setEditingNotes(false);
   };
 
@@ -56,7 +56,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
     try {
       const scheduledAt = new Date(`${followUpDate}T${followUpTime || "10:00"}:00+07:00`).toISOString();
       const result = await post("/api/marketing/omnichannel/followUp", {
-        conversationId: conversation.omConversationId,
+        conversationId: conversation.mktConversationId,
         scheduledAt,
         message: followUpMessage || null,
       });
@@ -73,7 +73,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   const handleDeleteFollowUp = async (id) => {
     try {
       await del(`/api/marketing/omnichannel/followUp/${id}`);
-      mutateFollowUps((prev = []) => prev.filter((f) => f.omFollowUpId !== id), { revalidate: false });
+      mutateFollowUps((prev = []) => prev.filter((f) => f.mktFollowUpId !== id), { revalidate: false });
     } catch {
       // handled in actions
     }
@@ -97,23 +97,23 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
             <div className="flex flex-col gap-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">ชื่อ</span>
-                <span>{contact.omContactDisplayName || "-"}</span>
+                <span>{contact.mktContactDisplayName || "-"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">ช่องทาง</span>
-                <ChannelBadge channelType={contact.omContactChannelType} />
+                <ChannelBadge channelType={contact.mktContactChannelType} />
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">External ID</span>
-                <span className="text-xs truncate max-w-[150px]">{contact.omContactExternalId}</span>
+                <span className="text-xs truncate max-w-[150px]">{contact.mktContactExternalRef}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">สถานะ</span>
                 <Chip size="md" variant="flat" color={
-                  conversation.omConversationStatus === "open" ? "success" :
-                  conversation.omConversationStatus === "waiting" ? "warning" : "default"
+                  conversation.mktConversationStatus === "open" ? "success" :
+                  conversation.mktConversationStatus === "waiting" ? "warning" : "default"
                 }>
-                  {conversation.omConversationStatus}
+                  {conversation.mktConversationStatus}
                 </Chip>
               </div>
             </div>
@@ -126,7 +126,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
               <p className="font-light text-xs">แท็ก</p>
             </div>
             <div className="flex flex-wrap gap-1">
-              {(contact.omContactTags || []).map((tag) => (
+              {(contact.mktContactTags || []).map((tag) => (
                 <Chip
                   key={tag}
                   size="md"
@@ -183,7 +183,7 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 onClick={() => setEditingNotes(true)}
                 className="text-xs text-muted-foreground cursor-pointer p-2 rounded-md hover:bg-default/50 min-h-[60px]"
               >
-                {contact.omContactNotes || "คลิกเพื่อเพิ่มหมายเหตุ..."}
+                {contact.mktContactNotes || "คลิกเพื่อเพิ่มหมายเหตุ..."}
               </div>
             )}
           </div>
@@ -247,26 +247,26 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
                 </div>
               </div>
             )}
-            {followUps.filter((f) => f.omFollowUpStatus === "pending").length === 0 && !showFollowUpForm ? (
+            {followUps.filter((f) => f.mktFollowUpStatus === "pending").length === 0 && !showFollowUpForm ? (
               <p className="text-xs text-muted-foreground">ยังไม่มีการตั้งเวลาติดตาม</p>
             ) : (
               <div className="flex flex-col gap-1">
                 {followUps
-                  .filter((f) => f.omFollowUpStatus === "pending")
+                  .filter((f) => f.mktFollowUpStatus === "pending")
                   .map((f) => (
-                    <div key={f.omFollowUpId} className="flex items-center justify-between p-2 rounded-md bg-default/50">
+                    <div key={f.mktFollowUpId} className="flex items-center justify-between p-2 rounded-md bg-default/50">
                       <div className="flex flex-col">
                         <span className="text-xs">
-                          {new Date(f.omFollowUpScheduledAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}
+                          {new Date(f.mktFollowUpScheduledAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}
                         </span>
-                        {f.omFollowUpMessage && (
-                          <span className="text-xs text-muted-foreground line-clamp-1">{f.omFollowUpMessage}</span>
+                        {f.mktFollowUpMessage && (
+                          <span className="text-xs text-muted-foreground line-clamp-1">{f.mktFollowUpMessage}</span>
                         )}
-                        {!f.omFollowUpMessage && (
+                        {!f.mktFollowUpMessage && (
                           <span className="text-xs text-muted-foreground">AI จะสร้างข้อความเอง</span>
                         )}
                       </div>
-                      <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => handleDeleteFollowUp(f.omFollowUpId)}>
+                      <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => handleDeleteFollowUp(f.mktFollowUpId)}>
                         <X size={14} />
                       </Button>
                     </div>
@@ -287,25 +287,25 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
               <div className="flex flex-col gap-2">
                 {quotations.map((q) => (
                   <div
-                    key={q.omQuotationId}
+                    key={q.mktQuotationId}
                     className="flex items-center justify-between p-2 rounded-md bg-default/50"
                   >
                     <div className="flex flex-col">
-                      <span className="text-xs font-light">{q.omQuotationNumber}</span>
+                      <span className="text-xs font-light">{q.mktQuotationNumber}</span>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(q.omQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })}
+                        {new Date(q.mktQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Chip size="md" variant="flat" color={q.omQuotationStatus === "draft" ? "warning" : "success"}>
-                        {q.omQuotationStatus === "draft" ? "ร่าง" : q.omQuotationStatus}
+                      <Chip size="md" variant="flat" color={q.mktQuotationStatus === "draft" ? "warning" : "success"}>
+                        {q.mktQuotationStatus === "draft" ? "ร่าง" : q.mktQuotationStatus}
                       </Chip>
                       <Button
                         isIconOnly
                         size="md"
                         variant="light"
                         radius="md"
-                        onPress={() => window.open(`/marketing/omnichannel/quotations/${q.omQuotationId}`, "_self")}
+                        onPress={() => window.open(`/marketing/omnichannel/quotations/${q.mktQuotationId}`, "_self")}
                       >
                         <ExternalLink />
                       </Button>

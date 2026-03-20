@@ -39,6 +39,100 @@ data.map(r => r.customerNumber); // matches Go alias exactly
 
 ---
 
+# Database Naming Convention (MANDATORY)
+
+## Table Naming
+
+Every table name MUST follow the pattern: `{module}{Entity}` in **camelCase**
+
+- **module** = lowercase module prefix (e.g., `hr`, `bc`, `tms`, `it`, `sales`)
+- **Entity** = PascalCase entity name (e.g., `Employee`, `Division`, `Item`, `GLEntry`)
+
+### Module Prefixes
+
+| Module | Prefix | Examples |
+|---|---|---|
+| Human Resources | `hr` | `hrEmployee`, `hrDivision`, `hrDepartment`, `hrPosition` |
+| Business Central | `bc` | `bcItem`, `bcCustomer`, `bcGLEntry`, `bcPostedSalesInvoice` |
+| Finance | `finance` | `financeCollection`, `financeBudget` |
+| Sales / CRM | `sales` | `salesLead`, `salesOpportunity`, `salesQuotation` |
+| Transport (TMS) | `tms` | `tmsVehicle`, `tmsDelivery`, `tmsShipment` |
+| IT | `it` | `itAsset`, `itDevRequest` |
+| Marketing | `mkt` | `mktCampaign`, `mktWorkOrder` |
+| Production | `prod` | `prodOrder`, `prodBOM` |
+| Warehouse | `wh` | `whInventory`, `whLocation` |
+| RBAC | `rbac` | `rbacRole`, `rbacPermission` |
+| Settings | `sys` | `sysConfig`, `sysSyncState` |
+
+## Column Naming
+
+Every column name MUST follow the pattern: `{tableName}{FieldName}`
+
+- **tableName** = exact table name in camelCase (e.g., `hrDivision`, `bcItem`)
+- **FieldName** = PascalCase field name (e.g., `Id`, `Name`, `CreatedAt`)
+
+### Examples
+
+```sql
+-- Module: hr
+CREATE TABLE hrDivision (
+  hrDivisionId          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  hrDivisionName        text NOT NULL,
+  hrDivisionDescription text,
+  hrDivisionCreatedAt   timestamptz DEFAULT now(),
+  isActive              boolean DEFAULT true
+);
+
+CREATE TABLE hrEmployee (
+  hrEmployeeId          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  hrEmployeeFirstName   text NOT NULL,
+  hrEmployeeLastName    text NOT NULL,
+  hrEmployeeEmail       text,
+  hrDivisionId          uuid REFERENCES hrDivision(hrDivisionId),  -- FK ใช้ชื่อจาก table ต้นทาง
+  hrEmployeeCreatedAt   timestamptz DEFAULT now(),
+  isActive              boolean DEFAULT true
+);
+
+-- Module: bc
+CREATE TABLE bcItem (
+  bcItemId              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  bcItemNo              text NOT NULL UNIQUE,
+  bcItemDescription     text,
+  bcItemUnitPrice       numeric,
+  bcItemCreatedAt       timestamptz
+);
+```
+
+### Rules
+
+1. **Table name** = `{module}{Entity}` in camelCase — NEVER just the entity name
+2. **Primary key** = `{tableName}Id` (uuid) — NEVER just `id`
+3. **Every column** starts with `{tableName}` prefix — no exceptions
+4. **Foreign keys** = `{tableName}{ReferencedTable}Id` — the FK column belongs to the current table, referencing another table's PK
+   - `hrEmployee` references `hrDivision` → column is `hrEmployeeHrDivisionId`
+   - `hrEmployee` references `hrDepartment` → column is `hrEmployeeHrDepartmentId`
+   - `hrEmployee` references `hrPosition` → column is `hrEmployeeHrPositionId`
+5. **PK/FK relations MUST use Id only** — never relate tables by name, code, or number fields. Always use `{tableName}Id` (uuid) for joins
+6. **Only exceptions**: `isActive`, `isDeleted` — shared boolean flags without prefix
+7. **All names** are camelCase — no snake_case, no UPPER_CASE
+
+### FK Example
+
+```sql
+CREATE TABLE hrEmployee (
+  hrEmployeeId              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  hrEmployeeFirstName       text NOT NULL,
+  hrEmployeeLastName        text NOT NULL,
+  hrEmployeeHrDivisionId    uuid REFERENCES hrDivision(hrDivisionId),      -- FK → hrDivision
+  hrEmployeeHrDepartmentId  uuid REFERENCES hrDepartment(hrDepartmentId),  -- FK → hrDepartment
+  hrEmployeeHrPositionId    uuid REFERENCES hrPosition(hrPositionId),      -- FK → hrPosition
+  hrEmployeeCreatedAt       timestamptz DEFAULT now(),
+  isActive                  boolean DEFAULT true
+);
+```
+
+---
+
 # Next.js Development Rules
 
 Sources: Official Next.js 16.2.0 Documentation

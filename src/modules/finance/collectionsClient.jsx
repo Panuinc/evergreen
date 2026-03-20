@@ -54,8 +54,8 @@ export default function CollectionsClient() {
   const mergedData = useMemo(() => {
     const fuByCustomer = {};
     for (const fu of followUps) {
-      if (!fuByCustomer[fu.customerNumber]) fuByCustomer[fu.customerNumber] = [];
-      fuByCustomer[fu.customerNumber].push(fu);
+      if (!fuByCustomer[fu.arFollowUpCustomerNumber]) fuByCustomer[fu.arFollowUpCustomerNumber] = [];
+      fuByCustomer[fu.arFollowUpCustomerNumber].push(fu);
     }
 
     return arData
@@ -72,13 +72,13 @@ export default function CollectionsClient() {
           period2: parseNum(c.period2Amount),
           period3: parseNum(c.period3Amount),
           followUpCount: fus.length,
-          lastContactDate: latest?.contactDate,
-          lastReason: latest?.reason,
-          lastStatus: latest?.status,
-          lastNote: latest?.note,
-          nextFollowUpDate: latest?.nextFollowUpDate,
-          promiseDate: latest?.promiseDate,
-          promiseAmount: latest?.promiseAmount,
+          lastContactDate: latest?.arFollowUpContactDate,
+          lastReason: latest?.arFollowUpReason,
+          lastStatus: latest?.arFollowUpStatus,
+          lastNote: latest?.arFollowUpNote,
+          nextFollowUpDate: latest?.arFollowUpNextFollowUpDate,
+          promiseDate: latest?.arFollowUpPromiseDate,
+          promiseAmount: latest?.arFollowUpPromiseAmount,
         };
       })
       .sort((a, b) => b.balanceDue - a.balanceDue);
@@ -91,15 +91,15 @@ export default function CollectionsClient() {
     const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
     const dueToday = mergedData.filter((c) => c.nextFollowUpDate && c.nextFollowUpDate <= today).length;
     const promisedTotal = followUps
-      .filter((f) => f.status === "promised" && f.promiseAmount)
-      .reduce((s, f) => s + Number(f.promiseAmount), 0);
+      .filter((f) => f.arFollowUpStatus === "promised" && f.arFollowUpPromiseAmount)
+      .reduce((s, f) => s + Number(f.arFollowUpPromiseAmount), 0);
     return { totalOverdue, contacted, uncontacted, total: mergedData.length, dueToday, promisedTotal };
   }, [mergedData, followUps]);
 
   const reportData = useMemo(() => {
     const filtered = followUps.filter((f) => {
-      if (reportSince && f.contactDate < reportSince) return false;
-      if (reportUntil && f.contactDate > reportUntil) return false;
+      if (reportSince && f.arFollowUpContactDate < reportSince) return false;
+      if (reportUntil && f.arFollowUpContactDate > reportUntil) return false;
       return true;
     });
 
@@ -124,22 +124,22 @@ export default function CollectionsClient() {
 
     const byReason = {};
     for (const f of filtered) {
-      const key = f.reason || "other";
+      const key = f.arFollowUpReason || "other";
       if (!byReason[key]) byReason[key] = { name: reasonsMap[key] || key || "-", value: 0, key };
       byReason[key].value++;
     }
 
     const byStatus = {};
     for (const f of filtered) {
-      const key = f.status || "pending";
+      const key = f.arFollowUpStatus || "pending";
       if (!byStatus[key]) byStatus[key] = { name: statusesMap[key] || key || "-", value: 0, key };
       byStatus[key].value++;
     }
 
-    const uniqueCustomers = new Set(filtered.map((f) => f.customerNumber)).size;
+    const uniqueCustomers = new Set(filtered.map((f) => f.arFollowUpCustomerNumber)).size;
     const totalPromised = filtered
-      .filter((f) => f.promiseAmount)
-      .reduce((s, f) => s + Number(f.promiseAmount), 0);
+      .filter((f) => f.arFollowUpPromiseAmount)
+      .reduce((s, f) => s + Number(f.arFollowUpPromiseAmount), 0);
 
     return {
       filtered,
@@ -153,7 +153,7 @@ export default function CollectionsClient() {
 
   const customerHistory = useMemo(() => {
     if (!selectedCustomer) return [];
-    return followUps.filter((f) => f.customerNumber === selectedCustomer.customerNumber);
+    return followUps.filter((f) => f.arFollowUpCustomerNumber === selectedCustomer.customerNumber);
   }, [followUps, selectedCustomer]);
 
   const openAdd = useCallback((customer) => {
@@ -221,8 +221,8 @@ export default function CollectionsClient() {
       followUpSummary: followUps.length
         ? [
             `จำนวนการติดตามทั้งหมด: ${followUps.length} ครั้ง`,
-            `สถานะ: pending=${followUps.filter((f) => f.status === "pending").length}, promised=${followUps.filter((f) => f.status === "promised").length}, partial=${followUps.filter((f) => f.status === "partial").length}, escalated=${followUps.filter((f) => f.status === "escalated").length}, resolved=${followUps.filter((f) => f.status === "resolved").length}`,
-            `สาเหตุที่พบบ่อย: ${[...new Set(followUps.map((f) => f.reason))].filter(Boolean).join(", ")}`,
+            `สถานะ: pending=${followUps.filter((f) => f.arFollowUpStatus === "pending").length}, promised=${followUps.filter((f) => f.arFollowUpStatus === "promised").length}, partial=${followUps.filter((f) => f.arFollowUpStatus === "partial").length}, escalated=${followUps.filter((f) => f.arFollowUpStatus === "escalated").length}, resolved=${followUps.filter((f) => f.arFollowUpStatus === "resolved").length}`,
+            `สาเหตุที่พบบ่อย: ${[...new Set(followUps.map((f) => f.arFollowUpReason))].filter(Boolean).join(", ")}`,
           ].join("\n")
         : "ยังไม่มีประวัติติดตาม",
 

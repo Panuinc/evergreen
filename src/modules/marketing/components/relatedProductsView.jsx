@@ -24,10 +24,10 @@ const relationTypes = [
 ];
 
 const columns = [
-  { name: "สินค้าต้นทาง", uid: "omRelatedProductSourceItem", sortable: true },
-  { name: "สินค้าเป้าหมาย", uid: "omRelatedProductTargetItem", sortable: true },
-  { name: "ประเภท", uid: "omRelatedProductType", sortable: true },
-  { name: "เหตุผล", uid: "omRelatedProductReason" },
+  { name: "สินค้าต้นทาง", uid: "mktRelatedProductSourceItem", sortable: true },
+  { name: "สินค้าเป้าหมาย", uid: "mktRelatedProductTargetItem", sortable: true },
+  { name: "ประเภท", uid: "mktRelatedProductType", sortable: true },
+  { name: "เหตุผล", uid: "mktRelatedProductReason" },
   { name: "", uid: "actions" },
 ];
 
@@ -87,32 +87,32 @@ export default function RelatedProductsView({
 
   const renderCell = (item, key) => {
     switch (key) {
-      case "omRelatedProductSourceItem":
+      case "mktRelatedProductSourceItem":
         return (
           <div>
-            <p className="font-light">{getItemName(item.omRelatedProductSourceItem)}</p>
+            <p className="font-light">{getItemName(item.mktRelatedProductSourceItem)}</p>
           </div>
         );
-      case "omRelatedProductTargetItem":
+      case "mktRelatedProductTargetItem":
         return (
           <div>
-            <p className="font-light">{getItemName(item.omRelatedProductTargetItem)}</p>
+            <p className="font-light">{getItemName(item.mktRelatedProductTargetItem)}</p>
           </div>
         );
-      case "omRelatedProductType":
+      case "mktRelatedProductType":
         return (
           <Chip
             size="sm"
             variant="flat"
-            color={item.omRelatedProductType === "upsell" ? "secondary" : "primary"}
+            color={item.mktRelatedProductType === "upsell" ? "secondary" : "primary"}
           >
-            {getTypeLabel(item.omRelatedProductType)}
+            {getTypeLabel(item.mktRelatedProductType)}
           </Chip>
         );
-      case "omRelatedProductReason":
+      case "mktRelatedProductReason":
         return (
           <p className="text-sm text-default-500 line-clamp-2">
-            {item.omRelatedProductReason || "-"}
+            {item.mktRelatedProductReason || "-"}
           </p>
         );
       case "actions":
@@ -122,7 +122,7 @@ export default function RelatedProductsView({
             size="sm"
             variant="light"
             color="danger"
-            onPress={() => onDelete(item.omRelatedProductId)}
+            onPress={() => onDelete(item.mktRelatedProductId)}
           >
             <Trash2 size={16} />
           </Button>
@@ -160,14 +160,14 @@ export default function RelatedProductsView({
         columns={columns}
         data={relatedProducts}
         renderCell={renderCell}
-        rowKey="omRelatedProductId"
+        rowKey="mktRelatedProductId"
         isLoading={loading}
         initialVisibleColumns={columns.map((c) => c.uid)}
         searchPlaceholder="ค้นหาสินค้า..."
         searchKeys={[
-          "omRelatedProductSourceItem",
-          "omRelatedProductTargetItem",
-          "omRelatedProductReason",
+          "mktRelatedProductSourceItem",
+          "mktRelatedProductTargetItem",
+          "mktRelatedProductReason",
         ]}
         topEndContent={addButton}
         defaultRowsPerPage={20}

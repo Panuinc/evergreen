@@ -8,16 +8,16 @@ import { validateForm, isRequired } from "@/lib/validation";
 import ActivitiesView from "@/modules/sales/components/activitiesView";
 
 const emptyForm = {
-  crmActivityType: "task",
-  crmActivitySubject: "",
-  crmActivityDescription: "",
-  crmActivityStatus: "pending",
-  crmActivityPriority: "medium",
-  crmActivityDueDate: "",
-  crmActivityContactId: "",
-  crmActivityOpportunityId: "",
-  crmActivityAccountId: "",
-  crmActivityAssignedTo: "",
+  salesActivityType: "task",
+  salesActivitySubject: "",
+  salesActivityDescription: "",
+  salesActivityStatus: "pending",
+  salesActivityPriority: "medium",
+  salesActivityDueDate: "",
+  salesActivityContactId: "",
+  salesActivityOpportunityId: "",
+  salesActivityAccountId: "",
+  salesActivityAssignedTo: "",
 };
 
 export default function ActivitiesClient({ initialActivities }) {
@@ -60,18 +60,18 @@ export default function ActivitiesClient({ initialActivities }) {
     if (activity) {
       setEditingActivity(activity);
       setFormData({
-        crmActivityType: activity.crmActivityType || "task",
-        crmActivitySubject: activity.crmActivitySubject || "",
-        crmActivityDescription: activity.crmActivityDescription || "",
-        crmActivityStatus: activity.crmActivityStatus || "pending",
-        crmActivityPriority: activity.crmActivityPriority || "medium",
-        crmActivityDueDate: activity.crmActivityDueDate
-          ? new Date(activity.crmActivityDueDate).toISOString().slice(0, 16)
+        salesActivityType: activity.salesActivityType || "task",
+        salesActivitySubject: activity.salesActivitySubject || "",
+        salesActivityDescription: activity.salesActivityDescription || "",
+        salesActivityStatus: activity.salesActivityStatus || "pending",
+        salesActivityPriority: activity.salesActivityPriority || "medium",
+        salesActivityDueDate: activity.salesActivityDueDate
+          ? new Date(activity.salesActivityDueDate).toISOString().slice(0, 16)
           : "",
-        crmActivityContactId: activity.crmActivityContactId || "",
-        crmActivityOpportunityId: activity.crmActivityOpportunityId || "",
-        crmActivityAccountId: activity.crmActivityAccountId || "",
-        crmActivityAssignedTo: activity.crmActivityAssignedTo || "",
+        salesActivityContactId: activity.salesActivityContactId || "",
+        salesActivityOpportunityId: activity.salesActivityOpportunityId || "",
+        salesActivityAccountId: activity.salesActivityAccountId || "",
+        salesActivityAssignedTo: activity.salesActivityAssignedTo || "",
       });
     } else {
       setEditingActivity(null);
@@ -83,7 +83,7 @@ export default function ActivitiesClient({ initialActivities }) {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      crmActivitySubject: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อ"],
+      salesActivitySubject: [(v) => !isRequired(v) && "กรุณาระบุหัวข้อ"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -95,17 +95,17 @@ export default function ActivitiesClient({ initialActivities }) {
     try {
       setSaving(true);
       const payload = { ...formData };
-      if (!payload.crmActivityContactId) delete payload.crmActivityContactId;
-      if (!payload.crmActivityOpportunityId) delete payload.crmActivityOpportunityId;
-      if (!payload.crmActivityAccountId) delete payload.crmActivityAccountId;
-      if (!payload.crmActivityDueDate) delete payload.crmActivityDueDate;
+      if (!payload.salesActivityContactId) delete payload.salesActivityContactId;
+      if (!payload.salesActivityOpportunityId) delete payload.salesActivityOpportunityId;
+      if (!payload.salesActivityAccountId) delete payload.salesActivityAccountId;
+      if (!payload.salesActivityDueDate) delete payload.salesActivityDueDate;
 
-      if (payload.crmActivityStatus === "completed" && !payload.crmActivityCompletedAt) {
-        payload.crmActivityCompletedAt = new Date().toISOString();
+      if (payload.salesActivityStatus === "completed" && !payload.salesActivityCompletedAt) {
+        payload.salesActivityCompletedAt = new Date().toISOString();
       }
 
       if (editingActivity) {
-        await put(`/api/sales/activities/${editingActivity.crmActivityId}`, payload);
+        await put(`/api/sales/activities/${editingActivity.salesActivityId}`, payload);
         toast.success("อัปเดตกิจกรรมสำเร็จ");
       } else {
         await post("/api/sales/activities", payload);
@@ -123,10 +123,10 @@ export default function ActivitiesClient({ initialActivities }) {
   const handleToggleComplete = async (activity) => {
     try {
       const newStatus =
-        activity.crmActivityStatus === "completed" ? "pending" : "completed";
-      await put(`/api/sales/activities/${activity.crmActivityId}`, {
-        crmActivityStatus: newStatus,
-        crmActivityCompletedAt:
+        activity.salesActivityStatus === "completed" ? "pending" : "completed";
+      await put(`/api/sales/activities/${activity.salesActivityId}`, {
+        salesActivityStatus: newStatus,
+        salesActivityCompletedAt:
           newStatus === "completed" ? new Date().toISOString() : null,
       });
       toast.success(
@@ -146,7 +146,7 @@ export default function ActivitiesClient({ initialActivities }) {
   const handleDelete = async () => {
     if (!deletingActivity) return;
     try {
-      await del(`/api/sales/activities/${deletingActivity.crmActivityId}`);
+      await del(`/api/sales/activities/${deletingActivity.salesActivityId}`);
       toast.success("ลบกิจกรรมสำเร็จ");
       deleteModal.onClose();
       setDeletingActivity(null);
@@ -158,7 +158,7 @@ export default function ActivitiesClient({ initialActivities }) {
 
   const toggleActive = async (item) => {
     try {
-      await put(`/api/sales/activities/${item.crmActivityId}`, { isActive: !item.isActive });
+      await put(`/api/sales/activities/${item.salesActivityId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       reloadActivities(typeFilter, statusFilter);
     } catch {

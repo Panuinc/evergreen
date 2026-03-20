@@ -20,195 +20,195 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Conversations ----
 
 func (s *Store) ListConversations(ctx context.Context, status, channel string) ([]map[string]any, error) {
-	q := `SELECT c.*, row_to_json(ct.*) as "omContact"
-		FROM "omConversation" c
-		LEFT JOIN "omContact" ct ON ct."omContactId" = c."omConversationContactId"
+	q := `SELECT c.*, row_to_json(ct.*) as "mktContact"
+		FROM "mktConversation" c
+		LEFT JOIN "mktContact" ct ON ct."mktContactId" = c."mktConversationContactId"
 		WHERE c."isActive" = true`
 	args := []any{}
 	argIdx := 1
 	if status != "" {
-		q += fmt.Sprintf(` AND c."omConversationStatus" = $%d`, argIdx)
+		q += fmt.Sprintf(` AND c."mktConversationStatus" = $%d`, argIdx)
 		args = append(args, status)
 		argIdx++
 	}
 	if channel != "" {
-		q += fmt.Sprintf(` AND c."omConversationChannelType" = $%d`, argIdx)
+		q += fmt.Sprintf(` AND c."mktConversationChannelType" = $%d`, argIdx)
 		args = append(args, channel)
 	}
-	q += ` ORDER BY c."omConversationLastMessageAt" DESC NULLS LAST`
+	q += ` ORDER BY c."mktConversationLastMessageAt" DESC NULLS LAST`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) GetConversation(ctx context.Context, id string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		SELECT c.*, row_to_json(ct.*) as "omContact"
-		FROM "omConversation" c LEFT JOIN "omContact" ct ON ct."omContactId"=c."omConversationContactId"
-		WHERE c."omConversationId"=$1`, id)
+		SELECT c.*, row_to_json(ct.*) as "mktContact"
+		FROM "mktConversation" c LEFT JOIN "mktContact" ct ON ct."mktContactId"=c."mktConversationContactId"
+		WHERE c."mktConversationId"=$1`, id)
 }
 
 func (s *Store) UpdateConversation(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "omConversation" SET
-			"omConversationStatus"=COALESCE($2,"omConversationStatus"),
-			"omConversationAssignedTo"=COALESCE($3,"omConversationAssignedTo"),
-			"omConversationUnreadCount"=COALESCE($4,"omConversationUnreadCount"),
-			"omConversationAiAutoReply"=COALESCE($5,"omConversationAiAutoReply")
-		WHERE "omConversationId"=$1 RETURNING *
-	`, id, body["omConversationStatus"], body["omConversationAssignedTo"],
-		body["omConversationUnreadCount"], body["omConversationAiAutoReply"])
+		UPDATE "mktConversation" SET
+			"mktConversationStatus"=COALESCE($2,"mktConversationStatus"),
+			"mktConversationAssignedTo"=COALESCE($3,"mktConversationAssignedTo"),
+			"mktConversationUnreadCount"=COALESCE($4,"mktConversationUnreadCount"),
+			"mktConversationAiAutoReply"=COALESCE($5,"mktConversationAiAutoReply")
+		WHERE "mktConversationId"=$1 RETURNING *
+	`, id, body["mktConversationStatus"], body["mktConversationAssignedTo"],
+		body["mktConversationUnreadCount"], body["mktConversationAiAutoReply"])
 }
 
 func (s *Store) SoftDeleteConversation(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "omConversation" SET "isActive"=false WHERE "omConversationId"=$1`, id)
-	s.pool.Exec(ctx, `UPDATE "omMessage" SET "isActive"=false WHERE "omMessageConversationId"=$1`, id)
+	s.pool.Exec(ctx, `UPDATE "mktConversation" SET "isActive"=false WHERE "mktConversationId"=$1`, id)
+	s.pool.Exec(ctx, `UPDATE "mktMessage" SET "isActive"=false WHERE "mktMessageConversationId"=$1`, id)
 }
 
 func (s *Store) ListMessages(ctx context.Context, id string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "omMessage" WHERE "omMessageConversationId"=$1 AND "isActive"=true
-		ORDER BY "omMessageCreatedAt" ASC
+		SELECT * FROM "mktMessage" WHERE "mktMessageConversationId"=$1 AND "isActive"=true
+		ORDER BY "mktMessageCreatedAt" ASC
 	`, id)
 }
 
 // ---- Send Message ----
 
 func (s *Store) GetConversationByID(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "omConversation" WHERE "omConversationId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktConversation" WHERE "mktConversationId"=$1`, id)
 }
 
 func (s *Store) GetContactByID(ctx context.Context, contactID string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "omContact" WHERE "omContactId"=$1`, contactID)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktContact" WHERE "mktContactId"=$1`, contactID)
 }
 
 func (s *Store) GetActiveChannel(ctx context.Context, channelType string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "omChannel" WHERE "omChannelType"=$1 AND "omChannelStatus"='active' LIMIT 1`, channelType)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktChannel" WHERE "mktChannelType"=$1 AND "mktChannelStatus"='active' LIMIT 1`, channelType)
 }
 
 func (s *Store) InsertAgentMessage(ctx context.Context, conversationID, content, msgType string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "omMessage" ("omMessageConversationId","omMessageSenderType","omMessageContent","omMessageType")
+		INSERT INTO "mktMessage" ("mktMessageConversationId","mktMessageSenderType","mktMessageContent","mktMessageType")
 		VALUES ($1,'agent',$2,$3) RETURNING *
 	`, conversationID, content, msgType)
 }
 
 func (s *Store) UpdateConversationAfterSend(ctx context.Context, conversationID, preview string) {
 	s.pool.Exec(ctx, `
-		UPDATE "omConversation" SET "omConversationLastMessageAt"=now(),"omConversationLastMessagePreview"=$2,"omConversationUnreadCount"=0
-		WHERE "omConversationId"=$1
+		UPDATE "mktConversation" SET "mktConversationLastMessageAt"=now(),"mktConversationLastMessagePreview"=$2,"mktConversationUnreadCount"=0
+		WHERE "mktConversationId"=$1
 	`, conversationID, preview)
 }
 
 // ---- Quotations ----
 
 func (s *Store) ListQuotations(ctx context.Context, convID, status string) ([]map[string]any, error) {
-	q := `SELECT q.*, row_to_json(ct.*) as "omContact"
-		FROM "omQuotation" q LEFT JOIN "omContact" ct ON ct."omContactId"=q."omQuotationContactId"
+	q := `SELECT q.*, row_to_json(ct.*) as "mktContact"
+		FROM "mktQuotation" q LEFT JOIN "mktContact" ct ON ct."mktContactId"=q."mktQuotationContactId"
 		WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if convID != "" {
-		q += fmt.Sprintf(` AND q."omQuotationConversationId"=$%d`, argIdx)
+		q += fmt.Sprintf(` AND q."mktQuotationConversationId"=$%d`, argIdx)
 		args = append(args, convID)
 		argIdx++
 	}
 	if status != "" {
-		q += fmt.Sprintf(` AND q."omQuotationStatus"=$%d`, argIdx)
+		q += fmt.Sprintf(` AND q."mktQuotationStatus"=$%d`, argIdx)
 		args = append(args, status)
 	}
-	q += ` ORDER BY q."omQuotationCreatedAt" DESC`
+	q += ` ORDER BY q."mktQuotationCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) GetQuotation(ctx context.Context, id string) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "omQuotation" WHERE "omQuotationId"=$1`, id)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktQuotation" WHERE "mktQuotationId"=$1`, id)
 }
 
 func (s *Store) GetQuotationLines(ctx context.Context, id string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "omQuotationLine" WHERE "omQuotationLineQuotationId"=$1 ORDER BY "omQuotationLineOrder"
+		SELECT * FROM "mktQuotationLine" WHERE "mktQuotationLineQuotationId"=$1 ORDER BY "mktQuotationLineOrder"
 	`, id)
 }
 
 func (s *Store) UpdateQuotation(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "omQuotation" SET
-			"omQuotationCustomerName"=COALESCE($2,"omQuotationCustomerName"),
-			"omQuotationCustomerPhone"=COALESCE($3,"omQuotationCustomerPhone"),
-			"omQuotationCustomerAddress"=COALESCE($4,"omQuotationCustomerAddress"),
-			"omQuotationPaymentMethod"=COALESCE($5,"omQuotationPaymentMethod"),
-			"omQuotationNotes"=COALESCE($6,"omQuotationNotes"),
-			"omQuotationUpdatedAt"=now()
-		WHERE "omQuotationId"=$1 RETURNING *
-	`, id, body["omQuotationCustomerName"], body["omQuotationCustomerPhone"],
-		body["omQuotationCustomerAddress"], body["omQuotationPaymentMethod"], body["omQuotationNotes"])
+		UPDATE "mktQuotation" SET
+			"mktQuotationCustomerName"=COALESCE($2,"mktQuotationCustomerName"),
+			"mktQuotationCustomerPhone"=COALESCE($3,"mktQuotationCustomerPhone"),
+			"mktQuotationCustomerAddress"=COALESCE($4,"mktQuotationCustomerAddress"),
+			"mktQuotationPaymentMethod"=COALESCE($5,"mktQuotationPaymentMethod"),
+			"mktQuotationNotes"=COALESCE($6,"mktQuotationNotes"),
+			"mktQuotationUpdatedAt"=now()
+		WHERE "mktQuotationId"=$1 RETURNING *
+	`, id, body["mktQuotationCustomerName"], body["mktQuotationCustomerPhone"],
+		body["mktQuotationCustomerAddress"], body["mktQuotationPaymentMethod"], body["mktQuotationNotes"])
 }
 
 func (s *Store) SubmitQuotation(ctx context.Context, id, userID string) {
-	s.pool.Exec(ctx, `UPDATE "omQuotation" SET "omQuotationStatus"='pending_approval',"omQuotationSubmittedBy"=$2,"omQuotationUpdatedAt"=now() WHERE "omQuotationId"=$1`, id, userID)
+	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='pending_approval',"mktQuotationSubmittedBy"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, userID)
 }
 
 func (s *Store) ApproveQuotation(ctx context.Context, id, userID string) {
-	s.pool.Exec(ctx, `UPDATE "omQuotation" SET "omQuotationStatus"='approved',"omQuotationApprovedBy"=$2,"omQuotationUpdatedAt"=now() WHERE "omQuotationId"=$1`, id, userID)
+	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='approved',"mktQuotationApprovedBy"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, userID)
 }
 
 func (s *Store) RejectQuotation(ctx context.Context, id, note string) {
-	s.pool.Exec(ctx, `UPDATE "omQuotation" SET "omQuotationStatus"='rejected',"omQuotationApprovalNote"=$2,"omQuotationUpdatedAt"=now() WHERE "omQuotationId"=$1`, id, note)
+	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='rejected',"mktQuotationApprovalNote"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, note)
 }
 
 func (s *Store) ConfirmPaymentQuotation(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "omQuotation" SET "omQuotationStatus"='paid',"omQuotationUpdatedAt"=now() WHERE "omQuotationId"=$1`, id)
+	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='paid',"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id)
 }
 
 func (s *Store) CancelQuotation(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "omQuotation" SET "omQuotationStatus"='cancelled',"omQuotationUpdatedAt"=now() WHERE "omQuotationId"=$1`, id)
+	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='cancelled',"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id)
 }
 
 // ---- Promotions ----
 
 func (s *Store) ListPromotions(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "omPromotion" ORDER BY "omPromotionCreatedAt" DESC`)
+	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktPromotion" ORDER BY "mktPromotionCreatedAt" DESC`)
 }
 
 func (s *Store) CreatePromotion(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "omPromotion" ("omPromotionName","omPromotionDescription","omPromotionType","omPromotionValue",
-			"omPromotionMinQuantity","omPromotionApplicableProducts","omPromotionStartDate","omPromotionEndDate","omPromotionIsActive")
+		INSERT INTO "mktPromotion" ("mktPromotionName","mktPromotionDescription","mktPromotionType","mktPromotionValue",
+			"mktPromotionMinQuantity","mktPromotionApplicableProducts","mktPromotionStartDate","mktPromotionEndDate","mktPromotionIsActive")
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *
-	`, body["omPromotionName"], body["omPromotionDescription"], body["omPromotionType"], body["omPromotionValue"],
-		body["omPromotionMinQuantity"], body["omPromotionApplicableProducts"], body["omPromotionStartDate"],
-		body["omPromotionEndDate"], body["omPromotionIsActive"])
+	`, body["mktPromotionName"], body["mktPromotionDescription"], body["mktPromotionType"], body["mktPromotionValue"],
+		body["mktPromotionMinQuantity"], body["mktPromotionApplicableProducts"], body["mktPromotionStartDate"],
+		body["mktPromotionEndDate"], body["mktPromotionIsActive"])
 }
 
 func (s *Store) UpdatePromotion(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "omPromotion" SET
-			"omPromotionName"=COALESCE($2,"omPromotionName"),"omPromotionDescription"=COALESCE($3,"omPromotionDescription"),
-			"omPromotionType"=COALESCE($4,"omPromotionType"),"omPromotionValue"=COALESCE($5,"omPromotionValue"),
-			"omPromotionIsActive"=COALESCE($6,"omPromotionIsActive"),"omPromotionUpdatedAt"=now()
-		WHERE "omPromotionId"=$1 RETURNING *
-	`, id, body["omPromotionName"], body["omPromotionDescription"], body["omPromotionType"],
-		body["omPromotionValue"], body["omPromotionIsActive"])
+		UPDATE "mktPromotion" SET
+			"mktPromotionName"=COALESCE($2,"mktPromotionName"),"mktPromotionDescription"=COALESCE($3,"mktPromotionDescription"),
+			"mktPromotionType"=COALESCE($4,"mktPromotionType"),"mktPromotionValue"=COALESCE($5,"mktPromotionValue"),
+			"mktPromotionIsActive"=COALESCE($6,"mktPromotionIsActive"),"mktPromotionUpdatedAt"=now()
+		WHERE "mktPromotionId"=$1 RETURNING *
+	`, id, body["mktPromotionName"], body["mktPromotionDescription"], body["mktPromotionType"],
+		body["mktPromotionValue"], body["mktPromotionIsActive"])
 }
 
 func (s *Store) DeletePromotion(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `DELETE FROM "omPromotion" WHERE "omPromotionId"=$1`, id)
+	s.pool.Exec(ctx, `DELETE FROM "mktPromotion" WHERE "mktPromotionId"=$1`, id)
 }
 
 // ---- Related Products ----
 
 func (s *Store) ListRelatedProducts(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "omRelatedProduct" ORDER BY "omRelatedProductCreatedAt" DESC`)
+	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktRelatedProduct" ORDER BY "mktRelatedProductCreatedAt" DESC`)
 }
 
 func (s *Store) CreateRelatedProduct(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "omRelatedProduct" ("omRelatedProductSourceItem","omRelatedProductTargetItem","omRelatedProductType","omRelatedProductReason")
+		INSERT INTO "mktRelatedProduct" ("mktRelatedProductSourceItem","mktRelatedProductTargetItem","mktRelatedProductType","mktRelatedProductReason")
 		VALUES ($1,$2,$3,$4) RETURNING *
-	`, body["omRelatedProductSourceItem"], body["omRelatedProductTargetItem"], body["omRelatedProductType"], body["omRelatedProductReason"])
+	`, body["mktRelatedProductSourceItem"], body["mktRelatedProductTargetItem"], body["mktRelatedProductType"], body["mktRelatedProductReason"])
 }
 
 func (s *Store) DeleteRelatedProduct(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `DELETE FROM "omRelatedProduct" WHERE "omRelatedProductId"=$1`, id)
+	s.pool.Exec(ctx, `DELETE FROM "mktRelatedProduct" WHERE "mktRelatedProductId"=$1`, id)
 }
 
 // ---- Stock Items & Price Items ----
@@ -220,95 +220,95 @@ func (s *Store) ListStockItems(ctx context.Context) ([]map[string]any, error) {
 }
 
 func (s *Store) ListPriceItems(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "omPriceItem"`)
+	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktPriceItem"`)
 }
 
 func (s *Store) UpsertPriceItem(ctx context.Context, item map[string]any, userID string) {
 	s.pool.Exec(ctx, `
-		INSERT INTO "omPriceItem" ("omPriceItemNumber","omPriceItemName","omPriceItemUnitPrice","omPriceItemUpdatedBy")
+		INSERT INTO "mktPriceItem" ("mktPriceItemNumber","mktPriceItemName","mktPriceItemUnitPrice","mktPriceItemUpdatedBy")
 		VALUES ($1,$2,$3,$4)
-		ON CONFLICT ("omPriceItemNumber") DO UPDATE SET "omPriceItemName"=$2,"omPriceItemUnitPrice"=$3,"omPriceItemUpdatedBy"=$4,"omPriceItemUpdatedAt"=now()
-	`, item["omPriceItemNumber"], item["omPriceItemName"], item["omPriceItemUnitPrice"], userID)
+		ON CONFLICT ("mktPriceItemNumber") DO UPDATE SET "mktPriceItemName"=$2,"mktPriceItemUnitPrice"=$3,"mktPriceItemUpdatedBy"=$4,"mktPriceItemUpdatedAt"=now()
+	`, item["mktPriceItemNumber"], item["mktPriceItemName"], item["mktPriceItemUnitPrice"], userID)
 }
 
 func (s *Store) ListProductInfo(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT * FROM "omProductInfo" ORDER BY "omProductInfoItemNumber"`)
+	return db.QueryRows(ctx, s.pool, `SELECT * FROM "mktProductInfo" ORDER BY "mktProductInfoItemNumber"`)
 }
 
 func (s *Store) UpsertProductInfo(ctx context.Context, item map[string]any) {
 	s.pool.Exec(ctx, `
-		INSERT INTO "omProductInfo" ("omProductInfoItemNumber","omProductInfoDescription","omProductInfoHighlights","omProductInfoCategory","omProductInfoImageUrl")
+		INSERT INTO "mktProductInfo" ("mktProductInfoItemNumber","mktProductInfoDescription","mktProductInfoHighlights","mktProductInfoCategory","mktProductInfoImageUrl")
 		VALUES ($1,$2,$3,$4,$5)
-		ON CONFLICT ("omProductInfoItemNumber") DO UPDATE SET "omProductInfoDescription"=$2,"omProductInfoHighlights"=$3,"omProductInfoCategory"=$4,"omProductInfoImageUrl"=$5,"omProductInfoUpdatedAt"=now()
+		ON CONFLICT ("mktProductInfoItemNumber") DO UPDATE SET "mktProductInfoDescription"=$2,"mktProductInfoHighlights"=$3,"mktProductInfoCategory"=$4,"mktProductInfoImageUrl"=$5,"mktProductInfoUpdatedAt"=now()
 	`, item["itemNumber"], item["description"], item["highlights"], item["category"], item["imageUrl"])
 }
 
 // ---- Follow-ups ----
 
 func (s *Store) ListFollowUps(ctx context.Context, status, convID string) ([]map[string]any, error) {
-	q := `SELECT * FROM "omFollowUp" WHERE 1=1`
+	q := `SELECT * FROM "mktFollowUp" WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 	if status != "" {
-		q += fmt.Sprintf(` AND "omFollowUpStatus"=$%d`, argIdx)
+		q += fmt.Sprintf(` AND "mktFollowUpStatus"=$%d`, argIdx)
 		args = append(args, status)
 		argIdx++
 	}
 	if convID != "" {
-		q += fmt.Sprintf(` AND "omFollowUpConversationId"=$%d`, argIdx)
+		q += fmt.Sprintf(` AND "mktFollowUpConversationId"=$%d`, argIdx)
 		args = append(args, convID)
 	}
-	q += ` ORDER BY "omFollowUpCreatedAt" DESC`
+	q += ` ORDER BY "mktFollowUpCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
 func (s *Store) CreateFollowUp(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "omFollowUp" ("omFollowUpConversationId","omFollowUpScheduledAt","omFollowUpMessage")
+		INSERT INTO "mktFollowUp" ("mktFollowUpConversationId","mktFollowUpScheduledAt","mktFollowUpMessage")
 		VALUES ($1,$2,$3) RETURNING *
-	`, body["omFollowUpConversationId"], body["omFollowUpScheduledAt"], body["omFollowUpMessage"])
+	`, body["mktFollowUpConversationId"], body["mktFollowUpScheduledAt"], body["mktFollowUpMessage"])
 }
 
 func (s *Store) UpdateFollowUp(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "omFollowUp" SET
-			"omFollowUpStatus"=COALESCE($2,"omFollowUpStatus"),
-			"omFollowUpScheduledAt"=COALESCE($3,"omFollowUpScheduledAt"),
-			"omFollowUpMessage"=COALESCE($4,"omFollowUpMessage")
-		WHERE "omFollowUpId"=$1 RETURNING *
-	`, id, body["omFollowUpStatus"], body["omFollowUpScheduledAt"], body["omFollowUpMessage"])
+		UPDATE "mktFollowUp" SET
+			"mktFollowUpStatus"=COALESCE($2,"mktFollowUpStatus"),
+			"mktFollowUpScheduledAt"=COALESCE($3,"mktFollowUpScheduledAt"),
+			"mktFollowUpMessage"=COALESCE($4,"mktFollowUpMessage")
+		WHERE "mktFollowUpId"=$1 RETURNING *
+	`, id, body["mktFollowUpStatus"], body["mktFollowUpScheduledAt"], body["mktFollowUpMessage"])
 }
 
 func (s *Store) CancelFollowUp(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "omFollowUp" SET "omFollowUpStatus"='cancelled' WHERE "omFollowUpId"=$1`, id)
+	s.pool.Exec(ctx, `UPDATE "mktFollowUp" SET "mktFollowUpStatus"='cancelled' WHERE "mktFollowUpId"=$1`, id)
 }
 
 func (s *Store) ListPendingFollowUps(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT * FROM "omFollowUp" WHERE "omFollowUpStatus"='pending' AND "omFollowUpScheduledAt" <= now() LIMIT 20
+		SELECT * FROM "mktFollowUp" WHERE "mktFollowUpStatus"='pending' AND "mktFollowUpScheduledAt" <= now() LIMIT 20
 	`)
 }
 
 func (s *Store) MarkFollowUpSent(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "omFollowUp" SET "omFollowUpStatus"='sent',"omFollowUpSentAt"=now() WHERE "omFollowUpId"=$1`, id)
+	s.pool.Exec(ctx, `UPDATE "mktFollowUp" SET "mktFollowUpStatus"='sent',"mktFollowUpSentAt"=now() WHERE "mktFollowUpId"=$1`, id)
 }
 
 // ---- AI Settings ----
 
 func (s *Store) GetAISettings(ctx context.Context) (map[string]any, error) {
-	return db.QueryRow(ctx, s.pool, `SELECT * FROM "omAiSetting" LIMIT 1`)
+	return db.QueryRow(ctx, s.pool, `SELECT * FROM "mktAiSetting" LIMIT 1`)
 }
 
 func (s *Store) UpdateAISettings(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		UPDATE "omAiSetting" SET
-			"omAiSettingSystemPrompt"=COALESCE($1,"omAiSettingSystemPrompt"),
-			"omAiSettingModel"=COALESCE($2,"omAiSettingModel"),
-			"omAiSettingTemperature"=COALESCE($3,"omAiSettingTemperature"),
-			"omAiSettingMaxHistoryMessages"=COALESCE($4,"omAiSettingMaxHistoryMessages"),
-			"omAiSettingBankAccountInfo"=COALESCE($5,"omAiSettingBankAccountInfo"),
-			"omAiSettingUpdatedAt"=now()
+		UPDATE "mktAiSetting" SET
+			"mktAiSettingSystemPrompt"=COALESCE($1,"mktAiSettingSystemPrompt"),
+			"mktAiSettingModel"=COALESCE($2,"mktAiSettingModel"),
+			"mktAiSettingTemperature"=COALESCE($3,"mktAiSettingTemperature"),
+			"mktAiSettingMaxHistoryMessages"=COALESCE($4,"mktAiSettingMaxHistoryMessages"),
+			"mktAiSettingBankAccountInfo"=COALESCE($5,"mktAiSettingBankAccountInfo"),
+			"mktAiSettingUpdatedAt"=now()
 		WHERE true RETURNING *
-	`, body["omAiSettingSystemPrompt"], body["omAiSettingModel"], body["omAiSettingTemperature"],
-		body["omAiSettingMaxHistoryMessages"], body["omAiSettingBankAccountInfo"])
+	`, body["mktAiSettingSystemPrompt"], body["mktAiSettingModel"], body["mktAiSettingTemperature"],
+		body["mktAiSettingMaxHistoryMessages"], body["mktAiSettingBankAccountInfo"])
 }

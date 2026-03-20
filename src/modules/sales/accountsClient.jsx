@@ -8,15 +8,15 @@ import { validateForm, isRequired } from "@/lib/validation";
 import AccountsView from "@/modules/sales/components/accountsView";
 
 const emptyForm = {
-  crmAccountName: "",
-  crmAccountIndustry: "",
-  crmAccountWebsite: "",
-  crmAccountPhone: "",
-  crmAccountEmail: "",
-  crmAccountEmployees: "",
-  crmAccountAnnualRevenue: "",
-  crmAccountAddress: "",
-  crmAccountNotes: "",
+  salesAccountName: "",
+  salesAccountIndustry: "",
+  salesAccountWebsite: "",
+  salesAccountPhone: "",
+  salesAccountEmail: "",
+  salesAccountEmployees: "",
+  salesAccountAnnualRevenue: "",
+  salesAccountAddress: "",
+  salesAccountNotes: "",
 };
 
 export default function AccountsClient({ initialAccounts }) {
@@ -41,15 +41,15 @@ export default function AccountsClient({ initialAccounts }) {
     if (account) {
       setEditingAccount(account);
       setFormData({
-        crmAccountName: account.crmAccountName || "",
-        crmAccountIndustry: account.crmAccountIndustry || "",
-        crmAccountWebsite: account.crmAccountWebsite || "",
-        crmAccountPhone: account.crmAccountPhone || "",
-        crmAccountEmail: account.crmAccountEmail || "",
-        crmAccountEmployees: account.crmAccountEmployees?.toString() || "",
-        crmAccountAnnualRevenue: account.crmAccountAnnualRevenue?.toString() || "",
-        crmAccountAddress: account.crmAccountAddress || "",
-        crmAccountNotes: account.crmAccountNotes || "",
+        salesAccountName: account.salesAccountName || "",
+        salesAccountIndustry: account.salesAccountIndustry || "",
+        salesAccountWebsite: account.salesAccountWebsite || "",
+        salesAccountPhone: account.salesAccountPhone || "",
+        salesAccountEmail: account.salesAccountEmail || "",
+        salesAccountEmployees: account.salesAccountEmployees?.toString() || "",
+        salesAccountAnnualRevenue: account.salesAccountAnnualRevenue?.toString() || "",
+        salesAccountAddress: account.salesAccountAddress || "",
+        salesAccountNotes: account.salesAccountNotes || "",
       });
     } else {
       setEditingAccount(null);
@@ -61,7 +61,7 @@ export default function AccountsClient({ initialAccounts }) {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      crmAccountName: [(v) => !isRequired(v) && "กรุณาระบุชื่อบัญชี"],
+      salesAccountName: [(v) => !isRequired(v) && "กรุณาระบุชื่อบัญชี"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -74,16 +74,16 @@ export default function AccountsClient({ initialAccounts }) {
       setSaving(true);
       const payload = {
         ...formData,
-        crmAccountEmployees: formData.crmAccountEmployees
-          ? parseInt(formData.crmAccountEmployees)
+        salesAccountEmployees: formData.salesAccountEmployees
+          ? parseInt(formData.salesAccountEmployees)
           : null,
-        crmAccountAnnualRevenue: formData.crmAccountAnnualRevenue
-          ? parseFloat(formData.crmAccountAnnualRevenue)
+        salesAccountAnnualRevenue: formData.salesAccountAnnualRevenue
+          ? parseFloat(formData.salesAccountAnnualRevenue)
           : null,
       };
 
       if (editingAccount) {
-        await put(`/api/sales/accounts/${editingAccount.crmAccountId}`, payload);
+        await put(`/api/sales/accounts/${editingAccount.salesAccountId}`, payload);
         toast.success("อัปเดตบัญชีสำเร็จ");
       } else {
         await post("/api/sales/accounts", payload);
@@ -106,7 +106,7 @@ export default function AccountsClient({ initialAccounts }) {
   const handleDelete = async () => {
     if (!deletingAccount) return;
     try {
-      await del(`/api/sales/accounts/${deletingAccount.crmAccountId}`);
+      await del(`/api/sales/accounts/${deletingAccount.salesAccountId}`);
       toast.success("ลบบัญชีสำเร็จ");
       deleteModal.onClose();
       setDeletingAccount(null);
@@ -118,7 +118,7 @@ export default function AccountsClient({ initialAccounts }) {
 
   const toggleActive = async (item) => {
     try {
-      await put(`/api/sales/accounts/${item.crmAccountId}`, { isActive: !item.isActive });
+      await put(`/api/sales/accounts/${item.salesAccountId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       reloadAccounts();
     } catch {

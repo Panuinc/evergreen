@@ -213,7 +213,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
           <div className="flex flex-col gap-3">
             {(recentActivities || []).map((activity, i) => {
               const Icon =
-                typeIconMap[activity.crmActivityType] || ClipboardList;
+                typeIconMap[activity.salesActivityType] || ClipboardList;
               return (
                 <div
                   key={i}
@@ -222,12 +222,12 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
                   <div className="flex items-center gap-3">
                     <Icon className="text-muted-foreground" />
                     <span className="font-light">
-                      {activity.crmActivitySubject}
+                      {activity.salesActivitySubject}
                     </span>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {activity.crmActivityDueDate
-                      ? new Date(activity.crmActivityDueDate).toLocaleDateString(
+                    {activity.salesActivityDueDate
+                      ? new Date(activity.salesActivityDueDate).toLocaleDateString(
                           "th-TH",
                         )
                       : "-"}

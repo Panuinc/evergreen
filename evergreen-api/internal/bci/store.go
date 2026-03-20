@@ -47,7 +47,7 @@ func (s *Store) CreateProject(ctx context.Context, body map[string]any) (map[str
 }
 
 // UpsertProjectRecord builds and executes a dynamic upsert from a flat record map.
-// The record must contain "bciProjectExternalId" as the conflict key.
+// The record must contain "bciProjectExternalRef" as the conflict key.
 func (s *Store) UpsertProjectRecord(ctx context.Context, record map[string]any) error {
 	cols := []string{}
 	vals := []any{}
@@ -58,13 +58,13 @@ func (s *Store) UpsertProjectRecord(ctx context.Context, record map[string]any) 
 		cols = append(cols, fmt.Sprintf(`"%s"`, col))
 		vals = append(vals, val)
 		placeholders = append(placeholders, fmt.Sprintf("$%d", idx))
-		if col != "bciProjectExternalId" {
+		if col != "bciProjectExternalRef" {
 			updates = append(updates, fmt.Sprintf(`"%s"=EXCLUDED."%s"`, col, col))
 		}
 		idx++
 	}
 	q := fmt.Sprintf(
-		`INSERT INTO "bciProject" (%s) VALUES (%s) ON CONFLICT ("bciProjectExternalId") DO UPDATE SET %s`,
+		`INSERT INTO "bciProject" (%s) VALUES (%s) ON CONFLICT ("bciProjectExternalRef") DO UPDATE SET %s`,
 		strings.Join(cols, ","),
 		strings.Join(placeholders, ","),
 		strings.Join(updates, ","),

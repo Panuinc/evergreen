@@ -24,7 +24,7 @@ import { post, put, del } from "@/lib/apiClient";
 
 const baseColumns = [
   { name: "ชื่อตำแหน่ง", uid: "hrPositionTitle", sortable: true },
-  { name: "แผนก", uid: "hrPositionDepartment", sortable: true },
+  { name: "แผนก", uid: "hrPositionHrDepartmentId", sortable: true },
   { name: "รายละเอียด", uid: "hrPositionDescription" },
   { name: "วันที่สร้าง", uid: "hrPositionCreatedAt", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
@@ -32,7 +32,7 @@ const baseColumns = [
 
 const baseVisibleColumns = [
   "hrPositionTitle",
-  "hrPositionDepartment",
+  "hrPositionHrDepartmentId",
   "hrPositionDescription",
   "actions",
 ];
@@ -40,7 +40,7 @@ const baseVisibleColumns = [
 const emptyForm = {
   hrPositionTitle: "",
   hrPositionDescription: "",
-  hrPositionDepartment: "",
+  hrPositionHrDepartmentId: "",
 };
 
 export default function PositionsClient({ initialPositions, initialDepartments }) {
@@ -68,7 +68,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
       setFormData({
         hrPositionTitle: pos.hrPositionTitle || "",
         hrPositionDescription: pos.hrPositionDescription || "",
-        hrPositionDepartment: pos.hrPositionDepartment || "",
+        hrPositionHrDepartmentId: pos.hrPositionHrDepartmentId || "",
       });
     } else {
       setEditingPos(null);
@@ -149,7 +149,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
 
   const deptOptions = departments.map((d) => ({
     name: d.hrDepartmentName,
-    uid: d.hrDepartmentName,
+    uid: d.hrDepartmentId,
   }));
 
   const renderCell = useCallback(
@@ -157,8 +157,10 @@ export default function PositionsClient({ initialPositions, initialDepartments }
       switch (columnKey) {
         case "hrPositionTitle":
           return <span className="font-light">{pos.hrPositionTitle}</span>;
-        case "hrPositionDepartment":
-          return pos.hrPositionDepartment || "-";
+        case "hrPositionHrDepartmentId": {
+          const dept = departments.find((d) => d.hrDepartmentId === pos.hrPositionHrDepartmentId);
+          return dept ? dept.hrDepartmentName : "-";
+        }
         case "hrPositionDescription":
           return (
             <span className="text-muted-foreground">
@@ -232,10 +234,9 @@ export default function PositionsClient({ initialPositions, initialDepartments }
         searchPlaceholder="ค้นหาตามชื่อตำแหน่ง, แผนก, รายละเอียด..."
         searchKeys={[
           "hrPositionTitle",
-          "hrPositionDepartment",
           "hrPositionDescription",
         ]}
-        statusField="hrPositionDepartment"
+        statusField="hrPositionHrDepartmentId"
         statusOptions={deptOptions}
         filterLabel="แผนก"
         emptyContent="ไม่พบตำแหน่ง"
@@ -274,18 +275,18 @@ export default function PositionsClient({ initialPositions, initialDepartments }
                   size="md"
                   radius="md"
                   selectedKeys={
-                    formData.hrPositionDepartment
-                      ? [formData.hrPositionDepartment]
+                    formData.hrPositionHrDepartmentId
+                      ? [formData.hrPositionHrDepartmentId]
                       : []
                   }
                   onSelectionChange={(keys) => {
                     const val = Array.from(keys)[0] || "";
-                    setFormData({ ...formData, hrPositionDepartment: val });
+                    setFormData({ ...formData, hrPositionHrDepartmentId: val });
                   }}
                   isRequired
                 >
                   {departments.map((dept) => (
-                    <SelectItem key={dept.hrDepartmentName}>
+                    <SelectItem key={dept.hrDepartmentId}>
                       {dept.hrDepartmentName}
                     </SelectItem>
                   ))}

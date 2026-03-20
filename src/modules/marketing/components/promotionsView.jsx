@@ -29,26 +29,26 @@ const promoTypes = [
 ];
 
 const columns = [
-  { name: "ชื่อโปรโมชั่น", uid: "omPromotionName", sortable: true },
-  { name: "ประเภท", uid: "omPromotionType", sortable: true },
-  { name: "มูลค่า", uid: "omPromotionValue", sortable: true },
-  { name: "สินค้า", uid: "omPromotionApplicableProducts" },
-  { name: "วันเริ่ม", uid: "omPromotionStartDate", sortable: true },
-  { name: "วันสิ้นสุด", uid: "omPromotionEndDate", sortable: true },
-  { name: "สถานะ", uid: "omPromotionIsActive", sortable: true },
+  { name: "ชื่อโปรโมชั่น", uid: "mktPromotionName", sortable: true },
+  { name: "ประเภท", uid: "mktPromotionType", sortable: true },
+  { name: "มูลค่า", uid: "mktPromotionValue", sortable: true },
+  { name: "สินค้า", uid: "mktPromotionApplicableProducts" },
+  { name: "วันเริ่ม", uid: "mktPromotionStartDate", sortable: true },
+  { name: "วันสิ้นสุด", uid: "mktPromotionEndDate", sortable: true },
+  { name: "สถานะ", uid: "mktPromotionIsActive", sortable: true },
   { name: "", uid: "actions" },
 ];
 
 const initialForm = {
-  omPromotionName: "",
-  omPromotionDescription: "",
-  omPromotionType: "discount_percent",
-  omPromotionValue: "",
-  omPromotionMinQuantity: "1",
-  omPromotionApplicableProducts: [],
-  omPromotionStartDate: "",
-  omPromotionEndDate: "",
-  omPromotionIsActive: true,
+  mktPromotionName: "",
+  mktPromotionDescription: "",
+  mktPromotionType: "discount_percent",
+  mktPromotionValue: "",
+  mktPromotionMinQuantity: "1",
+  mktPromotionApplicableProducts: [],
+  mktPromotionStartDate: "",
+  mktPromotionEndDate: "",
+  mktPromotionIsActive: true,
 };
 
 export default function PromotionsView({ promotions, loading, stockItems = [], onAdd, onUpdate, onDelete }) {
@@ -67,31 +67,31 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
 
   const openEdit = (promo) => {
     setForm({
-      omPromotionName: promo.omPromotionName || "",
-      omPromotionDescription: promo.omPromotionDescription || "",
-      omPromotionType: promo.omPromotionType || "discount_percent",
-      omPromotionValue: String(promo.omPromotionValue || ""),
-      omPromotionMinQuantity: String(promo.omPromotionMinQuantity || 1),
-      omPromotionApplicableProducts: promo.omPromotionApplicableProducts || [],
-      omPromotionStartDate: promo.omPromotionStartDate || "",
-      omPromotionEndDate: promo.omPromotionEndDate || "",
-      omPromotionIsActive: promo.omPromotionIsActive !== false,
+      mktPromotionName: promo.mktPromotionName || "",
+      mktPromotionDescription: promo.mktPromotionDescription || "",
+      mktPromotionType: promo.mktPromotionType || "discount_percent",
+      mktPromotionValue: String(promo.mktPromotionValue || ""),
+      mktPromotionMinQuantity: String(promo.mktPromotionMinQuantity || 1),
+      mktPromotionApplicableProducts: promo.mktPromotionApplicableProducts || [],
+      mktPromotionStartDate: promo.mktPromotionStartDate || "",
+      mktPromotionEndDate: promo.mktPromotionEndDate || "",
+      mktPromotionIsActive: promo.mktPromotionIsActive !== false,
     });
-    setEditingId(promo.omPromotionId);
+    setEditingId(promo.mktPromotionId);
     setProductSearch("");
     modal.onOpen();
   };
 
   const handleSave = async () => {
-    if (!form.omPromotionName.trim()) return;
+    if (!form.mktPromotionName.trim()) return;
     try {
       setSaving(true);
       const payload = {
         ...form,
-        omPromotionValue: Number(form.omPromotionValue) || 0,
-        omPromotionMinQuantity: Number(form.omPromotionMinQuantity) || 1,
-        omPromotionStartDate: form.omPromotionStartDate || null,
-        omPromotionEndDate: form.omPromotionEndDate || null,
+        mktPromotionValue: Number(form.mktPromotionValue) || 0,
+        mktPromotionMinQuantity: Number(form.mktPromotionMinQuantity) || 1,
+        mktPromotionStartDate: form.mktPromotionStartDate || null,
+        mktPromotionEndDate: form.mktPromotionEndDate || null,
       };
       if (editingId) {
         await onUpdate(editingId, payload);
@@ -107,10 +107,10 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
   };
 
   const addProduct = (itemNumber) => {
-    if (form.omPromotionApplicableProducts.includes(itemNumber)) return;
+    if (form.mktPromotionApplicableProducts.includes(itemNumber)) return;
     setForm((f) => ({
       ...f,
-      omPromotionApplicableProducts: [...f.omPromotionApplicableProducts, itemNumber],
+      mktPromotionApplicableProducts: [...f.mktPromotionApplicableProducts, itemNumber],
     }));
     setProductSearch("");
   };
@@ -118,7 +118,7 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
   const removeProduct = (itemNumber) => {
     setForm((f) => ({
       ...f,
-      omPromotionApplicableProducts: f.omPromotionApplicableProducts.filter((n) => n !== itemNumber),
+      mktPromotionApplicableProducts: f.mktPromotionApplicableProducts.filter((n) => n !== itemNumber),
     }));
   };
 
@@ -130,7 +130,7 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
   const filteredStockItems = stockItems.filter(
     (i) =>
       productSearch &&
-      !form.omPromotionApplicableProducts.includes(i.bcItemNo) &&
+      !form.mktPromotionApplicableProducts.includes(i.bcItemNo) &&
       (i.bcItemNo?.toLowerCase().includes(productSearch.toLowerCase()) ||
         i.bcItemDescription?.toLowerCase().includes(productSearch.toLowerCase()))
   );
@@ -139,23 +139,23 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
 
   const renderCell = (item, key) => {
     switch (key) {
-      case "omPromotionName":
+      case "mktPromotionName":
         return (
           <div>
-            <p className="font-light">{item.omPromotionName}</p>
-            {item.omPromotionDescription && (
-              <p className="text-xs text-default-400 line-clamp-1">{item.omPromotionDescription}</p>
+            <p className="font-light">{item.mktPromotionName}</p>
+            {item.mktPromotionDescription && (
+              <p className="text-xs text-default-400 line-clamp-1">{item.mktPromotionDescription}</p>
             )}
           </div>
         );
-      case "omPromotionType":
-        return <Chip size="sm" variant="flat">{getTypeLabel(item.omPromotionType)}</Chip>;
-      case "omPromotionValue":
-        if (item.omPromotionType === "discount_percent") return `${item.omPromotionValue}%`;
-        if (item.omPromotionType === "discount_amount") return `${Number(item.omPromotionValue).toLocaleString("th-TH")} บาท`;
-        return item.omPromotionValue || "-";
-      case "omPromotionApplicableProducts": {
-        const products = item.omPromotionApplicableProducts || [];
+      case "mktPromotionType":
+        return <Chip size="sm" variant="flat">{getTypeLabel(item.mktPromotionType)}</Chip>;
+      case "mktPromotionValue":
+        if (item.mktPromotionType === "discount_percent") return `${item.mktPromotionValue}%`;
+        if (item.mktPromotionType === "discount_amount") return `${Number(item.mktPromotionValue).toLocaleString("th-TH")} บาท`;
+        return item.mktPromotionValue || "-";
+      case "mktPromotionApplicableProducts": {
+        const products = item.mktPromotionApplicableProducts || [];
         if (products.length === 0) return <span className="text-xs text-default-400">ทุกสินค้า</span>;
         return (
           <div className="flex flex-wrap gap-1">
@@ -170,14 +170,14 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
           </div>
         );
       }
-      case "omPromotionStartDate":
-        return item.omPromotionStartDate || "-";
-      case "omPromotionEndDate":
-        return item.omPromotionEndDate || "-";
-      case "omPromotionIsActive":
+      case "mktPromotionStartDate":
+        return item.mktPromotionStartDate || "-";
+      case "mktPromotionEndDate":
+        return item.mktPromotionEndDate || "-";
+      case "mktPromotionIsActive":
         return (
-          <Chip size="sm" variant="flat" color={item.omPromotionIsActive ? "success" : "default"}>
-            {item.omPromotionIsActive ? "ใช้งาน" : "ปิด"}
+          <Chip size="sm" variant="flat" color={item.mktPromotionIsActive ? "success" : "default"}>
+            {item.mktPromotionIsActive ? "ใช้งาน" : "ปิด"}
           </Chip>
         );
       case "actions":
@@ -186,7 +186,7 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
             <Button isIconOnly size="sm" variant="light" onPress={() => openEdit(item)}>
               <Pencil size={16} />
             </Button>
-            <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => onDelete(item.omPromotionId)}>
+            <Button isIconOnly size="sm" variant="light" color="danger" onPress={() => onDelete(item.mktPromotionId)}>
               <Trash2 size={16} />
             </Button>
           </div>
@@ -210,11 +210,11 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
         columns={columns}
         data={promotions}
         renderCell={renderCell}
-        rowKey="omPromotionId"
+        rowKey="mktPromotionId"
         isLoading={loading}
         initialVisibleColumns={columns.map((c) => c.uid)}
         searchPlaceholder="ค้นหาโปรโมชั่น..."
-        searchKeys={["omPromotionName", "omPromotionDescription"]}
+        searchKeys={["mktPromotionName", "mktPromotionDescription"]}
         topEndContent={addButton}
         defaultRowsPerPage={20}
         emptyContent="ยังไม่มีโปรโมชั่น"
@@ -233,8 +233,8 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
                 variant="bordered"
                 size="md"
                 radius="md"
-                value={form.omPromotionName}
-                onValueChange={(v) => setForm((f) => ({ ...f, omPromotionName: v }))}
+                value={form.mktPromotionName}
+                onValueChange={(v) => setForm((f) => ({ ...f, mktPromotionName: v }))}
                 isRequired
               />
               <Textarea
@@ -245,8 +245,8 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
                 size="md"
                 radius="md"
                 minRows={2}
-                value={form.omPromotionDescription}
-                onValueChange={(v) => setForm((f) => ({ ...f, omPromotionDescription: v }))}
+                value={form.mktPromotionDescription}
+                onValueChange={(v) => setForm((f) => ({ ...f, mktPromotionDescription: v }))}
               />
               <div className="grid grid-cols-2 gap-4">
                 <Select
@@ -255,10 +255,10 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
                   variant="bordered"
                   size="md"
                   radius="md"
-                  selectedKeys={[form.omPromotionType]}
+                  selectedKeys={[form.mktPromotionType]}
                   onSelectionChange={(keys) => {
                     const val = Array.from(keys)[0];
-                    if (val) setForm((f) => ({ ...f, omPromotionType: val }));
+                    if (val) setForm((f) => ({ ...f, mktPromotionType: val }));
                   }}
                 >
                   {promoTypes.map((t) => (
@@ -273,8 +273,8 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
                   size="md"
                   radius="md"
                   type="number"
-                  value={form.omPromotionValue}
-                  onValueChange={(v) => setForm((f) => ({ ...f, omPromotionValue: v }))}
+                  value={form.mktPromotionValue}
+                  onValueChange={(v) => setForm((f) => ({ ...f, mktPromotionValue: v }))}
                 />
               </div>
               <Input
@@ -285,16 +285,16 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
                 size="md"
                 radius="md"
                 type="number"
-                value={form.omPromotionMinQuantity}
-                onValueChange={(v) => setForm((f) => ({ ...f, omPromotionMinQuantity: v }))}
+                value={form.mktPromotionMinQuantity}
+                onValueChange={(v) => setForm((f) => ({ ...f, mktPromotionMinQuantity: v }))}
               />
 
               {/* Product selection */}
               <div>
                 <p className="text-sm mb-2">สินค้าที่ใช้โปรโมชั่นนี้</p>
-                {form.omPromotionApplicableProducts.length > 0 ? (
+                {form.mktPromotionApplicableProducts.length > 0 ? (
                   <div className="flex flex-wrap gap-1 mb-2">
-                    {form.omPromotionApplicableProducts.map((itemNumber) => (
+                    {form.mktPromotionApplicableProducts.map((itemNumber) => (
                       <Chip
                         key={itemNumber}
                         size="sm"
@@ -345,8 +345,8 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
                   size="md"
                   radius="md"
                   type="date"
-                  value={form.omPromotionStartDate}
-                  onValueChange={(v) => setForm((f) => ({ ...f, omPromotionStartDate: v }))}
+                  value={form.mktPromotionStartDate}
+                  onValueChange={(v) => setForm((f) => ({ ...f, mktPromotionStartDate: v }))}
                 />
                 <Input
                   label="วันสิ้นสุด"
@@ -355,14 +355,14 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
                   size="md"
                   radius="md"
                   type="date"
-                  value={form.omPromotionEndDate}
-                  onValueChange={(v) => setForm((f) => ({ ...f, omPromotionEndDate: v }))}
+                  value={form.mktPromotionEndDate}
+                  onValueChange={(v) => setForm((f) => ({ ...f, mktPromotionEndDate: v }))}
                 />
               </div>
               <div className="flex items-center gap-2">
                 <Switch
-                  isSelected={form.omPromotionIsActive}
-                  onValueChange={(v) => setForm((f) => ({ ...f, omPromotionIsActive: v }))}
+                  isSelected={form.mktPromotionIsActive}
+                  onValueChange={(v) => setForm((f) => ({ ...f, mktPromotionIsActive: v }))}
                   size="sm"
                 />
                 <span className="text-sm">เปิดใช้งาน</span>
@@ -379,7 +379,7 @@ export default function PromotionsView({ promotions, loading, stockItems = [], o
               radius="md"
               onPress={handleSave}
               isLoading={saving}
-              isDisabled={!form.omPromotionName.trim()}
+              isDisabled={!form.mktPromotionName.trim()}
             >
               {editingId ? "บันทึก" : "สร้าง"}
             </Button>

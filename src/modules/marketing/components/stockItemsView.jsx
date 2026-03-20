@@ -55,11 +55,11 @@ function getPromoForItem(itemNumber, promotions) {
   const today = new Date().toISOString().split("T")[0];
 
   for (const promo of promotions) {
-    if (!promo.omPromotionIsActive) continue;
-    if (promo.omPromotionStartDate && promo.omPromotionStartDate > today) continue;
-    if (promo.omPromotionEndDate && promo.omPromotionEndDate < today) continue;
+    if (!promo.mktPromotionIsActive) continue;
+    if (promo.mktPromotionStartDate && promo.mktPromotionStartDate > today) continue;
+    if (promo.mktPromotionEndDate && promo.mktPromotionEndDate < today) continue;
 
-    const applicable = promo.omPromotionApplicableProducts || [];
+    const applicable = promo.mktPromotionApplicableProducts || [];
     if (applicable.length > 0 && !applicable.includes(itemNumber)) continue;
 
     return promo;
@@ -69,12 +69,12 @@ function getPromoForItem(itemNumber, promotions) {
 
 function calcPromoPrice(sellingPrice, promo) {
   if (!promo || !sellingPrice) return null;
-  if (promo.omPromotionType === "discount_percent") {
-    const discount = Number(promo.omPromotionValue) || 0;
+  if (promo.mktPromotionType === "discount_percent") {
+    const discount = Number(promo.mktPromotionValue) || 0;
     return sellingPrice * (1 - discount / 100);
   }
-  if (promo.omPromotionType === "discount_amount") {
-    const discount = Number(promo.omPromotionValue) || 0;
+  if (promo.mktPromotionType === "discount_amount") {
+    const discount = Number(promo.mktPromotionValue) || 0;
     return Math.max(0, sellingPrice - discount);
   }
   return null;
@@ -130,7 +130,7 @@ export default function StockItemsView({ items, loading, prices, updatePrice, pr
         const promoPrice = calcPromoPrice(sellingPrice, promo);
         const effectivePrice = promoPrice != null ? promoPrice : sellingPrice;
         const profit = effectivePrice > 0 ? effectivePrice - totalCost : null;
-        return { ...item, customPrice, totalCost, profit, promoPrice, promoName: promo?.omPromotionName || null };
+        return { ...item, customPrice, totalCost, profit, promoPrice, promoName: promo?.mktPromotionName || null };
       }),
     [items, prices, promotions]
   );

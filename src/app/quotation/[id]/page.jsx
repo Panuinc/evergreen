@@ -11,9 +11,9 @@ function getSupabase() {
 async function getQuotation(id) {
   const supabase = getSupabase();
   const { data } = await supabase
-    .from("omQuotation")
+    .from("mktQuotation")
     .select("*")
-    .eq("omQuotationId", id)
+    .eq("mktQuotationId", id)
     .single();
 
   return data;
@@ -22,10 +22,10 @@ async function getQuotation(id) {
 async function getQuotationLines(id) {
   const supabase = getSupabase();
   const { data } = await supabase
-    .from("omQuotationLine")
+    .from("mktQuotationLine")
     .select("*")
-    .eq("omQuotationLineQuotationId", id)
-    .order("omQuotationLineOrder", { ascending: true });
+    .eq("mktQuotationLineQuotationId", id)
+    .order("mktQuotationLineOrder", { ascending: true });
 
   return data;
 }
@@ -39,8 +39,8 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: `ใบเสนอราคา ${quotation.omQuotationNumber || id}`,
-    description: `ใบเสนอราคาสำหรับ ${quotation.omQuotationCustomerName || ""}`,
+    title: `ใบเสนอราคา ${quotation.mktQuotationNumber || id}`,
+    description: `ใบเสนอราคาสำหรับ ${quotation.mktQuotationCustomerName || ""}`,
   };
 }
 

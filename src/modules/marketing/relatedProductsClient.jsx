@@ -13,11 +13,11 @@ export default function RelatedProductsClient({ initialRelatedProducts, initialS
     const result = await post("/api/marketing/omnichannel/relatedProducts", data);
     setRelatedProducts((prev) => {
       const exists = prev.findIndex(
-        (p) => p.omRelatedProductId === result.omRelatedProductId
+        (p) => p.mktRelatedProductId === result.mktRelatedProductId
       );
       if (exists >= 0) {
         return prev.map((p) =>
-          p.omRelatedProductId === result.omRelatedProductId ? result : p
+          p.mktRelatedProductId === result.mktRelatedProductId ? result : p
         );
       }
       return [result, ...prev];
@@ -29,7 +29,7 @@ export default function RelatedProductsClient({ initialRelatedProducts, initialS
   const remove = async (id) => {
     await del(`/api/marketing/omnichannel/relatedProducts/${id}`);
     setRelatedProducts((prev) =>
-      prev.filter((p) => p.omRelatedProductId !== id)
+      prev.filter((p) => p.mktRelatedProductId !== id)
     );
     toast.success("ลบสินค้าที่เกี่ยวข้องเรียบร้อย");
   };

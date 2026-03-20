@@ -111,13 +111,13 @@ export default function ProfileView({
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-xs text-muted-foreground w-24">แผนก</span>
               <span className="font-light">
-                {employee.hrEmployeeDepartment || "-"}
+                {employee.hrEmployeeHrDepartmentId || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-xs text-muted-foreground w-24">ตำแหน่ง</span>
               <span className="font-light">
-                {employee.hrEmployeePosition || "-"}
+                {employee.hrEmployeeHrPositionId || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">

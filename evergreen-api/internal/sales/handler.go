@@ -91,9 +91,9 @@ func (h *Handler) ConvertLead(w http.ResponseWriter, r *http.Request) {
 		response.NotFound(w, "ไม่พบ Lead")
 		return
 	}
-	contact, _ := h.store.InsertLeadContact(r.Context(), lead["crmLeadName"], lead["crmLeadEmail"], lead["crmLeadPhone"], lead["crmLeadPosition"])
-	opp, _ := h.store.InsertLeadOpportunity(r.Context(), lead["crmLeadCompany"], contact["crmContactId"], lead["crmLeadSource"])
-	h.store.MarkLeadConverted(r.Context(), id, contact["crmContactId"], opp["crmOpportunityId"])
+	contact, _ := h.store.InsertLeadContact(r.Context(), lead["salesLeadName"], lead["salesLeadEmail"], lead["salesLeadPhone"], lead["salesLeadPosition"])
+	opp, _ := h.store.InsertLeadOpportunity(r.Context(), lead["salesLeadCompany"], contact["salesContactId"], lead["salesLeadSource"])
+	h.store.MarkLeadConverted(r.Context(), id, contact["salesContactId"], opp["salesOpportunityId"])
 	response.OK(w, map[string]any{"contact": contact, "opportunity": opp})
 }
 
@@ -431,7 +431,7 @@ func (h *Handler) ManageActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if actID, ok := body["crmActivityId"].(string); ok && actID != "" {
+	if actID, ok := body["salesActivityId"].(string); ok && actID != "" {
 		data, err := h.store.UpdateActivity(r.Context(), actID, body)
 		if err != nil {
 			response.Error(w, http.StatusBadRequest, err.Error())

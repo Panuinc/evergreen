@@ -8,16 +8,16 @@ import { validateForm, isRequired } from "@/lib/validation";
 import OpportunitiesView from "@/modules/sales/components/opportunitiesView";
 
 const emptyForm = {
-  crmOpportunityName: "",
-  crmOpportunityStage: "prospecting",
-  crmOpportunityAmount: "",
-  crmOpportunityProbability: "10",
-  crmOpportunityExpectedCloseDate: "",
-  crmOpportunityContactId: "",
-  crmOpportunityAccountId: "",
-  crmOpportunityAssignedTo: "",
-  crmOpportunitySource: "",
-  crmOpportunityNotes: "",
+  salesOpportunityName: "",
+  salesOpportunityStage: "prospecting",
+  salesOpportunityAmount: "",
+  salesOpportunityProbability: "10",
+  salesOpportunityExpectedCloseDate: "",
+  salesOpportunityContactId: "",
+  salesOpportunityAccountId: "",
+  salesOpportunityAssignedTo: "",
+  salesOpportunitySource: "",
+  salesOpportunityNotes: "",
 };
 
 const stageProbability = {
@@ -54,16 +54,16 @@ export default function OpportunitiesClient({ initialOpportunities }) {
     if (opp) {
       setEditingOpp(opp);
       setFormData({
-        crmOpportunityName: opp.crmOpportunityName || "",
-        crmOpportunityStage: opp.crmOpportunityStage || "prospecting",
-        crmOpportunityAmount: opp.crmOpportunityAmount?.toString() || "",
-        crmOpportunityProbability: opp.crmOpportunityProbability?.toString() || "10",
-        crmOpportunityExpectedCloseDate: opp.crmOpportunityExpectedCloseDate || "",
-        crmOpportunityContactId: opp.crmOpportunityContactId || "",
-        crmOpportunityAccountId: opp.crmOpportunityAccountId || "",
-        crmOpportunityAssignedTo: opp.crmOpportunityAssignedTo || "",
-        crmOpportunitySource: opp.crmOpportunitySource || "",
-        crmOpportunityNotes: opp.crmOpportunityNotes || "",
+        salesOpportunityName: opp.salesOpportunityName || "",
+        salesOpportunityStage: opp.salesOpportunityStage || "prospecting",
+        salesOpportunityAmount: opp.salesOpportunityAmount?.toString() || "",
+        salesOpportunityProbability: opp.salesOpportunityProbability?.toString() || "10",
+        salesOpportunityExpectedCloseDate: opp.salesOpportunityExpectedCloseDate || "",
+        salesOpportunityContactId: opp.salesOpportunityContactId || "",
+        salesOpportunityAccountId: opp.salesOpportunityAccountId || "",
+        salesOpportunityAssignedTo: opp.salesOpportunityAssignedTo || "",
+        salesOpportunitySource: opp.salesOpportunitySource || "",
+        salesOpportunityNotes: opp.salesOpportunityNotes || "",
       });
     } else {
       setEditingOpp(null);
@@ -75,7 +75,7 @@ export default function OpportunitiesClient({ initialOpportunities }) {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      crmOpportunityName: [(v) => !isRequired(v) && "กรุณาระบุชื่อโอกาส"],
+      salesOpportunityName: [(v) => !isRequired(v) && "กรุณาระบุชื่อโอกาส"],
     });
     if (!isValid) {
       setValidationErrors(errors);
@@ -88,16 +88,16 @@ export default function OpportunitiesClient({ initialOpportunities }) {
       setSaving(true);
       const payload = {
         ...formData,
-        crmOpportunityAmount: formData.crmOpportunityAmount
-          ? parseFloat(formData.crmOpportunityAmount)
+        salesOpportunityAmount: formData.salesOpportunityAmount
+          ? parseFloat(formData.salesOpportunityAmount)
           : 0,
-        crmOpportunityProbability: parseInt(formData.crmOpportunityProbability) || 10,
+        salesOpportunityProbability: parseInt(formData.salesOpportunityProbability) || 10,
       };
-      if (!payload.crmOpportunityContactId) delete payload.crmOpportunityContactId;
-      if (!payload.crmOpportunityAccountId) delete payload.crmOpportunityAccountId;
+      if (!payload.salesOpportunityContactId) delete payload.salesOpportunityContactId;
+      if (!payload.salesOpportunityAccountId) delete payload.salesOpportunityAccountId;
 
       if (editingOpp) {
-        await put(`/api/sales/opportunities/${editingOpp.crmOpportunityId}`, payload);
+        await put(`/api/sales/opportunities/${editingOpp.salesOpportunityId}`, payload);
         toast.success("อัปเดตโอกาสสำเร็จ");
       } else {
         await post("/api/sales/opportunities", payload);
@@ -121,9 +121,9 @@ export default function OpportunitiesClient({ initialOpportunities }) {
     }
 
     try {
-      await put(`/api/sales/opportunities/${opp.crmOpportunityId}`, {
-        crmOpportunityStage: newStage,
-        crmOpportunityProbability: stageProbability[newStage] || 10,
+      await put(`/api/sales/opportunities/${opp.salesOpportunityId}`, {
+        salesOpportunityStage: newStage,
+        salesOpportunityProbability: stageProbability[newStage] || 10,
       });
       toast.success(`ย้ายไปขั้นตอน ${newStage.replace(/_/g, " ")} สำเร็จ`);
       reloadOpportunities();
@@ -135,10 +135,10 @@ export default function OpportunitiesClient({ initialOpportunities }) {
   const handleCloseLost = async () => {
     if (!editingOpp) return;
     try {
-      await put(`/api/sales/opportunities/${editingOpp.crmOpportunityId}`, {
-        crmOpportunityStage: "closed_lost",
-        crmOpportunityProbability: 0,
-        crmOpportunityLostReason: lostReason,
+      await put(`/api/sales/opportunities/${editingOpp.salesOpportunityId}`, {
+        salesOpportunityStage: "closed_lost",
+        salesOpportunityProbability: 0,
+        salesOpportunityLostReason: lostReason,
       });
       toast.success("ปิดโอกาสเป็นแพ้สำเร็จ");
       lostReasonModal.onClose();
@@ -157,7 +157,7 @@ export default function OpportunitiesClient({ initialOpportunities }) {
   const handleDelete = async () => {
     if (!deletingOpp) return;
     try {
-      await del(`/api/sales/opportunities/${deletingOpp.crmOpportunityId}`);
+      await del(`/api/sales/opportunities/${deletingOpp.salesOpportunityId}`);
       toast.success("ลบโอกาสสำเร็จ");
       deleteModal.onClose();
       setDeletingOpp(null);
@@ -170,8 +170,8 @@ export default function OpportunitiesClient({ initialOpportunities }) {
   const updateField = (field, value) => {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
-      if (field === "crmOpportunityStage" && stageProbability[value] !== undefined) {
-        updated.crmOpportunityProbability = stageProbability[value].toString();
+      if (field === "salesOpportunityStage" && stageProbability[value] !== undefined) {
+        updated.salesOpportunityProbability = stageProbability[value].toString();
       }
       return updated;
     });
@@ -179,7 +179,7 @@ export default function OpportunitiesClient({ initialOpportunities }) {
 
   const toggleActive = async (item) => {
     try {
-      await put(`/api/sales/opportunities/${item.crmOpportunityId}`, { isActive: !item.isActive });
+      await put(`/api/sales/opportunities/${item.salesOpportunityId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
       reloadOpportunities();
     } catch {

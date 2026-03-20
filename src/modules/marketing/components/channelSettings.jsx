@@ -36,7 +36,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
     isOpen ? "channel-settings" : null,
     async () => {
       const [{ data: channelsData }, aiData] = await Promise.all([
-        supabase.from("omChannel").select("*"),
+        supabase.from("mktChannel").select("*"),
         get("/api/marketing/omnichannel/ai/settings").catch(() => null),
       ]);
       return { channels: channelsData || [], aiSettings: aiData };
@@ -47,17 +47,17 @@ export default function ChannelSettings({ isOpen, onClose }) {
     if (!settingsData) return;
     const { channels: ch, aiSettings } = settingsData;
     setChannels(ch);
-    const fb = ch.find((c) => c.omChannelType === "facebook");
-    const line = ch.find((c) => c.omChannelType === "line");
-    if (fb) { setFbToken(fb.omChannelAccessToken || ""); setFbPageId(fb.omChannelPageId || ""); }
-    if (line) { setLineToken(line.omChannelAccessToken || ""); }
+    const fb = ch.find((c) => c.mktChannelType === "facebook");
+    const line = ch.find((c) => c.mktChannelType === "line");
+    if (fb) { setFbToken(fb.mktChannelAccessToken || ""); setFbPageId(fb.mktChannelPageRef || ""); }
+    if (line) { setLineToken(line.mktChannelAccessToken || ""); }
     if (aiSettings) {
-      setAiSystemPrompt(aiSettings.omAiSettingSystemPrompt || "");
-      setAiMaxHistory(String(aiSettings.omAiSettingMaxHistoryMessages || 20));
-      setAiBankAccountInfo(aiSettings.omAiSettingBankAccountInfo || "");
-      setAiShippingInfo(aiSettings.omAiSettingShippingInfo || "");
-      setAiAfterSalesInfo(aiSettings.omAiSettingAfterSalesInfo || "");
-      setAiBrandStory(aiSettings.omAiSettingBrandStory || "");
+      setAiSystemPrompt(aiSettings.mktAiSettingSystemPrompt || "");
+      setAiMaxHistory(String(aiSettings.mktAiSettingMaxHistoryMessages || 20));
+      setAiBankAccountInfo(aiSettings.mktAiSettingBankAccountInfo || "");
+      setAiShippingInfo(aiSettings.mktAiSettingShippingInfo || "");
+      setAiAfterSalesInfo(aiSettings.mktAiSettingAfterSalesInfo || "");
+      setAiBrandStory(aiSettings.mktAiSettingBrandStory || "");
     }
   }, [settingsData]);
 
@@ -66,37 +66,37 @@ export default function ChannelSettings({ isOpen, onClose }) {
       setSaving(true);
 
 
-      await supabase.from("omChannel").upsert(
+      await supabase.from("mktChannel").upsert(
         {
-          omChannelType: "facebook",
-          omChannelName: "Facebook Page",
-          omChannelAccessToken: fbToken,
-          omChannelPageId: fbPageId,
-          omChannelStatus: fbToken ? "active" : "inactive",
+          mktChannelType: "facebook",
+          mktChannelName: "Facebook Page",
+          mktChannelAccessToken: fbToken,
+          mktChannelPageRef: fbPageId,
+          mktChannelStatus: fbToken ? "active" : "inactive",
         },
-        { onConflict: "omChannelType" }
+        { onConflict: "mktChannelType" }
       );
 
 
-      await supabase.from("omChannel").upsert(
+      await supabase.from("mktChannel").upsert(
         {
-          omChannelType: "line",
-          omChannelName: "LINE Official Account",
-          omChannelAccessToken: lineToken,
-          omChannelStatus: lineToken ? "active" : "inactive",
+          mktChannelType: "line",
+          mktChannelName: "LINE Official Account",
+          mktChannelAccessToken: lineToken,
+          mktChannelStatus: lineToken ? "active" : "inactive",
         },
-        { onConflict: "omChannelType" }
+        { onConflict: "mktChannelType" }
       );
 
 
       try {
         await put("/api/marketing/omnichannel/ai/settings", {
-          omAiSettingSystemPrompt: aiSystemPrompt,
-          omAiSettingMaxHistoryMessages: parseInt(aiMaxHistory) || 20,
-          omAiSettingBankAccountInfo: aiBankAccountInfo,
-          omAiSettingShippingInfo: aiShippingInfo,
-          omAiSettingAfterSalesInfo: aiAfterSalesInfo,
-          omAiSettingBrandStory: aiBrandStory,
+          mktAiSettingSystemPrompt: aiSystemPrompt,
+          mktAiSettingMaxHistoryMessages: parseInt(aiMaxHistory) || 20,
+          mktAiSettingBankAccountInfo: aiBankAccountInfo,
+          mktAiSettingShippingInfo: aiShippingInfo,
+          mktAiSettingAfterSalesInfo: aiAfterSalesInfo,
+          mktAiSettingBrandStory: aiBrandStory,
         });
       } catch {
 

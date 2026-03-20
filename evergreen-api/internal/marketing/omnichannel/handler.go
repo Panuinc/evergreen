@@ -94,15 +94,15 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 		response.NotFound(w, "ไม่พบการสนทนา")
 		return
 	}
-	contactID, _ := conv["omConversationContactId"].(string)
+	contactID, _ := conv["mktConversationContactId"].(string)
 	contact, _ := h.store.GetContactByID(r.Context(), contactID)
-	channelType, _ := conv["omConversationChannelType"].(string)
+	channelType, _ := conv["mktConversationChannelType"].(string)
 
 	channel, _ := h.store.GetActiveChannel(r.Context(), channelType)
 
 	if contact != nil && channel != nil {
-		externalID, _ := contact["omContactExternalId"].(string)
-		accessToken, _ := channel["omChannelAccessToken"].(string)
+		externalID, _ := contact["mktContactExternalRef"].(string)
+		accessToken, _ := channel["mktChannelAccessToken"].(string)
 
 		switch channelType {
 		case "line":
@@ -369,7 +369,7 @@ func (h *Handler) ProcessFollowUps(w http.ResponseWriter, r *http.Request) {
 	processed := 0
 	for _, fu := range followUps {
 		// TODO: Send via LINE/Facebook API
-		if fuID, ok := fu["omFollowUpId"].(string); ok {
+		if fuID, ok := fu["mktFollowUpId"].(string); ok {
 			h.store.MarkFollowUpSent(r.Context(), fuID)
 			processed++
 		}

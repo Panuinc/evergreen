@@ -22,10 +22,10 @@ export default function StockItemsClient({ initialItems, initialProductInfo, ini
   const initialInfoMap = useMemo(() => {
     const m = {};
     for (const info of initialProductInfo) {
-      m[info.omProductInfoItemNumber] = {
-        description: info.omProductInfoDescription || "",
-        highlights: info.omProductInfoHighlights || "",
-        category: info.omProductInfoCategory || "",
+      m[info.mktProductInfoItemNumber] = {
+        description: info.mktProductInfoDescription || "",
+        highlights: info.mktProductInfoHighlights || "",
+        category: info.mktProductInfoCategory || "",
       };
     }
     return m;

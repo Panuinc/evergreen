@@ -45,7 +45,7 @@ func (h *Handler) CreateVehicle(w http.ResponseWriter, r *http.Request) {
 	}
 	data, err := h.store.CreateVehicle(r.Context(),
 		body["tmsVehiclePlateNumber"], body["tmsVehicleName"], body["tmsVehicleStatus"],
-		body["tmsVehicleCapacityKg"], body["tmsVehicleFuelType"], body["tmsVehicleForthtrackId"])
+		body["tmsVehicleCapacityKg"], body["tmsVehicleFuelType"], body["tmsVehicleForthtrackRef"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return
@@ -73,7 +73,7 @@ func (h *Handler) UpdateVehicle(w http.ResponseWriter, r *http.Request) {
 	}
 	data, err := h.store.UpdateVehicle(r.Context(),
 		id, body["tmsVehiclePlateNumber"], body["tmsVehicleName"], body["tmsVehicleStatus"],
-		body["tmsVehicleCapacityKg"], body["tmsVehicleFuelType"], body["tmsVehicleForthtrackId"], body["isActive"])
+		body["tmsVehicleCapacityKg"], body["tmsVehicleFuelType"], body["tmsVehicleForthtrackRef"], body["isActive"])
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, err.Error())
 		return

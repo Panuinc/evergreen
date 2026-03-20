@@ -22,7 +22,7 @@ export default function QuotationsClient({ initialQuotations }) {
       const data = await get("/api/sales/quotations");
       setQuotations(
         filter
-          ? data.filter((q) => q.crmQuotationStatus === filter)
+          ? data.filter((q) => q.salesQuotationStatus === filter)
           : data
       );
     } catch {
@@ -45,7 +45,7 @@ export default function QuotationsClient({ initialQuotations }) {
   const handleDelete = async () => {
     if (!deletingQuotation) return;
     try {
-      await del(`/api/sales/quotations/${deletingQuotation.crmQuotationId}`);
+      await del(`/api/sales/quotations/${deletingQuotation.salesQuotationId}`);
       toast.success("ลบใบเสนอราคาสำเร็จ");
       deleteModal.onClose();
       setDeletingQuotation(null);
@@ -59,7 +59,7 @@ export default function QuotationsClient({ initialQuotations }) {
     try {
       const { post } = await import("@/lib/apiClient");
       const newQ = await post("/api/sales/quotations", {});
-      router.push(`/sales/quotations/${newQ.crmQuotationId}`);
+      router.push(`/sales/quotations/${newQ.salesQuotationId}`);
     } catch {
       toast.error("ไม่สามารถสร้างใบเสนอราคาได้");
     }

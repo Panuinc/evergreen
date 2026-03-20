@@ -16,14 +16,14 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 
 const columns = [
-  { name: "เลขที่ใบเสนอราคา", uid: "crmQuotationNo", sortable: true },
+  { name: "เลขที่ใบเสนอราคา", uid: "salesQuotationNo", sortable: true },
   { name: "ผู้ติดต่อ", uid: "contact" },
   { name: "บัญชี", uid: "account" },
   { name: "โอกาสขาย", uid: "opportunity" },
-  { name: "สถานะ", uid: "crmQuotationStatus" },
-  { name: "ยอดรวม", uid: "crmQuotationTotal" },
-  { name: "ใช้ได้ถึง", uid: "crmQuotationValidUntil" },
-  { name: "สร้างเมื่อ", uid: "crmQuotationCreatedAt" },
+  { name: "สถานะ", uid: "salesQuotationStatus" },
+  { name: "ยอดรวม", uid: "salesQuotationTotal" },
+  { name: "ใช้ได้ถึง", uid: "salesQuotationValidUntil" },
+  { name: "สร้างเมื่อ", uid: "salesQuotationCreatedAt" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -44,11 +44,11 @@ const statusColorMap = {
 };
 
 const initialVisibleColumns = [
-  "crmQuotationNo",
+  "salesQuotationNo",
   "contact",
-  "crmQuotationStatus",
-  "crmQuotationTotal",
-  "crmQuotationCreatedAt",
+  "salesQuotationStatus",
+  "salesQuotationTotal",
+  "salesQuotationCreatedAt",
   "actions",
 ];
 
@@ -67,42 +67,42 @@ export default function QuotationsView({
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "crmQuotationNo":
+        case "salesQuotationNo":
           return (
             <span
               className="text-primary cursor-pointer"
-              onClick={() => onNavigateToQuotation(item.crmQuotationId)}
+              onClick={() => onNavigateToQuotation(item.salesQuotationId)}
             >
-              {item.crmQuotationNo}
+              {item.salesQuotationNo}
             </span>
           );
         case "contact":
-          return item.crmContact
-            ? `${item.crmContact.crmContactFirstName} ${item.crmContact.crmContactLastName}`
+          return item.salesContact
+            ? `${item.salesContact.salesContactFirstName} ${item.salesContact.salesContactLastName}`
             : "-";
         case "account":
-          return item.salesAccount?.crmAccountName || "-";
+          return item.salesAccount?.salesAccountName || "-";
         case "opportunity":
-          return item.salesOpportunity?.crmOpportunityName || "-";
-        case "crmQuotationStatus": {
-          const color = statusColorMap[item.crmQuotationStatus] || "default";
+          return item.salesOpportunity?.salesOpportunityName || "-";
+        case "salesQuotationStatus": {
+          const color = statusColorMap[item.salesQuotationStatus] || "default";
           return (
             <Chip variant="flat" size="md" radius="md" color={color}>
-              {item.crmQuotationStatus}
+              {item.salesQuotationStatus}
             </Chip>
           );
         }
-        case "crmQuotationTotal":
-          return item.crmQuotationTotal != null
-            ? `฿${Number(item.crmQuotationTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })}`
+        case "salesQuotationTotal":
+          return item.salesQuotationTotal != null
+            ? `฿${Number(item.salesQuotationTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })}`
             : "-";
-        case "crmQuotationValidUntil":
-          return item.crmQuotationValidUntil
-            ? new Date(item.crmQuotationValidUntil).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
+        case "salesQuotationValidUntil":
+          return item.salesQuotationValidUntil
+            ? new Date(item.salesQuotationValidUntil).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
             : "-";
-        case "crmQuotationCreatedAt":
-          return item.crmQuotationCreatedAt
-            ? new Date(item.crmQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
+        case "salesQuotationCreatedAt":
+          return item.salesQuotationCreatedAt
+            ? new Date(item.salesQuotationCreatedAt).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
             : "-";
         case "actions":
           return (
@@ -112,7 +112,7 @@ export default function QuotationsView({
                 size="md"
                 radius="md"
                 isIconOnly
-                onPress={() => onNavigateToQuotation(item.crmQuotationId)}
+                onPress={() => onNavigateToQuotation(item.salesQuotationId)}
               >
                 <Edit />
               </Button>
@@ -155,14 +155,14 @@ export default function QuotationsView({
         data={quotations}
         renderCell={renderCell}
         enableCardView
-        rowKey="crmQuotationId"
+        rowKey="salesQuotationId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาใบเสนอราคา..."
-        searchKeys={["crmQuotationNo"]}
+        searchKeys={["salesQuotationNo"]}
         emptyContent="ไม่พบใบเสนอราคา"
         actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => onNavigateToQuotation(item.crmQuotationId) },
+          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => onNavigateToQuotation(item.salesQuotationId) },
           { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ]}
         topEndContent={
@@ -186,7 +186,7 @@ export default function QuotationsView({
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-light">
-                {deletingQuotation?.crmQuotationNo}
+                {deletingQuotation?.salesQuotationNo}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

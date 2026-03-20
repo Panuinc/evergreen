@@ -71,18 +71,18 @@ function contactLabel(v) { return contactMethods.find((m) => m.value === v)?.lab
 function exportCSV(data, filename) {
   const headers = ["วันที่ติดต่อ", "ลูกค้า", "เลขที่ลูกค้า", "วิธีติดต่อ", "เหตุผล", "รายละเอียด", "หมายเหตุ", "สถานะ", "วันที่สัญญาจะชำระ", "จำนวนสัญญา", "ติดตามครั้งถัดไป", "ผู้บันทึก"];
   const rows = data.map((fu) => [
-    fu.contactDate,
-    fu.customerName,
-    fu.customerNumber,
-    contactLabel(fu.contactMethod),
-    reasonLabel(fu.reason),
-    fu.reasonDetail || "",
-    fu.note || "",
-    statusLabel(fu.status),
-    fu.promiseDate || "",
-    fu.promiseAmount || "",
-    fu.nextFollowUpDate || "",
-    fu.createdByName || "",
+    fu.arFollowUpContactDate,
+    fu.arFollowUpCustomerName,
+    fu.arFollowUpCustomerNumber,
+    contactLabel(fu.arFollowUpContactMethod),
+    reasonLabel(fu.arFollowUpReason),
+    fu.arFollowUpReasonDetail || "",
+    fu.arFollowUpNote || "",
+    statusLabel(fu.arFollowUpStatus),
+    fu.arFollowUpPromiseDate || "",
+    fu.arFollowUpPromiseAmount || "",
+    fu.arFollowUpNextFollowUpDate || "",
+    fu.arFollowUpCreatedByName || "",
   ]);
   const csv = [
     headers.join(","),
@@ -181,45 +181,45 @@ export default function CollectionsView({
 
 
   const reportColumns = useMemo(() => [
-    { name: "วันที่", uid: "contactDate", sortable: true },
-    { name: "ลูกค้า", uid: "customerName", sortable: true },
-    { name: "วิธีติดต่อ", uid: "contactMethod", sortable: true },
-    { name: "เหตุผล", uid: "reason", sortable: true },
-    { name: "รายละเอียด", uid: "reasonDetail" },
-    { name: "หมายเหตุ", uid: "note" },
-    { name: "สถานะ", uid: "status", sortable: true },
-    { name: "สัญญาจะชำระ", uid: "promiseDate", sortable: true },
-    { name: "จำนวน", uid: "promiseAmount", sortable: true },
-    { name: "ผู้บันทึก", uid: "createdByName" },
+    { name: "วันที่", uid: "arFollowUpContactDate", sortable: true },
+    { name: "ลูกค้า", uid: "arFollowUpCustomerName", sortable: true },
+    { name: "วิธีติดต่อ", uid: "arFollowUpContactMethod", sortable: true },
+    { name: "เหตุผล", uid: "arFollowUpReason", sortable: true },
+    { name: "รายละเอียด", uid: "arFollowUpReasonDetail" },
+    { name: "หมายเหตุ", uid: "arFollowUpNote" },
+    { name: "สถานะ", uid: "arFollowUpStatus", sortable: true },
+    { name: "สัญญาจะชำระ", uid: "arFollowUpPromiseDate", sortable: true },
+    { name: "จำนวน", uid: "arFollowUpPromiseAmount", sortable: true },
+    { name: "ผู้บันทึก", uid: "arFollowUpCreatedByName" },
   ], []);
 
   const reportRenderCell = useCallback((item, key) => {
     switch (key) {
-      case "contactDate":
-        return <span>{fmtDate(item.contactDate)}</span>;
-      case "customerName":
+      case "arFollowUpContactDate":
+        return <span>{fmtDate(item.arFollowUpContactDate)}</span>;
+      case "arFollowUpCustomerName":
         return (
           <div>
-            <p className="font-light">{item.customerName}</p>
-            <p className="text-muted-foreground">{item.customerNumber}</p>
+            <p className="font-light">{item.arFollowUpCustomerName}</p>
+            <p className="text-muted-foreground">{item.arFollowUpCustomerNumber}</p>
           </div>
         );
-      case "contactMethod":
-        return <span>{contactLabel(item.contactMethod)}</span>;
-      case "reason":
-        return <Chip size="md" variant="flat" color={reasonColor(item.reason)}>{reasonLabel(item.reason)}</Chip>;
-      case "reasonDetail":
-        return <span className="text-foreground line-clamp-2">{item.reasonDetail || "-"}</span>;
-      case "note":
-        return <span className="text-foreground line-clamp-2">{item.note || "-"}</span>;
-      case "status":
-        return <Chip size="md" variant="flat" color={statusColor(item.status)}>{statusLabel(item.status)}</Chip>;
-      case "promiseDate":
-        return <span>{item.promiseDate ? fmtDate(item.promiseDate) : "-"}</span>;
-      case "promiseAmount":
-        return item.promiseAmount ? <span className="font-light">{fmt(item.promiseAmount)}</span> : <span className="text-muted-foreground">-</span>;
-      case "createdByName":
-        return <span className="text-muted-foreground">{item.createdByName || "-"}</span>;
+      case "arFollowUpContactMethod":
+        return <span>{contactLabel(item.arFollowUpContactMethod)}</span>;
+      case "arFollowUpReason":
+        return <Chip size="md" variant="flat" color={reasonColor(item.arFollowUpReason)}>{reasonLabel(item.arFollowUpReason)}</Chip>;
+      case "arFollowUpReasonDetail":
+        return <span className="text-foreground line-clamp-2">{item.arFollowUpReasonDetail || "-"}</span>;
+      case "arFollowUpNote":
+        return <span className="text-foreground line-clamp-2">{item.arFollowUpNote || "-"}</span>;
+      case "arFollowUpStatus":
+        return <Chip size="md" variant="flat" color={statusColor(item.arFollowUpStatus)}>{statusLabel(item.arFollowUpStatus)}</Chip>;
+      case "arFollowUpPromiseDate":
+        return <span>{item.arFollowUpPromiseDate ? fmtDate(item.arFollowUpPromiseDate) : "-"}</span>;
+      case "arFollowUpPromiseAmount":
+        return item.arFollowUpPromiseAmount ? <span className="font-light">{fmt(item.arFollowUpPromiseAmount)}</span> : <span className="text-muted-foreground">-</span>;
+      case "arFollowUpCreatedByName":
+        return <span className="text-muted-foreground">{item.arFollowUpCreatedByName || "-"}</span>;
       default:
         return item[key] ?? "-";
     }
@@ -380,10 +380,10 @@ export default function CollectionsView({
             columns={reportColumns}
             data={reportData.filtered}
             renderCell={reportRenderCell}
-            rowKey="id"
-            searchKeys={["customerName", "customerNumber", "note", "reasonDetail"]}
+            rowKey="arFollowUpId"
+            searchKeys={["arFollowUpCustomerName", "arFollowUpCustomerNumber", "arFollowUpNote", "arFollowUpReasonDetail"]}
             searchPlaceholder="ค้นหา..."
-            defaultSortDescriptor={{ column: "contactDate", direction: "descending" }}
+            defaultSortDescriptor={{ column: "arFollowUpContactDate", direction: "descending" }}
             emptyContent="ไม่มีข้อมูลในช่วงนี้"
             defaultRowsPerPage={20}
             enableCardView
@@ -581,38 +581,38 @@ export default function CollectionsView({
             {customerHistory.length > 0 ? (
               <div className="flex flex-col gap-4">
                 {customerHistory.map((fu, idx) => (
-                  <Card key={fu.id} shadow="none" className={`border ${idx === 0 ? "border-primary-200 bg-primary-50/30" : "border-border"}`}>
+                  <Card key={fu.arFollowUpId} shadow="none" className={`border ${idx === 0 ? "border-primary-200 bg-primary-50/30" : "border-border"}`}>
                     <CardBody className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">
-                          <Chip size="md" variant="flat" color={statusColor(fu.status)}>{statusLabel(fu.status)}</Chip>
-                          <Chip size="md" variant="flat" color={reasonColor(fu.reason)}>{reasonLabel(fu.reason)}</Chip>
-                          <span className="text-muted-foreground">{contactLabel(fu.contactMethod)}</span>
+                          <Chip size="md" variant="flat" color={statusColor(fu.arFollowUpStatus)}>{statusLabel(fu.arFollowUpStatus)}</Chip>
+                          <Chip size="md" variant="flat" color={reasonColor(fu.arFollowUpReason)}>{reasonLabel(fu.arFollowUpReason)}</Chip>
+                          <span className="text-muted-foreground">{contactLabel(fu.arFollowUpContactMethod)}</span>
                         </div>
                         <div className="text-right">
-                          <p className="font-light">{fmtDate(fu.contactDate)}</p>
+                          <p className="font-light">{fmtDate(fu.arFollowUpContactDate)}</p>
                           {idx === 0 && <Chip size="md" variant="flat" color="primary" className="mt-1">ล่าสุด</Chip>}
                         </div>
                       </div>
-                      {fu.reasonDetail && (
+                      {fu.arFollowUpReasonDetail && (
                         <p className="text-foreground mb-1">
-                          <span className="font-light">เหตุผล:</span> {fu.reasonDetail}
+                          <span className="font-light">เหตุผล:</span> {fu.arFollowUpReasonDetail}
                         </p>
                       )}
-                      {fu.note && (
+                      {fu.arFollowUpNote && (
                         <p className="text-foreground mb-1">
-                          <span className="font-light">หมายเหตุ:</span> {fu.note}
+                          <span className="font-light">หมายเหตุ:</span> {fu.arFollowUpNote}
                         </p>
                       )}
                       <div className="flex gap-4 mt-2 text-muted-foreground">
-                        {fu.promiseDate && <span>สัญญาจะชำระ: {fmtDate(fu.promiseDate)}</span>}
-                        {fu.promiseAmount && <span>จำนวน: ฿{fmt(fu.promiseAmount)}</span>}
-                        {fu.nextFollowUpDate && (
+                        {fu.arFollowUpPromiseDate && <span>สัญญาจะชำระ: {fmtDate(fu.arFollowUpPromiseDate)}</span>}
+                        {fu.arFollowUpPromiseAmount && <span>จำนวน: ฿{fmt(fu.arFollowUpPromiseAmount)}</span>}
+                        {fu.arFollowUpNextFollowUpDate && (
                           <span className="flex items-center gap-1">
-                            <Clock /> ติดตามถัดไป: {fmtDate(fu.nextFollowUpDate)}
+                            <Clock /> ติดตามถัดไป: {fmtDate(fu.arFollowUpNextFollowUpDate)}
                           </span>
                         )}
-                        {fu.createdByName && <span>โดย: {fu.createdByName}</span>}
+                        {fu.arFollowUpCreatedByName && <span>โดย: {fu.arFollowUpCreatedByName}</span>}
                       </div>
                     </CardBody>
                   </Card>

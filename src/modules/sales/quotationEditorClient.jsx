@@ -8,12 +8,12 @@ import { get, put, post } from "@/lib/apiClient";
 import QuotationEditorView from "@/modules/sales/components/quotationEditorView";
 
 const emptyLine = {
-  crmQuotationLineProductName: "",
-  crmQuotationLineDescription: "",
-  crmQuotationLineQuantity: 1,
-  crmQuotationLineUnitPrice: 0,
-  crmQuotationLineDiscount: 0,
-  crmQuotationLineAmount: 0,
+  salesQuotationLineProductName: "",
+  salesQuotationLineDescription: "",
+  salesQuotationLineQuantity: 1,
+  salesQuotationLineUnitPrice: 0,
+  salesQuotationLineDiscount: 0,
+  salesQuotationLineAmount: 0,
 };
 
 export default function QuotationEditorClient() {
@@ -37,8 +37,8 @@ export default function QuotationEditorClient() {
     if (swrData) {
       setQuotation(swrData);
       setLines(swrData.lines || []);
-      setDiscount(parseFloat(swrData.crmQuotationDiscount) || 0);
-      setTax(parseFloat(swrData.crmQuotationTax) || 0);
+      setDiscount(parseFloat(swrData.salesQuotationDiscount) || 0);
+      setTax(parseFloat(swrData.salesQuotationTax) || 0);
     }
   }, [swrData]);
 
@@ -55,16 +55,16 @@ export default function QuotationEditorClient() {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
 
-      const qty = parseFloat(updated[index].crmQuotationLineQuantity) || 0;
-      const price = parseFloat(updated[index].crmQuotationLineUnitPrice) || 0;
-      const disc = parseFloat(updated[index].crmQuotationLineDiscount) || 0;
-      updated[index].crmQuotationLineAmount = qty * price - disc;
+      const qty = parseFloat(updated[index].salesQuotationLineQuantity) || 0;
+      const price = parseFloat(updated[index].salesQuotationLineUnitPrice) || 0;
+      const disc = parseFloat(updated[index].salesQuotationLineDiscount) || 0;
+      updated[index].salesQuotationLineAmount = qty * price - disc;
       return updated;
     });
   }, []);
 
   const calcSubtotal = useCallback(() => {
-    return lines.reduce((sum, l) => sum + (parseFloat(l.crmQuotationLineAmount) || 0), 0);
+    return lines.reduce((sum, l) => sum + (parseFloat(l.salesQuotationLineAmount) || 0), 0);
   }, [lines]);
 
   const calcTotal = useCallback(() => {
@@ -79,15 +79,15 @@ export default function QuotationEditorClient() {
       const total = calcTotal();
 
       await put(`/api/sales/quotations/${quotationId}`, {
-        crmQuotationSubtotal: subtotal,
-        crmQuotationDiscount: discount,
-        crmQuotationTax: tax,
-        crmQuotationTotal: total,
-        crmQuotationNotes: quotation.crmQuotationNotes,
-        crmQuotationTerms: quotation.crmQuotationTerms,
-        crmQuotationValidUntil: quotation.crmQuotationValidUntil,
-        crmQuotationContactId: quotation.crmQuotationContactId,
-        crmQuotationAccountId: quotation.crmQuotationAccountId,
+        salesQuotationSubtotal: subtotal,
+        salesQuotationDiscount: discount,
+        salesQuotationTax: tax,
+        salesQuotationTotal: total,
+        salesQuotationNotes: quotation.salesQuotationNotes,
+        salesQuotationTerms: quotation.salesQuotationTerms,
+        salesQuotationValidUntil: quotation.salesQuotationValidUntil,
+        salesQuotationContactId: quotation.salesQuotationContactId,
+        salesQuotationAccountId: quotation.salesQuotationAccountId,
         lines,
       });
       toast.success("บันทึกใบเสนอราคาสำเร็จ");

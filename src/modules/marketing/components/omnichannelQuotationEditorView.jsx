@@ -24,11 +24,11 @@ const statusMap = {
 };
 
 const lineColumns = [
-  { name: "สินค้า", uid: "omQuotationLineProductName" },
-  { name: "รุ่น/สี/ขนาด", uid: "omQuotationLineVariant" },
-  { name: "จำนวน", uid: "omQuotationLineQuantity" },
-  { name: "ราคา/หน่วย", uid: "omQuotationLineUnitPrice" },
-  { name: "รวม", uid: "omQuotationLineTotal" },
+  { name: "สินค้า", uid: "mktQuotationLineProductName" },
+  { name: "รุ่น/สี/ขนาด", uid: "mktQuotationLineVariant" },
+  { name: "จำนวน", uid: "mktQuotationLineQuantity" },
+  { name: "ราคา/หน่วย", uid: "mktQuotationLineUnitPrice" },
+  { name: "รวม", uid: "mktQuotationLineTotal" },
 ];
 
 export default function OmnichannelQuotationEditorView({
@@ -47,11 +47,11 @@ export default function OmnichannelQuotationEditorView({
   const [rejectNote, setRejectNote] = useState("");
   const rejectModal = useDisclosure();
 
-  const status = statusMap[quotation?.omQuotationStatus] || statusMap.draft;
-  const canEdit = ["draft", "rejected"].includes(quotation?.omQuotationStatus);
+  const status = statusMap[quotation?.mktQuotationStatus] || statusMap.draft;
+  const canEdit = ["draft", "rejected"].includes(quotation?.mktQuotationStatus);
   const canSubmit = canEdit;
-  const canApprove = quotation?.omQuotationStatus === "pending_approval";
-  const canConfirmPayment = quotation?.omQuotationStatus === "approved";
+  const canApprove = quotation?.mktQuotationStatus === "pending_approval";
+  const canConfirmPayment = quotation?.mktQuotationStatus === "approved";
 
   const onReject = async () => {
     await handleAction("reject", rejectNote);
@@ -62,40 +62,40 @@ export default function OmnichannelQuotationEditorView({
     () =>
       (lines || []).map((line) => ({
         ...line,
-        omQuotationLineTotal: (line.omQuotationLineQuantity || 0) * (line.omQuotationLineUnitPrice || 0),
+        mktQuotationLineTotal: (line.mktQuotationLineQuantity || 0) * (line.mktQuotationLineUnitPrice || 0),
       })),
     [lines]
   );
 
   const renderLineCell = useCallback(
     (item, columnKey) => {
-      const idx = lines.findIndex((l) => l.omQuotationLineId === item.omQuotationLineId);
+      const idx = lines.findIndex((l) => l.mktQuotationLineId === item.mktQuotationLineId);
       switch (columnKey) {
-        case "omQuotationLineProductName":
+        case "mktQuotationLineProductName":
           return canEdit ? (
             <Input
               variant="bordered"
               radius="md"
               size="md"
-              value={item.omQuotationLineProductName}
-              onValueChange={(v) => updateLine(idx, "omQuotationLineProductName", v)}
+              value={item.mktQuotationLineProductName}
+              onValueChange={(v) => updateLine(idx, "mktQuotationLineProductName", v)}
             />
           ) : (
-            item.omQuotationLineProductName
+            item.mktQuotationLineProductName
           );
-        case "omQuotationLineVariant":
+        case "mktQuotationLineVariant":
           return canEdit ? (
             <Input
               variant="bordered"
               radius="md"
               size="md"
-              value={item.omQuotationLineVariant || ""}
-              onValueChange={(v) => updateLine(idx, "omQuotationLineVariant", v)}
+              value={item.mktQuotationLineVariant || ""}
+              onValueChange={(v) => updateLine(idx, "mktQuotationLineVariant", v)}
             />
           ) : (
-            item.omQuotationLineVariant || "-"
+            item.mktQuotationLineVariant || "-"
           );
-        case "omQuotationLineQuantity":
+        case "mktQuotationLineQuantity":
           return canEdit ? (
             <Input
               variant="bordered"
@@ -103,13 +103,13 @@ export default function OmnichannelQuotationEditorView({
               size="md"
               type="number"
               classNames={{ input: "text-right" }}
-              value={String(item.omQuotationLineQuantity)}
-              onValueChange={(v) => updateLine(idx, "omQuotationLineQuantity", Number(v) || 0)}
+              value={String(item.mktQuotationLineQuantity)}
+              onValueChange={(v) => updateLine(idx, "mktQuotationLineQuantity", Number(v) || 0)}
             />
           ) : (
-            <span className="block text-right">{item.omQuotationLineQuantity}</span>
+            <span className="block text-right">{item.mktQuotationLineQuantity}</span>
           );
-        case "omQuotationLineUnitPrice":
+        case "mktQuotationLineUnitPrice":
           return canEdit ? (
             <Input
               variant="bordered"
@@ -117,18 +117,18 @@ export default function OmnichannelQuotationEditorView({
               size="md"
               type="number"
               classNames={{ input: "text-right" }}
-              value={String(item.omQuotationLineUnitPrice)}
-              onValueChange={(v) => updateLine(idx, "omQuotationLineUnitPrice", Number(v) || 0)}
+              value={String(item.mktQuotationLineUnitPrice)}
+              onValueChange={(v) => updateLine(idx, "mktQuotationLineUnitPrice", Number(v) || 0)}
             />
           ) : (
             <span className="block text-right">
-              {(item.omQuotationLineUnitPrice || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+              {(item.mktQuotationLineUnitPrice || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </span>
           );
-        case "omQuotationLineTotal":
+        case "mktQuotationLineTotal":
           return (
             <span className="block text-right font-light">
-              {item.omQuotationLineTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+              {item.mktQuotationLineTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </span>
           );
         default:
@@ -168,7 +168,7 @@ export default function OmnichannelQuotationEditorView({
           >
             <ArrowLeft />
           </Button>
-          <p className="text-xs font-light">{quotation.omQuotationNumber}</p>
+          <p className="text-xs font-light">{quotation.mktQuotationNumber}</p>
           <Chip variant="flat" size="md" radius="md" color={status.color}>
             {status.label}
           </Chip>
@@ -206,8 +206,8 @@ export default function OmnichannelQuotationEditorView({
             variant="bordered"
             radius="md"
             size="md"
-            value={quotation.omQuotationCustomerName || ""}
-            onValueChange={(v) => setQuotation((q) => ({ ...q, omQuotationCustomerName: v }))}
+            value={quotation.mktQuotationCustomerName || ""}
+            onValueChange={(v) => setQuotation((q) => ({ ...q, mktQuotationCustomerName: v }))}
             isReadOnly={!canEdit}
           />
           <Input
@@ -216,8 +216,8 @@ export default function OmnichannelQuotationEditorView({
             variant="bordered"
             radius="md"
             size="md"
-            value={quotation.omQuotationCustomerPhone || ""}
-            onValueChange={(v) => setQuotation((q) => ({ ...q, omQuotationCustomerPhone: v }))}
+            value={quotation.mktQuotationCustomerPhone || ""}
+            onValueChange={(v) => setQuotation((q) => ({ ...q, mktQuotationCustomerPhone: v }))}
             isReadOnly={!canEdit}
           />
           <Input
@@ -226,8 +226,8 @@ export default function OmnichannelQuotationEditorView({
             variant="bordered"
             radius="md"
             size="md"
-            value={quotation.omQuotationCustomerAddress || ""}
-            onValueChange={(v) => setQuotation((q) => ({ ...q, omQuotationCustomerAddress: v }))}
+            value={quotation.mktQuotationCustomerAddress || ""}
+            onValueChange={(v) => setQuotation((q) => ({ ...q, mktQuotationCustomerAddress: v }))}
             isReadOnly={!canEdit}
             className="col-span-2"
           />
@@ -240,8 +240,8 @@ export default function OmnichannelQuotationEditorView({
             columns={lineColumns}
             data={lineData}
             renderCell={renderLineCell}
-            rowKey="omQuotationLineId"
-            initialVisibleColumns={["omQuotationLineProductName", "omQuotationLineVariant", "omQuotationLineQuantity", "omQuotationLineUnitPrice", "omQuotationLineTotal"]}
+            rowKey="mktQuotationLineId"
+            initialVisibleColumns={["mktQuotationLineProductName", "mktQuotationLineVariant", "mktQuotationLineQuantity", "mktQuotationLineUnitPrice", "mktQuotationLineTotal"]}
             emptyContent="ไม่มีรายการสินค้า"
             defaultRowsPerPage={20}
           />
@@ -261,22 +261,22 @@ export default function OmnichannelQuotationEditorView({
           radius="md"
           size="md"
           minRows={2}
-          value={quotation.omQuotationNotes || ""}
-          onValueChange={(v) => setQuotation((q) => ({ ...q, omQuotationNotes: v }))}
+          value={quotation.mktQuotationNotes || ""}
+          onValueChange={(v) => setQuotation((q) => ({ ...q, mktQuotationNotes: v }))}
           isReadOnly={!canEdit}
         />
 
         {}
-        {quotation.paymentSlip?.omMessageImageUrl && (
+        {quotation.paymentSlip?.mktMessageImageUrl && (
           <div className="p-4 bg-default-50 rounded-lg border border-border">
             <p className="font-light mb-3 flex items-center gap-2">
               <Receipt />
               หลักฐานการชำระเงิน
             </p>
             <div className="flex gap-4">
-              <a href={quotation.paymentSlip.omMessageImageUrl} target="_blank" rel="noopener noreferrer">
+              <a href={quotation.paymentSlip.mktMessageImageUrl} target="_blank" rel="noopener noreferrer">
                 <Image
-                  src={quotation.paymentSlip.omMessageImageUrl}
+                  src={quotation.paymentSlip.mktMessageImageUrl}
                   alt="สลิปการโอนเงิน"
                   width={0}
                   height={0}
@@ -285,36 +285,36 @@ export default function OmnichannelQuotationEditorView({
                   style={{ maxHeight: 300, maxWidth: 220, width: "auto", height: "auto" }}
                 />
               </a>
-              {quotation.paymentSlip.omMessageOcrData && (
+              {quotation.paymentSlip.mktMessageOcrData && (
                 <div className="text-xs space-y-2 flex-1">
-                  {quotation.paymentSlip.omMessageOcrData.amount && (
+                  {quotation.paymentSlip.mktMessageOcrData.amount && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-muted-foreground">ยอดเงิน</span>
-                      <span className="font-light">{Number(quotation.paymentSlip.omMessageOcrData.amount).toLocaleString()} บาท</span>
+                      <span className="font-light">{Number(quotation.paymentSlip.mktMessageOcrData.amount).toLocaleString()} บาท</span>
                     </div>
                   )}
-                  {quotation.paymentSlip.omMessageOcrData.fromBank && (
+                  {quotation.paymentSlip.mktMessageOcrData.fromBank && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-muted-foreground">ธนาคารผู้โอน</span>
-                      <span>{quotation.paymentSlip.omMessageOcrData.fromBank}</span>
+                      <span>{quotation.paymentSlip.mktMessageOcrData.fromBank}</span>
                     </div>
                   )}
-                  {quotation.paymentSlip.omMessageOcrData.toBank && (
+                  {quotation.paymentSlip.mktMessageOcrData.toBank && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-muted-foreground">ธนาคารผู้รับ</span>
-                      <span>{quotation.paymentSlip.omMessageOcrData.toBank}</span>
+                      <span>{quotation.paymentSlip.mktMessageOcrData.toBank}</span>
                     </div>
                   )}
-                  {quotation.paymentSlip.omMessageOcrData.datetime && (
+                  {quotation.paymentSlip.mktMessageOcrData.datetime && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-muted-foreground">วันเวลา</span>
-                      <span>{quotation.paymentSlip.omMessageOcrData.datetime}</span>
+                      <span>{quotation.paymentSlip.mktMessageOcrData.datetime}</span>
                     </div>
                   )}
-                  {quotation.paymentSlip.omMessageOcrData.reference && (
+                  {quotation.paymentSlip.mktMessageOcrData.reference && (
                     <div className="flex justify-between max-w-xs">
                       <span className="text-muted-foreground">เลขอ้างอิง</span>
-                      <span>{quotation.paymentSlip.omMessageOcrData.reference}</span>
+                      <span>{quotation.paymentSlip.mktMessageOcrData.reference}</span>
                     </div>
                   )}
                 </div>
@@ -324,10 +324,10 @@ export default function OmnichannelQuotationEditorView({
         )}
 
         {}
-        {quotation.omQuotationApprovalNote && (
+        {quotation.mktQuotationApprovalNote && (
           <div className="p-3 bg-danger-50 rounded-lg border border-danger-200">
             <p className="text-xs font-light text-danger mb-1">เหตุผลที่ไม่อนุมัติ:</p>
-            <p className="text-xs">{quotation.omQuotationApprovalNote}</p>
+            <p className="text-xs">{quotation.mktQuotationApprovalNote}</p>
           </div>
         )}
 

@@ -37,10 +37,10 @@ func (s *Store) ListEmployees(ctx context.Context, search string, includeInactiv
 
 func (s *Store) CreateEmployee(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "hrEmployee" ("hrEmployeeFirstName", "hrEmployeeLastName", "hrEmployeeEmail", "hrEmployeePhone", "hrEmployeeDivision", "hrEmployeeDepartment", "hrEmployeePosition")
+		INSERT INTO "hrEmployee" ("hrEmployeeFirstName", "hrEmployeeLastName", "hrEmployeeEmail", "hrEmployeePhone", "hrEmployeeHrDivisionId", "hrEmployeeHrDepartmentId", "hrEmployeeHrPositionId")
 		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
 	`, body["hrEmployeeFirstName"], body["hrEmployeeLastName"], body["hrEmployeeEmail"],
-		body["hrEmployeePhone"], body["hrEmployeeDivision"], body["hrEmployeeDepartment"], body["hrEmployeePosition"])
+		body["hrEmployeePhone"], body["hrEmployeeHrDivisionId"], body["hrEmployeeHrDepartmentId"], body["hrEmployeeHrPositionId"])
 }
 
 func (s *Store) GetEmployee(ctx context.Context, id string, includeInactive bool) (map[string]any, error) {
@@ -58,12 +58,12 @@ func (s *Store) UpdateEmployee(ctx context.Context, id string, body map[string]a
 			"hrEmployeeLastName" = COALESCE($3, "hrEmployeeLastName"),
 			"hrEmployeeEmail" = COALESCE($4, "hrEmployeeEmail"),
 			"hrEmployeePhone" = COALESCE($5, "hrEmployeePhone"),
-			"hrEmployeeDivision" = COALESCE($6, "hrEmployeeDivision"),
-			"hrEmployeeDepartment" = COALESCE($7, "hrEmployeeDepartment"),
-			"hrEmployeePosition" = COALESCE($8, "hrEmployeePosition")
+			"hrEmployeeHrDivisionId" = COALESCE($6, "hrEmployeeHrDivisionId"),
+			"hrEmployeeHrDepartmentId" = COALESCE($7, "hrEmployeeHrDepartmentId"),
+			"hrEmployeeHrPositionId" = COALESCE($8, "hrEmployeeHrPositionId")
 		WHERE "hrEmployeeId" = $1 RETURNING *
 	`, id, body["hrEmployeeFirstName"], body["hrEmployeeLastName"], body["hrEmployeeEmail"],
-		body["hrEmployeePhone"], body["hrEmployeeDivision"], body["hrEmployeeDepartment"], body["hrEmployeePosition"])
+		body["hrEmployeePhone"], body["hrEmployeeHrDivisionId"], body["hrEmployeeHrDepartmentId"], body["hrEmployeeHrPositionId"])
 }
 
 func (s *Store) DeleteEmployee(ctx context.Context, id string) error {
@@ -84,9 +84,9 @@ func (s *Store) ListDepartments(ctx context.Context, includeInactive bool) ([]ma
 
 func (s *Store) CreateDepartment(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "hrDepartment" ("hrDepartmentName", "hrDepartmentDescription", "hrDepartmentDivision")
+		INSERT INTO "hrDepartment" ("hrDepartmentName", "hrDepartmentDescription", "hrDepartmentHrDivisionId")
 		VALUES ($1, $2, $3) RETURNING *
-	`, body["hrDepartmentName"], body["hrDepartmentDescription"], body["hrDepartmentDivision"])
+	`, body["hrDepartmentName"], body["hrDepartmentDescription"], body["hrDepartmentHrDivisionId"])
 }
 
 func (s *Store) UpdateDepartment(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
@@ -94,9 +94,9 @@ func (s *Store) UpdateDepartment(ctx context.Context, id string, body map[string
 		UPDATE "hrDepartment" SET
 			"hrDepartmentName" = COALESCE($2, "hrDepartmentName"),
 			"hrDepartmentDescription" = COALESCE($3, "hrDepartmentDescription"),
-			"hrDepartmentDivision" = COALESCE($4, "hrDepartmentDivision")
+			"hrDepartmentHrDivisionId" = COALESCE($4, "hrDepartmentHrDivisionId")
 		WHERE "hrDepartmentId" = $1 RETURNING *
-	`, id, body["hrDepartmentName"], body["hrDepartmentDescription"], body["hrDepartmentDivision"])
+	`, id, body["hrDepartmentName"], body["hrDepartmentDescription"], body["hrDepartmentHrDivisionId"])
 }
 
 func (s *Store) DeleteDepartment(ctx context.Context, id string) error {
@@ -149,9 +149,9 @@ func (s *Store) ListPositions(ctx context.Context, includeInactive bool) ([]map[
 
 func (s *Store) CreatePosition(ctx context.Context, body map[string]any) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		INSERT INTO "hrPosition" ("hrPositionTitle", "hrPositionDescription", "hrPositionDepartment")
+		INSERT INTO "hrPosition" ("hrPositionTitle", "hrPositionDescription", "hrPositionHrDepartmentId")
 		VALUES ($1, $2, $3) RETURNING *
-	`, body["hrPositionTitle"], body["hrPositionDescription"], body["hrPositionDepartment"])
+	`, body["hrPositionTitle"], body["hrPositionDescription"], body["hrPositionHrDepartmentId"])
 }
 
 func (s *Store) UpdatePosition(ctx context.Context, id string, body map[string]any) (map[string]any, error) {
@@ -159,9 +159,9 @@ func (s *Store) UpdatePosition(ctx context.Context, id string, body map[string]a
 		UPDATE "hrPosition" SET
 			"hrPositionTitle" = COALESCE($2, "hrPositionTitle"),
 			"hrPositionDescription" = COALESCE($3, "hrPositionDescription"),
-			"hrPositionDepartment" = COALESCE($4, "hrPositionDepartment")
+			"hrPositionHrDepartmentId" = COALESCE($4, "hrPositionHrDepartmentId")
 		WHERE "hrPositionId" = $1 RETURNING *
-	`, id, body["hrPositionTitle"], body["hrPositionDescription"], body["hrPositionDepartment"])
+	`, id, body["hrPositionTitle"], body["hrPositionDescription"], body["hrPositionHrDepartmentId"])
 }
 
 func (s *Store) DeletePosition(ctx context.Context, id string) error {

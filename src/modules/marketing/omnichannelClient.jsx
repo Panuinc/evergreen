@@ -48,16 +48,16 @@ export default function OmnichannelClient() {
 
     try {
       setMessagesLoading(true);
-      const data = await get(`/api/marketing/omnichannel/conversations/${conversation.omConversationId}/messages`);
+      const data = await get(`/api/marketing/omnichannel/conversations/${conversation.mktConversationId}/messages`);
       setMessages(data);
 
-      if (conversation.omConversationUnreadCount > 0) {
-        await put(`/api/marketing/omnichannel/conversations/${conversation.omConversationId}`, {
-          omConversationUnreadCount: 0,
+      if (conversation.mktConversationUnreadCount > 0) {
+        await put(`/api/marketing/omnichannel/conversations/${conversation.mktConversationId}`, {
+          mktConversationUnreadCount: 0,
         });
         mutateConversations(
           (prev = []) => prev.map((c) =>
-            c.omConversationId === conversation.omConversationId ? { ...c, omConversationUnreadCount: 0 } : c
+            c.mktConversationId === conversation.mktConversationId ? { ...c, mktConversationUnreadCount: 0 } : c
           ),
           { revalidate: false },
         );
@@ -75,25 +75,25 @@ export default function OmnichannelClient() {
 
       const tempId = `temp-${Date.now()}`;
       const optimisticMsg = {
-        omMessageId: tempId,
-        omMessageConversationId: selectedConversation.omConversationId,
-        omMessageSenderType: "agent",
-        omMessageContent: content,
-        omMessageType: "text",
-        omMessageCreatedAt: new Date().toISOString(),
+        mktMessageId: tempId,
+        mktMessageConversationId: selectedConversation.mktConversationId,
+        mktMessageSenderType: "agent",
+        mktMessageContent: content,
+        mktMessageType: "text",
+        mktMessageCreatedAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, optimisticMsg]);
 
       try {
         setSending(true);
         setSuggestedText("");
-        const savedMsg = await post("/api/marketing/omnichannel/send", { conversationId: selectedConversation.omConversationId, content });
+        const savedMsg = await post("/api/marketing/omnichannel/send", { conversationId: selectedConversation.mktConversationId, content });
 
         setMessages((prev) =>
-          prev.map((m) => (m.omMessageId === tempId ? savedMsg : m))
+          prev.map((m) => (m.mktMessageId === tempId ? savedMsg : m))
         );
       } catch (error) {
-        setMessages((prev) => prev.filter((m) => m.omMessageId !== tempId));
+        setMessages((prev) => prev.filter((m) => m.mktMessageId !== tempId));
         toast.error(error.message || "ส่งข้อความล้มเหลว");
       } finally {
         setSending(false);
@@ -106,7 +106,7 @@ export default function OmnichannelClient() {
     async (content) => {
       if (!selectedConversation || !content.trim()) return;
       try {
-        const savedMsg = await post("/api/marketing/omnichannel/logNote", { conversationId: selectedConversation.omConversationId, content });
+        const savedMsg = await post("/api/marketing/omnichannel/logNote", { conversationId: selectedConversation.mktConversationId, content });
         setMessages((prev) => [...prev, savedMsg]);
         toast.success("บันทึกข้อความเรียบร้อย");
       } catch (error) {
@@ -120,13 +120,13 @@ export default function OmnichannelClient() {
     async (conversationId, status) => {
       try {
         const updated = await put(`/api/marketing/omnichannel/conversations/${conversationId}`, {
-          omConversationStatus: status,
+          mktConversationStatus: status,
         });
         mutateConversations(
-          (prev = []) => prev.map((c) => (c.omConversationId === conversationId ? updated : c)),
+          (prev = []) => prev.map((c) => (c.mktConversationId === conversationId ? updated : c)),
           { revalidate: false },
         );
-        if (selectedConversation?.omConversationId === conversationId) {
+        if (selectedConversation?.mktConversationId === conversationId) {
           setSelectedConversation(updated);
         }
         toast.success(`อัปเดตสถานะการสนทนาเป็น ${status} สำเร็จ`);
@@ -141,15 +141,15 @@ export default function OmnichannelClient() {
     async (contactId, updates) => {
       try {
         const { error } = await supabase
-          .from("omContact")
+          .from("mktContact")
           .update(updates)
-          .eq("omContactId", contactId);
+          .eq("mktContactId", contactId);
         if (error) throw error;
 
         if (selectedConversation) {
           setSelectedConversation((prev) => ({
             ...prev,
-            omContact: { ...prev.omContact, ...updates },
+            mktContact: { ...prev.mktContact, ...updates },
           }));
         }
         toast.success("อัปเดตผู้ติดต่อสำเร็จ");
@@ -165,10 +165,10 @@ export default function OmnichannelClient() {
       try {
         await del(`/api/marketing/omnichannel/conversations/${conversationId}`);
         mutateConversations(
-          (prev = []) => prev.filter((c) => c.omConversationId !== conversationId),
+          (prev = []) => prev.filter((c) => c.mktConversationId !== conversationId),
           { revalidate: false },
         );
-        if (selectedConversation?.omConversationId === conversationId) {
+        if (selectedConversation?.mktConversationId === conversationId) {
           setSelectedConversation(null);
           setMessages([]);
         }
@@ -184,13 +184,13 @@ export default function OmnichannelClient() {
     async (conversationId, enabled) => {
       try {
         const updated = await put(`/api/marketing/omnichannel/conversations/${conversationId}`, {
-          omConversationAiAutoReply: enabled,
+          mktConversationAiAutoReply: enabled,
         });
         mutateConversations(
-          (prev = []) => prev.map((c) => (c.omConversationId === conversationId ? updated : c)),
+          (prev = []) => prev.map((c) => (c.mktConversationId === conversationId ? updated : c)),
           { revalidate: false },
         );
-        if (selectedConversation?.omConversationId === conversationId) {
+        if (selectedConversation?.mktConversationId === conversationId) {
           setSelectedConversation(updated);
         }
         toast.success(enabled ? "เปิด AI Auto-Reply แล้ว" : "ปิด AI Auto-Reply แล้ว");
@@ -206,7 +206,7 @@ export default function OmnichannelClient() {
     try {
       setSuggestLoading(true);
       setSuggestedText("");
-      const result = await post("/api/marketing/omnichannel/ai/suggest", { conversationId: selectedConversation.omConversationId });
+      const result = await post("/api/marketing/omnichannel/ai/suggest", { conversationId: selectedConversation.mktConversationId });
       setSuggestedText(result.suggestion);
     } catch (error) {
       toast.error("AI ไม่สามารถแนะนำคำตอบได้");
@@ -225,13 +225,13 @@ export default function OmnichannelClient() {
       const currentConv = selectedConvRef.current;
       if (!currentConv) return;
       try {
-        const freshMessages = await get(`/api/marketing/omnichannel/conversations/${currentConv.omConversationId}/messages`);
+        const freshMessages = await get(`/api/marketing/omnichannel/conversations/${currentConv.mktConversationId}/messages`);
         setMessages((prev) => {
           if (freshMessages.length !== prev.length ||
               (freshMessages.length > 0 && prev.length > 0 &&
-               freshMessages[freshMessages.length - 1]?.omMessageId !== prev[prev.length - 1]?.omMessageId &&
-               !prev[prev.length - 1]?.omMessageId?.startsWith?.("temp-"))) {
-            const tempMsgs = prev.filter((m) => m.omMessageId?.startsWith?.("temp-"));
+               freshMessages[freshMessages.length - 1]?.mktMessageId !== prev[prev.length - 1]?.mktMessageId &&
+               !prev[prev.length - 1]?.mktMessageId?.startsWith?.("temp-"))) {
+            const tempMsgs = prev.filter((m) => m.mktMessageId?.startsWith?.("temp-"));
             return [...freshMessages, ...tempMsgs];
           }
           return prev;
@@ -250,20 +250,20 @@ export default function OmnichannelClient() {
       .channel(channelName)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "omMessage" },
+        { event: "INSERT", schema: "public", table: "mktMessage" },
         (payload) => {
           const newMessage = payload.new;
           const currentConv = selectedConvRef.current;
 
           if (
             currentConv &&
-            newMessage.omMessageConversationId === currentConv.omConversationId
+            newMessage.mktMessageConversationId === currentConv.mktConversationId
           ) {
             setMessages((prev) => {
-              if (prev.some((m) => m.omMessageId === newMessage.omMessageId)) return prev;
-              if (newMessage.omMessageSenderType === "agent") {
+              if (prev.some((m) => m.mktMessageId === newMessage.mktMessageId)) return prev;
+              if (newMessage.mktMessageSenderType === "agent") {
                 const tempIdx = prev.findIndex(
-                  (m) => m.omMessageId?.startsWith?.("temp-") && m.omMessageContent === newMessage.omMessageContent
+                  (m) => m.mktMessageId?.startsWith?.("temp-") && m.mktMessageContent === newMessage.mktMessageContent
                 );
                 if (tempIdx !== -1) {
                   const updated = [...prev];
@@ -277,15 +277,15 @@ export default function OmnichannelClient() {
 
           mutateConversations(
             (prev = []) => prev.map((c) => {
-              if (c.omConversationId === newMessage.omMessageConversationId) {
+              if (c.mktConversationId === newMessage.mktMessageConversationId) {
                 return {
                   ...c,
-                  omConversationLastMessageAt: newMessage.omMessageCreatedAt,
-                  omConversationLastMessagePreview: newMessage.omMessageContent?.slice(0, 100),
-                  omConversationUnreadCount:
-                    currentConv?.omConversationId === c.omConversationId
+                  mktConversationLastMessageAt: newMessage.mktMessageCreatedAt,
+                  mktConversationLastMessagePreview: newMessage.mktMessageContent?.slice(0, 100),
+                  mktConversationUnreadCount:
+                    currentConv?.mktConversationId === c.mktConversationId
                       ? 0
-                      : (c.omConversationUnreadCount || 0) + (newMessage.omMessageSenderType === "customer" ? 1 : 0),
+                      : (c.mktConversationUnreadCount || 0) + (newMessage.mktMessageSenderType === "customer" ? 1 : 0),
                 };
               }
               return c;
@@ -296,25 +296,25 @@ export default function OmnichannelClient() {
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "omConversation" },
+        { event: "UPDATE", schema: "public", table: "mktConversation" },
         (payload) => {
           const updated = payload.new;
           const currentConv = selectedConvRef.current;
 
           mutateConversations(
             (prev = []) => prev.map((c) =>
-              c.omConversationId === updated.omConversationId ? { ...c, ...updated } : c
+              c.mktConversationId === updated.mktConversationId ? { ...c, ...updated } : c
             ),
             { revalidate: false },
           );
-          if (currentConv?.omConversationId === updated.omConversationId) {
+          if (currentConv?.mktConversationId === updated.mktConversationId) {
             setSelectedConversation((prev) => ({ ...prev, ...updated }));
           }
         }
       )
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "omConversation" },
+        { event: "INSERT", schema: "public", table: "mktConversation" },
         () => {
           loadConversations();
         }

@@ -17,15 +17,15 @@ import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
 
 const baseColumns = [
-  { name: "เลขที่ลีด", uid: "crmLeadNo", sortable: true },
-  { name: "ชื่อ", uid: "crmLeadName", sortable: true },
-  { name: "บริษัท", uid: "crmLeadCompany" },
-  { name: "อีเมล", uid: "crmLeadEmail" },
-  { name: "โทรศัพท์", uid: "crmLeadPhone" },
-  { name: "แหล่งที่มา", uid: "crmLeadSource" },
-  { name: "คะแนน", uid: "crmLeadScore" },
-  { name: "สถานะ", uid: "crmLeadStatus" },
-  { name: "ผู้รับผิดชอบ", uid: "crmLeadAssignedTo" },
+  { name: "เลขที่ลีด", uid: "salesLeadNo", sortable: true },
+  { name: "ชื่อ", uid: "salesLeadName", sortable: true },
+  { name: "บริษัท", uid: "salesLeadCompany" },
+  { name: "อีเมล", uid: "salesLeadEmail" },
+  { name: "โทรศัพท์", uid: "salesLeadPhone" },
+  { name: "แหล่งที่มา", uid: "salesLeadSource" },
+  { name: "คะแนน", uid: "salesLeadScore" },
+  { name: "สถานะ", uid: "salesLeadStatus" },
+  { name: "ผู้รับผิดชอบ", uid: "salesLeadAssignedTo" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -38,12 +38,12 @@ const statusOptions = [
 ];
 
 const baseVisibleColumns = [
-  "crmLeadNo",
-  "crmLeadName",
-  "crmLeadCompany",
-  "crmLeadSource",
-  "crmLeadScore",
-  "crmLeadStatus",
+  "salesLeadNo",
+  "salesLeadName",
+  "salesLeadCompany",
+  "salesLeadSource",
+  "salesLeadScore",
+  "salesLeadStatus",
   "actions",
 ];
 
@@ -90,44 +90,44 @@ export default function LeadsView({
   const renderCell = useCallback(
     (item, columnKey) => {
       switch (columnKey) {
-        case "crmLeadNo":
-          return <span className="text-muted-foreground">{item.crmLeadNo || "-"}</span>;
-        case "crmLeadName":
-          return <span className="font-light">{item.crmLeadName}</span>;
-        case "crmLeadCompany":
-          return item.crmLeadCompany || "-";
-        case "crmLeadEmail":
-          return item.crmLeadEmail || "-";
-        case "crmLeadPhone":
-          return item.crmLeadPhone || "-";
-        case "crmLeadSource":
-          return item.crmLeadSource ? (
+        case "salesLeadNo":
+          return <span className="text-muted-foreground">{item.salesLeadNo || "-"}</span>;
+        case "salesLeadName":
+          return <span className="font-light">{item.salesLeadName}</span>;
+        case "salesLeadCompany":
+          return item.salesLeadCompany || "-";
+        case "salesLeadEmail":
+          return item.salesLeadEmail || "-";
+        case "salesLeadPhone":
+          return item.salesLeadPhone || "-";
+        case "salesLeadSource":
+          return item.salesLeadSource ? (
             <Chip variant="flat" size="md" radius="md">
-              {item.crmLeadSource}
+              {item.salesLeadSource}
             </Chip>
           ) : (
             "-"
           );
-        case "crmLeadScore": {
+        case "salesLeadScore": {
           const scoreColorMap = {
             hot: "danger",
             warm: "warning",
             cold: "primary",
           };
-          return item.crmLeadScore ? (
+          return item.salesLeadScore ? (
             <Chip
               variant="flat"
               size="md"
               radius="md"
-              color={scoreColorMap[item.crmLeadScore] || "default"}
+              color={scoreColorMap[item.salesLeadScore] || "default"}
             >
-              {item.crmLeadScore}
+              {item.salesLeadScore}
             </Chip>
           ) : (
             "-"
           );
         }
-        case "crmLeadStatus": {
+        case "salesLeadStatus": {
           const statusColorMap = {
             new: "primary",
             contacted: "warning",
@@ -135,21 +135,21 @@ export default function LeadsView({
             converted: "secondary",
             lost: "danger",
           };
-          return item.crmLeadStatus ? (
+          return item.salesLeadStatus ? (
             <Chip
               variant="flat"
               size="md"
               radius="md"
-              color={statusColorMap[item.crmLeadStatus] || "default"}
+              color={statusColorMap[item.salesLeadStatus] || "default"}
             >
-              {item.crmLeadStatus}
+              {item.salesLeadStatus}
             </Chip>
           ) : (
             "-"
           );
         }
-        case "crmLeadAssignedTo":
-          return item.crmLeadAssignedTo || "-";
+        case "salesLeadAssignedTo":
+          return item.salesLeadAssignedTo || "-";
         case "isActive":
           return (
             <Chip
@@ -164,7 +164,7 @@ export default function LeadsView({
         case "actions":
           return (
             <div className="flex items-center gap-1">
-              {item.crmLeadStatus === "qualified" && (
+              {item.salesLeadStatus === "qualified" && (
                 <Button
                   variant="bordered"
                   size="md"
@@ -217,22 +217,22 @@ export default function LeadsView({
         data={leads}
         renderCell={renderCell}
         enableCardView
-        rowKey="crmLeadId"
+        rowKey="salesLeadId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาลีด..."
         searchKeys={[
-          "crmLeadName",
-          "crmLeadCompany",
-          "crmLeadEmail",
-          "crmLeadPhone",
+          "salesLeadName",
+          "salesLeadCompany",
+          "salesLeadEmail",
+          "salesLeadPhone",
         ]}
-        statusField="crmLeadStatus"
+        statusField="salesLeadStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบลีด"
         actionMenuItems={(item) =>
           [
-            item.crmLeadStatus === "qualified" && { key: "convert", label: "แปลงเป็นโอกาสขาย", icon: <ArrowRightLeft />, onPress: () => handleConvert(item) },
+            item.salesLeadStatus === "qualified" && { key: "convert", label: "แปลงเป็นโอกาสขาย", icon: <ArrowRightLeft />, onPress: () => handleConvert(item) },
             { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
             isSuperAdmin
               ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
@@ -274,11 +274,11 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmLeadName}
-                    onChange={(e) => updateField("crmLeadName", e.target.value)}
+                    value={formData.salesLeadName}
+                    onChange={(e) => updateField("salesLeadName", e.target.value)}
                     isRequired
-                    isInvalid={!!validationErrors?.crmLeadName}
-                    errorMessage={validationErrors?.crmLeadName}
+                    isInvalid={!!validationErrors?.salesLeadName}
+                    errorMessage={validationErrors?.salesLeadName}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -289,8 +289,8 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmLeadEmail}
-                    onChange={(e) => updateField("crmLeadEmail", e.target.value)}
+                    value={formData.salesLeadEmail}
+                    onChange={(e) => updateField("salesLeadEmail", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -301,8 +301,8 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmLeadPhone}
-                    onChange={(e) => updateField("crmLeadPhone", e.target.value)}
+                    value={formData.salesLeadPhone}
+                    onChange={(e) => updateField("salesLeadPhone", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -313,8 +313,8 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmLeadCompany}
-                    onChange={(e) => updateField("crmLeadCompany", e.target.value)}
+                    value={formData.salesLeadCompany}
+                    onChange={(e) => updateField("salesLeadCompany", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -325,8 +325,8 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmLeadPosition}
-                    onChange={(e) => updateField("crmLeadPosition", e.target.value)}
+                    value={formData.salesLeadPosition}
+                    onChange={(e) => updateField("salesLeadPosition", e.target.value)}
                   />
                 </div>
                 <div className="flex items-center w-full h-fit p-2 gap-2">
@@ -337,10 +337,10 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.crmLeadSource ? [formData.crmLeadSource] : []}
+                    selectedKeys={formData.salesLeadSource ? [formData.salesLeadSource] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("crmLeadSource", val);
+                      updateField("salesLeadSource", val);
                     }}
                   >
                     <SelectItem key="website">เว็บไซต์</SelectItem>
@@ -360,10 +360,10 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.crmLeadScore ? [formData.crmLeadScore] : []}
+                    selectedKeys={formData.salesLeadScore ? [formData.salesLeadScore] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("crmLeadScore", val);
+                      updateField("salesLeadScore", val);
                     }}
                   >
                     <SelectItem key="hot">ร้อน</SelectItem>
@@ -379,10 +379,10 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    selectedKeys={formData.crmLeadStatus ? [formData.crmLeadStatus] : []}
+                    selectedKeys={formData.salesLeadStatus ? [formData.salesLeadStatus] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("crmLeadStatus", val);
+                      updateField("salesLeadStatus", val);
                     }}
                   >
                     <SelectItem key="new">ใหม่</SelectItem>
@@ -400,8 +400,8 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.crmLeadAssignedTo}
-                    onChange={(e) => updateField("crmLeadAssignedTo", e.target.value)}
+                    value={formData.salesLeadAssignedTo}
+                    onChange={(e) => updateField("salesLeadAssignedTo", e.target.value)}
                   />
                 </div>
               </div>
@@ -413,8 +413,8 @@ export default function LeadsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.crmLeadNotes}
-                  onChange={(e) => updateField("crmLeadNotes", e.target.value)}
+                  value={formData.salesLeadNotes}
+                  onChange={(e) => updateField("salesLeadNotes", e.target.value)}
                 />
               </div>
             </div>
@@ -444,7 +444,7 @@ export default function LeadsView({
             <p>
               คุณแน่ใจหรือไม่ว่าต้องการลบ{" "}
               <span className="font-light">
-                {deletingLead?.crmLeadName}
+                {deletingLead?.salesLeadName}
               </span>
               ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
             </p>

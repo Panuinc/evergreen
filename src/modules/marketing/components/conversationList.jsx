@@ -104,40 +104,40 @@ export default function ConversationList({
           </div>
         ) : (
           conversations.map((conv) => {
-            const contact = conv.omContact;
-            const isSelected = selectedConversation?.omConversationId === conv.omConversationId;
+            const contact = conv.mktContact;
+            const isSelected = selectedConversation?.mktConversationId === conv.mktConversationId;
             return (
               <div
-                key={conv.omConversationId}
+                key={conv.mktConversationId}
                 onClick={() => onSelect(conv)}
                 className={`flex items-start gap-3 p-3 cursor-pointer transition-colors border-b border-border ${
                   isSelected ? "bg-default" : "hover:bg-default/50"
                 }`}
               >
                 <Avatar
-                  src={contact?.omContactAvatarUrl}
-                  name={contact?.omContactDisplayName?.charAt(0) || "?"}
+                  src={contact?.mktContactAvatarUrl}
+                  name={contact?.mktContactDisplayName?.charAt(0) || "?"}
                   size="md"
                   className="flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-light truncate">
-                      {contact?.omContactDisplayName || "ไม่ทราบ"}
+                      {contact?.mktContactDisplayName || "ไม่ทราบ"}
                     </span>
                     <span className="text-xs text-muted-foreground flex-shrink-0">
-                      {formatTime(conv.omConversationLastMessageAt)}
+                      {formatTime(conv.mktConversationLastMessageAt)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mt-0.5">
                     <span className="text-muted-foreground truncate text-xs">
-                      {conv.omConversationLastMessagePreview || "..."}
+                      {conv.mktConversationLastMessagePreview || "..."}
                     </span>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <ChannelBadge channelType={conv.omConversationChannelType} />
-                      {conv.omConversationUnreadCount > 0 && (
+                      <ChannelBadge channelType={conv.mktConversationChannelType} />
+                      {conv.mktConversationUnreadCount > 0 && (
                         <Chip size="md" color="danger" variant="solid" className="min-w-5 h-5 text-xs">
-                          {conv.omConversationUnreadCount}
+                          {conv.mktConversationUnreadCount}
                         </Chip>
                       )}
                     </div>

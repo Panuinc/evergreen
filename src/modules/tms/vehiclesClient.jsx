@@ -16,7 +16,7 @@ const emptyForm = {
   tmsVehicleFuelType: "diesel",
   tmsVehicleStatus: "available",
   tmsVehicleFuelConsumptionRate: "",
-  tmsVehicleForthtrackId: "",
+  tmsVehicleForthtrackRef: "",
 };
 
 export default function VehiclesClient({ initialVehicles }) {
@@ -55,7 +55,7 @@ export default function VehiclesClient({ initialVehicles }) {
         tmsVehicleFuelType: vehicle.tmsVehicleFuelType || "diesel",
         tmsVehicleStatus: vehicle.tmsVehicleStatus || "available",
         tmsVehicleFuelConsumptionRate: vehicle.tmsVehicleFuelConsumptionRate?.toString() || "",
-        tmsVehicleForthtrackId: vehicle.tmsVehicleForthtrackId || "",
+        tmsVehicleForthtrackRef: vehicle.tmsVehicleForthtrackRef || "",
       });
     } else {
       setEditingVehicle(null);

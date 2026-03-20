@@ -22,14 +22,14 @@ import { useRBAC } from "@/contexts/rbacContext";
 
 const baseColumns = [
   { name: "ชื่อ", uid: "rbacResourceName", sortable: true },
-  { name: "โมดูล", uid: "rbacResourceModuleId", sortable: true },
+  { name: "โมดูล", uid: "rbacResourceModuleRef", sortable: true },
   { name: "รายละเอียด", uid: "rbacResourceDescription" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
 const baseVisibleColumns = [
   "rbacResourceName",
-  "rbacResourceModuleId",
+  "rbacResourceModuleRef",
   "rbacResourceDescription",
   "actions",
 ];
@@ -73,10 +73,10 @@ export default function ResourcesView({
       switch (columnKey) {
         case "rbacResourceName":
           return <span className="font-light">{resource.rbacResourceName}</span>;
-        case "rbacResourceModuleId":
+        case "rbacResourceModuleRef":
           return (
             <span className="text-muted-foreground">
-              {resource.rbacResourceModuleId || "-"}
+              {resource.rbacResourceModuleRef || "-"}
             </span>
           );
         case "rbacResourceDescription":
@@ -145,7 +145,7 @@ export default function ResourcesView({
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาตามชื่อ, โมดูล, รายละเอียด..."
-        searchKeys={["rbacResourceName", "rbacResourceModuleId", "rbacResourceDescription"]}
+        searchKeys={["rbacResourceName", "rbacResourceModuleRef", "rbacResourceDescription"]}
         emptyContent="ไม่พบทรัพยากร"
         actionMenuItems={(item) =>
           [
@@ -198,12 +198,12 @@ export default function ResourcesView({
                   size="md"
                   radius="md"
                   selectedKeys={
-                    formData.rbacResourceModuleId ? [formData.rbacResourceModuleId] : []
+                    formData.rbacResourceModuleRef ? [formData.rbacResourceModuleRef] : []
                   }
                   onSelectionChange={(keys) =>
                     setFormData({
                       ...formData,
-                      rbacResourceModuleId: Array.from(keys)[0] || "",
+                      rbacResourceModuleRef: Array.from(keys)[0] || "",
                     })
                   }
                 >
