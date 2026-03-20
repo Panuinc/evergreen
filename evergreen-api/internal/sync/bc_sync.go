@@ -57,6 +57,7 @@ func (s *SyncEngine) RunSync(ctx context.Context, mode string, send func(event, 
 	now := time.Now().UTC().Format(time.RFC3339)
 
 	sendProgress := func(phase, step, label string, extra map[string]any) {
+		logger.Info("sync progress", "phase", phase, "step", step, "label", label)
 		payload := map[string]any{
 			"phase": phase,
 			"step":  step,
