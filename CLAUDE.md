@@ -10,31 +10,42 @@ Priority:
 ### Rules
 
 1. **Backend MUST always read from Supabase** — never hardcode or fabricate data.
-2. **Frontend MUST always read from Backend API** — never query Supabase directly from client components.
-3. **Field names MUST be identical across all 3 layers:**
-   - If a Supabase column is `customerNumber`, the Go API SQL query MUST return it as `customerNumber` (use `AS` alias if the raw column name differs).
-   - The frontend MUST use `data.customerNumber` — the exact same name.
-4. When the Supabase column has a long prefix (e.g., `bcCustomerLedgerEntryCustomerNo`), the Go API MUST alias it to a clean name (e.g., `AS "customerNumber"`) and the frontend uses that clean name.
-5. **Before writing any endpoint or component**, verify field name alignment:
-   - Check the Supabase table/column names
-   - Ensure the Go SQL query returns aliased names matching the frontend contract
-   - Ensure the frontend accesses the exact same property names
+2. **Backend SHOULD compute and transform data** — aggregate (SUM, COUNT, GROUP BY), JOIN, filter, and shape data into exactly what the frontend needs. The frontend should NOT receive raw tables and compute everything client-side.
+   - Aggregate at backend: aged receivables by customer, dashboard KPIs, monthly summaries
+   - JOIN at backend: customer name from bcCustomer, dimension names, etc.
+   - Filter at backend: exclude closing entries, filter by date range, status, etc.
+   - Reduce payload: SELECT only needed columns, never SELECT * for large tables
+3. **Frontend MUST always read from Backend API** — never query Supabase directly from client components.
+4. **Field names MUST be identical between Backend API response and Frontend:**
+   - Backend uses `AS` alias to return clean field names from Supabase columns.
+   - Frontend uses the exact same property names as the API response.
+5. When the Supabase column has a long prefix (e.g., `bcCustomerLedgerEntryCustomerNo`), the Go API MUST alias it to a clean name (e.g., `AS "customerNumber"`) and the frontend uses that clean name.
+6. **Before writing any endpoint or component**, verify field name alignment:
+   - Define the API response contract (what fields the frontend needs)
+   - Write the Go SQL query with aliases matching that contract
+   - Frontend accesses the exact same property names
 
 ### Example
 
 ```sql
--- Go store.go — alias Supabase columns to clean names
+-- Go store.go — compute and alias at backend
 SELECT
   "bcCustomerLedgerEntryCustomerNo" AS "customerNumber",
-  "bcCustomerLedgerEntryCustomerName" AS "name",
-  SUM(...) AS "totalRemaining"
-FROM "bcCustomerLedgerEntry"
+  COALESCE(c."bcCustomerNameValue", e."bcCustomerLedgerEntryCustomerNo") AS "name",
+  SUM(CASE WHEN "bcCustomerLedgerEntryRemainingAmount" != 0
+    THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "balanceDue",
+  SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE
+    THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "currentAmount"
+FROM "bcCustomerLedgerEntry" e
+LEFT JOIN "bcCustomer" c ON c."bcCustomerNo" = e."bcCustomerLedgerEntryCustomerNo"
+WHERE e."bcCustomerLedgerEntryOpenValue" = 'true'
+GROUP BY "bcCustomerLedgerEntryCustomerNo", c."bcCustomerNameValue"
 ```
 
 ```javascript
-// Frontend — uses the same clean names
+// Frontend — uses the computed clean names directly, no client-side aggregation needed
 const data = await get("/api/finance/agedReceivables");
-data.map(r => r.customerNumber); // matches Go alias exactly
+data.map(r => ({ name: r.name, balanceDue: r.balanceDue }));
 ```
 
 ---

@@ -55,6 +55,10 @@ func NotFound(w http.ResponseWriter, message string) {
 
 // InternalError writes a 500 error (logs the real error, returns generic message).
 func InternalError(w http.ResponseWriter, err error) {
+	// context canceled = browser closed connection, not a real error
+	if err != nil && err.Error() == "context canceled" {
+		return
+	}
 	logger.Error("internal server error", "error", err)
 	Error(w, http.StatusInternalServerError, "เกิดข้อผิดพลาดภายใน")
 }

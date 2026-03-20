@@ -14,7 +14,7 @@ async function getAuthHeaders() {
   return {};
 }
 
-async function apiRequest(url, options = {}) {
+async function apiRequest(url, options = {}, retry = true) {
   const authHeaders = await getAuthHeaders();
   const res = await fetch(url, {
     headers: {
@@ -24,6 +24,12 @@ async function apiRequest(url, options = {}) {
     },
     ...options,
   });
+
+  // Session not ready yet — wait and retry once
+  if (res.status === 401 && retry) {
+    await new Promise((r) => setTimeout(r, 500));
+    return apiRequest(url, options, false);
+  }
 
   const data = await res.json();
 

@@ -181,6 +181,7 @@ func (s *Store) GLEntriesMonthly(ctx context.Context, start, end string) (map[st
 			SUM(COALESCE("bcGLEntryCreditAmount", 0)) AS "credit"
 		FROM "bcGLEntry"
 		WHERE "bcGLEntryPostingDate" >= $1 AND "bcGLEntryPostingDate" <= $2
+			AND "bcGLEntryDescriptionValue" NOT LIKE 'Close Income Statement%'
 		GROUP BY "bcGLEntryGLAccountNo", TO_CHAR("bcGLEntryPostingDate", 'MM')
 		ORDER BY "bcGLEntryGLAccountNo", "month"
 	`, start, end)

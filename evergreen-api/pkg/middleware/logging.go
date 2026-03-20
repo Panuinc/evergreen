@@ -55,6 +55,11 @@ func Logger(next http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
+		// Skip logging if client disconnected (context canceled)
+		if r.Context().Err() != nil {
+			return
+		}
+
 		if rw.status >= 400 {
 			// Error: log with full detail
 			attrs := []any{

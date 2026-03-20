@@ -35,6 +35,7 @@ const columns = [
   { name: "สถานะตั๋วผลิต", uid: "poStatus", sortable: true },
   { name: "ตั๋วผลิต", uid: "poDetails", sortable: false },
   { name: "สั่งผลิตรวม", uid: "poTotalQty", sortable: true },
+  { name: "ค้างสั่งผลิต", uid: "poBacklog", sortable: true },
 ];
 
 const initialColumns = [
@@ -46,6 +47,7 @@ const initialColumns = [
   "poStatus",
   "poDetails",
   "poTotalQty",
+  "poBacklog",
 ];
 
 const fgFetcher = async (url) => {
@@ -95,6 +97,14 @@ export default function FgCoverageView({ initialData = null }) {
         ) : (
           <span className="text-xs text-default-400">-</span>
         );
+      case "poBacklog": {
+        const backlog = (item.soOutstandingQty || 0) - (item.poTotalQty || 0);
+        return backlog > 0 ? (
+          <span className="text-xs font-semibold text-danger">{fmt(backlog)}</span>
+        ) : (
+          <span className="text-xs text-success">0</span>
+        );
+      }
       case "poStatus":
         return item.hasProductionOrder ? (
           <Chip

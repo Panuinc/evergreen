@@ -191,7 +191,7 @@ export const menuData = [
         href: "/production/entries",
       },
       { name: "กำไรราย FG", icon: BarChart3, href: "/production/profit" },
-      { name: "สถานะตั๋วผลิต", icon: ClipboardList, href: "/production/fg-coverage" },
+      { name: "สถานะตั๋วผลิต", icon: ClipboardList, href: "/production/fgCoverage" },
       { name: "BOM", icon: List, href: "/production/bom" },
     ],
   },
