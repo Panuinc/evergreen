@@ -4,6 +4,7 @@ import { Input, Button, Chip} from "@heroui/react";
 import { User, Lock, Briefcase, KeyRound } from "lucide-react";
 import PinSetupModal from "@/components/auth/pinSetupModal";
 import Loading from "@/components/ui/loading";
+import type { ProfileViewProps } from "@/modules/profile/types";
 
 export default function ProfileView({
   user,
@@ -21,7 +22,7 @@ export default function ProfileView({
   setShowPinSetup,
   removingPin,
   handleRemovePin,
-}) {
+}: ProfileViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -111,19 +112,19 @@ export default function ProfileView({
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-xs text-muted-foreground w-24">ฝ่าย</span>
               <span className="font-light">
-                {employee.divisionName || "-"}
+                {employee.hrDivisionName || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-xs text-muted-foreground w-24">แผนก</span>
               <span className="font-light">
-                {employee.departmentName || "-"}
+                {employee.hrDepartmentName || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">
               <span className="text-xs text-muted-foreground w-24">ตำแหน่ง</span>
               <span className="font-light">
-                {employee.positionName || "-"}
+                {employee.hrPositionTitle || "-"}
               </span>
             </div>
             <div className="flex items-center w-full h-fit p-2 gap-2">

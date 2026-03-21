@@ -4,15 +4,16 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/apiClient";
 import DashboardView from "@/modules/tms/components/dashboardView";
+import type { TmsDashboardStats } from "@/modules/tms/types";
 
-function fmt(v) {
+function fmt(v: number | null | undefined): string {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
 }
 
-export default function DashboardClient({ initialStats }) {
-  const [stats, setStats] = useState(initialStats);
+export default function DashboardClient({ initialStats }: { initialStats: TmsDashboardStats | null }) {
+  const [stats, setStats] = useState<TmsDashboardStats | null>(initialStats);
   const [loading, setLoading] = useState(false);
-  const [compareMode, setCompareModeState] = useState(null);
+  const [compareMode, setCompareModeState] = useState<string | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -21,7 +22,7 @@ export default function DashboardClient({ initialStats }) {
       setLoading(true);
       const { get } = await import("@/lib/apiClient");
       const params = mode ? `?compareMode=${mode}` : "";
-      const data = await get(`/api/tms/dashboard${params}`);
+      const data = await get(`/api/tms/dashboard${params}`) as TmsDashboardStats;
       setStats(data);
     } catch {
       toast.error("โหลดข้อมูลแดชบอร์ดล้มเหลว");
@@ -56,7 +57,7 @@ export default function DashboardClient({ initialStats }) {
             "| รถ | ทะเบียน | เที่ยว | ระยะทาง(km) | น้ำมันประมาณ(L) | น้ำมันจริง(L) | ต้นทุนประมาณ | ต้นทุนจริง | อัตราสิ้นเปลือง(km/L) | อัตราจริง(km/L) |",
             "|---|---|---|---|---|---|---|---|---|---|",
             ...vp.map((v) =>
-              `| ${v.vehicleName || "-"} | ${v.plateNumber} | ${v.tripCount} | ${fmt(v.totalDistanceKm)} | ${fmt(v.estimatedLiters)} | ${fmt(v.actualFuelLiters)} | ${fmt(v.estimatedFuelCost)} | ${fmt(v.actualFuelCost)} | ${v.fuelConsumptionRate || "-"} | ${v.actualRate ?? "-"} |`
+              `| ${v.tmsVehicleName || "-"} | ${v.tmsVehiclePlateNumber} | ${v.tmsShipmentCount} | ${fmt(v.tmsShipmentDistance)} | ${fmt(v.estimatedLiters)} | ${fmt(v.actualFuelLiters)} | ${fmt(v.estimatedFuelCost)} | ${fmt(v.actualFuelCost)} | ${v.tmsVehicleFuelConsumptionRate || "-"} | ${v.actualRate ?? "-"} |`
             ),
           ].join("\n")
         : "ไม่มีข้อมูล",
@@ -65,16 +66,16 @@ export default function DashboardClient({ initialStats }) {
         `กำลังดำเนินการ: ${stats.activeShipments}`,
       ].join("\n"),
       monthlyShipmentTrend: (stats.monthlyShipmentTrend || []).length
-        ? stats.monthlyShipmentTrend.map((m) => `${m.month}: ${m.count} เที่ยว`).join("\n")
+        ? stats.monthlyShipmentTrend.map((m) => `${m.month}: ${m.tmsShipmentCount} เที่ยว`).join("\n")
         : "ไม่มีข้อมูล",
       fuelCostTrend: (stats.fuelCostTrend || []).length
-        ? stats.fuelCostTrend.map((m) => `${m.month}: ${fmt(m.totalCost)} บาท`).join("\n")
+        ? stats.fuelCostTrend.map((m) => `${m.month}: ${fmt(m.tmsFuelLogTotalCost)} บาท`).join("\n")
         : "ไม่มีข้อมูล",
       statusDistribution: (stats.shipmentStatusDistribution || []).length
-        ? stats.shipmentStatusDistribution.map((s) => `${s.status}: ${s.count} เที่ยว`).join("\n")
+        ? stats.shipmentStatusDistribution.map((s) => `${s.tmsShipmentStatus}: ${s.tmsShipmentCount} เที่ยว`).join("\n")
         : "ไม่มีข้อมูล",
       vehicleUtilization: (stats.vehicleUtilization || []).length
-        ? stats.vehicleUtilization.map((v) => `${v.vehicleName}: ${v.shipmentCount} เที่ยว (30 วัน)`).join("\n")
+        ? stats.vehicleUtilization.map((v) => `${v.tmsVehicleName || v.tmsVehiclePlateNumber}: ${v.tmsShipmentCount} เที่ยว (30 วัน)`).join("\n")
         : "ไม่มีข้อมูล",
     };
 

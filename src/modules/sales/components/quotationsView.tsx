@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
+import type { QuotationsViewProps, SalesQuotation } from "@/modules/sales/types";
 
 const columns = [
   { name: "เลขที่ใบเสนอราคา", uid: "salesQuotationNo", sortable: true },
@@ -27,15 +28,7 @@ const columns = [
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
-const statusOptions = [
-  { uid: "draft", name: "ฉบับร่าง" },
-  { uid: "submitted", name: "ส่งแล้ว" },
-  { uid: "approved", name: "อนุมัติ" },
-  { uid: "rejected", name: "ปฏิเสธ" },
-  { uid: "converted", name: "แปลงแล้ว" },
-];
-
-const statusColorMap = {
+const statusColorMap: Record<string, "default" | "primary" | "success" | "danger" | "secondary"> = {
   draft: "default",
   submitted: "primary",
   approved: "success",
@@ -63,9 +56,9 @@ export default function QuotationsView({
   handleDelete,
   handleNew,
   onNavigateToQuotation,
-}) {
+}: QuotationsViewProps) {
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (item: SalesQuotation, columnKey: string) => {
       switch (columnKey) {
         case "salesQuotationNo":
           return (
@@ -83,7 +76,7 @@ export default function QuotationsView({
         case "account":
           return item.salesAccount?.salesAccountName || "-";
         case "opportunity":
-          return item.salesOpportunity?.salesOpportunityName || "-";
+          return item.salesQuotationOpportunityId || "-";
         case "salesQuotationStatus": {
           const color = statusColorMap[item.salesQuotationStatus] || "default";
           return (
@@ -128,7 +121,7 @@ export default function QuotationsView({
             </div>
           );
         default:
-          return item[columnKey] || "-";
+          return (item as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
       }
     },
     [onNavigateToQuotation, confirmDelete],
@@ -138,7 +131,7 @@ export default function QuotationsView({
     <div className="flex flex-col w-full h-full gap-4">
       <Tabs
         selectedKey={statusFilter}
-        onSelectionChange={setStatusFilter}
+        onSelectionChange={(k) => setStatusFilter(k as string)}
         variant="bordered"
         size="md"
         radius="md"
@@ -161,7 +154,7 @@ export default function QuotationsView({
         searchPlaceholder="ค้นหาใบเสนอราคา..."
         searchKeys={["salesQuotationNo"]}
         emptyContent="ไม่พบใบเสนอราคา"
-        actionMenuItems={(item) => [
+        actionMenuItems={(item: SalesQuotation) => [
           { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => onNavigateToQuotation(item.salesQuotationId) },
           { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
         ]}

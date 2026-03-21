@@ -23,6 +23,13 @@ import {
   Loader2,
 } from "lucide-react";
 import Loading from "@/components/ui/loading";
+import type {
+  SyncBcViewProps,
+  BcSyncSectionProps,
+  BciImportSectionProps,
+  SyncProgressPanelProps,
+  ResultCardsProps,
+} from "@/modules/settings/types";
 
 const bcTables = [
   { key: "dimensionValues", label: "มิติ", icon: FolderKanban },
@@ -43,7 +50,7 @@ const phaseOrder = [
   "cleanup",
 ];
 
-function PhaseIcon({ phase, step }) {
+function PhaseIcon({ phase, step }: { phase: string; step: string }) {
   const table = bcTables.find((t) => t.key === phase);
   const Icon = table?.icon || FolderKanban;
   const size = 16;
@@ -55,7 +62,7 @@ function PhaseIcon({ phase, step }) {
   return <Icon size={size} className="text-muted-foreground shrink-0" />;
 }
 
-function SyncProgressPanel({ phases }) {
+function SyncProgressPanel({ phases }: SyncProgressPanelProps) {
   const entries = phaseOrder
     .filter((p) => phases[p])
     .map((p) => ({ key: p, ...phases[p] }));
@@ -109,7 +116,7 @@ function SyncProgressPanel({ phases }) {
   );
 }
 
-function ResultCards({ tables, results }) {
+function ResultCards({ tables, results }: ResultCardsProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {tables.map((t) => {
@@ -138,7 +145,7 @@ function ResultCards({ tables, results }) {
                     ? val.toLocaleString("th-TH")
                     : typeof val === "object" && val !== null
                       ? Object.entries(val).map(([k, v]) => `${k}: ${Number(v).toLocaleString("th-TH")}`).join(" / ")
-                      : val ?? "-"}
+                      : (val as string | undefined) ?? "-"}
                 </p>
               )}
             </CardBody>
@@ -149,7 +156,7 @@ function ResultCards({ tables, results }) {
   );
 }
 
-function BciImportSection({ importing, result, error, fileName, handleFileChange }) {
+function BciImportSection({ importing, result, error, fileName, handleFileChange }: BciImportSectionProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -270,7 +277,7 @@ function BcSyncSection({
   phases,
   lastSync,
   handleSyncAll,
-}) {
+}: BcSyncSectionProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -349,7 +356,7 @@ export default function SyncBcView({
   importError,
   importFileName,
   handleFileChange,
-}) {
+}: SyncBcViewProps) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <p className="text-xs font-light">ซิงค์ข้อมูล</p>

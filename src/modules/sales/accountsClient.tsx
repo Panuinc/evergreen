@@ -6,8 +6,15 @@ import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import AccountsView from "@/modules/sales/components/accountsView";
+import type { SalesAccount, AccountsClientProps } from "@/modules/sales/types";
 
-const emptyForm = {
+// AccountFormData overrides numeric fields with string for controlled input values
+type AccountFormData = Omit<Partial<SalesAccount>, "salesAccountEmployees" | "salesAccountAnnualRevenue"> & {
+  salesAccountEmployees?: string;
+  salesAccountAnnualRevenue?: string;
+};
+
+const emptyForm: AccountFormData = {
   salesAccountName: "",
   salesAccountIndustry: "",
   salesAccountWebsite: "",
@@ -19,25 +26,25 @@ const emptyForm = {
   salesAccountNotes: "",
 };
 
-export default function AccountsClient({ initialAccounts }) {
-  const [accounts, setAccounts] = useState(initialAccounts);
+export default function AccountsClient({ initialAccounts }: AccountsClientProps) {
+  const [accounts, setAccounts] = useState<SalesAccount[]>(initialAccounts);
   const [saving, setSaving] = useState(false);
-  const [editingAccount, setEditingAccount] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [editingAccount, setEditingAccount] = useState<SalesAccount | null>(null);
+  const [formData, setFormData] = useState<AccountFormData>(emptyForm);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingAccount, setDeletingAccount] = useState(null);
+  const [deletingAccount, setDeletingAccount] = useState<SalesAccount | null>(null);
 
   const reloadAccounts = async () => {
     try {
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/sales/accounts");
+      const data = await get<SalesAccount[]>("/api/sales/accounts");
       setAccounts(data);
     } catch {}
   };
 
-  const handleOpen = (account = null) => {
+  const handleOpen = (account: SalesAccount | null = null) => {
     if (account) {
       setEditingAccount(account);
       setFormData({
@@ -61,10 +68,10 @@ export default function AccountsClient({ initialAccounts }) {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      salesAccountName: [(v) => !isRequired(v) && "กรุณาระบุชื่อบัญชี"],
+      salesAccountName: [(v: string) => !isRequired(v) && "กรุณาระบุชื่อบัญชี"],
     });
     if (!isValid) {
-      setValidationErrors(errors);
+      setValidationErrors(errors as Record<string, string>);
       Object.values(errors).forEach((msg) => toast.error(msg as string));
       return;
     }
@@ -92,13 +99,13 @@ export default function AccountsClient({ initialAccounts }) {
       onClose();
       reloadAccounts();
     } catch (error) {
-      toast.error(error.message || "บันทึกบัญชีล้มเหลว");
+      toast.error((error as Error).message || "บันทึกบัญชีล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = (account) => {
+  const confirmDelete = (account: SalesAccount) => {
     setDeletingAccount(account);
     deleteModal.onOpen();
   };
@@ -112,11 +119,11 @@ export default function AccountsClient({ initialAccounts }) {
       setDeletingAccount(null);
       reloadAccounts();
     } catch (error) {
-      toast.error(error.message || "ลบบัญชีล้มเหลว");
+      toast.error((error as Error).message || "ลบบัญชีล้มเหลว");
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: SalesAccount) => {
     try {
       await put(`/api/sales/accounts/${item.salesAccountId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -126,7 +133,7 @@ export default function AccountsClient({ initialAccounts }) {
     }
   };
 
-  const updateField = (field, value) => {
+  const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

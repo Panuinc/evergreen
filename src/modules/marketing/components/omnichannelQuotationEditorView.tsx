@@ -14,8 +14,9 @@ import {
 import { ArrowLeft, ExternalLink, Send, Check, X, Banknote, Receipt } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import Loading from "@/components/ui/loading";
+import type { OmnichannelQuotationEditorViewProps } from "@/modules/marketing/types";
 
-const statusMap = {
+const statusMap: Record<string, { label: string; color: "default" | "primary" | "secondary" | "success" | "warning" | "danger" }> = {
   draft: { label: "ร่าง", color: "default" },
   pending_approval: { label: "รออนุมัติ", color: "warning" },
   approved: { label: "อนุมัติแล้ว", color: "success" },
@@ -43,7 +44,7 @@ export default function OmnichannelQuotationEditorView({
   handleSave,
   handleAction,
   onBack,
-}) {
+}: OmnichannelQuotationEditorViewProps) {
   const [rejectNote, setRejectNote] = useState("");
   const rejectModal = useDisclosure();
 

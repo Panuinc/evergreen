@@ -6,20 +6,21 @@ import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { del } from "@/lib/apiClient";
 import QuotationsView from "@/modules/sales/components/quotationsView";
+import type { SalesQuotation, QuotationsClientProps } from "@/modules/sales/types";
 
-export default function QuotationsClient({ initialQuotations }) {
+export default function QuotationsClient({ initialQuotations }: QuotationsClientProps) {
   const router = useRouter();
-  const [quotations, setQuotations] = useState(initialQuotations);
+  const [quotations, setQuotations] = useState<SalesQuotation[]>(initialQuotations);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
   const deleteModal = useDisclosure();
-  const [deletingQuotation, setDeletingQuotation] = useState(null);
+  const [deletingQuotation, setDeletingQuotation] = useState<SalesQuotation | null>(null);
 
-  const reloadQuotations = async (filter) => {
+  const reloadQuotations = async (filter: string) => {
     try {
       setLoading(true);
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/sales/quotations");
+      const data: SalesQuotation[] = await get("/api/sales/quotations");
       setQuotations(
         filter
           ? data.filter((q) => q.salesQuotationStatus === filter)
@@ -32,12 +33,12 @@ export default function QuotationsClient({ initialQuotations }) {
     }
   };
 
-  const handleStatusFilterChange = useCallback((val) => {
+  const handleStatusFilterChange = useCallback((val: string) => {
     setStatusFilter(val);
     reloadQuotations(val);
   }, []);
 
-  const confirmDelete = (quotation) => {
+  const confirmDelete = (quotation: SalesQuotation) => {
     setDeletingQuotation(quotation);
     deleteModal.onOpen();
   };
@@ -51,14 +52,14 @@ export default function QuotationsClient({ initialQuotations }) {
       setDeletingQuotation(null);
       reloadQuotations(statusFilter);
     } catch (error) {
-      toast.error(error.message || "ลบใบเสนอราคาล้มเหลว");
+      toast.error((error as Error).message || "ลบใบเสนอราคาล้มเหลว");
     }
   };
 
   const handleNew = useCallback(async () => {
     try {
       const { post } = await import("@/lib/apiClient");
-      const newQ = await post("/api/sales/quotations", {});
+      const newQ = await post<{ salesQuotationId: string }>("/api/sales/quotations", {});
       router.push(`/sales/quotations/${newQ.salesQuotationId}`);
     } catch {
       toast.error("ไม่สามารถสร้างใบเสนอราคาได้");
@@ -66,7 +67,7 @@ export default function QuotationsClient({ initialQuotations }) {
   }, [router]);
 
   const onNavigateToQuotation = useCallback(
-    (quotationId) => {
+    (quotationId: string) => {
       router.push(`/sales/quotations/${quotationId}`);
     },
     [router]

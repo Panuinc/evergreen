@@ -13,6 +13,7 @@ import DataTable from "@/components/ui/dataTable";
 import CompareToggle from "@/components/ui/compareToggle";
 import CompareKpiCard from "@/components/ui/compareKpiCard";
 import Loading from "@/components/ui/loading";
+import type { ProfitByItemViewProps, DashboardCompareResponse, DashboardResponse } from "@/modules/production/types";
 
 function fmt(v) {
   return Number(v || 0).toLocaleString("th-TH");
@@ -208,7 +209,7 @@ function ProfitContent({ d, prev }) {
   );
 }
 
-export default function ProfitByItemView({ data, loading, compareMode, setCompareMode }) {
+export default function ProfitByItemView({ data, loading, compareMode, setCompareMode }: ProfitByItemViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -220,10 +221,12 @@ export default function ProfitByItemView({ data, loading, compareMode, setCompar
   if (!data) return null;
 
   const isCompare = !!data.compareMode;
-  const wpcData = isCompare ? data.wpc?.current : data.wpc;
-  const wpcPrev = isCompare ? data.wpc?.previous : null;
-  const otherData = isCompare ? data.other?.current : data.other;
-  const otherPrev = isCompare ? data.other?.previous : null;
+  const compareData = isCompare ? (data as DashboardCompareResponse) : null;
+  const normalData = isCompare ? null : (data as DashboardResponse);
+  const wpcData = compareData ? compareData.wpc.current : normalData!.wpc;
+  const wpcPrev = compareData ? compareData.wpc.previous : null;
+  const otherData = compareData ? compareData.other.current : normalData!.other;
+  const otherPrev = compareData ? compareData.other.previous : null;
 
   return (
     <div className="flex flex-col w-full gap-4">

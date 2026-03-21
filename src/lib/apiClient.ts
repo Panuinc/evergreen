@@ -14,7 +14,7 @@ async function getAuthHeaders() {
   return {};
 }
 
-async function apiRequest(url: string, options: { method?: string; body?: string; headers?: Record<string, string> } = {}, retry = true) {
+async function apiRequest<T = unknown>(url: string, options: { method?: string; body?: string; headers?: Record<string, string> } = {}, retry = true): Promise<T> {
   const authHeaders = await getAuthHeaders();
   const res = await fetch(url, {
     headers: {
@@ -28,7 +28,7 @@ async function apiRequest(url: string, options: { method?: string; body?: string
   // Session not ready yet — wait and retry once
   if (res.status === 401 && retry) {
     await new Promise((r) => setTimeout(r, 500));
-    return apiRequest(url, options, false);
+    return apiRequest<T>(url, options, false);
   }
 
   const data = await res.json();
@@ -37,27 +37,27 @@ async function apiRequest(url: string, options: { method?: string; body?: string
     throw new Error(data.error || `Request failed with status ${res.status}`);
   }
 
-  return data;
+  return data as T;
 }
 
-export function get(url) {
-  return apiRequest(url);
+export function get<T = unknown>(url: string): Promise<T> {
+  return apiRequest<T>(url);
 }
 
-export function post(url, body) {
-  return apiRequest(url, { method: "POST", body: JSON.stringify(body) });
+export function post<T = unknown>(url: string, body?: unknown): Promise<T> {
+  return apiRequest<T>(url, { method: "POST", body: JSON.stringify(body) });
 }
 
-export function put(url, body) {
-  return apiRequest(url, { method: "PUT", body: JSON.stringify(body) });
+export function put<T = unknown>(url: string, body?: unknown): Promise<T> {
+  return apiRequest<T>(url, { method: "PUT", body: JSON.stringify(body) });
 }
 
-export function patch(url, body) {
-  return apiRequest(url, { method: "PATCH", body: JSON.stringify(body) });
+export function patch<T = unknown>(url: string, body?: unknown): Promise<T> {
+  return apiRequest<T>(url, { method: "PATCH", body: JSON.stringify(body) });
 }
 
-export function del(url) {
-  return apiRequest(url, { method: "DELETE" });
+export function del<T = unknown>(url: string): Promise<T> {
+  return apiRequest<T>(url, { method: "DELETE" });
 }
 
 // Raw fetch with auth headers (for file downloads, SSE streams, FormData uploads)

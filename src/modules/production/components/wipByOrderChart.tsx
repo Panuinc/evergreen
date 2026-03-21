@@ -10,12 +10,13 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
+import type { WipByOrderChartProps } from "@/modules/production/types";
 
-function formatCurrency(value) {
+function formatCurrency(value: number): string {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function WipByOrderChart({ data = [] }) {
+export default function WipByOrderChart({ data = [] }: WipByOrderChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">

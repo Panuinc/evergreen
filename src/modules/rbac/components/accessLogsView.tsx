@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { Chip } from "@heroui/react";
 import DataTable from "@/components/ui/dataTable";
+import type { AccessLogsViewProps, RbacAccessLog } from "@/modules/rbac/types";
 
 const columns = [
   { name: "เวลา", uid: "rbacAccessLogCreatedAt", sortable: true },
@@ -20,13 +21,8 @@ const initialVisibleColumns = [
   "rbacAccessLogGranted",
 ];
 
-const statusOptions = [
-  { name: "อนุญาต", uid: "granted" },
-  { name: "ปฏิเสธ", uid: "denied" },
-];
-
-export default function AccessLogsView({ logs, loading }) {
-  const renderCell = useCallback((log, columnKey) => {
+export default function AccessLogsView({ logs, loading }: AccessLogsViewProps) {
+  const renderCell = useCallback((log: RbacAccessLog, columnKey: string) => {
     switch (columnKey) {
       case "rbacAccessLogCreatedAt":
         return (
@@ -56,7 +52,7 @@ export default function AccessLogsView({ logs, loading }) {
           </Chip>
         );
       default:
-        return log[columnKey] || "-";
+        return (log as unknown as Record<string, string>)[columnKey] || "-";
     }
   }, []);
 

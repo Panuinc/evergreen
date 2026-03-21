@@ -17,6 +17,7 @@ import DataTable from "@/components/ui/dataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 import FileUpload from "@/components/ui/fileUpload";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { FuelLogsViewProps } from "@/modules/tms/types";
 
 const fuelCsvColumns = [
   { header: "วันที่", key: "tmsFuelLogDate" },
@@ -60,7 +61,7 @@ export default function FuelLogsView({
   confirmDelete,
   handleDelete,
   toggleActive,
-}) {
+}: FuelLogsViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -88,7 +89,8 @@ export default function FuelLogsView({
   }));
 
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (rawItem: Record<string, unknown>, columnKey: string) => {
+      const item = rawItem as unknown as import("@/modules/tms/types").TmsFuelLog;
       switch (columnKey) {
         case "tmsFuelLogDate":
           return (
@@ -195,12 +197,15 @@ export default function FuelLogsView({
             </Button>
           </div>
         }
-        actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
-          isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
-        ].filter(Boolean)}
+        actionMenuItems={(item) => {
+          const fl = item as unknown as import("@/modules/tms/types").TmsFuelLog;
+          return [
+            { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(fl) },
+            isSuperAdmin
+              ? { key: "toggle", label: fl.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(fl) }
+              : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(fl) },
+          ].filter(Boolean);
+        }}
       />
 
       {}
@@ -231,7 +236,7 @@ export default function FuelLogsView({
                         : []
                     }
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] || "");
                       updateField("tmsFuelLogVehicleId", val);
                     }}
                     isRequired
@@ -272,7 +277,7 @@ export default function FuelLogsView({
                         : []
                     }
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] || "");
                       updateField("tmsFuelLogFuelType", val);
                     }}
                   >

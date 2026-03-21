@@ -15,18 +15,19 @@ import {
 import { Printer, Eye, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { printRfidLabels, previewLabel } from "@/lib/qzPrinter";
+import type { PrintRfidModalProps } from "@/modules/warehouse/types";
 
 const maxBatch = 99;
 
-export default function PrintRfidModal({ isOpen, onClose, item }) {
+export default function PrintRfidModal({ isOpen, onClose, item }: PrintRfidModalProps) {
   const [quantity, setQuantity] = useState("");
   const [printing, setPrinting] = useState(false);
-  const [previewSrc, setPreviewSrc] = useState(null);
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
   useEffect(() => {
     if (isOpen && item) {
-      setQuantity(String(Math.max(Number(item.inventory) || 0, 1)));
+      setQuantity(String(Math.max(Number(item.bcItemInventory) || 0, 1)));
       setPreviewSrc(null);
     }
   }, [isOpen, item]);
@@ -51,7 +52,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
     }
   }, [isOpen, item, loadPreview]);
 
-  const hasRfidCode = item?.rfidCode != null;
+  const hasRfidCode = item?.bcItemRfidCode != null;
   const qty = Number(quantity) || 0;
   const isOverBatch = qty > maxBatch;
 
@@ -95,13 +96,13 @@ export default function PrintRfidModal({ isOpen, onClose, item }) {
         <ModalBody>
           <div className="flex flex-col gap-3">
             <div className="rounded-lg bg-default-50 p-3 text-xs">
-              <p className="font-light">{item.number}</p>
-              <p className="text-muted-foreground">{item.displayName}</p>
+              <p className="font-light">{item.bcItemNo}</p>
+              <p className="text-muted-foreground">{item.bcItemDisplayName}</p>
               <p className="text-muted-foreground">
-                คงเหลือ: {Number(item.inventory || 0).toLocaleString("th-TH")}
+                คงเหลือ: {Number(item.bcItemInventory || 0).toLocaleString("th-TH")}
               </p>
               <p className={hasRfidCode ? "text-success-600" : "text-danger"}>
-                RFID Code: {hasRfidCode ? item.rfidCode : "ยังไม่ได้กำหนด"}
+                RFID Code: {hasRfidCode ? item.bcItemRfidCode : "ยังไม่ได้กำหนด"}
               </p>
             </div>
 

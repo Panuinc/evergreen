@@ -1,12 +1,13 @@
 "use client";
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import type { DailyTrendChartProps } from "@/modules/marketing/types";
 
 function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function DailyTrendChart({ data = [] }) {
+export default function DailyTrendChart({ data = [] }: DailyTrendChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูลเดือนนี้</p>;
   }

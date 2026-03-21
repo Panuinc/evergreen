@@ -6,20 +6,21 @@ import { Button, Input, Chip, Textarea } from "@heroui/react";
 import { X, Plus, Tag, StickyNote, FileText, ExternalLink, Clock, CalendarPlus } from "lucide-react";
 import { get, post, del } from "@/lib/apiClient";
 import ChannelBadge from "./channelBadge";
+import type { ConversationDetailProps, MktQuotation, MktFollowUp } from "@/modules/marketing/types";
 
-export default function ConversationDetail({ conversation, onUpdateContact, onClose }) {
+export default function ConversationDetail({ conversation, onUpdateContact, onClose }: ConversationDetailProps) {
   const contact = conversation?.mktContact;
   const [newTag, setNewTag] = useState("");
   const [notes, setNotes] = useState(contact?.mktContactNotes || "");
   const [editingNotes, setEditingNotes] = useState(false);
   const convId = conversation?.mktConversationId;
-  const { data: quotations = [] } = useSWR(
+  const { data: quotations = [] } = useSWR<MktQuotation[]>(
     convId ? `/api/marketing/omnichannel/quotations?conversationId=${convId}` : null,
-    (url) => get(url).catch(() => []),
+    (url: string) => get<MktQuotation[]>(url).catch(() => []),
   );
-  const { data: followUpsData = [], mutate: mutateFollowUps } = useSWR(
+  const { data: followUpsData = [], mutate: mutateFollowUps } = useSWR<MktFollowUp[]>(
     convId ? `/api/marketing/omnichannel/followUp?conversationId=${convId}` : null,
-    (url) => get(url).catch(() => []),
+    (url: string) => get<MktFollowUp[]>(url).catch(() => []),
   );
   const followUps = followUpsData;
   const [showFollowUpForm, setShowFollowUpForm] = useState(false);
@@ -55,12 +56,12 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
     if (!followUpDate) return;
     try {
       const scheduledAt = new Date(`${followUpDate}T${followUpTime || "10:00"}:00+07:00`).toISOString();
-      const result = await post("/api/marketing/omnichannel/followUp", {
+      const result = await post<MktFollowUp>("/api/marketing/omnichannel/followUp", {
         conversationId: conversation.mktConversationId,
         scheduledAt,
         message: followUpMessage || null,
       });
-      mutateFollowUps((prev = []) => [...prev, result], { revalidate: false });
+      mutateFollowUps((prev = []) => [...prev, result as MktFollowUp], { revalidate: false });
       setShowFollowUpForm(false);
       setFollowUpDate("");
       setFollowUpTime("10:00");

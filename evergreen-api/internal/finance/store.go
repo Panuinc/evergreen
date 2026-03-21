@@ -29,17 +29,17 @@ func (s *Store) ListSalesInvoices(ctx context.Context, status string) ([]map[str
 	q := fmt.Sprintf(`
 		SELECT
 			i."bcPostedSalesInvoiceId",
-			i."bcPostedSalesInvoiceNoValue" AS "invoiceNumber",
-			i."bcPostedSalesInvoicePostingDate" AS "invoiceDate",
-			i."bcPostedSalesInvoiceDueDate" AS "dueDate",
-			i."bcPostedSalesInvoiceSellToCustomerNo" AS "customerNumber",
-			i."bcPostedSalesInvoiceSellToCustomerName" AS "customerName",
-			i."bcPostedSalesInvoiceSalespersonCode" AS "salespersonCode",
-			i."bcPostedSalesInvoiceAmountIncludingVAT" AS "totalAmountIncludingTax",
-			i."bcPostedSalesInvoiceAmountValue" AS "amount",
+			i."bcPostedSalesInvoiceNoValue",
+			i."bcPostedSalesInvoicePostingDate",
+			i."bcPostedSalesInvoiceDueDate",
+			i."bcPostedSalesInvoiceSellToCustomerNo",
+			i."bcPostedSalesInvoiceSellToCustomerName",
+			i."bcPostedSalesInvoiceSalespersonCode",
+			i."bcPostedSalesInvoiceAmountIncludingVAT",
+			i."bcPostedSalesInvoiceAmountValue",
 			(i."bcPostedSalesInvoiceAmountIncludingVAT" - i."bcPostedSalesInvoiceAmountValue") AS "totalTaxAmount",
-			i."bcPostedSalesInvoiceRemainingAmount" AS "remainingAmount",
-			CASE WHEN i."bcPostedSalesInvoiceClosedValue" = 'true' THEN 'Paid' ELSE 'Open' END AS "status",
+			i."bcPostedSalesInvoiceRemainingAmount",
+			CASE WHEN i."bcPostedSalesInvoiceClosedValue" = 'true' THEN 'Paid' ELSE 'Open' END AS "bcPostedSalesInvoiceStatus",
 			CASE WHEN i."bcPostedSalesInvoiceClosedValue" = 'true' OR i."bcPostedSalesInvoiceDueDate" IS NULL
 				THEN 0
 				ELSE GREATEST(0, CURRENT_DATE - i."bcPostedSalesInvoiceDueDate")
@@ -72,17 +72,17 @@ func (s *Store) ListPurchaseInvoices(ctx context.Context) ([]map[string]any, err
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
 			i."bcPostedPurchInvoiceId",
-			i."bcPostedPurchInvoiceNoValue" AS "invoiceNumber",
-			i."bcPostedPurchInvoiceVendorInvoiceNo" AS "vendorInvoiceNumber",
-			i."bcPostedPurchInvoicePostingDate" AS "invoiceDate",
-			i."bcPostedPurchInvoiceDueDate" AS "dueDate",
-			i."bcPostedPurchInvoiceBuyFromVendorNo" AS "vendorNumber",
-			i."bcPostedPurchInvoiceBuyFromVendorName" AS "vendorName",
-			i."bcPostedPurchInvoicePurchaserCode" AS "purchaserCode",
-			i."bcPostedPurchInvoiceAmountIncludingVAT" AS "totalAmountIncludingTax",
-			i."bcPostedPurchInvoiceAmountValue" AS "amount",
+			i."bcPostedPurchInvoiceNoValue",
+			i."bcPostedPurchInvoiceVendorInvoiceNo",
+			i."bcPostedPurchInvoicePostingDate",
+			i."bcPostedPurchInvoiceDueDate",
+			i."bcPostedPurchInvoiceBuyFromVendorNo",
+			i."bcPostedPurchInvoiceBuyFromVendorName",
+			i."bcPostedPurchInvoicePurchaserCode",
+			i."bcPostedPurchInvoiceAmountIncludingVAT",
+			i."bcPostedPurchInvoiceAmountValue",
 			(i."bcPostedPurchInvoiceAmountIncludingVAT" - i."bcPostedPurchInvoiceAmountValue") AS "totalTaxAmount",
-			CASE WHEN i."bcPostedPurchInvoiceClosedValue" = 'true' THEN 'Paid' ELSE 'Open' END AS "status",
+			CASE WHEN i."bcPostedPurchInvoiceClosedValue" = 'true' THEN 'Paid' ELSE 'Open' END AS "bcPostedPurchInvoiceStatus",
 			CASE WHEN i."bcPostedPurchInvoiceClosedValue" = 'true' OR i."bcPostedPurchInvoiceDueDate" IS NULL
 				THEN 0
 				ELSE GREATEST(0, CURRENT_DATE - i."bcPostedPurchInvoiceDueDate")
@@ -112,10 +112,10 @@ func (s *Store) ListPurchaseInvoices(ctx context.Context) ([]map[string]any, err
 func (s *Store) AgedReceivables(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			e."bcCustomerLedgerEntryCustomerNo" AS "customerNumber",
-			COALESCE(c."bcCustomerNameValue", e."bcCustomerLedgerEntryCustomerNo") AS "name",
-			MAX(e."bcCustomerLedgerEntryCurrencyCode") AS "currencyCode",
-			SUM(CASE WHEN e."bcCustomerLedgerEntryRemainingAmount" != 0 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "balanceDue",
+			e."bcCustomerLedgerEntryCustomerNo",
+			COALESCE(c."bcCustomerNameValue", e."bcCustomerLedgerEntryCustomerNo") AS "bcCustomerNameValue",
+			MAX(e."bcCustomerLedgerEntryCurrencyCode") AS "bcCustomerLedgerEntryCurrencyCode",
+			SUM(CASE WHEN e."bcCustomerLedgerEntryRemainingAmount" != 0 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "bcCustomerLedgerEntryRemainingAmount",
 			SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "currentAmount",
 			SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" < CURRENT_DATE AND e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period1Amount",
 			SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 30 AND e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period2Amount",
@@ -134,10 +134,10 @@ func (s *Store) AgedReceivables(ctx context.Context) ([]map[string]any, error) {
 func (s *Store) AgedPayables(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			"bcVendorLedgerEntryVendorNo" AS "vendorNumber",
-			MAX("bcVendorLedgerEntryVendorName") AS "name",
-			MAX("bcVendorLedgerEntryCurrencyCode") AS "currencyCode",
-			SUM(CASE WHEN "bcVendorLedgerEntryRemainingAmount" != 0 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "balanceDue",
+			"bcVendorLedgerEntryVendorNo",
+			MAX("bcVendorLedgerEntryVendorName") AS "bcVendorLedgerEntryVendorName",
+			MAX("bcVendorLedgerEntryCurrencyCode") AS "bcVendorLedgerEntryCurrencyCode",
+			SUM(CASE WHEN "bcVendorLedgerEntryRemainingAmount" != 0 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "bcVendorLedgerEntryRemainingAmount",
 			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" >= CURRENT_DATE THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "currentAmount",
 			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE AND "bcVendorLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "period1Amount",
 			SUM(CASE WHEN "bcVendorLedgerEntryDueDate" < CURRENT_DATE - 30 AND "bcVendorLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN "bcVendorLedgerEntryRemainingAmount" ELSE 0 END) AS "period2Amount",
@@ -154,23 +154,23 @@ func (s *Store) AgedPayables(ctx context.Context) ([]map[string]any, error) {
 
 func (s *Store) ListGLEntries(ctx context.Context, start, end string) ([]map[string]any, error) {
 	q := `SELECT
-			"bcGLEntryEntryNo" AS "entryNo",
-			"bcGLEntryGLAccountNo" AS "accountNo",
-			"bcGLEntryGLAccountName" AS "accountName",
-			"bcGLEntryPostingDate" AS "postingDate",
-			"bcGLEntryDocumentType" AS "documentType",
-			"bcGLEntryDocumentNo" AS "documentNo",
-			"bcGLEntryDescriptionValue" AS "description",
-			"bcGLEntryAmountValue" AS "amount",
-			"bcGLEntryDebitAmount" AS "debitAmount",
-			"bcGLEntryCreditAmount" AS "creditAmount",
-			"bcGLEntryGlobalDimension1Code" AS "dimension1Code",
-			"bcGLEntryGlobalDimension2Code" AS "dimension2Code",
-			"bcGLEntrySourceType" AS "sourceType",
-			"bcGLEntrySourceNo" AS "sourceNo",
-			"bcGLEntryDocumentDate" AS "documentDate",
-			"bcGLEntryExternalDocumentNo" AS "externalDocumentNo",
-			"bcGLEntryVATAmount" AS "vatAmount"
+			"bcGLEntryEntryNo",
+			"bcGLEntryGLAccountNo",
+			"bcGLEntryGLAccountName",
+			"bcGLEntryPostingDate",
+			"bcGLEntryDocumentType",
+			"bcGLEntryDocumentNo",
+			"bcGLEntryDescriptionValue",
+			"bcGLEntryAmountValue",
+			"bcGLEntryDebitAmount",
+			"bcGLEntryCreditAmount",
+			"bcGLEntryGlobalDimension1Code",
+			"bcGLEntryGlobalDimension2Code",
+			"bcGLEntrySourceType",
+			"bcGLEntrySourceNo",
+			"bcGLEntryDocumentDate",
+			"bcGLEntryExternalDocumentNo",
+			"bcGLEntryVATAmount"
 		FROM "bcGLEntry" WHERE 1=1`
 	var args []any
 	idx := 1
@@ -192,11 +192,11 @@ func (s *Store) ListGLEntries(ctx context.Context, start, end string) ([]map[str
 func (s *Store) GLEntriesMonthly(ctx context.Context, start, end string) (map[string]any, error) {
 	rows, err := db.QueryRows(ctx, s.pool, `
 		SELECT
-			"bcGLEntryGLAccountNo" AS "accountNo",
-			MAX("bcGLEntryGLAccountName") AS "name",
+			"bcGLEntryGLAccountNo",
+			MAX("bcGLEntryGLAccountName") AS "bcGLEntryGLAccountName",
 			TO_CHAR("bcGLEntryPostingDate", 'MM') AS "month",
-			SUM(COALESCE("bcGLEntryDebitAmount", 0)) AS "debit",
-			SUM(COALESCE("bcGLEntryCreditAmount", 0)) AS "credit"
+			SUM(COALESCE("bcGLEntryDebitAmount", 0)) AS "bcGLEntryDebitAmount",
+			SUM(COALESCE("bcGLEntryCreditAmount", 0)) AS "bcGLEntryCreditAmount"
 		FROM "bcGLEntry"
 		WHERE "bcGLEntryPostingDate" >= $1 AND "bcGLEntryPostingDate" <= $2
 			AND "bcGLEntryDescriptionValue" NOT LIKE 'Close Income Statement%'
@@ -209,8 +209,8 @@ func (s *Store) GLEntriesMonthly(ctx context.Context, start, end string) (map[st
 
 	result := map[string]any{}
 	for _, row := range rows {
-		acct, _ := row["accountNo"].(string)
-		name, _ := row["name"].(string)
+		acct, _ := row["bcGLEntryGLAccountNo"].(string)
+		name, _ := row["bcGLEntryGLAccountName"].(string)
 		month, _ := row["month"].(string)
 
 		if _, exists := result[acct]; !exists {
@@ -222,8 +222,8 @@ func (s *Store) GLEntriesMonthly(ctx context.Context, start, end string) (map[st
 		acctData := result[acct].(map[string]any)
 		months := acctData["months"].(map[string]any)
 		months[month] = map[string]any{
-			"debit":  row["debit"],
-			"credit": row["credit"],
+			"debit":  row["bcGLEntryDebitAmount"],
+			"credit": row["bcGLEntryCreditAmount"],
 		}
 	}
 	return result, nil
@@ -234,15 +234,15 @@ func (s *Store) GLEntriesMonthly(ctx context.Context, start, end string) (map[st
 func (s *Store) TrialBalance(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			"bcGLAccountNo" AS "number",
-			"bcGLAccountNameValue" AS "display",
-			"bcGLAccountAccountType" AS "accountType",
-			"bcGLAccountAccountCategory" AS "accountCategory",
-			"bcGLAccountIndentation" AS "indentation",
+			"bcGLAccountNo",
+			"bcGLAccountNameValue",
+			"bcGLAccountAccountType",
+			"bcGLAccountAccountCategory",
+			"bcGLAccountIndentation",
 			CASE WHEN "bcGLAccountBalance" >= 0 THEN "bcGLAccountBalance" ELSE 0 END AS "balanceAtDateDebit",
 			CASE WHEN "bcGLAccountBalance" < 0 THEN ABS("bcGLAccountBalance") ELSE 0 END AS "balanceAtDateCredit",
-			"bcGLAccountBalance" AS "balance",
-			"bcGLAccountNetChange" AS "netChange"
+			"bcGLAccountBalance",
+			"bcGLAccountNetChange"
 		FROM "bcGLAccount"
 		ORDER BY "bcGLAccountNo"
 	`)
@@ -302,4 +302,3 @@ func (s *Store) CreateCollection(ctx context.Context, body map[string]any, userI
 		body["promiseDate"], body["promiseAmount"], body["status"], body["nextFollowUpDate"],
 		body["assignedTo"], userID, body["createdByName"])
 }
-

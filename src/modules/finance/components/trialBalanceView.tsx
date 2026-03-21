@@ -3,62 +3,62 @@
 import { useCallback } from "react";
 import { Chip } from "@heroui/react";
 import DataTable from "@/components/ui/dataTable";
+import type { TrialBalanceAccount, TrialBalanceViewProps } from "@/modules/finance/types";
 
-
-function parseNum(val) {
+function parseNum(val: unknown): number {
   if (val === "" || val === null || val === undefined) return 0;
   if (typeof val === "number") return val;
   return Number(String(val).replace(/,/g, "")) || 0;
 }
 
-function fmt(v) {
+function fmt(v: number | null | undefined) {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
 }
 
-function cleanAccountType(type) {
+function cleanAccountType(type: string | null | undefined) {
   if (!type) return "";
   return type.replace(/_x002D_/g, "-");
 }
 
 const columns = [
-  { name: "เลขที่บัญชี", uid: "number", sortable: true },
-  { name: "ชื่อบัญชี", uid: "display", sortable: true },
-  { name: "ประเภท", uid: "accountType", sortable: true },
-  { name: "ยอดคงเหลือ", uid: "balance", sortable: true },
-  { name: "เปลี่ยนแปลงสุทธิ", uid: "netChange", sortable: true },
+  { name: "เลขที่บัญชี", uid: "bcGLAccountNo", sortable: true },
+  { name: "ชื่อบัญชี", uid: "bcGLAccountNameValue", sortable: true },
+  { name: "ประเภท", uid: "bcGLAccountAccountType", sortable: true },
+  { name: "ยอดคงเหลือ", uid: "bcGLAccountBalance", sortable: true },
+  { name: "เปลี่ยนแปลงสุทธิ", uid: "bcGLAccountNetChange", sortable: true },
   { name: "ยอดเดบิต ณ วันที่", uid: "balanceAtDateDebit", sortable: true },
   { name: "ยอดเครดิต ณ วันที่", uid: "balanceAtDateCredit", sortable: true },
 ];
 
 const initialVisibleColumns = [
-  "number",
-  "display",
-  "accountType",
+  "bcGLAccountNo",
+  "bcGLAccountNameValue",
+  "bcGLAccountAccountType",
   "balanceAtDateDebit",
   "balanceAtDateCredit",
 ];
 
-export default function TrialBalanceView({ data, loading }) {
-  const renderCell = useCallback((item, key) => {
+export default function TrialBalanceView({ data, loading }: TrialBalanceViewProps) {
+  const renderCell = useCallback((item: TrialBalanceAccount, key: string) => {
     switch (key) {
-      case "number":
-        return <span className="font-mono">{item.number}</span>;
-      case "display":
-        return <span className="font-light">{item.display}</span>;
-      case "accountType": {
-        const cleaned = cleanAccountType(item.accountType);
+      case "bcGLAccountNo":
+        return <span className="font-mono">{item.bcGLAccountNo}</span>;
+      case "bcGLAccountNameValue":
+        return <span className="font-light">{item.bcGLAccountNameValue}</span>;
+      case "bcGLAccountAccountType": {
+        const cleaned = cleanAccountType(item.bcGLAccountAccountType);
         return (
-          <Chip size="md" variant="flat" color={item.accountType === "Posting" ? "primary" : "default"}>
+          <Chip size="md" variant="flat" color={item.bcGLAccountAccountType === "Posting" ? "primary" : "default"}>
             {cleaned}
           </Chip>
         );
       }
-      case "balance": {
-        const v = parseNum(item.balance);
+      case "bcGLAccountBalance": {
+        const v = parseNum(item.bcGLAccountBalance);
         return <span className={v > 0 ? "text-primary" : v < 0 ? "text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
-      case "netChange": {
-        const v = parseNum(item.netChange);
+      case "bcGLAccountNetChange": {
+        const v = parseNum(item.bcGLAccountNetChange);
         return <span className={v > 0 ? "text-primary" : v < 0 ? "text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       case "balanceAtDateDebit": {
@@ -70,7 +70,7 @@ export default function TrialBalanceView({ data, loading }) {
         return <span className={v > 0 ? "font-light text-danger" : "text-muted-foreground"}>{fmt(v)}</span>;
       }
       default:
-        return item[key] || "-";
+        return (item as unknown as Record<string, unknown>)[key]?.toString() || "-";
     }
   }, []);
 
@@ -80,12 +80,12 @@ export default function TrialBalanceView({ data, loading }) {
         columns={columns}
         data={data}
         renderCell={renderCell}
-        rowKey="number"
+        rowKey="bcGLAccountNo"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาเลขที่หรือชื่อบัญชี..."
-        searchKeys={["number", "display"]}
-        defaultSortDescriptor={{ column: "number", direction: "ascending" }}
+        searchKeys={["bcGLAccountNo", "bcGLAccountNameValue"]}
+        defaultSortDescriptor={{ column: "bcGLAccountNo", direction: "ascending" }}
         emptyContent="ไม่พบข้อมูลงบทดลอง"
         enableCardView
       />

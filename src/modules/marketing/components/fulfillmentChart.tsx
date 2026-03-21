@@ -1,8 +1,9 @@
 "use client";
 
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import type { FulfillmentChartProps } from "@/modules/marketing/types";
 
-export default function FulfillmentChart({ data }) {
+export default function FulfillmentChart({ data }: FulfillmentChartProps) {
   if (!data) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

@@ -49,7 +49,12 @@ func (s *Store) CreateProject(ctx context.Context, body map[string]any) (map[str
 			"bciProjectCityOrTown","bciProjectStateProvince","bciProjectRegion","bciProjectCountry",
 			"bciProjectValue","bciProjectCurrency","bciProjectStage","bciProjectStageStatus",
 			"bciProjectCategory","bciProjectSubCategory","bciProjectOwnerCompany")
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+		RETURNING "bciProjectId","bciProjectExternalRef","bciProjectName","bciProjectType",
+			"bciProjectDescription","bciProjectStreetName","bciProjectCityOrTown",
+			"bciProjectStateProvince","bciProjectRegion","bciProjectCountry",
+			"bciProjectValue","bciProjectCurrency","bciProjectStage","bciProjectStageStatus",
+			"bciProjectCategory","bciProjectSubCategory","bciProjectOwnerCompany","bciProjectModifiedDate"
 	`, body["bciProjectName"], body["bciProjectType"], body["bciProjectDescription"],
 		body["bciProjectStreetName"], body["bciProjectCityOrTown"], body["bciProjectStateProvince"],
 		body["bciProjectRegion"], body["bciProjectCountry"], body["bciProjectValue"],

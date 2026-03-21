@@ -3,27 +3,28 @@
 import React from "react";
 import { Card, CardBody, Chip, Progress } from "@heroui/react";
 import { Truck, Fuel, Route, Gauge } from "lucide-react";
+import type { VehiclePerformanceTableProps } from "@/modules/tms/types";
 
-const statusColors = {
+const statusColors: Record<string, "success" | "primary" | "warning" | "default"> = {
   available: "success",
   in_use: "primary",
   maintenance: "warning",
   retired: "default",
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   available: "ว่าง",
   in_use: "ใช้งาน",
   maintenance: "ซ่อม",
   retired: "ปลด",
 };
 
-function fmt(n) {
+function fmt(n: number | null | undefined): string {
   if (n == null || n === 0) return "-";
   return Number(n).toLocaleString("th-TH");
 }
 
-function fmtBaht(n) {
+function fmtBaht(n: number | null | undefined): string {
   if (n == null || n === 0) return "-";
   return `฿${Number(n).toLocaleString("th-TH")}`;
 }
@@ -43,7 +44,7 @@ function StatItem({ icon: Icon, label, value, sub }: { icon: React.ElementType; 
   );
 }
 
-function FuelDiffBadge({ estimated, actual }) {
+function FuelDiffBadge({ estimated, actual }: { estimated: number; actual: number }) {
   if (!actual || !estimated) return null;
   const diff = actual - estimated;
   const pct = Math.round((diff / estimated) * 100);
@@ -56,45 +57,45 @@ function FuelDiffBadge({ estimated, actual }) {
   );
 }
 
-export default function VehiclePerformanceTable({ data = [] }) {
+export default function VehiclePerformanceTable({ data = [] }: VehiclePerformanceTableProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }
 
-  const sorted = [...data].sort((a, b) => b.totalDistanceKm - a.totalDistanceKm);
-  const maxDistance = Math.max(...sorted.map((v) => v.totalDistanceKm), 1);
+  const sorted = [...data].sort((a, b) => b.tmsShipmentDistance - a.tmsShipmentDistance);
+  const maxDistance = Math.max(...sorted.map((v) => v.tmsShipmentDistance), 1);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {sorted.map((v) => (
-        <Card key={v.tmsVehicleId || v.vehicleId} shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
+        <Card key={v.tmsVehicleId} shadow="none" className="border border-border hover:border-primary transition-colors duration-200">
           <CardBody className="p-4 gap-3">
             {}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Truck className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs font-light">{v.vehicleName || v.plateNumber}</p>
-                  {v.vehicleName && (
-                    <p className="text-xs text-muted-foreground">{v.plateNumber}</p>
+                  <p className="text-xs font-light">{v.tmsVehicleName || v.tmsVehiclePlateNumber}</p>
+                  {v.tmsVehicleName && (
+                    <p className="text-xs text-muted-foreground">{v.tmsVehiclePlateNumber}</p>
                   )}
                 </div>
               </div>
-              <Chip size="md" variant="flat" color={statusColors[v.status] || "default"}>
-                {statusLabels[v.status] || v.status}
+              <Chip size="md" variant="flat" color={statusColors[v.tmsVehicleStatus] || "default"}>
+                {statusLabels[v.tmsVehicleStatus] || v.tmsVehicleStatus}
               </Chip>
             </div>
 
             {}
-            {v.totalDistanceKm > 0 && (
+            {v.tmsShipmentDistance > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-muted-foreground">ระยะทาง</span>
-                  <span className="text-xs font-light">{fmt(v.totalDistanceKm)} กม.</span>
+                  <span className="text-xs font-light">{fmt(v.tmsShipmentDistance)} กม.</span>
                 </div>
                 <Progress
                   size="md"
-                  value={(v.totalDistanceKm / maxDistance) * 100}
+                  value={(v.tmsShipmentDistance / maxDistance) * 100}
                   color="primary"
                   className="max-w-full"
                 />
@@ -106,13 +107,13 @@ export default function VehiclePerformanceTable({ data = [] }) {
               <StatItem
                 icon={Route}
                 label="จำนวนเที่ยว"
-                value={fmt(v.tripCount)}
+                value={fmt(v.tmsShipmentCount)}
               />
               <StatItem
                 icon={Gauge}
                 label="อัตราจริง"
                 value={v.actualRate != null ? `${v.actualRate} กม./ลิตร` : "-"}
-                sub={v.fuelConsumptionRate ? `ค่าตั้ง: ${v.fuelConsumptionRate} กม./ลิตร` : undefined}
+                sub={v.tmsVehicleFuelConsumptionRate ? `ค่าตั้ง: ${v.tmsVehicleFuelConsumptionRate} กม./ลิตร` : undefined}
               />
               <StatItem
                 icon={Fuel}

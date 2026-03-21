@@ -2,6 +2,7 @@
 
 import { Chip } from "@heroui/react";
 import { Facebook } from "lucide-react";
+import type { ChannelBadgeProps } from "@/modules/marketing/types";
 
 function LineIcon({ size = 16 }) {
   return (
@@ -11,7 +12,7 @@ function LineIcon({ size = 16 }) {
   );
 }
 
-export default function ChannelBadge({ channelType, size = "sm" }: { channelType: string; size?: "sm" | "md" | "lg" }) {
+export default function ChannelBadge({ channelType, size = "sm" }: ChannelBadgeProps) {
   if (channelType === "facebook") {
     return (
       <Chip

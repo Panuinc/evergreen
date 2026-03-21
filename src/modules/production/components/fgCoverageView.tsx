@@ -13,8 +13,9 @@ import DataTable from "@/components/ui/dataTable";
 import Loading from "@/components/ui/loading";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/apiClient";
+import type { FgCoverageViewProps } from "@/modules/production/types";
 
-function fmt(v) {
+function fmt(v: number | undefined | null): string {
   return Number(v || 0).toLocaleString("th-TH");
 }
 
@@ -26,9 +27,9 @@ const statusColor = {
 };
 
 const columns = [
-  { name: "รหัสสินค้า", uid: "itemNo", sortable: true },
-  { name: "รายละเอียด", uid: "description", sortable: true },
-  { name: "ประเภท", uid: "category", sortable: true },
+  { name: "รหัสสินค้า", uid: "bcItemNo", sortable: true },
+  { name: "รายละเอียด", uid: "bcItemDescription", sortable: true },
+  { name: "ประเภท", uid: "bcItemItemCategoryCode", sortable: true },
   { name: "สั่งซื้อ", uid: "soQty", sortable: true },
   { name: "ส่งแล้ว", uid: "shippedQty", sortable: true },
   { name: "ค้างส่ง", uid: "soOutstandingQty", sortable: true },
@@ -39,8 +40,8 @@ const columns = [
 ];
 
 const initialColumns = [
-  "itemNo",
-  "description",
+  "bcItemNo",
+  "bcItemDescription",
   "soQty",
   "shippedQty",
   "soOutstandingQty",
@@ -56,7 +57,7 @@ const fgFetcher = async (url) => {
   return res.json();
 };
 
-export default function FgCoverageView({ initialData = null }) {
+export default function FgCoverageView({ initialData = null }: FgCoverageViewProps) {
   const { data: swrData, isLoading } = useSWR(
     initialData ? null : "/api/production/fgCoverage",
     fgFetcher,
@@ -67,18 +68,18 @@ export default function FgCoverageView({ initialData = null }) {
 
   const renderCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "itemNo":
-        return <span className="font-mono text-xs">{item.itemNo}</span>;
-      case "description":
+      case "bcItemNo":
+        return <span className="font-mono text-xs">{item.bcItemNo}</span>;
+      case "bcItemDescription":
         return (
           <span className="max-w-60 truncate block text-xs">
-            {item.description || "-"}
+            {item.bcItemDescription || "-"}
           </span>
         );
-      case "category":
+      case "bcItemItemCategoryCode":
         return (
           <Chip size="md" variant="flat" color="default">
-            {item.category || "-"}
+            {item.bcItemItemCategoryCode || "-"}
           </Chip>
         );
       case "soQty":
@@ -98,7 +99,7 @@ export default function FgCoverageView({ initialData = null }) {
           <span className="text-xs text-default-400">-</span>
         );
       case "poBacklog": {
-        const backlog = (item.soOutstandingQty || 0) - (item.poTotalQty || 0);
+        const backlog = (item.soOutstandingQty as number || 0) - (item.poTotalQty as number || 0);
         return backlog > 0 ? (
           <span className="text-xs font-semibold text-danger">{fmt(backlog)}</span>
         ) : (
@@ -205,8 +206,8 @@ export default function FgCoverageView({ initialData = null }) {
             columns={columns}
             data={fgCoverage}
             renderCell={renderCell}
-            rowKey="itemNo"
-            searchKeys={["itemNo", "description", "category"]}
+            rowKey="bcItemNo"
+            searchKeys={["bcItemNo", "bcItemDescription", "bcItemItemCategoryCode"]}
             searchPlaceholder="ค้นหาสินค้า..."
             initialVisibleColumns={initialColumns}
             defaultSortDescriptor={{ column: "soOutstandingQty", direction: "descending" }}

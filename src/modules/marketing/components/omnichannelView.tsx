@@ -6,6 +6,7 @@ import ChatWindow from "@/modules/marketing/components/chatWindow";
 import ConversationDetail from "@/modules/marketing/components/conversationDetail";
 import EmptyState from "@/modules/marketing/components/emptyState";
 import ChannelSettings from "@/modules/marketing/components/channelSettings";
+import type { OmnichannelViewProps } from "@/modules/marketing/types";
 
 export default function OmnichannelView({
   conversations,
@@ -30,7 +31,7 @@ export default function OmnichannelView({
   toggleAiAutoReply,
   suggestReply,
   logNote,
-}) {
+}: OmnichannelViewProps) {
   const [showDetail, setShowDetail] = useState(false);
   const [mobileView, setMobileView] = useState("list");
   const settingsModal = useDisclosure();

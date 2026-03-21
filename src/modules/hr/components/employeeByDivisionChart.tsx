@@ -8,18 +8,25 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import type { EmployeeByDivisionChartProps, HrDivisionStat } from "../types";
 
 const colors = ["#3b82f6", "#8b5cf6", "#f59e0b", "#22c55e", "#ef4444", "#06b6d4", "#ec4899", "#a1a1aa"];
 
-export default function EmployeeByDivisionChart({ data = [] }) {
+interface ChartEntry {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export default function EmployeeByDivisionChart({ data = [] }: EmployeeByDivisionChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">No data</p>
     );
   }
 
-  const chartData = data.map((d, i) => ({
-    name: d.name,
+  const chartData: ChartEntry[] = data.map((d: HrDivisionStat, i: number) => ({
+    name: d.hrDivisionName,
     value: d.count,
     color: colors[i % colors.length],
   }));

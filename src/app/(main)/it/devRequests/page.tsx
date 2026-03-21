@@ -1,10 +1,11 @@
 import { api } from "@/lib/api.server";
 import DevRequestsClient from "@/modules/it/devRequestsClient";
+import type { ItDevRequest, HrEmployeeBasic } from "@/modules/it/types";
 
 export default async function DevelopmentPage() {
   const [requests, employees] = await Promise.all([
-    api("/api/it/devRequests"),
-    api("/api/hr/employees"),
+    api<ItDevRequest[]>("/api/it/devRequests"),
+    api<HrEmployeeBasic[]>("/api/hr/employees"),
   ]);
 
   return (

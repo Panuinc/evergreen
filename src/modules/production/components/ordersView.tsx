@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { Chip, Tabs, Tab } from "@heroui/react";
 import DataTable from "@/components/ui/dataTable";
+import type { OrdersViewProps } from "@/modules/production/types";
 
 
 function fmtCurrency(v) {
@@ -83,7 +84,7 @@ const statusOptions = [
 ];
 
 
-export default function OrdersView({ data, loading }) {
+export default function OrdersView({ data, loading }: OrdersViewProps) {
   const enrichedData = useMemo(
     () =>
       data.map((r) => {
@@ -205,7 +206,7 @@ export default function OrdersView({ data, loading }) {
             columns={columns}
             data={wpcData}
             renderCell={renderCell}
-            rowKey="bcProductionOrderId"
+            rowKey="bcProductionOrderNo"
             isLoading={loading}
             initialVisibleColumns={initialVisibleColumns}
             searchPlaceholder="ค้นหาด้วยเลขที่ใบสั่งผลิต, รายละเอียด, สินค้า..."
@@ -225,7 +226,7 @@ export default function OrdersView({ data, loading }) {
             columns={columns}
             data={otherData}
             renderCell={renderCell}
-            rowKey="bcProductionOrderId"
+            rowKey="bcProductionOrderNo"
             isLoading={loading}
             initialVisibleColumns={initialVisibleColumns}
             searchPlaceholder="ค้นหาด้วยเลขที่ใบสั่งผลิต, รายละเอียด, สินค้า..."

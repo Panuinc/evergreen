@@ -2,27 +2,22 @@
 
 import { toast } from "sonner";
 import useSWR from "swr";
-import { authFetch } from "@/lib/apiClient";
+import { get } from "@/lib/apiClient";
 import BciProjectsView from "@/modules/sales/components/bciProjectsView";
-
-const fetcher = async (url) => {
-  const res = await authFetch(url);
-  if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
-};
+import type { BciProject } from "@/modules/sales/types";
 
 export default function BciProjectsClient() {
-  const { data, isLoading: loading, mutate } = useSWR(
+  const { data, isLoading: loading, mutate } = useSWR<BciProject[]>(
     "/api/bci/projects",
-    fetcher,
+    (url: string) => get(url),
     { onError: () => toast.error("ไม่สามารถโหลดข้อมูลโครงการ BCI ได้") },
   );
-  const projects = data || [];
+  const projects: BciProject[] = data || [];
 
   return (
     <BciProjectsView
       projects={projects}
-      loading={loading}
+      loading={loading ?? false}
       reload={mutate}
     />
   );

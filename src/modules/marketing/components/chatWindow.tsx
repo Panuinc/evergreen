@@ -19,6 +19,7 @@ import { ArrowLeft, Info, X as CloseIcon, RotateCcw, Trash2, Bot, Sparkles, Rece
 import ChannelBadge from "./channelBadge";
 import MessageInput from "./messageInput";
 import Loading from "@/components/ui/loading";
+import type { ChatWindowProps } from "@/modules/marketing/types";
 
 const statusColors = {
   open: "success",
@@ -71,7 +72,7 @@ export default function ChatWindow({
   suggestLoading,
   suggestedText,
   onLogNote,
-}) {
+}: ChatWindowProps) {
   const scrollRef = useRef(null);
   const deleteModal = useDisclosure();
   const logNoteModal = useDisclosure();

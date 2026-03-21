@@ -5,12 +5,19 @@ import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { get, post, put, del } from "@/lib/apiClient";
 import RolesView from "@/modules/rbac/components/rolesView";
+import type {
+  RbacRole,
+  RbacPermission,
+  RoleFormData,
+  GroupedPermissions,
+  RolesClientProps,
+} from "@/modules/rbac/types";
 
-export default function RolesClient({ initialRoles }) {
-  const [roles, setRoles] = useState(initialRoles);
+export default function RolesClient({ initialRoles }: RolesClientProps) {
+  const [roles, setRoles] = useState<RbacRole[]>(initialRoles);
   const [loading, setLoading] = useState(false);
-  const [editingRole, setEditingRole] = useState(null);
-  const [formData, setFormData] = useState({
+  const [editingRole, setEditingRole] = useState<RbacRole | null>(null);
+  const [formData, setFormData] = useState<RoleFormData>({
     rbacRoleName: "",
     rbacRoleDescription: "",
     rbacRoleIsSuperadmin: false,
@@ -18,24 +25,24 @@ export default function RolesClient({ initialRoles }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [permModalOpen, setPermModalOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [allPermissions, setAllPermissions] = useState([]);
-  const [rolePermIds, setRolePermIds] = useState([]);
+  const [selectedRole, setSelectedRole] = useState<RbacRole | null>(null);
+  const [allPermissions, setAllPermissions] = useState<RbacPermission[]>([]);
+  const [rolePermIds, setRolePermIds] = useState<string[]>([]);
   const [permLoading, setPermLoading] = useState(false);
 
   const loadRoles = async () => {
     try {
       setLoading(true);
       const data = await get("/api/rbac/roles");
-      setRoles(data);
-    } catch (error) {
+      setRoles(data as RbacRole[]);
+    } catch {
       toast.error("โหลดบทบาทล้มเหลว");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpen = (role = null) => {
+  const handleOpen = (role: RbacRole | null = null) => {
     if (role) {
       setEditingRole(role);
       setFormData({
@@ -71,11 +78,11 @@ export default function RolesClient({ initialRoles }) {
       onClose();
       loadRoles();
     } catch (error) {
-      toast.error(error.message || "บันทึกบทบาทล้มเหลว");
+      toast.error((error as Error).message || "บันทึกบทบาทล้มเหลว");
     }
   };
 
-  const handleDelete = async (role) => {
+  const handleDelete = async (role: RbacRole) => {
     if (role.rbacRoleIsSuperadmin) {
       toast.error("ไม่สามารถลบบทบาท superadmin ได้");
       return;
@@ -86,11 +93,11 @@ export default function RolesClient({ initialRoles }) {
       toast.success("ลบบทบาทสำเร็จ");
       loadRoles();
     } catch (error) {
-      toast.error(error.message || "ลบบทบาทล้มเหลว");
+      toast.error((error as Error).message || "ลบบทบาทล้มเหลว");
     }
   };
 
-  const openPermissions = async (role) => {
+  const openPermissions = async (role: RbacRole) => {
     setSelectedRole(role);
     setPermLoading(true);
     setPermModalOpen(true);
@@ -100,16 +107,20 @@ export default function RolesClient({ initialRoles }) {
         get("/api/rbac/permissions"),
         get(`/api/rbac/rolePermissions/${role.rbacRoleId}`),
       ]);
-      setAllPermissions(perms);
-      setRolePermIds(rolePerm.map((rp) => rp.rbacRolePermissionPermissionId));
-    } catch (error) {
+      setAllPermissions(perms as RbacPermission[]);
+      setRolePermIds(
+        (rolePerm as { rbacRolePermissionPermissionId: string }[]).map(
+          (rp) => rp.rbacRolePermissionPermissionId
+        )
+      );
+    } catch {
       toast.error("โหลดสิทธิ์ล้มเหลว");
     } finally {
       setPermLoading(false);
     }
   };
 
-  const togglePermission = async (permissionId) => {
+  const togglePermission = async (permissionId: string) => {
     if (!selectedRole) return;
 
     try {
@@ -126,12 +137,12 @@ export default function RolesClient({ initialRoles }) {
         setRolePermIds((prev) => [...prev, permissionId]);
         toast.success("กำหนดสิทธิ์สำเร็จ");
       }
-    } catch (error) {
+    } catch {
       toast.error("อัปเดตสิทธิ์ล้มเหลว");
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: RbacRole) => {
     try {
       await put(`/api/rbac/roles/${item.rbacRoleId}`, {
         isActive: !item.isActive,
@@ -140,17 +151,21 @@ export default function RolesClient({ initialRoles }) {
         item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ"
       );
       loadRoles();
-    } catch (error) {
+    } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
   };
 
-  const groupedPermissions = allPermissions.reduce((acc, perm) => {
-    const resourceName = perm.rbacResource?.rbacResourceName || "Unknown";
-    if (!acc[resourceName]) acc[resourceName] = [];
-    acc[resourceName].push(perm);
-    return acc;
-  }, {});
+  const groupedPermissions: GroupedPermissions = allPermissions.reduce(
+    (acc, perm) => {
+      const resourceName =
+        perm.rbacResource?.rbacResourceName || "Unknown";
+      if (!acc[resourceName]) acc[resourceName] = [];
+      acc[resourceName].push(perm);
+      return acc;
+    },
+    {} as GroupedPermissions
+  );
 
   return (
     <RolesView

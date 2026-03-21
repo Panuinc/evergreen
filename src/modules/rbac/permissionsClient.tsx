@@ -4,27 +4,34 @@ import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { post, del } from "@/lib/apiClient";
 import PermissionsView from "@/modules/rbac/components/permissionsView";
+import type {
+  RbacResource,
+  RbacAction,
+  RbacPermission,
+  PermissionMap,
+  PermissionsClientProps,
+} from "@/modules/rbac/types";
 
 export default function PermissionsClient({
   initialResources,
   initialActions,
   initialPermissions,
-}) {
-  const [resources] = useState(initialResources);
-  const [actions] = useState(initialActions);
-  const [permissions, setPermissions] = useState(initialPermissions);
+}: PermissionsClientProps) {
+  const [resources] = useState<RbacResource[]>(initialResources);
+  const [actions] = useState<RbacAction[]>(initialActions);
+  const [permissions, setPermissions] = useState<RbacPermission[]>(initialPermissions);
   const [loading] = useState(false);
-  const [toggling, setToggling] = useState(null);
+  const [toggling, setToggling] = useState<string | null>(null);
 
-  const permMap = useMemo(() => {
-    const map = {};
+  const permMap = useMemo<PermissionMap>(() => {
+    const map: PermissionMap = {};
     permissions.forEach((p) => {
       map[`${p.rbacPermissionResourceId}:${p.rbacPermissionActionId}`] = p;
     });
     return map;
   }, [permissions]);
 
-  const togglePermission = async (resourceId, actionId) => {
+  const togglePermission = async (resourceId: string, actionId: string) => {
     const key = `${resourceId}:${actionId}`;
     setToggling(key);
 
@@ -41,10 +48,10 @@ export default function PermissionsClient({
           rbacPermissionResourceId: resourceId,
           rbacPermissionActionId: actionId,
         });
-        setPermissions((prev) => [...prev, newPerm]);
+        setPermissions((prev) => [...prev, newPerm as RbacPermission]);
         toast.success("สร้างสิทธิ์สำเร็จ");
       }
-    } catch (error) {
+    } catch {
       toast.error("อัปเดตสิทธิ์ล้มเหลว");
     } finally {
       setToggling(null);

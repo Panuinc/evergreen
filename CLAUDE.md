@@ -8,39 +8,88 @@
 
 # TypeScript Rule (MANDATORY)
 
-- **ใช้ TypeScript ทั้งหมด** — ไฟล์ใหม่ทุกไฟล์ต้องเป็น `.ts` หรือ `.tsx` เท่านั้น ห้ามสร้างไฟล์ `.js` หรือ `.jsx` ใหม่
-- **ไฟล์เก่าทั้งหมดต้องเป็น TypeScript** — ห้ามมีไฟล์ `.js` หรือ `.jsx` เหลืออยู่ในโปรเจกต์
-- **ต้อง define type สำหรับ API response** — ทุก response จาก backend ต้องมี TypeScript interface หรือ type ที่ตรงกัน
-- **ห้ามใช้ `any` โดยไม่จำเป็น** — ถ้าต้องใช้ `any` ให้ comment อธิบายเหตุผล
-- **Next.js special files** (`page.tsx`, `layout.tsx`, `route.ts`, `proxy.ts` ฯลฯ) ใช้ `.tsx`/`.ts` แทน `.jsx`/`.js`
+## Core Rules
 
-### Type Pattern สำหรับ API Response
+- **ใช้ TypeScript ทั้งหมด** — ทุกไฟล์ต้องเป็น `.ts` หรือ `.tsx` เท่านั้น ห้ามมีไฟล์ `.js` หรือ `.jsx` ในโปรเจกต์
+- **ห้ามใช้ `any` เด็ดขาด** — ยกเว้นเฉพาะ third-party library type ที่แก้ไม่ได้ (เช่น HeroUI internal types, react-leaflet LatLng) ต้อง comment อธิบายทุกครั้ง
+- **ทุก props ต้องมี interface** — ทุก React component ต้องมี `interface XxxProps { ... }` ที่ชัดเจน
+- **ทุก API response ต้องมี type** — ต้องอ่าน Go `store.go` และ define interface ที่ตรงกับ field aliases ทุกตัว
+- **ไม่มี implicit `any`** — TypeScript compiler ต้องไม่มี error จาก `noImplicitAny`
 
-```typescript
-// ✅ CORRECT — define type ตรงกับ API response field names
-interface ProductionOrder {
-  orderNo: string;
-  status: string;
-  description: string;
-  sourceNo: string;
-  quantity: number;
-  outputQty: number;
-  consumptionCost: number;
-  unitPrice: number;
-  revenue: number;
-  profit: number;
-  profitMargin: number | null;
-  dim1Code: string;
-  dim2Code: string;
-  dueDate: string | null;
-  finishedDate: string | null;
-}
+## Type Source of Truth
 
-// ❌ WRONG — ไม่มี type, เดาชื่อ field เองตอน runtime
-const qty = row.quantiy; // typo ไม่มี error
+```
+Supabase DB column  →  Go store.go (no alias)  →  TypeScript interface  →  Component props
+(raw column name)      (returns raw name)           (frontend type)          (typed props)
+
+ตัวอย่าง:
+"bcProductionOrderNo"  →  bcProductionOrderNo  →  bcProductionOrderNo: string  →  order.bcProductionOrderNo
 ```
 
-### File Extension Rules
+**ห้ามใช้ AS alias ใน Go SQL** — Go backend ต้อง return raw Supabase column names ตรงๆ เสมอ
+**Frontend types ตรงกับ raw Supabase column names** — ไม่ใช่ alias ที่คิดขึ้นเอง
+
+## Type File Structure (MANDATORY)
+
+```
+src/
+├── types/
+│   └── shared.ts          ← shared types ที่ใช้ข้าม module (User, ApiResponse, etc.)
+│
+└── modules/
+    └── {module}/
+        └── types.ts        ← interface ทุกตัวที่ module นั้นใช้
+```
+
+ทุก module MUST มี `src/modules/{module}/types.ts` ที่ define:
+1. Interface สำหรับทุก API response ของ module นั้น (ตรงกับ Go store.go aliases)
+2. Props interface สำหรับทุก component ใน module นั้น
+
+## Pattern ที่ถูกต้อง
+
+```typescript
+// ✅ src/modules/production/types.ts
+// Field names = raw Supabase column names (ไม่มี AS alias)
+export interface ProductionOrder {
+  bcProductionOrderId: string;
+  bcProductionOrderNo: string;
+  bcProductionOrderStatus: string;
+  bcProductionOrderDescription: string;
+  bcProductionOrderDescription2: string | null;
+  bcProductionOrderSourceNo: string;
+  bcProductionOrderRoutingNo: string | null;
+  bcProductionOrderQuantity: number;
+  bcProductionOrderOutputQuantity: number;
+  bcProductionOrderStartingDateTime: string | null;
+  bcProductionOrderEndingDateTime: string | null;
+  bcProductionOrderDueDate: string | null;
+  bcProductionOrderAssignedUserID: string | null;
+  bcProductionOrderFinishedDate: string | null;
+}
+
+export interface OrdersViewProps {
+  data: ProductionOrder[];
+  loading: boolean;
+}
+```
+
+```typescript
+// ✅ Component — ใช้ type จาก types.ts
+import type { OrdersViewProps } from '../types';
+
+export default function OrdersView({ data, loading }: OrdersViewProps) {
+  // TypeScript รู้จัก data[0].bcProductionOrderNo, data[0].bcProductionOrderStatus ฯลฯ ทันที
+}
+```
+
+```typescript
+// ❌ WRONG — ไม่มี type, ไม่มี interface
+export default function OrdersView({ data, loading }) {
+  const qty = row.quantiy;  // typo ไม่มี error → bug ที่หาไม่เจอ
+}
+```
+
+## File Extension Rules
 
 | สถานการณ์ | Extension |
 |---|---|
@@ -50,6 +99,14 @@ const qty = row.quantiy; // typo ไม่มี error
 | Next.js `route` (API handler) | `.ts` |
 | Next.js `proxy` (middleware) | `.ts` |
 | Lib / utility / helper | `.ts` |
+| Module type definitions | `.ts` (ชื่อ `types.ts`) |
+
+## Checklist ก่อน commit
+
+- [ ] ไม่มี `any` ที่ไม่มี comment อธิบาย
+- [ ] ทุก component มี `interface XxxProps`
+- [ ] ทุก API call มี return type ที่ตรงกับ Go response
+- [ ] `npx tsc --noEmit` ผ่านโดยไม่มี error
 
 ---
 
@@ -72,23 +129,26 @@ Priority:
    - Reduce payload: SELECT only needed columns, never SELECT * for large tables
 3. **Frontend MUST always read from Backend API** — never query Supabase directly from client components.
 4. **Field names MUST be identical between Backend API response and Frontend:**
-   - Backend uses `AS` alias to return clean field names from Supabase columns.
-   - Frontend uses the exact same property names as the API response.
-5. When the Supabase column has a long prefix (e.g., `bcCustomerLedgerEntryCustomerNo`), the Go API MUST alias it to a clean name (e.g., `AS "customerNumber"`) and the frontend uses that clean name.
+   - **ห้ามใช้ `AS` alias ใน SQL** — Go backend ต้อง SELECT column ตรงๆ ไม่ rename
+   - Frontend ใช้ raw Supabase column names ตรงๆ (เช่น `bcCustomerLedgerEntryCustomerNo`)
+   - TypeScript interface ต้องตรงกับ raw column names เหล่านั้น
+5. **ห้าม rename field ใน Go handler** — ไม่ว่าจะด้วย `AS` alias หรือ struct field mapping
+   - ผิด: `SELECT "bcCustomerNo" AS "customerNo"` → frontend ใช้ `row.customerNo`
+   - ถูก: `SELECT "bcCustomerNo"` → frontend ใช้ `row.bcCustomerNo`
 6. **Before writing any endpoint or component**, verify field name alignment:
-   - Define the API response contract (what fields the frontend needs)
-   - Write the Go SQL query with aliases matching that contract
-   - Frontend accesses the exact same property names
+   - อ่าน Supabase table schema ดูชื่อ column จริงๆ
+   - Go SELECT column นั้นตรงๆ ไม่มี AS alias
+   - Frontend TypeScript interface ใช้ชื่อเดียวกันทุก property
 
 ### Example
 
 ```sql
--- Go store.go — compute and alias at backend
+-- Go store.go — NO AS alias, return raw Supabase column names
 SELECT
-  "bcCustomerLedgerEntryCustomerNo" AS "customerNumber",
-  COALESCE(c."bcCustomerNameValue", e."bcCustomerLedgerEntryCustomerNo") AS "name",
+  e."bcCustomerLedgerEntryCustomerNo",
+  COALESCE(c."bcCustomerNameValue", e."bcCustomerLedgerEntryCustomerNo") AS "bcCustomerNameValue",
   SUM(CASE WHEN "bcCustomerLedgerEntryRemainingAmount" != 0
-    THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "balanceDue",
+    THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "bcCustomerLedgerEntryRemainingAmount",
   SUM(CASE WHEN "bcCustomerLedgerEntryDueDate" >= CURRENT_DATE
     THEN "bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "currentAmount"
 FROM "bcCustomerLedgerEntry" e
@@ -97,10 +157,21 @@ WHERE e."bcCustomerLedgerEntryOpenValue" = 'true'
 GROUP BY "bcCustomerLedgerEntryCustomerNo", c."bcCustomerNameValue"
 ```
 
-```javascript
-// Frontend — uses the computed clean names directly, no client-side aggregation needed
-const data = await get("/api/finance/agedReceivables");
-data.map(r => ({ name: r.name, balanceDue: r.balanceDue }));
+```typescript
+// Frontend TypeScript — ใช้ raw column names ตรงๆ
+interface AgedReceivable {
+  bcCustomerLedgerEntryCustomerNo: string;
+  bcCustomerNameValue: string;
+  bcCustomerLedgerEntryRemainingAmount: number;
+  currentAmount: number;
+}
+
+const data = await get<AgedReceivable[]>("/api/finance/agedReceivables");
+data.map(r => ({
+  customerNo: r.bcCustomerLedgerEntryCustomerNo,
+  name: r.bcCustomerNameValue,
+  balanceDue: r.bcCustomerLedgerEntryRemainingAmount,
+}));
 ```
 
 ---
@@ -201,10 +272,21 @@ CREATE TABLE hrEmployee (
 
 # Backend SQL Rules (MANDATORY)
 
-1. **ห้าม SELECT *** — ต้อง SELECT เฉพาะ column ที่ frontend ใช้ พร้อม alias ให้ clean name
-2. **ทุก column ที่ใช้ใน WHERE, JOIN, GROUP BY, ORDER BY ต้องมี index** — ถ้าเขียน query ใหม่ ต้องตรวจว่ามี index แล้ว ถ้าไม่มีต้องสร้าง
-3. **Query ที่มี aggregate (SUM, COUNT) ต้อง filter ให้แคบก่อน GROUP BY** — ใช้ WHERE ตัดข้อมูลที่ไม่ต้องการออกก่อน aggregate
-4. **LATERAL subquery กับ json_agg ต้อง SELECT เฉพาะ column ที่ใช้** — ห้าม `to_json(l.*)` ต้อง `json_build_object('field1', l."col1", ...)`
+1. **ห้าม SELECT *** — ต้อง SELECT เฉพาะ column ที่ frontend ใช้
+2. **ห้ามใช้ AS alias** — SELECT column ตรงๆ โดยไม่ rename ชื่อ column ใน SQL
+   - ผิด: `SELECT "bcProductionOrderNo" AS "orderNo"`
+   - ถูก: `SELECT "bcProductionOrderNo"`
+   - **Naming strategy สำหรับกรณีที่ต้องใช้ AS:**
+
+   | ประเภท | กฎ | ตัวอย่าง |
+   |---|---|---|
+   | Simple column | ใช้ raw column name ตรงๆ ไม่มี AS | `"bcProductionOrderNo"` |
+   | SQL aggregate (SUM/COUNT/MAX) | ใช้ source column name เป็น AS | `SUM("bcCustomerLedgerEntryRemainingAmount") AS "bcCustomerLedgerEntryRemainingAmount"` |
+   | JOIN column จาก table อื่น | ใช้ column name จาก table ต้นทาง | `d."hrDivisionName"` (ไม่ต้อง AS เลย) |
+   | Go computed (คำนวณจากหลาย source) | descriptive camelCase ไม่มี module prefix | `overdueDays`, `profitMargin`, `onTimeRate` |
+3. **ทุก column ที่ใช้ใน WHERE, JOIN, GROUP BY, ORDER BY ต้องมี index** — ถ้าเขียน query ใหม่ ต้องตรวจว่ามี index แล้ว ถ้าไม่มีต้องสร้าง
+4. **Query ที่มี aggregate (SUM, COUNT) ต้อง filter ให้แคบก่อน GROUP BY** — ใช้ WHERE ตัดข้อมูลที่ไม่ต้องการออกก่อน aggregate
+5. **LATERAL subquery กับ json_agg ต้อง SELECT เฉพาะ column ที่ใช้** — ห้าม `to_json(l.*)` ต้อง `json_build_object('field1', l."col1", ...)`
 
 ---
 
@@ -222,7 +304,7 @@ CREATE TABLE hrEmployee (
 
 1. **Endpoint ที่ return list ต้อง support pagination** — default limit 50, ใช้ query param `?limit=50&offset=0`
 2. **ห้าม return nested data ถ้า frontend ไม่ได้ใช้** — ใช้ `?expand=true` เมื่อต้องการ nested relations
-3. **Response field names ต้อง camelCase** ตรงกับ frontend property names (สอดคล้องกับ Data Flow Architecture Rule #4)
+3. **Response field names = raw Supabase column names** — ไม่มีการ rename (สอดคล้องกับ Data Flow Architecture Rule #4)
 
 ---
 
@@ -1691,14 +1773,20 @@ const result = await post("/api/{module}/{endpoint}", { body: payload });
 
 # Common Mistakes to Avoid (MANDATORY)
 
-## 1. Field Name Mismatch (Most Common Bug)
-**ALWAYS read `store.go` SQL aliases BEFORE writing frontend code.**
-The #1 cause of "data not showing" is field name mismatch between backend and frontend.
+## 1. Using AS Alias in SQL (Most Common Architecture Violation)
+**ห้ามใช้ AS alias ใน Go SQL queries — return raw Supabase column names ตรงๆ เสมอ**
 
+```sql
+❌ SELECT "bcProductionOrderNo" AS "orderNo"    -- WRONG: rename ทำให้ชื่อไม่ตรง Supabase
+✅ SELECT "bcProductionOrderNo"                 -- CORRECT: ชื่อตรงกับ Supabase column
 ```
-❌ Backend: AS "orderNo"     → Frontend: data.orderNumber   (MISMATCH)
-✅ Backend: AS "orderNo"     → Frontend: data.orderNo       (CORRECT)
+
+```typescript
+❌ interface Order { orderNo: string }          // WRONG: ใช้ alias name
+✅ interface Order { bcProductionOrderNo: string }  // CORRECT: ใช้ raw column name
 ```
+
+ผลลัพธ์: Supabase column = Go returns = TypeScript interface = ชื่อเดียวกันทั้งหมด — ไม่มี mismatch
 
 ## 2. Forgetting to await params/searchParams
 Next.js 16 requires awaiting params and searchParams:

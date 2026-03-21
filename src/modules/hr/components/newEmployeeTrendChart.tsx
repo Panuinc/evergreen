@@ -9,21 +9,27 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import type { NewEmployeeTrendChartProps, HrTrendEntry } from "../types";
 
-function formatMonth(monthStr) {
+function formatMonth(monthStr: string): string {
   const [year, month] = monthStr.split("-");
   const date = new Date(parseInt(year), parseInt(month) - 1);
   return date.toLocaleDateString("th-TH", { month: "short" });
 }
 
-export default function NewEmployeeTrendChart({ data = [] }) {
+interface ChartEntry {
+  month: string;
+  count: number;
+}
+
+export default function NewEmployeeTrendChart({ data = [] }: NewEmployeeTrendChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">No data</p>
     );
   }
 
-  const chartData = data.map((d) => ({
+  const chartData: ChartEntry[] = data.map((d: HrTrendEntry) => ({
     month: formatMonth(d.month),
     count: d.count,
   }));

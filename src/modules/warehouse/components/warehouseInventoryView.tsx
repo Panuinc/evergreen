@@ -5,24 +5,27 @@ import { Card, CardBody} from "@heroui/react";
 import { Package } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/components/ui/loading";
+import type { BcItem, WarehouseInventoryViewProps } from "@/modules/warehouse/types";
 
 const groupOrder = [
   "Ap", "Bp", "Fa", "Fg", "Is", "Pk", "Rm", "Sm",
   "Sp", "Sv-Buy", "Sv-Buy1", "Sv-Buy2", "Sv-Buy3", "Sv-Sell", "Tr", "Wp",
 ];
 
-export default function WarehouseInventoryView({ items, loading }) {
-  const groupedData = useMemo(() => {
-    const groups = {};
-    items.forEach((item) => {
-      const group = item.generalProductPostingGroupCode || "ไม่ระบุ";
+type GroupData = Record<string, { count: number; totalQty: number; totalValue: number }>;
+
+export default function WarehouseInventoryView({ items, loading }: WarehouseInventoryViewProps) {
+  const groupedData = useMemo<GroupData>(() => {
+    const groups: GroupData = {};
+    items.forEach((item: BcItem) => {
+      const group = item.bcItemGenProdPostingGroup || "ไม่ระบุ";
       if (!groups[group]) {
         groups[group] = { count: 0, totalQty: 0, totalValue: 0 };
       }
       groups[group].count += 1;
-      groups[group].totalQty += Number(item.inventory) || 0;
+      groups[group].totalQty += Number(item.bcItemInventory) || 0;
       groups[group].totalValue +=
-        (Number(item.inventory) || 0) * (Number(item.unitCost) || 0);
+        (Number(item.bcItemInventory) || 0) * (Number(item.bcItemUnitCost) || 0);
     });
     return groups;
   }, [items]);
@@ -36,9 +39,9 @@ export default function WarehouseInventoryView({ items, loading }) {
 
   const totalSummary = useMemo(() => {
     const totalItems = items.length;
-    const totalQty = items.reduce((s, i) => s + (Number(i.inventory) || 0), 0);
+    const totalQty = items.reduce((s, i) => s + (Number(i.bcItemInventory) || 0), 0);
     const totalValue = items.reduce(
-      (s, i) => s + (Number(i.inventory) || 0) * (Number(i.unitCost) || 0),
+      (s, i) => s + (Number(i.bcItemInventory) || 0) * (Number(i.bcItemUnitCost) || 0),
       0,
     );
     return { totalItems, totalQty, totalValue };

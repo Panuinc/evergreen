@@ -1,5 +1,6 @@
 import { api } from "@/lib/api.server";
 import FinanceDashboardClient from "@/modules/finance/financeDashboardClient";
+import type { TrialBalanceAccount, AgedReceivable, AgedPayable, SalesInvoice, PurchaseInvoice } from "@/modules/finance/types";
 
 export default async function FinanceDashboardPage() {
   const [tb, ar, ap, si, pi] = await Promise.all([
@@ -12,11 +13,11 @@ export default async function FinanceDashboardPage() {
 
   return (
     <FinanceDashboardClient
-      initialTb={tb || []}
-      initialAr={ar || []}
-      initialAp={ap || []}
-      initialSi={si || []}
-      initialPi={pi || []}
+      initialTb={(tb as TrialBalanceAccount[]) || []}
+      initialAr={(ar as AgedReceivable[]) || []}
+      initialAp={(ap as AgedPayable[]) || []}
+      initialSi={(si as SalesInvoice[]) || []}
+      initialPi={(pi as PurchaseInvoice[]) || []}
     />
   );
 }

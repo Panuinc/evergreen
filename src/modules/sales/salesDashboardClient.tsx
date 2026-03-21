@@ -3,17 +3,22 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import DashboardView from "@/modules/sales/components/dashboardView";
+import type {
+  DashboardClientProps,
+  SalesDashboardData,
+  SalesDashboardCompareData,
+} from "@/modules/sales/types";
 
-export default function DashboardClient({ initialData }) {
-  const [data, setData] = useState(initialData);
-  const [compareMode, setCompareMode] = useState(null);
+export default function DashboardClient({ initialData }: DashboardClientProps) {
+  const [data, setData] = useState<SalesDashboardData | SalesDashboardCompareData | null>(initialData);
+  const [compareMode, setCompareModeState] = useState<string | null>(null);
 
-  const handleCompareModeChange = useCallback(async (mode) => {
-    setCompareMode(mode);
+  const handleCompareModeChange = useCallback(async (mode: string | null) => {
+    setCompareModeState(mode);
     try {
       const params = mode ? `?compareMode=${mode}` : "";
       const { get } = await import("@/lib/apiClient");
-      const result = await get(`/api/sales/dashboard${params}`);
+      const result = await get<SalesDashboardData | SalesDashboardCompareData>(`/api/sales/dashboard${params}`);
       setData(result);
     } catch {
       toast.error("โหลดแดชบอร์ดล้มเหลว");

@@ -10,17 +10,18 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
+import type { DailyProductionTrendChartProps } from "@/modules/production/types";
 
-function formatDate(dateStr) {
+function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
 }
 
-function formatCurrency(value) {
+function formatCurrency(value: number): string {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function DailyProductionTrendChart({ data = [] }) {
+export default function DailyProductionTrendChart({ data = [] }: DailyProductionTrendChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>

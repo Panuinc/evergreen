@@ -7,12 +7,13 @@ import { toast } from "sonner";
 import { get, post, authFetch } from "@/lib/apiClient";
 import { validateForm, isRequired, isValidLatitude, isValidLongitude } from "@/lib/validation";
 import TrackingView from "@/modules/tms/components/trackingView";
+import type { TmsVehicle, TmsGpsLog, TmsGpsLogForm } from "@/modules/tms/types";
 
 export default function TrackingClient() {
   const [saving, setSaving] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [formData, setFormData] = useState({
+  const [selectedVehicle, setSelectedVehicle] = useState<TmsVehicle | null>(null);
+  const [formData, setFormData] = useState<TmsGpsLogForm>({
     tmsGpsLogVehicleId: "",
     tmsGpsLogLatitude: "",
     tmsGpsLogLongitude: "",
@@ -20,57 +21,57 @@ export default function TrackingClient() {
     tmsGpsLogSource: "manual",
   });
 
-  const mergeForthTrack = useCallback((internalPositions, internalVehicles, ftData) => {
+  const mergeForthTrack = useCallback((internalPositions: TmsGpsLog[], internalVehicles: TmsVehicle[], ftData: Record<string, unknown>[]) => {
     if (!Array.isArray(ftData) || ftData.length === 0) return internalPositions;
 
-    const gpsIdMap = {};
+    const gpsIdMap: Record<string, TmsVehicle> = {};
     for (const v of internalVehicles) {
       if (v.tmsVehicleForthtrackRef) gpsIdMap[v.tmsVehicleForthtrackRef] = v;
     }
-    const plateMap = {};
+    const plateMap: Record<string, TmsVehicle> = {};
     for (const v of internalVehicles) {
       if (v.tmsVehiclePlateNumber) plateMap[v.tmsVehiclePlateNumber] = v;
     }
 
-    const ftPositions = ftData
+    const ftPositions: TmsGpsLog[] = ftData
       .filter((ft) => ft.Latitude && ft.Longitude)
-      .map((ft) => {
-        const matched = gpsIdMap[ft.gpsID] ?? plateMap[ft.plateNumber];
+      .map((ft): TmsGpsLog | null => {
+        const matched = gpsIdMap[ft.gpsID as string] ?? plateMap[ft.plateNumber as string];
         if (!matched) return null;
         let recordedAt = new Date().toISOString();
         if (ft.dateTime) {
-          const [datePart, timePart] = ft.dateTime.split(" ");
+          const [datePart, timePart] = (ft.dateTime as string).split(" ");
           const [dd, mm, yyyy] = datePart.split("-");
           recordedAt = new Date(`${yyyy}-${mm}-${dd}T${timePart}+07:00`).toISOString();
         }
         return {
           tmsGpsLogVehicleId:      matched.tmsVehicleId,
-          tmsGpsLogLatitude:       ft.Latitude,
-          tmsGpsLogLongitude:      ft.Longitude,
-          tmsGpsLogSpeed:          ft.Speed ?? null,
+          tmsGpsLogLatitude:       ft.Latitude as number,
+          tmsGpsLogLongitude:      ft.Longitude as number,
+          tmsGpsLogSpeed:          (ft.Speed ?? null) as number | null,
           tmsGpsLogRecordedAt:     recordedAt,
           tmsGpsLogSource:         "forthtrack",
-          ftGpsId:                 ft.gpsID,
-          ftEngine:                ft.Engine,
-          ftDriver:                ft.driver || null,
-          ftAddress:               ft.addressT || ft.addressE || null,
-          ftFuel:                  ft.Fuel ?? null,
-          ftTemperature:           ft.Temperature ?? null,
-          ftCOG:                   ft.COG ?? null,
-          ftPowerStatus:           ft.powerStatus ?? null,
-          ftExternalBatt:          ft.externalBatt ?? null,
-          ftPositionSource:        ft.positionSource ?? null,
-          ftPoi:                   ft.poi || null,
-          ftGPS:                   ft.GPS,
-          ftGPRS:                  ft.GPRS,
-          ftVehicleType:           ft.vehicleType ?? null,
-          ftVehicleName:           ft.vehicleName ?? null,
-          ftPlateNumber:           ft.plateNumber,
+          ftGpsId:                 (ft.gpsID ?? null) as string | null,
+          ftEngine:                (ft.Engine ?? null) as string | null,
+          ftDriver:                (ft.driver || null) as string | null,
+          ftAddress:               ((ft.addressT || ft.addressE) ?? null) as string | null,
+          ftFuel:                  (ft.Fuel ?? null) as number | null,
+          ftTemperature:           (ft.Temperature ?? null) as number | null,
+          ftCOG:                   (ft.COG ?? null) as number | null,
+          ftPowerStatus:           (ft.powerStatus ?? null) as string | null,
+          ftExternalBatt:          (ft.externalBatt ?? null) as string | null,
+          ftPositionSource:        (ft.positionSource ?? null) as string | null,
+          ftPoi:                   (ft.poi || null) as string | null,
+          ftGPS:                   (ft.GPS ?? null) as string | null,
+          ftGPRS:                  (ft.GPRS ?? null) as string | null,
+          ftVehicleType:           (ft.vehicleType ?? null) as string | null,
+          ftVehicleName:           (ft.vehicleName ?? null) as string | null,
+          ftPlateNumber:           (ft.plateNumber ?? null) as string | null,
         };
       })
-      .filter(Boolean);
+      .filter((p): p is TmsGpsLog => p !== null);
 
-    const merged = {};
+    const merged: Record<string, TmsGpsLog> = {};
     for (const p of internalPositions) {
       merged[p.tmsGpsLogVehicleId] = p;
     }
@@ -83,30 +84,30 @@ export default function TrackingClient() {
   const trackingFetcher = useCallback(async () => {
     try {
       const [posData, vehData, ftData] = await Promise.all([
-        get("/api/tms/gpsLogs/latest"),
-        get("/api/tms/vehicles"),
+        get("/api/tms/gpsLogs/latest") as Promise<TmsGpsLog[]>,
+        get("/api/tms/vehicles") as Promise<TmsVehicle[]>,
         authFetch("/api/tms/forthtrack").then((r) => r.json()).catch(() => []),
       ]);
       return {
         vehicles: vehData,
-        positions: mergeForthTrack(posData, vehData, Array.isArray(ftData) ? ftData : []),
+        positions: mergeForthTrack(posData, vehData, Array.isArray(ftData) ? ftData as Record<string, unknown>[] : []),
       };
     } catch {
       toast.error("โหลดข้อมูล GPS ล้มเหลว");
-      return { vehicles: [], positions: [] };
+      return { vehicles: [] as TmsVehicle[], positions: [] as TmsGpsLog[] };
     }
   }, [mergeForthTrack]);
 
-  const { data: trackingData, isLoading: loading, mutate: loadData } = useSWR(
+  const { data: trackingData, isLoading: loading, mutate: loadData } = useSWR<{ vehicles: TmsVehicle[]; positions: TmsGpsLog[] }>(
     "tracking-positions",
     trackingFetcher,
     { refreshInterval: 30000 },
   );
 
-  const vehicles = trackingData?.vehicles || [];
-  const positions = trackingData?.positions || [];
+  const vehicles: TmsVehicle[] = trackingData?.vehicles || [];
+  const positions: TmsGpsLog[] = trackingData?.positions || [];
 
-  const handleOpenManualUpdate = (vehicle = null) => {
+  const handleOpenManualUpdate = (vehicle: TmsVehicle | null = null) => {
     setSelectedVehicle(vehicle);
     setFormData({
       tmsGpsLogVehicleId: vehicle?.tmsVehicleId || "",
@@ -159,12 +160,12 @@ export default function TrackingClient() {
     }
   };
 
-  const updateField = (field, value) => {
+  const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
-  const [routeHistory, setRouteHistory] = useState([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const [routeHistory, setRouteHistory] = useState<TmsGpsLog[]>([]);
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [selectedDate, setSelectedDate] = useState(() =>
     new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" })
@@ -180,7 +181,7 @@ export default function TrackingClient() {
       if (vehicleId) params.set("vehicleId", vehicleId);
       if (targetDate) params.set("date", targetDate);
       const qs = params.toString();
-      const logs = await get(qs ? `/api/tms/gpsLogs?${qs}` : "/api/tms/gpsLogs");
+      const logs = await get(qs ? `/api/tms/gpsLogs?${qs}` : "/api/tms/gpsLogs") as TmsGpsLog[];
       setRouteHistory(
         logs.sort(
           (a, b) => new Date(a.tmsGpsLogRecordedAt).getTime() - new Date(b.tmsGpsLogRecordedAt).getTime()
@@ -203,7 +204,7 @@ export default function TrackingClient() {
         if (selectedVehicleId) gpsParams.set("vehicleId", selectedVehicleId);
         if (newDate) gpsParams.set("date", newDate);
         const gpsQs = gpsParams.toString();
-        const logs = await get(gpsQs ? `/api/tms/gpsLogs?${gpsQs}` : "/api/tms/gpsLogs");
+        const logs = await get(gpsQs ? `/api/tms/gpsLogs?${gpsQs}` : "/api/tms/gpsLogs") as TmsGpsLog[];
         setRouteHistory(
           logs.sort(
             (a, b) => new Date(a.tmsGpsLogRecordedAt).getTime() - new Date(b.tmsGpsLogRecordedAt).getTime()

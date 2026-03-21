@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { Input, Button, Tooltip } from "@heroui/react";
 import { Send, Sparkles } from "lucide-react";
+import type { MessageInputProps } from "@/modules/marketing/types";
 
-export default function MessageInput({ onSend, onSuggest, sending, suggestLoading, disabled, suggestedText }) {
+export default function MessageInput({ onSend, onSuggest, sending, suggestLoading, disabled, suggestedText }: MessageInputProps) {
   const [input, setInput] = useState("");
 
   useEffect(() => {

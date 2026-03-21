@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
+import type { ProjectTypeChartProps } from "@/modules/marketing/types";
 
 const typeColors = {
   "ที่อยู่อาศัย": "#3b82f6",
@@ -13,7 +14,7 @@ function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function ProjectTypeChart({ data = [] }) {
+export default function ProjectTypeChart({ data = [] }: ProjectTypeChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

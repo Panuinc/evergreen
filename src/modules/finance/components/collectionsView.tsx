@@ -7,6 +7,7 @@ import {
   Tabs, Tab, Input, Textarea, Select, SelectItem,
   Card, CardBody, CardHeader,
 } from "@heroui/react";
+import type { CollectionsViewProps, MergedCollectionRow, ArFollowUp } from "@/modules/finance/types";
 import {
   Phone, Mail, MapPin, MessageCircle, FileText, Plus, History,
   Download, Clock, RefreshCw, BotMessageSquare,
@@ -108,9 +109,9 @@ export default function CollectionsView({
   reportSince, onReportSinceChange, reportUntil, onReportUntilChange,
   reportData, onReload, followUps,
   aiAnalysis, aiLoading, runAiAnalysis,
-}) {
+}: CollectionsViewProps) {
 
-  const trackingColumns = useMemo(() => [
+  const trackingColumns = useMemo<{ name: string; uid: string; sortable?: boolean }[]>(() => [
     { name: "ลูกค้า", uid: "name", sortable: true },
     { name: "เลขที่", uid: "customerNumber", sortable: true },
     { name: "ยอดค้างชำระ", uid: "balanceDue", sortable: true },
@@ -126,7 +127,7 @@ export default function CollectionsView({
     { name: "", uid: "actions" },
   ], []);
 
-  const trackingRenderCell = useCallback((item, key) => {
+  const trackingRenderCell = useCallback((item: MergedCollectionRow, key: string) => {
     switch (key) {
       case "name":
         return <span className="font-light">{item.name}</span>;
@@ -180,7 +181,7 @@ export default function CollectionsView({
   }, [onOpenAdd, onOpenHistory]);
 
 
-  const reportColumns = useMemo(() => [
+  const reportColumns = useMemo<{ name: string; uid: string; sortable?: boolean }[]>(() => [
     { name: "วันที่", uid: "arFollowUpContactDate", sortable: true },
     { name: "ลูกค้า", uid: "arFollowUpCustomerName", sortable: true },
     { name: "วิธีติดต่อ", uid: "arFollowUpContactMethod", sortable: true },
@@ -193,7 +194,7 @@ export default function CollectionsView({
     { name: "ผู้บันทึก", uid: "arFollowUpCreatedByName" },
   ], []);
 
-  const reportRenderCell = useCallback((item, key) => {
+  const reportRenderCell = useCallback((item: ArFollowUp, key: string) => {
     switch (key) {
       case "arFollowUpContactDate":
         return <span>{fmtDate(item.arFollowUpContactDate)}</span>;
@@ -259,7 +260,7 @@ export default function CollectionsView({
               return undefined;
             }}
             enableCardView
-            actionMenuItems={(item) => [
+            actionMenuItems={(item: MergedCollectionRow) => [
               { key: "add", label: "เพิ่มการติดตาม", icon: <Plus />, onPress: () => onOpenAdd(item) },
               item.followUpCount
                 ? { key: "history", label: "ดูประวัติ", icon: <History />, onPress: () => onOpenHistory(item) }

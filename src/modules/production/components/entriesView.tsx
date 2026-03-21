@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { Chip, Tabs, Tab } from "@heroui/react";
 import DataTable from "@/components/ui/dataTable";
+import type { EntriesViewProps } from "@/modules/production/types";
 
 
 const columns = [
@@ -88,7 +89,7 @@ const statusOptions = [
 ];
 
 
-export default function EntriesView({ data, loading }) {
+export default function EntriesView({ data, loading }: EntriesViewProps) {
   const wpcData = useMemo(
     () => (data || []).filter((r) => r.bcItemLedgerEntryGlobalDimension1Code === "WPC"),
     [data],

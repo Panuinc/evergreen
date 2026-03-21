@@ -8,6 +8,7 @@ import useSWR from "swr";
 import { get, post, put, del, authFetch } from "@/lib/apiClient";
 import { companyHq } from "@/lib/tmsConstants";
 import ShipmentsView from "@/modules/tms/components/shipmentsView";
+import type { TmsVehicle, TmsShipment, TmsDeliveryPlan } from "@/modules/tms/types";
 
 
 
@@ -91,27 +92,29 @@ function ShipmentsInner() {
   const searchParams = useSearchParams();
   const fromPlanId = searchParams.get("planId") || null;
 
-  const fetcher = (url) => get(url);
-  const { data: shipmentsData, isLoading: shipmentsLoading, mutate: mutateShipments } = useSWR("/api/tms/shipments", fetcher);
-  const { data: vehiclesData, isLoading: vehiclesLoading } = useSWR("/api/tms/vehicles", fetcher);
-  const { data: employeesData, isLoading: employeesLoading } = useSWR("/api/hr/employees", fetcher);
+  const shipmentFetcher = (url: string) => get(url) as Promise<TmsShipment[]>;
+  const vehicleFetcher = (url: string) => get(url) as Promise<TmsVehicle[]>;
+  const employeeFetcher = (url: string) => get(url) as Promise<unknown[]>;
+  const { data: shipmentsData, isLoading: shipmentsLoading, mutate: mutateShipments } = useSWR<TmsShipment[]>("/api/tms/shipments", shipmentFetcher);
+  const { data: vehiclesData, isLoading: vehiclesLoading } = useSWR<TmsVehicle[]>("/api/tms/vehicles", vehicleFetcher);
+  const { data: employeesData, isLoading: employeesLoading } = useSWR<unknown[]>("/api/hr/employees", employeeFetcher);
 
-  const shipments = shipmentsData || [];
-  const vehicles = vehiclesData || [];
-  const employees = employeesData || [];
+  const shipments: TmsShipment[] = shipmentsData || [];
+  const vehicles: TmsVehicle[] = vehiclesData || [];
+  const employees: unknown[] = employeesData || [];
   const loading = shipmentsLoading || vehiclesLoading || employeesLoading;
 
   const [saving, setSaving] = useState(false);
-  const [editingShipment, setEditingShipment] = useState(null);
+  const [editingShipment, setEditingShipment] = useState<TmsShipment | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingShipment, setDeletingShipment] = useState(null);
+  const [deletingShipment, setDeletingShipment] = useState<TmsShipment | null>(null);
 
 
-  const [deliveryPlans, setDeliveryPlans] = useState([]);
+  const [deliveryPlans, setDeliveryPlans] = useState<TmsDeliveryPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(false);
-  const [selectedPlanIds, setSelectedPlanIds] = useState([]);
+  const [selectedPlanIds, setSelectedPlanIds] = useState<string[]>([]);
 
 
   const [shipmentItems, setShipmentItems] = useState([]);
@@ -132,7 +135,7 @@ function ShipmentsInner() {
     try {
       setDistanceLoading(true);
       const params = new URLSearchParams({ destination, originLat: String(companyHq.lat), originLng: String(companyHq.lng) });
-      const result = await get(`/api/tms/distance?${params}`);
+      const result = await get(`/api/tms/distance?${params}`) as { distanceKm?: number } | null;
       if (result?.distanceKm) {
         setFormData((prev) => ({
           ...prev,
@@ -163,8 +166,8 @@ function ShipmentsInner() {
       const nextMonth = new Date(now);
       nextMonth.setMonth(now.getMonth() + 1);
       const [cur, next] = await Promise.all([
-        get(`/api/tms/deliveryPlans?month=${getMonthKey(now)}`),
-        get(`/api/tms/deliveryPlans?month=${getMonthKey(nextMonth)}`),
+        get(`/api/tms/deliveryPlans?month=${getMonthKey(now)}`) as Promise<TmsDeliveryPlan[]>,
+        get(`/api/tms/deliveryPlans?month=${getMonthKey(nextMonth)}`) as Promise<TmsDeliveryPlan[]>,
       ]);
       const all = [...(cur || []), ...(next || [])];
 
@@ -355,9 +358,9 @@ function ShipmentsInner() {
 
 
   const fromPlanInitialized = useRef(false);
-  const { data: fromPlanPrefill } = useSWR(
+  const { data: fromPlanPrefill } = useSWR<TmsDeliveryPlan>(
     fromPlanId ? `/api/tms/deliveryPlans/${fromPlanId}` : null,
-    (url) => get(url),
+    (url) => get(url) as Promise<TmsDeliveryPlan>,
     { revalidateOnFocus: false, revalidateOnReconnect: false },
   );
 
@@ -376,7 +379,7 @@ function ShipmentsInner() {
     onOpen();
   }, [fromPlanPrefill, fromPlanId, onOpen, fetchDistance]);
 
-  const handleOpen = (shipment = null) => {
+  const handleOpen = (shipment: TmsShipment | null = null) => {
     if (shipment) {
       setEditingShipment(shipment);
       setSelectedPlanIds([]);
@@ -487,7 +490,7 @@ function ShipmentsInner() {
       }
 
       const selectedVehicle = vehicles.find((v) => String(v.tmsVehicleId) === String(saveData.tmsShipmentVehicleId));
-      const rate = parseFloat(selectedVehicle?.tmsVehicleFuelConsumptionRate) || 0;
+      const rate = Number(selectedVehicle?.tmsVehicleFuelConsumptionRate) || 0;
       const distance = parseFloat(saveData.tmsShipmentDistance) || 0;
       const price = parseFloat(saveData.tmsShipmentFuelPricePerLiter) || 0;
       if (rate > 0 && distance > 0 && price > 0) {
@@ -498,7 +501,7 @@ function ShipmentsInner() {
         await put(`/api/tms/shipments/${editingShipment.tmsShipmentId}`, saveData);
         toast.success("อัปเดตการจัดส่งสำเร็จ");
       } else {
-        const newShipment = await post("/api/tms/shipments", saveData);
+        const newShipment = await post("/api/tms/shipments", saveData) as TmsShipment | null;
         toast.success("สร้างการจัดส่งสำเร็จ");
 
 
@@ -534,7 +537,7 @@ function ShipmentsInner() {
     }
   };
 
-  const confirmDelete = (shipment) => {
+  const confirmDelete = (shipment: TmsShipment) => {
     setDeletingShipment(shipment);
     deleteModal.onOpen();
   };

@@ -21,6 +21,7 @@ import { Plus, Edit, Trash2, GitBranch, Clock, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
 import Loading from "@/components/ui/loading";
+import type { WorkOrdersViewProps, MktWorkOrder } from "@/modules/marketing/types";
 
 const baseColumns = [
   { name: "เลขที่", uid: "mktWorkOrderNo", sortable: true },
@@ -115,7 +116,7 @@ export default function WorkOrdersView({
   handleAddProgress,
   updateProgressField,
   toggleActive,
-}) {
+}: WorkOrdersViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -312,13 +313,16 @@ export default function WorkOrdersView({
         statusField="mktWorkOrderStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบใบสั่งงาน"
-        actionMenuItems={(item) => [
-          { key: "progress", label: "อัปเดตความคืบหน้า", icon: <GitBranch />, onPress: () => openProgress(item) },
-          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
-          isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
-        ].filter(Boolean)}
+        actionMenuItems={(item) => {
+          const wo = item as MktWorkOrder;
+          return [
+            { key: "progress", label: "อัปเดตความคืบหน้า", icon: <GitBranch />, onPress: () => openProgress(wo) },
+            { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(wo) },
+            isSuperAdmin
+              ? { key: "toggle", label: wo.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(wo) }
+              : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(wo) },
+          ].filter(Boolean);
+        }}
         topEndContent={
           <Button
             variant="bordered"
@@ -373,7 +377,7 @@ export default function WorkOrdersView({
                     radius="md"
                     selectedKeys={formData.mktWorkOrderType ? [formData.mktWorkOrderType] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("mktWorkOrderType", val);
                     }}
                   >
@@ -407,7 +411,7 @@ export default function WorkOrdersView({
                         : []
                     }
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("mktWorkOrderPriority", val);
                     }}
                   >
@@ -426,7 +430,7 @@ export default function WorkOrdersView({
                     radius="md"
                     selectedKeys={[formData.mktWorkOrderStatus]}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "pending";
+                      const val = String(Array.from(keys)[0] ?? "pending");
                       updateField("mktWorkOrderStatus", val);
                     }}
                   >
@@ -448,7 +452,7 @@ export default function WorkOrdersView({
                     radius="md"
                     selectedKeys={formData.mktWorkOrderAssignedTo ? [formData.mktWorkOrderAssignedTo] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("mktWorkOrderAssignedTo", val);
                     }}
                   >
@@ -609,7 +613,7 @@ export default function WorkOrdersView({
                     radius="md"
                     selectedKeys={progressForm.mktWorkOrderProgressLogCreatedBy ? [progressForm.mktWorkOrderProgressLogCreatedBy] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateProgressField("mktWorkOrderProgressLogCreatedBy", val);
                     }}
                   >

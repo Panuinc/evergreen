@@ -4,23 +4,24 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import PromotionsView from "@/modules/marketing/components/promotionsView";
+import type { PromotionsClientProps, MktPromotion } from "@/modules/marketing/types";
 
-export default function PromotionsClient({ initialPromotions, initialStockItems }) {
-  const [promotions, setPromotions] = useState(initialPromotions);
+export default function PromotionsClient({ initialPromotions, initialStockItems }: PromotionsClientProps) {
+  const [promotions, setPromotions] = useState<MktPromotion[]>(initialPromotions);
   const [loading, setLoading] = useState(false);
 
   const add = async (data) => {
-    const result = await post("/api/marketing/omnichannel/promotions", data);
-    setPromotions((prev) => [result, ...prev]);
+    const result = await post<MktPromotion>("/api/marketing/omnichannel/promotions", data);
+    setPromotions((prev) => [result as MktPromotion, ...prev]);
     toast.success("สร้างโปรโมชั่นเรียบร้อย");
-    return result;
+    return result as MktPromotion;
   };
 
   const update = async (id, data) => {
-    const result = await put(`/api/marketing/omnichannel/promotions/${id}`, data);
-    setPromotions((prev) => prev.map((p) => (p.mktPromotionId === id ? result : p)));
+    const result = await put<MktPromotion>(`/api/marketing/omnichannel/promotions/${id}`, data);
+    setPromotions((prev) => prev.map((p) => (p.mktPromotionId === id ? (result as MktPromotion) : p)));
     toast.success("อัปเดตโปรโมชั่นเรียบร้อย");
-    return result;
+    return result as MktPromotion;
   };
 
   const remove = async (id) => {

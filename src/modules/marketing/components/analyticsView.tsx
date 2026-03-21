@@ -31,6 +31,7 @@ import CustomerGroupChart from "@/modules/marketing/components/customerGroupChar
 import ProjectTypeChart from "@/modules/marketing/components/projectTypeChart";
 import YoYComparisonChart from "@/modules/marketing/components/yoYComparisonChart";
 import Loading from "@/components/ui/loading";
+import type { AnalyticsViewProps } from "@/modules/marketing/types";
 
 const periods = [
   { key: "all", label: "ทั้งหมด" },
@@ -104,7 +105,7 @@ function PeriodCard({ title, revenue, orders, icon: Icon, color, growth = undefi
   );
 }
 
-export default function AnalyticsView({ stats, loading, reload, period, setPeriod, startDate, endDate, setStartDate, setEndDate, searchCustomRange }) {
+export default function AnalyticsView({ stats, loading, reload, period, setPeriod, startDate, endDate, setStartDate, setEndDate, searchCustomRange }: AnalyticsViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">

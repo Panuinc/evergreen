@@ -1,12 +1,13 @@
 "use client";
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import type { RevenueByDayChartProps } from "@/modules/marketing/types";
 
 function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function RevenueByDayChart({ data = [] }) {
+export default function RevenueByDayChart({ data = [] }: RevenueByDayChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

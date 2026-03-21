@@ -3,18 +3,19 @@
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/apiClient";
+import type { ChatMessage, ActiveAgent, UseChatReturn } from "@/modules/overview/types";
 
-export function useChat() {
-  const [messages, setMessages] = useState([]);
+export function useChat(): UseChatReturn {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeAgent, setActiveAgent] = useState(null);
-  const abortRef = useRef(null);
+  const [activeAgent, setActiveAgent] = useState<ActiveAgent | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const sendMessage = useCallback(async (content) => {
-    const userMessage = { role: "user", content };
-    const updatedMessages = [...messages, userMessage];
+  const sendMessage = useCallback(async (content: string) => {
+    const userMessage: ChatMessage = { role: "user", content };
+    const updatedMessages: ChatMessage[] = [...messages, userMessage];
 
-    setMessages([...updatedMessages, { role: "assistant", content: "" }]);
+    setMessages([...updatedMessages, { role: "assistant" as const, content: "" }]);
     setIsLoading(true);
     setActiveAgent(null);
 
@@ -65,7 +66,7 @@ export function useChat() {
               assistantContent += delta;
               setMessages([
                 ...updatedMessages,
-                { role: "assistant", content: assistantContent },
+                { role: "assistant" as const, content: assistantContent },
               ]);
             }
           } catch {
@@ -76,10 +77,10 @@ export function useChat() {
 
       setMessages([
         ...updatedMessages,
-        { role: "assistant", content: assistantContent },
+        { role: "assistant" as const, content: assistantContent },
       ]);
     } catch (error) {
-      if (error.name === "AbortError") return;
+      if ((error as Error).name === "AbortError") return;
       toast.error("ไม่สามารถรับการตอบกลับได้");
       setMessages(updatedMessages);
     } finally {

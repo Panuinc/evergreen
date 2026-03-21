@@ -20,7 +20,8 @@ import { Plus, Edit, Trash2, Power } from "lucide-react";
 import { toast } from "sonner";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
-import { post, put, del } from "@/lib/apiClient";
+import { get, post, put, del } from "@/lib/apiClient";
+import type { HrDepartment, HrDivision, DepartmentsClientProps, DepartmentFormData } from "./types";
 
 const baseColumns = [
   { name: "ชื่อ", uid: "hrDepartmentName", sortable: true },
@@ -38,32 +39,31 @@ const baseVisibleColumns = [
   "actions",
 ];
 
-const emptyForm = {
+const emptyForm: DepartmentFormData = {
   hrDepartmentName: "",
   hrDepartmentDescription: "",
   hrDepartmentHrDivisionId: "",
 };
 
-export default function DepartmentsClient({ initialDepartments, initialDivisions }) {
+export default function DepartmentsClient({ initialDepartments, initialDivisions }: DepartmentsClientProps) {
   const { isSuperAdmin } = useRBAC();
-  const [departments, setDepartments] = useState(initialDepartments);
-  const [divisions] = useState(initialDivisions);
+  const [departments, setDepartments] = useState<HrDepartment[]>(initialDepartments);
+  const [divisions] = useState<HrDivision[]>(initialDivisions);
   const [saving, setSaving] = useState(false);
-  const [editingDept, setEditingDept] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [editingDept, setEditingDept] = useState<HrDepartment | null>(null);
+  const [formData, setFormData] = useState<DepartmentFormData>(emptyForm);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingDept, setDeletingDept] = useState(null);
+  const [deletingDept, setDeletingDept] = useState<HrDepartment | null>(null);
 
   const reloadDepartments = useCallback(async () => {
     try {
-      const { get } = await import("@/lib/apiClient");
       const data = await get("/api/hr/departments");
-      setDepartments(data);
+      setDepartments(data as HrDepartment[]);
     } catch {}
   }, []);
 
-  const handleOpen = useCallback((dept = null) => {
+  const handleOpen = useCallback((dept: HrDepartment | null = null) => {
     if (dept) {
       setEditingDept(dept);
       setFormData({
@@ -94,14 +94,14 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
       }
       onClose();
       reloadDepartments();
-    } catch (error) {
-      toast.error(error.message || "บันทึกแผนกล้มเหลว");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "บันทึกแผนกล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = useCallback((dept) => {
+  const confirmDelete = useCallback((dept: HrDepartment) => {
     setDeletingDept(dept);
     deleteModal.onOpen();
   }, [deleteModal]);
@@ -114,12 +114,12 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
       deleteModal.onClose();
       setDeletingDept(null);
       reloadDepartments();
-    } catch (error) {
-      toast.error(error.message || "ลบแผนกล้มเหลว");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "ลบแผนกล้มเหลว");
     }
   };
 
-  const toggleActive = useCallback(async (item) => {
+  const toggleActive = useCallback(async (item: HrDepartment) => {
     try {
       await put(`/api/hr/departments/${item.hrDepartmentId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -149,7 +149,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (dept, columnKey) => {
+    (dept: HrDepartment, columnKey: string) => {
       switch (columnKey) {
         case "hrDepartmentName":
           return <span className="font-light">{dept.hrDepartmentName}</span>;
@@ -212,7 +212,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
             </div>
           );
         default:
-          return dept[columnKey] || "-";
+          return (dept as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
       }
     },
     [isSuperAdmin, confirmDelete, divisions, handleOpen, toggleActive],
@@ -241,7 +241,7 @@ export default function DepartmentsClient({ initialDepartments, initialDivisions
             เพิ่มแผนก
           </Button>
         }
-        actionMenuItems={(item) => [
+        actionMenuItems={(item: HrDepartment) => [
           { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
           isSuperAdmin
             ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }

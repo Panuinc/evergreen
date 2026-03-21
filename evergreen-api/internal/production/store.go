@@ -21,27 +21,27 @@ func NewStore(pool *pgxpool.Pool) *Store {
 func (s *Store) GetProductionOrders(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			po."bcProductionOrderNo"                   AS "orderNo",
-			po."bcProductionOrderStatus"               AS "status",
-			po."bcProductionOrderDescription"           AS "description",
-			po."bcProductionOrderDescription2"          AS "description2",
-			po."bcProductionOrderSourceNo"              AS "sourceNo",
-			po."bcProductionOrderRoutingNo"             AS "routingNo",
-			po."bcProductionOrderQuantity"              AS "quantity",
-			po."bcProductionOrderDueDate"               AS "dueDate",
-			po."bcProductionOrderFinishedDate"          AS "finishedDate",
-			po."bcProductionOrderStartingDateTime"      AS "startingDateTime",
-			po."bcProductionOrderEndingDateTime"        AS "endingDateTime",
-			po."bcProductionOrderShortcutDimension1Code" AS "dim1Code",
-			po."bcProductionOrderShortcutDimension2Code" AS "dim2Code",
-			po."bcProductionOrderLocationCode"          AS "locationCode",
-			po."bcProductionOrderAssignedUserID"        AS "assignedUserID",
-			po."bcProductionOrderSearchDescription"     AS "searchDescription",
-			po."bcProductionOrderUnitCost"              AS "unitCost",
-			i."bcItemDescription"                       AS "itemDescription",
-			i."bcItemBaseUnitOfMeasure"                 AS "uom",
-			i."bcItemItemCategoryCode"                  AS "itemCategory",
-			i."bcItemUnitPrice"                         AS "itemUnitPrice"
+			po."bcProductionOrderNo",
+			po."bcProductionOrderStatus",
+			po."bcProductionOrderDescription",
+			po."bcProductionOrderDescription2",
+			po."bcProductionOrderSourceNo",
+			po."bcProductionOrderRoutingNo",
+			po."bcProductionOrderQuantity",
+			po."bcProductionOrderDueDate",
+			po."bcProductionOrderFinishedDate",
+			po."bcProductionOrderStartingDateTime",
+			po."bcProductionOrderEndingDateTime",
+			po."bcProductionOrderShortcutDimension1Code",
+			po."bcProductionOrderShortcutDimension2Code",
+			po."bcProductionOrderLocationCode",
+			po."bcProductionOrderAssignedUserID",
+			po."bcProductionOrderSearchDescription",
+			po."bcProductionOrderUnitCost",
+			i."bcItemDescription",
+			i."bcItemBaseUnitOfMeasure",
+			i."bcItemItemCategoryCode",
+			i."bcItemUnitPrice"
 		FROM "bcProductionOrder" po
 		LEFT JOIN "bcItem" i ON i."bcItemNo" = po."bcProductionOrderSourceNo"
 	`)
@@ -51,18 +51,18 @@ func (s *Store) GetProductionOrders(ctx context.Context) ([]map[string]any, erro
 func (s *Store) GetItemLedgerEntries(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			ile."bcItemLedgerEntryEntryType"          AS "entryType",
-			ile."bcItemLedgerEntryItemNo"              AS "itemNo",
-			ile."bcItemLedgerEntryQuantityValue"       AS "quantity",
-			ile."bcItemLedgerEntryPostingDate"         AS "postingDate",
-			ile."bcItemLedgerEntryOrderNo"             AS "orderNo",
-			ile."bcItemLedgerEntryDocumentNo"          AS "documentNo",
-			ile."bcItemLedgerEntryDescriptionValue"    AS "description",
-			ile."bcItemLedgerEntryGlobalDimension1Code" AS "dim1Code",
-			ile."bcItemLedgerEntryGlobalDimension2Code" AS "dim2Code",
-			ile."bcItemLedgerEntryItemCategoryCode"    AS "itemCategory",
-			i."bcItemDescription"                      AS "itemDescription",
-			i."bcItemUnitPrice"                        AS "itemUnitPrice"
+			ile."bcItemLedgerEntryEntryType",
+			ile."bcItemLedgerEntryItemNo",
+			ile."bcItemLedgerEntryQuantityValue",
+			ile."bcItemLedgerEntryPostingDate",
+			ile."bcItemLedgerEntryOrderNo",
+			ile."bcItemLedgerEntryDocumentNo",
+			ile."bcItemLedgerEntryDescriptionValue",
+			ile."bcItemLedgerEntryGlobalDimension1Code",
+			ile."bcItemLedgerEntryGlobalDimension2Code",
+			ile."bcItemLedgerEntryItemCategoryCode",
+			i."bcItemDescription",
+			i."bcItemUnitPrice"
 		FROM "bcItemLedgerEntry" ile
 		LEFT JOIN "bcItem" i ON i."bcItemNo" = ile."bcItemLedgerEntryItemNo"
 		WHERE ile."bcItemLedgerEntryEntryType" IN ('Output', 'Consumption')
@@ -75,15 +75,15 @@ func (s *Store) GetItemLedgerEntries(ctx context.Context) ([]map[string]any, err
 func (s *Store) GetConsumptionCosts(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			ve."bcValueEntryOrderNo"              AS "orderNo",
-			ve."bcValueEntryItemNo"               AS "itemNo",
-			ve."bcValueEntryPostingDate"          AS "postingDate",
-			ve."bcValueEntryGlobalDimension1Code" AS "dim1Code",
-			ve."bcValueEntryGlobalDimension2Code" AS "dim2Code",
-			ve."bcValueEntryDescriptionValue"     AS "description",
-			ABS(ve."bcValueEntryCostPerUnit" * ve."bcValueEntryValuedQuantity") AS "costAmount",
-			ABS(ve."bcValueEntryValuedQuantity")  AS "quantity",
-			i."bcItemDescription"                 AS "itemDescription"
+			ve."bcValueEntryOrderNo",
+			ve."bcValueEntryItemNo",
+			ve."bcValueEntryPostingDate",
+			ve."bcValueEntryGlobalDimension1Code",
+			ve."bcValueEntryGlobalDimension2Code",
+			ve."bcValueEntryDescriptionValue",
+			ABS(ve."bcValueEntryCostPerUnit" * ve."bcValueEntryValuedQuantity") AS "bcValueEntryCostAmountActual",
+			ABS(ve."bcValueEntryValuedQuantity")                               AS "bcValueEntryValuedQuantity",
+			i."bcItemDescription"
 		FROM "bcValueEntry" ve
 		LEFT JOIN "bcItem" i ON i."bcItemNo" = ve."bcValueEntryItemNo"
 		WHERE ve."bcValueEntryItemLedgerEntryType" = 'Consumption'
@@ -96,8 +96,8 @@ func (s *Store) GetConsumptionCosts(ctx context.Context) ([]map[string]any, erro
 func (s *Store) GetSalesPriceMap(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			"bcSalesOrderLineNoValue"    AS "itemNo",
-			MAX("bcSalesOrderLineUnitPrice") AS "unitPrice"
+			"bcSalesOrderLineNoValue",
+			MAX("bcSalesOrderLineUnitPrice") AS "bcSalesOrderLineUnitPrice"
 		FROM "bcSalesOrderLine"
 		WHERE "bcSalesOrderLineTypeValue" = 'Item'
 		  AND "bcSalesOrderLineUnitPrice" > 0
@@ -109,9 +109,9 @@ func (s *Store) GetSalesPriceMap(ctx context.Context) ([]map[string]any, error) 
 func (s *Store) GetDimensionNames(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			"bcDimensionSetEntryDimensionCode"      AS "dimCode",
-			"bcDimensionSetEntryDimensionValueCode"  AS "valueCode",
-			"bcDimensionSetEntryDimensionValueName"  AS "valueName"
+			"bcDimensionSetEntryDimensionCode",
+			"bcDimensionSetEntryDimensionValueCode",
+			"bcDimensionSetEntryDimensionValueName"
 		FROM "bcDimensionSetEntry"
 		WHERE "bcDimensionSetEntryDimensionCode" IN ('DEPARTMENT', 'PROJECT')
 	`)
@@ -150,7 +150,7 @@ func (s *Store) FgCoverage(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		WITH so_data AS (
 			SELECT
-				"bcSalesOrderLineNoValue" AS "itemNo",
+				"bcSalesOrderLineNoValue",
 				SUM("bcSalesOrderLineQuantityValue") AS "soQty",
 				SUM("bcSalesOrderLineQuantityShipped") AS "shippedQty",
 				SUM("bcSalesOrderLineOutstandingQuantity") AS "soOutstandingQty"
@@ -161,7 +161,7 @@ func (s *Store) FgCoverage(ctx context.Context) ([]map[string]any, error) {
 		),
 		po_data AS (
 			SELECT
-				"bcProductionOrderSourceNo" AS "itemNo",
+				"bcProductionOrderSourceNo",
 				COUNT(*) AS "poCount",
 				COALESCE(SUM("bcProductionOrderQuantity"), 0) AS "poTotalQty",
 				array_agg(DISTINCT "bcProductionOrderStatus") AS "poStatuses",
@@ -176,20 +176,20 @@ func (s *Store) FgCoverage(ctx context.Context) ([]map[string]any, error) {
 			GROUP BY "bcProductionOrderSourceNo"
 		)
 		SELECT
-			i."bcItemNo" AS "itemNo",
-			i."bcItemDescription" AS "description",
-			i."bcItemItemCategoryCode" AS "category",
+			i."bcItemNo",
+			i."bcItemDescription",
+			i."bcItemItemCategoryCode",
 			COALESCE(s."soQty", 0) AS "soQty",
 			COALESCE(s."shippedQty", 0) AS "shippedQty",
 			COALESCE(s."soOutstandingQty", 0) AS "soOutstandingQty",
-			(p."itemNo" IS NOT NULL) AS "hasProductionOrder",
+			(p."bcProductionOrderSourceNo" IS NOT NULL) AS "hasProductionOrder",
 			COALESCE(p."poCount", 0) AS "poCount",
 			COALESCE(p."poTotalQty", 0) AS "poTotalQty",
 			COALESCE(p."poStatuses", '{}') AS "poStatuses",
 			COALESCE(p."productionOrders", '[]') AS "productionOrders"
 		FROM "bcItem" i
-		INNER JOIN so_data s ON s."itemNo" = i."bcItemNo"
-		LEFT JOIN po_data p ON p."itemNo" = i."bcItemNo"
+		INNER JOIN so_data s ON s."bcSalesOrderLineNoValue" = i."bcItemNo"
+		LEFT JOIN po_data p ON p."bcProductionOrderSourceNo" = i."bcItemNo"
 		WHERE i."bcItemGenProdPostingGroup" = 'FG'
 		ORDER BY COALESCE(s."soOutstandingQty", 0) DESC
 	`)

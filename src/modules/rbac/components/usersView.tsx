@@ -17,6 +17,7 @@ import {
 import { Plus, Settings, KeyRound, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { UsersViewProps, RbacUserProfile, RbacRole } from "@/modules/rbac/types";
 
 const baseColumns = [
   { name: "อีเมล", uid: "rbacUserProfileEmail", sortable: true },
@@ -61,7 +62,7 @@ export default function UsersView({
   handleResetPassword,
   togglingUserId,
   handleToggleUserStatus,
-}) {
+}: UsersViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -84,7 +85,7 @@ export default function UsersView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (user, columnKey) => {
+    (user: RbacUserProfile, columnKey: string) => {
       switch (columnKey) {
         case "rbacUserProfileEmail":
           return <span className="font-light">{user.rbacUserProfileEmail}</span>;
@@ -92,7 +93,7 @@ export default function UsersView({
           return (
             <div className="flex flex-wrap gap-1">
               {user.roles?.length > 0 ? (
-                user.roles.map((role) => (
+                user.roles.map((role: RbacRole) => (
                   <Chip
                     key={role.rbacRoleId}
                     variant="flat"
@@ -158,7 +159,7 @@ export default function UsersView({
             </div>
           );
         default:
-          return user[columnKey] || "-";
+          return (user as unknown as Record<string, string>)[columnKey] || "-";
       }
     },
     [openRoleAssignment, openResetPassword, togglingUserId, handleToggleUserStatus],
@@ -177,7 +178,7 @@ export default function UsersView({
         searchPlaceholder="ค้นหาตามอีเมล..."
         searchKeys={["rbacUserProfileEmail"]}
         emptyContent="ไม่พบผู้ใช้"
-        actionMenuItems={(item) =>
+        actionMenuItems={(item: RbacUserProfile) =>
           [
             { key: "roles", label: "จัดการบทบาท", icon: <Settings />, onPress: () => openRoleAssignment(item) },
             { key: "reset", label: "รีเซ็ตรหัสผ่าน", icon: <KeyRound />, onPress: () => openResetPassword(item) },
@@ -199,7 +200,7 @@ export default function UsersView({
         }
       />
 
-      {}
+      {/* Role Assignment Modal */}
       <Modal isOpen={isOpen} onClose={handleCloseRoles}>
         <ModalContent>
           <ModalHeader>
@@ -207,7 +208,7 @@ export default function UsersView({
           </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-2">
-              {allRoles.map((role) => (
+              {allRoles.map((role: RbacRole) => (
                 <Checkbox
                   key={role.rbacRoleId}
                   size="md"
@@ -244,7 +245,7 @@ export default function UsersView({
         </ModalContent>
       </Modal>
 
-      {}
+      {/* Create Account Modal */}
       <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)}>
         <ModalContent>
           <ModalHeader>สร้างบัญชี</ModalHeader>
@@ -292,7 +293,7 @@ export default function UsersView({
                     createForm.employeeId ? [createForm.employeeId] : []
                   }
                   onSelectionChange={(keys) => {
-                    const selectedId = Array.from(keys)[0] || "";
+                    const selectedId = Array.from(keys)[0] as string || "";
                     const emp = unlinkedEmployees.find(
                       (e) => e.hrEmployeeId === selectedId,
                     );
@@ -338,7 +339,7 @@ export default function UsersView({
         </ModalContent>
       </Modal>
 
-      {}
+      {/* Reset Password Modal */}
       <Modal isOpen={resetOpen} onClose={() => setResetOpen(false)}>
         <ModalContent>
           <ModalHeader>

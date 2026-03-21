@@ -6,8 +6,9 @@ import CompareToggle from "@/components/ui/compareToggle";
 import CompareKpiCard from "@/components/ui/compareKpiCard";
 import AssetByCategoryChart from "@/modules/it/components/assetByCategoryChart";
 import Loading from "@/components/ui/loading";
+import type { DashboardViewProps, ItDashboardData, ItDashboardCompareData } from "@/modules/it/types";
 
-export default function DashboardView({ stats, loading, compareMode, setCompareMode }) {
+export default function DashboardView({ stats, loading, compareMode, setCompareMode }: DashboardViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -21,9 +22,10 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
   }
 
 
-  const isCompare = !!stats.compareMode;
-  const d = isCompare ? stats.current : stats;
-  const prev = isCompare ? stats.previous : null;
+  const isCompare = "compareMode" in stats;
+  const compareStats = isCompare ? (stats as ItDashboardCompareData) : null;
+  const d = compareStats ? compareStats.current : (stats as ItDashboardData);
+  const prev = compareStats ? compareStats.previous : null;
 
   const cards = [
     {
@@ -31,7 +33,11 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       value: d.totalAssets,
       sub: "ทรัพย์สิน IT ที่ติดตาม",
       icon: Server,
-      color: "primary",
+      color: "primary" as const,
+      unit: undefined as string | undefined,
+      currentRaw: undefined as number | undefined,
+      previousRaw: prev ? prev.totalAssets : undefined,
+      invertColor: false,
     },
   ];
 
@@ -41,9 +47,9 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
         <div className="flex items-center justify-between">
           <div />
           <div className="flex items-center gap-2">
-            {isCompare && stats.labels && (
+            {compareStats?.labels && (
               <span className="text-xs text-muted-foreground">
-                {stats.labels.current} vs {stats.labels.previous}
+                {compareStats.labels.current} vs {compareStats.labels.previous}
               </span>
             )}
             <CompareToggle value={compareMode} onChange={setCompareMode} />
@@ -52,7 +58,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {cards.map((card: any) => (
+        {cards.map((card) => (
           <CompareKpiCard
             key={card.title}
             title={card.title}

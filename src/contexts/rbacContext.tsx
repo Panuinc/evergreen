@@ -4,6 +4,7 @@ import { createContext, useContext, useCallback, useMemo } from "react";
 import useSWR from "swr";
 import { useAuth } from "@/contexts/authContext";
 import { get } from "@/lib/apiClient";
+import type { UserPermissionEntry } from "@/modules/rbac/types";
 
 interface RBACContextType {
   permissions: string[];
@@ -21,7 +22,7 @@ export function RBACProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const userId = user?.id;
 
-  const { data, isLoading, mutate: mutatePermissions } = useSWR(
+  const { data, isLoading, mutate: mutatePermissions } = useSWR<UserPermissionEntry[]>(
     userId ? `/api/rbac/userPermissions/${userId}` : null,
     (url) => get(url),
     { onError: (err) => console.error("Failed to load permissions:", err) },

@@ -1,13 +1,14 @@
 "use client";
 
 import { ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
+import type { LeadTimeTrendChartProps } from "@/modules/production/types";
 
-function formatMonth(monthStr) {
+function formatMonth(monthStr: string): string {
   const d = new Date(monthStr + "-01");
   return d.toLocaleDateString("th-TH", { month: "short", year: "2-digit" });
 }
 
-export default function LeadTimeTrendChart({ data = [] }) {
+export default function LeadTimeTrendChart({ data = [] }: LeadTimeTrendChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

@@ -10,8 +10,9 @@ import FuelCostChart from "@/modules/tms/components/fuelCostChart";
 import VehicleUtilizationChart from "@/modules/tms/components/vehicleUtilizationChart";
 import VehiclePerformanceTable from "@/modules/tms/components/vehiclePerformanceTable";
 import Loading from "@/components/ui/loading";
+import type { DashboardViewProps } from "@/modules/tms/types";
 
-export default function DashboardView({ stats, loading, compareMode, setCompareMode, aiAnalysis, aiLoading, runAiAnalysis }) {
+export default function DashboardView({ stats, loading, compareMode, setCompareMode, aiAnalysis, aiLoading, runAiAnalysis }: DashboardViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -190,7 +191,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
                   ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
                   li: ({ children }) => <li className="text-foreground">{children}</li>,
                   strong: ({ children }) => <strong className="font-light text-foreground">{children}</strong>,
-                  code: ({ inline, children, ...props }: any) =>
+                  code: ({ inline, children, ...props }: { inline?: boolean; children?: React.ReactNode; [key: string]: unknown }) =>
                     inline ? (
                       <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono" {...props}>{children}</code>
                     ) : (

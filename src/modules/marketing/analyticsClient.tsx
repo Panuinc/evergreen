@@ -5,10 +5,11 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { get } from "@/lib/apiClient";
 import AnalyticsView from "@/modules/marketing/components/analyticsView";
+import type { AnalyticsClientProps, MktAnalyticsStats } from "@/modules/marketing/types";
 
-const fetcher = (url) => get(url);
+const fetcher = (url: string) => get<{ stats: MktAnalyticsStats }>(url);
 
-export default function AnalyticsClient({ initialData }) {
+export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
   const [period, setPeriodState] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -17,17 +18,17 @@ export default function AnalyticsClient({ initialData }) {
     ? `/api/marketing/analytics?period=${period}`
     : null;
 
-  const { data: swrData, isLoading: loading, mutate } = useSWR(swrKey, fetcher, {
+  const { data: swrData, isLoading: loading, mutate } = useSWR<{ stats: MktAnalyticsStats }>(swrKey, fetcher, {
     onError: () => toast.error("ไม่สามารถโหลดข้อมูล Analytics ได้"),
   });
 
-  const stats = swrData?.stats ?? initialData?.stats ?? null;
+  const stats: MktAnalyticsStats | null = swrData?.stats ?? initialData?.stats ?? null;
 
   const searchCustomRange = useCallback(async () => {
     if (!startDate || !endDate) return;
     try {
-      const data = await get(`/api/marketing/analytics?startDate=${startDate}&endDate=${endDate}`);
-      mutate(data, false);
+      const data = await get<{ stats: MktAnalyticsStats }>(`/api/marketing/analytics?startDate=${startDate}&endDate=${endDate}`);
+      mutate(data ?? undefined, false);
     } catch {
       toast.error("ไม่สามารถโหลดข้อมูล Analytics ได้");
     }
@@ -44,8 +45,8 @@ export default function AnalyticsClient({ initialData }) {
   const reload = useCallback(async () => {
     if (period === "custom" && startDate && endDate) {
       try {
-        const data = await get(`/api/marketing/analytics?refresh=1&startDate=${startDate}&endDate=${endDate}`);
-        mutate(data, false);
+        const data = await get<{ stats: MktAnalyticsStats }>(`/api/marketing/analytics?refresh=1&startDate=${startDate}&endDate=${endDate}`);
+        mutate(data ?? undefined, false);
       } catch {
         toast.error("ไม่สามารถโหลดข้อมูล Analytics ได้");
       }

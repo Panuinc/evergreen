@@ -18,6 +18,7 @@ import {
 } from "@heroui/react";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
+import type { PromotionsViewProps } from "@/modules/marketing/types";
 
 const promoTypes = [
   { value: "discount_percent", label: "ลดราคา (%)" },
@@ -51,7 +52,7 @@ const initialForm = {
   mktPromotionIsActive: true,
 };
 
-export default function PromotionsView({ promotions, loading, stockItems = [], onAdd, onUpdate, onDelete }) {
+export default function PromotionsView({ promotions, loading, stockItems = [], onAdd, onUpdate, onDelete }: PromotionsViewProps) {
   const modal = useDisclosure();
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);

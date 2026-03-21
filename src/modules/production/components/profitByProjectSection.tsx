@@ -10,12 +10,13 @@ import {
 } from "@heroui/react";
 import { Search } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
+import type { ProfitByProjectSectionProps } from "@/modules/production/types";
 
-function fmtCurrency(v) {
+function fmtCurrency(v: number | undefined | null): string {
   return `฿${Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
 }
 
-function fmtNum(v) {
+function fmtNum(v: number | undefined | null): string {
   return Number(v || 0).toLocaleString("th-TH");
 }
 
@@ -49,7 +50,7 @@ const initialVisibleColumns = [
 
 const projectsPerPage = 5;
 
-function MarginChip({ margin }) {
+function MarginChip({ margin }: { margin: number | null | undefined }) {
   if (margin == null) return <span className="text-muted-foreground">-</span>;
   const color = margin >= 20 ? "success" : margin >= 0 ? "warning" : "danger";
   return (
@@ -59,7 +60,7 @@ function MarginChip({ margin }) {
   );
 }
 
-export default function ProfitByProjectSection({ data = [] }) {
+export default function ProfitByProjectSection({ data = [] }: ProfitByProjectSectionProps) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 

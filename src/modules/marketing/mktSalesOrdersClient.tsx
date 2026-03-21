@@ -3,10 +3,11 @@
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import SalesOrdersView from "@/modules/marketing/components/salesOrdersView";
+import type { MktSalesOrder, SalesOrdersClientProps } from "@/modules/marketing/types";
 
-export default function SalesOrdersClient({ initialOrders }) {
+export default function SalesOrdersClient({ initialOrders }: SalesOrdersClientProps) {
   const router = useRouter();
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState<MktSalesOrder[]>(initialOrders);
   const [loading, setLoading] = useState(false);
   const [shipFilter, setShipFilter] = useState("all");
 
@@ -14,8 +15,8 @@ export default function SalesOrdersClient({ initialOrders }) {
     try {
       setLoading(true);
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/marketing/salesOrders");
-      setOrders(data.orders || []);
+      const data = await get<{ orders: MktSalesOrder[] }>("/api/marketing/salesOrders");
+      setOrders(data?.orders ?? []);
     } finally {
       setLoading(false);
     }
@@ -23,8 +24,8 @@ export default function SalesOrdersClient({ initialOrders }) {
 
   const filteredOrders = useMemo(() => {
     if (shipFilter === "all") return orders;
-    if (shipFilter === "shipped") return orders.filter((o) => o.bcSalesOrderCompletelyShipped === "true");
-    return orders.filter((o) => o.bcSalesOrderCompletelyShipped !== "true");
+    if (shipFilter === "shipped") return orders.filter((o) => o.bcSalesOrderCompletelyShipped === true);
+    return orders.filter((o) => o.bcSalesOrderCompletelyShipped !== true);
   }, [orders, shipFilter]);
 
   const handleNavigateToOrder = useCallback(

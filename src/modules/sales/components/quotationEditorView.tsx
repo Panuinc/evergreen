@@ -5,7 +5,8 @@ import {
   Button,
   Input,
   Textarea,
-  Chip,  Card,
+  Chip,
+  Card,
   Modal,
   ModalContent,
   ModalHeader,
@@ -23,8 +24,9 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import Loading from "@/components/ui/loading";
+import type { QuotationEditorViewProps } from "@/modules/sales/types";
 
-const statusColorMap = {
+const statusColorMap: Record<string, "default" | "primary" | "success" | "danger" | "secondary"> = {
   draft: "default",
   submitted: "primary",
   approved: "success",
@@ -50,7 +52,7 @@ export default function QuotationEditorView({
   handleAction,
   updateQuotationField,
   onNavigateBack,
-}) {
+}: QuotationEditorViewProps) {
   const [rejectNote, setRejectNote] = useState("");
   const rejectModal = useDisclosure();
 
@@ -406,7 +408,7 @@ export default function QuotationEditorView({
                 radius="md"
                 type="number"
                 classNames={{ input: "text-right" }}
-                className="max-w-[150px]"
+                className="max-w-37.5"
                 value={String(discount)}
                 onChange={(e) => setDiscount(Number(e.target.value) || 0)}
                 isReadOnly={!canEdit}
@@ -420,7 +422,7 @@ export default function QuotationEditorView({
                 radius="md"
                 type="number"
                 classNames={{ input: "text-right" }}
-                className="max-w-[150px]"
+                className="max-w-37.5"
                 value={String(tax)}
                 onChange={(e) => setTax(Number(e.target.value) || 0)}
                 isReadOnly={!canEdit}

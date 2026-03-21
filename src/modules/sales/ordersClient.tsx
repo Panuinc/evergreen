@@ -1,46 +1,47 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { put, del } from "@/lib/apiClient";
 import OrdersView from "@/modules/sales/components/ordersView";
+import type { SalesOrder, OrdersClientProps } from "@/modules/sales/types";
 
-export default function OrdersClient({ initialOrders }) {
-  const [orders, setOrders] = useState(initialOrders);
+export default function OrdersClient({ initialOrders }: OrdersClientProps) {
+  const [orders, setOrders] = useState<SalesOrder[]>(initialOrders);
   const [saving, setSaving] = useState(false);
   const deleteModal = useDisclosure();
-  const [deletingOrder, setDeletingOrder] = useState(null);
+  const [deletingOrder, setDeletingOrder] = useState<SalesOrder | null>(null);
   const detailModal = useDisclosure();
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<SalesOrder | null>(null);
 
   const reloadOrders = async () => {
     try {
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/sales/orders");
+      const data = await get<SalesOrder[]>("/api/sales/orders");
       setOrders(data);
     } catch {}
   };
 
-  const handleStatusChange = async (order, newStatus) => {
+  const handleStatusChange = async (order: SalesOrder, newStatus: string) => {
     try {
       setSaving(true);
       await put(`/api/sales/orders/${order.salesOrderId}`, { salesOrderStatus: newStatus });
       toast.success(`เปลี่ยนสถานะคำสั่งซื้อเป็น ${newStatus} สำเร็จ`);
       reloadOrders();
     } catch (error) {
-      toast.error(error.message || "อัปเดตคำสั่งซื้อล้มเหลว");
+      toast.error((error as Error).message || "อัปเดตคำสั่งซื้อล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleViewDetail = (order) => {
+  const handleViewDetail = (order: SalesOrder) => {
     setSelectedOrder(order);
     detailModal.onOpen();
   };
 
-  const confirmDelete = (order) => {
+  const confirmDelete = (order: SalesOrder) => {
     setDeletingOrder(order);
     deleteModal.onOpen();
   };
@@ -54,7 +55,7 @@ export default function OrdersClient({ initialOrders }) {
       setDeletingOrder(null);
       reloadOrders();
     } catch (error) {
-      toast.error(error.message || "ลบคำสั่งซื้อล้มเหลว");
+      toast.error((error as Error).message || "ลบคำสั่งซื้อล้มเหลว");
     }
   };
 

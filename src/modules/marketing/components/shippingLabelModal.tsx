@@ -15,6 +15,7 @@ import {
 import { Printer, Send } from "lucide-react";
 import JsBarcode from "jsbarcode";
 import { authFetch } from "@/lib/apiClient";
+import type { ShippingLabelModalProps } from "@/modules/marketing/types";
 
 const sender = {
   name: "บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด",
@@ -74,7 +75,7 @@ function buildLabelHTML(data, label, barcodeValue) {
 </div>`;
 }
 
-export default function ShippingLabelModal({ isOpen, onClose, order, customerPhone }) {
+export default function ShippingLabelModal({ isOpen, onClose, order, customerPhone }: ShippingLabelModalProps) {
   const lines = useMemo(() => order?.lines?.filter((l) => l.bcSalesOrderLineTypeValue === "Item" && l.bcSalesOrderLineQuantityValue > 0) || [], [order?.lines]);
 
   const [selectedLines, setSelectedLines] = useState(() =>

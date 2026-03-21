@@ -1,4 +1,4 @@
-import { Card} from "@heroui/react";
+import { Card } from "@heroui/react";
 import {
   Users,
   Briefcase,
@@ -26,15 +26,21 @@ import {
 import CompareToggle from "@/components/ui/compareToggle";
 import CompareKpiCard from "@/components/ui/compareKpiCard";
 import Loading from "@/components/ui/loading";
+import type {
+  DashboardViewProps,
+  SalesDashboardData,
+  SalesDashboardCompareData,
+  SalesKPIs,
+} from "@/modules/sales/types";
 
-const typeIconMap = {
+const typeIconMap: Record<string, React.ElementType> = {
   task: ClipboardList,
   call: Phone,
   meeting: Calendar,
   email: Mail,
 };
 
-export default function DashboardView({ data, loading, compareMode, setCompareMode }) {
+export default function DashboardView({ data, loading, compareMode, setCompareMode }: DashboardViewProps) {
   if (loading || !data) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -43,14 +49,17 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
     );
   }
 
+  const isCompare = !!(data as SalesDashboardCompareData).compareMode;
+  const compareData = data as SalesDashboardCompareData;
+  const simpleData = data as SalesDashboardData;
 
-  const isCompare = !!data.compareMode;
-  const kpis = isCompare ? data.current?.kpis || {} : data.kpis || {};
-  const prevKpis = isCompare ? data.previous?.kpis || {} : null;
-  const pipelineByStage = isCompare ? data.current?.pipelineByStage : data.pipelineByStage;
-  const revenueByMonth = isCompare ? data.current?.revenueByMonth : data.revenueByMonth;
-  const topSalespeople = isCompare ? data.current?.topSalespeople : data.topSalespeople;
-  const recentActivities = isCompare ? data.current?.recentActivities : data.recentActivities;
+  const emptyKpis: Partial<SalesKPIs> = {};
+  const kpis: Partial<SalesKPIs> = isCompare ? compareData.current?.kpis ?? emptyKpis : simpleData.kpis ?? emptyKpis;
+  const prevKpis: Partial<SalesKPIs> | null = isCompare ? compareData.previous?.kpis ?? null : null;
+  const pipelineByStage = isCompare ? compareData.current?.pipelineByStage : simpleData.pipelineByStage;
+  const revenueByMonth = isCompare ? compareData.current?.revenueByMonth : simpleData.revenueByMonth;
+  const topSalespeople = isCompare ? compareData.current?.topSalespeople : simpleData.topSalespeople;
+  const recentActivities = isCompare ? compareData.current?.recentActivities : simpleData.recentActivities;
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -59,9 +68,9 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
         <div className="flex items-center justify-between">
           <div />
           <div className="flex items-center gap-2">
-            {isCompare && data.labels && (
+            {isCompare && compareData.labels && (
               <span className="text-xs text-muted-foreground">
-                {data.labels.current} vs {data.labels.previous}
+                {compareData.labels.current} vs {compareData.labels.previous}
               </span>
             )}
             <CompareToggle value={compareMode} onChange={setCompareMode} />
@@ -137,14 +146,14 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={pipelineByStage || []}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="stage" />
+              <XAxis dataKey="salesOpportunityStage" />
               <YAxis />
               <Tooltip
-                formatter={(v) => `฿${v.toLocaleString()}`}
+                formatter={(v: number) => `฿${v.toLocaleString()}`}
               />
-              <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="salesOpportunityAmount" fill="#3b82f6" radius={[4, 4, 0, 0]}>
                 {(pipelineByStage || []).map((entry, i) => (
-                  <Cell key={i} fill={entry.color || "#3b82f6"} />
+                  <Cell key={i} fill={entry.salesPipelineStageColor || "#3b82f6"} />
                 ))}
               </Bar>
             </BarChart>
@@ -160,7 +169,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip
-                formatter={(v) => `฿${v.toLocaleString()}`}
+                formatter={(v: number) => `฿${v.toLocaleString()}`}
               />
               <Bar
                 dataKey="revenue"
@@ -187,11 +196,11 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
                   <span className="text-xs font-light text-muted-foreground w-6">
                     #{i + 1}
                   </span>
-                  <span className="font-light">{person.name}</span>
+                  <span className="font-light">{person.salesOrderCreatedBy}</span>
                 </div>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-muted-foreground">
-                    {person.deals} ดีล
+                    {person.salesOrderCount} ดีล
                   </span>
                   <span className="font-light">
                     ฿{Number(person.revenue || 0).toLocaleString("th-TH")}
@@ -212,8 +221,7 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
           <p className="text-xs font-light mb-4">กิจกรรมล่าสุด</p>
           <div className="flex flex-col gap-3">
             {(recentActivities || []).map((activity, i) => {
-              const Icon =
-                typeIconMap[activity.salesActivityType] || ClipboardList;
+              const Icon = typeIconMap[activity.salesActivityType] || ClipboardList;
               return (
                 <div
                   key={i}

@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 import { Chip, Tabs, Tab } from "@heroui/react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { OmnichannelQuotationsViewProps } from "@/modules/marketing/types";
 
 const statusMap = {
   draft: { label: "ร่าง", color: "default" },
@@ -33,7 +34,7 @@ export default function OmnichannelQuotationsView({
   statusFilter,
   setStatusFilter,
   onNavigateToQuotation,
-}) {
+}: OmnichannelQuotationsViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const columns = useMemo(() => {

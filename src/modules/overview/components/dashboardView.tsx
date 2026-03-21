@@ -1,10 +1,12 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
 import { Button, ScrollShadow } from "@heroui/react";
 import { Send, Trash2, ArrowDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import type { DashboardViewProps, AssistantMessageProps, UserMessageProps } from "@/modules/overview/types";
 
 const suggestions = [
   "มีลูกค้าทั้งหมดกี่คน?",
@@ -29,7 +31,7 @@ function TypingIndicator() {
   );
 }
 
-function AssistantMessage({ content, isLoading }) {
+function AssistantMessage({ content, isLoading }: AssistantMessageProps) {
   return (
     <div className="flex gap-3 max-w-3xl w-full">
       {}
@@ -78,7 +80,7 @@ function AssistantMessage({ content, isLoading }) {
                 strong: ({ children }) => (
                   <strong className="font-light text-foreground">{children}</strong>
                 ),
-                code: ({ inline, children }: any) =>
+                code: ({ inline, children }: { inline?: boolean; children?: React.ReactNode }) =>
                   inline ? (
                     <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">
                       {children}
@@ -99,7 +101,7 @@ function AssistantMessage({ content, isLoading }) {
   );
 }
 
-function UserMessage({ content }) {
+function UserMessage({ content }: UserMessageProps) {
   return (
     <div className="flex justify-end max-w-3xl w-full ml-auto">
       <div className="max-w-[75%] bg-default-100 rounded-2xl rounded-tr-sm px-4 py-2.5 text-xs text-foreground whitespace-pre-wrap">
@@ -123,7 +125,7 @@ export default function DashboardView({
   handleSuggestion,
   clearMessages,
   scrollToBottom,
-}) {
+}: DashboardViewProps) {
   const isEmpty = messages.length === 0;
 
   return (

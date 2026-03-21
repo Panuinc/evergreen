@@ -1,10 +1,11 @@
 "use client";
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import type { OrdersByStatusChartProps } from "@/modules/production/types";
 
 const colors = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6"];
 
-export default function OrdersByStatusChart({ data = [] }) {
+export default function OrdersByStatusChart({ data = [] }: OrdersByStatusChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

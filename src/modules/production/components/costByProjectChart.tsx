@@ -10,12 +10,13 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
+import type { CostByProjectChartProps } from "@/modules/production/types";
 
-function formatCurrency(value) {
+function formatCurrency(value: number): string {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function CostByProjectChart({ data = [] }) {
+export default function CostByProjectChart({ data = [] }: CostByProjectChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>

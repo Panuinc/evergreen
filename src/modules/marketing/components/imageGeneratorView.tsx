@@ -5,8 +5,9 @@ import Image from "next/image";
 import { Card, CardBody, Button, Textarea, Select, SelectItem, Spinner, Progress, Chip } from "@heroui/react";
 import { Sparkles, Upload, Trash2, Clock, Download, X, Images } from "lucide-react";
 import Loading from "@/components/ui/loading";
+import type { ImageGeneratorViewProps } from "@/modules/marketing/types";
 
-function downloadImage(url, filename = "generated.png") {
+function downloadImage(url: string, filename = "generated.png") {
   fetch(url)
     .then((res) => res.blob())
     .then((blob) => {
@@ -44,7 +45,7 @@ export default function ImageGeneratorView({
   history,
   loadHistory,
   loadingHistory,
-}) {
+}: ImageGeneratorViewProps) {
   const [imageFiles, setImageFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [prompt, setPrompt] = useState("");
@@ -384,7 +385,7 @@ export default function ImageGeneratorView({
   );
 }
 
-function HistoryPanel({ history, loading }) {
+function HistoryPanel({ history, loading }: { history: ImageGeneratorViewProps["history"]; loading: boolean }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">

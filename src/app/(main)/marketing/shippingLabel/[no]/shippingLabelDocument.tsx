@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import JsBarcode from "jsbarcode";
+import type { ShippingLabelDocumentProps } from "@/modules/marketing/types";
 
 const sender = {
   name: "บริษัท ชื้อฮะฮวด อุตสาหกรรม จำกัด",
@@ -29,7 +30,7 @@ function BarcodeImg({ value }) {
   return <svg ref={ref} style={{ maxWidth: "100%", maxHeight: "20mm" }} />;
 }
 
-export default function ShippingLabelDocument({ orderNo }) {
+export default function ShippingLabelDocument({ orderNo }: ShippingLabelDocumentProps) {
   const key = `shipping-label-${orderNo}`;
   const raw = localStorage.getItem(key);
   const data = raw ? JSON.parse(raw) : null;

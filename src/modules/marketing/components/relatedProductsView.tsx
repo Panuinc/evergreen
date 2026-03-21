@@ -17,6 +17,7 @@ import {
 } from "@heroui/react";
 import { Plus, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
+import type { RelatedProductsViewProps } from "@/modules/marketing/types";
 
 const relationTypes = [
   { value: "cross_sell", label: "Cross-sell (ขายเพิ่ม)" },
@@ -44,7 +45,7 @@ export default function RelatedProductsView({
   stockItems,
   onAdd,
   onDelete,
-}) {
+}: RelatedProductsViewProps) {
   const modal = useDisclosure();
   const [form, setForm] = useState(initialForm);
   const [saving, setSaving] = useState(false);

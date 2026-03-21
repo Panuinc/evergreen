@@ -4,8 +4,9 @@ import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { post } from "@/lib/apiClient";
 import StockItemsView from "@/modules/marketing/components/stockItemsView";
+import type { StockItemsClientProps } from "@/modules/marketing/types";
 
-export default function StockItemsClient({ initialItems, initialProductInfo, initialPromotions }) {
+export default function StockItemsClient({ initialItems, initialProductInfo, initialPromotions }: StockItemsClientProps) {
   const [items] = useState(initialItems);
   const [loading] = useState(false);
 

@@ -20,6 +20,7 @@ import { Plus, Edit, Trash2, GitBranch, Clock, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
 import Loading from "@/components/ui/loading";
+import type { DevelopmentViewProps, ItDevRequest, ItDevProgressLog } from "@/modules/it/types";
 
 const baseColumns = [
   { name: "เลขที่คำขอ", uid: "itDevRequestNo", sortable: true },
@@ -53,7 +54,7 @@ const baseVisibleColumns = [
   "actions",
 ];
 
-function formatDate(dateStr) {
+function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "-";
   return new Date(dateStr).toLocaleDateString("th-TH", {
     year: "numeric",
@@ -62,7 +63,7 @@ function formatDate(dateStr) {
   });
 }
 
-function formatDateTime(dateStr) {
+function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return "-";
   return new Date(dateStr).toLocaleDateString("th-TH", {
     year: "numeric",
@@ -100,7 +101,7 @@ export default function DevelopmentView({
   handleAddProgress,
   updateProgressField,
   toggleActive,
-}) {
+}: DevelopmentViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -123,7 +124,7 @@ export default function DevelopmentView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (item: ItDevRequest, columnKey: string) => {
       switch (columnKey) {
         case "itDevRequestNo":
           return <span className="font-light">{item.itDevRequestNo || "-"}</span>;
@@ -132,7 +133,7 @@ export default function DevelopmentView({
         case "itDevRequestRequestedBy":
           return item.itDevRequestRequestedBy || "-";
         case "itDevRequestPriority": {
-          const colorMap = {
+          const colorMap: Record<string, "default" | "primary" | "warning" | "danger"> = {
             low: "default",
             medium: "primary",
             high: "warning",
@@ -143,7 +144,7 @@ export default function DevelopmentView({
               variant="flat"
               size="md"
               radius="md"
-              color={colorMap[item.itDevRequestPriority] || "default"}
+              color={colorMap[item.itDevRequestPriority] ?? "default"}
             >
               {item.itDevRequestPriority}
             </Chip>
@@ -176,7 +177,7 @@ export default function DevelopmentView({
           );
         }
         case "itDevRequestStatus": {
-          const colorMap = {
+          const colorMap: Record<string, "default" | "primary" | "warning" | "secondary" | "success" | "danger"> = {
             pending: "default",
             approved: "primary",
             in_progress: "warning",
@@ -189,7 +190,7 @@ export default function DevelopmentView({
               variant="flat"
               size="md"
               radius="md"
-              color={colorMap[item.itDevRequestStatus] || "default"}
+              color={colorMap[item.itDevRequestStatus] ?? "default"}
             >
               {item.itDevRequestStatus}
             </Chip>
@@ -276,13 +277,16 @@ export default function DevelopmentView({
         statusField="itDevRequestStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำขอพัฒนา"
-        actionMenuItems={(item) => [
-          { key: "progress", label: "อัปเดตความคืบหน้า", icon: <GitBranch />, onPress: () => openProgress(item) },
-          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
-          isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
-        ].filter(Boolean)}
+        actionMenuItems={(item) => {
+          const req = item as ItDevRequest;
+          return [
+            { key: "progress", label: "อัปเดตความคืบหน้า", icon: <GitBranch />, onPress: () => openProgress(req) },
+            { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(req) },
+            isSuperAdmin
+              ? { key: "toggle", label: req.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(req) }
+              : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(req) },
+          ].filter(Boolean);
+        }}
         topEndContent={
           <Button
             variant="bordered"
@@ -322,7 +326,7 @@ export default function DevelopmentView({
                     radius="md"
                     selectedKeys={formData.itDevRequestTitle ? [formData.itDevRequestTitle] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("itDevRequestTitle", val);
                     }}
                     isRequired
@@ -345,7 +349,7 @@ export default function DevelopmentView({
                     radius="md"
                     selectedKeys={formData.itDevRequestRequestedBy ? [formData.itDevRequestRequestedBy] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("itDevRequestRequestedBy", val);
                     }}
                   >
@@ -370,7 +374,7 @@ export default function DevelopmentView({
                         : []
                     }
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("itDevRequestPriority", val);
                     }}
                   >
@@ -389,7 +393,7 @@ export default function DevelopmentView({
                     radius="md"
                     selectedKeys={[formData.itDevRequestStatus]}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "pending";
+                      const val = String(Array.from(keys)[0] ?? "pending");
                       updateField("itDevRequestStatus", val);
                     }}
                   >
@@ -411,7 +415,7 @@ export default function DevelopmentView({
                     radius="md"
                     selectedKeys={formData.itDevRequestAssignedTo ? [formData.itDevRequestAssignedTo] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("itDevRequestAssignedTo", val);
                     }}
                   >
@@ -572,7 +576,7 @@ export default function DevelopmentView({
                     radius="md"
                     selectedKeys={progressForm.itDevProgressLogCreatedBy ? [progressForm.itDevProgressLogCreatedBy] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateProgressField("itDevProgressLogCreatedBy", val);
                     }}
                   >

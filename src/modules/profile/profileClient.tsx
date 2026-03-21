@@ -5,11 +5,12 @@ import { toast } from "sonner";
 import { put } from "@/lib/apiClient";
 import { usePin } from "@/hooks/shared/usePin";
 import ProfileView from "@/modules/profile/components/profileView";
+import type { ProfileClientProps, PasswordForm } from "@/modules/profile/types";
 
-export default function ProfileClient({ initialProfile }) {
+export default function ProfileClient({ initialProfile }: ProfileClientProps) {
   const { user, employee, roles } = initialProfile || {};
 
-  const [passwordForm, setPasswordForm] = useState({
+  const [passwordForm, setPasswordForm] = useState<PasswordForm>({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -47,7 +48,7 @@ export default function ProfileClient({ initialProfile }) {
         confirmPassword: "",
       });
     } catch (error) {
-      toast.error(error.message || "เปลี่ยนรหัสผ่านล้มเหลว");
+      toast.error((error as Error).message || "เปลี่ยนรหัสผ่านล้มเหลว");
     } finally {
       setChanging(false);
     }
@@ -59,7 +60,7 @@ export default function ProfileClient({ initialProfile }) {
       await removePin();
       toast.success("ลบ PIN สำเร็จ");
     } catch (err) {
-      toast.error(err.message || "ลบ PIN ล้มเหลว");
+      toast.error((err as Error).message || "ลบ PIN ล้มเหลว");
     } finally {
       setRemovingPin(false);
     }
