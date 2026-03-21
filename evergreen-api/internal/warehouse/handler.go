@@ -281,29 +281,50 @@ func (h *Handler) RfidUnassign(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) Print(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Action     string `json:"action"`
-		ItemNumber string `json:"itemNumber"`
-		Copies     int    `json:"copies"`
+		Action     string         `json:"action"`
+		ItemNumber string         `json:"itemNumber"` // simple format
+		Copies     int            `json:"copies"`
+		Item       map[string]any `json:"item"`     // full format from frontend
+		Quantity   int            `json:"quantity"` // alias for copies
+		Config     map[string]any `json:"config"`
 	}
 	json.NewDecoder(r.Body).Decode(&body)
+
+	// Resolve item number from either format
+	itemNo := body.ItemNumber
+	if itemNo == "" && body.Item != nil {
+		itemNo, _ = body.Item["bcItemNo"].(string)
+	}
+	// Resolve copies from either format
+	copies := body.Copies
+	if copies < 1 {
+		copies = body.Quantity
+	}
+	if copies < 1 {
+		copies = 1
+	}
 
 	switch body.Action {
 	case "testConnection":
 		response.OK(w, map[string]any{"success": true, "message": "Printer connection test — use printer IP directly"})
 	case "print", "preview":
-		if body.ItemNumber == "" {
+		if itemNo == "" {
 			response.BadRequest(w, "กรุณาระบุ itemNumber")
 			return
 		}
-		item, err := h.store.GetItemByNo(r.Context(), body.ItemNumber)
-		if err != nil {
-			response.NotFound(w, "ไม่พบสินค้า")
-			return
+		// Use provided item data if available, otherwise fetch from DB
+		var item map[string]any
+		if body.Item != nil {
+			item = body.Item
+		} else {
+			var err error
+			item, err = h.store.GetItemByNo(r.Context(), itemNo)
+			if err != nil {
+				response.NotFound(w, "ไม่พบสินค้า")
+				return
+			}
 		}
-		if body.Copies < 1 {
-			body.Copies = 1
-		}
-		response.OK(w, map[string]any{"success": true, "action": body.Action, "item": item, "copies": body.Copies})
+		response.OK(w, map[string]any{"success": true, "action": body.Action, "item": item, "copies": copies})
 	default:
 		response.OK(w, map[string]any{"success": true, "actions": []string{"print", "preview", "testConnection"}})
 	}
