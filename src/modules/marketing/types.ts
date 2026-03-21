@@ -712,7 +712,6 @@ export interface LabelDesign {
   labelDesignWidth: number;
   labelDesignHeight: number;
   labelDesignPreset: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   labelDesignElements: any[];
 }
 
@@ -728,7 +727,6 @@ export interface LabelDesignerViewProps {
     name: string;
     labelSize: { width: number; height: number };
     labelPreset: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     elements: any[];
   }) => Promise<LabelDesign>;
   onDeleteDesign: (id: string) => Promise<void>;

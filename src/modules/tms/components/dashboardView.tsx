@@ -191,8 +191,7 @@ export default function DashboardView({ stats, loading, compareMode, setCompareM
                   ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
                   li: ({ children }) => <li className="text-foreground">{children}</li>,
                   strong: ({ children }) => <strong className="font-light text-foreground">{children}</strong>,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  code: ({ inline, children, ...props }: any) =>
+                  code: ({ inline, children, ...props }: { inline?: boolean; children?: React.ReactNode; [key: string]: unknown }) =>
                     inline ? (
                       <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono" {...props}>{children}</code>
                     ) : (

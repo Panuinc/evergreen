@@ -52,8 +52,7 @@ export interface ProfileViewProps {
   handleChangePassword: () => Promise<void>;
   pinEnabled: boolean;
   pinLoading: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setupPin: (pin: string) => Promise<any>;
+  setupPin: (pin: string) => Promise<unknown>;
   showPinSetup: boolean;
   setShowPinSetup: (show: boolean) => void;
   removingPin: boolean;

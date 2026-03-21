@@ -256,10 +256,10 @@ func buildHRStats(employees []map[string]any, divisions, departments, positions 
 				trendMap[createdAt.Format("2006-01")]++
 			}
 		}
-		if name, ok := e["divisionName"].(string); ok && name != "" {
+		if name, ok := e["hrDivisionName"].(string); ok && name != "" {
 			byDiv[name]++
 		}
-		if name, ok := e["departmentName"].(string); ok && name != "" {
+		if name, ok := e["hrDepartmentName"].(string); ok && name != "" {
 			byDept[name]++
 		}
 	}

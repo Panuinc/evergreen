@@ -114,7 +114,6 @@ export interface ResultCardsProps {
   tables: Array<{
     key: string;
     label: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Lucide icon component type
     icon: React.ComponentType<any>;
   }>;
   results: Record<string, number | string | Record<string, number>> | null | undefined;

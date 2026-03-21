@@ -80,8 +80,7 @@ function AssistantMessage({ content, isLoading }: AssistantMessageProps) {
                 strong: ({ children }) => (
                   <strong className="font-light text-foreground">{children}</strong>
                 ),
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-markdown internal code component type includes `inline` not in public types
-                code: ({ inline, children }: any) =>
+                code: ({ inline, children }: { inline?: boolean; children?: React.ReactNode }) =>
                   inline ? (
                     <code className="bg-default-100 rounded px-1 py-0.5 text-xs font-mono">
                       {children}

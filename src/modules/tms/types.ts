@@ -36,19 +36,16 @@ export interface TmsShipment {
   tmsShipmentDriverWage: number | null;
   tmsShipmentAssistantId: string | null;
   tmsShipmentAssistantWage: number | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tmsShipmentAssistants: { id: string; wage: number }[] | null;
   tmsShipmentSalesOrderRef: string | null;
   tmsShipmentItemsSummary: string | null;
   tmsShipmentDistance: number | null;
   tmsShipmentFuelPricePerLiter: number | null;
   tmsShipmentFuelCost: number | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tmsShipmentExtras: any[] | null;
   tmsShipmentNotes: string | null;
   tmsShipmentStatus: string;
   tmsShipmentEstimatedArrival: string | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tmsShipmentStops: any | null;
   isActive: boolean;
 }

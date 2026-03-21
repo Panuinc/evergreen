@@ -31,9 +31,9 @@ func (s *Store) ListEmployees(ctx context.Context, search string, includeInactiv
 		e."hrEmployeeHrPositionId",
 		e."hrEmployeeCreatedAt",
 		e."isActive",
-		d."hrDivisionName" AS "divisionName",
-		dept."hrDepartmentName" AS "departmentName",
-		p."hrPositionTitle" AS "positionName"
+		d."hrDivisionName",
+		dept."hrDepartmentName",
+		p."hrPositionTitle"
 	FROM "hrEmployee" e
 	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
 	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"
@@ -73,9 +73,9 @@ func (s *Store) GetEmployee(ctx context.Context, id string, includeInactive bool
 		e."hrEmployeeHrPositionId",
 		e."hrEmployeeCreatedAt",
 		e."isActive",
-		d."hrDivisionName" AS "divisionName",
-		dept."hrDepartmentName" AS "departmentName",
-		p."hrPositionTitle" AS "positionName"
+		d."hrDivisionName",
+		dept."hrDepartmentName",
+		p."hrPositionTitle"
 	FROM "hrEmployee" e
 	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
 	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"
@@ -211,8 +211,8 @@ func (s *Store) ListAllEmployees(ctx context.Context) ([]map[string]any, error) 
 	return db.QueryRows(ctx, s.pool, `SELECT
 		e."isActive",
 		e."hrEmployeeCreatedAt",
-		d."hrDivisionName" AS "divisionName",
-		dept."hrDepartmentName" AS "departmentName"
+		d."hrDivisionName",
+		dept."hrDepartmentName"
 	FROM "hrEmployee" e
 	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
 	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"`)
