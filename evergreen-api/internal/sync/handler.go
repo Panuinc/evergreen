@@ -39,17 +39,6 @@ func NewHandler(engine *SyncEngine, cfg *config.Config, pool *pgxpool.Pool) *Han
 
 // handleBCSync validates auth, manages the sync lock, and runs the sync.
 func (h *Handler) handleBCSync(w http.ResponseWriter, r *http.Request) {
-	// Auth check
-	isDev := h.cfg.Port == "3001" // simple dev heuristic; adjust as needed
-	if !isDev {
-		authHeader := r.Header.Get("Authorization")
-		expected := "Bearer " + h.cfg.CronSecret
-		if authHeader != expected {
-			response.Unauthorized(w, "Unauthorized")
-			return
-		}
-	}
-
 	// Lock check
 	h.mu.Lock()
 	if h.lockTime != nil && time.Since(*h.lockTime) < lockTTL {
