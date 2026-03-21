@@ -199,8 +199,50 @@ func (h *Handler) CreateProgressLog(w http.ResponseWriter, r *http.Request) {
 
 // ---- Dashboard ----
 
+func buildITStats(assets, devRequests []map[string]any, ref time.Time) map[string]any {
+	monthStart := time.Date(ref.Year(), ref.Month(), 1, 0, 0, 0, 0, time.Local)
+
+	totalAssets := len(assets)
+	assetByCategory := map[string]int{}
+	for _, a := range assets {
+		cat := "other"
+		if c, ok := a["itAssetCategory"].(string); ok && c != "" {
+			cat = c
+		}
+		assetByCategory[cat]++
+	}
+
+	totalDevRequests := len(devRequests)
+	devByStatus := map[string]int{}
+	newThisMonth := 0
+	for _, d := range devRequests {
+		status := "pending"
+		if s, ok := d["itDevRequestStatus"].(string); ok && s != "" {
+			status = s
+		}
+		devByStatus[status]++
+		if createdAt, ok := d["itDevRequestCreatedAt"].(time.Time); ok && (createdAt.After(monthStart) || createdAt.Equal(monthStart)) {
+			newThisMonth++
+		}
+	}
+
+	categoryList := make([]map[string]any, 0, len(assetByCategory))
+	for cat, count := range assetByCategory {
+		categoryList = append(categoryList, map[string]any{"category": cat, "count": count})
+	}
+
+	return map[string]any{
+		"totalAssets":      totalAssets,
+		"assetByCategory":  categoryList,
+		"totalDevRequests": totalDevRequests,
+		"devByStatus":      devByStatus,
+		"newThisMonth":     newThisMonth,
+	}
+}
+
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	compareMode := r.URL.Query().Get("compareMode")
 
 	assets, err := h.store.ListActiveAssets(ctx)
 	if err != nil {
@@ -214,45 +256,44 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Asset aggregations
-	totalAssets := len(assets)
-	assetByCategory := map[string]int{}
-	for _, a := range assets {
-		cat := "other"
-		if c, ok := a["itAssetCategory"].(string); ok && c != "" {
-			cat = c
-		}
-		assetByCategory[cat]++
-	}
-
-	// Dev request aggregations
-	totalDevRequests := len(devRequests)
-	devByStatus := map[string]int{}
-	newThisMonth := 0
 	now := time.Now()
-	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local)
+	current := buildITStats(assets, devRequests, now)
 
-	for _, d := range devRequests {
-		status := "pending"
-		if s, ok := d["itDevRequestStatus"].(string); ok && s != "" {
-			status = s
-		}
-		devByStatus[status]++
-		if createdAt, ok := d["itDevRequestCreatedAt"].(time.Time); ok && createdAt.After(monthStart) {
-			newThisMonth++
-		}
+	if compareMode == "" {
+		response.OK(w, current)
+		return
 	}
 
-	categoryList := make([]map[string]any, 0, len(assetByCategory))
-	for cat, count := range assetByCategory {
-		categoryList = append(categoryList, map[string]any{"category": cat, "count": count})
+	var prevRef time.Time
+	var labelCurrent, labelPrevious string
+	switch compareMode {
+	case "lastMonth":
+		prevRef = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prevRef.Format("January 2006")
+	case "lastQuarter":
+		prevRef = now.AddDate(0, -3, 0)
+		labelCurrent = "ไตรมาสนี้"
+		labelPrevious = "ไตรมาสที่แล้ว"
+	case "lastYear":
+		prevRef = now.AddDate(-1, 0, 0)
+		labelCurrent = now.Format("2006")
+		labelPrevious = prevRef.Format("2006")
+	default:
+		prevRef = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prevRef.Format("January 2006")
 	}
+
+	previous := buildITStats(assets, devRequests, prevRef)
 
 	response.OK(w, map[string]any{
-		"totalAssets":      totalAssets,
-		"assetByCategory":  categoryList,
-		"totalDevRequests": totalDevRequests,
-		"devByStatus":      devByStatus,
-		"newThisMonth":     newThisMonth,
+		"compareMode": compareMode,
+		"current":     current,
+		"previous":    previous,
+		"labels": map[string]string{
+			"current":  labelCurrent,
+			"previous": labelPrevious,
+		},
 	})
 }

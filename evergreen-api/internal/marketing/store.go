@@ -92,8 +92,7 @@ func (s *Store) GetOnlineSalesOrderLines(ctx context.Context) ([]map[string]any,
 func (s *Store) ListSalesOrders(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT "bcSalesOrderNoValue", "bcSalesOrderSellToCustomerName", "bcSalesOrderOrderDate",
-			"bcSalesOrderStatus", "bcSalesOrderAmountIncludingVAT", "bcSalesOrderCompletelyShipped",
-			"isActive"
+			"bcSalesOrderStatus", "bcSalesOrderAmountIncludingVAT", "bcSalesOrderCompletelyShipped"
 		FROM "bcSalesOrder" WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
 		ORDER BY "bcSalesOrderOrderDate" DESC
 	`)
@@ -105,7 +104,8 @@ func (s *Store) GetSalesOrder(ctx context.Context, no string) (map[string]any, e
 			"bcSalesOrderSellToAddress", "bcSalesOrderSellToCity", "bcSalesOrderSellToPostCode",
 			"bcSalesOrderShipToName", "bcSalesOrderShipToAddress", "bcSalesOrderShipToCity", "bcSalesOrderShipToPostCode",
 			"bcSalesOrderOrderDate", "bcSalesOrderDueDate", "bcSalesOrderExternalDocumentNo",
-			"bcSalesOrderStatus", "bcSalesOrderCompletelyShipped", "bcSalesOrderAmountIncludingVAT",
+			"bcSalesOrderStatus", "bcSalesOrderCompletelyShipped",
+			"bcSalesOrderAmountIncludingVAT" AS "totalAmount",
 			"bcSalesOrderSalespersonCode"
 		FROM "bcSalesOrder" WHERE "bcSalesOrderNoValue"=$1
 	`, no)
@@ -113,11 +113,15 @@ func (s *Store) GetSalesOrder(ctx context.Context, no string) (map[string]any, e
 
 func (s *Store) GetSalesOrderLines(ctx context.Context, no string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT "bcSalesOrderLineLineNo", "bcSalesOrderLineLineNoValue", "bcSalesOrderLineNoValue",
+		SELECT "bcSalesOrderLineLineNo",
+			"bcSalesOrderLineNoValue" AS "bcSalesOrderLineLineNoValue",
 			"bcSalesOrderLineDescriptionValue", "bcSalesOrderLineTypeValue",
 			"bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode",
-			"bcSalesOrderLineUnitPrice", "bcSalesOrderLineAmountValue",
-			"bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"
+			"bcSalesOrderLineUnitPrice", "bcSalesOrderLineLineDiscount",
+			"bcSalesOrderLineAmountValue",
+			"bcSalesOrderLineAmountIncludingVAT",
+			"bcSalesOrderLineQuantityShipped" AS "bcSalesOrderLineQuantityValueShipped",
+			"bcSalesOrderLineOutstandingQuantity"
 		FROM "bcSalesOrderLine" WHERE "bcSalesOrderLineDocumentNo"=$1
 		ORDER BY "bcSalesOrderLineLineNo"
 	`, no)
@@ -260,4 +264,349 @@ func (s *Store) ListGeneratedImages(ctx context.Context) ([]map[string]any, erro
 		FROM "mktGeneratedImage" WHERE "isActive"=true
 		ORDER BY "mktGeneratedImageCreatedAt" DESC LIMIT 50
 	`)
+}
+
+// ---- Analytics Store Functions ----
+// Index requirements (run once):
+//   CREATE INDEX IF NOT EXISTS idx_bcsalesorder_salesperson ON "bcSalesOrder" ("bcSalesOrderSalespersonCode");
+//   CREATE INDEX IF NOT EXISTS idx_bcsalesorder_orderdate   ON "bcSalesOrder" ("bcSalesOrderOrderDate");
+//   CREATE INDEX IF NOT EXISTS idx_bcsalesorder_customer    ON "bcSalesOrder" ("bcSalesOrderSellToCustomerNo");
+//   CREATE INDEX IF NOT EXISTS idx_bcsalesorderline_docno   ON "bcSalesOrderLine" ("bcSalesOrderLineDocumentNo");
+//   CREATE INDEX IF NOT EXISTS idx_bcsalesorderline_type    ON "bcSalesOrderLine" ("bcSalesOrderLineTypeValue");
+
+// dateFilter builds a date-range WHERE clause for bcSalesOrderOrderDate.
+// argIdx is the starting $N parameter index. Returns empty string + nil when no filter needed.
+func dateFilter(dateFrom, dateTo string, argIdx int) (string, []any) {
+	if dateFrom == "" || dateTo == "" {
+		return "", nil
+	}
+	return fmt.Sprintf(` AND "bcSalesOrderOrderDate"::date BETWEEN $%d AND $%d`, argIdx, argIdx+1),
+		[]any{dateFrom, dateTo}
+}
+
+// GetAnalyticsSummary returns total orders, revenue, and shipped count for a given date range.
+func (s *Store) GetAnalyticsSummary(ctx context.Context, dateFrom, dateTo string) (map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	return db.QueryRow(ctx, s.pool, `
+		SELECT
+			COUNT(*) AS "totalOrders",
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS "totalRevenue",
+			COUNT(*) FILTER (WHERE "bcSalesOrderCompletelyShipped" = 'true') AS "shippedOrders"
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond, args...)
+}
+
+// GetPeriodStats returns DTD/WTD/MTD/YTD totals and prior-period revenues for growth calculation.
+// No date filter — always computed over the full dataset.
+func (s *Store) GetPeriodStats(ctx context.Context) (map[string]any, error) {
+	return db.QueryRow(ctx, s.pool, `
+		SELECT
+			COUNT(*) FILTER (WHERE "bcSalesOrderOrderDate"::date = CURRENT_DATE)
+				AS "dtdOrders",
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT") FILTER (WHERE "bcSalesOrderOrderDate"::date = CURRENT_DATE), 0)
+				AS "dtdRevenue",
+
+			COUNT(*) FILTER (WHERE "bcSalesOrderOrderDate"::date >= DATE_TRUNC('week', CURRENT_DATE)::date)
+				AS "wtdOrders",
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT") FILTER (WHERE "bcSalesOrderOrderDate"::date >= DATE_TRUNC('week', CURRENT_DATE)::date), 0)
+				AS "wtdRevenue",
+
+			COUNT(*) FILTER (WHERE "bcSalesOrderOrderDate"::date >= DATE_TRUNC('month', CURRENT_DATE)::date)
+				AS "mtdOrders",
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT") FILTER (WHERE "bcSalesOrderOrderDate"::date >= DATE_TRUNC('month', CURRENT_DATE)::date), 0)
+				AS "mtdRevenue",
+
+			COUNT(*) FILTER (WHERE "bcSalesOrderOrderDate"::date >= DATE_TRUNC('year', CURRENT_DATE)::date)
+				AS "ytdOrders",
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT") FILTER (WHERE "bcSalesOrderOrderDate"::date >= DATE_TRUNC('year', CURRENT_DATE)::date), 0)
+				AS "ytdRevenue",
+
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT") FILTER (
+				WHERE "bcSalesOrderOrderDate"::date >= (DATE_TRUNC('week', CURRENT_DATE) - INTERVAL '1 week')::date
+				  AND "bcSalesOrderOrderDate"::date <  DATE_TRUNC('week', CURRENT_DATE)::date
+			), 0) AS "prevWtdRevenue",
+
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT") FILTER (
+				WHERE "bcSalesOrderOrderDate"::date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')::date
+				  AND "bcSalesOrderOrderDate"::date <  DATE_TRUNC('month', CURRENT_DATE)::date
+			), 0) AS "prevMtdRevenue",
+
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT") FILTER (
+				WHERE "bcSalesOrderOrderDate"::date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')::date
+				  AND "bcSalesOrderOrderDate"::date <  DATE_TRUNC('year', CURRENT_DATE)::date
+			), 0) AS "prevYtdRevenue"
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
+	`)
+}
+
+// GetMonthlyTrend returns monthly revenue and order count.
+// Defaults to the last 12 months when no date range is given.
+func (s *Store) GetMonthlyTrend(ctx context.Context, dateFrom, dateTo string) ([]map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	defaultCond := ""
+	if cond == "" {
+		defaultCond = ` AND "bcSalesOrderOrderDate"::date >= CURRENT_DATE - INTERVAL '12 months'`
+	}
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			TO_CHAR(DATE_TRUNC('month', "bcSalesOrderOrderDate"::date), 'YYYY-MM') AS month,
+			COUNT(*) AS orders,
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond+defaultCond+`
+		GROUP BY DATE_TRUNC('month', "bcSalesOrderOrderDate"::date)
+		ORDER BY 1`, args...)
+}
+
+// GetDailyTrend returns daily revenue and order count.
+// Defaults to the last 30 days when no date range is given.
+func (s *Store) GetDailyTrend(ctx context.Context, dateFrom, dateTo string) ([]map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	defaultCond := ""
+	if cond == "" {
+		defaultCond = ` AND "bcSalesOrderOrderDate"::date >= CURRENT_DATE - INTERVAL '30 days'`
+	}
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			TO_CHAR("bcSalesOrderOrderDate"::date, 'YYYY-MM-DD') AS date,
+			COUNT(*) AS orders,
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond+defaultCond+`
+		GROUP BY "bcSalesOrderOrderDate"::date
+		ORDER BY 1`, args...)
+}
+
+// GetRevenueByDayOfWeek returns revenue and order count grouped by day of week.
+func (s *Store) GetRevenueByDayOfWeek(ctx context.Context, dateFrom, dateTo string) ([]map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			EXTRACT(DOW FROM "bcSalesOrderOrderDate"::date)::int AS dow,
+			CASE EXTRACT(DOW FROM "bcSalesOrderOrderDate"::date)
+				WHEN 0 THEN 'อา.' WHEN 1 THEN 'จ.'  WHEN 2 THEN 'อ.'
+				WHEN 3 THEN 'พ.'  WHEN 4 THEN 'พฤ.' WHEN 5 THEN 'ศ.'
+				WHEN 6 THEN 'ส.'
+			END AS "dayName",
+			COUNT(*) AS orders,
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond+`
+		GROUP BY EXTRACT(DOW FROM "bcSalesOrderOrderDate"::date)
+		ORDER BY dow`, args...)
+}
+
+// GetYoYComparison returns current-year vs previous-year revenue/orders by month.
+func (s *Store) GetYoYComparison(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		WITH monthly AS (
+			SELECT
+				EXTRACT(MONTH FROM "bcSalesOrderOrderDate"::date)::int AS month,
+				EXTRACT(YEAR  FROM "bcSalesOrderOrderDate"::date)::int AS year,
+				COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue,
+				COUNT(*) AS orders
+			FROM "bcSalesOrder"
+			WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
+			  AND "bcSalesOrderOrderDate"::date >= (DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year')::date
+			GROUP BY month, year
+		)
+		SELECT
+			m.month,
+			CASE m.month
+				WHEN 1  THEN 'ม.ค.'  WHEN 2  THEN 'ก.พ.'  WHEN 3  THEN 'มี.ค.'
+				WHEN 4  THEN 'เม.ย.' WHEN 5  THEN 'พ.ค.'  WHEN 6  THEN 'มิ.ย.'
+				WHEN 7  THEN 'ก.ค.'  WHEN 8  THEN 'ส.ค.'  WHEN 9  THEN 'ก.ย.'
+				WHEN 10 THEN 'ต.ค.'  WHEN 11 THEN 'พ.ย.'  WHEN 12 THEN 'ธ.ค.'
+			END AS "monthLabel",
+			COALESCE(MAX(CASE WHEN year = EXTRACT(YEAR FROM CURRENT_DATE) THEN revenue END), 0)          AS "currentRevenue",
+			COALESCE(MAX(CASE WHEN year = EXTRACT(YEAR FROM CURRENT_DATE) THEN orders  END), 0)::int     AS "currentOrders",
+			COALESCE(MAX(CASE WHEN year = EXTRACT(YEAR FROM CURRENT_DATE) - 1 THEN revenue END), 0)      AS "previousRevenue",
+			COALESCE(MAX(CASE WHEN year = EXTRACT(YEAR FROM CURRENT_DATE) - 1 THEN orders  END), 0)::int AS "previousOrders"
+		FROM monthly m
+		GROUP BY m.month
+		ORDER BY m.month
+	`)
+}
+
+// GetOrderStatusDist returns order count and revenue grouped by BC status.
+func (s *Store) GetOrderStatusDist(ctx context.Context, dateFrom, dateTo string) ([]map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			COALESCE(NULLIF("bcSalesOrderStatus", ''), 'Unknown') AS status,
+			COUNT(*) AS count,
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond+`
+		GROUP BY "bcSalesOrderStatus"
+		ORDER BY count DESC`, args...)
+}
+
+// GetLocationDist returns order count and revenue grouped by warehouse location.
+func (s *Store) GetLocationDist(ctx context.Context, dateFrom, dateTo string) ([]map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			COALESCE(NULLIF("bcSalesOrderLocationCode", ''), 'N/A') AS location,
+			COUNT(*) AS count,
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond+`
+		GROUP BY "bcSalesOrderLocationCode"
+		ORDER BY count DESC`, args...)
+}
+
+// GetOrderValueDist returns order count bucketed into value ranges.
+func (s *Store) GetOrderValueDist(ctx context.Context, dateFrom, dateTo string) ([]map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			CASE
+				WHEN "bcSalesOrderAmountIncludingVAT" < 1000  THEN '<1K'
+				WHEN "bcSalesOrderAmountIncludingVAT" < 5000  THEN '1K-5K'
+				WHEN "bcSalesOrderAmountIncludingVAT" < 10000 THEN '5K-10K'
+				WHEN "bcSalesOrderAmountIncludingVAT" < 50000 THEN '10K-50K'
+				ELSE '50K+'
+			END AS label,
+			MIN("bcSalesOrderAmountIncludingVAT") AS "minVal",
+			COUNT(*) AS count
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond+`
+		GROUP BY label
+		ORDER BY "minVal"`, args...)
+}
+
+// GetMonthlyComparison returns this month and previous month summary side-by-side.
+func (s *Store) GetMonthlyComparison(ctx context.Context) (map[string]any, error) {
+	rows, err := db.QueryRows(ctx, s.pool, `
+		SELECT
+			TO_CHAR(DATE_TRUNC('month', "bcSalesOrderOrderDate"::date), 'YYYY-MM') AS month,
+			COUNT(*) AS orders,
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue,
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT") / NULLIF(COUNT(*)::float8, 0), 0) AS "avgValue",
+			COUNT(DISTINCT "bcSalesOrderSellToCustomerNo") AS "uniqueCustomers",
+			COALESCE(
+				COUNT(*) FILTER (WHERE "bcSalesOrderCompletelyShipped" = 'true')::float8
+				/ NULLIF(COUNT(*)::float8, 0) * 100,
+				0
+			) AS "shipRate"
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
+		  AND "bcSalesOrderOrderDate"::date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')::date
+		GROUP BY DATE_TRUNC('month', "bcSalesOrderOrderDate"::date)
+		ORDER BY 1 DESC
+		LIMIT 2
+	`)
+	if err != nil {
+		return nil, err
+	}
+	result := map[string]any{"current": nil, "previous": nil}
+	if len(rows) >= 1 {
+		result["current"] = rows[0]
+	}
+	if len(rows) >= 2 {
+		result["previous"] = rows[1]
+	}
+	return result, nil
+}
+
+// GetCustomerInsights returns repeat vs single-order customer breakdown.
+func (s *Store) GetCustomerInsights(ctx context.Context, dateFrom, dateTo string) (map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	return db.QueryRow(ctx, s.pool, `
+		WITH customer_orders AS (
+			SELECT
+				"bcSalesOrderSellToCustomerNo",
+				COUNT(*) AS order_count,
+				COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue
+			FROM "bcSalesOrder"
+			WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond+`
+			GROUP BY "bcSalesOrderSellToCustomerNo"
+		),
+		top5_rev AS (
+			SELECT COALESCE(SUM(revenue), 0) AS total
+			FROM (SELECT revenue FROM customer_orders ORDER BY revenue DESC LIMIT 5) t
+		),
+		totals AS (
+			SELECT
+				COUNT(*)                                                   AS "totalCustomers",
+				COUNT(*) FILTER (WHERE order_count > 1)                    AS "repeatCustomers",
+				COUNT(*) FILTER (WHERE order_count = 1)                    AS "singleOrderCustomers",
+				COALESCE(SUM(revenue), 0)                                  AS "totalRevenue",
+				COALESCE(SUM(revenue) FILTER (WHERE order_count > 1), 0)   AS "repeatRevenue",
+				COALESCE(SUM(revenue) FILTER (WHERE order_count = 1), 0)   AS "singleRevenue"
+			FROM customer_orders
+		)
+		SELECT
+			t."repeatCustomers",
+			t."singleOrderCustomers",
+			COALESCE(t."repeatCustomers"::float8 / NULLIF(t."totalCustomers"::float8, 0) * 100, 0) AS "repeatCustomerRate",
+			COALESCE(tp.total / NULLIF(t."totalRevenue", 0) * 100, 0)                              AS "top5ConcentrationPct",
+			t."repeatRevenue"  AS "repeatCustomerRevenue",
+			t."singleRevenue"  AS "singleCustomerRevenue"
+		FROM totals t, top5_rev tp
+	`, args...)
+}
+
+// GetFulfillmentMetrics returns quantity shipped vs outstanding across all order lines.
+func (s *Store) GetFulfillmentMetrics(ctx context.Context, dateFrom, dateTo string) (map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	// Adjust arg index: the JOIN condition is on o."bcSalesOrderSalespersonCode" first, then date filter on o.
+	return db.QueryRow(ctx, s.pool, `
+		SELECT
+			COALESCE(SUM(l."bcSalesOrderLineQuantityValue"), 0)        AS "totalQtyOrdered",
+			COALESCE(SUM(l."bcSalesOrderLineQuantityShipped"), 0) AS "totalQtyShipped",
+			COALESCE(SUM(l."bcSalesOrderLineOutstandingQuantity"), 0)  AS "totalOutstanding",
+			COALESCE(
+				SUM(l."bcSalesOrderLineQuantityShipped")
+				/ NULLIF(SUM(l."bcSalesOrderLineQuantityValue"), 0) * 100,
+				0
+			) AS "fulfillmentRate",
+			COUNT(DISTINCT CASE WHEN l."bcSalesOrderLineOutstandingQuantity" > 0 THEN l."bcSalesOrderLineDocumentNo" END)
+				AS "ordersWithOutstanding"
+		FROM "bcSalesOrderLine" l
+		JOIN "bcSalesOrder" o ON o."bcSalesOrderNoValue" = l."bcSalesOrderLineDocumentNo"
+		WHERE o."bcSalesOrderSalespersonCode" = 'ONLINE'
+		  AND l."bcSalesOrderLineTypeValue" = 'Item'`+cond, args...)
+}
+
+// GetTopCustomers returns top 10 customers by revenue.
+func (s *Store) GetTopCustomers(ctx context.Context, dateFrom, dateTo string) ([]map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			COALESCE(NULLIF("bcSalesOrderSellToCustomerName", ''), "bcSalesOrderSellToCustomerNo") AS name,
+			COUNT(*) AS orders,
+			COALESCE(SUM("bcSalesOrderAmountIncludingVAT"), 0) AS revenue
+		FROM "bcSalesOrder"
+		WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'`+cond+`
+		GROUP BY "bcSalesOrderSellToCustomerNo", "bcSalesOrderSellToCustomerName"
+		ORDER BY revenue DESC
+		LIMIT 10`, args...)
+}
+
+// GetTopSkus returns top 10 SKUs by revenue.
+func (s *Store) GetTopSkus(ctx context.Context, dateFrom, dateTo string) ([]map[string]any, error) {
+	cond, args := dateFilter(dateFrom, dateTo, 1)
+	// Date filter applies to the parent order's date via JOIN.
+	// Rebuild cond referencing o. prefix since we have a JOIN.
+	var joinCond string
+	if dateFrom != "" && dateTo != "" {
+		joinCond = fmt.Sprintf(` AND o."bcSalesOrderOrderDate"::date BETWEEN $%d AND $%d`, 1, 2)
+	}
+	_ = cond // replaced by joinCond
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			l."bcSalesOrderLineNoValue" AS sku,
+			COALESCE(NULLIF(l."bcSalesOrderLineDescriptionValue", ''), l."bcSalesOrderLineNoValue") AS description,
+			COALESCE(SUM(l."bcSalesOrderLineAmountValue"), 0)    AS revenue,
+			COALESCE(SUM(l."bcSalesOrderLineQuantityValue"), 0)  AS quantity
+		FROM "bcSalesOrderLine" l
+		JOIN "bcSalesOrder" o ON o."bcSalesOrderNoValue" = l."bcSalesOrderLineDocumentNo"
+		WHERE o."bcSalesOrderSalespersonCode" = 'ONLINE'
+		  AND l."bcSalesOrderLineTypeValue" = 'Item'`+joinCond+`
+		GROUP BY l."bcSalesOrderLineNoValue", l."bcSalesOrderLineDescriptionValue"
+		ORDER BY revenue DESC
+		LIMIT 10`, args...)
 }

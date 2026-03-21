@@ -1,3 +1,58 @@
+# Language Rule (MANDATORY)
+
+- **ตอบเป็นภาษาไทยเท่านั้น** — ทุกการสื่อสารกับ user ต้องเป็นภาษาไทย
+- Code, comments, variable names, commit messages ยังคงเป็นภาษาอังกฤษตามปกติ
+- คำอธิบาย, คำถาม, สรุปผล, แจ้ง error ต้องเป็นภาษาไทยทั้งหมด
+
+---
+
+# TypeScript Rule (MANDATORY)
+
+- **ใช้ TypeScript ทั้งหมด** — ไฟล์ใหม่ทุกไฟล์ต้องเป็น `.ts` หรือ `.tsx` เท่านั้น ห้ามสร้างไฟล์ `.js` หรือ `.jsx` ใหม่
+- **ไฟล์เก่าทั้งหมดต้องเป็น TypeScript** — ห้ามมีไฟล์ `.js` หรือ `.jsx` เหลืออยู่ในโปรเจกต์
+- **ต้อง define type สำหรับ API response** — ทุก response จาก backend ต้องมี TypeScript interface หรือ type ที่ตรงกัน
+- **ห้ามใช้ `any` โดยไม่จำเป็น** — ถ้าต้องใช้ `any` ให้ comment อธิบายเหตุผล
+- **Next.js special files** (`page.tsx`, `layout.tsx`, `route.ts`, `proxy.ts` ฯลฯ) ใช้ `.tsx`/`.ts` แทน `.jsx`/`.js`
+
+### Type Pattern สำหรับ API Response
+
+```typescript
+// ✅ CORRECT — define type ตรงกับ API response field names
+interface ProductionOrder {
+  orderNo: string;
+  status: string;
+  description: string;
+  sourceNo: string;
+  quantity: number;
+  outputQty: number;
+  consumptionCost: number;
+  unitPrice: number;
+  revenue: number;
+  profit: number;
+  profitMargin: number | null;
+  dim1Code: string;
+  dim2Code: string;
+  dueDate: string | null;
+  finishedDate: string | null;
+}
+
+// ❌ WRONG — ไม่มี type, เดาชื่อ field เองตอน runtime
+const qty = row.quantiy; // typo ไม่มี error
+```
+
+### File Extension Rules
+
+| สถานการณ์ | Extension |
+|---|---|
+| React component (มี JSX) | `.tsx` |
+| Pure TypeScript (ไม่มี JSX) | `.ts` |
+| Next.js `page`, `layout`, `error` | `.tsx` |
+| Next.js `route` (API handler) | `.ts` |
+| Next.js `proxy` (middleware) | `.ts` |
+| Lib / utility / helper | `.ts` |
+
+---
+
 # Data Flow Architecture (MANDATORY)
 
 ## Data Direction: Supabase → Backend → Frontend
@@ -1456,19 +1511,21 @@ module.exports = {
 ## 17. Naming Conventions
 
 ### File Names
-- **camelCase for all files** — `financeDashboardClient.jsx`, `signInPasswordForm.jsx`, `authContext.jsx`
-- **Exception — Next.js special files:** `page.jsx`, `layout.jsx`, `error.jsx`, `loading.jsx`, `not-found.jsx`, `global-error.jsx`, `forbidden.jsx`, `providers.jsx`, `route.js`, `proxy.js`, `default.jsx`, `template.jsx` — stay lowercase as-is
+- **camelCase for all files** — `financeDashboardClient.tsx`, `signInPasswordForm.tsx`, `authContext.ts`
+- **Exception — Next.js special files:** `page.tsx`, `layout.tsx`, `error.tsx`, `loading.tsx`, `not-found.tsx`, `global-error.tsx`, `forbidden.tsx`, `providers.tsx`, `route.ts`, `proxy.ts`, `default.tsx`, `template.tsx` — stay lowercase as-is
 - **Never use PascalCase for file names** even for component files
+- **All new files must use `.ts` or `.tsx`** — never create new `.js` or `.jsx` files
 
 ```
 // CORRECT
-src/components/layout/header.jsx
-src/modules/finance/financeDashboardClient.jsx
-src/contexts/authContext.jsx
+src/components/layout/header.tsx
+src/modules/finance/financeDashboardClient.tsx
+src/contexts/authContext.ts
 
 // WRONG
-src/components/layout/Header.jsx
-src/modules/finance/FinanceDashboardClient.jsx
+src/components/layout/Header.tsx
+src/modules/finance/FinanceDashboardClient.tsx
+src/modules/finance/financeDashboardClient.jsx  ← ห้ามใช้ .jsx ทั้งเก่าและใหม่
 ```
 
 ### Variable & Constant Names
@@ -1491,12 +1548,213 @@ const URL_REGEX = /...
 - **React components must remain PascalCase** (React treats lowercase as HTML elements)
 - The component EXPORT name is PascalCase, but the FILE name is camelCase
 
-```jsx
-// file: src/components/layout/header.jsx
+```tsx
+// file: src/components/layout/header.tsx
 export default function Header() {   // ← PascalCase component name (required by React)
   return <nav>...</nav>
 }
 
 // import in another file:
 import Header from "@/components/layout/header"  // ← camelCase path
+```
+
+---
+
+# Project Architecture Pattern (MANDATORY)
+
+## File Structure per Feature
+
+Every new feature MUST follow this exact 3-tier file structure:
+
+### Backend (Go API — `evergreen-api/internal/{module}/`)
+
+| File | Responsibility |
+|---|---|
+| `store.go` | SQL queries with clean `AS` aliases. Returns `[]map[string]any` via `db.QueryRows()` / `db.QueryRow()` |
+| `handler.go` | HTTP handler — calls store, transforms/aggregates data, returns via `response.OK(w, data)` |
+| `routes.go` | Register route on Chi router. Mounted in `cmd/server/main.go` as `/api/{module}` |
+
+### Frontend (Next.js — `src/`)
+
+| File | Responsibility |
+|---|---|
+| `src/app/(main)/{module}/{feature}/page.tsx` | **Server Component** — fetch via `api()` from `@/lib/api.server`, pass `initialData` to Client |
+| `src/modules/{module}/{module}{Feature}Client.tsx` | **Client Component** (`"use client"`) — manages state, reload logic, passes data to View |
+| `src/modules/{module}/components/{feature}View.tsx` | **View Component** — pure UI, receives data via props, renders tables/charts/forms |
+| `src/modules/{module}/types.ts` | **Type definitions** — interface สำหรับ API response, props, และ state ของ module นั้น |
+
+### Example: Adding "Production Entries" feature
+
+```
+# Backend
+evergreen-api/internal/production/store.go    → add GetEntries() SQL query
+evergreen-api/internal/production/handler.go   → add ListEntries() handler
+evergreen-api/internal/production/routes.go    → add r.Get("/entries", h.ListEntries)
+
+# Frontend
+src/app/(main)/production/entries/page.tsx              → Server Component, fetch + pass initialData
+src/modules/production/prodEntriesClient.tsx             → Client Component, state + reload
+src/modules/production/components/entriesView.tsx        → View Component, DataTable + filters
+src/modules/production/types.ts                          → interface ProductionEntry { ... }
+```
+
+## Adding a New Feature — Checklist
+
+Before writing ANY code for a new feature:
+
+1. **Read existing module files first** — understand current patterns in that module
+   - `store.go` → see SQL query style, alias patterns
+   - `handler.go` → see response structure
+   - `routes.go` → see route naming convention
+   - Existing Client/View components → see state management pattern
+
+2. **Define the API contract** — list exact field names the frontend needs
+   ```
+   orderNo, status, itemDescription, quantity, startDate
+   ```
+
+3. **Write backend store.go** — SQL with `AS` aliases matching the contract
+   ```sql
+   SELECT "bcProductionOrderNo" AS "orderNo", ...
+   ```
+
+4. **Write backend handler.go** — call store, return via `response.OK(w, data)`
+
+5. **Write backend routes.go** — register the endpoint
+
+6. **Write frontend page.jsx** — Server Component fetch
+
+7. **Write frontend Client.jsx** — state management + reload
+
+8. **Write frontend View.jsx** — UI using exact same field names as API response
+
+9. **Verify field alignment** — ensure field names are IDENTICAL across store.go → handler.go → View.jsx
+
+---
+
+# API Client Usage (MANDATORY)
+
+## Server Component (page.jsx)
+
+```jsx
+import { api } from "@/lib/api.server";
+
+export default async function Page() {
+  const data = await api("/api/{module}/{endpoint}");
+  return <FeatureClient initialData={data || []} />;
+}
+```
+
+## Client Component (reload/refetch)
+
+```jsx
+"use client";
+import { get, post } from "@/lib/apiClient";
+
+// GET request
+const result = await get("/api/{module}/{endpoint}");
+
+// POST request
+const result = await post("/api/{module}/{endpoint}", { body: payload });
+```
+
+## Rules
+
+- **Server Component**: use `api()` from `@/lib/api.server`
+- **Client Component**: use `get()` / `post()` from `@/lib/apiClient`
+- **NEVER use `fetch()` directly** — always use the project helpers above
+- **NEVER query Supabase from components** — always go through the Go backend API
+
+---
+
+# UI Component Rules (MANDATORY)
+
+## Libraries
+
+| Purpose | Library | Import |
+|---|---|---|
+| UI Framework | HeroUI (formerly NextUI) | `import { Button, Input, ... } from "@heroui/react"` |
+| Icons | Lucide React | `import { Search, Plus, ... } from "lucide-react"` |
+| Toast | Sonner | `import { toast } from "sonner"` |
+| Tables | Custom DataTable | `import DataTable from "@/components/ui/dataTable"` |
+| Charts | Recharts | `import { BarChart, LineChart, ... } from "recharts"` |
+
+## Rules
+
+- **Do NOT install new UI libraries** without asking the user first
+- **Use HeroUI components** for all form elements (Button, Input, Select, Modal, Card, Chip, etc.)
+- **Use Lucide icons** — do NOT use other icon libraries
+- **Use DataTable** for all tabular data — do NOT create custom table markup
+- **Use Sonner toast** for all notifications — `toast.success()`, `toast.error()`
+
+---
+
+# Common Mistakes to Avoid (MANDATORY)
+
+## 1. Field Name Mismatch (Most Common Bug)
+**ALWAYS read `store.go` SQL aliases BEFORE writing frontend code.**
+The #1 cause of "data not showing" is field name mismatch between backend and frontend.
+
+```
+❌ Backend: AS "orderNo"     → Frontend: data.orderNumber   (MISMATCH)
+✅ Backend: AS "orderNo"     → Frontend: data.orderNo       (CORRECT)
+```
+
+## 2. Forgetting to await params/searchParams
+Next.js 16 requires awaiting params and searchParams:
+```jsx
+❌ const { id } = params
+✅ const { id } = await params
+```
+
+## 3. Using "use client" Too Broadly
+Only add `"use client"` to components that need state or event handlers.
+Page components should be Server Components that fetch data.
+
+## 4. Client-Side Aggregation
+NEVER compute SUM, COUNT, GROUP BY in frontend JavaScript.
+Always do aggregation in Go `store.go` SQL queries.
+
+## 5. Missing Reload Function
+Every Client component MUST have a reload/refetch mechanism so users can refresh data:
+```jsx
+const reload = useCallback(async () => {
+  const result = await get("/api/...");
+  setData(result);
+}, []);
+```
+
+## 6. SELECT * in SQL
+ALWAYS select specific columns with clean aliases. Never use `SELECT *`.
+
+## 7. Sequential Fetching When Parallel is Possible
+When a page needs multiple API calls, ALWAYS fetch in parallel:
+```jsx
+// ❌ Sequential (slow)
+const orders = await api("/api/production/orders");
+const items = await api("/api/production/items");
+
+// ✅ Parallel (fast)
+const [orders, items] = await Promise.all([
+  api("/api/production/orders"),
+  api("/api/production/items"),
+]);
+```
+
+## 8. Creating Files in Wrong Location
+- Pages go in `src/app/(main)/{module}/` — NOT in `src/modules/`
+- Client components go in `src/modules/{module}/` — NOT in `src/app/`
+- View components go in `src/modules/{module}/components/` — NOT at module root
+- Backend code goes in `evergreen-api/internal/{module}/` — NOT in `evergreen-api/pkg/`
+
+## 9. Hardcoding Data
+NEVER return hardcoded/fake data from the backend. Always query Supabase.
+If a table doesn't exist yet, tell the user — don't fabricate data.
+
+## 10. Forgetting Response Helpers
+Always use the project's response helpers in Go handlers:
+```go
+response.OK(w, data)              // 200 success
+response.Error(w, http.StatusBadRequest, "message")  // error
+response.InternalError(w, err)    // 500
 ```

@@ -23,7 +23,7 @@ const baseColumns = [
   { name: "รายละเอียด", uid: "rbacRoleDescription" },
   { name: "ประเภท", uid: "roleType", sortable: true },
   { name: "ผู้ใช้", uid: "userCount", sortable: true },
-  { name: "สิทธิ์", uid: "permCount", sortable: true },
+  { name: "สิทธิ์", uid: "permissionCount", sortable: true },
   { name: "การดำเนินการ", uid: "actions" },
 ];
 
@@ -32,7 +32,7 @@ const baseVisibleColumns = [
   "rbacRoleDescription",
   "roleType",
   "userCount",
-  "permCount",
+  "permissionCount",
   "actions",
 ];
 
@@ -101,7 +101,7 @@ export default function RolesView({
           );
         case "userCount":
           return role.userCount ?? 0;
-        case "permCount":
+        case "permissionCount":
           return role.permissionCount ?? 0;
         case "isActive":
           return (

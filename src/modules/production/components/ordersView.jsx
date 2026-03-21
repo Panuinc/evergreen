@@ -32,12 +32,10 @@ const columns = [
   { name: "วันเริ่ม", uid: "bcProductionOrderStartingDateTime", sortable: true },
   { name: "วันสิ้นสุด", uid: "bcProductionOrderEndingDateTime", sortable: true },
   { name: "กำหนดส่ง", uid: "bcProductionOrderDueDate", sortable: true },
-  { name: "Consumption คงเหลือ", uid: "_removedRemainingConsumption", sortable: true },
   { name: "ผู้รับผิดชอบ", uid: "bcProductionOrderAssignedUserID", sortable: true },
   { name: "วันที่เสร็จ", uid: "bcProductionOrderFinishedDate", sortable: true },
   { name: "ระยะเวลา (วัน)", uid: "durationDays", sortable: true },
   { name: "Search Description", uid: "bcProductionOrderSearchDescription" },
-  { name: "Synced At", uid: "bcSyncedAt", sortable: true },
 ];
 
 const initialVisibleColumns = [
@@ -131,7 +129,6 @@ export default function OrdersView({ data, loading }) {
         );
       case "bcProductionOrderStartingDateTime":
       case "bcProductionOrderEndingDateTime":
-      case "bcSyncedAt":
         return row[columnKey]
           ? new Date(row[columnKey]).toLocaleString("th-TH", {
               dateStyle: "short",

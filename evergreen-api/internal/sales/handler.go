@@ -2,7 +2,9 @@ package sales
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -19,22 +21,152 @@ func New(pool *pgxpool.Pool) *Handler {
 	return &Handler{store: NewStore(pool)}
 }
 
+// computeSalesKPIs computes KPI values from raw leads, opportunities, and orders at a given reference time.
+func computeSalesKPIs(leads, opps, orders []map[string]any, ref time.Time) map[string]any {
+	monthStart := time.Date(ref.Year(), ref.Month(), 1, 0, 0, 0, 0, time.Local)
+
+	totalLeads := len(leads)
+	newLeads := 0
+	for _, l := range leads {
+		if ca, ok := l["salesLeadCreatedAt"].(time.Time); ok && (ca.After(monthStart) || ca.Equal(monthStart)) {
+			newLeads++
+		}
+	}
+
+	openOpportunities := 0
+	wonDeals := 0
+	pipelineValue := 0.0
+	weightedPipeline := 0.0
+	totalClosed := 0
+	for _, o := range opps {
+		stage, _ := o["salesOpportunityStage"].(string)
+		amount := 0.0
+		if a, ok := o["salesOpportunityAmount"].(float64); ok {
+			amount = a
+		}
+		prob := 0.0
+		if p, ok := o["salesOpportunityProbability"].(float64); ok {
+			prob = p
+		}
+		if stage == "won" {
+			wonDeals++
+			totalClosed++
+		} else if stage == "lost" {
+			totalClosed++
+		} else {
+			openOpportunities++
+			pipelineValue += amount
+			weightedPipeline += amount * prob / 100.0
+		}
+	}
+
+	winRate := 0.0
+	if totalClosed > 0 {
+		winRate = math.Round(float64(wonDeals)/float64(totalClosed)*1000) / 10
+	}
+
+	totalRevenue := 0.0
+	for _, o := range orders {
+		if st, ok := o["salesOrderStatus"].(string); ok && st != "cancelled" {
+			if t, ok := o["salesOrderTotal"].(float64); ok {
+				totalRevenue += t
+			}
+		}
+	}
+
+	return map[string]any{
+		"totalLeads":        totalLeads,
+		"openOpportunities": openOpportunities,
+		"wonDeals":          wonDeals,
+		"totalRevenue":      totalRevenue,
+		"pipelineValue":     pipelineValue,
+		"weightedPipeline":  weightedPipeline,
+		"winRate":           winRate,
+		"newLeads":          newLeads,
+	}
+}
+
 // ---- Dashboard ----
 
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	compareMode := r.URL.Query().Get("compareMode")
+
 	leads, _ := h.store.DashboardLeads(ctx)
 	opps, _ := h.store.DashboardOpportunities(ctx)
 	orders, _ := h.store.DashboardOrders(ctx)
 	activities, _ := h.store.DashboardActivities(ctx)
-	stages, _ := h.store.DashboardStages(ctx)
+	pipelineByStage, _ := h.store.DashboardPipelineByStage(ctx)
+	revenueByMonth, _ := h.store.DashboardRevenueByMonth(ctx)
+	topSalespeople, _ := h.store.DashboardTopSalespeople(ctx)
+
+	if activities == nil {
+		activities = []map[string]any{}
+	}
+	if pipelineByStage == nil {
+		pipelineByStage = []map[string]any{}
+	}
+	if revenueByMonth == nil {
+		revenueByMonth = []map[string]any{}
+	}
+	if topSalespeople == nil {
+		topSalespeople = []map[string]any{}
+	}
+
+	now := time.Now()
+	currentKPIs := computeSalesKPIs(leads, opps, orders, now)
+
+	if compareMode == "" {
+		response.OK(w, map[string]any{
+			"kpis":             currentKPIs,
+			"pipelineByStage":  pipelineByStage,
+			"revenueByMonth":   revenueByMonth,
+			"topSalespeople":   topSalespeople,
+			"recentActivities": activities,
+		})
+		return
+	}
+
+	// Determine previous reference time
+	var prevRef time.Time
+	var labelCurrent, labelPrevious string
+	switch compareMode {
+	case "lastMonth":
+		prevRef = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prevRef.Format("January 2006")
+	case "lastQuarter":
+		prevRef = now.AddDate(0, -3, 0)
+		labelCurrent = "ไตรมาสนี้"
+		labelPrevious = "ไตรมาสที่แล้ว"
+	case "lastYear":
+		prevRef = now.AddDate(-1, 0, 0)
+		labelCurrent = now.Format("2006")
+		labelPrevious = prevRef.Format("2006")
+	default:
+		prevRef = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prevRef.Format("January 2006")
+	}
+
+	previousKPIs := computeSalesKPIs(leads, opps, orders, prevRef)
 
 	response.OK(w, map[string]any{
-		"totalLeads":         len(leads),
-		"totalOpportunities": len(opps),
-		"totalOrders":        len(orders),
-		"recentActivities":   activities,
-		"pipelineStages":     stages,
+		"compareMode": compareMode,
+		"current": map[string]any{
+			"kpis":             currentKPIs,
+			"pipelineByStage":  pipelineByStage,
+			"revenueByMonth":   revenueByMonth,
+			"topSalespeople":   topSalespeople,
+			"recentActivities": activities,
+		},
+		"previous": map[string]any{
+			"kpis": previousKPIs,
+		},
+		"labels": map[string]string{
+			"current":  labelCurrent,
+			"previous": labelPrevious,
+		},
 	})
 }
 

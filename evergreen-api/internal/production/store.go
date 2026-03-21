@@ -24,14 +24,19 @@ func (s *Store) GetProductionOrders(ctx context.Context) ([]map[string]any, erro
 			po."bcProductionOrderNo"                   AS "orderNo",
 			po."bcProductionOrderStatus"               AS "status",
 			po."bcProductionOrderDescription"           AS "description",
+			po."bcProductionOrderDescription2"          AS "description2",
 			po."bcProductionOrderSourceNo"              AS "sourceNo",
+			po."bcProductionOrderRoutingNo"             AS "routingNo",
 			po."bcProductionOrderQuantity"              AS "quantity",
 			po."bcProductionOrderDueDate"               AS "dueDate",
 			po."bcProductionOrderFinishedDate"          AS "finishedDate",
 			po."bcProductionOrderStartingDateTime"      AS "startingDateTime",
+			po."bcProductionOrderEndingDateTime"        AS "endingDateTime",
 			po."bcProductionOrderShortcutDimension1Code" AS "dim1Code",
 			po."bcProductionOrderShortcutDimension2Code" AS "dim2Code",
 			po."bcProductionOrderLocationCode"          AS "locationCode",
+			po."bcProductionOrderAssignedUserID"        AS "assignedUserID",
+			po."bcProductionOrderSearchDescription"     AS "searchDescription",
 			po."bcProductionOrderUnitCost"              AS "unitCost",
 			i."bcItemDescription"                       AS "itemDescription",
 			i."bcItemBaseUnitOfMeasure"                 AS "uom",
@@ -115,6 +120,7 @@ func (s *Store) GetDimensionNames(ctx context.Context) ([]map[string]any, error)
 func (s *Store) ListCores(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT "bcItemNo" AS "code", "bcItemDescription" AS "desc",
+			"bcItemDescription2" AS "desc2",
 			"bcItemUnitCost" AS "unitCost", "bcItemUnitPrice" AS "unitPrice",
 			"bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "uom",
 			"bcItemItemCategoryCode" AS "category"
@@ -128,6 +134,7 @@ func (s *Store) ListCores(ctx context.Context) ([]map[string]any, error) {
 func (s *Store) ListFrames(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT "bcItemNo" AS "code", "bcItemDescription" AS "desc",
+			"bcItemDescription2" AS "desc2",
 			"bcItemUnitCost" AS "unitCost", "bcItemUnitPrice" AS "unitPrice",
 			"bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "uom",
 			"bcItemItemCategoryCode" AS "category"

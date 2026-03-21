@@ -141,7 +141,7 @@ export default function SalesInvoicesView({ data, loading, selected, isOpen, onC
         columns={columns}
         data={data}
         renderCell={renderCell}
-        rowKey="id"
+        rowKey="bcPostedSalesInvoiceId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาเลขที่ใบแจ้งหนี้, ลูกค้า..."

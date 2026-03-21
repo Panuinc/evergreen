@@ -435,32 +435,141 @@ func (h *Handler) LatestGpsLogs(w http.ResponseWriter, r *http.Request) {
 
 // ---- Dashboard ----
 
+// buildTMSStats aggregates vehicle/shipment/fuel data for a given reference time.
+func buildTMSStats(vehicles, shipments, fuelLogs []map[string]any, monthlyShipments, fuelTrend, vehicleUtilization []map[string]any, ref time.Time) map[string]any {
+	refMonth := ref.Format("2006-01")
+
+	availableVehicles := 0
+	inUseVehicles := 0
+	for _, v := range vehicles {
+		if st, ok := v["tmsVehicleStatus"].(string); ok {
+			if st == "available" {
+				availableVehicles++
+			} else if st == "in_use" || st == "in-use" {
+				inUseVehicles++
+			}
+		}
+	}
+
+	statusCountMap := map[string]int{}
+	activeShipments := 0
+	completedInPeriod := 0
+	for _, s := range shipments {
+		st, _ := s["tmsShipmentStatus"].(string)
+		statusCountMap[st]++
+		if st == "in_transit" || st == "pending" {
+			activeShipments++
+		}
+		if st == "delivered" || st == "completed" {
+			if d, ok := s["tmsShipmentDate"].(time.Time); ok && d.Format("2006-01") == refMonth {
+				completedInPeriod++
+			}
+		}
+	}
+
+	shipmentStatusDistribution := make([]map[string]any, 0, len(statusCountMap))
+	for st, cnt := range statusCountMap {
+		shipmentStatusDistribution = append(shipmentStatusDistribution, map[string]any{"status": st, "count": cnt})
+	}
+
+	totalFuelCost := 0.0
+	fuelCostInPeriod := 0.0
+	for _, f := range fuelLogs {
+		cost := 0.0
+		if c, ok := f["tmsFuelLogTotalCost"].(float64); ok {
+			cost = c
+		}
+		totalFuelCost += cost
+		if d, ok := f["tmsFuelLogDate"].(time.Time); ok && d.Format("2006-01") == refMonth {
+			fuelCostInPeriod += cost
+		}
+	}
+
+	if monthlyShipments == nil {
+		monthlyShipments = []map[string]any{}
+	}
+	if fuelTrend == nil {
+		fuelTrend = []map[string]any{}
+	}
+	if vehicleUtilization == nil {
+		vehicleUtilization = []map[string]any{}
+	}
+
+	return map[string]any{
+		"totalVehicles":              len(vehicles),
+		"availableVehicles":          availableVehicles,
+		"inUseVehicles":              inUseVehicles,
+		"totalShipments":             len(shipments),
+		"activeShipments":            activeShipments,
+		"completedThisMonth":         completedInPeriod,
+		"completedInPeriod":          completedInPeriod,
+		"totalFuelCost":              totalFuelCost,
+		"totalFuelCostThisMonth":     fuelCostInPeriod,
+		"fuelCostInPeriod":           fuelCostInPeriod,
+		"shipmentStatusDistribution": shipmentStatusDistribution,
+		"monthlyShipmentTrend":       monthlyShipments,
+		"fuelCostTrend":              fuelTrend,
+		"vehicleUtilization":         vehicleUtilization,
+	}
+}
+
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	compareMode := r.URL.Query().Get("compareMode")
 
 	vehicles, _ := h.store.DashboardVehicles(ctx)
 	shipments, _ := h.store.DashboardShipments(ctx)
 	fuelLogs, _ := h.store.DashboardFuelLogs(ctx)
+	monthlyShipments, _ := h.store.DashboardMonthlyShipments(ctx)
+	fuelTrend, _ := h.store.DashboardFuelTrend(ctx)
+	vehicleUtilization, _ := h.store.DashboardVehicleUtilization(ctx)
+	vehiclePerformance, _ := h.store.DashboardVehiclePerformance(ctx)
 
-	byStatus := map[string]int{}
-	for _, s := range shipments {
-		if st, ok := s["tmsShipmentStatus"].(string); ok {
-			byStatus[st]++
-		}
+	if vehiclePerformance == nil {
+		vehiclePerformance = []map[string]any{}
 	}
 
-	totalFuelCost := 0.0
-	for _, f := range fuelLogs {
-		if cost, ok := f["tmsFuelLogTotalCost"].(float64); ok {
-			totalFuelCost += cost
-		}
+	now := time.Now()
+	current := buildTMSStats(vehicles, shipments, fuelLogs, monthlyShipments, fuelTrend, vehicleUtilization, now)
+
+	if compareMode == "" {
+		current["vehiclePerformance"] = vehiclePerformance
+		response.OK(w, current)
+		return
 	}
+
+	var prevRef time.Time
+	var labelCurrent, labelPrevious string
+	switch compareMode {
+	case "lastMonth":
+		prevRef = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prevRef.Format("January 2006")
+	case "lastQuarter":
+		prevRef = now.AddDate(0, -3, 0)
+		labelCurrent = "ไตรมาสนี้"
+		labelPrevious = "ไตรมาสที่แล้ว"
+	case "lastYear":
+		prevRef = now.AddDate(-1, 0, 0)
+		labelCurrent = now.Format("2006")
+		labelPrevious = prevRef.Format("2006")
+	default:
+		prevRef = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prevRef.Format("January 2006")
+	}
+
+	previous := buildTMSStats(vehicles, shipments, fuelLogs, monthlyShipments, fuelTrend, vehicleUtilization, prevRef)
 
 	response.OK(w, map[string]any{
-		"totalVehicles":     len(vehicles),
-		"totalShipments":    len(shipments),
-		"shipmentsByStatus": byStatus,
-		"totalFuelCost":     totalFuelCost,
+		"compareMode":        compareMode,
+		"current":            current,
+		"previous":           previous,
+		"vehiclePerformance": vehiclePerformance,
+		"labels": map[string]string{
+			"current":  labelCurrent,
+			"previous": labelPrevious,
+		},
 	})
 }
 

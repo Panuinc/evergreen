@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -69,6 +70,20 @@ func normalizeValue(v any) any {
 	case [16]byte:
 		return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
 			val[0:4], val[4:6], val[6:8], val[8:10], val[10:16])
+	case pgtype.Numeric:
+		if !val.Valid {
+			return nil
+		}
+		f, err := val.Float64Value()
+		if err == nil && f.Valid {
+			return f.Float64
+		}
+		return nil
+	case pgtype.Date:
+		if !val.Valid {
+			return nil
+		}
+		return val.Time
 	default:
 		return v
 	}

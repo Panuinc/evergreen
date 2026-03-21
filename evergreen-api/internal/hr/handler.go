@@ -224,29 +224,37 @@ func (h *Handler) DeletePosition(w http.ResponseWriter, r *http.Request) {
 	response.OK(w, map[string]bool{"success": true})
 }
 
-func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	employees, err := h.store.ListAllEmployees(ctx)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
-	divisions, _ := h.store.ListActiveDivisions(ctx)
-	departments, _ := h.store.ListActiveDepartments(ctx)
-	positions, _ := h.store.ListActivePositions(ctx)
+// buildHRStats aggregates employee data into KPI stats for a given reference time (used for both current and previous period).
+func buildHRStats(employees []map[string]any, divisions, departments, positions []map[string]any, ref time.Time) map[string]any {
+	monthStart := time.Date(ref.Year(), ref.Month(), 1, 0, 0, 0, 0, time.Local)
+	sixMonthsAgo := time.Date(ref.Year(), ref.Month()-5, 1, 0, 0, 0, 0, time.Local)
+
 	total := len(employees)
 	active := 0
 	newThisMonth := 0
 	byDiv := map[string]int{}
 	byDept := map[string]int{}
-	now := time.Now()
-	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local)
+	byStatusMap := map[string]int{}
+	trendMap := map[string]int{}
+
 	for _, e := range employees {
-		if isActive, ok := e["isActive"].(bool); ok && isActive {
+		isAct := false
+		if ia, ok := e["isActive"].(bool); ok && ia {
 			active++
+			isAct = true
 		}
-		if createdAt, ok := e["hrEmployeeCreatedAt"].(time.Time); ok && createdAt.After(monthStart) {
-			newThisMonth++
+		if isAct {
+			byStatusMap["active"]++
+		} else {
+			byStatusMap["inactive"]++
+		}
+		if createdAt, ok := e["hrEmployeeCreatedAt"].(time.Time); ok {
+			if createdAt.After(monthStart) || createdAt.Equal(monthStart) {
+				newThisMonth++
+			}
+			if !createdAt.Before(sixMonthsAgo) {
+				trendMap[createdAt.Format("2006-01")]++
+			}
 		}
 		if name, ok := e["divisionName"].(string); ok && name != "" {
 			byDiv[name]++
@@ -255,15 +263,93 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			byDept[name]++
 		}
 	}
-	response.OK(w, map[string]any{
+
+	byDivArr := make([]map[string]any, 0, len(byDiv))
+	for name, count := range byDiv {
+		byDivArr = append(byDivArr, map[string]any{"name": name, "count": count})
+	}
+	byDeptArr := make([]map[string]any, 0, len(byDept))
+	for name, count := range byDept {
+		byDeptArr = append(byDeptArr, map[string]any{"name": name, "count": count})
+	}
+	byStatusArr := make([]map[string]any, 0, len(byStatusMap))
+	for status, count := range byStatusMap {
+		byStatusArr = append(byStatusArr, map[string]any{"status": status, "count": count})
+	}
+	trendArr := make([]map[string]any, 0, 6)
+	for i := 5; i >= 0; i-- {
+		t := time.Date(ref.Year(), ref.Month()-time.Month(i), 1, 0, 0, 0, 0, time.Local)
+		key := t.Format("2006-01")
+		trendArr = append(trendArr, map[string]any{"month": key, "count": trendMap[key]})
+	}
+
+	return map[string]any{
 		"totalEmployees":   total,
 		"activeEmployees":  active,
 		"totalDivisions":   len(divisions),
 		"totalDepartments": len(departments),
 		"totalPositions":   len(positions),
 		"newThisMonth":     newThisMonth,
-		"byDivision":       byDiv,
-		"byDepartment":     byDept,
+		"byDivision":       byDivArr,
+		"byDepartment":     byDeptArr,
+		"byStatus":         byStatusArr,
+		"trend":            trendArr,
+	}
+}
+
+func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	compareMode := r.URL.Query().Get("compareMode")
+
+	employees, err := h.store.ListAllEmployees(ctx)
+	if err != nil {
+		response.InternalError(w, err)
+		return
+	}
+	divisions, _ := h.store.ListActiveDivisions(ctx)
+	departments, _ := h.store.ListActiveDepartments(ctx)
+	positions, _ := h.store.ListActivePositions(ctx)
+
+	now := time.Now()
+	current := buildHRStats(employees, divisions, departments, positions, now)
+
+	if compareMode == "" {
+		response.OK(w, current)
+		return
+	}
+
+	// Determine previous reference time based on compareMode
+	var prevRef time.Time
+	var labelCurrent, labelPrevious string
+	switch compareMode {
+	case "lastMonth":
+		prevRef = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prevRef.Format("January 2006")
+	case "lastQuarter":
+		prevRef = now.AddDate(0, -3, 0)
+		labelCurrent = "ไตรมาสนี้"
+		labelPrevious = "ไตรมาสที่แล้ว"
+	case "lastYear":
+		prevRef = now.AddDate(-1, 0, 0)
+		labelCurrent = now.Format("2006")
+		labelPrevious = prevRef.Format("2006")
+	default:
+		prevRef = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prevRef.Format("January 2006")
+	}
+
+	previous := buildHRStats(employees, divisions, departments, positions, prevRef)
+
+	response.OK(w, map[string]any{
+		"compareMode": compareMode,
+		"current":     current,
+		"previous":    previous,
+		"labels": map[string]string{
+			"current":  labelCurrent,
+			"previous": labelPrevious,
+		},
 	})
 }
 

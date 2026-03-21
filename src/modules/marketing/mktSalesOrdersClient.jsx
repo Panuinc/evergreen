@@ -23,8 +23,8 @@ export default function SalesOrdersClient({ initialOrders }) {
 
   const filteredOrders = useMemo(() => {
     if (shipFilter === "all") return orders;
-    if (shipFilter === "shipped") return orders.filter((o) => o.bcSalesOrderCompletelyShipped);
-    return orders.filter((o) => !o.bcSalesOrderCompletelyShipped);
+    if (shipFilter === "shipped") return orders.filter((o) => o.bcSalesOrderCompletelyShipped === "true");
+    return orders.filter((o) => o.bcSalesOrderCompletelyShipped !== "true");
   }, [orders, shipFilter]);
 
   const handleNavigateToOrder = useCallback(

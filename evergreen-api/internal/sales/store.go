@@ -20,15 +20,23 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Dashboard ----
 
 func (s *Store) DashboardLeads(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT "salesLeadId" FROM "salesLead" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "salesLeadId", "salesLeadCreatedAt" FROM "salesLead" WHERE "isActive" = true`)
 }
 
 func (s *Store) DashboardOpportunities(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT "salesOpportunityId" FROM "salesOpportunity" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT "salesOpportunityId", "salesOpportunityStage", "salesOpportunityAmount",
+		       "salesOpportunityProbability", "salesOpportunityAssignedTo"
+		FROM "salesOpportunity" WHERE "isActive" = true
+	`)
 }
 
 func (s *Store) DashboardOrders(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT "salesOrderId" FROM "salesOrder" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `
+		SELECT "salesOrderId", "salesOrderStatus", "salesOrderTotal",
+		       "salesOrderCreatedAt", "salesOrderCreatedBy"
+		FROM "salesOrder" WHERE "isActive" = true
+	`)
 }
 
 func (s *Store) DashboardActivities(ctx context.Context) ([]map[string]any, error) {
@@ -37,6 +45,52 @@ func (s *Store) DashboardActivities(ctx context.Context) ([]map[string]any, erro
 
 func (s *Store) DashboardStages(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `SELECT "salesPipelineStageId", "salesPipelineStageName", "salesPipelineStageOrder", "salesPipelineStageColor" FROM "salesPipelineStage" ORDER BY "salesPipelineStageOrder"`)
+}
+
+func (s *Store) DashboardPipelineByStage(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			o."salesOpportunityStage"             AS "stage",
+			COALESCE(SUM(o."salesOpportunityAmount"), 0) AS "value",
+			p."salesPipelineStageColor"            AS "color"
+		FROM "salesOpportunity" o
+		LEFT JOIN "salesPipelineStage" p ON p."salesPipelineStageName" = o."salesOpportunityStage"
+		WHERE o."isActive" = true
+		  AND o."salesOpportunityStage" NOT IN ('won', 'lost')
+		GROUP BY o."salesOpportunityStage", p."salesPipelineStageColor"
+		ORDER BY MIN(COALESCE(p."salesPipelineStageOrder", 999))
+	`)
+}
+
+func (s *Store) DashboardRevenueByMonth(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			to_char("salesOrderCreatedAt", 'YYYY-MM') AS "month",
+			COALESCE(SUM("salesOrderTotal"), 0)       AS "revenue"
+		FROM "salesOrder"
+		WHERE "isActive" = true
+		  AND "salesOrderStatus" NOT IN ('cancelled')
+		  AND "salesOrderCreatedAt" >= CURRENT_DATE - INTERVAL '6 months'
+		GROUP BY to_char("salesOrderCreatedAt", 'YYYY-MM')
+		ORDER BY "month" ASC
+	`)
+}
+
+func (s *Store) DashboardTopSalespeople(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			"salesOrderCreatedBy"                     AS "name",
+			COUNT(*)                                  AS "deals",
+			COALESCE(SUM("salesOrderTotal"), 0)       AS "revenue"
+		FROM "salesOrder"
+		WHERE "isActive" = true
+		  AND "salesOrderStatus" NOT IN ('cancelled')
+		  AND "salesOrderCreatedBy" IS NOT NULL
+		  AND "salesOrderCreatedBy" != ''
+		GROUP BY "salesOrderCreatedBy"
+		ORDER BY "revenue" DESC
+		LIMIT 10
+	`)
 }
 
 // ---- Leads ----

@@ -283,7 +283,7 @@ func (s *Store) GetSalesOrderLines(ctx context.Context, no string) ([]map[string
 		SELECT "bcSalesOrderLineLineNo", "bcSalesOrderLineDocumentNo",
 		"bcSalesOrderLineNoValue", "bcSalesOrderLineDescriptionValue",
 		"bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineQuantityValue",
-		"bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"
+		"bcSalesOrderLineQuantityShipped", "bcSalesOrderLineOutstandingQuantity"
 		FROM "bcSalesOrderLine"
 		WHERE "bcSalesOrderLineDocumentNo" = $1 AND "bcSalesOrderLineOutstandingQuantity" > 0
 		ORDER BY "bcSalesOrderLineLineNo"
@@ -386,15 +386,90 @@ func (s *Store) LatestGpsLogs(ctx context.Context) ([]map[string]any, error) {
 // ---- Dashboard ----
 
 func (s *Store) DashboardVehicles(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT "tmsVehicleId", "tmsVehicleStatus" FROM "tmsVehicle" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "tmsVehicleId", "tmsVehicleName", "tmsVehiclePlateNumber", "tmsVehicleStatus" FROM "tmsVehicle" WHERE "isActive" = true`)
 }
 
 func (s *Store) DashboardShipments(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT "tmsShipmentId", "tmsShipmentStatus" FROM "tmsShipment" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "tmsShipmentId", "tmsShipmentStatus", "tmsShipmentVehicleId", "tmsShipmentDate" FROM "tmsShipment" WHERE "isActive" = true`)
 }
 
 func (s *Store) DashboardFuelLogs(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `SELECT "tmsFuelLogId", "tmsFuelLogTotalCost" FROM "tmsFuelLog" WHERE "isActive" = true`)
+	return db.QueryRows(ctx, s.pool, `SELECT "tmsFuelLogId", "tmsFuelLogTotalCost", "tmsFuelLogVehicleId", "tmsFuelLogDate" FROM "tmsFuelLog" WHERE "isActive" = true`)
+}
+
+func (s *Store) DashboardMonthlyShipments(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			to_char("tmsShipmentDate", 'YYYY-MM') AS "month",
+			COUNT(*) AS "count"
+		FROM "tmsShipment"
+		WHERE "isActive" = true
+		  AND "tmsShipmentDate" >= CURRENT_DATE - INTERVAL '6 months'
+		GROUP BY to_char("tmsShipmentDate", 'YYYY-MM')
+		ORDER BY "month" ASC
+	`)
+}
+
+func (s *Store) DashboardFuelTrend(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			to_char("tmsFuelLogDate", 'YYYY-MM') AS "month",
+			SUM("tmsFuelLogTotalCost") AS "totalCost"
+		FROM "tmsFuelLog"
+		WHERE "isActive" = true
+		  AND "tmsFuelLogDate" >= CURRENT_DATE - INTERVAL '6 months'
+		GROUP BY to_char("tmsFuelLogDate", 'YYYY-MM')
+		ORDER BY "month" ASC
+	`)
+}
+
+func (s *Store) DashboardVehicleUtilization(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			v."tmsVehicleName" AS "vehicleName",
+			COUNT(s."tmsShipmentId") AS "shipmentCount"
+		FROM "tmsVehicle" v
+		LEFT JOIN "tmsShipment" s ON s."tmsShipmentVehicleId" = v."tmsVehicleId" AND s."isActive" = true
+		WHERE v."isActive" = true
+		GROUP BY v."tmsVehicleId", v."tmsVehicleName"
+		ORDER BY "shipmentCount" DESC
+		LIMIT 10
+	`)
+}
+
+func (s *Store) DashboardVehiclePerformance(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		SELECT
+			v."tmsVehicleId",
+			v."tmsVehicleName"                              AS "vehicleName",
+			v."tmsVehiclePlateNumber"                       AS "plateNumber",
+			v."tmsVehicleStatus"                            AS "status",
+			v."tmsVehicleFuelConsumptionRate"               AS "fuelConsumptionRate",
+			COALESCE(SUM(s."tmsShipmentDistance"), 0)       AS "totalDistanceKm",
+			COUNT(DISTINCT s."tmsShipmentId")               AS "tripCount",
+			COALESCE(SUM(s."tmsShipmentFuelCost"), 0)       AS "actualFuelCost",
+			COALESCE(SUM(f."tmsFuelLogLiters"), 0)          AS "actualFuelLiters",
+			COALESCE(SUM(f."tmsFuelLogTotalCost"), 0)       AS "actualRate",
+			CASE
+				WHEN COALESCE(v."tmsVehicleFuelConsumptionRate", 0) > 0
+				THEN ROUND((COALESCE(SUM(s."tmsShipmentDistance"), 0) / v."tmsVehicleFuelConsumptionRate")::numeric, 2)
+				ELSE 0
+			END                                             AS "estimatedLiters",
+			CASE
+				WHEN COALESCE(v."tmsVehicleFuelConsumptionRate", 0) > 0
+				     AND COALESCE(SUM(f."tmsFuelLogLiters"), 0) > 0
+				THEN ROUND(
+					(COALESCE(SUM(s."tmsShipmentDistance"), 0) / v."tmsVehicleFuelConsumptionRate")
+					* (COALESCE(SUM(f."tmsFuelLogTotalCost"), 0) / COALESCE(SUM(f."tmsFuelLogLiters"), 1))::numeric, 2)
+				ELSE 0
+			END                                             AS "estimatedFuelCost"
+		FROM "tmsVehicle" v
+		LEFT JOIN "tmsShipment" s ON s."tmsShipmentVehicleId" = v."tmsVehicleId" AND s."isActive" = true
+		LEFT JOIN "tmsFuelLog" f ON f."tmsFuelLogVehicleId" = v."tmsVehicleId" AND f."isActive" = true
+		WHERE v."isActive" = true
+		GROUP BY v."tmsVehicleId", v."tmsVehicleName", v."tmsVehiclePlateNumber", v."tmsVehicleStatus", v."tmsVehicleFuelConsumptionRate"
+		ORDER BY "tripCount" DESC
+	`)
 }
 
 // ---- AI Analysis ----

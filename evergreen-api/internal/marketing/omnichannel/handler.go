@@ -301,7 +301,23 @@ func (h *Handler) ListStockItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	prices, _ := h.store.ListPriceItems(r.Context())
-	response.OK(w, map[string]any{"items": items, "prices": prices})
+
+	// Build price lookup by item number
+	priceMap := map[string]any{}
+	for _, p := range prices {
+		if no, ok := p["mktPriceItemNumber"].(string); ok {
+			priceMap[no] = p["mktPriceItemUnitPrice"]
+		}
+	}
+	// Merge customPrice into each item
+	for i, item := range items {
+		if no, ok := item["bcItemNo"].(string); ok {
+			if cp, exists := priceMap[no]; exists {
+				items[i]["customPrice"] = cp
+			}
+		}
+	}
+	response.OK(w, items)
 }
 
 func (h *Handler) UpsertPriceItems(w http.ResponseWriter, r *http.Request) {

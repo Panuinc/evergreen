@@ -14,9 +14,6 @@ const columns = [
   { name: "เลขที่เอกสาร", uid: "bcItemLedgerEntryDocumentNo", sortable: true },
   { name: "รหัสสินค้า", uid: "bcItemLedgerEntryItemNo", sortable: true },
   { name: "รายละเอียด", uid: "bcItemLedgerEntryItemDescription", sortable: true },
-  { name: "รายละเอียด 2", uid: "_removedDescription2" },
-  { name: "พนักงาน", uid: "_removedEmployeeCode" },
-  { name: "ชื่อพนักงาน", uid: "_removedEmployeeName" },
   { name: "คลัง", uid: "bcItemLedgerEntryLocationCode", sortable: true },
   { name: "Lot No", uid: "bcItemLedgerEntryLotNo" },
   { name: "Serial No", uid: "bcItemLedgerEntrySerialNo" },
@@ -26,26 +23,13 @@ const columns = [
   { name: "คงเหลือ", uid: "bcItemLedgerEntryRemainingQuantity", sortable: true },
   { name: "จำนวนออกใบแจ้งหนี้", uid: "bcItemLedgerEntryInvoicedQuantity", sortable: true },
   { name: "ออกใบแจ้งหนี้ครบ", uid: "bcItemLedgerEntryCompletelyInvoiced" },
-  { name: "ต้นทุนต่อหน่วย (คาด)", uid: "bcItemLedgerEntryUnitCostExpected", sortable: true },
-  { name: "ต้นทุนรวม (คาด)", uid: "bcItemLedgerEntryCostAmountExpected", sortable: true },
-  { name: "ต้นทุนต่อหน่วย (จริง)", uid: "bcItemLedgerEntryUnitCostActual", sortable: true },
-  { name: "ต้นทุนจริง", uid: "bcItemLedgerEntryCostAmountActual", sortable: true },
-  { name: "ยอดขาย (คาด)", uid: "bcItemLedgerEntrySalesAmountExpected", sortable: true },
-  { name: "ยอดขาย (จริง)", uid: "bcItemLedgerEntrySalesAmountActual", sortable: true },
   { name: "Open", uid: "bcItemLedgerEntryOpenValue" },
   { name: "รหัสแผนก", uid: "bcItemLedgerEntryGlobalDimension1Code", sortable: true },
-  { name: "ชื่อแผนก", uid: "_removedDim1Name", sortable: true },
   { name: "รหัสโครงการ", uid: "bcItemLedgerEntryGlobalDimension2Code", sortable: true },
-  { name: "ชื่อโครงการ", uid: "_removedDim2Name", sortable: true },
   { name: "Order Type", uid: "bcItemLedgerEntryOrderType" },
   { name: "Order Line No", uid: "bcItemLedgerEntryOrderLineNo" },
   { name: "Document Line No", uid: "bcItemLedgerEntryDocumentLineNo" },
   { name: "Variant Code", uid: "bcItemLedgerEntryVariantCode" },
-  { name: "Bin", uid: "bcItemLedgerEntryBinCode" },
-  { name: "หน่วยพื้นฐาน", uid: "bcItemLedgerEntryBaseUnitOfMeasure" },
-  { name: "น้ำหนักรวม (Gross)", uid: "bcItemLedgerEntryTotalGrossWeight", sortable: true },
-  { name: "น้ำหนักรวม (Net)", uid: "bcItemLedgerEntryTotalNetWeight", sortable: true },
-  { name: "ผู้สร้าง", uid: "bcItemLedgerEntryCreatedBy" },
   { name: "Synced At", uid: "bcSyncedAt", sortable: true },
 ];
 
@@ -58,9 +42,6 @@ const initialVisibleColumns = [
   "bcItemLedgerEntryDocumentNo",
   "bcItemLedgerEntryItemNo",
   "bcItemLedgerEntryItemDescription",
-  "_removedDescription2",
-  "_removedEmployeeCode",
-  "_removedEmployeeName",
   "bcItemLedgerEntryLocationCode",
   "bcItemLedgerEntryLotNo",
   "bcItemLedgerEntrySerialNo",
@@ -70,26 +51,13 @@ const initialVisibleColumns = [
   "bcItemLedgerEntryRemainingQuantity",
   "bcItemLedgerEntryInvoicedQuantity",
   "bcItemLedgerEntryCompletelyInvoiced",
-  "bcItemLedgerEntryUnitCostExpected",
-  "bcItemLedgerEntryCostAmountExpected",
-  "bcItemLedgerEntryUnitCostActual",
-  "bcItemLedgerEntryCostAmountActual",
-  "bcItemLedgerEntrySalesAmountExpected",
-  "bcItemLedgerEntrySalesAmountActual",
   "bcItemLedgerEntryOpenValue",
   "bcItemLedgerEntryGlobalDimension1Code",
-  "_removedDim1Name",
   "bcItemLedgerEntryGlobalDimension2Code",
-  "_removedDim2Name",
   "bcItemLedgerEntryOrderType",
   "bcItemLedgerEntryOrderLineNo",
   "bcItemLedgerEntryDocumentLineNo",
   "bcItemLedgerEntryVariantCode",
-  "bcItemLedgerEntryBinCode",
-  "bcItemLedgerEntryBaseUnitOfMeasure",
-  "bcItemLedgerEntryTotalGrossWeight",
-  "bcItemLedgerEntryTotalNetWeight",
-  "bcItemLedgerEntryCreatedBy",
   "bcSyncedAt",
 ];
 
@@ -180,7 +148,7 @@ export default function EntriesView({ data, loading }) {
           : "-";
       case "bcItemLedgerEntryCompletelyInvoiced":
       case "bcItemLedgerEntryOpenValue":
-        return row[columnKey] ? "Yes" : "No";
+        return row[columnKey] === true || row[columnKey] === "true" ? "Yes" : "No";
       case "bcItemLedgerEntryItemDescription":
       case "_removedDescription2":
         return (

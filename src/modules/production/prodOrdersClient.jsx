@@ -12,7 +12,7 @@ export default function OrdersClient({ initialData }) {
     try {
       setLoading(true);
       const { get } = await import("@/lib/apiClient");
-      const result = await get("/api/bc/productionOrders");
+      const result = await get("/api/production/orders");
       setData(result);
     } catch (error) {
       toast.error("โหลดข้อมูลใบสั่งผลิตล้มเหลว");

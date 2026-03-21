@@ -1,8 +1,10 @@
 package production
 
 import (
+	"fmt"
 	"math"
 	"net/http"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -741,6 +743,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		type itemProfit struct {
 			itemNo       string
 			description  string
+			category     string
 			outputQty    float64
 			revenue      float64
 			consCost     float64
@@ -765,6 +768,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 				ip = &itemProfit{
 					itemNo:       oe.itemNo,
 					description:  desc,
+					category:     oe.itemCategory,
 					sellingPrice: price,
 				}
 				itemProfitMap[oe.itemNo] = ip
@@ -815,6 +819,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			profitByItem = append(profitByItem, map[string]any{
 				"itemNo":          ip.itemNo,
 				"description":     ip.description,
+				"category":        ip.category,
 				"sellingPrice":    ip.sellingPrice,
 				"costPerUnit":     costPerUnit,
 				"outputQty":       ip.outputQty,
@@ -1147,10 +1152,154 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	wpc := buildTab(wpcOrders.orders)
 	other := buildTab(otherOrders.orders)
 
+	compareMode := r.URL.Query().Get("compareMode")
+	if compareMode == "" {
+		response.OK(w, map[string]any{
+			"wpc":   wpc,
+			"other": other,
+		})
+		return
+	}
+
+	// When compareMode is set, wrap wpc/other in current/previous structure.
+	// Production data is all-time historical BC data, so previous = empty snapshot.
+	emptyTab := buildTab([]map[string]any{})
+	var labelCurrent, labelPrevious string
+	switch compareMode {
+	case "lastMonth":
+		prev := time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prev.Format("January 2006")
+	case "lastQuarter":
+		labelCurrent = "ไตรมาสนี้"
+		labelPrevious = "ไตรมาสที่แล้ว"
+	case "lastYear":
+		labelCurrent = now.Format("2006")
+		labelPrevious = now.AddDate(-1, 0, 0).Format("2006")
+	default:
+		prev := time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.Local)
+		labelCurrent = now.Format("January 2006")
+		labelPrevious = prev.Format("January 2006")
+	}
+
 	response.OK(w, map[string]any{
-		"wpc":   wpc,
-		"other": other,
+		"compareMode": compareMode,
+		"wpc": map[string]any{
+			"current":  wpc,
+			"previous": emptyTab,
+		},
+		"other": map[string]any{
+			"current":  other,
+			"previous": emptyTab,
+		},
+		"labels": map[string]string{
+			"current":  labelCurrent,
+			"previous": labelPrevious,
+		},
 	})
+}
+
+// ---- Orders (enriched) ----
+
+func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	prodOrders, err := h.store.GetProductionOrders(ctx)
+	if err != nil {
+		response.InternalError(w, err)
+		return
+	}
+	ileEntries, _ := h.store.GetItemLedgerEntries(ctx)
+	consumptionCosts, _ := h.store.GetConsumptionCosts(ctx)
+	salesPriceRows, _ := h.store.GetSalesPriceMap(ctx)
+	dimNameRows, _ := h.store.GetDimensionNames(ctx)
+
+	salesPriceMap := map[string]float64{}
+	for _, row := range salesPriceRows {
+		if no := toStr(row["itemNo"]); no != "" {
+			salesPriceMap[no] = toFloat(row["unitPrice"])
+		}
+	}
+
+	deptNameMap := map[string]string{}
+	projNameMap := map[string]string{}
+	for _, row := range dimNameRows {
+		code, valCode, valName := toStr(row["dimCode"]), toStr(row["valueCode"]), toStr(row["valueName"])
+		if code == "DEPARTMENT" && valCode != "" {
+			deptNameMap[valCode] = valName
+		}
+		if code == "PROJECT" && valCode != "" {
+			projNameMap[valCode] = valName
+		}
+	}
+
+	// outputQty per order
+	outputQtyMap := map[string]float64{}
+	for _, e := range ileEntries {
+		if toStr(e["entryType"]) == "Output" {
+			orderNo := toStr(e["orderNo"])
+			outputQtyMap[orderNo] += toFloat(e["quantity"])
+		}
+	}
+
+	// consumptionCost per order
+	costMap := map[string]float64{}
+	for _, c := range consumptionCosts {
+		orderNo := toStr(c["orderNo"])
+		costMap[orderNo] += toFloat(c["costAmount"])
+	}
+
+	result := make([]map[string]any, 0, len(prodOrders))
+	for _, po := range prodOrders {
+		orderNo := toStr(po["orderNo"])
+		sourceNo := toStr(po["sourceNo"])
+		dim1 := toStr(po["dim1Code"])
+		dim2 := toStr(po["dim2Code"])
+
+		outputQty := outputQtyMap[orderNo]
+		consumptionCost := costMap[orderNo]
+
+		unitPrice := salesPriceMap[sourceNo]
+		if unitPrice == 0 {
+			unitPrice = toFloat(po["itemUnitPrice"])
+		}
+		revenue := outputQty * unitPrice
+		profit := revenue - consumptionCost
+		profitMargin := 0.0
+		if revenue > 0 {
+			profitMargin = roundTo(profit/revenue*100, 1)
+		}
+
+		result = append(result, map[string]any{
+			"bcProductionOrderId":                     orderNo,
+			"bcProductionOrderNo":                     orderNo,
+			"bcProductionOrderStatus":                 po["status"],
+			"bcProductionOrderDescription":            po["description"],
+			"bcProductionOrderDescription2":           po["description2"],
+			"bcProductionOrderSourceNo":               sourceNo,
+			"bcProductionOrderRoutingNo":              po["routingNo"],
+			"bcProductionOrderQuantity":               po["quantity"],
+			"bcProductionOrderDueDate":                po["dueDate"],
+			"bcProductionOrderFinishedDate":           po["finishedDate"],
+			"bcProductionOrderStartingDateTime":       po["startingDateTime"],
+			"bcProductionOrderEndingDateTime":         po["endingDateTime"],
+			"bcProductionOrderShortcutDimension1Code": dim1,
+			"bcProductionOrderShortcutDimension2Code": dim2,
+			"bcProductionOrderLocationCode":           po["locationCode"],
+			"bcProductionOrderAssignedUserID":         po["assignedUserID"],
+			"bcProductionOrderSearchDescription":      po["searchDescription"],
+			"outputQty":                               roundTo(outputQty, 2),
+			"consumptionCost":                         roundTo(consumptionCost, 2),
+			"unitPrice":                               unitPrice,
+			"revenue":                                 roundTo(revenue, 2),
+			"profit":                                  roundTo(profit, 2),
+			"profitMargin":                            profitMargin,
+			"dimension1Name":                          deptNameMap[dim1],
+			"dimension2Name":                          projNameMap[dim2],
+		})
+	}
+
+	response.OK(w, result)
 }
 
 // ---- Cores ----
@@ -1161,7 +1310,71 @@ func (h *Handler) ListCores(w http.ResponseWriter, r *http.Request) {
 		response.InternalError(w, err)
 		return
 	}
-	response.OK(w, data)
+
+	result := map[string][]map[string]any{
+		"foam":      {},
+		"rockwool":  {},
+		"particle":  {},
+		"plywood":   {},
+		"honeycomb": {},
+	}
+
+	for _, item := range data {
+		cat := strings.ToLower(strings.ReplaceAll(toStr(item["category"]), " ", ""))
+		group := ""
+		switch {
+		case strings.Contains(cat, "foam") || strings.Contains(cat, "eps") || strings.Contains(cat, "โฟม"):
+			group = "foam"
+		case strings.Contains(cat, "rockwool") || strings.Contains(cat, "rock") || strings.Contains(cat, "รอควูล"):
+			group = "rockwool"
+		case strings.Contains(cat, "particle") || strings.Contains(cat, "ปาร์ติ"):
+			group = "particle"
+		case strings.Contains(cat, "plywood") || strings.Contains(cat, "ply") || strings.Contains(cat, "ไม้อัด"):
+			group = "plywood"
+		case strings.Contains(cat, "honeycomb") || strings.Contains(cat, "รังผึ้ง"):
+			group = "honeycomb"
+		default:
+			group = cat
+		}
+		if _, ok := result[group]; !ok {
+			result[group] = []map[string]any{}
+		}
+
+		desc := toStr(item["desc"])
+		desc2 := toStr(item["desc2"])
+		src := desc2
+		if src == "" {
+			src = desc
+		}
+		w2, t, l := parseDimensions(src)
+
+		result[group] = append(result[group], map[string]any{
+			"code":      item["code"],
+			"desc":      desc,
+			"unitCost":  item["unitCost"],
+			"unitPrice": item["unitPrice"],
+			"inventory": item["inventory"],
+			"uom":       item["uom"],
+			"category":  item["category"],
+			"width":     w2,
+			"thickness": t,
+			"length":    l,
+		})
+	}
+
+	response.OK(w, result)
+}
+
+// parseDimensions extracts [width, thickness, length] from a string like "30x60x4000" or "30×60×4000".
+func parseDimensions(s string) (width, thickness, length float64) {
+	re := regexp.MustCompile(`(\d+(?:\.\d+)?)[xX×](\d+(?:\.\d+)?)[xX×](\d+(?:\.\d+)?)`)
+	m := re.FindStringSubmatch(s)
+	if len(m) == 4 {
+		fmt.Sscanf(m[1], "%f", &width)
+		fmt.Sscanf(m[2], "%f", &thickness)
+		fmt.Sscanf(m[3], "%f", &length)
+	}
+	return
 }
 
 // ---- Frames ----
@@ -1172,7 +1385,52 @@ func (h *Handler) ListFrames(w http.ResponseWriter, r *http.Request) {
 		response.InternalError(w, err)
 		return
 	}
-	response.OK(w, data)
+
+	result := map[string][]map[string]any{
+		"rubberwood": {},
+		"sadao":      {},
+		"lvl":        {},
+	}
+
+	for _, item := range data {
+		code := toStr(item["code"])
+		group := ""
+		switch {
+		case strings.HasPrefix(code, "RM-14-01"):
+			group = "rubberwood"
+		case strings.HasPrefix(code, "RM-14-04"):
+			group = "sadao"
+		case strings.HasPrefix(code, "RM-16-19"):
+			group = "lvl"
+		}
+		if group == "" {
+			continue
+		}
+
+		desc := toStr(item["desc"])
+		desc2 := toStr(item["desc2"])
+		src := desc2
+		if src == "" {
+			src = desc
+		}
+		w2, t, l := parseDimensions(src)
+
+		enriched := map[string]any{
+			"code":      code,
+			"desc":      desc,
+			"unitCost":  item["unitCost"],
+			"unitPrice": item["unitPrice"],
+			"inventory": item["inventory"],
+			"uom":       item["uom"],
+			"category":  item["category"],
+			"width":     w2,
+			"thickness": t,
+			"length":    l,
+		}
+		result[group] = append(result[group], enriched)
+	}
+
+	response.OK(w, result)
 }
 
 // ---- FG Coverage ----

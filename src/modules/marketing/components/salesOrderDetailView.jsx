@@ -18,7 +18,8 @@ const lineColumns = [
   { name: "จำนวน", uid: "bcSalesOrderLineQuantityValue", sortable: true },
   { name: "หน่วย", uid: "bcSalesOrderLineUnitOfMeasureCode" },
   { name: "ราคา/หน่วย", uid: "bcSalesOrderLineUnitPrice", sortable: true },
-  { name: "ยอดรวม", uid: "bcSalesOrderLineAmountValue", sortable: true },
+  { name: "ส่วนลด %", uid: "bcSalesOrderLineLineDiscount" },
+  { name: "ยอดรวม (รวม VAT)", uid: "bcSalesOrderLineAmountIncludingVAT", sortable: true },
   { name: "ส่งแล้ว", uid: "bcSalesOrderLineQuantityValueShipped" },
   { name: "คงค้าง", uid: "bcSalesOrderLineOutstandingQuantity" },
 ];
@@ -44,8 +45,15 @@ export default function SalesOrderDetailView({
       case "bcSalesOrderLineQuantityValueShipped":
       case "bcSalesOrderLineOutstandingQuantity":
         return <span className="block text-right">{item[columnKey] || 0}</span>;
+      case "bcSalesOrderLineLineDiscount":
+        return (
+          <span className="block text-right">
+            {item[columnKey] ? `${item[columnKey]}%` : "-"}
+          </span>
+        );
       case "bcSalesOrderLineUnitPrice":
       case "bcSalesOrderLineAmountValue":
+      case "bcSalesOrderLineAmountIncludingVAT":
         return (
           <span className="block text-right font-light">
             {(item[columnKey] || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -184,7 +192,7 @@ export default function SalesOrderDetailView({
           data={order.lines || []}
           renderCell={renderLineCell}
           rowKey="bcSalesOrderLineLineNo"
-          initialVisibleColumns={["bcSalesOrderLineLineNoValue", "bcSalesOrderLineDescriptionValue", "_removedProjectName", "bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineUnitPrice", "bcSalesOrderLineAmountValue", "bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"]}
+          initialVisibleColumns={["bcSalesOrderLineLineNoValue", "bcSalesOrderLineDescriptionValue", "_removedProjectName", "bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineUnitPrice", "bcSalesOrderLineLineDiscount", "bcSalesOrderLineAmountIncludingVAT", "bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"]}
           emptyContent="ไม่มีรายการ"
           defaultRowsPerPage={20}
         />

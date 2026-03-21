@@ -21,7 +21,6 @@ import TopConsumedItemsChart from "@/modules/production/components/topConsumedIt
 import CostByDepartmentChart from "@/modules/production/components/costByDepartmentChart";
 import OnTimeTrendChart from "@/modules/production/components/onTimeTrendChart";
 import LeadTimeTrendChart from "@/modules/production/components/leadTimeTrendChart";
-import EmployeeSpecializationChart from "@/modules/production/components/employeeSpecializationChart";
 import FgOutputBreakdownChart from "@/modules/production/components/fgOutputBreakdownChart";
 import ProfitByItemChart from "@/modules/production/components/profitByItemChart";
 import ProfitByProjectSection from "@/modules/production/components/profitByProjectSection";
@@ -302,11 +301,6 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
           <TopOutputItemsChart data={d.topOutputItems} />
         </ChartCard>
       </div>
-
-      {}
-      <ChartCard title="ช่างเก่งด้านไหน (ผลผลิตตามประเภทสินค้า)">
-        <EmployeeSpecializationChart data={d.employeeSpecialization} />
-      </ChartCard>
 
       {}
       <ChartCard title="WIP รายใบสั่งผลิต (Released — แดง: ต้นทุน>รายได้ / เขียว: กำไร)">

@@ -6,7 +6,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"io"
+	"math"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -156,51 +158,155 @@ func (h *Handler) processIncomingMessage(r *http.Request, channelType, externalI
 
 func (h *Handler) Analytics(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	dateFrom, dateTo := parseDateRange(r)
 
-	// Get ONLINE sales orders with lines
-	orders, _ := h.store.GetOnlineSalesOrders(ctx)
-	lines, _ := h.store.GetOnlineSalesOrderLines(ctx)
+	summary, _ := h.store.GetAnalyticsSummary(ctx, dateFrom, dateTo)
+	periodRow, _ := h.store.GetPeriodStats(ctx)
+	monthlyTrend, _ := h.store.GetMonthlyTrend(ctx, dateFrom, dateTo)
+	dailyTrend, _ := h.store.GetDailyTrend(ctx, dateFrom, dateTo)
+	revenueByDay, _ := h.store.GetRevenueByDayOfWeek(ctx, dateFrom, dateTo)
+	yoyComparison, _ := h.store.GetYoYComparison(ctx)
+	orderStatusDist, _ := h.store.GetOrderStatusDist(ctx, dateFrom, dateTo)
+	locationDist, _ := h.store.GetLocationDist(ctx, dateFrom, dateTo)
+	orderValueDist, _ := h.store.GetOrderValueDist(ctx, dateFrom, dateTo)
+	monthlyComparison, _ := h.store.GetMonthlyComparison(ctx)
+	customerInsights, _ := h.store.GetCustomerInsights(ctx, dateFrom, dateTo)
+	fulfillmentMetrics, _ := h.store.GetFulfillmentMetrics(ctx, dateFrom, dateTo)
+	topCustomers, _ := h.store.GetTopCustomers(ctx, dateFrom, dateTo)
+	topSkus, _ := h.store.GetTopSkus(ctx, dateFrom, dateTo)
 
-	// Aggregation
-	totalOrders := len(orders)
-	totalAmount := 0.0
-	shippedCount := 0
-	byStatus := map[string]int{}
-
-	for _, o := range orders {
-		if amt, ok := o["bcSalesOrderAmountIncludingVAT"].(float64); ok {
-			totalAmount += amt
-		}
-		if shipped, ok := o["bcSalesOrderCompletelyShipped"].(bool); ok && shipped {
-			shippedCount++
-		}
-		if status, ok := o["bcSalesOrderStatus"].(string); ok {
-			byStatus[status]++
-		}
+	// KPIs
+	totalOrders := toInt(summary["totalOrders"])
+	totalRevenue := toFloat(summary["totalRevenue"])
+	shippedOrders := toInt(summary["shippedOrders"])
+	avgOrderValue := 0.0
+	if totalOrders > 0 {
+		avgOrderValue = totalRevenue / float64(totalOrders)
 	}
 
-	// Lines aggregation
-	totalQty := 0.0
-	totalLineAmount := 0.0
-	for _, l := range lines {
-		if qty, ok := l["bcSalesOrderLineQuantityValue"].(float64); ok {
-			totalQty += qty
-		}
-		if amt, ok := l["bcSalesOrderLineAmountValue"].(float64); ok {
-			totalLineAmount += amt
-		}
+	// Period stats
+	var dtdRevenue, wtdRevenue, mtdRevenue, ytdRevenue float64
+	var dtdOrders, wtdOrders, mtdOrders, ytdOrders int
+	var prevWtdRevenue, prevMtdRevenue, prevYtdRevenue float64
+	if periodRow != nil {
+		dtdRevenue = toFloat(periodRow["dtdRevenue"])
+		dtdOrders = toInt(periodRow["dtdOrders"])
+		wtdRevenue = toFloat(periodRow["wtdRevenue"])
+		wtdOrders = toInt(periodRow["wtdOrders"])
+		mtdRevenue = toFloat(periodRow["mtdRevenue"])
+		mtdOrders = toInt(periodRow["mtdOrders"])
+		ytdRevenue = toFloat(periodRow["ytdRevenue"])
+		ytdOrders = toInt(periodRow["ytdOrders"])
+		prevWtdRevenue = toFloat(periodRow["prevWtdRevenue"])
+		prevMtdRevenue = toFloat(periodRow["prevMtdRevenue"])
+		prevYtdRevenue = toFloat(periodRow["prevYtdRevenue"])
 	}
 
 	response.OK(w, map[string]any{
-		"totalOrders":     totalOrders,
-		"totalAmount":     totalAmount,
-		"shippedCount":    shippedCount,
-		"pendingCount":    totalOrders - shippedCount,
-		"byStatus":        byStatus,
-		"totalItems":      len(lines),
-		"totalQty":        totalQty,
-		"totalLineAmount": totalLineAmount,
+		"stats": map[string]any{
+			"totalOrders":   totalOrders,
+			"totalRevenue":  totalRevenue,
+			"shippedOrders": shippedOrders,
+			"pendingOrders": totalOrders - shippedOrders,
+			"avgOrderValue": avgOrderValue,
+
+			"dtd":       map[string]any{"revenue": dtdRevenue, "orders": dtdOrders},
+			"wtd":       map[string]any{"revenue": wtdRevenue, "orders": wtdOrders},
+			"mtd":       map[string]any{"revenue": mtdRevenue, "orders": mtdOrders},
+			"ytd":       map[string]any{"revenue": ytdRevenue, "orders": ytdOrders},
+			"wowGrowth": growthRate(wtdRevenue, prevWtdRevenue),
+			"mtdGrowth": growthRate(mtdRevenue, prevMtdRevenue),
+			"ytdGrowth": growthRate(ytdRevenue, prevYtdRevenue),
+
+			"monthlyTrend":       monthlyTrend,
+			"dailyTrend":         dailyTrend,
+			"revenueByDayOfWeek": revenueByDay,
+			"yoyComparison":      yoyComparison,
+			"orderStatusDist":    orderStatusDist,
+			"fulfillmentMetrics": fulfillmentMetrics,
+			"locationDist":       locationDist,
+			"orderValueDist":     orderValueDist,
+			"monthlyComparison":  monthlyComparison,
+			"customerInsights":   customerInsights,
+			"customerSegmentation": map[string]any{
+				"totalCustomers": 0,
+				"byChannel":      []any{},
+				"byGroup":        []any{},
+				"byType":         []any{},
+			},
+			"topCustomers": topCustomers,
+			"topSkus":      topSkus,
+		},
 	})
+}
+
+// parseDateRange converts ?period= or ?startDate=&endDate= into a date window.
+func parseDateRange(r *http.Request) (string, string) {
+	period := r.URL.Query().Get("period")
+	startDate := r.URL.Query().Get("startDate")
+	endDate := r.URL.Query().Get("endDate")
+	now := time.Now()
+	switch period {
+	case "day":
+		d := now.Format("2006-01-02")
+		return d, d
+	case "week":
+		weekday := int(now.Weekday())
+		if weekday == 0 {
+			weekday = 7
+		}
+		weekStart := now.AddDate(0, 0, -(weekday - 1))
+		return weekStart.Format("2006-01-02"), now.Format("2006-01-02")
+	case "month":
+		monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		return monthStart.Format("2006-01-02"), now.Format("2006-01-02")
+	case "year":
+		yearStart := time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())
+		return yearStart.Format("2006-01-02"), now.Format("2006-01-02")
+	default:
+		return startDate, endDate
+	}
+}
+
+// growthRate computes percentage change; returns nil when previous is 0 and current is also 0.
+func growthRate(current, prev float64) any {
+	if prev == 0 {
+		if current > 0 {
+			return 100.0
+		}
+		return nil
+	}
+	return math.Round((current-prev)/prev*1000) / 10
+}
+
+func toFloat(v any) float64 {
+	switch x := v.(type) {
+	case float64:
+		return x
+	case float32:
+		return float64(x)
+	case int64:
+		return float64(x)
+	case int32:
+		return float64(x)
+	case int:
+		return float64(x)
+	}
+	return 0
+}
+
+func toInt(v any) int {
+	switch x := v.(type) {
+	case int64:
+		return int(x)
+	case int32:
+		return int(x)
+	case float64:
+		return int(x)
+	case int:
+		return x
+	}
+	return 0
 }
 
 // ---- Sales Orders (from Supabase) ----
@@ -225,14 +331,15 @@ func (h *Handler) GetSalesOrder(w http.ResponseWriter, r *http.Request) {
 	order["lines"] = lines
 
 	// Get customer phone
+	customerPhone := ""
 	custNo, _ := order["bcSalesOrderSellToCustomerNo"].(string)
 	if custNo != "" {
 		cust, _ := h.store.GetCustomerPhone(r.Context(), custNo)
 		if cust != nil {
-			order["customerPhone"] = cust["bcCustomerPhoneNo"]
+			customerPhone, _ = cust["bcCustomerPhoneNo"].(string)
 		}
 	}
-	response.OK(w, order)
+	response.OK(w, map[string]any{"order": order, "customerPhone": customerPhone})
 }
 
 // ---- Work Orders ----

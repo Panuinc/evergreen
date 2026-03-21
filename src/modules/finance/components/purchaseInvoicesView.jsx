@@ -136,7 +136,7 @@ export default function PurchaseInvoicesView({ data, loading, selected, isOpen, 
         columns={columns}
         data={data}
         renderCell={renderCell}
-        rowKey="id"
+        rowKey="bcPostedPurchInvoiceId"
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาเลขที่ใบแจ้งหนี้, เจ้าหนี้..."
