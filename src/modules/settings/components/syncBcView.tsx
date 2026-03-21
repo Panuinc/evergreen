@@ -271,13 +271,15 @@ function BciImportSection({ importing, result, error, fileName, handleFileChange
 }
 
 function BcSyncSection({
-  syncingAll,
+  syncingMode,
   allResult,
   allError,
   phases,
   lastSync,
-  handleSyncAll,
+  handleSync,
 }: BcSyncSectionProps) {
+  const isSyncing = syncingMode !== null;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -285,16 +287,29 @@ function BcSyncSection({
           <p className="text-xs font-light">Business Central (BC)</p>
           <p className="text-xs text-muted-foreground">ดึงข้อมูลลูกค้า สินค้า และคำสั่งซื้อจาก BC</p>
         </div>
-        <Button
-          variant="bordered"
-          size="md"
-          radius="md"
-          startContent={syncingAll ? <Loader2 className="animate-spin" /> : <RefreshCw />}
-          onPress={handleSyncAll}
-          isDisabled={syncingAll}
-        >
-          {syncingAll ? "กำลังซิงค์..." : "ซิงค์ทั้งหมด"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="flat"
+            size="md"
+            radius="md"
+            startContent={syncingMode === "incremental" ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+            onPress={() => handleSync("incremental")}
+            isDisabled={isSyncing}
+          >
+            {syncingMode === "incremental" ? "กำลังซิงค์..." : "Incremental Sync"}
+          </Button>
+          <Button
+            color="primary"
+            variant="bordered"
+            size="md"
+            radius="md"
+            startContent={syncingMode === "full" ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+            onPress={() => handleSync("full")}
+            isDisabled={isSyncing}
+          >
+            {syncingMode === "full" ? "กำลังซิงค์..." : "Full Sync"}
+          </Button>
+        </div>
       </div>
 
       {lastSync && (
@@ -304,8 +319,7 @@ function BcSyncSection({
         </div>
       )}
 
-      {}
-      {syncingAll && <SyncProgressPanel phases={phases} />}
+      {isSyncing && <SyncProgressPanel phases={phases} />}
 
       {allError && (
         <Card shadow="none" className="border-2 border-danger bg-danger-50">
@@ -345,12 +359,12 @@ function BcSyncSection({
 }
 
 export default function SyncBcView({
-  syncingAll,
+  syncingMode,
   allResult,
   allError,
   phases,
   lastSync,
-  handleSyncAll,
+  handleSync,
   importing,
   importResult,
   importError,
@@ -362,12 +376,12 @@ export default function SyncBcView({
       <p className="text-xs font-light">ซิงค์ข้อมูล</p>
 
       <BcSyncSection
-        syncingAll={syncingAll}
+        syncingMode={syncingMode}
         allResult={allResult}
         allError={allError}
         phases={phases}
         lastSync={lastSync}
-        handleSyncAll={handleSyncAll}
+        handleSync={handleSync}
       />
 
       <Divider />

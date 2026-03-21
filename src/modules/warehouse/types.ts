@@ -5,7 +5,6 @@
 
 export interface BcItem {
   bcItemNo: string;
-  bcItemDisplayName: string;
   bcItemDescription: string | null;
   bcItemType: string | null;
   bcItemInventory: number | null;
@@ -16,6 +15,7 @@ export interface BcItem {
   bcItemGenProdPostingGroup: string | null;
   bcItemGlobalDimension1Code: string | null;
   bcItemRfidCode: string | null;
+  projectName: string | null;
 }
 
 // ─── bcSalesOrder ─────────────────────────────────────────────────────────────

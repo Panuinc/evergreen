@@ -42,6 +42,9 @@ scripts/replace-secrets.sh
 *.xlsx
 *.xls
 
+# database exports
+docs/database-full-export.json
+
 # claude code
 .agents/
 .claude/

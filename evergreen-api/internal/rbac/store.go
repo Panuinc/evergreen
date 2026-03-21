@@ -79,7 +79,7 @@ func (s *Store) DeleteRole(ctx context.Context, id string) error {
 // ---- Permissions ----
 
 func (s *Store) ListPermissions(ctx context.Context, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT p."rbacPermissionId", p."rbacPermissionResourceId", p."rbacPermissionActionId", p."rbacPermissionCreatedAt", p."isActive",
+	q := `SELECT p."rbacPermissionId", p."rbacPermissionResourceId", p."rbacPermissionActionId", p."isActive",
 		json_build_object('rbacResourceId', res."rbacResourceId", 'rbacResourceName', res."rbacResourceName", 'rbacResourceDescription', res."rbacResourceDescription") as "rbacResource",
 		json_build_object('rbacActionId', act."rbacActionId", 'rbacActionName', act."rbacActionName") as "rbacAction"
 		FROM "rbacPermission" p
@@ -108,7 +108,7 @@ func (s *Store) DeletePermission(ctx context.Context, id string) error {
 // ---- Resources ----
 
 func (s *Store) ListResources(ctx context.Context, includeInactive bool) ([]map[string]any, error) {
-	q := `SELECT "rbacResourceId", "rbacResourceName", "rbacResourceDescription", "rbacResourceModuleRef", "rbacResourceCreatedAt", "isActive" FROM "rbacResource"`
+	q := `SELECT "rbacResourceId", "rbacResourceName", "rbacResourceDescription", "rbacResourceModuleRef", "isActive" FROM "rbacResource"`
 	if !includeInactive {
 		q += ` WHERE "isActive" = true`
 	}
@@ -285,9 +285,11 @@ func (s *Store) GetUserPermissions(ctx context.Context, userId string) ([]map[st
 
 func (s *Store) ListAccessLogs(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT "rbacAccessLogId", "rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction", "rbacAccessLogGranted", "rbacAccessLogCreatedAt"
-		FROM "rbacAccessLog"
-		ORDER BY "rbacAccessLogCreatedAt" DESC
+		SELECT l."rbacAccessLogId", l."rbacAccessLogUserId", l."rbacAccessLogResource", l."rbacAccessLogAction", l."rbacAccessLogGranted", l."rbacAccessLogCreatedAt",
+			COALESCE(u."rbacUserProfileEmail", l."rbacAccessLogUserId"::text) AS "rbacUserProfileEmail"
+		FROM "rbacAccessLog" l
+		LEFT JOIN "rbacUserProfile" u ON u."rbacUserProfileId" = l."rbacAccessLogUserId"
+		ORDER BY l."rbacAccessLogCreatedAt" DESC
 		LIMIT 200
 	`)
 }

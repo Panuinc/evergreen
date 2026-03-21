@@ -11,15 +11,15 @@ import type {
 
 export default function SyncBcClient() {
   /* ── Sync BC state ── */
-  const [syncingAll, setSyncingAll] = useState(false);
+  const [syncingMode, setSyncingMode] = useState<"full" | "incremental" | null>(null);
   const [allResult, setAllResult] = useState<SyncBcResult | null>(null);
   const [allError, setAllError] = useState<string | null>(null);
   const [phases, setPhases] = useState<SyncPhasesState>({});
   const [lastSync, setLastSync] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const handleSyncAll = useCallback(async () => {
-    setSyncingAll(true);
+  const handleSync = useCallback(async (mode: "full" | "incremental") => {
+    setSyncingMode(mode);
     setAllError(null);
     setAllResult(null);
     setPhases({});
@@ -28,7 +28,7 @@ export default function SyncBcClient() {
     abortRef.current = controller;
 
     try {
-      const res = await authFetch("/api/sync/bc?stream=1", {
+      const res = await authFetch(`/api/sync/bc?stream=1&mode=${mode}`, {
         signal: controller.signal,
       });
 
@@ -77,7 +77,7 @@ export default function SyncBcClient() {
         setAllError((e as Error).message);
       }
     } finally {
-      setSyncingAll(false);
+      setSyncingMode(null);
       abortRef.current = null;
     }
   }, []);
@@ -118,12 +118,12 @@ export default function SyncBcClient() {
 
   return (
     <SyncBcView
-      syncingAll={syncingAll}
+      syncingMode={syncingMode}
       allResult={allResult}
       allError={allError}
       phases={phases}
       lastSync={lastSync}
-      handleSyncAll={handleSyncAll}
+      handleSync={handleSync}
       importing={importing}
       importResult={importResult}
       importError={importError}

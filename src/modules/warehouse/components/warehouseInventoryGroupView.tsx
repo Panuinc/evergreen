@@ -9,8 +9,8 @@ import type { BcItem, WarehouseInventoryGroupViewProps } from "@/modules/warehou
 
 const columns = [
   { name: "รหัสสินค้า", uid: "bcItemNo", sortable: true },
-  { name: "ชื่อสินค้า", uid: "bcItemDisplayName", sortable: true },
-  { name: "โครงการ", uid: "bcItemGlobalDimension1Code", sortable: true },
+  { name: "ชื่อสินค้า", uid: "bcItemDescription", sortable: true },
+  { name: "โครงการ", uid: "projectName", sortable: true },
   { name: "ประเภท", uid: "bcItemType", sortable: true },
   { name: "คงเหลือ", uid: "bcItemInventory", sortable: true },
   { name: "หน่วย", uid: "bcItemBaseUnitOfMeasure", sortable: true },
@@ -22,8 +22,8 @@ const columns = [
 
 const initialVisibleColumns = [
   "bcItemNo",
-  "bcItemDisplayName",
-  "bcItemGlobalDimension1Code",
+  "bcItemDescription",
+  "projectName",
   "bcItemType",
   "bcItemInventory",
   "bcItemBaseUnitOfMeasure",
@@ -47,12 +47,12 @@ export default function WarehouseInventoryGroupView({ items, loading }: Warehous
 
   const renderCell = useCallback((item: BcItem, columnKey: string) => {
     switch (columnKey) {
-      case "bcItemDisplayName":
-        return <span className="font-light">{item.bcItemDisplayName}</span>;
-      case "bcItemGlobalDimension1Code":
-        return item.bcItemGlobalDimension1Code ? (
+      case "bcItemDescription":
+        return <span className="font-light">{item.bcItemDescription}</span>;
+      case "projectName":
+        return item.projectName ? (
           <Chip variant="flat" size="md" radius="md" color="secondary">
-            {item.bcItemGlobalDimension1Code}
+            {item.projectName}
           </Chip>
         ) : (
           <span className="text-muted-foreground">-</span>
@@ -146,7 +146,7 @@ export default function WarehouseInventoryGroupView({ items, loading }: Warehous
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาด้วยรหัสหรือชื่อสินค้า..."
-        searchKeys={["bcItemNo", "bcItemDisplayName", "bcItemGlobalDimension1Code"]}
+        searchKeys={["bcItemNo", "bcItemDescription", "projectName"]}
         emptyContent="ไม่พบรายการสินค้า"
         actionMenuItems={(item: BcItem) => [
           { key: "print", label: "พิมพ์", icon: <Printer />, onPress: () => setPrintItem(item) },

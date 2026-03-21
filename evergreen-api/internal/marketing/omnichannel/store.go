@@ -291,7 +291,7 @@ func (s *Store) DeleteRelatedProduct(ctx context.Context, id string) {
 func (s *Store) ListStockItems(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT "bcItemNo", "bcItemDescription", "bcItemInventory", "bcItemUnitPrice", "bcItemUnitCost"
-		FROM "bcItem" WHERE "bcItemNo" LIKE 'FG-%' AND "bcItemBlocked" != 'true'
+		FROM "bcItem" WHERE "bcItemNo" LIKE 'FG-00003%' AND "bcItemBlocked" != 'true'
 		ORDER BY "bcItemNo"
 	`)
 }

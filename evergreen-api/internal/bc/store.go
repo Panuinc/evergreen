@@ -112,8 +112,7 @@ func (s *Store) ListProduction(ctx context.Context) ([]map[string]any, error) {
 			"bcItemLedgerEntryItemCategoryCode",
 			"bcItemLedgerEntrySourceNo",
 			"bcItemLedgerEntryCreatedAt",
-			"bcItemLedgerEntryLastModifiedDateTime",
-			"bcSyncedAt"
+			"bcItemLedgerEntryLastModifiedDateTime"
 		FROM "bcItemLedgerEntry"
 		ORDER BY "bcItemLedgerEntryEntryNo" DESC
 		LIMIT 1000
@@ -141,8 +140,7 @@ func (s *Store) ListProductionOrders(ctx context.Context) ([]map[string]any, err
 			"bcProductionOrderAssignedUserID",
 			"bcProductionOrderSearchDescription",
 			"bcProductionOrderCostAmount",
-			"bcProductionOrderUnitCost",
-			"bcSyncedAt"
+			"bcProductionOrderUnitCost"
 		FROM "bcProductionOrder"
 		ORDER BY "bcProductionOrderNo" DESC
 	`)

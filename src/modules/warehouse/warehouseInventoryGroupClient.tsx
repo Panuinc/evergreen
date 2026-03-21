@@ -12,7 +12,7 @@ const fetcher = (url: string) => get<BcItem[]>(url);
 export default function WarehouseInventoryGroupClient() {
   const { group } = useParams();
   const decodedGroup = decodeURIComponent(group as string);
-  const params = decodedGroup ? `?group=${encodeURIComponent(decodedGroup)}` : "";
+  const params = decodedGroup ? `?category=${encodeURIComponent(decodedGroup)}` : "";
 
   const { data, isLoading: loading } = useSWR<BcItem[]>(
     `/api/warehouse/inventory${params}`,

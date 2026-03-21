@@ -76,12 +76,12 @@ export interface SystemStatusTabProps {
 }
 
 export interface SyncBcViewProps {
-  syncingAll: boolean;
+  syncingMode: "full" | "incremental" | null;
   allResult: SyncBcResult | null;
   allError: string | null;
   phases: SyncPhasesState;
   lastSync: string | null;
-  handleSyncAll: () => Promise<void>;
+  handleSync: (mode: "full" | "incremental") => Promise<void>;
   importing: boolean;
   importResult: BciImportResult | null;
   importError: string | null;
@@ -90,12 +90,12 @@ export interface SyncBcViewProps {
 }
 
 export interface BcSyncSectionProps {
-  syncingAll: boolean;
+  syncingMode: "full" | "incremental" | null;
   allResult: SyncBcResult | null;
   allError: string | null;
   phases: SyncPhasesState;
   lastSync: string | null;
-  handleSyncAll: () => Promise<void>;
+  handleSync: (mode: "full" | "incremental") => Promise<void>;
 }
 
 export interface BciImportSectionProps {

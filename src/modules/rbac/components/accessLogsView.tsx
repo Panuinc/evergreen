@@ -7,7 +7,7 @@ import type { AccessLogsViewProps, RbacAccessLog } from "@/modules/rbac/types";
 
 const columns = [
   { name: "เวลา", uid: "rbacAccessLogCreatedAt", sortable: true },
-  { name: "รหัสผู้ใช้", uid: "rbacAccessLogUserId", sortable: true },
+  { name: "ผู้ใช้", uid: "rbacUserProfileEmail", sortable: true },
   { name: "ทรัพยากร", uid: "rbacAccessLogResource", sortable: true },
   { name: "การดำเนินการ", uid: "rbacAccessLogAction", sortable: true },
   { name: "สถานะ", uid: "rbacAccessLogGranted", sortable: true },
@@ -15,7 +15,7 @@ const columns = [
 
 const initialVisibleColumns = [
   "rbacAccessLogCreatedAt",
-  "rbacAccessLogUserId",
+  "rbacUserProfileEmail",
   "rbacAccessLogResource",
   "rbacAccessLogAction",
   "rbacAccessLogGranted",
@@ -30,10 +30,10 @@ export default function AccessLogsView({ logs, loading }: AccessLogsViewProps) {
             {new Date(log.rbacAccessLogCreatedAt).toLocaleString()}
           </span>
         );
-      case "rbacAccessLogUserId":
+      case "rbacUserProfileEmail":
         return (
-          <span className="font-mono">
-            {log.rbacAccessLogUserId?.slice(0, 8) || "-"}
+          <span className="font-light">
+            {log.rbacUserProfileEmail || "-"}
           </span>
         );
       case "rbacAccessLogResource":
@@ -71,7 +71,7 @@ export default function AccessLogsView({ logs, loading }: AccessLogsViewProps) {
         isLoading={loading}
         initialVisibleColumns={initialVisibleColumns}
         searchPlaceholder="ค้นหาบันทึก..."
-        searchKeys={["rbacAccessLogUserId", "rbacAccessLogResource", "rbacAccessLogAction"]}
+        searchKeys={["rbacUserProfileEmail", "rbacAccessLogResource", "rbacAccessLogAction"]}
         emptyContent="ไม่พบบันทึกการเข้าถึง"
         defaultRowsPerPage={20}
         enableCardView

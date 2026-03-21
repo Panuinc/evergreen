@@ -97,7 +97,7 @@ export default function PrintRfidModal({ isOpen, onClose, item }: PrintRfidModal
           <div className="flex flex-col gap-3">
             <div className="rounded-lg bg-default-50 p-3 text-xs">
               <p className="font-light">{item.bcItemNo}</p>
-              <p className="text-muted-foreground">{item.bcItemDisplayName}</p>
+              <p className="text-muted-foreground">{item.bcItemDescription}</p>
               <p className="text-muted-foreground">
                 คงเหลือ: {Number(item.bcItemInventory || 0).toLocaleString("th-TH")}
               </p>

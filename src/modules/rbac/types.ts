@@ -56,6 +56,7 @@ export interface RbacAccessLog {
   rbacAccessLogResource: string;
   rbacAccessLogAction: string;
   rbacAccessLogGranted: boolean;
+  rbacUserProfileEmail: string | null;
 }
 
 // ─── HR Employee (unlinked) used in CreateUser flow ──────────────────────────

@@ -20,7 +20,8 @@ export interface MktSalesOrderLine {
   bcSalesOrderLineAmountIncludingVAT: number;
   bcSalesOrderLineQuantityValueShipped: number;
   bcSalesOrderLineOutstandingQuantity: number;
-  _removedProjectName?: string;
+  bcSalesOrderLineShortcutDimension1Code: string | null;
+  projectName: string | null;
 }
 
 export interface MktSalesOrder {

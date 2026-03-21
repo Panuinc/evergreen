@@ -123,6 +123,7 @@ func (s *Store) AgedReceivables(ctx context.Context) ([]map[string]any, error) {
 		FROM "bcCustomerLedgerEntry" e
 		LEFT JOIN "bcCustomer" c ON c."bcCustomerNo" = e."bcCustomerLedgerEntryCustomerNo"
 		WHERE e."bcCustomerLedgerEntryOpenValue" = 'true'
+			AND e."bcCustomerLedgerEntryCustomerNo" != 'CTD-0049'
 		GROUP BY e."bcCustomerLedgerEntryCustomerNo", c."bcCustomerNameValue"
 		HAVING SUM(e."bcCustomerLedgerEntryRemainingAmount") != 0
 		ORDER BY SUM(e."bcCustomerLedgerEntryRemainingAmount") DESC

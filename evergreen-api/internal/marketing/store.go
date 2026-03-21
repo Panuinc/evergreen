@@ -113,17 +113,31 @@ func (s *Store) GetSalesOrder(ctx context.Context, no string) (map[string]any, e
 
 func (s *Store) GetSalesOrderLines(ctx context.Context, no string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT "bcSalesOrderLineLineNo",
-			"bcSalesOrderLineNoValue" AS "bcSalesOrderLineLineNoValue",
-			"bcSalesOrderLineDescriptionValue", "bcSalesOrderLineTypeValue",
-			"bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode",
-			"bcSalesOrderLineUnitPrice", "bcSalesOrderLineLineDiscount",
-			"bcSalesOrderLineAmountValue",
-			"bcSalesOrderLineAmountIncludingVAT",
-			"bcSalesOrderLineQuantityShipped" AS "bcSalesOrderLineQuantityValueShipped",
-			"bcSalesOrderLineOutstandingQuantity"
-		FROM "bcSalesOrderLine" WHERE "bcSalesOrderLineDocumentNo"=$1
-		ORDER BY "bcSalesOrderLineLineNo"
+		SELECT l."bcSalesOrderLineLineNo",
+			l."bcSalesOrderLineNoValue" AS "bcSalesOrderLineLineNoValue",
+			l."bcSalesOrderLineDescriptionValue", l."bcSalesOrderLineTypeValue",
+			l."bcSalesOrderLineQuantityValue", l."bcSalesOrderLineUnitOfMeasureCode",
+			l."bcSalesOrderLineUnitPrice", l."bcSalesOrderLineLineDiscount",
+			l."bcSalesOrderLineAmountValue",
+			l."bcSalesOrderLineAmountIncludingVAT",
+			l."bcSalesOrderLineQuantityShipped" AS "bcSalesOrderLineQuantityValueShipped",
+			l."bcSalesOrderLineOutstandingQuantity",
+			l."bcSalesOrderLineShortcutDimension1Code",
+			COALESCE(d."bcDimensionSetEntryDimensionValueName", '') AS "projectName"
+		FROM "bcSalesOrderLine" l
+		LEFT JOIN (
+			SELECT DISTINCT ON ("bcDimensionSetEntryDimensionValueCode")
+				"bcDimensionSetEntryDimensionValueCode",
+				"bcDimensionSetEntryDimensionValueName"
+			FROM "bcDimensionSetEntry"
+			WHERE "bcDimensionSetEntryDimensionCode" = 'PROJECT'
+			ORDER BY "bcDimensionSetEntryDimensionValueCode"
+		) d ON d."bcDimensionSetEntryDimensionValueCode" = COALESCE(
+			NULLIF(SPLIT_PART(l."bcSalesOrderLineNoValue", '-', 2), ''),
+			NULLIF(l."bcSalesOrderLineShortcutDimension1Code", '')
+		)
+		WHERE l."bcSalesOrderLineDocumentNo"=$1
+		ORDER BY l."bcSalesOrderLineLineNo"
 	`, no)
 }
 

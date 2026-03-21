@@ -91,10 +91,9 @@ export default function TrackingView({
             return (
               <Card
                 key={vehicle.tmsVehicleId}
-                isPressable
                 shadow="none"
-                className={`shrink-0 w-72 ${isSelected ? "border-2 border-primary" : "border border-border"}`}
-                onPress={() => setSelectedVehicleId(vehicle.tmsVehicleId)}
+                className={`shrink-0 w-72 cursor-pointer ${isSelected ? "border-2 border-primary" : "border border-border"}`}
+                onClick={() => setSelectedVehicleId(vehicle.tmsVehicleId)}
               >
                 <CardBody className="p-4 gap-3">
                   {/* Header */}

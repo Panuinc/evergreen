@@ -15,7 +15,7 @@ const statusColors = {
 const lineColumns = [
   { name: "รหัส", uid: "bcSalesOrderLineLineNoValue" },
   { name: "รายละเอียด", uid: "bcSalesOrderLineDescriptionValue" },
-  { name: "โครงการ", uid: "_removedProjectName" },
+  { name: "โครงการ", uid: "projectName" },
   { name: "จำนวน", uid: "bcSalesOrderLineQuantityValue", sortable: true },
   { name: "หน่วย", uid: "bcSalesOrderLineUnitOfMeasureCode" },
   { name: "ราคา/หน่วย", uid: "bcSalesOrderLineUnitPrice", sortable: true },
@@ -34,10 +34,10 @@ export default function SalesOrderDetailView({
 }: SalesOrderDetailViewProps) {
   const renderLineCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "_removedProjectName":
-        return item._removedProjectName ? (
+      case "projectName":
+        return item.projectName ? (
           <Chip variant="flat" size="md" radius="md" color="secondary">
-            {item._removedProjectName}
+            {item.projectName}
           </Chip>
         ) : (
           "-"
@@ -193,7 +193,7 @@ export default function SalesOrderDetailView({
           data={order.lines || []}
           renderCell={renderLineCell}
           rowKey="bcSalesOrderLineLineNo"
-          initialVisibleColumns={["bcSalesOrderLineLineNoValue", "bcSalesOrderLineDescriptionValue", "_removedProjectName", "bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineUnitPrice", "bcSalesOrderLineLineDiscount", "bcSalesOrderLineAmountIncludingVAT", "bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"]}
+          initialVisibleColumns={["bcSalesOrderLineLineNoValue", "bcSalesOrderLineDescriptionValue", "projectName", "bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineUnitPrice", "bcSalesOrderLineLineDiscount", "bcSalesOrderLineAmountIncludingVAT", "bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"]}
           emptyContent="ไม่มีรายการ"
           defaultRowsPerPage={20}
         />

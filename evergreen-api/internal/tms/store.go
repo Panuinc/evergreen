@@ -227,7 +227,7 @@ func (s *Store) SoftDeleteDelivery(ctx context.Context, id string) error {
 func (s *Store) ListDeliveryPlans(ctx context.Context, month string) ([]map[string]any, error) {
 	q := `SELECT "tmsDeliveryPlanId", "tmsDeliveryPlanDate", "tmsDeliveryPlanStatus",
 		"tmsDeliveryPlanPriority", "tmsDeliveryPlanNotes", "tmsDeliveryPlanAddress",
-		"tmsDeliveryPlanLat", "tmsDeliveryPlanLng", "tmsDeliveryPlanItem",
+		"tmsDeliveryPlanLat", "tmsDeliveryPlanLng",
 		"tmsDeliveryPlanShipmentId", "tmsDeliveryPlanShipmentNumber", "tmsDeliveryPlanCreatedBy"
 		FROM "tmsDeliveryPlan" WHERE 1=1`
 	args := []any{}
@@ -250,7 +250,7 @@ func (s *Store) CreateDeliveryPlan(ctx context.Context, date, status, createdBy 
 func (s *Store) GetDeliveryPlan(ctx context.Context, id string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `SELECT "tmsDeliveryPlanId", "tmsDeliveryPlanDate", "tmsDeliveryPlanStatus",
 		"tmsDeliveryPlanPriority", "tmsDeliveryPlanNotes", "tmsDeliveryPlanAddress",
-		"tmsDeliveryPlanLat", "tmsDeliveryPlanLng", "tmsDeliveryPlanItem",
+		"tmsDeliveryPlanLat", "tmsDeliveryPlanLng",
 		"tmsDeliveryPlanShipmentId", "tmsDeliveryPlanShipmentNumber", "tmsDeliveryPlanCreatedBy"
 		FROM "tmsDeliveryPlan" WHERE "tmsDeliveryPlanId" = $1`, id)
 }

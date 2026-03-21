@@ -224,18 +224,39 @@ func configCheckHandler(cfg *config.Config, pool *pgxpool.Pool) http.HandlerFunc
 		start := time.Now()
 		var count int
 		err := pool.QueryRow(ctx, `SELECT count(*) FROM "rbacRole"`).Scan(&count)
-		dbLatency := time.Since(start)
+		dbLatency := time.Since(start).Milliseconds()
 		if err != nil {
-			result["supabase"] = map[string]any{"status": "error", "error": err.Error(), "latency": dbLatency.String()}
+			result["supabase"] = map[string]any{"status": "disconnected", "error": err.Error(), "latency": dbLatency}
 		} else {
-			result["supabase"] = map[string]any{"status": "ok", "latency": dbLatency.String(), "roles": count}
+			result["supabase"] = map[string]any{"status": "connected", "latency": dbLatency}
 		}
 
-		// Server info
-		result["server"] = map[string]any{
-			"status":  "ok",
-			"runtime": "go",
-			"port":    cfg.Port,
+		// Check Business Central (config presence)
+		if cfg.BCClientID != "" && cfg.BCClientSecret != "" {
+			result["bc"] = map[string]any{"status": "connected", "detail": cfg.BCCompanyName}
+		} else {
+			result["bc"] = map[string]any{"status": "disconnected", "error": "ไม่ได้ตั้งค่า BC credentials"}
+		}
+
+		// Check OpenRouter AI
+		if cfg.OpenRouterAPIKey != "" {
+			result["openrouter"] = map[string]any{"status": "connected"}
+		} else {
+			result["openrouter"] = map[string]any{"status": "disconnected", "error": "ไม่ได้ตั้งค่า OPENROUTER_API_KEY"}
+		}
+
+		// Check LINE Messaging API
+		if cfg.LineChannelSecret != "" {
+			result["line"] = map[string]any{"status": "connected"}
+		} else {
+			result["line"] = map[string]any{"status": "disconnected", "error": "ไม่ได้ตั้งค่า LINE_CHANNEL_SECRET"}
+		}
+
+		// Check Facebook Graph API
+		if cfg.FacebookAppSecret != "" {
+			result["facebook"] = map[string]any{"status": "connected"}
+		} else {
+			result["facebook"] = map[string]any{"status": "disconnected", "error": "ไม่ได้ตั้งค่า FACEBOOK_APP_SECRET"}
 		}
 
 		response.OK(w, result)
