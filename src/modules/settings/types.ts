@@ -21,10 +21,14 @@ export interface SystemStatusData {
 
 export type SyncPhaseStep =
   | "fetching"
+  | "transforming"
   | "saving"
+  | "assigning"
   | "cleaning"
   | "done"
-  | "error";
+  | "error"
+  | "starting"
+  | "truncating";
 
 export interface SyncPhaseProgress {
   phase: string;
@@ -80,6 +84,7 @@ export interface SyncBcViewProps {
   allResult: SyncBcResult | null;
   allError: string | null;
   phases: SyncPhasesState;
+  phaseOrder: string[];
   lastSync: string | null;
   handleSync: (mode: "full" | "incremental") => Promise<void>;
   importing: boolean;
@@ -94,6 +99,7 @@ export interface BcSyncSectionProps {
   allResult: SyncBcResult | null;
   allError: string | null;
   phases: SyncPhasesState;
+  phaseOrder: string[];
   lastSync: string | null;
   handleSync: (mode: "full" | "incremental") => Promise<void>;
 }
@@ -108,13 +114,6 @@ export interface BciImportSectionProps {
 
 export interface SyncProgressPanelProps {
   phases: SyncPhasesState;
+  phaseOrder: string[];
 }
 
-export interface ResultCardsProps {
-  tables: Array<{
-    key: string;
-    label: string;
-    icon: React.ComponentType<any>;
-  }>;
-  results: Record<string, number | string | Record<string, number>> | null | undefined;
-}

@@ -100,6 +100,18 @@ func (h *Handler) handleBCSync(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// handleStatus returns whether a sync is currently running.
+func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
+	h.mu.Lock()
+	running := h.lockTime != nil && time.Since(*h.lockTime) < lockTTL
+	var since string
+	if running {
+		since = h.lockTime.Format(time.RFC3339)
+	}
+	h.mu.Unlock()
+	response.OK(w, map[string]any{"running": running, "since": since})
+}
+
 // handleForthTrackSync is a placeholder for ForthTrack GPS sync.
 func (h *Handler) handleForthTrackSync(w http.ResponseWriter, r *http.Request) {
 	if h.forthtrack == nil {

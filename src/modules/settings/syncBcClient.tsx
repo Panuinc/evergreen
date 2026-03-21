@@ -15,14 +15,17 @@ export default function SyncBcClient() {
   const [allResult, setAllResult] = useState<SyncBcResult | null>(null);
   const [allError, setAllError] = useState<string | null>(null);
   const [phases, setPhases] = useState<SyncPhasesState>({});
+  const [phaseOrder, setPhaseOrder] = useState<string[]>([]);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const handleSync = useCallback(async (mode: "full" | "incremental") => {
     setSyncingMode(mode);
     setAllError(null);
     setAllResult(null);
     setPhases({});
+    setPhaseOrder([]);
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -32,12 +35,36 @@ export default function SyncBcClient() {
         signal: controller.signal,
       });
 
+      if (res.status === 429) {
+        // Sync already running in background — poll until it finishes
+        // Note: don't return here so finally can run after poll completes
+        await new Promise<void>((resolve) => {
+          if (pollRef.current) clearInterval(pollRef.current);
+          pollRef.current = setInterval(async () => {
+            try {
+              const statusRes = await authFetch("/api/sync/status");
+              const statusData = await statusRes.json();
+              if (!statusData.running) {
+                clearInterval(pollRef.current!);
+                pollRef.current = null;
+                resolve();
+              }
+            } catch {
+              clearInterval(pollRef.current!);
+              pollRef.current = null;
+              resolve();
+            }
+          }, 3000);
+        });
+        return;
+      }
+
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Sync failed");
       }
 
-      const reader = res.body.getReader();
+      const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
 
@@ -57,10 +84,10 @@ export default function SyncBcClient() {
             try {
               const data = JSON.parse(line.slice(6));
               if (currentEvent === "progress") {
-                setPhases((prev) => ({
-                  ...prev,
-                  [data.phase]: data,
-                }));
+                setPhases((prev) => ({ ...prev, [data.phase]: data }));
+                setPhaseOrder((prev) =>
+                  prev.includes(data.phase) ? prev : [...prev, data.phase]
+                );
               } else if (currentEvent === "done") {
                 setAllResult(data);
                 setLastSync(new Date().toLocaleString("th-TH"));
@@ -122,6 +149,7 @@ export default function SyncBcClient() {
       allResult={allResult}
       allError={allError}
       phases={phases}
+      phaseOrder={phaseOrder}
       lastSync={lastSync}
       handleSync={handleSync}
       importing={importing}

@@ -50,6 +50,8 @@ type SyncResult struct {
 // mode should be "full" or "incremental" (default).
 // send is an SSE callback: send(eventName, jsonData).
 func (s *SyncEngine) RunSync(ctx context.Context, mode string, send func(event, data string)) {
+	// Use a detached context for DB operations so they're not canceled if the SSE client disconnects.
+	dbCtx := context.WithoutCancel(ctx)
 	isFullSync := mode == "full"
 	results := make(map[string]*entityResult)
 	errors := make(map[string]string)
@@ -113,7 +115,7 @@ func (s *SyncEngine) RunSync(ctx context.Context, mode string, send func(event, 
 	if isFullSync {
 		sendProgress("truncate", "truncating", "Deleting all rows...", nil)
 		for _, table := range getAllSupabaseTables() {
-			if err := s.store.TruncateTable(ctx, table); err != nil {
+			if err := s.store.TruncateTable(dbCtx, table); err != nil {
 				logger.Warn("truncate error", "table", table, "error", err)
 			}
 		}
@@ -122,7 +124,7 @@ func (s *SyncEngine) RunSync(ctx context.Context, mode string, send func(event, 
 
 	// helper to sync a slice of configs with bounded concurrency
 	syncGroup := func(cfgs []bc.EntityConfig, concurrency int, isFS bool, noFilter bool) {
-		g, gCtx := errgroup.WithContext(ctx)
+		g, gCtx := errgroup.WithContext(dbCtx)
 		g.SetLimit(concurrency)
 		for _, cfg := range cfgs {
 			cfg := cfg // capture
@@ -156,7 +158,7 @@ func (s *SyncEngine) RunSync(ctx context.Context, mode string, send func(event, 
 		if itemCfg != nil {
 			if r := getResult(itemCfg.BCEndpoint); r != nil && r.Count > 0 {
 				sendProgress("items-rfid", "assigning", "Assigning RFID codes...", nil)
-				if err := s.assignRfidCodesIncremental(ctx, itemCfg, sendProgress); err != nil {
+				if err := s.assignRfidCodesIncremental(dbCtx, itemCfg, sendProgress); err != nil {
 					setError("items-rfid", err.Error())
 					sendProgress("items-rfid", "error", err.Error(), map[string]any{"error": err.Error()})
 				} else {
@@ -220,13 +222,13 @@ func (s *SyncEngine) RunSync(ctx context.Context, mode string, send func(event, 
 	}
 
 	// ── Update sync state ──
-	if err := s.store.SetSyncState(ctx, "lastSyncTime", now); err != nil {
+	if err := s.store.SetSyncState(dbCtx, "lastSyncTime", now); err != nil {
 		setError("syncState", err.Error())
 	}
 	for _, cfg := range bc.SyncConfig {
 		if cfg.SyncGroup == "ledger" {
 			if r := getResult(cfg.BCEndpoint); r != nil && r.MaxEntryNo > 0 {
-				if err := s.store.SetSyncState(ctx, "lastEntryNo:"+cfg.SupabaseTable, strconv.Itoa(r.MaxEntryNo)); err != nil {
+				if err := s.store.SetSyncState(dbCtx, "lastEntryNo:"+cfg.SupabaseTable, strconv.Itoa(r.MaxEntryNo)); err != nil {
 					setError("syncState", err.Error())
 				}
 			}
