@@ -32,6 +32,12 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
+func (rw *responseWriter) Flush() {
+	if f, ok := rw.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
 // Logger logs HTTP requests with detailed error info.
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
