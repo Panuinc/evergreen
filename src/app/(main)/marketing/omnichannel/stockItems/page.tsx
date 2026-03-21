@@ -1,11 +1,12 @@
 import { api } from "@/lib/api.server";
 import StockItemsClient from "@/modules/marketing/stockItemsClient";
+import type { MktStockItem, MktProductInfo, MktPromotion } from "@/modules/marketing/types";
 
 export default async function StockItemsPage() {
   const [stockItems, productInfo, promotions] = await Promise.all([
-    api("/api/marketing/omnichannel/stockItems"),
-    api("/api/marketing/omnichannel/productInfo"),
-    api("/api/marketing/omnichannel/promotions"),
+    api<MktStockItem[]>("/api/marketing/omnichannel/stockItems"),
+    api<MktProductInfo[]>("/api/marketing/omnichannel/productInfo"),
+    api<MktPromotion[]>("/api/marketing/omnichannel/promotions"),
   ]);
 
   return (

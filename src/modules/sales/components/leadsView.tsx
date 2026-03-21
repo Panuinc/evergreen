@@ -15,6 +15,7 @@ import {
 import { Plus, Edit, Trash2, ArrowRightLeft, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { LeadsViewProps, SalesLead } from "@/modules/sales/types";
 
 const baseColumns = [
   { name: "เลขที่ลีด", uid: "salesLeadNo", sortable: true },
@@ -65,7 +66,7 @@ export default function LeadsView({
   handleDelete,
   handleConvert,
   toggleActive,
-}) {
+}: LeadsViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const columns = useMemo(() => {
@@ -88,7 +89,7 @@ export default function LeadsView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (item: SalesLead, columnKey: string) => {
       switch (columnKey) {
         case "salesLeadNo":
           return <span className="text-muted-foreground">{item.salesLeadNo || "-"}</span>;
@@ -109,7 +110,7 @@ export default function LeadsView({
             "-"
           );
         case "salesLeadScore": {
-          const scoreColorMap = {
+          const scoreColorMap: Record<string, "danger" | "warning" | "primary"> = {
             hot: "danger",
             warm: "warning",
             cold: "primary",
@@ -128,7 +129,7 @@ export default function LeadsView({
           );
         }
         case "salesLeadStatus": {
-          const statusColorMap = {
+          const statusColorMap: Record<string, "primary" | "warning" | "success" | "secondary" | "danger"> = {
             new: "primary",
             contacted: "warning",
             qualified: "success",
@@ -204,7 +205,7 @@ export default function LeadsView({
             </div>
           );
         default:
-          return item[columnKey] || "-";
+          return (item as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
       }
     },
     [handleOpen, confirmDelete, handleConvert, isSuperAdmin, toggleActive],
@@ -230,7 +231,7 @@ export default function LeadsView({
         statusField="salesLeadStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบลีด"
-        actionMenuItems={(item) =>
+        actionMenuItems={(item: SalesLead) =>
           [
             item.salesLeadStatus === "qualified" && { key: "convert", label: "แปลงเป็นโอกาสขาย", icon: <ArrowRightLeft />, onPress: () => handleConvert(item) },
             { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
@@ -274,7 +275,7 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesLeadName}
+                    value={formData.salesLeadName || ""}
                     onChange={(e) => updateField("salesLeadName", e.target.value)}
                     isRequired
                     isInvalid={!!validationErrors?.salesLeadName}
@@ -289,7 +290,7 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesLeadEmail}
+                    value={formData.salesLeadEmail || ""}
                     onChange={(e) => updateField("salesLeadEmail", e.target.value)}
                   />
                 </div>
@@ -301,7 +302,7 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesLeadPhone}
+                    value={formData.salesLeadPhone || ""}
                     onChange={(e) => updateField("salesLeadPhone", e.target.value)}
                   />
                 </div>
@@ -313,7 +314,7 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesLeadCompany}
+                    value={formData.salesLeadCompany || ""}
                     onChange={(e) => updateField("salesLeadCompany", e.target.value)}
                   />
                 </div>
@@ -325,7 +326,7 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesLeadPosition}
+                    value={formData.salesLeadPosition || ""}
                     onChange={(e) => updateField("salesLeadPosition", e.target.value)}
                   />
                 </div>
@@ -340,7 +341,7 @@ export default function LeadsView({
                     selectedKeys={formData.salesLeadSource ? [formData.salesLeadSource] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("salesLeadSource", val);
+                      updateField("salesLeadSource", val as string);
                     }}
                   >
                     <SelectItem key="website">เว็บไซต์</SelectItem>
@@ -363,7 +364,7 @@ export default function LeadsView({
                     selectedKeys={formData.salesLeadScore ? [formData.salesLeadScore] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("salesLeadScore", val);
+                      updateField("salesLeadScore", val as string);
                     }}
                   >
                     <SelectItem key="hot">ร้อน</SelectItem>
@@ -382,7 +383,7 @@ export default function LeadsView({
                     selectedKeys={formData.salesLeadStatus ? [formData.salesLeadStatus] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("salesLeadStatus", val);
+                      updateField("salesLeadStatus", val as string);
                     }}
                   >
                     <SelectItem key="new">ใหม่</SelectItem>
@@ -400,7 +401,7 @@ export default function LeadsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesLeadAssignedTo}
+                    value={formData.salesLeadAssignedTo || ""}
                     onChange={(e) => updateField("salesLeadAssignedTo", e.target.value)}
                   />
                 </div>
@@ -413,7 +414,7 @@ export default function LeadsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.salesLeadNotes}
+                  value={formData.salesLeadNotes || ""}
                   onChange={(e) => updateField("salesLeadNotes", e.target.value)}
                 />
               </div>

@@ -2,6 +2,7 @@
 
 import { Chip } from "@heroui/react";
 import { Crown, Medal, Trophy, Star, Flame, Zap, Clock, Timer } from "lucide-react";
+import type { EmployeeSpecializationChartProps } from "@/modules/production/types";
 
 const barGradients = [
   "from-blue-500 to-blue-400",
@@ -50,11 +51,11 @@ const textColors = [
   "text-teal-500",
 ];
 
-function fmtNum(v) {
+function fmtNum(v: number | undefined | null): string {
   return Number(v || 0).toLocaleString("th-TH");
 }
 
-function getLevel(qty) {
+function getLevel(qty: number) {
   if (qty >= 500) return { label: "ปรมาจารย์", icon: Flame, color: "text-red-500" };
   if (qty >= 200) return { label: "ผู้เชี่ยวชาญ", icon: Zap, color: "text-amber-500" };
   if (qty >= 100) return { label: "มือโปร", icon: Star, color: "text-blue-500" };
@@ -62,7 +63,7 @@ function getLevel(qty) {
   return { label: "มือใหม่", icon: Star, color: "text-muted-foreground" };
 }
 
-function getSpeedLabel(avgDays) {
+function getSpeedLabel(avgDays: number | undefined | null) {
   if (avgDays == null) return null;
   if (avgDays <= 3) return { label: "สายฟ้า", color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/30" };
   if (avgDays <= 7) return { label: "เร็ว", color: "text-success", bg: "bg-success-50 dark:bg-success-950/30" };
@@ -70,7 +71,7 @@ function getSpeedLabel(avgDays) {
   return { label: "ช้า", color: "text-muted-foreground", bg: "" };
 }
 
-function RankBadge({ rank }) {
+function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) {
     return (
       <div className="relative flex items-center justify-center w-10 h-10">
@@ -102,7 +103,7 @@ function RankBadge({ rank }) {
   );
 }
 
-export default function EmployeeSpecializationChart({ data = [] }) {
+export default function EmployeeSpecializationChart({ data = [] }: EmployeeSpecializationChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>

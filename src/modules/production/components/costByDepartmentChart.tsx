@@ -9,12 +9,13 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import type { CostByDepartmentChartProps } from "@/modules/production/types";
 
-function formatCurrency(value) {
+function formatCurrency(value: number): string {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function CostByDepartmentChart({ data = [] }) {
+export default function CostByDepartmentChart({ data = [] }: CostByDepartmentChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>

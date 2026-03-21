@@ -30,9 +30,9 @@ func (s *Store) GetEmployee(ctx context.Context, userID string) (map[string]any,
 		e."hrEmployeeEmail",
 		e."hrEmployeePhone",
 		e."isActive",
-		d."hrDivisionName" AS "divisionName",
-		dept."hrDepartmentName" AS "departmentName",
-		p."hrPositionTitle" AS "positionName"
+		d."hrDivisionName",
+		dept."hrDepartmentName",
+		p."hrPositionTitle"
 	FROM "hrEmployee" e
 	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
 	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"

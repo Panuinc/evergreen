@@ -18,6 +18,7 @@ import {
 } from "@heroui/react";
 import { Eye } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
+import type { BcSalesOrder, BcSalesOrdersViewProps } from "@/modules/bc/types";
 
 const columns = [
   { name: "เลขที่", uid: "bcSalesOrderNoValue", sortable: true },
@@ -39,7 +40,7 @@ const initialVisibleColumns = [
   "actions",
 ];
 
-const statusColorMap = {
+const statusColorMap: Record<string, "default" | "primary" | "success" | "warning" | "danger" | "secondary"> = {
   Draft: "default",
   Open: "primary",
   Released: "success",
@@ -47,7 +48,7 @@ const statusColorMap = {
   "Pending Prepayment": "warning",
 };
 
-const statusLabelMap = {
+const statusLabelMap: Record<string, string> = {
   Draft: "ร่าง",
   Open: "เปิด",
   Released: "ปล่อยแล้ว",
@@ -55,7 +56,7 @@ const statusLabelMap = {
   "Pending Prepayment": "รอชำระล่วงหน้า",
 };
 
-function formatNumber(value) {
+function formatNumber(value: number | null | undefined) {
   return value != null
     ? Number(value).toLocaleString("th-TH", { minimumFractionDigits: 2 })
     : "-";
@@ -68,9 +69,10 @@ export default function BcSalesOrdersView({
   isOpen,
   onClose,
   openLines,
-}) {
+}: BcSalesOrdersViewProps) {
   const renderCell = useCallback(
-    (order, columnKey) => {
+    (row: Record<string, any>, columnKey: string) => {
+      const order = row as BcSalesOrder;
       switch (columnKey) {
         case "bcSalesOrderNoValue":
           return <span className="font-light">{order.bcSalesOrderNoValue}</span>;
@@ -86,9 +88,9 @@ export default function BcSalesOrdersView({
               variant="flat"
               size="md"
               radius="md"
-              color={statusColorMap[order.bcSalesOrderStatus] || "default"}
+              color={statusColorMap[order.bcSalesOrderStatus ?? ""] || "default"}
             >
-              {statusLabelMap[order.bcSalesOrderStatus] || order.bcSalesOrderStatus || "-"}
+              {statusLabelMap[order.bcSalesOrderStatus ?? ""] || order.bcSalesOrderStatus || "-"}
             </Chip>
           );
         case "bcSalesOrderAmountIncludingVAT":
@@ -108,7 +110,7 @@ export default function BcSalesOrdersView({
             </Button>
           );
         default:
-          return order[columnKey] || "-";
+          return row[columnKey] || "-";
       }
     },
     [openLines],
@@ -130,7 +132,7 @@ export default function BcSalesOrdersView({
         searchKeys={["bcSalesOrderNoValue", "bcSalesOrderSellToCustomerName", "bcSalesOrderStatus"]}
         emptyContent="ไม่พบใบสั่งขาย"
         actionMenuItems={(item) => [
-          { key: "view", label: "ดูรายละเอียด", icon: <Eye />, onPress: () => openLines(item) },
+          { key: "view", label: "ดูรายละเอียด", icon: <Eye />, onPress: () => openLines(item as BcSalesOrder) },
         ]}
       />
 

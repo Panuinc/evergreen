@@ -9,17 +9,23 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import type { EmployeeByDepartmentChartProps, HrDepartmentStat } from "../types";
 
-export default function EmployeeByDepartmentChart({ data = [] }) {
+interface ChartEntry {
+  name: string;
+  count: number;
+}
+
+export default function EmployeeByDepartmentChart({ data = [] }: EmployeeByDepartmentChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">No data</p>
     );
   }
 
-  const chartData = data
-    .sort((a, b) => b.count - a.count)
-    .map((d) => ({ name: d.name, count: d.count }));
+  const chartData: ChartEntry[] = data
+    .sort((a: HrDepartmentStat, b: HrDepartmentStat) => b.count - a.count)
+    .map((d: HrDepartmentStat) => ({ name: d.hrDepartmentName, count: d.count }));
 
   return (
     <ResponsiveContainer width="100%" height={280}>

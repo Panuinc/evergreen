@@ -5,12 +5,17 @@ import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { get, post, put, del } from "@/lib/apiClient";
 import ResourcesView from "@/modules/rbac/components/resourcesView";
+import type {
+  RbacResource,
+  ResourceFormData,
+  ResourcesClientProps,
+} from "@/modules/rbac/types";
 
-export default function ResourcesClient({ initialResources }) {
-  const [resources, setResources] = useState(initialResources);
+export default function ResourcesClient({ initialResources }: ResourcesClientProps) {
+  const [resources, setResources] = useState<RbacResource[]>(initialResources);
   const [loading, setLoading] = useState(false);
-  const [editingResource, setEditingResource] = useState(null);
-  const [formData, setFormData] = useState({
+  const [editingResource, setEditingResource] = useState<RbacResource | null>(null);
+  const [formData, setFormData] = useState<ResourceFormData>({
     rbacResourceName: "",
     rbacResourceModuleRef: "",
     rbacResourceDescription: "",
@@ -21,15 +26,15 @@ export default function ResourcesClient({ initialResources }) {
     try {
       setLoading(true);
       const data = await get("/api/rbac/resources");
-      setResources(data);
-    } catch (error) {
+      setResources(data as RbacResource[]);
+    } catch {
       toast.error("โหลดทรัพยากรล้มเหลว");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpen = (resource = null) => {
+  const handleOpen = (resource: RbacResource | null = null) => {
     if (resource) {
       setEditingResource(resource);
       setFormData({
@@ -68,11 +73,11 @@ export default function ResourcesClient({ initialResources }) {
       onClose();
       loadResources();
     } catch (error) {
-      toast.error(error.message || "บันทึกทรัพยากรล้มเหลว");
+      toast.error((error as Error).message || "บันทึกทรัพยากรล้มเหลว");
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: RbacResource) => {
     try {
       await put(`/api/rbac/resources/${item.rbacResourceId}`, {
         isActive: !item.isActive,
@@ -81,18 +86,18 @@ export default function ResourcesClient({ initialResources }) {
         item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ"
       );
       loadResources();
-    } catch (error) {
+    } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
   };
 
-  const handleDelete = async (resource) => {
+  const handleDelete = async (resource: RbacResource) => {
     try {
       await del(`/api/rbac/resources/${resource.rbacResourceId}`);
       toast.success("ลบทรัพยากรสำเร็จ");
       loadResources();
     } catch (error) {
-      toast.error(error.message || "ลบทรัพยากรล้มเหลว");
+      toast.error((error as Error).message || "ลบทรัพยากรล้มเหลว");
     }
   };
 

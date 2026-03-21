@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { ConfigCheckViewProps, SystemStatusTabProps } from "@/modules/settings/types";
 import {
   Card,
   CardBody,
@@ -80,7 +81,7 @@ const services = [
 
 
 
-function SystemStatusTab({ status, loading, refetch }) {
+function SystemStatusTab({ status, loading, refetch }: SystemStatusTabProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-end">
@@ -665,7 +666,7 @@ function PrinterTab() {
 
 
 
-export default function ConfigCheckView({ status, loading, refetch }) {
+export default function ConfigCheckView({ status, loading, refetch }: ConfigCheckViewProps) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <p className="text-xs font-light">ตั้งค่าระบบ</p>

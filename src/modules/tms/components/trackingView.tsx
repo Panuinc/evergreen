@@ -15,7 +15,6 @@ import {
 import {
   MapPin,
   RefreshCw,
-  Navigation,
   History,
   Fuel,
   Thermometer,
@@ -24,8 +23,9 @@ import {
 import VehicleMap from "@/modules/tms/components/vehicleMap";
 import RoutePlayback from "@/modules/tms/components/routePlayback";
 import Loading from "@/components/ui/loading";
+import type { TrackingViewProps } from "@/modules/tms/types";
 
-const statusColors = {
+const statusColors: Record<string, "success" | "warning" | "danger" | "default"> = {
   available: "success",
   in_use: "warning",
   maintenance: "danger",
@@ -54,7 +54,7 @@ export default function TrackingView({
   loadRouteHistory,
   selectedDate,
   handleDateChange,
-}) {
+}: TrackingViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -293,7 +293,7 @@ export default function TrackingView({
                       : []
                   }
                   onSelectionChange={(keys) =>
-                    updateField("tmsGpsLogVehicleId", Array.from(keys)[0] || "")
+                    updateField("tmsGpsLogVehicleId", String(Array.from(keys)[0] || ""))
                   }
                   isRequired
                 >

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
+import type { YoYComparisonChartProps } from "@/modules/marketing/types";
 
 function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
@@ -10,7 +11,7 @@ function formatCurrency(value) {
 const currentYear = new Date().getFullYear();
 const prevYear = currentYear - 1;
 
-export default function YoYComparisonChart({ data = [] }) {
+export default function YoYComparisonChart({ data = [] }: YoYComparisonChartProps) {
   const [metric, setMetric] = useState("revenue");
 
   if (!data.length) {

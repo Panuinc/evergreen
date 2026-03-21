@@ -20,7 +20,7 @@ func NewStore(pool *pgxpool.Pool) *Store {
 // ---- Inventory ----
 
 func (s *Store) ListInventory(ctx context.Context, group, category string) ([]map[string]any, error) {
-	q := `SELECT "bcItemNo" AS "number", "bcItemDisplayName" AS "displayName", "bcItemDescription", "bcItemType" AS "type", "bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "baseUnitOfMeasure", "bcItemUnitPrice" AS "unitPrice", "bcItemUnitCost" AS "unitCost", "bcItemItemCategoryCode" AS "itemCategoryCode", "bcItemGenProdPostingGroup" AS "generalProductPostingGroupCode", "bcItemGlobalDimension1Code" AS "projectName", "bcItemRfidCode" FROM "bcItem" WHERE ("bcItemBlocked" IS NULL OR "bcItemBlocked" != 'true') AND "bcItemInventory" > 0`
+	q := `SELECT "bcItemNo", "bcItemDisplayName", "bcItemDescription", "bcItemType", "bcItemInventory", "bcItemBaseUnitOfMeasure", "bcItemUnitPrice", "bcItemUnitCost", "bcItemItemCategoryCode", "bcItemGenProdPostingGroup", "bcItemGlobalDimension1Code", "bcItemRfidCode" FROM "bcItem" WHERE ("bcItemBlocked" IS NULL OR "bcItemBlocked" != 'true') AND "bcItemInventory" > 0`
 	args := []any{}
 	argIdx := 1
 	if group != "" {
@@ -38,14 +38,14 @@ func (s *Store) ListInventory(ctx context.Context, group, category string) ([]ma
 
 func (s *Store) GetItemByNo(ctx context.Context, itemNo string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
-		SELECT "bcItemNo" AS "number", "bcItemDisplayName" AS "displayName", "bcItemDescription", "bcItemType" AS "type", "bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "baseUnitOfMeasure", "bcItemUnitPrice" AS "unitPrice", "bcItemUnitCost" AS "unitCost", "bcItemItemCategoryCode" AS "itemCategoryCode", "bcItemGenProdPostingGroup" AS "generalProductPostingGroupCode", "bcItemRfidCode"
+		SELECT "bcItemNo", "bcItemDisplayName", "bcItemDescription", "bcItemType", "bcItemInventory", "bcItemBaseUnitOfMeasure", "bcItemUnitPrice", "bcItemUnitCost", "bcItemItemCategoryCode", "bcItemGenProdPostingGroup", "bcItemRfidCode"
 		FROM "bcItem" WHERE "bcItemNo"=$1
 	`, itemNo)
 }
 
 func (s *Store) GetItemsWithRfidCode(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT "bcItemNo" AS "number", "bcItemDisplayName" AS "displayName", "bcItemRfidCode"
+		SELECT "bcItemNo", "bcItemDisplayName", "bcItemRfidCode"
 		FROM "bcItem" WHERE "bcItemRfidCode" IS NOT NULL
 	`)
 }
@@ -54,7 +54,7 @@ func (s *Store) GetItemsWithRfidCode(ctx context.Context) ([]map[string]any, err
 
 func (s *Store) ListOrders(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT "bcSalesOrderId", "bcSalesOrderNoValue" AS "orderNo", "bcSalesOrderSellToCustomerNo" AS "customerNo", "bcSalesOrderSellToCustomerName" AS "customerName", "bcSalesOrderStatus" AS "status", "bcSalesOrderOrderDate" AS "orderDate"
+		SELECT "bcSalesOrderId", "bcSalesOrderNoValue", "bcSalesOrderSellToCustomerNo", "bcSalesOrderSellToCustomerName", "bcSalesOrderStatus", "bcSalesOrderOrderDate"
 		FROM "bcSalesOrder" ORDER BY "bcSalesOrderNoValue" DESC
 	`)
 }

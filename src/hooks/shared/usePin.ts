@@ -7,22 +7,22 @@ import { supabase } from "@/lib/supabase/client";
 export function usePin() {
   const { data, isLoading: loading, mutate } = useSWR(
     "/api/auth/pin",
-    (url) => get(url),
+    (url) => get<{ pinEnabled: boolean; error?: string }>(url),
     { onError: () => {} },
   );
   const pinEnabled = data?.pinEnabled ?? false;
   const checkPinStatus = mutate;
 
   const setupPin = async (pin) => {
-    const result = await post("/api/auth/pin", { pin });
-    if (result.error) throw new Error(result.error);
+    const result = await post<{ pinEnabled?: boolean; error?: string }>("/api/auth/pin", { pin });
+    if (result?.error) throw new Error(result.error);
     mutate({ pinEnabled: true }, { revalidate: false });
     return result;
   };
 
   const removePin = async () => {
-    const result = await del("/api/auth/pin");
-    if (result.error) throw new Error(result.error);
+    const result = await del<{ pinEnabled?: boolean; error?: string }>("/api/auth/pin");
+    if (result?.error) throw new Error(result.error);
     mutate({ pinEnabled: false }, { revalidate: false });
     return result;
   };

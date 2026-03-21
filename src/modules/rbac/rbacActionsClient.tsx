@@ -5,12 +5,17 @@ import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { get, post, put, del } from "@/lib/apiClient";
 import ActionsView from "@/modules/rbac/components/actionsView";
+import type {
+  RbacAction,
+  ActionFormData,
+  ActionsClientProps,
+} from "@/modules/rbac/types";
 
-export default function ActionsClient({ initialActions }) {
-  const [actions, setActions] = useState(initialActions);
+export default function ActionsClient({ initialActions }: ActionsClientProps) {
+  const [actions, setActions] = useState<RbacAction[]>(initialActions);
   const [loading, setLoading] = useState(false);
-  const [editingAction, setEditingAction] = useState(null);
-  const [formData, setFormData] = useState({
+  const [editingAction, setEditingAction] = useState<RbacAction | null>(null);
+  const [formData, setFormData] = useState<ActionFormData>({
     rbacActionName: "",
     rbacActionDescription: "",
   });
@@ -20,15 +25,15 @@ export default function ActionsClient({ initialActions }) {
     try {
       setLoading(true);
       const data = await get("/api/rbac/actions");
-      setActions(data);
-    } catch (error) {
+      setActions(data as RbacAction[]);
+    } catch {
       toast.error("โหลดแอคชันล้มเหลว");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpen = (action = null) => {
+  const handleOpen = (action: RbacAction | null = null) => {
     if (action) {
       setEditingAction(action);
       setFormData({
@@ -50,10 +55,7 @@ export default function ActionsClient({ initialActions }) {
 
     try {
       if (editingAction) {
-        await put(
-          `/api/rbac/actions/${editingAction.rbacActionId}`,
-          formData
-        );
+        await put(`/api/rbac/actions/${editingAction.rbacActionId}`, formData);
         toast.success("อัปเดตแอคชันสำเร็จ");
       } else {
         await post("/api/rbac/actions", formData);
@@ -62,11 +64,11 @@ export default function ActionsClient({ initialActions }) {
       onClose();
       loadActions();
     } catch (error) {
-      toast.error(error.message || "บันทึกแอคชันล้มเหลว");
+      toast.error((error as Error).message || "บันทึกแอคชันล้มเหลว");
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: RbacAction) => {
     try {
       await put(`/api/rbac/actions/${item.rbacActionId}`, {
         isActive: !item.isActive,
@@ -75,18 +77,18 @@ export default function ActionsClient({ initialActions }) {
         item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ"
       );
       loadActions();
-    } catch (error) {
+    } catch {
       toast.error("เปลี่ยนสถานะล้มเหลว");
     }
   };
 
-  const handleDelete = async (action) => {
+  const handleDelete = async (action: RbacAction) => {
     try {
       await del(`/api/rbac/actions/${action.rbacActionId}`);
       toast.success("ลบแอคชันสำเร็จ");
       loadActions();
     } catch (error) {
-      toast.error(error.message || "ลบแอคชันล้มเหลว");
+      toast.error((error as Error).message || "ลบแอคชันล้มเหลว");
     }
   };
 

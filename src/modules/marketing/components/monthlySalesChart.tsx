@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import type { MonthlySalesChartProps } from "@/modules/marketing/types";
 
 function formatMonth(monthStr) {
   const [year, month] = monthStr.split("-");
@@ -12,7 +13,7 @@ function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function MonthlySalesChart({ data = [] }) {
+export default function MonthlySalesChart({ data = [] }: MonthlySalesChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
+import type { ChannelDistChartProps } from "@/modules/marketing/types";
 
 const channelColors = {
   LINE: "#06c755",
@@ -16,7 +17,7 @@ function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function ChannelDistChart({ data = [] }) {
+export default function ChannelDistChart({ data = [] }: ChannelDistChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

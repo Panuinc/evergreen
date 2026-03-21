@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import DataTable from "@/components/ui/dataTable";
+import type { BcCustomer, BcCustomersViewProps } from "@/modules/bc/types";
 
 const columns = [
   { name: "เลขที่", uid: "bcCustomerNo", sortable: true },
@@ -21,8 +22,9 @@ const initialVisibleColumns = [
   "bcCustomerBalanceDueLCY",
 ];
 
-export default function BcCustomersView({ customers, loading }) {
-  const renderCell = useCallback((customer, columnKey) => {
+export default function BcCustomersView({ customers, loading }: BcCustomersViewProps) {
+  const renderCell = useCallback((row: Record<string, any>, columnKey: string) => {
+    const customer = row as BcCustomer;
     switch (columnKey) {
       case "bcCustomerNameValue":
         return <span className="font-light">{customer.bcCustomerNameValue}</span>;
@@ -43,7 +45,7 @@ export default function BcCustomersView({ customers, loading }) {
             })
           : "-";
       default:
-        return customer[columnKey] || "-";
+        return row[columnKey] || "-";
     }
   }, []);
 

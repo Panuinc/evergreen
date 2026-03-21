@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { Card, CardBody } from "@heroui/react";
 import {
   Users,
@@ -17,19 +17,31 @@ import EmployeeByDivisionChart from "@/modules/hr/components/employeeByDivisionC
 import EmployeeByDepartmentChart from "@/modules/hr/components/employeeByDepartmentChart";
 import EmployeeStatusChart from "@/modules/hr/components/employeeStatusChart";
 import NewEmployeeTrendChart from "@/modules/hr/components/newEmployeeTrendChart";
+import { get } from "@/lib/apiClient";
+import type {
+  HrDashboardClientProps,
+  HrDashboardStats,
+  HrDashboardCompareStats,
+  HrDashboardResponse,
+} from "./types";
 
-export default function DashboardClient({ initialStats }) {
-  const [stats, setStats] = useState(initialStats);
-  const [compareMode, setCompareMode] = useState(null);
+type KpiColor = "primary" | "success" | "warning" | "danger" | "default";
 
-  const handleCompareModeChange = useCallback(async (mode) => {
+function isCompareStats(stats: HrDashboardResponse): stats is HrDashboardCompareStats {
+  return "compareMode" in stats;
+}
+
+export default function HrDashboardClient({ initialStats }: HrDashboardClientProps) {
+  const [stats, setStats] = useState<HrDashboardResponse | null>(initialStats);
+  const [compareMode, setCompareMode] = useState<string | null>(null);
+
+  const handleCompareModeChange = useCallback(async (mode: string | null) => {
     setCompareMode(mode);
     try {
       const params = mode ? `?compareMode=${mode}` : "";
-      const { get } = await import("@/lib/apiClient");
       const data = await get(`/api/hr/dashboard${params}`);
-      setStats(data);
-    } catch (error) {
+      setStats(data as HrDashboardResponse);
+    } catch {
       toast.error("โหลดข้อมูลแดชบอร์ดล้มเหลว");
     }
   }, []);
@@ -42,11 +54,19 @@ export default function DashboardClient({ initialStats }) {
     );
   }
 
-  const isCompare = !!stats.compareMode;
-  const d = isCompare ? stats.current : stats;
-  const prev = isCompare ? stats.previous : null;
+  const isCompare = isCompareStats(stats);
+  const d: HrDashboardStats = isCompare ? stats.current : stats;
+  const prev: HrDashboardStats | null = isCompare ? stats.previous : null;
 
-  const cards = [
+  const cards: Array<{
+    title: string;
+    value: number;
+    sub: string;
+    icon: React.ElementType;
+    color: KpiColor;
+    currentRaw?: number;
+    previousRaw?: number;
+  }> = [
     {
       title: "พนักงานทั้งหมด",
       value: d.totalEmployees,
@@ -70,7 +90,7 @@ export default function DashboardClient({ initialStats }) {
       value: d.totalDivisions,
       sub: "จำนวนฝ่าย",
       icon: Building2,
-      color: "secondary",
+      color: "default",
     },
     {
       title: "แผนกทั้งหมด",
@@ -117,7 +137,7 @@ export default function DashboardClient({ initialStats }) {
             key={card.title}
             title={card.title}
             value={card.value}
-            color={card.color as any}
+            color={card.color}
             subtitle={card.sub}
             currentRaw={card.currentRaw}
             previousRaw={card.previousRaw}

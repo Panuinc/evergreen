@@ -5,6 +5,7 @@ import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import FuelLogsView from "@/modules/tms/components/fuelLogsView";
+import type { TmsVehicle, TmsFuelLog, TmsFuelLogForm } from "@/modules/tms/types";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -17,23 +18,23 @@ const emptyForm = {
   tmsFuelLogReceiptUrl: "",
 };
 
-export default function FuelLogsClient({ initialFuelLogs, initialVehicles }) {
-  const [fuelLogs, setFuelLogs] = useState(initialFuelLogs);
-  const [vehicles] = useState(initialVehicles);
+export default function FuelLogsClient({ initialFuelLogs, initialVehicles }: { initialFuelLogs: TmsFuelLog[]; initialVehicles: TmsVehicle[] }) {
+  const [fuelLogs, setFuelLogs] = useState<TmsFuelLog[]>(initialFuelLogs);
+  const [vehicles] = useState<TmsVehicle[]>(initialVehicles);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [editingFuelLog, setEditingFuelLog] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [editingFuelLog, setEditingFuelLog] = useState<TmsFuelLog | null>(null);
+  const [formData, setFormData] = useState<TmsFuelLogForm>(emptyForm);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingFuelLog, setDeletingFuelLog] = useState(null);
+  const [deletingFuelLog, setDeletingFuelLog] = useState<TmsFuelLog | null>(null);
 
   const reload = async () => {
     try {
       setLoading(true);
       const { get } = await import("@/lib/apiClient");
-      const [fuelData, vehData] = await Promise.all([
-        get("/api/tms/fuelLogs"),
+      const [fuelData] = await Promise.all([
+        get("/api/tms/fuelLogs") as Promise<TmsFuelLog[]>,
         get("/api/tms/vehicles"),
       ]);
       setFuelLogs(fuelData);
@@ -44,7 +45,7 @@ export default function FuelLogsClient({ initialFuelLogs, initialVehicles }) {
     }
   };
 
-  const handleOpen = (fuelLog = null) => {
+  const handleOpen = (fuelLog: TmsFuelLog | null = null) => {
     if (fuelLog) {
       setEditingFuelLog(fuelLog);
       setFormData({
@@ -100,7 +101,7 @@ export default function FuelLogsClient({ initialFuelLogs, initialVehicles }) {
     }
   };
 
-  const confirmDelete = (fuelLog) => {
+  const confirmDelete = (fuelLog: TmsFuelLog) => {
     setDeletingFuelLog(fuelLog);
     deleteModal.onOpen();
   };
@@ -118,7 +119,7 @@ export default function FuelLogsClient({ initialFuelLogs, initialVehicles }) {
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: TmsFuelLog) => {
     try {
       await put(`/api/tms/fuelLogs/${item.tmsFuelLogId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -128,7 +129,7 @@ export default function FuelLogsClient({ initialFuelLogs, initialVehicles }) {
     }
   };
 
-  const updateField = (field, value) => {
+  const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

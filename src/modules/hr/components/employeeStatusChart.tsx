@@ -8,8 +8,9 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import type { EmployeeStatusChartProps, HrStatusStat } from "../types";
 
-const statusColors = {
+const statusColors: Record<string, string> = {
   active: "#22c55e",
   inactive: "#a1a1aa",
   probation: "#f59e0b",
@@ -18,7 +19,7 @@ const statusColors = {
   unknown: "#71717a",
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   active: "ปฏิบัติงาน",
   inactive: "ไม่ปฏิบัติงาน",
   probation: "ทดลองงาน",
@@ -27,14 +28,20 @@ const statusLabels = {
   unknown: "ไม่ระบุ",
 };
 
-export default function EmployeeStatusChart({ data = [] }) {
+interface ChartEntry {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export default function EmployeeStatusChart({ data = [] }: EmployeeStatusChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">No data</p>
     );
   }
 
-  const chartData = data.map((d) => ({
+  const chartData: ChartEntry[] = data.map((d: HrStatusStat) => ({
     name: statusLabels[d.status] || d.status,
     value: d.count,
     color: statusColors[d.status] || "#a1a1aa",

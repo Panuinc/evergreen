@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { Chip } from "@heroui/react";
 import DataTable from "@/components/ui/dataTable";
+import type { BcItem, BcItemsViewProps } from "@/modules/bc/types";
 
 const columns = [
   { name: "เลขที่", uid: "bcItemNo", sortable: true },
@@ -32,7 +33,7 @@ const initialVisibleColumns = [
   "bcItemBlocked",
 ];
 
-export default function BcItemsView({ items, loading }) {
+export default function BcItemsView({ items, loading }: BcItemsViewProps) {
   const postingGroupOptions = useMemo(() => {
     const unique = [
       ...new Set(
@@ -42,7 +43,8 @@ export default function BcItemsView({ items, loading }) {
     return unique.map((v) => ({ uid: v as string, name: v as string }));
   }, [items]);
 
-  const renderCell = useCallback((item, columnKey) => {
+  const renderCell = useCallback((row: Record<string, any>, columnKey: string) => {
+    const item = row as BcItem;
     switch (columnKey) {
       case "bcItemDescription":
         return <span className="font-light">{item.bcItemDescription}</span>;
@@ -84,7 +86,7 @@ export default function BcItemsView({ items, loading }) {
           </Chip>
         );
       default:
-        return item[columnKey] || "-";
+        return row[columnKey] || "-";
     }
   }, []);
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { Chip } from "@heroui/react";
+import type { MonthlyComparisonTableProps } from "@/modules/marketing/types";
 
 function formatCurrency(value) {
   return `฿${Number(value || 0).toLocaleString("th-TH")}`;
@@ -26,7 +27,7 @@ function ChangeCell({ current, previous, suffix = "", isPercent = false }) {
   );
 }
 
-export default function MonthlyComparisonTable({ data }) {
+export default function MonthlyComparisonTable({ data }: MonthlyComparisonTableProps) {
   if (!data?.current || !data?.previous) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

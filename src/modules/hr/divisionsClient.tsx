@@ -18,7 +18,8 @@ import { Plus, Edit, Trash2, Power } from "lucide-react";
 import { toast } from "sonner";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
-import { post, put, del } from "@/lib/apiClient";
+import { get, post, put, del } from "@/lib/apiClient";
+import type { HrDivision, DivisionsClientProps, DivisionFormData } from "./types";
 
 const baseColumns = [
   { name: "ชื่อ", uid: "hrDivisionName", sortable: true },
@@ -34,30 +35,29 @@ const baseVisibleColumns = [
   "actions",
 ];
 
-const emptyForm = {
+const emptyForm: DivisionFormData = {
   hrDivisionName: "",
   hrDivisionDescription: "",
 };
 
-export default function DivisionsClient({ initialDivisions }) {
+export default function DivisionsClient({ initialDivisions }: DivisionsClientProps) {
   const { isSuperAdmin } = useRBAC();
-  const [divisions, setDivisions] = useState(initialDivisions);
+  const [divisions, setDivisions] = useState<HrDivision[]>(initialDivisions);
   const [saving, setSaving] = useState(false);
-  const [editingDiv, setEditingDiv] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [editingDiv, setEditingDiv] = useState<HrDivision | null>(null);
+  const [formData, setFormData] = useState<DivisionFormData>(emptyForm);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingDiv, setDeletingDiv] = useState(null);
+  const [deletingDiv, setDeletingDiv] = useState<HrDivision | null>(null);
 
   const reloadDivisions = useCallback(async () => {
     try {
-      const { get } = await import("@/lib/apiClient");
       const data = await get("/api/hr/divisions");
-      setDivisions(data);
+      setDivisions(data as HrDivision[]);
     } catch {}
   }, []);
 
-  const handleOpen = useCallback((div = null) => {
+  const handleOpen = useCallback((div: HrDivision | null = null) => {
     if (div) {
       setEditingDiv(div);
       setFormData({
@@ -87,14 +87,14 @@ export default function DivisionsClient({ initialDivisions }) {
       }
       onClose();
       reloadDivisions();
-    } catch (error) {
-      toast.error(error.message || "บันทึกฝ่ายล้มเหลว");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "บันทึกฝ่ายล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = useCallback((div) => {
+  const confirmDelete = useCallback((div: HrDivision) => {
     setDeletingDiv(div);
     deleteModal.onOpen();
   }, [deleteModal]);
@@ -107,12 +107,12 @@ export default function DivisionsClient({ initialDivisions }) {
       deleteModal.onClose();
       setDeletingDiv(null);
       reloadDivisions();
-    } catch (error) {
-      toast.error(error.message || "ลบฝ่ายล้มเหลว");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "ลบฝ่ายล้มเหลว");
     }
   };
 
-  const toggleActive = useCallback(async (item) => {
+  const toggleActive = useCallback(async (item: HrDivision) => {
     try {
       await put(`/api/hr/divisions/${item.hrDivisionId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -142,7 +142,7 @@ export default function DivisionsClient({ initialDivisions }) {
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (div, columnKey) => {
+    (div: HrDivision, columnKey: string) => {
       switch (columnKey) {
         case "hrDivisionName":
           return <span className="font-light">{div.hrDivisionName}</span>;
@@ -201,7 +201,7 @@ export default function DivisionsClient({ initialDivisions }) {
             </div>
           );
         default:
-          return div[columnKey] || "-";
+          return (div as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
       }
     },
     [isSuperAdmin, confirmDelete, handleOpen, toggleActive],
@@ -230,7 +230,7 @@ export default function DivisionsClient({ initialDivisions }) {
             เพิ่มฝ่าย
           </Button>
         }
-        actionMenuItems={(item) => [
+        actionMenuItems={(item: HrDivision) => [
           { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
           isSuperAdmin
             ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }

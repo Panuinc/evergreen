@@ -6,8 +6,9 @@ import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import LeadsView from "@/modules/sales/components/leadsView";
+import type { SalesLead, LeadsClientProps } from "@/modules/sales/types";
 
-const emptyForm = {
+const emptyForm: Partial<SalesLead> = {
   salesLeadName: "",
   salesLeadEmail: "",
   salesLeadPhone: "",
@@ -20,25 +21,25 @@ const emptyForm = {
   salesLeadNotes: "",
 };
 
-export default function LeadsClient({ initialLeads }) {
-  const [leads, setLeads] = useState(initialLeads);
+export default function LeadsClient({ initialLeads }: LeadsClientProps) {
+  const [leads, setLeads] = useState<SalesLead[]>(initialLeads);
   const [saving, setSaving] = useState(false);
-  const [editingLead, setEditingLead] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [editingLead, setEditingLead] = useState<SalesLead | null>(null);
+  const [formData, setFormData] = useState<Partial<SalesLead>>(emptyForm);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingLead, setDeletingLead] = useState(null);
+  const [deletingLead, setDeletingLead] = useState<SalesLead | null>(null);
 
   const reloadLeads = async () => {
     try {
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/sales/leads");
+      const data = await get<SalesLead[]>("/api/sales/leads");
       setLeads(data);
     } catch {}
   };
 
-  const handleOpen = (lead = null) => {
+  const handleOpen = (lead: SalesLead | null = null) => {
     if (lead) {
       setEditingLead(lead);
       setFormData({
@@ -63,10 +64,10 @@ export default function LeadsClient({ initialLeads }) {
 
   const handleSave = async () => {
     const { isValid, errors } = validateForm(formData, {
-      salesLeadName: [(v) => !isRequired(v) && "กรุณาระบุชื่อลีด"],
+      salesLeadName: [(v: string) => !isRequired(v) && "กรุณาระบุชื่อลีด"],
     });
     if (!isValid) {
-      setValidationErrors(errors);
+      setValidationErrors(errors as Record<string, string>);
       Object.values(errors).forEach((msg) => toast.error(msg as string));
       return;
     }
@@ -84,13 +85,13 @@ export default function LeadsClient({ initialLeads }) {
       onClose();
       reloadLeads();
     } catch (error) {
-      toast.error(error.message || "บันทึกลีดล้มเหลว");
+      toast.error((error as Error).message || "บันทึกลีดล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = (lead) => {
+  const confirmDelete = (lead: SalesLead) => {
     setDeletingLead(lead);
     deleteModal.onOpen();
   };
@@ -104,21 +105,21 @@ export default function LeadsClient({ initialLeads }) {
       setDeletingLead(null);
       reloadLeads();
     } catch (error) {
-      toast.error(error.message || "ลบลีดล้มเหลว");
+      toast.error((error as Error).message || "ลบลีดล้มเหลว");
     }
   };
 
-  const handleConvert = async (lead) => {
+  const handleConvert = async (lead: SalesLead) => {
     try {
       await post(`/api/sales/leads/${lead.salesLeadId}`, { action: "convert" });
       toast.success("แปลงลีดเป็นลูกค้าสำเร็จ");
       reloadLeads();
     } catch (error) {
-      toast.error(error.message || "แปลงลีดล้มเหลว");
+      toast.error((error as Error).message || "แปลงลีดล้มเหลว");
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: SalesLead) => {
     try {
       await put(`/api/sales/leads/${item.salesLeadId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -128,7 +129,7 @@ export default function LeadsClient({ initialLeads }) {
     }
   };
 
-  const updateField = (field, value) => {
+  const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

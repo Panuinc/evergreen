@@ -16,6 +16,7 @@ import { Plus, Edit, Trash2, Download, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { exportToCsv } from "@/lib/exportCsv";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { VehiclesViewProps } from "@/modules/tms/types";
 
 const vehicleCsvColumns = [
   { header: "ทะเบียนรถ", key: "tmsVehiclePlateNumber" },
@@ -45,7 +46,7 @@ const statusOptions = [
   { name: "ปลดระวาง", uid: "retired" },
 ];
 
-const statusColors = {
+const statusColors: Record<string, "success" | "warning" | "danger" | "default"> = {
   available: "success",
   in_use: "warning",
   maintenance: "danger",
@@ -86,7 +87,7 @@ export default function VehiclesView({
   confirmDelete,
   handleDelete,
   toggleActive,
-}) {
+}: VehiclesViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -109,7 +110,8 @@ export default function VehiclesView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (rawItem: Record<string, unknown>, columnKey: string) => {
+      const item = rawItem as unknown as import("@/modules/tms/types").TmsVehicle;
       switch (columnKey) {
         case "tmsVehiclePlateNumber":
           return <span className="font-light">{item.tmsVehiclePlateNumber || "-"}</span>;
@@ -211,12 +213,15 @@ export default function VehiclesView({
             </Button>
           </div>
         }
-        actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
-          isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
-        ].filter(Boolean)}
+        actionMenuItems={(item) => {
+          const v = item as unknown as import("@/modules/tms/types").TmsVehicle;
+          return [
+            { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(v) },
+            isSuperAdmin
+              ? { key: "toggle", label: v.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(v) }
+              : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(v) },
+          ].filter(Boolean);
+        }}
       />
 
       {}
@@ -334,7 +339,7 @@ export default function VehiclesView({
                         : []
                     }
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] || "");
                       updateField("tmsVehicleFuelType", val);
                     }}
                   >
@@ -386,7 +391,7 @@ export default function VehiclesView({
                   radius="md"
                   selectedKeys={[formData.tmsVehicleStatus]}
                   onSelectionChange={(keys) => {
-                    const val = Array.from(keys)[0] || "available";
+                    const val = String(Array.from(keys)[0] || "available");
                     updateField("tmsVehicleStatus", val);
                   }}
                 >

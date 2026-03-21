@@ -1,5 +1,6 @@
 import { api } from "@/lib/api.server";
 import DepartmentsClient from "@/modules/hr/departmentsClient";
+import type { HrDepartment, HrDivision } from "@/modules/hr/types";
 
 export default async function DepartmentsPage() {
   const [departments, divisions] = await Promise.all([
@@ -9,8 +10,8 @@ export default async function DepartmentsPage() {
 
   return (
     <DepartmentsClient
-      initialDepartments={departments || []}
-      initialDivisions={divisions || []}
+      initialDepartments={(departments as HrDepartment[]) || []}
+      initialDivisions={(divisions as HrDivision[]) || []}
     />
   );
 }

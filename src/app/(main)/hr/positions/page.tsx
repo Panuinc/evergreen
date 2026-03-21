@@ -1,5 +1,6 @@
 import { api } from "@/lib/api.server";
 import PositionsClient from "@/modules/hr/positionsClient";
+import type { HrPosition, HrDepartment } from "@/modules/hr/types";
 
 export default async function PositionsPage() {
   const [positions, departments] = await Promise.all([
@@ -9,8 +10,8 @@ export default async function PositionsPage() {
 
   return (
     <PositionsClient
-      initialPositions={positions || []}
-      initialDepartments={departments || []}
+      initialPositions={(positions as HrPosition[]) || []}
+      initialDepartments={(departments as HrDepartment[]) || []}
     />
   );
 }

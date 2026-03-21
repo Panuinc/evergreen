@@ -50,9 +50,9 @@ func (s *Store) DashboardStages(ctx context.Context) ([]map[string]any, error) {
 func (s *Store) DashboardPipelineByStage(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			o."salesOpportunityStage"             AS "stage",
-			COALESCE(SUM(o."salesOpportunityAmount"), 0) AS "value",
-			p."salesPipelineStageColor"            AS "color"
+			o."salesOpportunityStage",
+			COALESCE(SUM(o."salesOpportunityAmount"), 0) AS "salesOpportunityAmount",
+			p."salesPipelineStageColor"
 		FROM "salesOpportunity" o
 		LEFT JOIN "salesPipelineStage" p ON p."salesPipelineStageName" = o."salesOpportunityStage"
 		WHERE o."isActive" = true
@@ -79,9 +79,9 @@ func (s *Store) DashboardRevenueByMonth(ctx context.Context) ([]map[string]any, 
 func (s *Store) DashboardTopSalespeople(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
-			"salesOrderCreatedBy"                     AS "name",
-			COUNT(*)                                  AS "deals",
-			COALESCE(SUM("salesOrderTotal"), 0)       AS "revenue"
+			"salesOrderCreatedBy",
+			COUNT(*) AS "salesOrderCount",
+			COALESCE(SUM("salesOrderTotal"), 0) AS "revenue"
 		FROM "salesOrder"
 		WHERE "isActive" = true
 		  AND "salesOrderStatus" NOT IN ('cancelled')

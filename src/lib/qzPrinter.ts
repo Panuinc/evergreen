@@ -26,7 +26,7 @@ export async function printTestLabel() {
   const cfg = getPrinterConfig();
   return callPrintApi({
     action: "print",
-    item: { number: "TEST-001" },
+    item: { bcItemNo: "TEST-001" },
     quantity: 1,
     config: cfg,
   });

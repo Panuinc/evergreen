@@ -3,27 +3,28 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import ProfitByItemView from "@/modules/production/components/profitByItemView";
+import type { ProfitClientProps, DashboardResponse, DashboardCompareResponse } from "@/modules/production/types";
 
-export default function ProfitClient({ initialData }) {
-  const [data, setData] = useState(initialData);
+export default function ProfitClient({ initialData }: ProfitClientProps) {
+  const [data, setData] = useState<DashboardResponse | DashboardCompareResponse | null>(initialData);
   const [loading, setLoading] = useState(false);
-  const [compareMode, setCompareModeState] = useState(null);
+  const [compareMode, setCompareModeState] = useState<string | null>(null);
 
-  const loadData = useCallback(async (mode) => {
+  const loadData = useCallback(async (mode: string | null) => {
     try {
       setLoading(true);
       const { get } = await import("@/lib/apiClient");
       const params = mode ? `?compareMode=${mode}` : "";
-      const result = await get(`/api/production/dashboard${params}`);
+      const result = await get<DashboardResponse | DashboardCompareResponse>(`/api/production/dashboard${params}`);
       setData(result);
-    } catch (error) {
+    } catch {
       toast.error("โหลดข้อมูลแดชบอร์ดการผลิตล้มเหลว");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const setCompareMode = useCallback((mode) => {
+  const setCompareMode = useCallback((mode: string | null) => {
     setCompareModeState(mode);
     loadData(mode);
   }, [loadData]);

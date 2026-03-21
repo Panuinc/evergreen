@@ -1,5 +1,6 @@
 import { api } from "@/lib/api.server";
 import CollectionsClient from "@/modules/finance/collectionsClient";
+import type { AgedReceivable, ArFollowUp } from "@/modules/finance/types";
 
 export default async function CollectionsPage() {
   const [arData, fuData] = await Promise.all([
@@ -9,8 +10,8 @@ export default async function CollectionsPage() {
 
   return (
     <CollectionsClient
-      initialAr={arData || []}
-      initialFu={fuData || []}
+      initialAr={(arData as AgedReceivable[]) || []}
+      initialFu={(fuData as ArFollowUp[]) || []}
     />
   );
 }

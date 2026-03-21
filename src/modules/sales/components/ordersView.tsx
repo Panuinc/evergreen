@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { Eye, Trash2, Edit } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
+import type { OrdersViewProps, SalesOrder } from "@/modules/sales/types";
 
 const columns = [
   { name: "เลขที่คำสั่ง", uid: "salesOrderNo", sortable: true },
@@ -47,6 +48,15 @@ const initialVisibleColumns = [
   "actions",
 ];
 
+const statusColorMap: Record<string, "default" | "primary" | "warning" | "secondary" | "success" | "danger"> = {
+  pending: "default",
+  confirmed: "primary",
+  processing: "warning",
+  shipped: "secondary",
+  delivered: "success",
+  cancelled: "danger",
+};
+
 export default function OrdersView({
   orders,
   loading,
@@ -59,9 +69,9 @@ export default function OrdersView({
   handleViewDetail,
   confirmDelete,
   handleDelete,
-}) {
+}: OrdersViewProps) {
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (item: SalesOrder, columnKey: string) => {
       switch (columnKey) {
         case "salesOrderNo":
           return <span className="font-light">{item.salesOrderNo || "-"}</span>;
@@ -72,27 +82,18 @@ export default function OrdersView({
         case "account":
           return item.salesAccount?.salesAccountName || "-";
         case "quotation":
-          return item.salesQuotation?.salesQuotationNo || "-";
-        case "salesOrderStatus": {
-          const colorMap = {
-            pending: "default",
-            confirmed: "primary",
-            processing: "warning",
-            shipped: "secondary",
-            delivered: "success",
-            cancelled: "danger",
-          };
+          return item.salesOrderQuotationId || "-";
+        case "salesOrderStatus":
           return (
             <Chip
               variant="flat"
               size="md"
               radius="md"
-              color={colorMap[item.salesOrderStatus] || "default"}
+              color={statusColorMap[item.salesOrderStatus] || "default"}
             >
               {item.salesOrderStatus}
             </Chip>
           );
-        }
         case "salesOrderTotal":
           return item.salesOrderTotal
             ? `฿${Number(item.salesOrderTotal).toLocaleString()}`
@@ -129,7 +130,7 @@ export default function OrdersView({
                 selectedKeys={[item.salesOrderStatus]}
                 className="w-32"
                 onSelectionChange={(keys) => {
-                  const newStatus = Array.from(keys)[0];
+                  const newStatus = Array.from(keys)[0] as string;
                   if (newStatus && newStatus !== item.salesOrderStatus) {
                     handleStatusChange(item, newStatus);
                   }
@@ -154,7 +155,7 @@ export default function OrdersView({
             </div>
           );
         default:
-          return item[columnKey] || "-";
+          return (item as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
       }
     },
     [handleViewDetail, handleStatusChange, confirmDelete],
@@ -179,7 +180,7 @@ export default function OrdersView({
         statusField="salesOrderStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบคำสั่งซื้อ"
-        actionMenuItems={(item) => [
+        actionMenuItems={(item: SalesOrder) => [
           { key: "view", label: "ดูรายละเอียด", icon: <Eye />, onPress: () => handleViewDetail(item) },
           { key: "status-pending", label: "สถานะ: รอดำเนินการ", icon: <Edit />, onPress: () => handleStatusChange(item, "pending") },
           { key: "status-confirmed", label: "สถานะ: ยืนยันแล้ว", icon: <Edit />, onPress: () => handleStatusChange(item, "confirmed") },
@@ -227,34 +228,20 @@ export default function OrdersView({
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">ใบเสนอราคา</span>
                     <span className="font-light">
-                      {selectedOrder.salesQuotation?.salesQuotationNo || "-"}
+                      {selectedOrder.salesOrderQuotationId || "-"}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">สถานะ</span>
                     <div>
-                      {(() => {
-                        const colorMap = {
-                          pending: "default",
-                          confirmed: "primary",
-                          processing: "warning",
-                          shipped: "secondary",
-                          delivered: "success",
-                          cancelled: "danger",
-                        };
-                        return (
-                          <Chip
-                            variant="flat"
-                            size="md"
-                            radius="md"
-                            color={
-                              colorMap[selectedOrder.salesOrderStatus] || "default"
-                            }
-                          >
-                            {selectedOrder.salesOrderStatus}
-                          </Chip>
-                        );
-                      })()}
+                      <Chip
+                        variant="flat"
+                        size="md"
+                        radius="md"
+                        color={statusColorMap[selectedOrder.salesOrderStatus] || "default"}
+                      >
+                        {selectedOrder.salesOrderStatus}
+                      </Chip>
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -293,9 +280,7 @@ export default function OrdersView({
                     <span className="text-xs text-muted-foreground">สร้างเมื่อ</span>
                     <span className="font-light">
                       {selectedOrder.salesOrderCreatedAt
-                        ? new Date(
-                            selectedOrder.salesOrderCreatedAt,
-                          ).toLocaleDateString()
+                        ? new Date(selectedOrder.salesOrderCreatedAt).toLocaleDateString()
                         : "-"}
                     </span>
                   </div>

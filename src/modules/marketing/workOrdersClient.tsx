@@ -8,6 +8,7 @@ import { get, post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import { useAuth } from "@/contexts/authContext";
 import WorkOrdersView from "@/modules/marketing/components/workOrdersView";
+import type { MktWorkOrder, WorkOrderFormData, WorkOrderProgressForm, MktWorkOrderProgressLog, HrEmployee } from "@/modules/marketing/types";
 
 const emptyForm = {
   mktWorkOrderTitle: "",
@@ -31,14 +32,14 @@ const emptyProgressForm = {
 
 export default function WorkOrdersClient() {
   const { user } = useAuth();
-  const fetcher = (url) => get(url);
-  const { data: workOrdersData, isLoading: woLoading, mutate: mutateWorkOrders } = useSWR(
+  const fetcher = (url: string) => get<MktWorkOrder[]>(url);
+  const { data: workOrdersData, isLoading: woLoading, mutate: mutateWorkOrders } = useSWR<MktWorkOrder[]>(
     user ? "/api/marketing/workOrders" : null,
     fetcher,
   );
-  const { data: employeesData, isLoading: empLoading } = useSWR(
+  const { data: employeesData, isLoading: empLoading } = useSWR<HrEmployee[]>(
     user ? "/api/hr/employees" : null,
-    (url) => get(url).catch(() => []),
+    (url: string) => get<HrEmployee[]>(url).catch(() => []),
   );
 
   const workOrders = workOrdersData || [];
@@ -52,19 +53,19 @@ export default function WorkOrdersClient() {
   }, [user, employees]);
 
   const [saving, setSaving] = useState(false);
-  const [editingWorkOrder, setEditingWorkOrder] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [editingWorkOrder, setEditingWorkOrder] = useState<MktWorkOrder | null>(null);
+  const [formData, setFormData] = useState<WorkOrderFormData>(emptyForm);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingWorkOrder, setDeletingWorkOrder] = useState(null);
+  const [deletingWorkOrder, setDeletingWorkOrder] = useState<MktWorkOrder | null>(null);
 
   const progressModal = useDisclosure();
-  const [selectedWorkOrder, setSelectedWorkOrder] = useState(null);
-  const [progressLogs, setProgressLogs] = useState([]);
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<MktWorkOrder | null>(null);
+  const [progressLogs, setProgressLogs] = useState<MktWorkOrderProgressLog[]>([]);
   const [progressLoading, setProgressLoading] = useState(false);
   const [progressSaving, setProgressSaving] = useState(false);
-  const [progressForm, setProgressForm] = useState(emptyProgressForm);
+  const [progressForm, setProgressForm] = useState<WorkOrderProgressForm>(emptyProgressForm);
 
 
   const handleOpen = (workOrder = null) => {
@@ -165,8 +166,8 @@ export default function WorkOrdersClient() {
     progressModal.onOpen();
     try {
       setProgressLoading(true);
-      const logs = await get(`/api/marketing/workOrders/${workOrder.mktWorkOrderId}/progress`);
-      setProgressLogs(logs);
+      const logs = await get<MktWorkOrderProgressLog[]>(`/api/marketing/workOrders/${workOrder.mktWorkOrderId}/progress`);
+      setProgressLogs(logs ?? []);
     } catch {
       toast.error("โหลดบันทึกความคืบหน้าล้มเหลว");
     } finally {
@@ -193,8 +194,8 @@ export default function WorkOrdersClient() {
       });
       toast.success("อัปเดตความคืบหน้าสำเร็จ");
 
-      const logs = await get(`/api/marketing/workOrders/${selectedWorkOrder.mktWorkOrderId}/progress`);
-      setProgressLogs(logs);
+      const logs = await get<MktWorkOrderProgressLog[]>(`/api/marketing/workOrders/${selectedWorkOrder.mktWorkOrderId}/progress`);
+      setProgressLogs(logs ?? []);
       setProgressForm({
         ...emptyProgressForm,
         mktWorkOrderProgressLogProgress: progressForm.mktWorkOrderProgressLogProgress,

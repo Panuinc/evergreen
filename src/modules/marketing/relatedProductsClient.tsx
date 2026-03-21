@@ -4,26 +4,28 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { post, del } from "@/lib/apiClient";
 import RelatedProductsView from "@/modules/marketing/components/relatedProductsView";
+import type { RelatedProductsClientProps, MktRelatedProduct } from "@/modules/marketing/types";
 
-export default function RelatedProductsClient({ initialRelatedProducts, initialStockItems }) {
-  const [relatedProducts, setRelatedProducts] = useState(initialRelatedProducts);
+export default function RelatedProductsClient({ initialRelatedProducts, initialStockItems }: RelatedProductsClientProps) {
+  const [relatedProducts, setRelatedProducts] = useState<MktRelatedProduct[]>(initialRelatedProducts);
   const [loading, setLoading] = useState(false);
 
   const add = async (data) => {
-    const result = await post("/api/marketing/omnichannel/relatedProducts", data);
+    const result = await post<MktRelatedProduct>("/api/marketing/omnichannel/relatedProducts", data);
+    const rp = result as MktRelatedProduct;
     setRelatedProducts((prev) => {
       const exists = prev.findIndex(
-        (p) => p.mktRelatedProductId === result.mktRelatedProductId
+        (p) => p.mktRelatedProductId === rp.mktRelatedProductId
       );
       if (exists >= 0) {
         return prev.map((p) =>
-          p.mktRelatedProductId === result.mktRelatedProductId ? result : p
+          p.mktRelatedProductId === rp.mktRelatedProductId ? rp : p
         );
       }
-      return [result, ...prev];
+      return [rp, ...prev];
     });
     toast.success("บันทึกสินค้าที่เกี่ยวข้องเรียบร้อย");
-    return result;
+    return rp;
   };
 
   const remove = async (id) => {

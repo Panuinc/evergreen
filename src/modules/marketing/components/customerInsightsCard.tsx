@@ -1,6 +1,7 @@
 "use client";
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import type { CustomerInsightsCardProps } from "@/modules/marketing/types";
 
 const colors = ["#3b82f6", "#e5e7eb"];
 
@@ -10,7 +11,7 @@ function formatCurrency(value) {
   return `฿${value}`;
 }
 
-export default function CustomerInsightsCard({ data }) {
+export default function CustomerInsightsCard({ data }: CustomerInsightsCardProps) {
   if (!data) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

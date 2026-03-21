@@ -9,8 +9,9 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import type { TopOutputItemsChartProps } from "@/modules/production/types";
 
-export default function TopOutputItemsChart({ data = [] }) {
+export default function TopOutputItemsChart({ data = [] }: TopOutputItemsChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>

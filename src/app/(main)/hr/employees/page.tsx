@@ -1,5 +1,6 @@
 import { api } from "@/lib/api.server";
 import EmployeesClient from "@/modules/hr/employeesClient";
+import type { HrEmployee, HrDivision, HrDepartment, HrPosition } from "@/modules/hr/types";
 
 export default async function EmployeesPage() {
   const [employees, divisions, departments, positions] = await Promise.all([
@@ -11,10 +12,10 @@ export default async function EmployeesPage() {
 
   return (
     <EmployeesClient
-      initialEmployees={employees || []}
-      initialDivisions={divisions || []}
-      initialDepartments={departments || []}
-      initialPositions={positions || []}
+      initialEmployees={(employees as HrEmployee[]) || []}
+      initialDivisions={(divisions as HrDivision[]) || []}
+      initialDepartments={(departments as HrDepartment[]) || []}
+      initialPositions={(positions as HrPosition[]) || []}
     />
   );
 }

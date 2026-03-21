@@ -110,9 +110,9 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	// Build sales price map: itemNo -> unitPrice
 	salesPriceMap := map[string]float64{}
 	for _, row := range salesPriceRows {
-		itemNo := toStr(row["itemNo"])
+		itemNo := toStr(row["bcSalesOrderLineNoValue"])
 		if itemNo != "" {
-			salesPriceMap[itemNo] = toFloat(row["unitPrice"])
+			salesPriceMap[itemNo] = toFloat(row["bcSalesOrderLineUnitPrice"])
 		}
 	}
 
@@ -120,9 +120,9 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	deptNameMap := map[string]string{}
 	projNameMap := map[string]string{}
 	for _, row := range dimNameRows {
-		code := toStr(row["dimCode"])
-		valCode := toStr(row["valueCode"])
-		valName := toStr(row["valueName"])
+		code := toStr(row["bcDimensionSetEntryDimensionCode"])
+		valCode := toStr(row["bcDimensionSetEntryDimensionValueCode"])
+		valName := toStr(row["bcDimensionSetEntryDimensionValueName"])
 		if code == "DEPARTMENT" && valCode != "" {
 			deptNameMap[valCode] = valName
 		}
@@ -135,9 +135,9 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	orderDim1 := map[string]string{}
 	orderDim2 := map[string]string{}
 	for _, po := range prodOrders {
-		orderNo := toStr(po["orderNo"])
-		dim1 := toStr(po["dim1Code"])
-		dim2 := toStr(po["dim2Code"])
+		orderNo := toStr(po["bcProductionOrderNo"])
+		dim1 := toStr(po["bcProductionOrderShortcutDimension1Code"])
+		dim2 := toStr(po["bcProductionOrderShortcutDimension2Code"])
 		if orderNo != "" {
 			orderDim1[orderNo] = dim1
 			orderDim2[orderNo] = dim2
@@ -159,19 +159,19 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	var consumptionList []costEntry
 	orderConsumptionCost := map[string]float64{}
 	for _, row := range consumptionCosts {
-		orderNo := toStr(row["orderNo"])
-		cost := toFloat(row["costAmount"])
-		pd, _ := toTime(row["postingDate"])
+		orderNo := toStr(row["bcValueEntryOrderNo"])
+		cost := toFloat(row["bcValueEntryCostAmountActual"])
+		pd, _ := toTime(row["bcValueEntryPostingDate"])
 		ce := costEntry{
 			orderNo:     orderNo,
-			itemNo:      toStr(row["itemNo"]),
+			itemNo:      toStr(row["bcValueEntryItemNo"]),
 			costAmount:  cost,
-			quantity:    toFloat(row["quantity"]),
+			quantity:    toFloat(row["bcValueEntryValuedQuantity"]),
 			postingDate: pd,
-			dim1Code:    toStr(row["dim1Code"]),
-			dim2Code:    toStr(row["dim2Code"]),
-			description: toStr(row["description"]),
-			itemDesc:    toStr(row["itemDescription"]),
+			dim1Code:    toStr(row["bcValueEntryGlobalDimension1Code"]),
+			dim2Code:    toStr(row["bcValueEntryGlobalDimension2Code"]),
+			description: toStr(row["bcValueEntryDescriptionValue"]),
+			itemDesc:    toStr(row["bcItemDescription"]),
 		}
 		consumptionList = append(consumptionList, ce)
 		orderConsumptionCost[orderNo] += cost
@@ -193,22 +193,22 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	var outputList []outputEntry
 	orderOutputQty := map[string]float64{}
 	for _, row := range ileEntries {
-		entryType := toStr(row["entryType"])
-		orderNo := toStr(row["orderNo"])
+		entryType := toStr(row["bcItemLedgerEntryEntryType"])
+		orderNo := toStr(row["bcItemLedgerEntryOrderNo"])
 		if entryType == "Output" {
-			qty := toFloat(row["quantity"])
-			pd, _ := toTime(row["postingDate"])
+			qty := toFloat(row["bcItemLedgerEntryQuantityValue"])
+			pd, _ := toTime(row["bcItemLedgerEntryPostingDate"])
 			oe := outputEntry{
 				orderNo:      orderNo,
-				itemNo:       toStr(row["itemNo"]),
+				itemNo:       toStr(row["bcItemLedgerEntryItemNo"]),
 				quantity:     qty,
 				postingDate:  pd,
-				dim1Code:     toStr(row["dim1Code"]),
-				dim2Code:     toStr(row["dim2Code"]),
-				description:  toStr(row["description"]),
-				itemDesc:     toStr(row["itemDescription"]),
-				itemCategory: toStr(row["itemCategory"]),
-				itemPrice:    toFloat(row["itemUnitPrice"]),
+				dim1Code:     toStr(row["bcItemLedgerEntryGlobalDimension1Code"]),
+				dim2Code:     toStr(row["bcItemLedgerEntryGlobalDimension2Code"]),
+				description:  toStr(row["bcItemLedgerEntryDescriptionValue"]),
+				itemDesc:     toStr(row["bcItemDescription"]),
+				itemCategory: toStr(row["bcItemLedgerEntryItemCategoryCode"]),
+				itemPrice:    toFloat(row["bcItemUnitPrice"]),
 			}
 			outputList = append(outputList, oe)
 			orderOutputQty[orderNo] += qty
@@ -235,7 +235,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	wpcOrders := tabData{}
 	otherOrders := tabData{}
 	for _, po := range prodOrders {
-		dim1 := toStr(po["dim1Code"])
+		dim1 := toStr(po["bcProductionOrderShortcutDimension1Code"])
 		if isWPC(dim1) {
 			wpcOrders.orders = append(wpcOrders.orders, po)
 		} else {
@@ -256,8 +256,8 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		orderNoSet := map[string]bool{}
 
 		for _, po := range orders {
-			orderNo := toStr(po["orderNo"])
-			status := toStr(po["status"])
+			orderNo := toStr(po["bcProductionOrderNo"])
+			status := toStr(po["bcProductionOrderStatus"])
 			orderNoSet[orderNo] = true
 			byStatus[status]++
 
@@ -265,11 +265,11 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			case "Released":
 				releasedOrders++
 				// Check overdue
-				if dueDate, ok := toTime(po["dueDate"]); ok {
+				if dueDate, ok := toTime(po["bcProductionOrderDueDate"]); ok {
 					if now.After(dueDate) {
 						overdueDays := int(now.Sub(dueDate).Hours() / 24)
-						dim1 := toStr(po["dim1Code"])
-						dim2 := toStr(po["dim2Code"])
+						dim1 := toStr(po["bcProductionOrderShortcutDimension1Code"])
+						dim2 := toStr(po["bcProductionOrderShortcutDimension2Code"])
 						dim1Name := deptNameMap[dim1]
 						if dim1Name == "" {
 							dim1Name = dim1
@@ -279,24 +279,24 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 							dim2Name = dim2
 						}
 						overdueOrders = append(overdueOrders, map[string]any{
-							"id":               orderNo,
-							"description":      toStr(po["description"]),
-							"sourceNo":         toStr(po["sourceNo"]),
-							"quantity":         toFloat(po["quantity"]),
-							"dueDate":          dueDate.Format(time.RFC3339),
-							"startingDateTime": po["startingDateTime"],
-							"overdueDays":      overdueDays,
-							"dimension1Name":   dim1Name,
-							"dimension2Name":   dim2Name,
-							"locationCode":     toStr(po["locationCode"]),
+							"bcProductionOrderNo":               orderNo,
+							"bcProductionOrderDescription":      toStr(po["bcProductionOrderDescription"]),
+							"bcProductionOrderSourceNo":         toStr(po["bcProductionOrderSourceNo"]),
+							"bcProductionOrderQuantity":         toFloat(po["bcProductionOrderQuantity"]),
+							"bcProductionOrderDueDate":          dueDate.Format(time.RFC3339),
+							"bcProductionOrderStartingDateTime": po["bcProductionOrderStartingDateTime"],
+							"overdueDays":                       overdueDays,
+							"dimension1Name":                    dim1Name,
+							"dimension2Name":                    dim2Name,
+							"bcProductionOrderLocationCode":     toStr(po["bcProductionOrderLocationCode"]),
 						})
 					}
 				}
 			case "Finished":
 				finishedOrders++
 				// On-time rate
-				finishedDate, hasFD := toTime(po["finishedDate"])
-				dueDate, hasDD := toTime(po["dueDate"])
+				finishedDate, hasFD := toTime(po["bcProductionOrderFinishedDate"])
+				dueDate, hasDD := toTime(po["bcProductionOrderDueDate"])
 				if hasFD && hasDD {
 					if !finishedDate.After(dueDate) {
 						onTimeCount++
@@ -304,7 +304,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 					finishedWithDates++
 				}
 				// Lead time
-				startDate, hasSD := toTime(po["startingDateTime"])
+				startDate, hasSD := toTime(po["bcProductionOrderStartingDateTime"])
 				if hasFD && hasSD {
 					days := finishedDate.Sub(startDate).Hours() / 24
 					if days >= 0 {
@@ -318,8 +318,8 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		tabConsumptionCost := 0.0
 		tabWipValue := 0.0
 		for _, po := range orders {
-			orderNo := toStr(po["orderNo"])
-			status := toStr(po["status"])
+			orderNo := toStr(po["bcProductionOrderNo"])
+			status := toStr(po["bcProductionOrderStatus"])
 			cost := orderConsumptionCost[orderNo]
 			tabConsumptionCost += cost
 			if status == "Released" {
@@ -331,7 +331,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		tabRevenue := 0.0
 		tabOutputQty := 0.0
 		for _, po := range orders {
-			orderNo := toStr(po["orderNo"])
+			orderNo := toStr(po["bcProductionOrderNo"])
 			tabRevenue += orderRevenue[orderNo]
 			tabOutputQty += orderOutputQty[orderNo]
 		}
@@ -373,8 +373,8 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		projCost := map[string]float64{}
 		projRev := map[string]float64{}
 		for _, po := range orders {
-			orderNo := toStr(po["orderNo"])
-			dim2 := toStr(po["dim2Code"])
+			orderNo := toStr(po["bcProductionOrderNo"])
+			dim2 := toStr(po["bcProductionOrderShortcutDimension2Code"])
 			if dim2 == "" {
 				dim2 = "(ไม่ระบุ)"
 			}
@@ -563,12 +563,12 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		monthOnTime := map[string]int{}
 		monthFinished := map[string]int{}
 		for _, po := range orders {
-			status := toStr(po["status"])
+			status := toStr(po["bcProductionOrderStatus"])
 			if status != "Finished" {
 				continue
 			}
-			finishedDate, hasFD := toTime(po["finishedDate"])
-			dueDate, hasDD := toTime(po["dueDate"])
+			finishedDate, hasFD := toTime(po["bcProductionOrderFinishedDate"])
+			dueDate, hasDD := toTime(po["bcProductionOrderDueDate"])
 			if !hasFD || !hasDD {
 				continue
 			}
@@ -599,12 +599,12 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		monthLeadSum := map[string]float64{}
 		monthLeadCount := map[string]int{}
 		for _, po := range orders {
-			status := toStr(po["status"])
+			status := toStr(po["bcProductionOrderStatus"])
 			if status != "Finished" {
 				continue
 			}
-			finishedDate, hasFD := toTime(po["finishedDate"])
-			startDate, hasSD := toTime(po["startingDateTime"])
+			finishedDate, hasFD := toTime(po["bcProductionOrderFinishedDate"])
+			startDate, hasSD := toTime(po["bcProductionOrderStartingDateTime"])
 			if !hasFD || !hasSD {
 				continue
 			}
@@ -637,11 +637,11 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		// wipByOrder chart: released orders with cost/revenue
 		wipByOrder := []map[string]any{}
 		for _, po := range orders {
-			status := toStr(po["status"])
+			status := toStr(po["bcProductionOrderStatus"])
 			if status != "Released" {
 				continue
 			}
-			orderNo := toStr(po["orderNo"])
+			orderNo := toStr(po["bcProductionOrderNo"])
 			consCost := orderConsumptionCost[orderNo]
 			rev := orderRevenue[orderNo]
 			if consCost == 0 && rev == 0 {
@@ -649,7 +649,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			}
 			wipByOrder = append(wipByOrder, map[string]any{
 				"orderNo":         orderNo,
-				"description":     toStr(po["description"]),
+				"description":     toStr(po["bcProductionOrderDescription"]),
 				"consumptionCost": roundTo(consCost, 2),
 				"revenue":         roundTo(rev, 2),
 				"wipValue":        roundTo(consCost-rev, 2),
@@ -664,12 +664,12 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		// wipDetail table: released orders with progress
 		wipDetail := []map[string]any{}
 		for _, po := range orders {
-			status := toStr(po["status"])
+			status := toStr(po["bcProductionOrderStatus"])
 			if status != "Released" {
 				continue
 			}
-			orderNo := toStr(po["orderNo"])
-			plannedQty := toFloat(po["quantity"])
+			orderNo := toStr(po["bcProductionOrderNo"])
+			plannedQty := toFloat(po["bcProductionOrderQuantity"])
 			outputQty := orderOutputQty[orderNo]
 			remainQty := plannedQty - outputQty
 			completionPct := 0.0
@@ -680,15 +680,15 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			rev := orderRevenue[orderNo]
 			wipVal := consCost - rev
 			var dueDateStr any
-			if dd, ok := toTime(po["dueDate"]); ok {
+			if dd, ok := toTime(po["bcProductionOrderDueDate"]); ok {
 				dueDateStr = dd.Format(time.RFC3339)
 			}
 			wipDetail = append(wipDetail, map[string]any{
 				"_key":            orderNo,
 				"orderNo":         orderNo,
-				"description":     toStr(po["description"]),
-				"sourceNo":        toStr(po["sourceNo"]),
-				"uom":             toStr(po["uom"]),
+				"description":     toStr(po["bcProductionOrderDescription"]),
+				"sourceNo":        toStr(po["bcProductionOrderSourceNo"]),
+				"uom":             toStr(po["bcItemBaseUnitOfMeasure"]),
 				"plannedQty":      plannedQty,
 				"outputQty":       outputQty,
 				"remainQty":       remainQty,
@@ -779,21 +779,21 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		// Build per-item consumption cost from the production order source items
 		// We need to distribute order consumption cost to the source item
 		for _, po := range orders {
-			orderNo := toStr(po["orderNo"])
-			sourceNo := toStr(po["sourceNo"])
+			orderNo := toStr(po["bcProductionOrderNo"])
+			sourceNo := toStr(po["bcProductionOrderSourceNo"])
 			cost := orderConsumptionCost[orderNo]
 			if sourceNo == "" || cost == 0 {
 				continue
 			}
 			ip := itemProfitMap[sourceNo]
 			if ip == nil {
-				desc := toStr(po["itemDescription"])
+				desc := toStr(po["bcItemDescription"])
 				if desc == "" {
-					desc = toStr(po["description"])
+					desc = toStr(po["bcProductionOrderDescription"])
 				}
 				price := salesPriceMap[sourceNo]
 				if price == 0 {
-					price = toFloat(po["itemUnitPrice"])
+					price = toFloat(po["bcItemUnitPrice"])
 				}
 				ip = &itemProfit{
 					itemNo:       sourceNo,
@@ -850,12 +850,12 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		}
 		projItems := map[string]map[string]*projItem{}
 		for _, po := range orders {
-			orderNo := toStr(po["orderNo"])
-			dim2 := toStr(po["dim2Code"])
+			orderNo := toStr(po["bcProductionOrderNo"])
+			dim2 := toStr(po["bcProductionOrderShortcutDimension2Code"])
 			if dim2 == "" {
 				dim2 = "(ไม่ระบุ)"
 			}
-			sourceNo := toStr(po["sourceNo"])
+			sourceNo := toStr(po["bcProductionOrderSourceNo"])
 			if sourceNo == "" {
 				continue
 			}
@@ -864,18 +864,18 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			}
 			pi := projItems[dim2][sourceNo]
 			if pi == nil {
-				desc := toStr(po["itemDescription"])
+				desc := toStr(po["bcItemDescription"])
 				if desc == "" {
-					desc = toStr(po["description"])
+					desc = toStr(po["bcProductionOrderDescription"])
 				}
 				price := salesPriceMap[sourceNo]
 				if price == 0 {
-					price = toFloat(po["itemUnitPrice"])
+					price = toFloat(po["bcItemUnitPrice"])
 				}
 				pi = &projItem{
 					itemNo:      sourceNo,
 					description: desc,
-					category:    toStr(po["itemCategory"]),
+					category:    toStr(po["bcItemItemCategoryCode"]),
 					unitPrice:   price,
 				}
 				projItems[dim2][sourceNo] = pi
@@ -967,11 +967,11 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		orderFinished := map[string]time.Time{}
 		orderStarted := map[string]time.Time{}
 		for _, po := range orders {
-			orderNo := toStr(po["orderNo"])
-			if fd, ok := toTime(po["finishedDate"]); ok {
+			orderNo := toStr(po["bcProductionOrderNo"])
+			if fd, ok := toTime(po["bcProductionOrderFinishedDate"]); ok {
 				orderFinished[orderNo] = fd
 			}
-			if sd, ok := toTime(po["startingDateTime"]); ok {
+			if sd, ok := toTime(po["bcProductionOrderStartingDateTime"]); ok {
 				orderStarted[orderNo] = sd
 			}
 		}
@@ -1216,15 +1216,15 @@ func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
 
 	salesPriceMap := map[string]float64{}
 	for _, row := range salesPriceRows {
-		if no := toStr(row["itemNo"]); no != "" {
-			salesPriceMap[no] = toFloat(row["unitPrice"])
+		if no := toStr(row["bcSalesOrderLineNoValue"]); no != "" {
+			salesPriceMap[no] = toFloat(row["bcSalesOrderLineUnitPrice"])
 		}
 	}
 
 	deptNameMap := map[string]string{}
 	projNameMap := map[string]string{}
 	for _, row := range dimNameRows {
-		code, valCode, valName := toStr(row["dimCode"]), toStr(row["valueCode"]), toStr(row["valueName"])
+		code, valCode, valName := toStr(row["bcDimensionSetEntryDimensionCode"]), toStr(row["bcDimensionSetEntryDimensionValueCode"]), toStr(row["bcDimensionSetEntryDimensionValueName"])
 		if code == "DEPARTMENT" && valCode != "" {
 			deptNameMap[valCode] = valName
 		}
@@ -1236,32 +1236,32 @@ func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
 	// outputQty per order
 	outputQtyMap := map[string]float64{}
 	for _, e := range ileEntries {
-		if toStr(e["entryType"]) == "Output" {
-			orderNo := toStr(e["orderNo"])
-			outputQtyMap[orderNo] += toFloat(e["quantity"])
+		if toStr(e["bcItemLedgerEntryEntryType"]) == "Output" {
+			orderNo := toStr(e["bcItemLedgerEntryOrderNo"])
+			outputQtyMap[orderNo] += toFloat(e["bcItemLedgerEntryQuantityValue"])
 		}
 	}
 
 	// consumptionCost per order
 	costMap := map[string]float64{}
 	for _, c := range consumptionCosts {
-		orderNo := toStr(c["orderNo"])
-		costMap[orderNo] += toFloat(c["costAmount"])
+		orderNo := toStr(c["bcValueEntryOrderNo"])
+		costMap[orderNo] += toFloat(c["bcValueEntryCostAmountActual"])
 	}
 
 	result := make([]map[string]any, 0, len(prodOrders))
 	for _, po := range prodOrders {
-		orderNo := toStr(po["orderNo"])
-		sourceNo := toStr(po["sourceNo"])
-		dim1 := toStr(po["dim1Code"])
-		dim2 := toStr(po["dim2Code"])
+		orderNo := toStr(po["bcProductionOrderNo"])
+		sourceNo := toStr(po["bcProductionOrderSourceNo"])
+		dim1 := toStr(po["bcProductionOrderShortcutDimension1Code"])
+		dim2 := toStr(po["bcProductionOrderShortcutDimension2Code"])
 
 		outputQty := outputQtyMap[orderNo]
 		consumptionCost := costMap[orderNo]
 
 		unitPrice := salesPriceMap[sourceNo]
 		if unitPrice == 0 {
-			unitPrice = toFloat(po["itemUnitPrice"])
+			unitPrice = toFloat(po["bcItemUnitPrice"])
 		}
 		revenue := outputQty * unitPrice
 		profit := revenue - consumptionCost
@@ -1271,23 +1271,22 @@ func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
 		}
 
 		result = append(result, map[string]any{
-			"bcProductionOrderId":                     orderNo,
 			"bcProductionOrderNo":                     orderNo,
-			"bcProductionOrderStatus":                 po["status"],
-			"bcProductionOrderDescription":            po["description"],
-			"bcProductionOrderDescription2":           po["description2"],
+			"bcProductionOrderStatus":                 po["bcProductionOrderStatus"],
+			"bcProductionOrderDescription":            po["bcProductionOrderDescription"],
+			"bcProductionOrderDescription2":           po["bcProductionOrderDescription2"],
 			"bcProductionOrderSourceNo":               sourceNo,
-			"bcProductionOrderRoutingNo":              po["routingNo"],
-			"bcProductionOrderQuantity":               po["quantity"],
-			"bcProductionOrderDueDate":                po["dueDate"],
-			"bcProductionOrderFinishedDate":           po["finishedDate"],
-			"bcProductionOrderStartingDateTime":       po["startingDateTime"],
-			"bcProductionOrderEndingDateTime":         po["endingDateTime"],
+			"bcProductionOrderRoutingNo":              po["bcProductionOrderRoutingNo"],
+			"bcProductionOrderQuantity":               po["bcProductionOrderQuantity"],
+			"bcProductionOrderDueDate":                po["bcProductionOrderDueDate"],
+			"bcProductionOrderFinishedDate":           po["bcProductionOrderFinishedDate"],
+			"bcProductionOrderStartingDateTime":       po["bcProductionOrderStartingDateTime"],
+			"bcProductionOrderEndingDateTime":         po["bcProductionOrderEndingDateTime"],
 			"bcProductionOrderShortcutDimension1Code": dim1,
 			"bcProductionOrderShortcutDimension2Code": dim2,
-			"bcProductionOrderLocationCode":           po["locationCode"],
-			"bcProductionOrderAssignedUserID":         po["assignedUserID"],
-			"bcProductionOrderSearchDescription":      po["searchDescription"],
+			"bcProductionOrderLocationCode":           po["bcProductionOrderLocationCode"],
+			"bcProductionOrderAssignedUserID":         po["bcProductionOrderAssignedUserID"],
+			"bcProductionOrderSearchDescription":      po["bcProductionOrderSearchDescription"],
 			"outputQty":                               roundTo(outputQty, 2),
 			"consumptionCost":                         roundTo(consumptionCost, 2),
 			"unitPrice":                               unitPrice,

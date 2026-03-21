@@ -15,6 +15,7 @@ import { Edit, Trash2 } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import FileUpload from "@/components/ui/fileUpload";
 import ImagePreviewModal from "@/components/ui/imagePreviewModal";
+import type { DeliveriesViewProps } from "@/modules/tms/types";
 
 const columns = [
   { name: "การขนส่ง", uid: "shipment", sortable: true },
@@ -79,7 +80,7 @@ export default function DeliveriesView({
   handleDelete,
   deliveryItems,
   updateDeliveryItem,
-}) {
+}: DeliveriesViewProps) {
   const previewModal = useDisclosure();
   const [previewImages, setPreviewImages] = useState([]);
   const [previewIndex, setPreviewIndex] = useState(0);
@@ -91,7 +92,8 @@ export default function DeliveriesView({
   }, [previewModal]);
 
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (rawItem: Record<string, unknown>, columnKey: string) => {
+      const item = rawItem as unknown as import("@/modules/tms/types").TmsDelivery;
       switch (columnKey) {
         case "shipment": {
           const s = item.tmsShipment || shipments.find(
@@ -190,10 +192,13 @@ export default function DeliveriesView({
         statusOptions={statusOptions}
         emptyContent="ไม่พบการจัดส่ง"
         topEndContent={null}
-        actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
-          { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
-        ]}
+        actionMenuItems={(item) => {
+          const d = item as unknown as import("@/modules/tms/types").TmsDelivery;
+          return [
+            { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(d) },
+            { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(d) },
+          ];
+        }}
       />
 
       {}
@@ -246,14 +251,14 @@ export default function DeliveriesView({
                           <th className="text-center px-3 py-2 font-light w-24">ส่งจริง</th>
                           <th className="text-center px-3 py-2 font-light w-24">เสียหาย</th>
                           <th className="text-center px-3 py-2 font-light w-20">คืน</th>
-                          <th className="text-left px-3 py-2 font-light min-w-[140px]">หมายเหตุ</th>
+                          <th className="text-left px-3 py-2 font-light min-w-35">หมายเหตุ</th>
                         </tr>
                       </thead>
                       <tbody>
                         {deliveryItems.map((item, idx) => {
                           const planned = item.tmsDeliveryItemPlannedQty;
-                          const delivered = parseFloat(item.tmsDeliveryItemDeliveredQty) || 0;
-                          const damaged = parseFloat(item.tmsDeliveryItemDamagedQty) || 0;
+                          const delivered = Number(item.tmsDeliveryItemDeliveredQty) || 0;
+                          const damaged = Number(item.tmsDeliveryItemDamagedQty) || 0;
                           const hasDiscrepancy = delivered < planned || damaged > 0;
                           return (
                             <tr key={idx} className={`border-t border-border ${hasDiscrepancy ? "bg-warning-50" : ""}`}>
@@ -315,13 +320,13 @@ export default function DeliveriesView({
                             {deliveryItems.reduce((s, i) => s + i.tmsDeliveryItemPlannedQty, 0)}
                           </td>
                           <td className="text-center px-3 py-2 font-light">
-                            {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemDeliveredQty) || 0), 0)}
+                            {deliveryItems.reduce((s, i) => s + (Number(i.tmsDeliveryItemDeliveredQty) || 0), 0)}
                           </td>
                           <td className="text-center px-3 py-2 font-light">
-                            {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemDamagedQty) || 0), 0)}
+                            {deliveryItems.reduce((s, i) => s + (Number(i.tmsDeliveryItemDamagedQty) || 0), 0)}
                           </td>
                           <td className="text-center px-3 py-2 font-light">
-                            {deliveryItems.reduce((s, i) => s + (parseFloat(i.tmsDeliveryItemReturnedQty) || 0), 0)}
+                            {deliveryItems.reduce((s, i) => s + (Number(i.tmsDeliveryItemReturnedQty) || 0), 0)}
                           </td>
                           <td></td>
                         </tr>

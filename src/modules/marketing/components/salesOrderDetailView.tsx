@@ -5,6 +5,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import ShippingLabelModal from "@/modules/marketing/components/shippingLabelModal";
 import Loading from "@/components/ui/loading";
+import type { SalesOrderDetailViewProps } from "@/modules/marketing/types";
 
 const statusColors = {
   Open: "warning",
@@ -30,7 +31,7 @@ export default function SalesOrderDetailView({
   loading,
   labelModal,
   onBack,
-}) {
+}: SalesOrderDetailViewProps) {
   const renderLineCell = useCallback((item, columnKey) => {
     switch (columnKey) {
       case "_removedProjectName":

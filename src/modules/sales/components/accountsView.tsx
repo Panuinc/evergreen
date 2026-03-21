@@ -15,6 +15,7 @@ import {
 import { Plus, Edit, Trash2, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { AccountsViewProps, SalesAccount } from "@/modules/sales/types";
 
 const baseColumns = [
   { name: "เลขที่บัญชี", uid: "salesAccountNo", sortable: true },
@@ -26,8 +27,6 @@ const baseColumns = [
   { name: "รายได้ต่อปี", uid: "salesAccountAnnualRevenue" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
-
-const statusOptions = [];
 
 const baseVisibleColumns = [
   "salesAccountNo",
@@ -55,7 +54,7 @@ export default function AccountsView({
   confirmDelete,
   handleDelete,
   toggleActive,
-}) {
+}: AccountsViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const columns = useMemo(() => {
@@ -78,7 +77,7 @@ export default function AccountsView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (item: SalesAccount, columnKey: string) => {
       switch (columnKey) {
         case "salesAccountNo":
           return <span className="text-muted-foreground">{item.salesAccountNo || "-"}</span>;
@@ -141,7 +140,7 @@ export default function AccountsView({
             </div>
           );
         default:
-          return item[columnKey] || "-";
+          return (item as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
       }
     },
     [handleOpen, confirmDelete, isSuperAdmin, toggleActive],
@@ -165,7 +164,7 @@ export default function AccountsView({
           "salesAccountPhone",
         ]}
         emptyContent="ไม่พบบัญชี"
-        actionMenuItems={(item) =>
+        actionMenuItems={(item: SalesAccount) =>
           [
             { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
             isSuperAdmin
@@ -208,7 +207,7 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesAccountName}
+                    value={formData.salesAccountName || ""}
                     onChange={(e) => updateField("salesAccountName", e.target.value)}
                     isRequired
                     isInvalid={!!validationErrors?.salesAccountName}
@@ -226,7 +225,7 @@ export default function AccountsView({
                     selectedKeys={formData.salesAccountIndustry ? [formData.salesAccountIndustry] : []}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] || "";
-                      updateField("salesAccountIndustry", val);
+                      updateField("salesAccountIndustry", val as string);
                     }}
                   >
                     <SelectItem key="technology">เทคโนโลยี</SelectItem>
@@ -247,7 +246,7 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesAccountWebsite}
+                    value={formData.salesAccountWebsite || ""}
                     onChange={(e) => updateField("salesAccountWebsite", e.target.value)}
                   />
                 </div>
@@ -259,7 +258,7 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesAccountPhone}
+                    value={formData.salesAccountPhone || ""}
                     onChange={(e) => updateField("salesAccountPhone", e.target.value)}
                   />
                 </div>
@@ -271,7 +270,7 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesAccountEmail}
+                    value={formData.salesAccountEmail || ""}
                     onChange={(e) => updateField("salesAccountEmail", e.target.value)}
                   />
                 </div>
@@ -284,7 +283,7 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesAccountEmployees}
+                    value={formData.salesAccountEmployees || ""}
                     onChange={(e) => updateField("salesAccountEmployees", e.target.value)}
                   />
                 </div>
@@ -297,7 +296,7 @@ export default function AccountsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesAccountAnnualRevenue}
+                    value={formData.salesAccountAnnualRevenue || ""}
                     onChange={(e) => updateField("salesAccountAnnualRevenue", e.target.value)}
                   />
                 </div>
@@ -310,7 +309,7 @@ export default function AccountsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.salesAccountAddress}
+                  value={formData.salesAccountAddress || ""}
                   onChange={(e) => updateField("salesAccountAddress", e.target.value)}
                 />
               </div>
@@ -322,7 +321,7 @@ export default function AccountsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.salesAccountNotes}
+                  value={formData.salesAccountNotes || ""}
                   onChange={(e) => updateField("salesAccountNotes", e.target.value)}
                 />
               </div>

@@ -9,12 +9,13 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import type { FgOutputBreakdownChartProps } from "@/modules/production/types";
 
-function formatCurrency(value) {
+function formatCurrency(value: number): string {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function FgOutputBreakdownChart({ data = [] }) {
+export default function FgOutputBreakdownChart({ data = [] }: FgOutputBreakdownChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>

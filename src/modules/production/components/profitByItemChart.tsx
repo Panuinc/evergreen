@@ -11,12 +11,13 @@ import {
   Cell,
   ReferenceLine,
 } from "recharts";
+import type { ProfitByItemChartProps } from "@/modules/production/types";
 
-function formatCurrency(v) {
+function formatCurrency(v: number): string {
   return `฿${Number(v).toLocaleString("th-TH")}`;
 }
 
-export default function ProfitByItemChart({ data = [] }) {
+export default function ProfitByItemChart({ data = [] }: ProfitByItemChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>

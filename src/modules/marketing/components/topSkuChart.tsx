@@ -1,12 +1,13 @@
 "use client";
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import type { TopSkuChartProps } from "@/modules/marketing/types";
 
 function formatCurrency(value) {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function TopSkuChart({ data = [] }) {
+export default function TopSkuChart({ data = [] }: TopSkuChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>;
   }

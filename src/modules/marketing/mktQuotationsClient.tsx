@@ -3,10 +3,11 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import OmnichannelQuotationsView from "@/modules/marketing/components/omnichannelQuotationsView";
+import type { QuotationsClientProps, MktQuotation } from "@/modules/marketing/types";
 
-export default function QuotationsClient({ initialQuotations }) {
+export default function QuotationsClient({ initialQuotations }: QuotationsClientProps) {
   const router = useRouter();
-  const [quotations, setQuotations] = useState(initialQuotations);
+  const [quotations, setQuotations] = useState<MktQuotation[]>(initialQuotations);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -19,8 +20,8 @@ export default function QuotationsClient({ initialQuotations }) {
         newFilter === "all"
           ? "/api/marketing/omnichannel/quotations"
           : `/api/marketing/omnichannel/quotations?status=${newFilter}`;
-      const data = await get(url);
-      setQuotations(data || []);
+      const data = await get<MktQuotation[]>(url);
+      setQuotations(data ?? []);
     } catch {
       setQuotations([]);
     } finally {

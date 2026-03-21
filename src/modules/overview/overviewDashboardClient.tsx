@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useChat } from "@/hooks/shared/useChat";
 import DashboardView from "@/modules/overview/components/dashboardView";
 
 export default function DashboardClient() {
   const { messages, isLoading, sendMessage, clearMessages } = useChat();
-  const [input, setInput] = useState("");
-  const [showScrollBtn, setShowScrollBtn] = useState(false);
-  const scrollRef = useRef(null);
-  const textareaRef = useRef(null);
-  const bottomRef = useRef(null);
+  const [input, setInput] = useState<string>("");
+  const [showScrollBtn, setShowScrollBtn] = useState<boolean>(false);
+  const scrollRef = useRef<HTMLElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -48,7 +48,7 @@ export default function DashboardClient() {
   }, [input, isLoading, sendMessage]);
 
   const handleKeyDown = useCallback(
-    (e) => {
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         handleSend();
@@ -58,7 +58,7 @@ export default function DashboardClient() {
   );
 
   const handleSuggestion = useCallback(
-    (text) => {
+    (text: string) => {
       if (isLoading) return;
       sendMessage(text);
     },

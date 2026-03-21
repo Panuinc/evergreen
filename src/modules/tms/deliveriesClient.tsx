@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { get, post, put, del } from "@/lib/apiClient";
 import DeliveriesView from "@/modules/tms/components/deliveriesView";
+import type { TmsDelivery, TmsShipment, TmsDeliveryForm, TmsDeliveryItem } from "@/modules/tms/types";
 
 const emptyForm = {
   tmsDeliveryShipmentId: "",
@@ -40,18 +41,18 @@ function parseItemsSummary(summary) {
     .filter(Boolean);
 }
 
-function determineStatus(items) {
+function determineStatus(items: import("@/modules/tms/types").TmsDeliveryItem[]) {
   if (items.length === 0) return "pending";
   const allFull = items.every(
-    (i) => parseFloat(i.tmsDeliveryItemDeliveredQty) >= i.tmsDeliveryItemPlannedQty
+    (i) => Number(i.tmsDeliveryItemDeliveredQty) >= i.tmsDeliveryItemPlannedQty
   );
   if (allFull) return "delivered_ok";
   const allZero = items.every(
-    (i) => parseFloat(i.tmsDeliveryItemDeliveredQty) === 0
+    (i) => Number(i.tmsDeliveryItemDeliveredQty) === 0
   );
   if (allZero) return "refused";
   const hasDamage = items.some(
-    (i) => parseFloat(i.tmsDeliveryItemDamagedQty) > 0
+    (i) => Number(i.tmsDeliveryItemDamagedQty) > 0
   );
   if (hasDamage) return "delivered_damaged";
   return "delivered_partial";
@@ -61,29 +62,30 @@ function DeliveriesInner() {
   const searchParams = useSearchParams();
   const fromShipmentId = searchParams.get("shipmentId") || null;
 
-  const fetcher = (url) => get(url);
-  const { data: deliveriesData, isLoading: deliveriesLoading, mutate: mutateDeliveries } = useSWR("/api/tms/deliveries", fetcher);
-  const { data: shipmentsData, isLoading: shipmentsLoading } = useSWR("/api/tms/shipments", fetcher);
+  const fetcher = (url: string) => get(url) as Promise<TmsDelivery[]>;
+  const shipmentFetcher = (url: string) => get(url) as Promise<TmsShipment[]>;
+  const { data: deliveriesData, isLoading: deliveriesLoading, mutate: mutateDeliveries } = useSWR<TmsDelivery[]>("/api/tms/deliveries", fetcher);
+  const { data: shipmentsData, isLoading: shipmentsLoading } = useSWR<TmsShipment[]>("/api/tms/shipments", shipmentFetcher);
 
-  const deliveries = deliveriesData || [];
-  const shipments = shipmentsData || [];
+  const deliveries: TmsDelivery[] = deliveriesData || [];
+  const shipments: TmsShipment[] = shipmentsData || [];
   const loading = deliveriesLoading || shipmentsLoading;
 
   const [saving, setSaving] = useState(false);
-  const [editingDelivery, setEditingDelivery] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [editingDelivery, setEditingDelivery] = useState<TmsDelivery | null>(null);
+  const [formData, setFormData] = useState<TmsDeliveryForm>(emptyForm);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingDelivery, setDeletingDelivery] = useState(null);
-  const [deliveryItems, setDeliveryItems] = useState([]);
+  const [deletingDelivery, setDeletingDelivery] = useState<TmsDelivery | null>(null);
+  const [deliveryItems, setDeliveryItems] = useState<TmsDeliveryItem[]>([]);
 
   const fromShipmentInitialized = useRef(false);
-  const { data: fromShipmentPrefill } = useSWR(
+  const { data: fromShipmentPrefill } = useSWR<{ shipment: TmsShipment; plans: { tmsDeliveryPlanItem?: { tmsDeliveryPlanItemDescription?: string; tmsDeliveryPlanItemUom?: string; tmsDeliveryPlanItemSalesOrderNo?: string; tmsDeliveryPlanItemPlannedQty?: string }[] }[] } | null>(
     fromShipmentId ? ["init-delivery", fromShipmentId] : null,
     async ([, shipmentId]) => {
-      const shipment = await get(`/api/tms/shipments/${shipmentId}`);
+      const shipment = await get(`/api/tms/shipments/${shipmentId}`) as TmsShipment;
       if (!shipment) return null;
-      const plans = await get(`/api/tms/deliveryPlans?shipmentId=${shipmentId}`).catch(() => []);
+      const plans = await get(`/api/tms/deliveryPlans?shipmentId=${shipmentId}`).catch(() => []) as { tmsDeliveryPlanItem?: { tmsDeliveryPlanItemDescription?: string; tmsDeliveryPlanItemUom?: string; tmsDeliveryPlanItemSalesOrderNo?: string; tmsDeliveryPlanItemPlannedQty?: string }[] }[];
       return { shipment, plans };
     },
     { revalidateOnFocus: false, revalidateOnReconnect: false },
@@ -120,7 +122,7 @@ function DeliveriesInner() {
     onOpen();
   }, [fromShipmentPrefill, onOpen]);
 
-  const handleOpen = (delivery = null) => {
+  const handleOpen = (delivery: TmsDelivery | null = null) => {
     if (delivery) {
       setEditingDelivery(delivery);
       setFormData({
@@ -149,8 +151,8 @@ function DeliveriesInner() {
 
     if (deliveryItems.length > 0) {
       const hasUndocumented = deliveryItems.some((item) => {
-        const delivered = parseFloat(item.tmsDeliveryItemDeliveredQty) || 0;
-        const damaged = parseFloat(item.tmsDeliveryItemDamagedQty) || 0;
+        const delivered = Number(item.tmsDeliveryItemDeliveredQty) || 0;
+        const damaged = Number(item.tmsDeliveryItemDamagedQty) || 0;
         const hasDiscrepancy = delivered < item.tmsDeliveryItemPlannedQty || damaged > 0;
         return hasDiscrepancy && !item.tmsDeliveryItemDamageNotes?.trim();
       });
@@ -198,7 +200,7 @@ function DeliveriesInner() {
     }
   };
 
-  const confirmDelete = (delivery) => {
+  const confirmDelete = (delivery: TmsDelivery) => {
     setDeletingDelivery(delivery);
     deleteModal.onOpen();
   };
@@ -216,7 +218,7 @@ function DeliveriesInner() {
     }
   };
 
-  const updateField = (field, value) => {
+  const updateField = (field: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -230,8 +232,8 @@ function DeliveriesInner() {
           field === "tmsDeliveryItemDamagedQty"
         ) {
           const planned = updated.tmsDeliveryItemPlannedQty;
-          const delivered = parseFloat(updated.tmsDeliveryItemDeliveredQty) || 0;
-          const damaged = parseFloat(updated.tmsDeliveryItemDamagedQty) || 0;
+          const delivered = Number(updated.tmsDeliveryItemDeliveredQty) || 0;
+          const damaged = Number(updated.tmsDeliveryItemDamagedQty) || 0;
           updated.tmsDeliveryItemReturnedQty = Math.max(0, planned - delivered - damaged);
         }
         return updated;

@@ -9,12 +9,13 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import type { TopConsumedItemsChartProps } from "@/modules/production/types";
 
-function formatCurrency(value) {
+function formatCurrency(value: number): string {
   return `฿${Number(value).toLocaleString("th-TH")}`;
 }
 
-export default function TopConsumedItemsChart({ data = [] }) {
+export default function TopConsumedItemsChart({ data = [] }: TopConsumedItemsChartProps) {
   if (!data.length) {
     return (
       <p className="text-xs text-muted-foreground text-center py-8">ไม่มีข้อมูล</p>

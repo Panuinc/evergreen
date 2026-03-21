@@ -6,8 +6,14 @@ import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import AssetsView from "@/modules/it/components/assetsView";
+import type {
+  AssetsClientProps,
+  ItAsset,
+  ItAssetFormData,
+  HrEmployeeBasic,
+} from "@/modules/it/types";
 
-const emptyForm = {
+const emptyForm: ItAssetFormData = {
   itAssetName: "",
   itAssetTag: "",
   itAssetCategory: "computer",
@@ -22,26 +28,26 @@ const emptyForm = {
   itAssetNotes: "",
 };
 
-export default function AssetsClient({ initialAssets, initialEmployees }) {
-  const [assets, setAssets] = useState(initialAssets);
-  const [employees] = useState(initialEmployees);
+export default function AssetsClient({ initialAssets, initialEmployees }: AssetsClientProps) {
+  const [assets, setAssets] = useState<ItAsset[]>(initialAssets);
+  const [employees] = useState<HrEmployeeBasic[]>(initialEmployees);
   const [saving, setSaving] = useState(false);
-  const [editingAsset, setEditingAsset] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [editingAsset, setEditingAsset] = useState<ItAsset | null>(null);
+  const [formData, setFormData] = useState<ItAssetFormData>(emptyForm);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingAsset, setDeletingAsset] = useState(null);
+  const [deletingAsset, setDeletingAsset] = useState<ItAsset | null>(null);
 
   const reloadAssets = async () => {
     try {
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/it/assets");
+      const data = await get<ItAsset[]>("/api/it/assets");
       setAssets(data);
     } catch {}
   };
 
-  const handleOpen = (asset = null) => {
+  const handleOpen = (asset: ItAsset | null = null) => {
     if (asset) {
       setEditingAsset(asset);
       setFormData({
@@ -89,13 +95,13 @@ export default function AssetsClient({ initialAssets, initialEmployees }) {
       onClose();
       reloadAssets();
     } catch (error) {
-      toast.error(error.message || "บันทึกทรัพย์สินล้มเหลว");
+      toast.error((error as Error).message || "บันทึกทรัพย์สินล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = (asset) => {
+  const confirmDelete = (asset: ItAsset) => {
     setDeletingAsset(asset);
     deleteModal.onOpen();
   };
@@ -109,11 +115,11 @@ export default function AssetsClient({ initialAssets, initialEmployees }) {
       setDeletingAsset(null);
       reloadAssets();
     } catch (error) {
-      toast.error(error.message || "ลบทรัพย์สินล้มเหลว");
+      toast.error((error as Error).message || "ลบทรัพย์สินล้มเหลว");
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: ItAsset) => {
     try {
       await put(`/api/it/assets/${item.itAssetId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -123,7 +129,7 @@ export default function AssetsClient({ initialAssets, initialEmployees }) {
     }
   };
 
-  const updateField = (field, value) => {
+  const updateField = (field: keyof ItAssetFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

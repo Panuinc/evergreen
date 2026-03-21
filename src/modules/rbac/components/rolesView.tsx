@@ -12,11 +12,13 @@ import {
   Textarea,
   Switch,
   Chip,
-  Checkbox,} from "@heroui/react";
+  Checkbox,
+} from "@heroui/react";
 import { Plus, Edit, Trash2, Shield, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
 import Loading from "@/components/ui/loading";
+import type { RolesViewProps, RbacRole, RbacPermission } from "@/modules/rbac/types";
 
 const baseColumns = [
   { name: "ชื่อ", uid: "rbacRoleName", sortable: true },
@@ -56,7 +58,7 @@ export default function RolesView({
   openPermissions,
   togglePermission,
   toggleActive,
-}) {
+}: RolesViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -79,7 +81,7 @@ export default function RolesView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (role, columnKey) => {
+    (role: RbacRole, columnKey: string) => {
       switch (columnKey) {
         case "rbacRoleName":
           return <span className="font-light">{role.rbacRoleName}</span>;
@@ -157,7 +159,7 @@ export default function RolesView({
             </div>
           );
         default:
-          return role[columnKey] || "-";
+          return (role as unknown as Record<string, string>)[columnKey] || "-";
       }
     },
     [handleOpen, handleDelete, openPermissions, toggleActive, isSuperAdmin],
@@ -176,7 +178,7 @@ export default function RolesView({
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
         searchKeys={["rbacRoleName", "rbacRoleDescription"]}
         emptyContent="ไม่พบบทบาท"
-        actionMenuItems={(item) =>
+        actionMenuItems={(item: RbacRole) =>
           [
             { key: "permissions", label: "จัดการสิทธิ์", icon: <Shield />, onPress: () => openPermissions(item) },
             { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
@@ -200,7 +202,7 @@ export default function RolesView({
         }
       />
 
-      {}
+      {/* Create/Edit Role Modal */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>{editingRole ? "แก้ไขบทบาท" : "สร้างบทบาท"}</ModalHeader>
@@ -261,7 +263,7 @@ export default function RolesView({
         </ModalContent>
       </Modal>
 
-      {}
+      {/* Permissions Modal */}
       <Modal
         isOpen={permModalOpen}
         onClose={() => setPermModalOpen(false)}
@@ -283,7 +285,7 @@ export default function RolesView({
                   <div key={resource} className="flex flex-col gap-2">
                     <p className="font-light capitalize">{resource}</p>
                     <div className="flex flex-wrap gap-2">
-                      {(perms as any[]).map((perm) => (
+                      {(perms as RbacPermission[]).map((perm) => (
                         <Checkbox
                           key={perm.rbacPermissionId}
                           size="md"

@@ -7,8 +7,16 @@ import { post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import { useAuth } from "@/contexts/authContext";
 import DevelopmentView from "@/modules/it/components/developmentView";
+import type {
+  DevRequestsClientProps,
+  ItDevRequest,
+  ItDevRequestFormData,
+  ItDevProgressLog,
+  ItDevProgressLogFormData,
+  HrEmployeeBasic,
+} from "@/modules/it/types";
 
-const emptyForm = {
+const emptyForm: ItDevRequestFormData = {
   itDevRequestTitle: "",
   itDevRequestDescription: "",
   itDevRequestRequestedBy: "",
@@ -21,47 +29,47 @@ const emptyForm = {
   itDevRequestNotes: "",
 };
 
-const emptyProgressForm = {
+const emptyProgressForm: ItDevProgressLogFormData = {
   itDevProgressLogDescription: "",
   itDevProgressLogProgress: "",
   itDevProgressLogCreatedBy: "",
 };
 
-export default function DevRequestsClient({ initialRequests, initialEmployees }) {
+export default function DevRequestsClient({ initialRequests, initialEmployees }: DevRequestsClientProps) {
   const { user } = useAuth();
-  const [requests, setRequests] = useState(initialRequests);
-  const [employees] = useState(initialEmployees);
+  const [requests, setRequests] = useState<ItDevRequest[]>(initialRequests);
+  const [employees] = useState<HrEmployeeBasic[]>(initialEmployees);
   const [saving, setSaving] = useState(false);
-  const [editingRequest, setEditingRequest] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [editingRequest, setEditingRequest] = useState<ItDevRequest | null>(null);
+  const [formData, setFormData] = useState<ItDevRequestFormData>(emptyForm);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingRequest, setDeletingRequest] = useState(null);
+  const [deletingRequest, setDeletingRequest] = useState<ItDevRequest | null>(null);
 
   const progressModal = useDisclosure();
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [progressLogs, setProgressLogs] = useState([]);
+  const [selectedRequest, setSelectedRequest] = useState<ItDevRequest | null>(null);
+  const [progressLogs, setProgressLogs] = useState<ItDevProgressLog[]>([]);
   const [progressLoading, setProgressLoading] = useState(false);
   const [progressSaving, setProgressSaving] = useState(false);
-  const [progressForm, setProgressForm] = useState(emptyProgressForm);
+  const [progressForm, setProgressForm] = useState<ItDevProgressLogFormData>(emptyProgressForm);
 
   // Derive current employee name from initialEmployees
-  const currentEmployeeName = (() => {
+  const currentEmployeeName: string = (() => {
     if (!user?.id) return "";
-    const myEmp = initialEmployees.find((e) => e.hrEmployeeUserId === user.id);
+    const myEmp = initialEmployees.find((e: HrEmployeeBasic) => e.hrEmployeeUserId === user.id);
     return myEmp ? `${myEmp.hrEmployeeFirstName} ${myEmp.hrEmployeeLastName}` : "";
   })();
 
   const reloadRequests = async () => {
     try {
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/it/devRequests");
+      const data = await get<ItDevRequest[]>("/api/it/devRequests");
       setRequests(data);
     } catch {}
   };
 
-  const handleOpen = (request = null) => {
+  const handleOpen = (request: ItDevRequest | null = null) => {
     if (request) {
       setEditingRequest(request);
       setFormData({
@@ -111,13 +119,13 @@ export default function DevRequestsClient({ initialRequests, initialEmployees })
       onClose();
       reloadRequests();
     } catch (error) {
-      toast.error(error.message || "บันทึกคำขอล้มเหลว");
+      toast.error((error as Error).message || "บันทึกคำขอล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = (request) => {
+  const confirmDelete = (request: ItDevRequest) => {
     setDeletingRequest(request);
     deleteModal.onOpen();
   };
@@ -131,11 +139,11 @@ export default function DevRequestsClient({ initialRequests, initialEmployees })
       setDeletingRequest(null);
       reloadRequests();
     } catch (error) {
-      toast.error(error.message || "ลบคำขอล้มเหลว");
+      toast.error((error as Error).message || "ลบคำขอล้มเหลว");
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: ItDevRequest) => {
     try {
       await put(`/api/it/devRequests/${item.itDevRequestId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -145,11 +153,11 @@ export default function DevRequestsClient({ initialRequests, initialEmployees })
     }
   };
 
-  const updateField = (field, value) => {
+  const updateField = (field: keyof ItDevRequestFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const openProgress = async (request) => {
+  const openProgress = async (request: ItDevRequest) => {
     setSelectedRequest(request);
     setProgressForm({
       ...emptyProgressForm,
@@ -159,7 +167,7 @@ export default function DevRequestsClient({ initialRequests, initialEmployees })
     try {
       setProgressLoading(true);
       const { get } = await import("@/lib/apiClient");
-      const logs = await get(`/api/it/devRequests/${request.itDevRequestId}/progress`);
+      const logs = await get<ItDevProgressLog[]>(`/api/it/devRequests/${request.itDevRequestId}/progress`);
       setProgressLogs(logs);
     } catch {
       toast.error("โหลดบันทึกความคืบหน้าล้มเหลว");
@@ -188,7 +196,7 @@ export default function DevRequestsClient({ initialRequests, initialEmployees })
       toast.success("อัปเดตความคืบหน้าสำเร็จ");
 
       const { get } = await import("@/lib/apiClient");
-      const logs = await get(`/api/it/devRequests/${selectedRequest.itDevRequestId}/progress`);
+      const logs = await get<ItDevProgressLog[]>(`/api/it/devRequests/${selectedRequest.itDevRequestId}/progress`);
       setProgressLogs(logs);
       setProgressForm({
         ...emptyProgressForm,
@@ -196,18 +204,19 @@ export default function DevRequestsClient({ initialRequests, initialEmployees })
       });
       reloadRequests();
 
-      setSelectedRequest((prev) => ({
-        ...prev,
-        itDevRequestProgress: parseInt(progressForm.itDevProgressLogProgress) || 0,
-      }));
+      setSelectedRequest((prev) =>
+        prev
+          ? { ...prev, itDevRequestProgress: parseInt(progressForm.itDevProgressLogProgress) || 0 }
+          : prev
+      );
     } catch (error) {
-      toast.error(error.message || "เพิ่มความคืบหน้าล้มเหลว");
+      toast.error((error as Error).message || "เพิ่มความคืบหน้าล้มเหลว");
     } finally {
       setProgressSaving(false);
     }
   };
 
-  const updateProgressField = (field, value) => {
+  const updateProgressField = (field: keyof ItDevProgressLogFormData, value: string) => {
     setProgressForm((prev) => ({ ...prev, [field]: value }));
   };
 

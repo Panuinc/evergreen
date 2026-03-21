@@ -4,13 +4,14 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { get, authFetch } from "@/lib/apiClient";
 import ImageGeneratorView from "@/modules/marketing/components/imageGeneratorView";
+import type { ImageGenResult, ImageGenBatchResult, ImageGenHistoryItem } from "@/modules/marketing/types";
 
 export default function ImageGenClient() {
   const [generating, setGenerating] = useState(false);
-  const [result, setResult] = useState(null);
-  const [batchResults, setBatchResults] = useState([]);
+  const [result, setResult] = useState<ImageGenResult | null>(null);
+  const [batchResults, setBatchResults] = useState<ImageGenBatchResult[]>([]);
   const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<ImageGenHistoryItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   const generate = async (imageFile, prompt, size = "1024x1024") => {
@@ -98,8 +99,8 @@ export default function ImageGenClient() {
   const loadHistory = async (limit = 50) => {
     try {
       setLoadingHistory(true);
-      const data = await get(`/api/marketing/ai/generate-image?limit=${limit}`);
-      setHistory(data);
+      const data = await get<ImageGenHistoryItem[]>(`/api/marketing/ai/generate-image?limit=${limit}`);
+      setHistory(data ?? []);
     } catch (error) {
       toast.error("โหลดประวัติล้มเหลว");
     } finally {

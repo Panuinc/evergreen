@@ -5,6 +5,7 @@ import { Button } from "@heroui/react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
 import Loading from "@/components/ui/loading";
+import type { SalesOrdersViewProps } from "@/modules/marketing/types";
 
 const statusColors = {
   Open: "warning",
@@ -29,7 +30,7 @@ export default function SalesOrdersView({
   setShipFilter,
   reload,
   onNavigateToOrder,
-}) {
+}: SalesOrdersViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const orderColumns = useMemo(() => {

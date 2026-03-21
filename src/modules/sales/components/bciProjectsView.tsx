@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { authFetch } from "@/lib/apiClient";
 import { exportToExcel } from "@/lib/exportExcel";
 import DataTable from "@/components/ui/dataTable";
+import type { BciProject, BciImportResult, BciProjectsViewProps } from "@/modules/sales/types";
 
 const columns = [
   { name: "ชื่อโปรเจค", uid: "bciProjectName", sortable: true },
@@ -37,7 +38,7 @@ const columns = [
 
 const initialVisibleColumns = columns.map((c) => c.uid);
 
-const stageColorMap = {
+const stageColorMap: Record<string, "default" | "primary" | "success" | "warning" | "danger" | "secondary"> = {
   "ก่อสร้าง": "success",
   "Construction": "success",
   "ออกแบบและเตรียมเอกสาร": "primary",
@@ -48,7 +49,7 @@ const stageColorMap = {
   "Concept": "secondary",
 };
 
-function formatDate(val) {
+function formatDate(val: string | null | undefined) {
   if (!val) return "-";
   return new Date(val).toLocaleDateString("th-TH", {
     year: "numeric",
@@ -56,11 +57,11 @@ function formatDate(val) {
   });
 }
 
-export default function BciProjectsView({ projects, loading, reload }) {
+export default function BciProjectsView({ projects, loading, reload }: BciProjectsViewProps) {
   const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImport = useCallback(async (e) => {
+  const handleImport = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -69,12 +70,12 @@ export default function BciProjectsView({ projects, loading, reload }) {
       const formData = new FormData();
       formData.append("file", file);
       const res = await authFetch("/api/bci/import", { method: "POST", body: formData });
-      const data = await res.json();
+      const data: BciImportResult & { error?: string } = await res.json();
       if (!res.ok) throw new Error(data.error || "Import failed");
-      toast.success(`นำเข้าสำเร็จ ${data.results.imported} โครงการ`);
+      toast.success(`นำเข้าสำเร็จ ${data.imported} โครงการ`);
       reload();
     } catch (err) {
-      toast.error(err.message);
+      toast.error((err as Error).message);
     } finally {
       setImporting(false);
       e.target.value = "";
@@ -82,27 +83,27 @@ export default function BciProjectsView({ projects, loading, reload }) {
   }, [reload]);
 
   const stageOptions = useMemo((): { uid: string; name: string }[] => {
-    const unique = Array.from(new Set<string>(projects.map((p) => String(p.bciProjectStage ?? "")).filter(Boolean)));
+    const unique = Array.from(new Set<string>(projects.map((p: BciProject) => String(p.bciProjectStage ?? "")).filter(Boolean)));
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const statusOptions = useMemo((): { uid: string; name: string }[] => {
-    const unique = Array.from(new Set<string>(projects.map((p) => String(p.bciProjectStageStatus ?? "")).filter(Boolean)));
+    const unique = Array.from(new Set<string>(projects.map((p: BciProject) => String(p.bciProjectStageStatus ?? "")).filter(Boolean)));
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const categoryOptions = useMemo((): { uid: string; name: string }[] => {
-    const unique = Array.from(new Set<string>(projects.map((p) => String(p.bciProjectCategory ?? "")).filter(Boolean)));
+    const unique = Array.from(new Set<string>(projects.map((p: BciProject) => String(p.bciProjectCategory ?? "")).filter(Boolean)));
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const devTypeOptions = useMemo((): { uid: string; name: string }[] => {
-    const unique = Array.from(new Set<string>(projects.map((p) => String(p.bciProjectDevelopmentType ?? "")).filter(Boolean)));
+    const unique = Array.from(new Set<string>(projects.map((p: BciProject) => String(p.bciProjectDevelopmentType ?? "")).filter(Boolean)));
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
   const regionOptions = useMemo((): { uid: string; name: string }[] => {
-    const unique = Array.from(new Set<string>(projects.map((p) => String(p.bciProjectRegion ?? "")).filter(Boolean)));
+    const unique = Array.from(new Set<string>(projects.map((p: BciProject) => String(p.bciProjectRegion ?? "")).filter(Boolean)));
     return unique.sort().map((v) => ({ uid: v, name: v }));
   }, [projects]);
 
@@ -143,7 +144,8 @@ export default function BciProjectsView({ projects, loading, reload }) {
     exportToExcel("bci-projects.xlsx", excelColumns, projects);
   }, [projects]);
 
-  const renderCell = useCallback((item, columnKey) => {
+  const renderCell = useCallback((row: Record<string, any>, columnKey: string) => {
+    const item = row as BciProject;
     switch (columnKey) {
       case "bciProjectName":
         return (
@@ -206,46 +208,80 @@ export default function BciProjectsView({ projects, loading, reload }) {
         ) : (
           "-"
         );
-      case "bciProjectOwnerCompany":
-      case "bciProjectArchitectCompany":
-      case "bciProjectContractorCompany":
-      case "bciProjectPmCompany": {
-        const prefix = columnKey.replace("Company", "");
-        const company = item[columnKey];
-        const contact = item[`${prefix}Contact`];
-        const phone = item[`${prefix}Phone`];
-        const email = item[`${prefix}Email`];
-        return company ? (
+      case "bciProjectOwnerCompany": {
+        return item.bciProjectOwnerCompany ? (
           <div className="flex flex-col">
-            <span className="text-xs">{company}</span>
-            {contact && (
-              <span className="text-xs text-muted-foreground">{contact}</span>
-            )}
-            {phone && (
-              <span className="text-xs text-muted-foreground">{phone}</span>
-            )}
-            {email && (
-              <span className="text-xs text-muted-foreground">{email}</span>
-            )}
+            <span className="text-xs">{item.bciProjectOwnerCompany}</span>
+            {item.bciProjectOwnerContact && <span className="text-xs text-muted-foreground">{item.bciProjectOwnerContact}</span>}
+            {item.bciProjectOwnerPhone && <span className="text-xs text-muted-foreground">{item.bciProjectOwnerPhone}</span>}
+            {item.bciProjectOwnerEmail && <span className="text-xs text-muted-foreground">{item.bciProjectOwnerEmail}</span>}
+          </div>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        );
+      }
+      case "bciProjectArchitectCompany": {
+        return item.bciProjectArchitectCompany ? (
+          <div className="flex flex-col">
+            <span className="text-xs">{item.bciProjectArchitectCompany}</span>
+            {item.bciProjectArchitectContact && <span className="text-xs text-muted-foreground">{item.bciProjectArchitectContact}</span>}
+            {item.bciProjectArchitectPhone && <span className="text-xs text-muted-foreground">{item.bciProjectArchitectPhone}</span>}
+            {item.bciProjectArchitectEmail && <span className="text-xs text-muted-foreground">{item.bciProjectArchitectEmail}</span>}
+          </div>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        );
+      }
+      case "bciProjectContractorCompany": {
+        return item.bciProjectContractorCompany ? (
+          <div className="flex flex-col">
+            <span className="text-xs">{item.bciProjectContractorCompany}</span>
+            {item.bciProjectContractorContact && <span className="text-xs text-muted-foreground">{item.bciProjectContractorContact}</span>}
+            {item.bciProjectContractorPhone && <span className="text-xs text-muted-foreground">{item.bciProjectContractorPhone}</span>}
+            {item.bciProjectContractorEmail && <span className="text-xs text-muted-foreground">{item.bciProjectContractorEmail}</span>}
+          </div>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        );
+      }
+      case "bciProjectPmCompany": {
+        return item.bciProjectPmCompany ? (
+          <div className="flex flex-col">
+            <span className="text-xs">{item.bciProjectPmCompany}</span>
+            {item.bciProjectPmContact && <span className="text-xs text-muted-foreground">{item.bciProjectPmContact}</span>}
+            {item.bciProjectPmPhone && <span className="text-xs text-muted-foreground">{item.bciProjectPmPhone}</span>}
+            {item.bciProjectPmEmail && <span className="text-xs text-muted-foreground">{item.bciProjectPmEmail}</span>}
           </div>
         ) : (
           <span className="text-muted-foreground">-</span>
         );
       }
       case "bciProjectDescription":
+        return item.bciProjectDescription ? (
+          <span className="text-xs line-clamp-2">{item.bciProjectDescription}</span>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        );
       case "bciProjectRemarks":
-        return item[columnKey] ? (
-          <span className="text-xs line-clamp-2">{item[columnKey]}</span>
+        return item.bciProjectRemarks ? (
+          <span className="text-xs line-clamp-2">{item.bciProjectRemarks}</span>
         ) : (
           <span className="text-muted-foreground">-</span>
         );
       case "bciProjectStoreys":
         return item.bciProjectStoreys || "-";
       case "bciProjectFloorArea":
-      case "bciProjectSiteArea":
-        return item[columnKey] ? (
+        return item.bciProjectFloorArea ? (
           <span className="text-xs">
-            {Number(item[columnKey]).toLocaleString("th-TH")} m²
+            {Number(item.bciProjectFloorArea).toLocaleString("th-TH")} m²
+          </span>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        );
+      case "bciProjectSiteArea":
+        return item.bciProjectSiteArea ? (
+          <span className="text-xs">
+            {Number(item.bciProjectSiteArea).toLocaleString("th-TH")} m²
           </span>
         ) : (
           <span className="text-muted-foreground">-</span>
@@ -257,7 +293,7 @@ export default function BciProjectsView({ projects, loading, reload }) {
       case "bciProjectModifiedDate":
         return formatDate(item.bciProjectModifiedDate);
       default:
-        return item[columnKey] ?? "-";
+        return row[columnKey] ?? "-";
     }
   }, []);
 
@@ -279,13 +315,13 @@ export default function BciProjectsView({ projects, loading, reload }) {
         "bciProjectDevelopmentType",
         "bciProjectType",
         "bciProjectOwnerCompany",
-        "ownerContact",
+        "bciProjectOwnerContact",
         "bciProjectArchitectCompany",
-        "architectContact",
+        "bciProjectArchitectContact",
         "bciProjectContractorCompany",
-        "contractorContact",
+        "bciProjectContractorContact",
         "bciProjectPmCompany",
-        "pmContact",
+        "bciProjectPmContact",
         "bciProjectRemarks",
       ]}
       isLoading={loading}

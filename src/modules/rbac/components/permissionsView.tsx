@@ -1,7 +1,8 @@
 "use client";
 
-import { Checkbox} from "@heroui/react";
+import { Checkbox } from "@heroui/react";
 import Loading from "@/components/ui/loading";
+import type { PermissionsViewProps, RbacResource, RbacAction } from "@/modules/rbac/types";
 
 export default function PermissionsView({
   resources,
@@ -10,7 +11,7 @@ export default function PermissionsView({
   toggling,
   permMap,
   togglePermission,
-}) {
+}: PermissionsViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -35,7 +36,7 @@ export default function PermissionsView({
               <th className="text-left p-2 border-b border-border font-light sticky left-0 bg-background">
                 ทรัพยากร
               </th>
-              {actions.map((action) => (
+              {actions.map((action: RbacAction) => (
                 <th
                   key={action.rbacActionId}
                   className="p-2 border-b border-border font-light text-center capitalize"
@@ -46,7 +47,7 @@ export default function PermissionsView({
             </tr>
           </thead>
           <tbody>
-            {resources.map((resource) => (
+            {resources.map((resource: RbacResource) => (
               <tr key={resource.rbacResourceId} className="hover:bg-default/50">
                 <td className="p-2 border-b border-border font-light capitalize sticky left-0 bg-background">
                   {resource.rbacResourceName}
@@ -56,7 +57,7 @@ export default function PermissionsView({
                     </span>
                   )}
                 </td>
-                {actions.map((action) => {
+                {actions.map((action: RbacAction) => {
                   const key = `${resource.rbacResourceId}:${action.rbacActionId}`;
                   const exists = !!permMap[key];
                   const isToggling = toggling === key;

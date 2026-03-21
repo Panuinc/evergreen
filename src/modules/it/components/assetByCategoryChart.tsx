@@ -1,8 +1,9 @@
 "use client";
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import type { AssetByCategoryChartProps } from "@/modules/it/types";
 
-const categoryColors = {
+const categoryColors: Record<string, string> = {
   computer: "#3b82f6",
   server: "#8b5cf6",
   printer: "#f59e0b",
@@ -10,7 +11,7 @@ const categoryColors = {
   other: "#a1a1aa",
 };
 
-const categoryLabels = {
+const categoryLabels: Record<string, string> = {
   computer: "Computer",
   server: "Server",
   printer: "Printer",
@@ -18,7 +19,7 @@ const categoryLabels = {
   other: "Other",
 };
 
-export default function AssetByCategoryChart({ data = [] }) {
+export default function AssetByCategoryChart({ data = [] }: AssetByCategoryChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">No data</p>;
   }

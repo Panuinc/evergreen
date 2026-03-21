@@ -17,8 +17,9 @@ import { Facebook, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { get, put } from "@/lib/apiClient";
 import { toast } from "sonner";
+import type { ChannelSettingsProps, MktAiSetting } from "@/modules/marketing/types";
 
-export default function ChannelSettings({ isOpen, onClose }) {
+export default function ChannelSettings({ isOpen, onClose }: ChannelSettingsProps) {
   const [channels, setChannels] = useState([]);
   const [saving, setSaving] = useState(false);
   const [fbToken, setFbToken] = useState("");
@@ -37,7 +38,7 @@ export default function ChannelSettings({ isOpen, onClose }) {
     async () => {
       const [{ data: channelsData }, aiData] = await Promise.all([
         supabase.from("mktChannel").select("*"),
-        get("/api/marketing/omnichannel/ai/settings").catch(() => null),
+        get<MktAiSetting>("/api/marketing/omnichannel/ai/settings").catch(() => null),
       ]);
       return { channels: channelsData || [], aiSettings: aiData };
     },

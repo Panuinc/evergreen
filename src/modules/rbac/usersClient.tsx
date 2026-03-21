@@ -3,59 +3,66 @@
 import { useState } from "react";
 import { useDisclosure } from "@heroui/react";
 import { toast } from "sonner";
-import { get, post, put, patch, del } from "@/lib/apiClient";
+import { get, post, patch, del } from "@/lib/apiClient";
 import UsersView from "@/modules/rbac/components/usersView";
+import type {
+  RbacUserProfile,
+  RbacRole,
+  CreateUserFormData,
+  HrEmployee,
+  UsersClientProps,
+} from "@/modules/rbac/types";
 
 const defaultPassword = "P@ssw0rd";
 
-export default function UsersClient({ initialUsers, initialRoles }) {
-  const [users, setUsers] = useState(initialUsers);
-  const [allRoles] = useState(initialRoles);
+export default function UsersClient({ initialUsers, initialRoles }: UsersClientProps) {
+  const [users, setUsers] = useState<RbacUserProfile[]>(initialUsers);
+  const [allRoles] = useState<RbacRole[]>(initialRoles);
   const [loading, setLoading] = useState(false);
 
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [userRoleIds, setUserRoleIds] = useState([]);
+  const [selectedUser, setSelectedUser] = useState<RbacUserProfile | null>(null);
+  const [userRoleIds, setUserRoleIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [resetOpen, setResetOpen] = useState(false);
-  const [resetTarget, setResetTarget] = useState(null);
+  const [resetTarget, setResetTarget] = useState<RbacUserProfile | null>(null);
   const [resetPassword, setResetPassword] = useState(defaultPassword);
   const [resetting, setResetting] = useState(false);
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [createForm, setCreateForm] = useState({
+  const [createForm, setCreateForm] = useState<CreateUserFormData>({
     email: "",
     password: defaultPassword,
     employeeId: "",
   });
   const [creating, setCreating] = useState(false);
-  const [unlinkedEmployees, setUnlinkedEmployees] = useState([]);
+  const [unlinkedEmployees, setUnlinkedEmployees] = useState<HrEmployee[]>([]);
 
-  const [togglingUserId, setTogglingUserId] = useState(null);
+  const [togglingUserId, setTogglingUserId] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const [usersData, rolesData] = await Promise.all([
+      const [usersData] = await Promise.all([
         get("/api/rbac/userRoles"),
         get("/api/rbac/roles"),
       ]);
-      setUsers(usersData);
-    } catch (error) {
+      setUsers(usersData as RbacUserProfile[]);
+    } catch {
       toast.error("โหลดข้อมูลล้มเหลว");
     } finally {
       setLoading(false);
     }
   };
 
-  const openRoleAssignment = (user) => {
+  const openRoleAssignment = (user: RbacUserProfile) => {
     setSelectedUser(user);
     setUserRoleIds(user.roles?.map((r) => r.rbacRoleId) || []);
     onOpen();
   };
 
-  const toggleRole = async (roleId) => {
+  const toggleRole = async (roleId: string) => {
     if (!selectedUser) return;
     setSaving(true);
 
@@ -73,7 +80,7 @@ export default function UsersClient({ initialUsers, initialRoles }) {
         setUserRoleIds((prev) => [...prev, roleId]);
         toast.success("กำหนดบทบาทสำเร็จ");
       }
-    } catch (error) {
+    } catch {
       toast.error("อัปเดตบทบาทล้มเหลว");
     } finally {
       setSaving(false);
@@ -91,7 +98,7 @@ export default function UsersClient({ initialUsers, initialRoles }) {
 
     try {
       const data = await get("/api/hr/unlinkedEmployees");
-      setUnlinkedEmployees(data || []);
+      setUnlinkedEmployees((data as HrEmployee[]) || []);
     } catch {
       setUnlinkedEmployees([]);
     }
@@ -114,9 +121,9 @@ export default function UsersClient({ initialUsers, initialRoles }) {
         email: createForm.email,
         password: createForm.password,
         employeeId: createForm.employeeId || null,
-      });
+      }) as { warning?: string } | null;
 
-      if (result.warning) {
+      if (result?.warning) {
         toast.warning(result.warning);
       } else {
         toast.success("สร้างบัญชีสำเร็จ");
@@ -124,14 +131,14 @@ export default function UsersClient({ initialUsers, initialRoles }) {
 
       setCreateOpen(false);
       loadData();
-    } catch (error) {
+    } catch {
       toast.error("สร้างบัญชีล้มเหลว");
     } finally {
       setCreating(false);
     }
   };
 
-  const handleToggleUserStatus = async (user) => {
+  const handleToggleUserStatus = async (user: RbacUserProfile) => {
     setTogglingUserId(user.rbacUserProfileId);
     try {
       await patch(`/api/rbac/userRoles/${user.rbacUserProfileId}`, {
@@ -141,14 +148,14 @@ export default function UsersClient({ initialUsers, initialRoles }) {
         !user.isActive ? "เปิดใช้งานบัญชีสำเร็จ" : "ปิดใช้งานบัญชีสำเร็จ"
       );
       await loadData();
-    } catch (error) {
+    } catch {
       toast.error("อัปเดตสถานะล้มเหลว");
     } finally {
       setTogglingUserId(null);
     }
   };
 
-  const openResetPassword = (user) => {
+  const openResetPassword = (user: RbacUserProfile) => {
     setResetTarget(user);
     setResetPassword(defaultPassword);
     setResetOpen(true);
@@ -169,7 +176,7 @@ export default function UsersClient({ initialUsers, initialRoles }) {
       });
       toast.success("รีเซ็ตรหัสผ่านสำเร็จ");
       setResetOpen(false);
-    } catch (error) {
+    } catch {
       toast.error("รีเซ็ตรหัสผ่านล้มเหลว");
     } finally {
       setResetting(false);

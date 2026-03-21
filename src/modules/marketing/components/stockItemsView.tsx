@@ -16,6 +16,7 @@ import { Save, FileEdit } from "lucide-react";
 import { toast } from "sonner";
 import { post } from "@/lib/apiClient";
 import DataTable from "@/components/ui/dataTable";
+import type { StockItemsViewProps } from "@/modules/marketing/types";
 
 const fixedPacketCost = 25;
 const fixedShippingCost = 200;
@@ -80,7 +81,7 @@ function calcPromoPrice(sellingPrice, promo) {
   return null;
 }
 
-export default function StockItemsView({ items, loading, prices, updatePrice, productInfoMap, updateProductInfo, saveAllProductInfo, promotions = [] }) {
+export default function StockItemsView({ items, loading, prices, updatePrice, productInfoMap, updateProductInfo, saveAllProductInfo, promotions = [] }: StockItemsViewProps) {
   const [saving, setSaving] = useState(false);
   const modal = useDisclosure();
   const [editingItem, setEditingItem] = useState(null);

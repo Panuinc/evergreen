@@ -4,9 +4,10 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import LabelDesignerView from "@/modules/marketing/components/labelDesignerView";
+import type { LabelDesignerClientProps, LabelDesign } from "@/modules/marketing/types";
 
-export default function LabelDesignerClient({ initialDesigns }) {
-  const [designs, setDesigns] = useState(initialDesigns);
+export default function LabelDesignerClient({ initialDesigns }: LabelDesignerClientProps) {
+  const [designs, setDesigns] = useState<LabelDesign[]>(initialDesigns);
   const [loading, setLoading] = useState(false);
 
   const save = async (design) => {
@@ -19,17 +20,17 @@ export default function LabelDesignerClient({ initialDesigns }) {
     };
 
     if (design.id) {
-      const result = await put(`/api/marketing/labelDesigns/${design.id}`, payload);
+      const result = await put<LabelDesign>(`/api/marketing/labelDesigns/${design.id}`, payload);
       setDesigns((prev) =>
-        prev.map((d) => (d.labelDesignId === design.id ? result : d)),
+        prev.map((d) => (d.labelDesignId === design.id ? result as LabelDesign : d)),
       );
       toast.success(`บันทึก "${design.name}" แล้ว`);
-      return result;
+      return result as LabelDesign;
     } else {
-      const result = await post("/api/marketing/labelDesigns", payload);
-      setDesigns((prev) => [result, ...prev]);
+      const result = await post<LabelDesign>("/api/marketing/labelDesigns", payload);
+      setDesigns((prev) => [result as LabelDesign, ...prev]);
       toast.success(`สร้าง "${design.name}" แล้ว`);
-      return result;
+      return result as LabelDesign;
     }
   };
 

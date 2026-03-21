@@ -6,21 +6,22 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { get, put, patch } from "@/lib/apiClient";
 import OmnichannelQuotationEditorView from "@/modules/marketing/components/omnichannelQuotationEditorView";
+import type { MktQuotation, MktQuotationLine } from "@/modules/marketing/types";
 
-const fetcher = (url) => get(url);
+const fetcher = (url: string) => get<MktQuotation>(url);
 
 export default function OmnichannelQuotationEditorClient() {
   const { id } = useParams();
   const router = useRouter();
 
-  const [quotation, setQuotation] = useState(null);
-  const [lines, setLines] = useState([]);
+  const [quotation, setQuotation] = useState<MktQuotation | null>(null);
+  const [lines, setLines] = useState<MktQuotationLine[]>([]);
   const [saving, setSaving] = useState(false);
 
-  const { data: swrData, isLoading: loading, mutate } = useSWR(
+  const { data: swrData, isLoading: loading, mutate } = useSWR<MktQuotation>(
     id ? `/api/marketing/omnichannel/quotations/${id}` : null,
     fetcher,
-    { onError: (err) => toast.error(err.message) },
+    { onError: (err: Error) => toast.error(err.message) },
   );
 
   useEffect(() => {

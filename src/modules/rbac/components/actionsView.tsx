@@ -16,6 +16,7 @@ import {
 import { Plus, Edit, Trash2, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { ActionsViewProps, RbacAction } from "@/modules/rbac/types";
 
 const baseColumns = [
   { name: "ชื่อ", uid: "rbacActionName", sortable: true },
@@ -43,7 +44,7 @@ export default function ActionsView({
   handleSave,
   handleDelete,
   toggleActive,
-}) {
+}: ActionsViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -66,7 +67,7 @@ export default function ActionsView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (action, columnKey) => {
+    (action: RbacAction, columnKey: string) => {
       switch (columnKey) {
         case "rbacActionName":
           return <span className="font-light">{action.rbacActionName}</span>;
@@ -125,7 +126,7 @@ export default function ActionsView({
             </div>
           );
         default:
-          return action[columnKey] || "-";
+          return (action as unknown as Record<string, string>)[columnKey] || "-";
       }
     },
     [handleOpen, handleDelete, toggleActive, isSuperAdmin],
@@ -144,7 +145,7 @@ export default function ActionsView({
         searchPlaceholder="ค้นหาตามชื่อ, รายละเอียด..."
         searchKeys={["rbacActionName", "rbacActionDescription"]}
         emptyContent="ไม่พบการดำเนินการ"
-        actionMenuItems={(item) =>
+        actionMenuItems={(item: RbacAction) =>
           [
             { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
             isSuperAdmin

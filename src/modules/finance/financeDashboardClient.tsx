@@ -13,21 +13,25 @@ import {
   calMonths, calMonthsShort, inventoryAccounts,
 } from "@/lib/glAccountMap";
 import FinanceDashboardView from "@/modules/finance/components/financeDashboardView";
+import type {
+  AgedReceivable, AgedPayable, SalesInvoice, PurchaseInvoice,
+  TrialBalanceAccount, FinanceDashboardClientProps,
+} from "@/modules/finance/types";
 
 /* ── helpers ─────────────────────────────────────────── */
 
-function fmt(v) {
+function fmt(v: number | null | undefined) {
   return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
 }
 
 const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-function fmtMonth(ym) {
+function fmtMonth(ym: string | null | undefined) {
   if (!ym) return "";
   const [y, m] = ym.split("-");
   return `${thaiMonths[parseInt(m) - 1]} ${(parseInt(y) + 543) % 100}`;
 }
 
-function parseNum(val) {
+function parseNum(val: unknown): number {
   if (val === "" || val === null || val === undefined) return 0;
   if (typeof val === "number") return val;
   return Number(String(val).replace(/,/g, "")) || 0;
@@ -52,7 +56,7 @@ const overrideCogs = { name: "ต้นทุนขาย (โสหุ้ย)",
 const overrideInterest = { name: "ต้นทุนทางการเงิน", nameEn: "Finance Costs", group: "expense", sub: "interest" };
 const overrideAdmin = { name: "ค่าใช้จ่ายในการบริหาร", nameEn: "Admin Expenses", group: "expense", sub: "admin" };
 
-function getCategory(accountNumber) {
+function getCategory(accountNumber: string | null | undefined) {
   if (!accountNumber) return null;
   if (cogsOverrideAccounts.has(accountNumber)) return overrideCogs;
   if (interestAccounts.has(accountNumber)) return overrideInterest;
@@ -61,13 +65,13 @@ function getCategory(accountNumber) {
   return accountCategories[prefix] || null;
 }
 
-function computeFinancials(trialBalanceData) {
+function computeFinancials(trialBalanceData: TrialBalanceAccount[]) {
   if (!trialBalanceData || !trialBalanceData.length) return null;
-  const posting = trialBalanceData.filter((t) => t.accountType === "Posting");
+  const posting = trialBalanceData.filter((t) => t.bcGLAccountAccountType === "Posting");
 
-  const groups = {};
+  const groups: Record<string, any> = {};
   for (const t of posting) {
-    const cat = getCategory(t.number);
+    const cat = getCategory(t.bcGLAccountNo);
     if (!cat) continue;
     const key = cat.group + ":" + cat.sub;
     if (!groups[key]) groups[key] = { ...cat, debit: 0, credit: 0, accounts: [] };
@@ -76,11 +80,11 @@ function computeFinancials(trialBalanceData) {
     groups[key].debit += d;
     groups[key].credit += c;
     if (d > 0 || c > 0) {
-      groups[key].accounts.push({ number: t.number, display: t.display, debit: d, credit: c });
+      groups[key].accounts.push({ number: t.bcGLAccountNo, display: t.bcGLAccountNameValue, debit: d, credit: c });
     }
   }
 
-  const g = (key) => groups[key] || { debit: 0, credit: 0, accounts: [] };
+  const g = (key: string) => groups[key] || { debit: 0, credit: 0, accounts: [] };
 
   const currentAssets = g("assets:current").debit - g("assets:current").credit;
   const noncurrentAssets = g("assets:noncurrent").debit - g("assets:noncurrent").credit;
@@ -101,13 +105,13 @@ function computeFinancials(trialBalanceData) {
 
   const rawCogs = g("cogs:cogs").debit - g("cogs:cogs").credit;
   let inventoryDeduction = 0;
-  const inventoryAccountsDetail = {};
+  const inventoryAccountsDetail: Record<string, any> = {};
   for (const t of posting) {
-    if (t.number?.startsWith("115")) {
+    if (t.bcGLAccountNo?.startsWith("115")) {
       const bal = parseNum(t.balanceAtDateDebit) - parseNum(t.balanceAtDateCredit);
       inventoryDeduction += bal;
       if (Math.abs(bal) > 0.01) {
-        inventoryAccountsDetail[t.number] = { name: t.display, balance: bal };
+        inventoryAccountsDetail[t.bcGLAccountNo] = { name: t.bcGLAccountNameValue, balance: bal };
       }
     }
   }
@@ -211,14 +215,19 @@ const invOverrideKey = (year) => `chh_inventory_override_${year}`;
 
 /* ── Component ───────────────────────────────────────── */
 
-export default function FinanceDashboardClient({ initialTb = [], initialAr = [], initialAp = [], initialSi = [], initialPi = [] }) {
+export default function FinanceDashboardClient({ initialTb = [], initialAr = [], initialAp = [], initialSi = [], initialPi = [] }: FinanceDashboardClientProps) {
   /* ── Trial Balance / Dashboard state (was useFinanceDashboard) ── */
-  const fetcher = (url) => get(url).catch(() => []);
-  const { data: tbData, isLoading: tbLoading, mutate: mutateTb } = useSWR("/api/finance/trialBalance", fetcher, { fallbackData: initialTb });
-  const { data: arData, isLoading: arLoading } = useSWR("/api/finance/agedReceivables", fetcher, { fallbackData: initialAr });
-  const { data: apData, isLoading: apLoading } = useSWR("/api/finance/agedPayables", fetcher, { fallbackData: initialAp });
-  const { data: siData, isLoading: siLoading } = useSWR("/api/finance/salesInvoices?status=Open&expand=false", fetcher, { fallbackData: initialSi });
-  const { data: piData, isLoading: piLoading } = useSWR("/api/finance/purchaseInvoices?status=Open&expand=false", fetcher, { fallbackData: initialPi });
+  const fetcher = (url: string): Promise<any> => get(url).catch(() => []);
+  const tbKey: string = "/api/finance/trialBalance";
+  const arKey: string = "/api/finance/agedReceivables";
+  const apKey: string = "/api/finance/agedPayables";
+  const siKey: string = "/api/finance/salesInvoices?status=Open&expand=false";
+  const piKey: string = "/api/finance/purchaseInvoices?status=Open&expand=false";
+  const { data: tbData, isLoading: tbLoading, mutate: mutateTb } = useSWR<TrialBalanceAccount[]>(tbKey, fetcher, { fallbackData: initialTb });
+  const { data: arData, isLoading: arLoading } = useSWR<AgedReceivable[]>(arKey, fetcher, { fallbackData: initialAr });
+  const { data: apData, isLoading: apLoading } = useSWR<AgedPayable[]>(apKey, fetcher, { fallbackData: initialAp });
+  const { data: siData, isLoading: siLoading } = useSWR<SalesInvoice[]>(siKey, fetcher, { fallbackData: initialSi });
+  const { data: piData, isLoading: piLoading } = useSWR<PurchaseInvoice[]>(piKey, fetcher, { fallbackData: initialPi });
 
   const trialBalance = useMemo(() => tbData || [], [tbData]);
   const agedReceivables = useMemo(() => arData || [], [arData]);
@@ -291,12 +300,12 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   const topAccounts = useMemo(() => {
     if (!trialBalance.length) return [];
     return trialBalance
-      .filter((t) => t.accountType === "Posting")
+      .filter((t) => t.bcGLAccountAccountType === "Posting")
       .map((t) => {
         const d = parseNum(t.balanceAtDateDebit);
         const c = parseNum(t.balanceAtDateCredit);
-        const cat = getCategory(t.number);
-        return { number: t.number, display: t.display, debit: d, credit: c, net: d - c, category: cat?.name || "อื่นๆ", group: cat?.group || "other" };
+        const cat = getCategory(t.bcGLAccountNo);
+        return { number: t.bcGLAccountNo, display: t.bcGLAccountNameValue, debit: d, credit: c, net: d - c, category: cat?.name || "อื่นๆ", group: cat?.group || "other" };
       })
       .filter((t) => t.debit > 0 || t.credit > 0)
       .sort((a, b) => (Math.abs(b.debit) + Math.abs(b.credit)) - (Math.abs(a.debit) + Math.abs(a.credit)))
@@ -307,11 +316,11 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   const arChartData = useMemo(() => {
     if (!agedReceivables.length) return [];
     return agedReceivables
-      .filter((r) => r.customerNumber && parseNum(r.balanceDue) !== 0)
+      .filter((r) => r.bcCustomerLedgerEntryCustomerNo && parseNum(r.bcCustomerLedgerEntryRemainingAmount) !== 0)
       .map((r) => ({
-        name: r.name || r.customerNumber,
-        customerNumber: r.customerNumber,
-        balanceDue: parseNum(r.balanceDue),
+        name: r.bcCustomerNameValue || r.bcCustomerLedgerEntryCustomerNo,
+        customerNumber: r.bcCustomerLedgerEntryCustomerNo,
+        balanceDue: parseNum(r.bcCustomerLedgerEntryRemainingAmount),
         current: parseNum(r.currentAmount),
         period1: parseNum(r.period1Amount),
         period2: parseNum(r.period2Amount),
@@ -321,10 +330,10 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   }, [agedReceivables]);
 
   const arTotals = useMemo(() => {
-    const totalRow = agedReceivables.find((r) => !r.customerNumber && r.name === "Total");
+    const totalRow = agedReceivables.find((r) => !r.bcCustomerLedgerEntryCustomerNo && r.bcCustomerNameValue === "Total");
     if (totalRow) {
       return {
-        balanceDue: parseNum(totalRow.balanceDue),
+        balanceDue: parseNum(totalRow.bcCustomerLedgerEntryRemainingAmount),
         current: parseNum(totalRow.currentAmount),
         period1: parseNum(totalRow.period1Amount),
         period2: parseNum(totalRow.period2Amount),
@@ -364,11 +373,11 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   const apChartData = useMemo(() => {
     if (!agedPayables.length) return [];
     return agedPayables
-      .filter((p) => p.vendorNumber && parseNum(p.balanceDue) !== 0)
+      .filter((p) => p.bcVendorLedgerEntryVendorNo && parseNum(p.bcVendorLedgerEntryRemainingAmount) !== 0)
       .map((p) => ({
-        name: p.name || p.vendorNumber,
-        vendorNumber: p.vendorNumber,
-        balanceDue: parseNum(p.balanceDue),
+        name: p.bcVendorLedgerEntryVendorName || p.bcVendorLedgerEntryVendorNo,
+        vendorNumber: p.bcVendorLedgerEntryVendorNo,
+        balanceDue: parseNum(p.bcVendorLedgerEntryRemainingAmount),
         current: parseNum(p.currentAmount),
         period1: parseNum(p.period1Amount),
         period2: parseNum(p.period2Amount),
@@ -378,10 +387,10 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   }, [agedPayables]);
 
   const apTotals = useMemo(() => {
-    const totalRow = agedPayables.find((p) => !p.vendorNumber && p.name === "Total");
+    const totalRow = agedPayables.find((p) => !p.bcVendorLedgerEntryVendorNo && p.bcVendorLedgerEntryVendorName === "Total");
     if (totalRow) {
       return {
-        balanceDue: parseNum(totalRow.balanceDue),
+        balanceDue: parseNum(totalRow.bcVendorLedgerEntryRemainingAmount),
         current: parseNum(totalRow.currentAmount),
         period1: parseNum(totalRow.period1Amount),
         period2: parseNum(totalRow.period2Amount),
@@ -407,21 +416,23 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
 
   /* ── Invoice maps ── */
   const arInvoiceMap = useMemo(() => {
-    const map = {};
+    const map: Record<string, any[]> = {};
     const today = new Date();
     for (const inv of salesInvoices) {
-      if (!inv.customerNumber) continue;
-      if (!map[inv.customerNumber]) map[inv.customerNumber] = [];
-      const due = new Date(inv.dueDate);
-      const daysOverdue = inv.dueDate && inv.dueDate !== "0001-01-01"
+      if (!inv.bcPostedSalesInvoiceSellToCustomerNo) continue;
+      const key = inv.bcPostedSalesInvoiceSellToCustomerNo;
+      if (!map[key]) map[key] = [];
+      const dueDate = inv.bcPostedSalesInvoiceDueDate;
+      const due = dueDate ? new Date(dueDate) : null;
+      const daysOverdue = dueDate && dueDate !== "0001-01-01" && due
         ? Math.floor((today.getTime() - due.getTime()) / 86400000)
         : 0;
-      map[inv.customerNumber].push({
-        invoiceNumber: inv.invoiceNumber,
-        invoiceDate: inv.invoiceDate,
-        dueDate: inv.dueDate,
-        totalAmountIncludingTax: inv.totalAmountIncludingTax,
-        remainingAmount: inv.remainingAmount,
+      map[key].push({
+        invoiceNumber: inv.bcPostedSalesInvoiceNoValue,
+        invoiceDate: inv.bcPostedSalesInvoicePostingDate,
+        dueDate: inv.bcPostedSalesInvoiceDueDate,
+        totalAmountIncludingTax: inv.bcPostedSalesInvoiceAmountIncludingVAT,
+        remainingAmount: inv.bcPostedSalesInvoiceRemainingAmount,
         daysOverdue: Math.max(0, daysOverdue),
       });
     }
@@ -432,20 +443,22 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   }, [salesInvoices]);
 
   const apInvoiceMap = useMemo(() => {
-    const map = {};
+    const map: Record<string, any[]> = {};
     const today = new Date();
     for (const inv of purchaseInvoices) {
-      if (!inv.vendorNumber) continue;
-      if (!map[inv.vendorNumber]) map[inv.vendorNumber] = [];
-      const due = new Date(inv.dueDate);
-      const daysOverdue = inv.dueDate && inv.dueDate !== "0001-01-01"
+      if (!inv.bcPostedPurchInvoiceBuyFromVendorNo) continue;
+      const key = inv.bcPostedPurchInvoiceBuyFromVendorNo;
+      if (!map[key]) map[key] = [];
+      const dueDate = inv.bcPostedPurchInvoiceDueDate;
+      const due = dueDate ? new Date(dueDate) : null;
+      const daysOverdue = dueDate && dueDate !== "0001-01-01" && due
         ? Math.floor((today.getTime() - due.getTime()) / 86400000)
         : 0;
-      map[inv.vendorNumber].push({
-        invoiceNumber: inv.invoiceNumber,
-        invoiceDate: inv.invoiceDate,
-        dueDate: inv.dueDate,
-        totalAmountIncludingTax: inv.totalAmountIncludingTax,
+      map[key].push({
+        invoiceNumber: inv.bcPostedPurchInvoiceNoValue,
+        invoiceDate: inv.bcPostedPurchInvoicePostingDate,
+        dueDate: inv.bcPostedPurchInvoiceDueDate,
+        totalAmountIncludingTax: inv.bcPostedPurchInvoiceAmountIncludingVAT,
         daysOverdue: Math.max(0, daysOverdue),
       });
     }
@@ -457,26 +470,26 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
 
   /* ── Trends ── */
   const arTrendByMonth = useMemo(() => {
-    const map = {};
+    const map: Record<string, any> = {};
     for (const inv of salesInvoices) {
-      const month = inv.invoiceDate?.substring(0, 7);
+      const month = inv.bcPostedSalesInvoicePostingDate?.substring(0, 7);
       if (!month) continue;
       if (!map[month]) map[month] = { month, count: 0, total: 0, remaining: 0 };
       map[month].count++;
-      map[month].total += inv.totalAmountIncludingTax || 0;
-      map[month].remaining += inv.remainingAmount || 0;
+      map[month].total += inv.bcPostedSalesInvoiceAmountIncludingVAT || 0;
+      map[month].remaining += inv.bcPostedSalesInvoiceRemainingAmount || 0;
     }
     return Object.values(map).sort((a: any, b: any) => a.month.localeCompare(b.month));
   }, [salesInvoices]);
 
   const apTrendByMonth = useMemo(() => {
-    const map = {};
+    const map: Record<string, any> = {};
     for (const inv of purchaseInvoices) {
-      const month = inv.invoiceDate?.substring(0, 7);
+      const month = inv.bcPostedPurchInvoicePostingDate?.substring(0, 7);
       if (!month) continue;
       if (!map[month]) map[month] = { month, count: 0, total: 0 };
       map[month].count++;
-      map[month].total += Math.abs(inv.totalAmountIncludingTax || 0);
+      map[month].total += Math.abs(inv.bcPostedPurchInvoiceAmountIncludingVAT || 0);
     }
     return Object.values(map).sort((a: any, b: any) => a.month.localeCompare(b.month));
   }, [purchaseInvoices]);
@@ -491,12 +504,13 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
     ];
     const today = new Date();
     for (const inv of salesInvoices) {
-      if (!inv.dueDate || inv.dueDate === "0001-01-01") continue;
-      const days = Math.floor((today.getTime() - new Date(inv.dueDate).getTime()) / 86400000);
+      const dueDate = inv.bcPostedSalesInvoiceDueDate;
+      if (!dueDate || dueDate === "0001-01-01") continue;
+      const days = Math.floor((today.getTime() - new Date(dueDate).getTime()) / 86400000);
       const idx = days <= 0 ? 0 : days <= 30 ? 1 : days <= 60 ? 2 : days <= 90 ? 3 : 4;
       bands[idx].count++;
-      bands[idx].total += inv.totalAmountIncludingTax || 0;
-      bands[idx].remaining += inv.remainingAmount || 0;
+      bands[idx].total += inv.bcPostedSalesInvoiceAmountIncludingVAT || 0;
+      bands[idx].remaining += inv.bcPostedSalesInvoiceRemainingAmount || 0;
     }
     return bands;
   }, [salesInvoices]);
@@ -511,20 +525,21 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
     ];
     const today = new Date();
     for (const inv of purchaseInvoices) {
-      if (!inv.dueDate || inv.dueDate === "0001-01-01") continue;
-      const days = Math.floor((today.getTime() - new Date(inv.dueDate).getTime()) / 86400000);
+      const dueDate = inv.bcPostedPurchInvoiceDueDate;
+      if (!dueDate || dueDate === "0001-01-01") continue;
+      const days = Math.floor((today.getTime() - new Date(dueDate).getTime()) / 86400000);
       const idx = days <= 0 ? 0 : days <= 30 ? 1 : days <= 60 ? 2 : days <= 90 ? 3 : 4;
       bands[idx].count++;
-      bands[idx].total += Math.abs(inv.totalAmountIncludingTax || 0);
+      bands[idx].total += Math.abs(inv.bcPostedPurchInvoiceAmountIncludingVAT || 0);
     }
     return bands;
   }, [purchaseInvoices]);
 
   /* ── Aging detail modal ── */
-  const [selectedAging, setSelectedAging] = useState(null);
+  const [selectedAging, setSelectedAging] = useState<{ item: any; type: string } | null>(null);
   const { isOpen: isAgingOpen, onOpen: onAgingOpen, onClose: onAgingClose } = useDisclosure();
 
-  const openAgingDetail = useCallback((item, type) => {
+  const openAgingDetail = useCallback((item: any, type: string) => {
     setSelectedAging({ item, type });
     onAgingOpen();
   }, [onAgingOpen]);
@@ -546,7 +561,7 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   /* ── GL Monthly Data (was useGlMonthlyData) ── */
   const glYears = useMemo(() => [selectedYear - 2, selectedYear - 1, selectedYear], [selectedYear]);
 
-  const glFetcher = (url) => get(url).catch((e) => { toast.error("โหลดข้อมูล GL ล้มเหลว: " + e.message); return {}; });
+  const glFetcher = (url: string) => get(url).catch((e: Error) => { toast.error("โหลดข้อมูล GL ล้มเหลว: " + e.message); return {}; });
   const { data: glY0, isLoading: glY0Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 2}-01-01&end=${selectedYear - 2}-12-31&summarize=monthly` : null, glFetcher);
   const { data: glY1, isLoading: glY1Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 1}-01-01&end=${selectedYear - 1}-12-31&summarize=monthly` : null, glFetcher);
   const { data: glY2, isLoading: glY2Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear}-01-01&end=${selectedYear}-12-31&summarize=monthly` : null, glFetcher);
@@ -705,7 +720,7 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
     } catch { setInventoryOverride(null); }
   }, [selectedYear]);
 
-  const onSaveInventoryOverride = useCallback((values) => {
+  const onSaveInventoryOverride = useCallback((values: Record<string, number>) => {
     localStorage.setItem(invOverrideKey(selectedYear), JSON.stringify(values));
     setInventoryOverride(values);
   }, [selectedYear]);
@@ -844,7 +859,7 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   }, [financials]);
 
   /* ── AI analysis runner ── */
-  const runAiAnalysis = useCallback(async (overrideFinancials) => {
+  const runAiAnalysis = useCallback(async (overrideFinancials: any) => {
     const fin = overrideFinancials || financials;
     if (!fin) return;
     setAiLoading(true);
@@ -910,7 +925,7 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
 
       if (!res.ok) throw new Error(`API error: ${res.status}`);
 
-      const reader = res.body.getReader();
+      const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
 
@@ -932,7 +947,7 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
         }
       }
     } catch (err) {
-      setAiAnalysis(`เกิดข้อผิดพลาด: ${err.message}`);
+      setAiAnalysis(`เกิดข้อผิดพลาด: ${(err as Error).message}`);
     } finally {
       setAiLoading(false);
     }
@@ -989,7 +1004,7 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
 
       if (!res.ok) throw new Error(`API error: ${res.status}`);
 
-      const reader = res.body.getReader();
+      const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
 
@@ -1011,7 +1026,7 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
         }
       }
     } catch (err) {
-      setCashFlowAnalysis(`เกิดข้อผิดพลาด: ${err.message}`);
+      setCashFlowAnalysis(`เกิดข้อผิดพลาด: ${(err as Error).message}`);
     } finally {
       setCashFlowLoading(false);
     }

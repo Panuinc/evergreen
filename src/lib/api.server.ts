@@ -6,13 +6,13 @@ const apiBase = process.env.GO_API_URL || "http://localhost:8080";
  * Server-side fetch helper — reads auth token from Supabase session cookie
  * Use this in Server Components (page.jsx, layout.jsx)
  */
-export async function api(path) {
+export async function api<T = unknown>(path: string): Promise<T | null> {
   const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const headers = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (session?.access_token) {
     headers["Authorization"] = `Bearer ${session.access_token}`;
   }
@@ -26,14 +26,14 @@ export async function api(path) {
     return null;
   }
 
-  return res.json();
+  return res.json() as Promise<T>;
 }
 
 /**
  * Server-side mutate helper (POST/PUT/PATCH/DELETE)
  * For Server Actions ("use server")
  */
-export async function apiMutate(path, method = "POST", body = null) {
+export async function apiMutate(path: string, method = "POST", body: unknown = null) {
   const supabase = await createClient();
   const {
     data: { session },

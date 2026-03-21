@@ -15,6 +15,7 @@ import {
 import { Plus, Edit, Trash2, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { AssetsViewProps, ItAsset } from "@/modules/it/types";
 
 const baseColumns = [
   { name: "ชื่อทรัพย์สิน", uid: "itAssetName", sortable: true },
@@ -63,7 +64,7 @@ export default function AssetsView({
   confirmDelete,
   handleDelete,
   toggleActive,
-}) {
+}: AssetsViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -86,7 +87,7 @@ export default function AssetsView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (item: ItAsset, columnKey: string) => {
       switch (columnKey) {
         case "itAssetName":
           return <span className="font-light">{item.itAssetName}</span>;
@@ -103,7 +104,7 @@ export default function AssetsView({
         case "itAssetLocation":
           return item.itAssetLocation || "-";
         case "itAssetStatus": {
-          const colorMap = {
+          const colorMap: Record<string, "success" | "warning" | "default" | "danger"> = {
             active: "success",
             maintenance: "warning",
             retired: "default",
@@ -114,7 +115,7 @@ export default function AssetsView({
               variant="flat"
               size="md"
               radius="md"
-              color={colorMap[item.itAssetStatus] || "default"}
+              color={colorMap[item.itAssetStatus] ?? "default"}
             >
               {item.itAssetStatus}
             </Chip>
@@ -191,12 +192,15 @@ export default function AssetsView({
         statusField="itAssetStatus"
         statusOptions={statusOptions}
         emptyContent="ไม่พบทรัพย์สิน"
-        actionMenuItems={(item) => [
-          { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
-          isSuperAdmin
-            ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
-            : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(item) },
-        ].filter(Boolean)}
+        actionMenuItems={(item) => {
+          const asset = item as ItAsset;
+          return [
+            { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(asset) },
+            isSuperAdmin
+              ? { key: "toggle", label: asset.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(asset) }
+              : { key: "delete", label: "ลบ", icon: <Trash2 />, color: "danger", onPress: () => confirmDelete(asset) },
+          ].filter(Boolean);
+        }}
         topEndContent={
           <Button
             variant="bordered"
@@ -261,7 +265,7 @@ export default function AssetsView({
                     radius="md"
                     selectedKeys={formData.itAssetCategory ? [formData.itAssetCategory] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("itAssetCategory", val);
                     }}
                   >
@@ -318,7 +322,7 @@ export default function AssetsView({
                     radius="md"
                     selectedKeys={formData.itAssetAssignedTo ? [formData.itAssetAssignedTo] : []}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "";
+                      const val = String(Array.from(keys)[0] ?? "");
                       updateField("itAssetAssignedTo", val);
                     }}
                   >
@@ -376,7 +380,7 @@ export default function AssetsView({
                     radius="md"
                     selectedKeys={[formData.itAssetStatus]}
                     onSelectionChange={(keys) => {
-                      const val = Array.from(keys)[0] || "active";
+                      const val = String(Array.from(keys)[0] ?? "active");
                       updateField("itAssetStatus", val);
                     }}
                   >

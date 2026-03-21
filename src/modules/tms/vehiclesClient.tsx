@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import VehiclesView from "@/modules/tms/components/vehiclesView";
+import type { TmsVehicle, TmsVehicleForm } from "@/modules/tms/types";
 
 const emptyForm = {
   tmsVehiclePlateNumber: "",
@@ -19,22 +20,22 @@ const emptyForm = {
   tmsVehicleForthtrackRef: "",
 };
 
-export default function VehiclesClient({ initialVehicles }) {
-  const [vehicles, setVehicles] = useState(initialVehicles);
+export default function VehiclesClient({ initialVehicles }: { initialVehicles: TmsVehicle[] }) {
+  const [vehicles, setVehicles] = useState<TmsVehicle[]>(initialVehicles);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [editingVehicle, setEditingVehicle] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [editingVehicle, setEditingVehicle] = useState<TmsVehicle | null>(null);
+  const [formData, setFormData] = useState<TmsVehicleForm>(emptyForm);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingVehicle, setDeletingVehicle] = useState(null);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [deletingVehicle, setDeletingVehicle] = useState<TmsVehicle | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const reload = async () => {
     try {
       setLoading(true);
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/tms/vehicles");
+      const data = await get("/api/tms/vehicles") as TmsVehicle[];
       setVehicles(data);
     } catch (error) {
       toast.error("โหลดยานพาหนะล้มเหลว");
@@ -43,7 +44,7 @@ export default function VehiclesClient({ initialVehicles }) {
     }
   };
 
-  const handleOpen = (vehicle = null) => {
+  const handleOpen = (vehicle: TmsVehicle | null = null) => {
     if (vehicle) {
       setEditingVehicle(vehicle);
       setFormData({
@@ -93,7 +94,7 @@ export default function VehiclesClient({ initialVehicles }) {
     }
   };
 
-  const confirmDelete = (vehicle) => {
+  const confirmDelete = (vehicle: TmsVehicle) => {
     setDeletingVehicle(vehicle);
     deleteModal.onOpen();
   };
@@ -111,7 +112,7 @@ export default function VehiclesClient({ initialVehicles }) {
     }
   };
 
-  const toggleActive = async (item) => {
+  const toggleActive = async (item: TmsVehicle) => {
     try {
       await put(`/api/tms/vehicles/${item.tmsVehicleId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -121,7 +122,7 @@ export default function VehiclesClient({ initialVehicles }) {
     }
   };
 
-  const updateField = (field, value) => {
+  const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

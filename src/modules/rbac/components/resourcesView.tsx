@@ -19,6 +19,7 @@ import { Plus, Edit, Trash2, Power } from "lucide-react";
 import { menuData } from "@/config/menu";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { ResourcesViewProps, RbacResource } from "@/modules/rbac/types";
 
 const baseColumns = [
   { name: "ชื่อ", uid: "rbacResourceName", sortable: true },
@@ -46,7 +47,7 @@ export default function ResourcesView({
   handleSave,
   handleDelete,
   toggleActive,
-}) {
+}: ResourcesViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const initialVisibleColumns = useMemo(() => {
@@ -69,7 +70,7 @@ export default function ResourcesView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (resource, columnKey) => {
+    (resource: RbacResource, columnKey: string) => {
       switch (columnKey) {
         case "rbacResourceName":
           return <span className="font-light">{resource.rbacResourceName}</span>;
@@ -128,7 +129,7 @@ export default function ResourcesView({
             </div>
           );
         default:
-          return resource[columnKey] || "-";
+          return (resource as unknown as Record<string, string>)[columnKey] || "-";
       }
     },
     [handleOpen, handleDelete, toggleActive, isSuperAdmin],
@@ -147,7 +148,7 @@ export default function ResourcesView({
         searchPlaceholder="ค้นหาตามชื่อ, โมดูล, รายละเอียด..."
         searchKeys={["rbacResourceName", "rbacResourceModuleRef", "rbacResourceDescription"]}
         emptyContent="ไม่พบทรัพยากร"
-        actionMenuItems={(item) =>
+        actionMenuItems={(item: RbacResource) =>
           [
             { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
             isSuperAdmin
@@ -203,7 +204,7 @@ export default function ResourcesView({
                   onSelectionChange={(keys) =>
                     setFormData({
                       ...formData,
-                      rbacResourceModuleRef: Array.from(keys)[0] || "",
+                      rbacResourceModuleRef: Array.from(keys)[0] as string || "",
                     })
                   }
                 >

@@ -1,5 +1,6 @@
 import { api } from "@/lib/api.server";
 import PermissionsClient from "@/modules/rbac/permissionsClient";
+import type { RbacResource, RbacAction, RbacPermission } from "@/modules/rbac/types";
 
 export default async function PermissionsPage() {
   const [resources, actions, permissions] = await Promise.all([
@@ -10,9 +11,9 @@ export default async function PermissionsPage() {
 
   return (
     <PermissionsClient
-      initialResources={resources || []}
-      initialActions={actions || []}
-      initialPermissions={permissions || []}
+      initialResources={(resources || []) as RbacResource[]}
+      initialActions={(actions || []) as RbacAction[]}
+      initialPermissions={(permissions || []) as RbacPermission[]}
     />
   );
 }

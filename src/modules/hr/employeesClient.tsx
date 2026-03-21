@@ -9,7 +9,15 @@ import { Plus, Edit, Trash2, Power } from "lucide-react";
 import { toast } from "sonner";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
-import { post, put, del } from "@/lib/apiClient";
+import { get, post, put, del } from "@/lib/apiClient";
+import type {
+  HrEmployee,
+  HrDivision,
+  HrDepartment,
+  HrPosition,
+  EmployeesClientProps,
+  EmployeeFormData,
+} from "./types";
 
 const columns = [
   { name: "ชื่อ", uid: "name", sortable: true },
@@ -27,27 +35,33 @@ const statusOptions = [
   { name: "ปิดใช้งาน", uid: "false" },
 ];
 
-const emptyForm = {
+const emptyForm: EmployeeFormData = {
   hrEmployeeFirstName: "", hrEmployeeLastName: "", hrEmployeeEmail: "",
   hrEmployeePhone: "", hrEmployeeHrDivisionId: "", hrEmployeeHrDepartmentId: "", hrEmployeeHrPositionId: "",
 };
 
-export default function EmployeesClient({ initialEmployees, initialDivisions, initialDepartments, initialPositions }) {
+export default function EmployeesClient({
+  initialEmployees,
+  initialDivisions,
+  initialDepartments,
+  initialPositions,
+}: EmployeesClientProps) {
   const { isSuperAdmin } = useRBAC();
-  const [employees, setEmployees] = useState(initialEmployees);
-  const [divisions] = useState(initialDivisions);
-  const [departments] = useState(initialDepartments);
-  const [positions] = useState(initialPositions);
+  const [employees, setEmployees] = useState<HrEmployee[]>(initialEmployees);
+  const [divisions] = useState<HrDivision[]>(initialDivisions);
+  const [departments] = useState<HrDepartment[]>(initialDepartments);
+  const [positions] = useState<HrPosition[]>(initialPositions);
   const [saving, setSaving] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [editingEmployee, setEditingEmployee] = useState<HrEmployee | null>(null);
+  const [formData, setFormData] = useState<EmployeeFormData>(emptyForm);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingEmployee, setDeletingEmployee] = useState(null);
+  const [deletingEmployee, setDeletingEmployee] = useState<HrEmployee | null>(null);
 
-  const updateField = (field, value) => setFormData((prev) => ({ ...prev, [field]: value }));
+  const updateField = (field: keyof EmployeeFormData, value: string) =>
+    setFormData((prev) => ({ ...prev, [field]: value }));
 
-  const handleOpen = useCallback((employee = null) => {
+  const handleOpen = useCallback((employee: HrEmployee | null = null) => {
     if (employee) {
       setEditingEmployee(employee);
       setFormData({
@@ -68,9 +82,8 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
 
   const reloadEmployees = useCallback(async () => {
     try {
-      const { get } = await import("@/lib/apiClient");
       const data = await get("/api/hr/employees");
-      setEmployees(data);
+      setEmployees(data as HrEmployee[]);
     } catch {}
   }, []);
 
@@ -90,14 +103,17 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
       }
       onClose();
       reloadEmployees();
-    } catch (error) {
-      toast.error(error.message || "บันทึกพนักงานล้มเหลว");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "บันทึกพนักงานล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = useCallback((employee) => { setDeletingEmployee(employee); deleteModal.onOpen(); }, [deleteModal]);
+  const confirmDelete = useCallback((employee: HrEmployee) => {
+    setDeletingEmployee(employee);
+    deleteModal.onOpen();
+  }, [deleteModal]);
 
   const handleDelete = async () => {
     if (!deletingEmployee) return;
@@ -107,12 +123,12 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
       deleteModal.onClose();
       setDeletingEmployee(null);
       reloadEmployees();
-    } catch (error) {
-      toast.error(error.message || "ลบพนักงานล้มเหลว");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "ลบพนักงานล้มเหลว");
     }
   };
 
-  const toggleActive = useCallback(async (item) => {
+  const toggleActive = useCallback(async (item: HrEmployee) => {
     try {
       await put(`/api/hr/employees/${item.hrEmployeeId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -122,7 +138,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
     }
   }, [reloadEmployees]);
 
-  const renderCell = useCallback((emp, columnKey) => {
+  const renderCell = useCallback((emp: HrEmployee, columnKey: string) => {
     switch (columnKey) {
       case "name":
         return <span className="font-light">{emp.hrEmployeeFirstName} {emp.hrEmployeeLastName}</span>;
@@ -131,11 +147,14 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
       case "hrEmployeePhone":
         return <span className="text-muted-foreground">{emp.hrEmployeePhone || "-"}</span>;
       case "hrEmployeeHrDivisionId":
-        return emp.divisionName || "-";
+        // hrDivisionName comes from JOIN in backend — raw column name from hrDivision table
+        return emp.hrDivisionName || "-";
       case "hrEmployeeHrDepartmentId":
-        return emp.departmentName || "-";
+        // hrDepartmentName comes from JOIN in backend — raw column name from hrDepartment table
+        return emp.hrDepartmentName || "-";
       case "hrEmployeeHrPositionId":
-        return emp.positionName || "-";
+        // hrPositionTitle comes from JOIN in backend — raw column name from hrPosition table
+        return emp.hrPositionTitle || "-";
       case "isActive":
         return <Chip variant="flat" size="md" radius="md" color={emp.isActive ? "success" : "default"}>{emp.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}</Chip>;
       case "actions":
@@ -148,7 +167,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
           </div>
         );
       default:
-        return emp[columnKey] || "-";
+        return (emp as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
     }
   }, [isSuperAdmin, confirmDelete, handleOpen, toggleActive]);
 
@@ -161,7 +180,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
         searchKeys={["hrEmployeeFirstName","hrEmployeeLastName","hrEmployeeEmail","hrEmployeePhone"]}
         statusField="isActive" statusOptions={statusOptions} emptyContent="ไม่พบพนักงาน"
         topEndContent={<Button variant="bordered" size="md" radius="md" startContent={<Plus />} onPress={() => handleOpen()}>เพิ่มพนักงาน</Button>}
-        actionMenuItems={(item) => [
+        actionMenuItems={(item: HrEmployee) => [
           { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
           isSuperAdmin
             ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }
@@ -181,7 +200,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
               <div className="p-2">
                 <Select label="ฝ่าย" labelPlacement="outside" placeholder="เลือกฝ่าย" variant="bordered" size="md" radius="md"
                   selectedKeys={formData.hrEmployeeHrDivisionId ? [formData.hrEmployeeHrDivisionId] : []}
-                  onSelectionChange={(keys) => { updateField("hrEmployeeHrDivisionId", Array.from(keys)[0] || ""); updateField("hrEmployeeHrDepartmentId", ""); updateField("hrEmployeeHrPositionId", ""); }}>
+                  onSelectionChange={(keys) => { updateField("hrEmployeeHrDivisionId", Array.from(keys)[0] as string || ""); updateField("hrEmployeeHrDepartmentId", ""); updateField("hrEmployeeHrPositionId", ""); }}>
                   {divisions.map((d) => <SelectItem key={d.hrDivisionId}>{d.hrDivisionName}</SelectItem>)}
                 </Select>
               </div>
@@ -189,7 +208,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
                 <Select label="แผนก" labelPlacement="outside" placeholder={formData.hrEmployeeHrDivisionId ? "เลือกแผนก" : "เลือกฝ่ายก่อน"} variant="bordered" size="md" radius="md"
                   isDisabled={!formData.hrEmployeeHrDivisionId}
                   selectedKeys={formData.hrEmployeeHrDepartmentId ? [formData.hrEmployeeHrDepartmentId] : []}
-                  onSelectionChange={(keys) => { updateField("hrEmployeeHrDepartmentId", Array.from(keys)[0] || ""); updateField("hrEmployeeHrPositionId", ""); }}>
+                  onSelectionChange={(keys) => { updateField("hrEmployeeHrDepartmentId", Array.from(keys)[0] as string || ""); updateField("hrEmployeeHrPositionId", ""); }}>
                   {departments.filter((d) => d.hrDepartmentHrDivisionId === formData.hrEmployeeHrDivisionId).map((d) => <SelectItem key={d.hrDepartmentId}>{d.hrDepartmentName}</SelectItem>)}
                 </Select>
               </div>
@@ -197,7 +216,7 @@ export default function EmployeesClient({ initialEmployees, initialDivisions, in
                 <Select label="ตำแหน่ง" labelPlacement="outside" placeholder={formData.hrEmployeeHrDepartmentId ? "เลือกตำแหน่ง" : "เลือกแผนกก่อน"} variant="bordered" size="md" radius="md"
                   isDisabled={!formData.hrEmployeeHrDepartmentId}
                   selectedKeys={formData.hrEmployeeHrPositionId ? [formData.hrEmployeeHrPositionId] : []}
-                  onSelectionChange={(keys) => updateField("hrEmployeeHrPositionId", Array.from(keys)[0] || "")}>
+                  onSelectionChange={(keys) => updateField("hrEmployeeHrPositionId", Array.from(keys)[0] as string || "")}>
                   {positions.filter((p) => p.hrPositionHrDepartmentId === formData.hrEmployeeHrDepartmentId).map((p) => <SelectItem key={p.hrPositionId}>{p.hrPositionTitle}</SelectItem>)}
                 </Select>
               </div>

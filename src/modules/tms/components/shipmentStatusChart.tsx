@@ -1,8 +1,9 @@
 "use client";
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import type { ShipmentStatusChartProps } from "@/modules/tms/types";
 
-const statusColors = {
+const statusColors: Record<string, string> = {
   draft: "#a1a1aa",
   confirmed: "#3b82f6",
   dispatched: "#f59e0b",
@@ -13,7 +14,7 @@ const statusColors = {
   cancelled: "#ef4444",
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   draft: "Draft",
   confirmed: "Confirmed",
   dispatched: "Dispatched",
@@ -24,15 +25,15 @@ const statusLabels = {
   cancelled: "Cancelled",
 };
 
-export default function ShipmentStatusChart({ data = [] }) {
+export default function ShipmentStatusChart({ data = [] }: ShipmentStatusChartProps) {
   if (!data.length) {
     return <p className="text-xs text-muted-foreground text-center py-8">No data</p>;
   }
 
   const chartData = data.map((d) => ({
-    name: statusLabels[d.status] || d.status,
-    value: d.count,
-    color: statusColors[d.status] || "#a1a1aa",
+    name: statusLabels[d.tmsShipmentStatus] || d.tmsShipmentStatus,
+    value: d.tmsShipmentCount,
+    color: statusColors[d.tmsShipmentStatus] || "#a1a1aa",
   }));
 
   return (

@@ -13,6 +13,7 @@ import {
 import { Plus, Edit, Trash2, Power } from "lucide-react";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
+import type { ContactsViewProps, SalesContact } from "@/modules/sales/types";
 
 const baseColumns = [
   { name: "เลขที่ผู้ติดต่อ", uid: "salesContactNo", sortable: true },
@@ -24,8 +25,6 @@ const baseColumns = [
   { name: "แท็ก", uid: "salesContactTags" },
   { name: "การดำเนินการ", uid: "actions" },
 ];
-
-const statusOptions = [];
 
 const baseVisibleColumns = [
   "salesContactNo",
@@ -53,7 +52,7 @@ export default function ContactsView({
   confirmDelete,
   handleDelete,
   toggleActive,
-}) {
+}: ContactsViewProps) {
   const { isSuperAdmin } = useRBAC();
 
   const columns = useMemo(() => {
@@ -76,7 +75,7 @@ export default function ContactsView({
   }, [isSuperAdmin]);
 
   const renderCell = useCallback(
-    (item, columnKey) => {
+    (item: SalesContact, columnKey: string) => {
       switch (columnKey) {
         case "salesContactNo":
           return <span className="text-muted-foreground">{item.salesContactNo || "-"}</span>;
@@ -145,7 +144,7 @@ export default function ContactsView({
             </div>
           );
         default:
-          return item[columnKey] || "-";
+          return (item as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
       }
     },
     [handleOpen, confirmDelete, isSuperAdmin, toggleActive],
@@ -169,7 +168,7 @@ export default function ContactsView({
           "salesContactPhone",
         ]}
         emptyContent="ไม่พบผู้ติดต่อ"
-        actionMenuItems={(item) =>
+        actionMenuItems={(item: SalesContact) =>
           [
             { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
             isSuperAdmin
@@ -212,7 +211,7 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesContactFirstName}
+                    value={formData.salesContactFirstName || ""}
                     onChange={(e) => updateField("salesContactFirstName", e.target.value)}
                     isRequired
                     isInvalid={!!validationErrors?.salesContactFirstName}
@@ -227,7 +226,7 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesContactLastName}
+                    value={formData.salesContactLastName || ""}
                     onChange={(e) => updateField("salesContactLastName", e.target.value)}
                   />
                 </div>
@@ -239,7 +238,7 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesContactEmail}
+                    value={formData.salesContactEmail || ""}
                     onChange={(e) => updateField("salesContactEmail", e.target.value)}
                   />
                 </div>
@@ -251,7 +250,7 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesContactPhone}
+                    value={formData.salesContactPhone || ""}
                     onChange={(e) => updateField("salesContactPhone", e.target.value)}
                   />
                 </div>
@@ -263,7 +262,7 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesContactPosition}
+                    value={formData.salesContactPosition || ""}
                     onChange={(e) => updateField("salesContactPosition", e.target.value)}
                   />
                 </div>
@@ -275,7 +274,7 @@ export default function ContactsView({
                     variant="bordered"
                     size="md"
                     radius="md"
-                    value={formData.salesContactAccountId}
+                    value={formData.salesContactAccountId || ""}
                     onChange={(e) => updateField("salesContactAccountId", e.target.value)}
                   />
                 </div>
@@ -288,7 +287,7 @@ export default function ContactsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.salesContactAddress}
+                  value={formData.salesContactAddress || ""}
                   onChange={(e) => updateField("salesContactAddress", e.target.value)}
                 />
               </div>
@@ -300,7 +299,7 @@ export default function ContactsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.salesContactTags}
+                  value={formData.salesContactTags || ""}
                   onChange={(e) => updateField("salesContactTags", e.target.value)}
                 />
               </div>
@@ -312,7 +311,7 @@ export default function ContactsView({
                   variant="bordered"
                   size="md"
                   radius="md"
-                  value={formData.salesContactNotes}
+                  value={formData.salesContactNotes || ""}
                   onChange={(e) => updateField("salesContactNotes", e.target.value)}
                 />
               </div>

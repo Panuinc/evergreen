@@ -4,6 +4,7 @@ import { Input, Chip, Avatar} from "@heroui/react";
 import { Search } from "lucide-react";
 import ChannelBadge from "./channelBadge";
 import Loading from "@/components/ui/loading";
+import type { ConversationListProps } from "@/modules/marketing/types";
 
 const statusFilters = [
   { key: "all", label: "ทั้งหมด" },
@@ -44,7 +45,7 @@ export default function ConversationList({
   onChannelFilterChange,
   onSearchChange,
   onSelect,
-}) {
+}: ConversationListProps) {
   return (
     <div className="flex flex-col h-full">
       {}

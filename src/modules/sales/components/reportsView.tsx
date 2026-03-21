@@ -1,6 +1,6 @@
 "use client";
 
-import { Card} from "@heroui/react";
+import { Card } from "@heroui/react";
 import {
   BarChart,
   Bar,
@@ -12,8 +12,9 @@ import {
   Cell,
 } from "recharts";
 import Loading from "@/components/ui/loading";
+import type { ReportsViewProps, SalesKPIs } from "@/modules/sales/types";
 
-export default function ReportsView({ data, loading }) {
+export default function ReportsView({ data, loading }: ReportsViewProps) {
   if (loading || !data) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -22,7 +23,7 @@ export default function ReportsView({ data, loading }) {
     );
   }
 
-  const kpis = data.kpis || {};
+  const kpis: Partial<SalesKPIs> = data.kpis || {};
 
   return (
     <div className="flex flex-col w-full h-full gap-4">
@@ -36,12 +37,12 @@ export default function ReportsView({ data, loading }) {
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data.pipelineByStage || []}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="stage" />
+            <XAxis dataKey="salesOpportunityStage" />
             <YAxis />
-            <Tooltip formatter={(v) => `฿${v.toLocaleString()}`} />
-            <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]}>
+            <Tooltip formatter={(v: number) => `฿${v.toLocaleString()}`} />
+            <Bar dataKey="salesOpportunityAmount" fill="#3b82f6" radius={[4, 4, 0, 0]}>
               {(data.pipelineByStage || []).map((entry, i) => (
-                <Cell key={i} fill={entry.color || "#3b82f6"} />
+                <Cell key={i} fill={entry.salesPipelineStageColor || "#3b82f6"} />
               ))}
             </Bar>
           </BarChart>
@@ -56,7 +57,7 @@ export default function ReportsView({ data, loading }) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
-            <Tooltip formatter={(v) => `฿${v.toLocaleString()}`} />
+            <Tooltip formatter={(v: number) => `฿${v.toLocaleString()}`} />
             <Bar
               dataKey="revenue"
               fill="#10b981"
@@ -76,7 +77,7 @@ export default function ReportsView({ data, loading }) {
                 {kpis.winRate || 0}%
               </p>
               <p className="text-muted-foreground mt-2">
-                ชนะ: {kpis.wonDeals || 0} | แพ้: {kpis.lostDeals || 0}
+                ชนะ: {kpis.wonDeals || 0} | แพ้: {(kpis as Record<string, number>).lostDeals || 0}
               </p>
             </div>
           </div>
@@ -94,11 +95,11 @@ export default function ReportsView({ data, loading }) {
                   <span className="text-xs font-light text-muted-foreground w-6">
                     #{i + 1}
                   </span>
-                  <span className="font-light">{person.name}</span>
+                  <span className="font-light">{person.salesOrderCreatedBy}</span>
                 </div>
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-muted-foreground">
-                    {person.deals} ดีล
+                    {person.salesOrderCount} ดีล
                   </span>
                   <span className="font-light">
                     ฿{Number(person.revenue || 0).toLocaleString("th-TH")}

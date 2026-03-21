@@ -1,5 +1,6 @@
 import { api } from "@/lib/api.server";
 import UsersClient from "@/modules/rbac/usersClient";
+import type { RbacUserProfile, RbacRole } from "@/modules/rbac/types";
 
 export default async function UsersPage() {
   const [users, roles] = await Promise.all([
@@ -9,8 +10,8 @@ export default async function UsersPage() {
 
   return (
     <UsersClient
-      initialUsers={users || []}
-      initialRoles={roles || []}
+      initialUsers={(users || []) as RbacUserProfile[]}
+      initialRoles={(roles || []) as RbacRole[]}
     />
   );
 }

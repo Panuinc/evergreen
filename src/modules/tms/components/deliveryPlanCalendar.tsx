@@ -275,12 +275,12 @@ export default function DeliveryPlanCalendar() {
   const todayDate = new Date();
   const [currentDate, setCurrentDate] = useState(todayDate);
   const monthKey = getMonthKey(currentDate);
-  const { data: plansData, isLoading: loading, mutate: mutatePlans } = useSWR(
+  const { data: plansData, isLoading: loading, mutate: mutatePlans } = useSWR<import("@/modules/tms/types").TmsDeliveryPlan[]>(
     `/api/tms/deliveryPlans?month=${monthKey}`,
-    (url) => get(url),
+    (url) => get(url) as Promise<import("@/modules/tms/types").TmsDeliveryPlan[]>,
     { onError: () => toast.error("โหลดแผนส่งของล้มเหลว") },
   );
-  const plans = plansData || [];
+  const plans: import("@/modules/tms/types").TmsDeliveryPlan[] = plansData || [];
   const [saving, setSaving] = useState(false);
   const [viewMode, setViewMode] = useState("month");
 
@@ -288,10 +288,10 @@ export default function DeliveryPlanCalendar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
 
-  const [salesOrders, setSalesOrders] = useState([]);
+  const [salesOrders, setSalesOrders] = useState<Record<string, unknown>[]>([]);
   const [soLoading, setSoLoading] = useState(false);
-  const [selectedSO, setSelectedSO] = useState(null);
-  const [soLines, setSoLines] = useState([]);
+  const [selectedSO, setSelectedSO] = useState<Record<string, unknown> | null>(null);
+  const [soLines, setSoLines] = useState<Record<string, unknown>[]>([]);
   const [soLinesLoading, setSoLinesLoading] = useState(false);
 
 
@@ -341,7 +341,7 @@ export default function DeliveryPlanCalendar() {
   const searchSalesOrders = async (search) => {
     try {
       setSoLoading(true);
-      const data = await get(`/api/tms/deliveryPlans/salesOrders?search=${encodeURIComponent(search)}`);
+      const data = await get(`/api/tms/deliveryPlans/salesOrders?search=${encodeURIComponent(search)}`) as Record<string, unknown>[];
       setSalesOrders(data || []);
     } catch {
       toast.error("โหลด Sales Order ล้มเหลว");
@@ -357,8 +357,8 @@ export default function DeliveryPlanCalendar() {
     try {
       setSoLinesLoading(true);
       const lines = await get(
-        `/api/tms/deliveryPlans/salesOrders/${encodeURIComponent(so.bcSalesOrderNoValue)}/lines`
-      );
+        `/api/tms/deliveryPlans/salesOrders/${encodeURIComponent(so.bcSalesOrderNoValue as string)}/lines`
+      ) as Record<string, unknown>[];
       setSoLines(lines || []);
     } catch {
       toast.error("โหลดรายการสินค้าล้มเหลว");

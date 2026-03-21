@@ -20,7 +20,8 @@ import { Plus, Edit, Trash2, Power } from "lucide-react";
 import { toast } from "sonner";
 import DataTable from "@/components/ui/dataTable";
 import { useRBAC } from "@/contexts/rbacContext";
-import { post, put, del } from "@/lib/apiClient";
+import { get, post, put, del } from "@/lib/apiClient";
+import type { HrPosition, HrDepartment, PositionsClientProps, PositionFormData } from "./types";
 
 const baseColumns = [
   { name: "ชื่อตำแหน่ง", uid: "hrPositionTitle", sortable: true },
@@ -37,32 +38,31 @@ const baseVisibleColumns = [
   "actions",
 ];
 
-const emptyForm = {
+const emptyForm: PositionFormData = {
   hrPositionTitle: "",
   hrPositionDescription: "",
   hrPositionHrDepartmentId: "",
 };
 
-export default function PositionsClient({ initialPositions, initialDepartments }) {
+export default function PositionsClient({ initialPositions, initialDepartments }: PositionsClientProps) {
   const { isSuperAdmin } = useRBAC();
-  const [positions, setPositions] = useState(initialPositions);
-  const [departments] = useState(initialDepartments);
+  const [positions, setPositions] = useState<HrPosition[]>(initialPositions);
+  const [departments] = useState<HrDepartment[]>(initialDepartments);
   const [saving, setSaving] = useState(false);
-  const [editingPos, setEditingPos] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [editingPos, setEditingPos] = useState<HrPosition | null>(null);
+  const [formData, setFormData] = useState<PositionFormData>(emptyForm);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
-  const [deletingPos, setDeletingPos] = useState(null);
+  const [deletingPos, setDeletingPos] = useState<HrPosition | null>(null);
 
   const reloadPositions = useCallback(async () => {
     try {
-      const { get } = await import("@/lib/apiClient");
       const data = await get("/api/hr/positions");
-      setPositions(data);
+      setPositions(data as HrPosition[]);
     } catch {}
   }, []);
 
-  const handleOpen = useCallback((pos = null) => {
+  const handleOpen = useCallback((pos: HrPosition | null = null) => {
     if (pos) {
       setEditingPos(pos);
       setFormData({
@@ -93,14 +93,14 @@ export default function PositionsClient({ initialPositions, initialDepartments }
       }
       onClose();
       reloadPositions();
-    } catch (error) {
-      toast.error(error.message || "บันทึกตำแหน่งล้มเหลว");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "บันทึกตำแหน่งล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
-  const confirmDelete = useCallback((pos) => {
+  const confirmDelete = useCallback((pos: HrPosition) => {
     setDeletingPos(pos);
     deleteModal.onOpen();
   }, [deleteModal]);
@@ -113,12 +113,12 @@ export default function PositionsClient({ initialPositions, initialDepartments }
       deleteModal.onClose();
       setDeletingPos(null);
       reloadPositions();
-    } catch (error) {
-      toast.error(error.message || "ลบตำแหน่งล้มเหลว");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "ลบตำแหน่งล้มเหลว");
     }
   };
 
-  const toggleActive = useCallback(async (item) => {
+  const toggleActive = useCallback(async (item: HrPosition) => {
     try {
       await put(`/api/hr/positions/${item.hrPositionId}`, { isActive: !item.isActive });
       toast.success(item.isActive ? "ปิดการใช้งานสำเร็จ" : "เปิดการใช้งานสำเร็จ");
@@ -153,7 +153,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
   }));
 
   const renderCell = useCallback(
-    (pos, columnKey) => {
+    (pos: HrPosition, columnKey: string) => {
       switch (columnKey) {
         case "hrPositionTitle":
           return <span className="font-light">{pos.hrPositionTitle}</span>;
@@ -216,7 +216,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
             </div>
           );
         default:
-          return pos[columnKey] || "-";
+          return (pos as unknown as Record<string, unknown>)[columnKey]?.toString() || "-";
       }
     },
     [isSuperAdmin, confirmDelete, departments, handleOpen, toggleActive],
@@ -251,7 +251,7 @@ export default function PositionsClient({ initialPositions, initialDepartments }
             เพิ่มตำแหน่ง
           </Button>
         }
-        actionMenuItems={(item) => [
+        actionMenuItems={(item: HrPosition) => [
           { key: "edit", label: "แก้ไข", icon: <Edit />, onPress: () => handleOpen(item) },
           isSuperAdmin
             ? { key: "toggle", label: item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน", icon: <Power />, onPress: () => toggleActive(item) }

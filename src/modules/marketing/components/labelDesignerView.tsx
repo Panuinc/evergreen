@@ -60,6 +60,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/apiClient";
+import type { LabelDesignerViewProps } from "@/modules/marketing/types";
 
 // ─── Constants ──────────────────────────────────────────────
 const labelPresets = [
@@ -1151,7 +1152,7 @@ export default function LabelDesignerView({
   designsLoading = false,
   onSaveDesign,
   onDeleteDesign,
-}) {
+}: LabelDesignerViewProps) {
   // ─── State ──────────────────────────────────────────────
   const [labelSize, setLabelSize] = useState({ width: 100, height: 30 });
   const [labelPreset, setLabelPreset] = useState("100x30");

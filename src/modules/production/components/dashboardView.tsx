@@ -9,6 +9,7 @@ import {
   Tabs,
   Tab,
 } from "@heroui/react";
+import type { DashboardViewProps, DashboardCompareResponse, DashboardResponse } from "@/modules/production/types";
 import DataTable from "@/components/ui/dataTable";
 import CompareToggle from "@/components/ui/compareToggle";
 import CompareKpiCard from "@/components/ui/compareKpiCard";
@@ -75,24 +76,24 @@ function ChartCard({ title, children }) {
 
 
 const overdueColumns = [
-  { name: "เลขที่ใบสั่งผลิต", uid: "id", sortable: true },
-  { name: "รายละเอียด", uid: "description", sortable: true },
-  { name: "สินค้า (Source No)", uid: "sourceNo", sortable: true },
-  { name: "จำนวน", uid: "quantity", sortable: true },
-  { name: "กำหนดส่ง", uid: "dueDate", sortable: true },
-  { name: "เริ่มผลิต", uid: "startingDateTime", sortable: true },
+  { name: "เลขที่ใบสั่งผลิต", uid: "bcProductionOrderNo", sortable: true },
+  { name: "รายละเอียด", uid: "bcProductionOrderDescription", sortable: true },
+  { name: "สินค้า (Source No)", uid: "bcProductionOrderSourceNo", sortable: true },
+  { name: "จำนวน", uid: "bcProductionOrderQuantity", sortable: true },
+  { name: "กำหนดส่ง", uid: "bcProductionOrderDueDate", sortable: true },
+  { name: "เริ่มผลิต", uid: "bcProductionOrderStartingDateTime", sortable: true },
   { name: "เกินกำหนด", uid: "overdueDays", sortable: true },
   { name: "แผนก", uid: "dimension1Name", sortable: true },
   { name: "โครงการ", uid: "dimension2Name", sortable: true },
-  { name: "คลัง", uid: "locationCode", sortable: true },
+  { name: "คลัง", uid: "bcProductionOrderLocationCode", sortable: true },
 ];
 
 const overdueInitialColumns = [
-  "id",
-  "description",
-  "sourceNo",
-  "quantity",
-  "dueDate",
+  "bcProductionOrderNo",
+  "bcProductionOrderDescription",
+  "bcProductionOrderSourceNo",
+  "bcProductionOrderQuantity",
+  "bcProductionOrderDueDate",
   "overdueDays",
   "dimension1Name",
   "dimension2Name",
@@ -354,9 +355,10 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
               columns={overdueColumns}
               data={d.overdueOrders}
               renderCell={renderOverdueCell}
-              searchKeys={["id", "description", "sourceNo", "dimension1Name", "dimension2Name"]}
+              searchKeys={["bcProductionOrderNo", "bcProductionOrderDescription", "bcProductionOrderSourceNo", "dimension1Name", "dimension2Name"]}
               searchPlaceholder="ค้นหาใบสั่งผลิต..."
               initialVisibleColumns={overdueInitialColumns}
+              rowKey="bcProductionOrderNo"
               defaultSortDescriptor={{ column: "overdueDays", direction: "descending" }}
               defaultRowsPerPage={10}
             />
@@ -436,26 +438,26 @@ function DashboardContent({ d, prev, renderOverdueCell, renderWipCell }) {
 }
 
 
-export default function DashboardView({ data, loading, compareMode, setCompareMode }) {
+export default function DashboardView({ data, loading, compareMode, setCompareMode }: DashboardViewProps) {
   const renderOverdueCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "id":
-        return <span className="font-light">{item.id}</span>;
-      case "description":
+      case "bcProductionOrderNo":
+        return <span className="font-light">{item.bcProductionOrderNo}</span>;
+      case "bcProductionOrderDescription":
         return (
           <span className="max-w-48 truncate block">
-            {item.description || "-"}
+            {item.bcProductionOrderDescription || "-"}
           </span>
         );
-      case "quantity":
-        return Number(item.quantity || 0).toLocaleString("th-TH");
-      case "dueDate":
-        return item.dueDate
-          ? new Date(item.dueDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
+      case "bcProductionOrderQuantity":
+        return Number(item.bcProductionOrderQuantity || 0).toLocaleString("th-TH");
+      case "bcProductionOrderDueDate":
+        return item.bcProductionOrderDueDate
+          ? new Date(item.bcProductionOrderDueDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
           : "-";
-      case "startingDateTime":
-        return item.startingDateTime
-          ? new Date(item.startingDateTime).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
+      case "bcProductionOrderStartingDateTime":
+        return item.bcProductionOrderStartingDateTime
+          ? new Date(item.bcProductionOrderStartingDateTime).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
           : "-";
       case "overdueDays":
         return (
@@ -559,10 +561,12 @@ export default function DashboardView({ data, loading, compareMode, setCompareMo
 
 
   const isCompare = !!data.compareMode;
-  const wpcData = isCompare ? data.wpc?.current : data.wpc;
-  const wpcPrev = isCompare ? data.wpc?.previous : null;
-  const otherData = isCompare ? data.other?.current : data.other;
-  const otherPrev = isCompare ? data.other?.previous : null;
+  const compareData = isCompare ? (data as DashboardCompareResponse) : null;
+  const normalData = isCompare ? null : (data as DashboardResponse);
+  const wpcData = compareData ? compareData.wpc.current : normalData!.wpc;
+  const wpcPrev = compareData ? compareData.wpc.previous : null;
+  const otherData = compareData ? compareData.other.current : normalData!.other;
+  const otherPrev = compareData ? compareData.other.previous : null;
 
   return (
     <div className="flex flex-col w-full gap-4">
