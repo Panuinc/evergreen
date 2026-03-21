@@ -1,0 +1,1073 @@
+"use client";
+
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useDisclosure } from "@heroui/react";
+import { toast } from "sonner";
+import useSWR from "swr";
+import { getFinancePeriodRanges } from "@/lib/comparison";
+import { get, authFetch } from "@/lib/apiClient";
+import {
+  cogsOverrideAccounts, interestAccounts, adminOverrideAccounts,
+  classifyAccount, computeAdjustedCogs, computeMonthlyPnL,
+  computeCogsDetail, computeExpenseDetail, computeRevenueDetail,
+  calMonths, calMonthsShort, inventoryAccounts,
+} from "@/lib/glAccountMap";
+import FinanceDashboardView from "@/modules/finance/components/financeDashboardView";
+
+/* ── helpers ─────────────────────────────────────────── */
+
+function fmt(v) {
+  return Number(v || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 });
+}
+
+const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+function fmtMonth(ym) {
+  if (!ym) return "";
+  const [y, m] = ym.split("-");
+  return `${thaiMonths[parseInt(m) - 1]} ${(parseInt(y) + 543) % 100}`;
+}
+
+function parseNum(val) {
+  if (val === "" || val === null || val === undefined) return 0;
+  if (typeof val === "number") return val;
+  return Number(String(val).replace(/,/g, "")) || 0;
+}
+
+const accountCategories = {
+  "11": { name: "สินทรัพย์หมุนเวียน", nameEn: "Current Assets", group: "assets", sub: "current" },
+  "12": { name: "สินทรัพย์ไม่หมุนเวียน", nameEn: "Non-current Assets", group: "assets", sub: "noncurrent" },
+  "21": { name: "หนี้สินหมุนเวียน", nameEn: "Current Liabilities", group: "liabilities", sub: "current" },
+  "22": { name: "หนี้สินไม่หมุนเวียน", nameEn: "Non-current Liabilities", group: "liabilities", sub: "noncurrent" },
+  "31": { name: "ทุนจดทะเบียน", nameEn: "Share Capital", group: "equity", sub: "capital" },
+  "33": { name: "กำไรสะสม", nameEn: "Retained Earnings", group: "equity", sub: "retained" },
+  "41": { name: "รายได้จากการขาย", nameEn: "Sales Revenue", group: "revenue", sub: "sales" },
+  "42": { name: "รายได้จากบริการ", nameEn: "Service Revenue", group: "revenue", sub: "service" },
+  "43": { name: "รายได้อื่น", nameEn: "Other Income", group: "revenue", sub: "other" },
+  "51": { name: "ต้นทุนขาย", nameEn: "COGS", group: "cogs", sub: "cogs" },
+  "52": { name: "ค่าใช้จ่ายในการขาย", nameEn: "Selling Expenses", group: "expense", sub: "selling" },
+  "53": { name: "ค่าใช้จ่ายในการบริหาร", nameEn: "Admin Expenses", group: "expense", sub: "admin" },
+};
+
+const overrideCogs = { name: "ต้นทุนขาย (โสหุ้ย)", nameEn: "COGS (Overhead)", group: "cogs", sub: "cogs" };
+const overrideInterest = { name: "ต้นทุนทางการเงิน", nameEn: "Finance Costs", group: "expense", sub: "interest" };
+const overrideAdmin = { name: "ค่าใช้จ่ายในการบริหาร", nameEn: "Admin Expenses", group: "expense", sub: "admin" };
+
+function getCategory(accountNumber) {
+  if (!accountNumber) return null;
+  if (cogsOverrideAccounts.has(accountNumber)) return overrideCogs;
+  if (interestAccounts.has(accountNumber)) return overrideInterest;
+  if (adminOverrideAccounts.has(accountNumber)) return overrideAdmin;
+  const prefix = accountNumber?.substring(0, 2);
+  return accountCategories[prefix] || null;
+}
+
+function computeFinancials(trialBalanceData) {
+  if (!trialBalanceData || !trialBalanceData.length) return null;
+  const posting = trialBalanceData.filter((t) => t.accountType === "Posting");
+
+  const groups = {};
+  for (const t of posting) {
+    const cat = getCategory(t.number);
+    if (!cat) continue;
+    const key = cat.group + ":" + cat.sub;
+    if (!groups[key]) groups[key] = { ...cat, debit: 0, credit: 0, accounts: [] };
+    const d = parseNum(t.balanceAtDateDebit);
+    const c = parseNum(t.balanceAtDateCredit);
+    groups[key].debit += d;
+    groups[key].credit += c;
+    if (d > 0 || c > 0) {
+      groups[key].accounts.push({ number: t.number, display: t.display, debit: d, credit: c });
+    }
+  }
+
+  const g = (key) => groups[key] || { debit: 0, credit: 0, accounts: [] };
+
+  const currentAssets = g("assets:current").debit - g("assets:current").credit;
+  const noncurrentAssets = g("assets:noncurrent").debit - g("assets:noncurrent").credit;
+  const totalAssets = currentAssets + noncurrentAssets;
+
+  const currentLiabilities = g("liabilities:current").credit - g("liabilities:current").debit;
+  const noncurrentLiabilities = g("liabilities:noncurrent").credit - g("liabilities:noncurrent").debit;
+  const totalLiabilities = currentLiabilities + noncurrentLiabilities;
+
+  const shareCapital = g("equity:capital").credit - g("equity:capital").debit;
+  const retainedEarnings = g("equity:retained").credit - g("equity:retained").debit;
+  const totalEquity = shareCapital + retainedEarnings;
+
+  const salesRevenue = g("revenue:sales").credit - g("revenue:sales").debit;
+  const serviceRevenue = g("revenue:service").credit - g("revenue:service").debit;
+  const otherIncome = g("revenue:other").credit - g("revenue:other").debit;
+  const totalRevenue = salesRevenue + serviceRevenue + otherIncome;
+
+  const rawCogs = g("cogs:cogs").debit - g("cogs:cogs").credit;
+  let inventoryDeduction = 0;
+  const inventoryAccountsDetail = {};
+  for (const t of posting) {
+    if (t.number?.startsWith("115")) {
+      const bal = parseNum(t.balanceAtDateDebit) - parseNum(t.balanceAtDateCredit);
+      inventoryDeduction += bal;
+      if (Math.abs(bal) > 0.01) {
+        inventoryAccountsDetail[t.number] = { name: t.display, balance: bal };
+      }
+    }
+  }
+  const cogs = rawCogs - inventoryDeduction;
+  const grossProfit = totalRevenue - cogs;
+
+  const sellingExpense = g("expense:selling").debit - g("expense:selling").credit;
+  const adminExpense = g("expense:admin").debit - g("expense:admin").credit;
+  const interestExpense = g("expense:interest").debit - g("expense:interest").credit;
+  const operatingProfit = grossProfit - sellingExpense - adminExpense;
+  const totalExpense = sellingExpense + adminExpense + interestExpense;
+  const netIncome = grossProfit - totalExpense;
+
+  const currentRatio = currentLiabilities ? currentAssets / currentLiabilities : 0;
+  const debtToEquity = totalEquity ? totalLiabilities / totalEquity : 0;
+  const grossMargin = totalRevenue ? (grossProfit / totalRevenue) * 100 : 0;
+  const netMargin = totalRevenue ? (netIncome / totalRevenue) * 100 : 0;
+  const workingCapital = currentAssets - currentLiabilities;
+
+  return {
+    currentAssets, noncurrentAssets, totalAssets,
+    currentLiabilities, noncurrentLiabilities, totalLiabilities,
+    shareCapital, retainedEarnings, totalEquity,
+    salesRevenue, serviceRevenue, otherIncome, totalRevenue,
+    cogs, grossProfit,
+    sellingExpense, adminExpense, interestExpense, operatingProfit, totalExpense, netIncome,
+    currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
+    inventoryBalance: inventoryDeduction,
+    inventoryAccounts: inventoryAccountsDetail,
+    groups,
+    totalAccounts: trialBalanceData.length,
+    postingAccounts: posting.length,
+  };
+}
+
+/* ── GL monthly helpers ──────────────────────────────── */
+
+const glMonths = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+
+function aggregateGlSummary(summary) {
+  const byAccount = {};
+
+  for (const [acct, info] of Object.entries(summary) as [string, any][]) {
+    const cat = classifyAccount(acct);
+    const isCredit = ["salesRevenue", "serviceRevenue", "otherIncome", "liabilities", "equity"].includes(cat);
+
+    byAccount[acct] = {
+      account: acct,
+      name: info.name || acct,
+      category: cat,
+      months: {},
+      total: 0,
+    };
+
+    for (const [month, { debit, credit }] of Object.entries(info.months || {}) as [string, any][]) {
+      const net = isCredit ? (credit - debit) : (debit - credit);
+      byAccount[acct].months[month] = (byAccount[acct].months[month] || 0) + net;
+      byAccount[acct].total += net;
+    }
+  }
+
+  const monthlyTotals = {};
+  for (const acctData of Object.values(byAccount) as any[]) {
+    const cat = acctData.category;
+    if (!monthlyTotals[cat]) {
+      monthlyTotals[cat] = { months: {}, total: 0 };
+      for (const m of glMonths) monthlyTotals[cat].months[m] = 0;
+    }
+    for (const m of glMonths) {
+      monthlyTotals[cat].months[m] += acctData.months[m] || 0;
+    }
+    monthlyTotals[cat].total += acctData.total;
+  }
+
+  return { byAccount, monthlyTotals };
+}
+
+function buildCompMaps(byAccount, monthlyTotals) {
+  const toMap = (rows) => {
+    const m = {};
+    for (const r of rows) if (r.key) m[r.key] = r.total || 0;
+    return m;
+  };
+  return {
+    pnl: toMap(computeMonthlyPnL(byAccount, monthlyTotals)),
+    cogs: toMap(computeCogsDetail(byAccount)),
+    selling: toMap(computeExpenseDetail(byAccount, "selling")),
+    admin: toMap(computeExpenseDetail(byAccount, "admin")),
+    interest: toMap(computeExpenseDetail(byAccount, "interest")),
+    revenue: toMap(computeRevenueDetail(byAccount)),
+  };
+}
+
+function pnlMap(rows): any {
+  const m: any = {};
+  for (const r of rows) if (r.key) m[r.key] = r.total || 0;
+  return m;
+}
+
+const invOverrideKey = (year) => `chh_inventory_override_${year}`;
+
+/* ── Component ───────────────────────────────────────── */
+
+export default function FinanceDashboardClient({ initialTb = [], initialAr = [], initialAp = [], initialSi = [], initialPi = [] }) {
+  /* ── Trial Balance / Dashboard state (was useFinanceDashboard) ── */
+  const fetcher = (url) => get(url).catch(() => []);
+  const { data: tbData, isLoading: tbLoading, mutate: mutateTb } = useSWR("/api/finance/trialBalance", fetcher, { fallbackData: initialTb });
+  const { data: arData, isLoading: arLoading } = useSWR("/api/finance/agedReceivables", fetcher, { fallbackData: initialAr });
+  const { data: apData, isLoading: apLoading } = useSWR("/api/finance/agedPayables", fetcher, { fallbackData: initialAp });
+  const { data: siData, isLoading: siLoading } = useSWR("/api/finance/salesInvoices?status=Open&expand=false", fetcher, { fallbackData: initialSi });
+  const { data: piData, isLoading: piLoading } = useSWR("/api/finance/purchaseInvoices?status=Open&expand=false", fetcher, { fallbackData: initialPi });
+
+  const trialBalance = useMemo(() => tbData || [], [tbData]);
+  const agedReceivables = useMemo(() => arData || [], [arData]);
+  const agedPayables = useMemo(() => apData || [], [apData]);
+  const salesInvoices = useMemo(() => siData || [], [siData]);
+  const purchaseInvoices = useMemo(() => piData || [], [piData]);
+  const loading = tbLoading || arLoading || apLoading || siLoading || piLoading;
+
+  const now = new Date();
+  const [periodType, setPeriodType] = useState("year");
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedQuarter, setSelectedQuarter] = useState(Math.ceil((now.getMonth() + 1) / 3));
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
+  const [compareEnabled, setCompareEnabled] = useState(false);
+
+  // prevTrialBalance: when compare is enabled, reuse the same trial balance data
+  const prevTrialBalance = useMemo(() => compareEnabled ? trialBalance : [], [compareEnabled, trialBalance]);
+
+  const periodRanges = useMemo(() => {
+    const periodValue = { year: selectedYear, quarter: selectedQuarter, month: selectedMonth };
+    return getFinancePeriodRanges(periodType, periodValue);
+  }, [periodType, selectedYear, selectedQuarter, selectedMonth]);
+
+  const loadAll = useCallback(() => { mutateTb(); }, [mutateTb]);
+
+  const tbFinancials = useMemo(() => computeFinancials(trialBalance), [trialBalance]);
+  const prevFinancials = useMemo(() => computeFinancials(prevTrialBalance), [prevTrialBalance]);
+
+  const comparisonData = useMemo(() => {
+    if (!compareEnabled || !tbFinancials || !prevFinancials) return null;
+    return { labels: periodRanges, previous: prevFinancials };
+  }, [compareEnabled, tbFinancials, prevFinancials, periodRanges]);
+
+  const incomeComparisonChart = useMemo(() => {
+    if (!compareEnabled || !tbFinancials || !prevFinancials) return [];
+    return [
+      { name: "รายได้ขาย", current: tbFinancials.salesRevenue, previous: prevFinancials.salesRevenue },
+      { name: "รายได้บริการ", current: tbFinancials.serviceRevenue, previous: prevFinancials.serviceRevenue },
+      { name: "รายได้อื่น", current: tbFinancials.otherIncome, previous: prevFinancials.otherIncome },
+      { name: "ต้นทุนขาย", current: tbFinancials.cogs, previous: prevFinancials.cogs },
+      { name: "ค่าใช้จ่ายขาย", current: tbFinancials.sellingExpense, previous: prevFinancials.sellingExpense },
+      { name: "ค่าใช้จ่ายบริหาร", current: tbFinancials.adminExpense, previous: prevFinancials.adminExpense },
+      { name: "กำไรขั้นต้น", current: tbFinancials.grossProfit, previous: prevFinancials.grossProfit },
+      { name: "กำไรสุทธิ", current: tbFinancials.netIncome, previous: prevFinancials.netIncome },
+    ];
+  }, [compareEnabled, tbFinancials, prevFinancials]);
+
+  const bsComparisonChart = useMemo(() => {
+    if (!compareEnabled || !tbFinancials || !prevFinancials) return [];
+    return [
+      { name: "สินทรัพย์หมุนเวียน", current: tbFinancials.currentAssets, previous: prevFinancials.currentAssets },
+      { name: "สินทรัพย์ไม่หมุนเวียน", current: tbFinancials.noncurrentAssets, previous: prevFinancials.noncurrentAssets },
+      { name: "หนี้สินหมุนเวียน", current: tbFinancials.currentLiabilities, previous: prevFinancials.currentLiabilities },
+      { name: "หนี้สินไม่หมุนเวียน", current: tbFinancials.noncurrentLiabilities, previous: prevFinancials.noncurrentLiabilities },
+      { name: "ส่วนของเจ้าของ", current: tbFinancials.totalEquity, previous: prevFinancials.totalEquity },
+    ];
+  }, [compareEnabled, tbFinancials, prevFinancials]);
+
+  const bsChartData = useMemo(() => {
+    if (!tbFinancials) return [];
+    return [
+      { name: "เงินสดและลูกหนี้", nameEn: "Cash & AR", value: Math.max(0, tbFinancials.currentAssets), color: "#006FEE" },
+      { name: "สินทรัพย์ถาวร (สุทธิ)", nameEn: "Fixed Assets", value: Math.max(0, tbFinancials.noncurrentAssets), color: "#7828C8" },
+      { name: "หนี้สินหมุนเวียน", nameEn: "Current Liabilities", value: Math.max(0, tbFinancials.currentLiabilities), color: "#F5A524" },
+      { name: "หนี้สินระยะยาว", nameEn: "Long-term Debt", value: Math.max(0, tbFinancials.noncurrentLiabilities), color: "#F31260" },
+      { name: "ส่วนของเจ้าของ", nameEn: "Equity", value: Math.max(0, tbFinancials.totalEquity), color: "#17C964" },
+    ].filter((d) => d.value > 0);
+  }, [tbFinancials]);
+
+  const topAccounts = useMemo(() => {
+    if (!trialBalance.length) return [];
+    return trialBalance
+      .filter((t) => t.accountType === "Posting")
+      .map((t) => {
+        const d = parseNum(t.balanceAtDateDebit);
+        const c = parseNum(t.balanceAtDateCredit);
+        const cat = getCategory(t.number);
+        return { number: t.number, display: t.display, debit: d, credit: c, net: d - c, category: cat?.name || "อื่นๆ", group: cat?.group || "other" };
+      })
+      .filter((t) => t.debit > 0 || t.credit > 0)
+      .sort((a, b) => (Math.abs(b.debit) + Math.abs(b.credit)) - (Math.abs(a.debit) + Math.abs(a.credit)))
+      .slice(0, 15);
+  }, [trialBalance]);
+
+  /* ── AR ── */
+  const arChartData = useMemo(() => {
+    if (!agedReceivables.length) return [];
+    return agedReceivables
+      .filter((r) => r.customerNumber && parseNum(r.balanceDue) !== 0)
+      .map((r) => ({
+        name: r.name || r.customerNumber,
+        customerNumber: r.customerNumber,
+        balanceDue: parseNum(r.balanceDue),
+        current: parseNum(r.currentAmount),
+        period1: parseNum(r.period1Amount),
+        period2: parseNum(r.period2Amount),
+        period3: parseNum(r.period3Amount),
+      }))
+      .sort((a, b) => b.balanceDue - a.balanceDue);
+  }, [agedReceivables]);
+
+  const arTotals = useMemo(() => {
+    const totalRow = agedReceivables.find((r) => !r.customerNumber && r.name === "Total");
+    if (totalRow) {
+      return {
+        balanceDue: parseNum(totalRow.balanceDue),
+        current: parseNum(totalRow.currentAmount),
+        period1: parseNum(totalRow.period1Amount),
+        period2: parseNum(totalRow.period2Amount),
+        period3: parseNum(totalRow.period3Amount),
+      };
+    }
+    if (!arChartData.length) return null;
+    return arChartData.reduce(
+      (acc, r) => ({ balanceDue: acc.balanceDue + r.balanceDue, current: acc.current + r.current, period1: acc.period1 + r.period1, period2: acc.period2 + r.period2, period3: acc.period3 + r.period3 }),
+      { balanceDue: 0, current: 0, period1: 0, period2: 0, period3: 0 },
+    );
+  }, [agedReceivables, arChartData]);
+
+  const arConcentration = useMemo(() => {
+    if (!arChartData.length || !arTotals) return null;
+    const top5 = arChartData.slice(0, 5);
+    const top5Total = top5.reduce((s, r) => s + r.balanceDue, 0);
+    return {
+      top5Pct: (top5Total / arTotals.balanceDue) * 100,
+      top5Total,
+      top5,
+      overdueRatio: arTotals.balanceDue ? ((arTotals.period2 + arTotals.period3) / arTotals.balanceDue) * 100 : 0,
+    };
+  }, [arChartData, arTotals]);
+
+  const arAgingPie = useMemo(() => {
+    if (!arTotals) return [];
+    const data = [];
+    if (arTotals.current) data.push({ name: "ปัจจุบัน", value: arTotals.current, color: "#17C964" });
+    if (arTotals.period1) data.push({ name: "1-30 วัน", value: arTotals.period1, color: "#F5A524" });
+    if (arTotals.period2) data.push({ name: "31-60 วัน", value: arTotals.period2, color: "#F97316" });
+    if (arTotals.period3) data.push({ name: "60+ วัน", value: arTotals.period3, color: "#F31260" });
+    return data;
+  }, [arTotals]);
+
+  /* ── AP ── */
+  const apChartData = useMemo(() => {
+    if (!agedPayables.length) return [];
+    return agedPayables
+      .filter((p) => p.vendorNumber && parseNum(p.balanceDue) !== 0)
+      .map((p) => ({
+        name: p.name || p.vendorNumber,
+        vendorNumber: p.vendorNumber,
+        balanceDue: parseNum(p.balanceDue),
+        current: parseNum(p.currentAmount),
+        period1: parseNum(p.period1Amount),
+        period2: parseNum(p.period2Amount),
+        period3: parseNum(p.period3Amount),
+      }))
+      .sort((a, b) => Math.abs(b.balanceDue) - Math.abs(a.balanceDue));
+  }, [agedPayables]);
+
+  const apTotals = useMemo(() => {
+    const totalRow = agedPayables.find((p) => !p.vendorNumber && p.name === "Total");
+    if (totalRow) {
+      return {
+        balanceDue: parseNum(totalRow.balanceDue),
+        current: parseNum(totalRow.currentAmount),
+        period1: parseNum(totalRow.period1Amount),
+        period2: parseNum(totalRow.period2Amount),
+        period3: parseNum(totalRow.period3Amount),
+      };
+    }
+    if (!apChartData.length) return null;
+    return apChartData.reduce(
+      (acc, p) => ({ balanceDue: acc.balanceDue + p.balanceDue, current: acc.current + p.current, period1: acc.period1 + p.period1, period2: acc.period2 + p.period2, period3: acc.period3 + p.period3 }),
+      { balanceDue: 0, current: 0, period1: 0, period2: 0, period3: 0 },
+    );
+  }, [agedPayables, apChartData]);
+
+  const apAgingPie = useMemo(() => {
+    if (!apTotals) return [];
+    const data = [];
+    if (apTotals.current) data.push({ name: "ปัจจุบัน", value: Math.abs(apTotals.current), color: "#17C964" });
+    if (apTotals.period1) data.push({ name: "1-30 วัน", value: Math.abs(apTotals.period1), color: "#F5A524" });
+    if (apTotals.period2) data.push({ name: "31-60 วัน", value: Math.abs(apTotals.period2), color: "#F97316" });
+    if (apTotals.period3) data.push({ name: "60+ วัน", value: Math.abs(apTotals.period3), color: "#F31260" });
+    return data;
+  }, [apTotals]);
+
+  /* ── Invoice maps ── */
+  const arInvoiceMap = useMemo(() => {
+    const map = {};
+    const today = new Date();
+    for (const inv of salesInvoices) {
+      if (!inv.customerNumber) continue;
+      if (!map[inv.customerNumber]) map[inv.customerNumber] = [];
+      const due = new Date(inv.dueDate);
+      const daysOverdue = inv.dueDate && inv.dueDate !== "0001-01-01"
+        ? Math.floor((today.getTime() - due.getTime()) / 86400000)
+        : 0;
+      map[inv.customerNumber].push({
+        invoiceNumber: inv.invoiceNumber,
+        invoiceDate: inv.invoiceDate,
+        dueDate: inv.dueDate,
+        totalAmountIncludingTax: inv.totalAmountIncludingTax,
+        remainingAmount: inv.remainingAmount,
+        daysOverdue: Math.max(0, daysOverdue),
+      });
+    }
+    for (const key of Object.keys(map)) {
+      map[key].sort((a, b) => b.daysOverdue - a.daysOverdue);
+    }
+    return map;
+  }, [salesInvoices]);
+
+  const apInvoiceMap = useMemo(() => {
+    const map = {};
+    const today = new Date();
+    for (const inv of purchaseInvoices) {
+      if (!inv.vendorNumber) continue;
+      if (!map[inv.vendorNumber]) map[inv.vendorNumber] = [];
+      const due = new Date(inv.dueDate);
+      const daysOverdue = inv.dueDate && inv.dueDate !== "0001-01-01"
+        ? Math.floor((today.getTime() - due.getTime()) / 86400000)
+        : 0;
+      map[inv.vendorNumber].push({
+        invoiceNumber: inv.invoiceNumber,
+        invoiceDate: inv.invoiceDate,
+        dueDate: inv.dueDate,
+        totalAmountIncludingTax: inv.totalAmountIncludingTax,
+        daysOverdue: Math.max(0, daysOverdue),
+      });
+    }
+    for (const key of Object.keys(map)) {
+      map[key].sort((a, b) => b.daysOverdue - a.daysOverdue);
+    }
+    return map;
+  }, [purchaseInvoices]);
+
+  /* ── Trends ── */
+  const arTrendByMonth = useMemo(() => {
+    const map = {};
+    for (const inv of salesInvoices) {
+      const month = inv.invoiceDate?.substring(0, 7);
+      if (!month) continue;
+      if (!map[month]) map[month] = { month, count: 0, total: 0, remaining: 0 };
+      map[month].count++;
+      map[month].total += inv.totalAmountIncludingTax || 0;
+      map[month].remaining += inv.remainingAmount || 0;
+    }
+    return Object.values(map).sort((a: any, b: any) => a.month.localeCompare(b.month));
+  }, [salesInvoices]);
+
+  const apTrendByMonth = useMemo(() => {
+    const map = {};
+    for (const inv of purchaseInvoices) {
+      const month = inv.invoiceDate?.substring(0, 7);
+      if (!month) continue;
+      if (!map[month]) map[month] = { month, count: 0, total: 0 };
+      map[month].count++;
+      map[month].total += Math.abs(inv.totalAmountIncludingTax || 0);
+    }
+    return Object.values(map).sort((a: any, b: any) => a.month.localeCompare(b.month));
+  }, [purchaseInvoices]);
+
+  const arOverdueBands = useMemo(() => {
+    const bands = [
+      { name: "ยังไม่ถึงกำหนด", count: 0, total: 0, remaining: 0, color: "#17C964" },
+      { name: "1-30 วัน", count: 0, total: 0, remaining: 0, color: "#F5A524" },
+      { name: "31-60 วัน", count: 0, total: 0, remaining: 0, color: "#F97316" },
+      { name: "61-90 วัน", count: 0, total: 0, remaining: 0, color: "#F31260" },
+      { name: "90+ วัน", count: 0, total: 0, remaining: 0, color: "#920B3A" },
+    ];
+    const today = new Date();
+    for (const inv of salesInvoices) {
+      if (!inv.dueDate || inv.dueDate === "0001-01-01") continue;
+      const days = Math.floor((today.getTime() - new Date(inv.dueDate).getTime()) / 86400000);
+      const idx = days <= 0 ? 0 : days <= 30 ? 1 : days <= 60 ? 2 : days <= 90 ? 3 : 4;
+      bands[idx].count++;
+      bands[idx].total += inv.totalAmountIncludingTax || 0;
+      bands[idx].remaining += inv.remainingAmount || 0;
+    }
+    return bands;
+  }, [salesInvoices]);
+
+  const apOverdueBands = useMemo(() => {
+    const bands = [
+      { name: "ยังไม่ถึงกำหนด", count: 0, total: 0, color: "#17C964" },
+      { name: "1-30 วัน", count: 0, total: 0, color: "#F5A524" },
+      { name: "31-60 วัน", count: 0, total: 0, color: "#F97316" },
+      { name: "61-90 วัน", count: 0, total: 0, color: "#F31260" },
+      { name: "90+ วัน", count: 0, total: 0, color: "#920B3A" },
+    ];
+    const today = new Date();
+    for (const inv of purchaseInvoices) {
+      if (!inv.dueDate || inv.dueDate === "0001-01-01") continue;
+      const days = Math.floor((today.getTime() - new Date(inv.dueDate).getTime()) / 86400000);
+      const idx = days <= 0 ? 0 : days <= 30 ? 1 : days <= 60 ? 2 : days <= 90 ? 3 : 4;
+      bands[idx].count++;
+      bands[idx].total += Math.abs(inv.totalAmountIncludingTax || 0);
+    }
+    return bands;
+  }, [purchaseInvoices]);
+
+  /* ── Aging detail modal ── */
+  const [selectedAging, setSelectedAging] = useState(null);
+  const { isOpen: isAgingOpen, onOpen: onAgingOpen, onClose: onAgingClose } = useDisclosure();
+
+  const openAgingDetail = useCallback((item, type) => {
+    setSelectedAging({ item, type });
+    onAgingOpen();
+  }, [onAgingOpen]);
+
+  const agingInvoices = selectedAging
+    ? (selectedAging.type === "ar"
+      ? arInvoiceMap[selectedAging.item.customerNumber] || []
+      : apInvoiceMap[selectedAging.item.vendorNumber] || [])
+    : [];
+
+  /* ── AI Analysis ── */
+  const [aiAnalysis, setAiAnalysis] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  /* ── Cash Flow ── */
+  const [cashFlowAnalysis, setCashFlowAnalysis] = useState("");
+  const [cashFlowLoading, setCashFlowLoading] = useState(false);
+
+  /* ── GL Monthly Data (was useGlMonthlyData) ── */
+  const glYears = useMemo(() => [selectedYear - 2, selectedYear - 1, selectedYear], [selectedYear]);
+
+  const glFetcher = (url) => get(url).catch((e) => { toast.error("โหลดข้อมูล GL ล้มเหลว: " + e.message); return {}; });
+  const { data: glY0, isLoading: glY0Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 2}-01-01&end=${selectedYear - 2}-12-31&summarize=monthly` : null, glFetcher);
+  const { data: glY1, isLoading: glY1Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 1}-01-01&end=${selectedYear - 1}-12-31&summarize=monthly` : null, glFetcher);
+  const { data: glY2, isLoading: glY2Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear}-01-01&end=${selectedYear}-12-31&summarize=monthly` : null, glFetcher);
+
+  const glLoading = glY0Loading || glY1Loading || glY2Loading;
+  const glError = null;
+
+  const allYearsData = useMemo(() => ({
+    [selectedYear - 2]: glY0 || {},
+    [selectedYear - 1]: glY1 || {},
+    [selectedYear]: glY2 || {},
+  }), [selectedYear, glY0, glY1, glY2]);
+
+  const yearlyAggregates = useMemo(() => {
+    const result = {};
+    for (const y of glYears) {
+      if (allYearsData[y] && typeof allYearsData[y] === "object" && !Array.isArray(allYearsData[y])) {
+        result[y] = aggregateGlSummary(allYearsData[y]);
+      } else {
+        result[y] = { byAccount: {}, monthlyTotals: {} };
+      }
+    }
+    return result;
+  }, [allYearsData, glYears]);
+
+  const { byAccount: glByAccount, monthlyTotals: glMonthlyTotals } = yearlyAggregates[selectedYear] || { byAccount: {}, monthlyTotals: {} };
+
+  const glMonthlyPnL = useMemo(
+    () => computeMonthlyPnL(glByAccount, glMonthlyTotals),
+    [glByAccount, glMonthlyTotals],
+  );
+
+  const glCogsDetail = useMemo(
+    () => computeCogsDetail(glByAccount),
+    [glByAccount],
+  );
+
+  const sellingDetail = useMemo(
+    () => computeExpenseDetail(glByAccount, "selling"),
+    [glByAccount],
+  );
+
+  const adminDetail = useMemo(
+    () => computeExpenseDetail(glByAccount, "admin"),
+    [glByAccount],
+  );
+
+  const interestDetail = useMemo(
+    () => computeExpenseDetail(glByAccount, "interest"),
+    [glByAccount],
+  );
+
+  const revenueDetail = useMemo(
+    () => computeRevenueDetail(glByAccount),
+    [glByAccount],
+  );
+
+  const monthlyChartData = useMemo(() => {
+    if (!glMonthlyPnL.length) return [];
+    const revRow = glMonthlyPnL.find((r) => r.key === "totalRevenue");
+    const cogsRow = glMonthlyPnL.find((r) => r.key === "cogs");
+    const netRow = glMonthlyPnL.find((r) => r.key === "netProfit");
+    return calMonths.map((m, i) => ({
+      month: calMonthsShort[i],
+      revenue: revRow?.months[m] || 0,
+      cogs: cogsRow?.months[m] || 0,
+      netProfit: netRow?.months[m] || 0,
+    }));
+  }, [glMonthlyPnL]);
+
+  const cogsChartData = useMemo(() => {
+    if (!glCogsDetail.length) return [];
+    const materialKeys = ["rawMaterials", "supplies", "purchaseDiscounts", "importFreight", "importDuties", "otherImport"];
+    const laborKeys = ["laborDaily", "laborSubcontract", "laborOutsource", "laborPainting", "laborMfg"];
+
+    return calMonths.map((m, i) => {
+      let materials = 0, labor = 0, overhead = 0;
+      for (const row of glCogsDetail) {
+        if (row.type !== "item") continue;
+        const val = row.months[m] || 0;
+        if (materialKeys.includes(row.key)) materials += val;
+        else if (laborKeys.includes(row.key)) labor += val;
+        else overhead += val;
+      }
+      return {
+        month: calMonthsShort[i],
+        วัตถุดิบ: materials,
+        แรงงาน: labor,
+        โสหุ้ยการผลิต: overhead,
+      };
+    });
+  }, [glCogsDetail]);
+
+  const compYears = useMemo(() => {
+    return [selectedYear - 1, selectedYear - 2].map((y) => {
+      const agg = yearlyAggregates[y] || { byAccount: {}, monthlyTotals: {} };
+      return { year: y, ...buildCompMaps(agg.byAccount, agg.monthlyTotals) };
+    });
+  }, [yearlyAggregates, selectedYear]);
+
+  const { revenueTrend, profitTrend } = useMemo(() => {
+    const revTrend = calMonths.map((m, i) => {
+      const point = { month: calMonthsShort[i] };
+      for (const y of glYears) {
+        const agg = yearlyAggregates[y];
+        if (!agg) continue;
+        const mt = (cat) => agg.monthlyTotals[cat] || { months: {}, total: 0 };
+        const rev = (mt("salesRevenue").months[m] || 0)
+          + (mt("serviceRevenue").months[m] || 0)
+          + (mt("otherIncome").months[m] || 0);
+        point[y + 543] = rev;
+      }
+      return point;
+    });
+
+    const pTrend = calMonths.map((m, i) => {
+      const point = { month: calMonthsShort[i] };
+      for (const y of glYears) {
+        const agg = yearlyAggregates[y];
+        if (!agg) continue;
+        const mt = (cat) => agg.monthlyTotals[cat] || { months: {}, total: 0 };
+        const rev = (mt("salesRevenue").months[m] || 0)
+          + (mt("serviceRevenue").months[m] || 0)
+          + (mt("otherIncome").months[m] || 0);
+        const adjCogs = computeAdjustedCogs(agg.byAccount, agg.monthlyTotals);
+        const cogs = adjCogs.months[m] || 0;
+        const selling = mt("selling").months[m] || 0;
+        const admin = mt("admin").months[m] || 0;
+        const interest = mt("interest").months[m] || 0;
+        const net = rev - cogs - selling - admin - interest;
+        point[y + 543] = net;
+      }
+      return point;
+    });
+
+    return { revenueTrend: revTrend, profitTrend: pTrend };
+  }, [yearlyAggregates, glYears]);
+
+  const trendYearKeys = useMemo(
+    () => glYears.map((y) => String(y + 543)),
+    [glYears],
+  );
+
+  /* ── Inventory override (was in old FinanceDashboardClient) ── */
+  const [inventoryOverride, setInventoryOverride] = useState(() => {
+    try {
+      const stored = localStorage.getItem(invOverrideKey(selectedYear));
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  });
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(invOverrideKey(selectedYear));
+      setInventoryOverride(stored ? JSON.parse(stored) : null);
+    } catch { setInventoryOverride(null); }
+  }, [selectedYear]);
+
+  const onSaveInventoryOverride = useCallback((values) => {
+    localStorage.setItem(invOverrideKey(selectedYear), JSON.stringify(values));
+    setInventoryOverride(values);
+  }, [selectedYear]);
+
+  const onClearInventoryOverride = useCallback(() => {
+    localStorage.removeItem(invOverrideKey(selectedYear));
+    setInventoryOverride(null);
+  }, [selectedYear]);
+
+  /* ── Adjusted financials ── */
+  const inventoryAdjustment = useMemo(() => {
+    const pnl = pnlMap(glMonthlyPnL);
+    const rawGlCogs = pnl.cogs || 0;
+    if (!rawGlCogs) return 0;
+
+    if (inventoryOverride) {
+      const { beginningInventory = 0, endingInventory = 0 } = inventoryOverride;
+      const targetCogs = rawGlCogs + beginningInventory - endingInventory;
+      const adj = rawGlCogs - targetCogs;
+      return adj > 0 ? adj : 0;
+    }
+
+    const tbCogs = tbFinancials?.cogs;
+    if (tbCogs == null) return 0;
+    const diff = rawGlCogs - tbCogs;
+    return diff > 0 ? diff : 0;
+  }, [glMonthlyPnL, tbFinancials, inventoryOverride]);
+
+  const financials = useMemo(() => {
+    const tb = tbFinancials;
+    if (!tb) return null;
+
+    const pnl = pnlMap(glMonthlyPnL);
+    if (!glMonthlyPnL.length) return tb;
+
+    const salesRevenue = pnl.salesRevenue || 0;
+    const serviceRevenue = pnl.serviceRevenue || 0;
+    const otherIncome = pnl.otherIncome || 0;
+    const totalRevenue = pnl.totalRevenue || 0;
+    const rawGlCogs = pnl.cogs || 0;
+    const cogs = rawGlCogs - inventoryAdjustment;
+    const grossProfit = totalRevenue - cogs;
+    const sellingExpense = pnl.selling || 0;
+    const adminExpense = pnl.admin || 0;
+    const interestExpense = pnl.interest || 0;
+    const operatingProfit = grossProfit - sellingExpense - adminExpense;
+    const totalExpense = sellingExpense + adminExpense + interestExpense;
+    const netIncome = grossProfit - totalExpense;
+
+    const currentRatio = tb.currentLiabilities ? tb.currentAssets / tb.currentLiabilities : 0;
+    const debtToEquity = tb.totalEquity ? tb.totalLiabilities / tb.totalEquity : 0;
+    const grossMargin = totalRevenue ? (grossProfit / totalRevenue) * 100 : 0;
+    const netMargin = totalRevenue ? (netIncome / totalRevenue) * 100 : 0;
+    const workingCapital = tb.currentAssets - tb.currentLiabilities;
+
+    return {
+      currentAssets: tb.currentAssets, noncurrentAssets: tb.noncurrentAssets, totalAssets: tb.totalAssets,
+      currentLiabilities: tb.currentLiabilities, noncurrentLiabilities: tb.noncurrentLiabilities, totalLiabilities: tb.totalLiabilities,
+      shareCapital: tb.shareCapital, retainedEarnings: tb.retainedEarnings, totalEquity: tb.totalEquity,
+      salesRevenue, serviceRevenue, otherIncome, totalRevenue,
+      cogs, rawGlCogs, inventoryAdj: inventoryAdjustment,
+      grossProfit, sellingExpense, adminExpense, interestExpense, operatingProfit,
+      totalExpense, netIncome,
+      currentRatio, debtToEquity, grossMargin, netMargin, workingCapital,
+      inventoryAccounts: tb.inventoryAccounts,
+      groups: tb.groups, totalAccounts: tb.totalAccounts, postingAccounts: tb.postingAccounts,
+    };
+  }, [tbFinancials, glMonthlyPnL, inventoryAdjustment]);
+
+  const monthlyPnL = useMemo(() => {
+    if (!glMonthlyPnL.length || !inventoryAdjustment) return glMonthlyPnL;
+    return glMonthlyPnL.map((row) => {
+      switch (row.key) {
+        case "cogs":
+          return { ...row, total: row.total - inventoryAdjustment };
+        case "grossProfit":
+        case "operatingProfit":
+        case "netProfit":
+          return { ...row, total: row.total + inventoryAdjustment };
+        default:
+          return row;
+      }
+    });
+  }, [glMonthlyPnL, inventoryAdjustment]);
+
+  const cogsDetail = useMemo(() => {
+    if (!glCogsDetail.length || !inventoryAdjustment) return glCogsDetail;
+    const tbInvAccounts = tbFinancials?.inventoryAccounts || {};
+
+    const replaced = glCogsDetail.map((row) => {
+      for (const inv of inventoryAccounts) {
+        if (row.key === inv.key && tbInvAccounts[inv.account]) {
+          return { ...row, total: -tbInvAccounts[inv.account].balance };
+        }
+      }
+      return row;
+    });
+
+    let endInvSum = 0;
+    for (const row of replaced) {
+      if (row.type === "deduction") endInvSum += row.total || 0;
+    }
+
+    return replaced.map((row) => {
+      if (row.key === "endingInventory") {
+        return { ...row, total: endInvSum };
+      }
+      if (row.key === "cogsTotal") {
+        return { ...row, total: row.total - inventoryAdjustment };
+      }
+      return row;
+    });
+  }, [glCogsDetail, inventoryAdjustment, tbFinancials]);
+
+  const isWaterfallData = useMemo(() => {
+    if (!financials) return [];
+    return [
+      { name: "รายได้ขาย", value: financials.salesRevenue, color: "#17C964" },
+      { name: "รายได้บริการ", value: financials.serviceRevenue, color: "#17C964" },
+      { name: "รายได้อื่น", value: financials.otherIncome > 0 ? financials.otherIncome : 0, color: "#17C964" },
+      { name: "ต้นทุนขาย", value: -financials.cogs, color: "#F31260" },
+      { name: "ค่าใช้จ่ายขาย", value: -financials.sellingExpense, color: "#F5A524" },
+      { name: "ค่าใช้จ่ายบริหาร", value: -financials.adminExpense, color: "#F97316" },
+      { name: "ดอกเบี้ยจ่าย", value: -financials.interestExpense, color: "#7828C8" },
+    ].filter((d) => d.value !== 0);
+  }, [financials]);
+
+  const expenseBreakdown = useMemo(() => {
+    if (!financials) return [];
+    const data = [];
+    if (financials.cogs > 0) data.push({ name: "ต้นทุนขาย", value: financials.cogs, color: "#F31260" });
+    if (financials.sellingExpense > 0) data.push({ name: "ค่าใช้จ่ายขาย", value: financials.sellingExpense, color: "#F5A524" });
+    if (financials.adminExpense > 0) data.push({ name: "ค่าใช้จ่ายบริหาร", value: financials.adminExpense, color: "#F97316" });
+    if (financials.interestExpense > 0) data.push({ name: "ดอกเบี้ยจ่าย", value: financials.interestExpense, color: "#7828C8" });
+    return data;
+  }, [financials]);
+
+  /* ── AI analysis runner ── */
+  const runAiAnalysis = useCallback(async (overrideFinancials) => {
+    const fin = overrideFinancials || financials;
+    if (!fin) return;
+    setAiLoading(true);
+    setAiAnalysis("");
+
+    const snapshot = {
+      financials: [
+        `สินทรัพย์รวม: ${fmt(fin.totalAssets)} (หมุนเวียน ${fmt(fin.currentAssets)}, ไม่หมุนเวียน ${fmt(fin.noncurrentAssets)})`,
+        `หนี้สินรวม: ${fmt(fin.totalLiabilities)} (หมุนเวียน ${fmt(fin.currentLiabilities)}, ไม่หมุนเวียน ${fmt(fin.noncurrentLiabilities)})`,
+        `ส่วนของเจ้าของ: ${fmt(fin.totalEquity)} (ทุน ${fmt(fin.shareCapital)}, กำไรสะสม ${fmt(fin.retainedEarnings)})`,
+        `เงินทุนหมุนเวียน (Working Capital): ${fmt(fin.workingCapital)}`,
+        `รายได้รวม: ${fmt(fin.totalRevenue)} (ขาย ${fmt(fin.salesRevenue)}, บริการ ${fmt(fin.serviceRevenue)}, อื่น ${fmt(fin.otherIncome)})`,
+        `ต้นทุนขาย: ${fmt(fin.cogs)}`,
+        `กำไรขั้นต้น: ${fmt(fin.grossProfit)}`,
+        `ค่าใช้จ่ายขาย: ${fmt(fin.sellingExpense)}, ค่าใช้จ่ายบริหาร: ${fmt(fin.adminExpense)}`,
+        `กำไรก่อนต้นทุนทางการเงิน: ${fmt(fin.operatingProfit)}`,
+        `ต้นทุนทางการเงิน (ดอกเบี้ย): ${fmt(fin.interestExpense)}`,
+        `กำไรสุทธิก่อนภาษี: ${fmt(fin.netIncome)}`,
+      ].join("\n"),
+      ratios: [
+        `Current Ratio: ${fin.currentRatio.toFixed(2)} (เกณฑ์: ≥2 ดี, 1-2 พอใช้, <1 เสี่ยง)`,
+        `D/E Ratio: ${fin.debtToEquity.toFixed(2)} (เกณฑ์: ≤1 ดี, 1-2 พอใช้, >2 เสี่ยง)`,
+        `Gross Margin: ${fin.grossMargin.toFixed(1)}% (เกณฑ์: ≥30% ดี, 15-30% พอใช้)`,
+        `Net Margin: ${fin.netMargin.toFixed(1)}% (เกณฑ์: ≥10% ดี, 5-10% พอใช้)`,
+      ].join("\n"),
+      ar: arTotals
+        ? [
+            `ยอดรวม: ${fmt(arTotals.balanceDue)} จำนวน ${arChartData.length} ราย`,
+            `ปัจจุบัน: ${fmt(arTotals.current)}, งวด1: ${fmt(arTotals.period1)}, งวด2: ${fmt(arTotals.period2)}, งวด3+: ${fmt(arTotals.period3)}`,
+            arConcentration ? `Top 5 concentration: ${arConcentration.top5Pct.toFixed(0)}% (${fmt(arConcentration.top5Total)})` : "",
+            `ลูกค้า Top 10:`,
+            ...arChartData.slice(0, 10).map((r) => `  - ${r.name} (${r.customerNumber}): รวม ${fmt(r.balanceDue)}, ปัจจุบัน ${fmt(r.current)}, ค้าง1 ${fmt(r.period1)}, ค้าง2 ${fmt(r.period2)}, ค้าง3+ ${fmt(r.period3)}`),
+          ].filter(Boolean).join("\n")
+        : "ไม่มีข้อมูล",
+      ap: apTotals
+        ? [
+            `ยอดรวม: ${fmt(Math.abs(apTotals.balanceDue))} จำนวน ${apChartData.length} ราย`,
+            `ปัจจุบัน: ${fmt(Math.abs(apTotals.current))}, งวด1: ${fmt(Math.abs(apTotals.period1))}, งวด2: ${fmt(Math.abs(apTotals.period2))}, งวด3+: ${fmt(Math.abs(apTotals.period3))}`,
+            `เจ้าหนี้ Top 10:`,
+            ...apChartData.slice(0, 10).map((p) => `  - ${p.name} (${p.vendorNumber}): รวม ${fmt(Math.abs(p.balanceDue))}`),
+          ].join("\n")
+        : "ไม่มีข้อมูล",
+      arTrend: arTrendByMonth.length
+        ? arTrendByMonth.map((m: any) => `${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}, ค้าง ${fmt(m.remaining)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      apTrend: apTrendByMonth.length
+        ? apTrendByMonth.map((m: any) => `${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      arBands: arOverdueBands.some((b) => b.count > 0)
+        ? arOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}, ค้าง ${fmt(b.remaining)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      apBands: apOverdueBands.some((b) => b.count > 0)
+        ? apOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}`).join("\n")
+        : "ไม่มีข้อมูล",
+    };
+
+    try {
+      const res = await authFetch("/api/finance/aiAnalysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snapshot }),
+      });
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) setAiAnalysis((prev) => prev + content);
+          } catch {}
+        }
+      }
+    } catch (err) {
+      setAiAnalysis(`เกิดข้อผิดพลาด: ${err.message}`);
+    } finally {
+      setAiLoading(false);
+    }
+  }, [financials, arTotals, apTotals, arChartData, apChartData, arConcentration, arTrendByMonth, apTrendByMonth, arOverdueBands, apOverdueBands]);
+
+  const runCashFlowForecast = useCallback(async () => {
+    if (!financials) return;
+    setCashFlowLoading(true);
+    setCashFlowAnalysis("");
+
+    const snapshot = {
+      financials: [
+        `สินทรัพย์หมุนเวียน: ${fmt(financials.currentAssets)}`,
+        `หนี้สินหมุนเวียน: ${fmt(financials.currentLiabilities)}`,
+        `เงินทุนหมุนเวียน (Working Capital): ${fmt(financials.workingCapital)}`,
+        `รายได้รวม: ${fmt(financials.totalRevenue)}`,
+        `ค่าใช้จ่ายรวม: ${fmt(financials.totalExpense + financials.cogs)}`,
+        `กำไรสุทธิ: ${fmt(financials.netIncome)}`,
+      ].join("\n"),
+      ratios: [
+        `Current Ratio: ${financials.currentRatio.toFixed(2)}`,
+        `D/E Ratio: ${financials.debtToEquity.toFixed(2)}`,
+        `Gross Margin: ${financials.grossMargin.toFixed(1)}%`,
+        `Net Margin: ${financials.netMargin.toFixed(1)}%`,
+      ].join("\n"),
+      ar: arTotals
+        ? `ยอดรวม: ${fmt(arTotals.balanceDue)} | ปัจจุบัน: ${fmt(arTotals.current)} | 1-30วัน: ${fmt(arTotals.period1)} | 31-60วัน: ${fmt(arTotals.period2)} | 60+วัน: ${fmt(arTotals.period3)}`
+        : "ไม่มีข้อมูล",
+      ap: apTotals
+        ? `ยอดรวม: ${fmt(Math.abs(apTotals.balanceDue))} | ปัจจุบัน: ${fmt(Math.abs(apTotals.current))} | 1-30วัน: ${fmt(Math.abs(apTotals.period1))} | 31-60วัน: ${fmt(Math.abs(apTotals.period2))} | 60+วัน: ${fmt(Math.abs(apTotals.period3))}`
+        : "ไม่มีข้อมูล",
+      arBands: arOverdueBands.some((b) => b.count > 0)
+        ? arOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}, ค้าง ${fmt(b.remaining)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      apBands: apOverdueBands.some((b) => b.count > 0)
+        ? apOverdueBands.map((b) => `${b.name}: ${b.count} ใบ, ยอด ${fmt(b.total)}`).join("\n")
+        : "ไม่มีข้อมูล",
+      monthlyTrend: [
+        ...(arTrendByMonth.length
+          ? [`AR รายเดือน:`, ...arTrendByMonth.map((m: any) => `  ${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}, ค้าง ${fmt(m.remaining)}`)]
+          : []),
+        ...(apTrendByMonth.length
+          ? [`AP รายเดือน:`, ...apTrendByMonth.map((m: any) => `  ${fmtMonth(m.month)}: ${m.count} ใบ, ยอด ${fmt(m.total)}`)]
+          : []),
+      ].join("\n") || "ไม่มีข้อมูล",
+    };
+
+    try {
+      const res = await authFetch("/api/finance/aiCashFlow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snapshot }),
+      });
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
+          try {
+            const json = JSON.parse(line.slice(6));
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) setCashFlowAnalysis((prev) => prev + content);
+          } catch {}
+        }
+      }
+    } catch (err) {
+      setCashFlowAnalysis(`เกิดข้อผิดพลาด: ${err.message}`);
+    } finally {
+      setCashFlowLoading(false);
+    }
+  }, [financials, arTotals, apTotals, arOverdueBands, apOverdueBands, arTrendByMonth, apTrendByMonth]);
+
+  return (
+    <FinanceDashboardView
+      loading={loading}
+      financials={financials}
+      bsChartData={bsChartData}
+      isWaterfallData={isWaterfallData}
+      expenseBreakdown={expenseBreakdown}
+      arChartData={arChartData}
+      arTotals={arTotals}
+      arConcentration={arConcentration}
+      arAgingPie={arAgingPie}
+      arInvoiceMap={arInvoiceMap}
+      apChartData={apChartData}
+      apTotals={apTotals}
+      apAgingPie={apAgingPie}
+      apInvoiceMap={apInvoiceMap}
+      arTrendByMonth={arTrendByMonth}
+      apTrendByMonth={apTrendByMonth}
+      arOverdueBands={arOverdueBands}
+      apOverdueBands={apOverdueBands}
+      selectedAging={selectedAging}
+      isAgingOpen={isAgingOpen}
+      onAgingClose={onAgingClose}
+      openAgingDetail={openAgingDetail}
+      agingInvoices={agingInvoices}
+      aiAnalysis={aiAnalysis}
+      aiLoading={aiLoading}
+      runAiAnalysis={() => runAiAnalysis(financials)}
+      reload={loadAll}
+      selectedYear={selectedYear}
+      setSelectedYear={setSelectedYear}
+      inventoryOverride={inventoryOverride}
+      onSaveInventoryOverride={onSaveInventoryOverride}
+      onClearInventoryOverride={onClearInventoryOverride}
+      glLoading={glLoading}
+      glError={glError}
+      monthlyPnL={monthlyPnL}
+      cogsDetail={cogsDetail}
+      sellingDetail={sellingDetail}
+      adminDetail={adminDetail}
+      interestDetail={interestDetail}
+      revenueDetail={revenueDetail}
+      monthlyChartData={monthlyChartData}
+      cogsChartData={cogsChartData}
+      compYears={compYears}
+      revenueTrend={revenueTrend}
+      profitTrend={profitTrend}
+      trendYearKeys={trendYearKeys}
+      cashFlowAnalysis={cashFlowAnalysis}
+      cashFlowLoading={cashFlowLoading}
+      runCashFlowForecast={runCashFlowForecast}
+    />
+  );
+}
