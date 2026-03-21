@@ -32,12 +32,12 @@ import type {
 } from "@/modules/settings/types";
 
 const bcTables = [
-  { key: "dimensionValues", label: "มิติ", icon: FolderKanban },
+  { key: "dimensionValues", label: "Dimensions", icon: FolderKanban },
   { key: "customers", label: "ลูกค้า", icon: Users },
   { key: "items", label: "สินค้า", icon: Package },
   { key: "salesOrders", label: "คำสั่งขาย", icon: ShoppingCart },
-  { key: "salesOrderLines", label: "รายการคำสั่งขาย", icon: ClipboardList },
-  { key: "production", label: "การผลิต", icon: Factory },
+  { key: "salesOrders-lines", label: "รายการคำสั่งขาย", icon: ClipboardList },
+  { key: "productionOrders", label: "ใบสั่งผลิต", icon: Factory },
 ];
 
 const phaseOrder = [
@@ -45,8 +45,8 @@ const phaseOrder = [
   "customers",
   "items",
   "salesOrders",
-  "salesOrderLines",
-  "production",
+  "salesOrders-lines",
+  "productionOrders",
   "cleanup",
 ];
 
@@ -345,12 +345,12 @@ function BcSyncSection({
       <Card shadow="none" className="bg-default-50 border border-border">
         <CardBody className="gap-1">
           <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-            <li>Dimensions -- dimensionValues จาก BC API v2.0 (code → ชื่อโครงการ)</li>
-            <li>Customers -- ข้อมูลลูกค้าจาก CustomerList</li>
-            <li>Items -- สินค้าทั้งหมด + map projectCode/projectName</li>
-            <li>Sales Orders -- คำสั่งซื้อตั้งแต่ SO25*</li>
-            <li>SO Lines -- รายการสินค้าในคำสั่งซื้อ</li>
-            <li>Production -- ใบสั่งผลิต (bcProductionOrders) + Item Ledger Entries (bcItemLedgerEntries)</li>
+            <li>Dimensions — PROJECT code → ชื่อโครงการ (ใช้สร้าง map ใน memory ไม่บันทึก Supabase)</li>
+            <li>Customers — ลูกค้าทั้งหมด → bcCustomer</li>
+            <li>Items — สินค้าทั้งหมด → bcItem (ราคา ต้นทุน คงเหลือ) + auto-assign RFID code</li>
+            <li>Sales Orders — คำสั่งขาย → bcSalesOrder + bcSalesOrderLine</li>
+            <li>Production Orders — ใบสั่งผลิต → bcProductionOrder</li>
+            <li>Full Sync เพิ่มเติม — Purchase Orders, Invoices, GL Entries, Ledger Entries</li>
           </ul>
         </CardBody>
       </Card>
