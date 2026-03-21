@@ -182,15 +182,10 @@ func newRouter(cfg *config.Config, pool *pgxpool.Pool, jwtAuth *middleware.Auth)
 		r.Post("/marketing/omnichannel/webhooks/facebook", marketingHandler.FacebookWebhook)
 		r.Post("/marketing/omnichannel/webhooks/line", marketingHandler.LineWebhook)
 
-		// Cron routes (bearer CRON_SECRET)
-		r.Group(func(r chi.Router) {
-			r.Use(middleware.CronAuth(cfg.CronSecret))
-			r.Mount("/sync", syncpkg.Routes(syncHandler))
-		})
-
 		// Authenticated routes (JWT auth)
 		r.Group(func(r chi.Router) {
 			r.Use(jwtAuth.Authenticate)
+			r.Mount("/sync", syncpkg.Routes(syncHandler))
 
 			// Phase 1
 			r.Mount("/admin", admin.Routes(adminHandler))
