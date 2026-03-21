@@ -343,15 +343,58 @@ function BcSyncSection({
       )}
 
       <Card shadow="none" className="bg-default-50 border border-border">
-        <CardBody className="gap-1">
-          <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-            <li>Dimensions — PROJECT code → ชื่อโครงการ (ใช้สร้าง map ใน memory ไม่บันทึก Supabase)</li>
-            <li>Customers — ลูกค้าทั้งหมด → bcCustomer</li>
-            <li>Items — สินค้าทั้งหมด → bcItem (ราคา ต้นทุน คงเหลือ) + auto-assign RFID code</li>
-            <li>Sales Orders — คำสั่งขาย → bcSalesOrder + bcSalesOrderLine</li>
-            <li>Production Orders — ใบสั่งผลิต → bcProductionOrder</li>
-            <li>Full Sync เพิ่มเติม — Purchase Orders, Invoices, GL Entries, Ledger Entries</li>
-          </ul>
+        <CardBody className="gap-3">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-muted-foreground font-light">Master Data (Incremental + Full)</p>
+            <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+              <li>Dimension Values — PROJECT code → ชื่อโครงการ (memory map เท่านั้น ไม่บันทึก Supabase)</li>
+              <li>Customers → bcCustomer</li>
+              <li>Items → bcItem (ราคา ต้นทุน คงเหลือ) + auto-assign RFID code</li>
+              <li>Vendors → bcVendor</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-muted-foreground font-light">Documents (Incremental + Full)</p>
+            <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+              <li>Sales Orders + Lines → bcSalesOrder, bcSalesOrderLine</li>
+              <li>Purchase Orders + Lines → bcPurchaseOrder, bcPurchaseOrderLine</li>
+              <li>Sales Invoices + Lines → bcSalesInvoice, bcSalesInvoiceLine</li>
+              <li>Production Orders + Lines → bcProductionOrder, bcProductionOrderLine</li>
+              <li>Sales Quotes + Lines → bcSalesQuote, bcSalesQuoteLine</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-muted-foreground font-light">Small Master (Full Sync เท่านั้น)</p>
+            <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+              <li>GL Accounts → bcGLAccount</li>
+              <li>Bank Accounts → bcBankAccount</li>
+              <li>Fixed Assets → bcFixedAsset</li>
+              <li>Dimension Set Entries → bcDimensionSetEntry</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-muted-foreground font-light">Posted Documents (Full Sync เท่านั้น)</p>
+            <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+              <li>Posted Sales Invoices + Lines → bcPostedSalesInvoice</li>
+              <li>Posted Sales Shipments + Lines → bcPostedSalesShipment</li>
+              <li>Posted Sales Credit Memos + Lines → bcPostedSalesCreditMemo</li>
+              <li>Posted Purchase Invoices + Lines → bcPostedPurchInvoice</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-muted-foreground font-light">Ledger Entries (Incremental + Full)</p>
+            <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+              <li>Item Ledger Entries → bcItemLedgerEntry</li>
+              <li>Value Entries → bcValueEntry</li>
+              <li>GL Entries → bcGLEntry</li>
+              <li>Customer Ledger Entries → bcCustomerLedgerEntry</li>
+              <li>Vendor Ledger Entries → bcVendorLedgerEntry</li>
+              <li>Detailed Customer Ledger Entries → bcDetailedCustLedgerEntry</li>
+              <li>Detailed Vendor Ledger Entries → bcDetailedVendorLedgerEntry</li>
+              <li>Bank Account Ledger Entries → bcBankAccountLedgerEntry</li>
+              <li>FA Ledger Entries → bcFALedgerEntry</li>
+            </ul>
+          </div>
         </CardBody>
       </Card>
     </div>
