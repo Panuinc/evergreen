@@ -1,9 +1,10 @@
 import { getPrinterConfig } from "./printerConfig";
+import { authFetch } from "@/lib/apiClient";
 
 const printApi = "/api/warehouse/print";
 
-async function callPrintApi(body) {
-  const response = await fetch(printApi, {
+async function callPrintApi(body: unknown) {
+  const response = await authFetch(printApi, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -17,7 +18,7 @@ export async function testConnection() {
   return callPrintApi({ action: "testConnection" });
 }
 
-export async function printRfidLabels(_printerName, item, quantity) {
+export async function printRfidLabels(_printerName: unknown, item: unknown, quantity: number) {
   const cfg = getPrinterConfig();
   return callPrintApi({ action: "print", item, quantity, config: cfg });
 }
