@@ -135,6 +135,7 @@ func (s *Store) AgedReceivables(ctx context.Context) ([]map[string]any, error) {
 		GROUP BY e."bcCustomerLedgerEntryCustomerNo", c."bcCustomerNameValue"
 		HAVING SUM(e."bcCustomerLedgerEntryRemainingAmount") != 0
 		ORDER BY SUM(e."bcCustomerLedgerEntryRemainingAmount") DESC
+		LIMIT 2000
 	`)
 }
 
@@ -156,6 +157,7 @@ func (s *Store) AgedPayables(ctx context.Context) ([]map[string]any, error) {
 		GROUP BY "bcVendorLedgerEntryVendorNo"
 		HAVING SUM("bcVendorLedgerEntryRemainingAmount") != 0
 		ORDER BY SUM("bcVendorLedgerEntryRemainingAmount") ASC
+		LIMIT 2000
 	`)
 }
 

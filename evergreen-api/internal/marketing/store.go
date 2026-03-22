@@ -73,6 +73,7 @@ func (s *Store) GetOnlineSalesOrders(ctx context.Context) ([]map[string]any, err
 			"bcSalesOrderLocationCode"
 		FROM "bcSalesOrder" WHERE "bcSalesOrderSalespersonCode" = 'ONLINE'
 		ORDER BY "bcSalesOrderOrderDate" DESC
+		LIMIT 2000
 	`)
 }
 
@@ -84,6 +85,7 @@ func (s *Store) GetOnlineSalesOrderLines(ctx context.Context) ([]map[string]any,
 		FROM "bcSalesOrderLine" l
 		JOIN "bcSalesOrder" o ON o."bcSalesOrderNoValue" = l."bcSalesOrderLineDocumentNo"
 		WHERE o."bcSalesOrderSalespersonCode" = 'ONLINE'
+		LIMIT 20000
 	`)
 }
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/evergreen/api/pkg/middleware"
 	"github.com/evergreen/api/pkg/response"
@@ -244,14 +245,11 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	compareMode := r.URL.Query().Get("compareMode")
 
-	assets, err := h.store.ListActiveAssets(ctx)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
-
-	devRequests, err := h.store.ListActiveDevRequests(ctx)
-	if err != nil {
+	var assets, devRequests []map[string]any
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error { var e error; assets, e = h.store.ListActiveAssets(gCtx); return e })
+	g.Go(func() error { var e error; devRequests, e = h.store.ListActiveDevRequests(gCtx); return e })
+	if err := g.Wait(); err != nil {
 		response.InternalError(w, err)
 		return
 	}

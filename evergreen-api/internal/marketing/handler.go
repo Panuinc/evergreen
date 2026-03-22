@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/evergreen/api/internal/clients"
 	"github.com/evergreen/api/internal/config"
@@ -160,20 +161,41 @@ func (h *Handler) Analytics(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	dateFrom, dateTo := parseDateRange(r)
 
-	summary, _ := h.store.GetAnalyticsSummary(ctx, dateFrom, dateTo)
-	periodRow, _ := h.store.GetPeriodStats(ctx)
-	monthlyTrend, _ := h.store.GetMonthlyTrend(ctx, dateFrom, dateTo)
-	dailyTrend, _ := h.store.GetDailyTrend(ctx, dateFrom, dateTo)
-	revenueByDay, _ := h.store.GetRevenueByDayOfWeek(ctx, dateFrom, dateTo)
-	yoyComparison, _ := h.store.GetYoYComparison(ctx)
-	orderStatusDist, _ := h.store.GetOrderStatusDist(ctx, dateFrom, dateTo)
-	locationDist, _ := h.store.GetLocationDist(ctx, dateFrom, dateTo)
-	orderValueDist, _ := h.store.GetOrderValueDist(ctx, dateFrom, dateTo)
-	monthlyComparison, _ := h.store.GetMonthlyComparison(ctx)
-	customerInsights, _ := h.store.GetCustomerInsights(ctx, dateFrom, dateTo)
-	fulfillmentMetrics, _ := h.store.GetFulfillmentMetrics(ctx, dateFrom, dateTo)
-	topCustomers, _ := h.store.GetTopCustomers(ctx, dateFrom, dateTo)
-	topSkus, _ := h.store.GetTopSkus(ctx, dateFrom, dateTo)
+	var (
+		summary            map[string]any
+		periodRow          map[string]any
+		monthlyComparison  map[string]any
+		customerInsights   map[string]any
+		fulfillmentMetrics map[string]any
+		monthlyTrend       []map[string]any
+		dailyTrend         []map[string]any
+		revenueByDay       []map[string]any
+		yoyComparison      []map[string]any
+		orderStatusDist    []map[string]any
+		locationDist       []map[string]any
+		orderValueDist     []map[string]any
+		topCustomers       []map[string]any
+		topSkus            []map[string]any
+	)
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error { var e error; summary, e = h.store.GetAnalyticsSummary(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; periodRow, e = h.store.GetPeriodStats(gCtx); return e })
+	g.Go(func() error { var e error; monthlyTrend, e = h.store.GetMonthlyTrend(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; dailyTrend, e = h.store.GetDailyTrend(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; revenueByDay, e = h.store.GetRevenueByDayOfWeek(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; yoyComparison, e = h.store.GetYoYComparison(gCtx); return e })
+	g.Go(func() error { var e error; orderStatusDist, e = h.store.GetOrderStatusDist(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; locationDist, e = h.store.GetLocationDist(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; orderValueDist, e = h.store.GetOrderValueDist(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; monthlyComparison, e = h.store.GetMonthlyComparison(gCtx); return e })
+	g.Go(func() error { var e error; customerInsights, e = h.store.GetCustomerInsights(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; fulfillmentMetrics, e = h.store.GetFulfillmentMetrics(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; topCustomers, e = h.store.GetTopCustomers(gCtx, dateFrom, dateTo); return e })
+	g.Go(func() error { var e error; topSkus, e = h.store.GetTopSkus(gCtx, dateFrom, dateTo); return e })
+	if err := g.Wait(); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 
 	// KPIs
 	totalOrders := toInt(summary["totalOrders"])
