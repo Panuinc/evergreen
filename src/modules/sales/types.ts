@@ -400,3 +400,11 @@ export interface QuotationsViewProps {
 export interface QuotationsClientProps {
   initialQuotations: SalesQuotation[];
 }
+
+export interface OpportunitiesClientProps {
+  initialOpportunities: SalesOpportunity[];
+}
+
+export interface ActivitiesClientProps {
+  initialActivities: SalesActivity[];
+}

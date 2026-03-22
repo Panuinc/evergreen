@@ -5,6 +5,13 @@ import { useState } from "react";
 import { Input, Button } from "@heroui/react";
 import { Search, MapPin, X } from "lucide-react";
 
+interface DeliveryPlanMapPickerProps {
+  lat: number | null;
+  lng: number | null;
+  address: string;
+  onLocationChange: (lat: number | null, lng: number | null, address: string) => void;
+}
+
 const MapInner = dynamic(() => import("./deliveryPlanMapPickerInner"), {
   ssr: false,
   loading: () => (
@@ -14,7 +21,7 @@ const MapInner = dynamic(() => import("./deliveryPlanMapPickerInner"), {
   ),
 });
 
-export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationChange }) {
+export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationChange }: DeliveryPlanMapPickerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
 
@@ -22,6 +29,7 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
     if (!searchQuery.trim()) return;
     try {
       setSearching(true);
+      // External geocoding API — raw fetch intentional (authFetch would leak auth tokens to external service)
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1&accept-language=th`,
         { headers: { "Accept-Language": "th" } }
@@ -40,6 +48,7 @@ export default function DeliveryPlanMapPicker({ lat, lng, address, onLocationCha
 
   const handleMapClick = async (clickLat, clickLng) => {
     try {
+      // External geocoding API — raw fetch intentional (authFetch would leak auth tokens to external service)
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${clickLat}&lon=${clickLng}&format=json&accept-language=th`
       );

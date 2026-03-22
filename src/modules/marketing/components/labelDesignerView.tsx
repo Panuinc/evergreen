@@ -59,7 +59,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { authFetch } from "@/lib/apiClient";
+import { authFetch, post } from "@/lib/apiClient";
 import type { LabelDesignerViewProps } from "@/modules/marketing/types";
 
 // ─── Constants ──────────────────────────────────────────────
@@ -2034,14 +2034,7 @@ export default function LabelDesignerView({
                         color="danger"
                         onPress={async () => {
                           try {
-                            await fetch(
-                              "/api/marketing/labelDesigner/print/cancel",
-                              {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ jobId: job.id }),
-                              },
-                            );
+                            await post("/api/marketing/labelDesigner/print/cancel", { jobId: job.id });
                             toast.info("กำลังยกเลิก...");
                           } catch {}
                         }}

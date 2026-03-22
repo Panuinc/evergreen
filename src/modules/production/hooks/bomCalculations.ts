@@ -296,7 +296,7 @@ export const useFrameSelection = (
 
     allCandidates.sort((a, b) => {
       if (a.priority !== b.priority) return a.priority - b.priority;
-      return (a.frame.unitCost || 0) - (b.frame.unitCost || 0);
+      return (a.frame.bcItemUnitCost || 0) - (b.frame.bcItemUnitCost || 0);
     });
 
     const seen = new Set<string>();
@@ -762,7 +762,7 @@ export const useFrameLengthOptimizer = (
           const pieces = expandPieces(cutPieces, batchQty);
           const stocks = runBinPacking(pieces, frame.length || 2040, sawKerf);
           const stats = computeStockStats(stocks, frame.length || 2040);
-          const totalCost = stocks.length * (frame.unitCost || 0);
+          const totalCost = stocks.length * (frame.bcItemUnitCost || 0);
           return {
             frame,
             candidateKey: `${candidate.frameType}-${candidate.strategy}`,
@@ -779,11 +779,11 @@ export const useFrameLengthOptimizer = (
     if (allOptions.length === 0) return empty;
 
     const recommendedOption = allOptions[0];
-    const recommendedFrameCode = recommendedOption.frame.code;
+    const recommendedFrameCode = recommendedOption.frame.bcItemNo;
 
-    const currentCode = selectedFrameCode || frameCandidates[0]?.frame?.code;
+    const currentCode = selectedFrameCode || frameCandidates[0]?.frame?.bcItemNo;
     const currentOption =
-      allOptions.find((o) => o.frame.code === currentCode) || recommendedOption;
+      allOptions.find((o) => o.frame.bcItemNo === currentCode) || recommendedOption;
 
     const potentialSavings = Math.max(
       0,

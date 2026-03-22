@@ -1316,7 +1316,7 @@ func (h *Handler) ListCores(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, item := range data {
-		cat := strings.ToLower(strings.ReplaceAll(toStr(item["category"]), " ", ""))
+		cat := strings.ToLower(strings.ReplaceAll(toStr(item["bcItemItemCategoryCode"]), " ", ""))
 		group := ""
 		switch {
 		case strings.Contains(cat, "foam") || strings.Contains(cat, "eps") || strings.Contains(cat, "โฟม"):
@@ -1336,8 +1336,8 @@ func (h *Handler) ListCores(w http.ResponseWriter, r *http.Request) {
 			result[group] = []map[string]any{}
 		}
 
-		desc := toStr(item["desc"])
-		desc2 := toStr(item["desc2"])
+		desc := toStr(item["bcItemDescription"])
+		desc2 := toStr(item["bcItemDescription2"])
 		src := desc2
 		if src == "" {
 			src = desc
@@ -1345,16 +1345,16 @@ func (h *Handler) ListCores(w http.ResponseWriter, r *http.Request) {
 		w2, t, l := parseDimensions(src)
 
 		result[group] = append(result[group], map[string]any{
-			"code":      item["code"],
-			"desc":      desc,
-			"unitCost":  item["unitCost"],
-			"unitPrice": item["unitPrice"],
-			"inventory": item["inventory"],
-			"uom":       item["uom"],
-			"category":  item["category"],
-			"width":     w2,
-			"thickness": t,
-			"length":    l,
+			"bcItemNo":               item["bcItemNo"],
+			"bcItemDescription":      desc,
+			"bcItemUnitCost":         item["bcItemUnitCost"],
+			"bcItemUnitPrice":        item["bcItemUnitPrice"],
+			"bcItemInventory":        item["bcItemInventory"],
+			"bcItemBaseUnitOfMeasure": item["bcItemBaseUnitOfMeasure"],
+			"bcItemItemCategoryCode": item["bcItemItemCategoryCode"],
+			"width":                  w2,
+			"thickness":              t,
+			"length":                 l,
 		})
 	}
 
@@ -1389,7 +1389,7 @@ func (h *Handler) ListFrames(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, item := range data {
-		code := toStr(item["code"])
+		code := toStr(item["bcItemNo"])
 		group := ""
 		switch {
 		case strings.HasPrefix(code, "RM-14-01"):
@@ -1403,8 +1403,8 @@ func (h *Handler) ListFrames(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		desc := toStr(item["desc"])
-		desc2 := toStr(item["desc2"])
+		desc := toStr(item["bcItemDescription"])
+		desc2 := toStr(item["bcItemDescription2"])
 		src := desc2
 		if src == "" {
 			src = desc
@@ -1412,16 +1412,16 @@ func (h *Handler) ListFrames(w http.ResponseWriter, r *http.Request) {
 		w2, t, l := parseDimensions(src)
 
 		enriched := map[string]any{
-			"code":      code,
-			"desc":      desc,
-			"unitCost":  item["unitCost"],
-			"unitPrice": item["unitPrice"],
-			"inventory": item["inventory"],
-			"uom":       item["uom"],
-			"category":  item["category"],
-			"width":     w2,
-			"thickness": t,
-			"length":    l,
+			"bcItemNo":               code,
+			"bcItemDescription":      desc,
+			"bcItemUnitCost":         item["bcItemUnitCost"],
+			"bcItemUnitPrice":        item["bcItemUnitPrice"],
+			"bcItemInventory":        item["bcItemInventory"],
+			"bcItemBaseUnitOfMeasure": item["bcItemBaseUnitOfMeasure"],
+			"bcItemItemCategoryCode": item["bcItemItemCategoryCode"],
+			"width":                  w2,
+			"thickness":              t,
+			"length":                 l,
 		}
 		result[group] = append(result[group], enriched)
 	}

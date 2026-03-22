@@ -42,6 +42,7 @@ export default function ChannelSettings({ isOpen, onClose }: ChannelSettingsProp
       ]);
       return { channels: channelsData || [], aiSettings: aiData };
     },
+    { revalidateOnFocus: false },
   );
 
   useEffect(() => {

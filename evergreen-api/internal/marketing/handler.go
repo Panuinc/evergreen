@@ -135,7 +135,11 @@ func (h *Handler) processIncomingMessage(r *http.Request, channelType, externalI
 	// Find or create conversation
 	conv, err := h.store.FindActiveConversation(ctx, contactID, channelType)
 	if err != nil {
-		conv, _ = h.store.CreateConversation(ctx, contactID, channelType)
+		var convErr error
+		conv, convErr = h.store.CreateConversation(ctx, contactID, channelType)
+		if convErr != nil {
+			logger.Error("failed to create conversation", "contactId", contactID, "channelType", channelType, "error", convErr)
+		}
 	}
 	if conv == nil {
 		return

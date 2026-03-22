@@ -9,19 +9,18 @@ import type React from "react";
 
 export interface MktSalesOrderLine {
   bcSalesOrderLineLineNo: string;
-  bcSalesOrderLineLineNoValue: string;
+  bcSalesOrderLineNoValue: string;
   bcSalesOrderLineDescriptionValue: string;
   bcSalesOrderLineTypeValue: string;
-  bcSalesOrderLineNoValue: string;
   bcSalesOrderLineQuantityValue: number;
   bcSalesOrderLineUnitOfMeasureCode: string;
   bcSalesOrderLineUnitPrice: number;
   bcSalesOrderLineLineDiscount: number;
   bcSalesOrderLineAmountIncludingVAT: number;
-  bcSalesOrderLineQuantityValueShipped: number;
+  bcSalesOrderLineQuantityShipped: number;
   bcSalesOrderLineOutstandingQuantity: number;
   bcSalesOrderLineShortcutDimension1Code: string | null;
-  projectName: string | null;
+  bcDimensionSetEntryDimensionValueName: string | null;
 }
 
 export interface MktSalesOrder {
@@ -42,8 +41,6 @@ export interface MktSalesOrder {
   bcSalesOrderCompletelyShipped: boolean;
   bcSalesOrderAmountIncludingVAT: number;
   isActive?: boolean;
-  // Computed by backend
-  totalAmount?: number;
   lines?: MktSalesOrderLine[];
 }
 

@@ -251,13 +251,13 @@ const DimLine = memo(
     y1: number;
     x2: number;
     y2: number;
-    value: any;
+    value: string | number; // dimension label value (number or formatted string)
     offset?: number;
     vertical?: boolean;
     color?: string;
     fontSize?: number;
     unit?: string;
-    theme?: any;
+    theme?: Record<string, string>; // SVG theme overrides { stroke, paper, ... }
   }) => {
     const strokeColor = theme?.stroke || color;
     const paperColor = theme?.paper || "#FFFFFF";
@@ -382,7 +382,7 @@ const DimLine = memo(
 );
 DimLine.displayName = "DimLine";
 
-const CenterLine = memo(({ x1, y1, x2, y2, theme }: { x1: number; y1: number; x2: number; y2: number; theme?: any }) => (
+const CenterLine = memo(({ x1, y1, x2, y2, theme }: { x1: number; y1: number; x2: number; y2: number; theme?: Record<string, string> }) => (
   <line
     className="layer-centerlines"
     x1={x1}
@@ -450,7 +450,13 @@ const FilledRect = memo(
 FilledRect.displayName = "FilledRect";
 
 const EnhancedEngineeringDrawing = memo(
-  ({ results, coreCalculation, surfaceMaterial }: { results: any; coreCalculation: any; surfaceMaterial: any }) => {
+  ({ results, coreCalculation, surfaceMaterial }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    results: any; // complex multi-field calculation result from useCalculations hook — full interface spans 50+ fields
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    coreCalculation: any; // complex multi-field result from useCoreCalculation hook — full interface spans 50+ fields
+    surfaceMaterial: string;
+  }) => {
     const svgRef = useRef(null);
     const [visibleLayers, setVisibleLayers] = useState(() =>
       Object.fromEntries(
@@ -583,7 +589,7 @@ const EnhancedEngineeringDrawing = memo(
       try {
         const pdf = new jsPDF({
           orientation: "landscape",
-          unit: "mm" as any,
+          unit: "mm" as "mm", // jsPDF unit type — string literal required
           format: "a4",
         });
 
@@ -2421,12 +2427,12 @@ const UIDoorBom = ({
                     const f = candidate.frame;
                     const isSelected = selectedFrameCode
                       ? candidate.allFrames.some(
-                          (af) => af.code === selectedFrameCode,
+                          (af) => af.bcItemNo === selectedFrameCode,
                         )
                       : idx === 0;
                     const isRecommended = candidate.allFrames.some(
                       (af) =>
-                        af.code === frameLengthOptions?.recommendedFrameCode,
+                        af.bcItemNo === frameLengthOptions?.recommendedFrameCode,
                     );
                     return (
                       <div
@@ -2438,7 +2444,7 @@ const UIDoorBom = ({
                               ? "border-success-300 bg-success-50 hover:border-success-400"
                               : "border-border bg-default-50 hover:border-border"
                         }`}
-                        onClick={() => setSelectedFrameCode(f.code)}
+                        onClick={() => setSelectedFrameCode(f.bcItemNo)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -2457,7 +2463,7 @@ const UIDoorBom = ({
                             </span>
                           </div>
                           <span className="text-xs font-light text-foreground">
-                            ฿{(f.unitCost || 0).toLocaleString()}
+                            ฿{(f.bcItemUnitCost || 0).toLocaleString()}
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-foreground">
@@ -2466,7 +2472,7 @@ const UIDoorBom = ({
                             ใช้จริง: {f.useThickness}×{f.useWidth} mm
                           </span>
                           <span>
-                            สต็อก: {(f.inventory || 0).toLocaleString()}
+                            สต็อก: {(f.bcItemInventory || 0).toLocaleString()}
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-1 mt-1">
@@ -2501,15 +2507,15 @@ const UIDoorBom = ({
                             >
                               {candidate.allFrames.map((af) => {
                                 const isRecLen =
-                                  af.code ===
+                                  af.bcItemNo ===
                                   frameLengthOptions?.recommendedFrameCode;
                                 return (
                                   <SelectItem
-                                    key={af.code}
+                                    key={af.bcItemNo}
                                     textValue={af.displaySize}
                                   >
                                     {af.displaySize} — ฿
-                                    {(af.unitCost || 0).toLocaleString()}
+                                    {(af.bcItemUnitCost || 0).toLocaleString()}
                                     {isRecLen ? " ✓ แนะนำ" : ""}
                                   </SelectItem>
                                 );
@@ -2848,10 +2854,10 @@ const UIDoorBom = ({
                 >
                   {availableCoreItems.map((item) => (
                     <SelectItem
-                      key={item.code}
-                      textValue={`${item.desc} — ฿${(item.unitCost || 0).toLocaleString()}`}
+                      key={item.bcItemNo}
+                      textValue={`${item.bcItemDescription} — ฿${(item.bcItemUnitCost || 0).toLocaleString()}`}
                     >
-                      {item.desc} — ฿{(item.unitCost || 0).toLocaleString()}
+                      {item.bcItemDescription} — ฿{(item.bcItemUnitCost || 0).toLocaleString()}
                     </SelectItem>
                   ))}
                 </Select>
@@ -2862,25 +2868,25 @@ const UIDoorBom = ({
                   <div className="flex justify-between">
                     <span>รหัส:</span>
                     <span className="font-light text-foreground">
-                      {selectedCoreItem.code}
+                      {selectedCoreItem.bcItemNo}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>รายละเอียด:</span>
                     <span className="font-light text-foreground">
-                      {selectedCoreItem.desc}
+                      {selectedCoreItem.bcItemDescription}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>ราคา:</span>
                     <span className="font-light text-foreground">
-                      ฿{(selectedCoreItem.unitCost || 0).toLocaleString()}
+                      ฿{(selectedCoreItem.bcItemUnitCost || 0).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>สต็อก:</span>
                     <span className="font-light text-foreground">
-                      {(selectedCoreItem.inventory || 0).toLocaleString()}
+                      {(selectedCoreItem.bcItemInventory || 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -3505,7 +3511,7 @@ const UIDoorBom = ({
                   <span className="font-light text-foreground">
                     รหัส ERP: {selectedFrameCode}
                   </span>
-                  <span className="block text-xs">{currentFrame.desc}</span>
+                  <span className="block text-xs">{currentFrame.bcItemDescription}</span>
                 </div>
               )}
             </CardBody>

@@ -301,7 +301,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                       {l.bcSalesOrderLineDescriptionValue || l.bcSalesOrderLineNoValue}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      สั่ง {l.bcSalesOrderLineQuantityValue} / ส่งแล้ว {l.bcSalesOrderLineQuantityValueShipped || 0} / คงค้าง{" "}
+                      สั่ง {l.bcSalesOrderLineQuantityValue} / ส่งแล้ว {l.bcSalesOrderLineQuantityShipped || 0} / คงค้าง{" "}
                       {l.bcSalesOrderLineOutstandingQuantity || 0} {l.bcSalesOrderLineUnitOfMeasureCode}
                     </p>
                   </div>

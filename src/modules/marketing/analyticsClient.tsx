@@ -20,6 +20,7 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
 
   const { data: swrData, isLoading: loading, mutate } = useSWR<{ stats: MktAnalyticsStats }>(swrKey, fetcher, {
     onError: () => toast.error("ไม่สามารถโหลดข้อมูล Analytics ได้"),
+    revalidateOnFocus: false,
   });
 
   const stats: MktAnalyticsStats | null = swrData?.stats ?? initialData?.stats ?? null;

@@ -17,7 +17,7 @@ export default function WarehouseInventoryGroupClient() {
   const { data, isLoading: loading } = useSWR<BcItem[]>(
     `/api/warehouse/inventory${params}`,
     fetcher,
-    { onError: () => toast.error("ไม่สามารถโหลดข้อมูลคลังสินค้าได้") },
+    { onError: () => toast.error("ไม่สามารถโหลดข้อมูลคลังสินค้าได้"), revalidateOnFocus: false },
   );
   const items = data || [];
 

@@ -385,11 +385,13 @@ function ShipmentsInner() {
       setEditingShipment(shipment);
       setSelectedPlanIds([]);
       setShipmentItems([]);
-      const stopsData = shipment.tmsShipmentStops;
-      setShipmentStops(stopsData?.stops || stopsData || []);
+      // tmsShipmentStops is a flexible JSON blob — cast to access known fields
+      type StopsData = { stops?: unknown[]; googleMapsUrl?: string; totalDistanceKm?: number; totalDurationMin?: number };
+      const stopsData = shipment.tmsShipmentStops as StopsData | null;
+      setShipmentStops((stopsData?.stops || (Array.isArray(stopsData) ? stopsData : [])) as Record<string, unknown>[]);
 
       if (stopsData?.googleMapsUrl) {
-        setRouteResult({ googleMapsUrl: stopsData.googleMapsUrl, totalDistanceKm: stopsData.totalDistanceKm, totalDurationMin: stopsData.totalDurationMin });
+        setRouteResult({ googleMapsUrl: stopsData.googleMapsUrl, totalDistanceKm: stopsData.totalDistanceKm ?? null, totalDurationMin: stopsData.totalDurationMin ?? null });
       } else {
         setRouteResult(null);
       }
@@ -474,7 +476,7 @@ function ShipmentsInner() {
       }
 
       if (shipmentStops.length > 0) {
-        (saveData as any).tmsShipmentStops = {
+        (saveData as any).tmsShipmentStops = { // Dynamic property on serialized data — typed at runtime
           stops: shipmentStops.map((s) => ({
             seq: s.seq,
             planId: s.planId,

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import ActivitiesView from "@/modules/sales/components/activitiesView";
+import type { ActivitiesClientProps, SalesActivity } from "@/modules/sales/types";
 
 const emptyForm = {
   salesActivityType: "task",
@@ -21,8 +22,8 @@ const emptyForm = {
   salesActivityCompletedAt: "",
 };
 
-export default function ActivitiesClient({ initialActivities }) {
-  const [activities, setActivities] = useState(initialActivities);
+export default function ActivitiesClient({ initialActivities }: ActivitiesClientProps) {
+  const [activities, setActivities] = useState<SalesActivity[]>(initialActivities);
   const [saving, setSaving] = useState(false);
   const [editingActivity, setEditingActivity] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
@@ -42,8 +43,8 @@ export default function ActivitiesClient({ initialActivities }) {
       const query = Object.keys(params).length
         ? `?${new URLSearchParams(params).toString()}`
         : "";
-      const data = await get(`/api/sales/activities${query}`);
-      setActivities(data);
+      const data = await get<SalesActivity[]>(`/api/sales/activities${query}`);
+      setActivities(data ?? []);
     } catch {}
   }, []);
 

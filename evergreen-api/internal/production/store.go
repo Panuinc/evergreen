@@ -129,11 +129,11 @@ func (s *Store) GetDimensionNames(ctx context.Context) ([]map[string]any, error)
 
 func (s *Store) ListCores(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT "bcItemNo" AS "code", "bcItemDescription" AS "desc",
-			"bcItemDescription2" AS "desc2",
-			"bcItemUnitCost" AS "unitCost", "bcItemUnitPrice" AS "unitPrice",
-			"bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "uom",
-			"bcItemItemCategoryCode" AS "category"
+		SELECT "bcItemNo", "bcItemDescription",
+			"bcItemDescription2",
+			"bcItemUnitCost", "bcItemUnitPrice",
+			"bcItemInventory", "bcItemBaseUnitOfMeasure",
+			"bcItemItemCategoryCode"
 		FROM "bcItem"
 		WHERE "bcItemGenProdPostingGroup" = 'RM'
 			AND ("bcItemNo" LIKE 'RM-16-07%' OR "bcItemNo" LIKE 'RM-16-08%')
@@ -144,11 +144,11 @@ func (s *Store) ListCores(ctx context.Context) ([]map[string]any, error) {
 
 func (s *Store) ListFrames(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
-		SELECT "bcItemNo" AS "code", "bcItemDescription" AS "desc",
-			"bcItemDescription2" AS "desc2",
-			"bcItemUnitCost" AS "unitCost", "bcItemUnitPrice" AS "unitPrice",
-			"bcItemInventory" AS "inventory", "bcItemBaseUnitOfMeasure" AS "uom",
-			"bcItemItemCategoryCode" AS "category"
+		SELECT "bcItemNo", "bcItemDescription",
+			"bcItemDescription2",
+			"bcItemUnitCost", "bcItemUnitPrice",
+			"bcItemInventory", "bcItemBaseUnitOfMeasure",
+			"bcItemItemCategoryCode"
 		FROM "bcItem"
 		WHERE "bcItemNo" LIKE 'RM-14-01%'
 			OR "bcItemNo" LIKE 'RM-14-04%'

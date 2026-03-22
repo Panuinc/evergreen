@@ -6,7 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as any)._getIconUrl; // Leaflet internal property — not exposed in public type definition
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
@@ -103,7 +103,7 @@ export default function VehicleMapInner({
 
   return (
     <MapContainer
-      center={center as any}
+      center={center as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
       zoom={10}
       style={{ height: "100%", width: "100%", minHeight: "400px", borderRadius: "12px" }}
     >
@@ -117,7 +117,7 @@ export default function VehicleMapInner({
       {markerData.map((m) => (
         <Marker
           key={m.vehicleId}
-          position={[m.lat, m.lng] as any}
+          position={[m.lat, m.lng] as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
           icon={createColoredIcon(m.color)}
           eventHandlers={{
             click: () => onVehicleClick?.(m.vehicleId),

@@ -56,11 +56,13 @@ func (s *Store) InsertIncomingMessage(ctx context.Context, convID, senderID, tex
 }
 
 func (s *Store) UpdateConversationOnIncoming(ctx context.Context, convID, preview string) {
-	s.pool.Exec(ctx, `
+	if _, err := s.pool.Exec(ctx, `
 		UPDATE "mktConversation" SET "mktConversationLastMessageAt"=now(),"mktConversationLastMessagePreview"=$2,
 			"mktConversationUnreadCount"=COALESCE("mktConversationUnreadCount",0)+1,"mktConversationStatus"='open'
 		WHERE "mktConversationId"=$1
-	`, convID, preview)
+	`, convID, preview); err != nil {
+		logger.Error("failed to update conversation on incoming", "convId", convID, "err", err)
+	}
 }
 
 // ---- Analytics ----
@@ -107,7 +109,7 @@ func (s *Store) GetSalesOrder(ctx context.Context, no string) (map[string]any, e
 			"bcSalesOrderShipToName", "bcSalesOrderShipToAddress", "bcSalesOrderShipToCity", "bcSalesOrderShipToPostCode",
 			"bcSalesOrderOrderDate", "bcSalesOrderDueDate", "bcSalesOrderExternalDocumentNo",
 			"bcSalesOrderStatus", "bcSalesOrderCompletelyShipped",
-			"bcSalesOrderAmountIncludingVAT" AS "totalAmount",
+			"bcSalesOrderAmountIncludingVAT",
 			"bcSalesOrderSalespersonCode"
 		FROM "bcSalesOrder" WHERE "bcSalesOrderNoValue"=$1
 	`, no)
@@ -116,16 +118,16 @@ func (s *Store) GetSalesOrder(ctx context.Context, no string) (map[string]any, e
 func (s *Store) GetSalesOrderLines(ctx context.Context, no string) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT l."bcSalesOrderLineLineNo",
-			l."bcSalesOrderLineNoValue" AS "bcSalesOrderLineLineNoValue",
+			l."bcSalesOrderLineNoValue",
 			l."bcSalesOrderLineDescriptionValue", l."bcSalesOrderLineTypeValue",
 			l."bcSalesOrderLineQuantityValue", l."bcSalesOrderLineUnitOfMeasureCode",
 			l."bcSalesOrderLineUnitPrice", l."bcSalesOrderLineLineDiscount",
 			l."bcSalesOrderLineAmountValue",
 			l."bcSalesOrderLineAmountIncludingVAT",
-			l."bcSalesOrderLineQuantityShipped" AS "bcSalesOrderLineQuantityValueShipped",
+			l."bcSalesOrderLineQuantityShipped",
 			l."bcSalesOrderLineOutstandingQuantity",
 			l."bcSalesOrderLineShortcutDimension1Code",
-			COALESCE(d."bcDimensionSetEntryDimensionValueName", '') AS "projectName"
+			COALESCE(d."bcDimensionSetEntryDimensionValueName", '') AS "bcDimensionSetEntryDimensionValueName"
 		FROM "bcSalesOrderLine" l
 		LEFT JOIN (
 			SELECT DISTINCT ON ("bcDimensionSetEntryDimensionValueCode")
@@ -206,7 +208,9 @@ func (s *Store) UpdateWorkOrder(ctx context.Context, id string, body map[string]
 }
 
 func (s *Store) SoftDeleteWorkOrder(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "mktWorkOrder" SET "isActive"=false WHERE "mktWorkOrderId"=$1`, id)
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktWorkOrder" SET "isActive"=false WHERE "mktWorkOrderId"=$1`, id); err != nil {
+		logger.Error("failed to soft delete work order", "id", id, "err", err)
+	}
 }
 
 // ---- Work Order Progress ----
@@ -229,7 +233,9 @@ func (s *Store) CreateWorkOrderProgress(ctx context.Context, id string, body map
 }
 
 func (s *Store) UpdateWorkOrderProgress(ctx context.Context, id string, progress any) {
-	s.pool.Exec(ctx, `UPDATE "mktWorkOrder" SET "mktWorkOrderProgress"=$2 WHERE "mktWorkOrderId"=$1`, id, progress)
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktWorkOrder" SET "mktWorkOrderProgress"=$2 WHERE "mktWorkOrderId"=$1`, id, progress); err != nil {
+		logger.Error("failed to update work order progress", "id", id, "err", err)
+	}
 }
 
 // ---- Label Designs ----
@@ -261,7 +267,9 @@ func (s *Store) UpdateLabelDesign(ctx context.Context, id string, body map[strin
 }
 
 func (s *Store) DeleteLabelDesign(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `DELETE FROM "labelDesign" WHERE "labelDesignId"=$1`, id)
+	if _, err := s.pool.Exec(ctx, `DELETE FROM "labelDesign" WHERE "labelDesignId"=$1`, id); err != nil {
+		logger.Error("failed to delete label design", "id", id, "err", err)
+	}
 }
 
 // ---- Image Generation ----

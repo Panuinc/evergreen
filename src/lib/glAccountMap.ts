@@ -1,6 +1,24 @@
 
 
 
+interface GlAccountEntry {
+  account: string;
+  name: string;
+  category: string;
+  months: Record<string, number>;
+  total: number;
+}
+
+interface GlRow {
+  key: string;
+  label?: string;
+  labelEn?: string;
+  account?: string;
+  months: Record<string, number>;
+  total: number;
+  type: string;
+}
+
 export const cogsOverrideAccounts = new Set([
   "52000-09",
   "53200-06",
@@ -163,7 +181,7 @@ export const calMonths = ["01", "02", "03", "04", "05", "06", "07", "08", "09", 
 export const calMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
 
-export function calMonthBE(i, adYear) {
+export function calMonthBE(i: number, adYear: number): string {
   return String((adYear + 543) % 100).padStart(2, "0");
 }
 
@@ -206,7 +224,7 @@ export const pnlRows = [
 
 
 
-export function classifyAccount(accountNumber) {
+export function classifyAccount(accountNumber: string): string {
   if (!accountNumber) return "other";
 
   if (cogsOverrideAccounts.has(accountNumber)) return "cogs";
@@ -234,7 +252,7 @@ export function classifyAccount(accountNumber) {
 const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
 
-export function computeAdjustedCogs(byAccount, monthlyTotals) {
+export function computeAdjustedCogs(byAccount: Record<string, GlAccountEntry>, monthlyTotals: Record<string, { months: Record<string, number>; total: number }>) {
   const raw = monthlyTotals?.["cogs"] || { months: {}, total: 0 };
   const result = {};
   for (const m of months) result[m] = raw.months[m] || 0;
@@ -244,10 +262,10 @@ export function computeAdjustedCogs(byAccount, monthlyTotals) {
 
 
 
-export function aggregateGlEntries(entries) {
+export function aggregateGlEntries(entries: Array<{ postingDate?: string; accountNumber?: string; accountName?: string; debitAmount?: number; creditAmount?: number }>) {
   if (!entries || !entries.length) return { byAccount: {}, monthlyTotals: {} };
 
-  const byAccount = {};
+  const byAccount: Record<string, GlAccountEntry> = {};
 
   for (const entry of entries) {
     const mm = entry.postingDate?.substring(5, 7);
@@ -279,7 +297,7 @@ export function aggregateGlEntries(entries) {
 
 
   const monthlyTotals = {};
-  for (const acct of Object.values(byAccount) as any[]) {
+  for (const acct of Object.values(byAccount)) {
     const cat = acct.category;
     if (!monthlyTotals[cat]) {
       monthlyTotals[cat] = { months: {}, total: 0 };
@@ -295,7 +313,7 @@ export function aggregateGlEntries(entries) {
 }
 
 
-export function computeMonthlyPnL(byAccount, monthlyTotals) {
+export function computeMonthlyPnL(byAccount: Record<string, GlAccountEntry>, monthlyTotals: Record<string, { months: Record<string, number>; total: number }>) {
   if (!monthlyTotals || !Object.keys(monthlyTotals).length) return [];
 
   const mt = (cat) => monthlyTotals[cat] || { months: {}, total: 0 };
@@ -369,7 +387,7 @@ export function computeMonthlyPnL(byAccount, monthlyTotals) {
 }
 
 
-export function computeCogsDetail(byAccount) {
+export function computeCogsDetail(byAccount: Record<string, GlAccountEntry>) {
   if (!byAccount || !Object.keys(byAccount).length) return [];
 
   const getRow = (struct) => {
@@ -387,7 +405,7 @@ export function computeCogsDetail(byAccount) {
     return { key: struct.key, label: struct.label, labelEn: struct.labelEn, months: result, total, type: "item" };
   };
 
-  const rows = cogsStructure.map(getRow);
+  const rows: GlRow[] = cogsStructure.map(getRow);
 
 
   const prodMonths = {};
@@ -399,11 +417,11 @@ export function computeCogsDetail(byAccount) {
     }
     prodTotal += row.total;
   }
-  rows.push({ key: "productionTotal", label: "ต้นทุนสินค้าที่ผลิตได้", type: "subtotal", months: prodMonths, total: prodTotal } as any);
+  rows.push({ key: "productionTotal", label: "ต้นทุนสินค้าที่ผลิตได้", months: prodMonths, total: prodTotal, type: "subtotal" });
 
 
   const knownInvAccounts = new Set(inventoryAccounts.map((i) => i.account));
-  const invRows = inventoryAccounts.map((inv) => {
+  const invRows: GlRow[] = inventoryAccounts.map((inv) => {
     const acct = byAccount[inv.account];
     const mths = {};
     let total = 0;
@@ -417,13 +435,13 @@ export function computeCogsDetail(byAccount) {
   });
 
 
-  for (const [acctNo, acct] of Object.entries(byAccount) as [string, any][]) {
+  for (const [acctNo, acct] of Object.entries(byAccount)) {
     if (!acctNo.startsWith("115") || knownInvAccounts.has(acctNo)) continue;
-    const mths = {};
+    const mths: Record<string, number> = {};
     let total = 0;
     for (const m of months) mths[m] = -(acct.months[m] || 0);
     total = -acct.total;
-    invRows.push({ key: acctNo, label: `หัก: ${acct.name || acctNo}`, months: mths, total, type: "deduction" } as any);
+    invRows.push({ key: acctNo, label: `หัก: ${acct.name || acctNo}`, months: mths, total, type: "deduction" });
   }
   rows.push(...invRows);
 
@@ -437,7 +455,7 @@ export function computeCogsDetail(byAccount) {
     }
     endInvTotal += r.total;
   }
-  rows.push({ key: "endingInventory", label: "หัก: สินค้าคงเหลือปลายงวด", type: "subtotal", months: endInvMonths, total: endInvTotal } as any);
+  rows.push({ key: "endingInventory", label: "หัก: สินค้าคงเหลือปลายงวด", months: endInvMonths, total: endInvTotal, type: "subtotal" });
 
 
 
@@ -454,17 +472,17 @@ export function computeCogsDetail(byAccount) {
     cogsMonths[m] = (prodMonths[m] || 0) - (beginInvMonths[m] || 0) + (endInvMonths[m] || 0);
   }
   const cogsTotal = prodTotal - beginInvTotal + endInvTotal;
-  rows.push({ key: "cogsTotal", label: "ต้นทุนขาย", type: "grandTotal", months: cogsMonths, total: cogsTotal } as any);
+  rows.push({ key: "cogsTotal", label: "ต้นทุนขาย", months: cogsMonths, total: cogsTotal, type: "grandTotal" });
 
   return rows;
 }
 
 
-export function computeExpenseDetail(byAccount, type) {
+export function computeExpenseDetail(byAccount: Record<string, GlAccountEntry>, type: string) {
   if (!byAccount) return [];
 
-  const rows = [];
-  const accounts = (Object.values(byAccount) as any[]).filter((a) => a.category === type);
+  const rows: GlRow[] = [];
+  const accounts = Object.values(byAccount).filter((a) => a.category === type);
   accounts.sort((a, b) => a.account.localeCompare(b.account));
 
   let totalMonths = {};
@@ -503,12 +521,12 @@ export function computeExpenseDetail(byAccount, type) {
 }
 
 
-export function computeRevenueDetail(byAccount) {
+export function computeRevenueDetail(byAccount: Record<string, GlAccountEntry>) {
   if (!byAccount) return [];
 
-  const rows = [];
+  const rows: GlRow[] = [];
   const revenueTypes = ["salesRevenue", "serviceRevenue", "otherIncome"];
-  const accounts = (Object.values(byAccount) as any[]).filter((a) => revenueTypes.includes(a.category));
+  const accounts = Object.values(byAccount).filter((a) => revenueTypes.includes(a.category));
   accounts.sort((a, b) => a.account.localeCompare(b.account));
 
   let totalMonths = {};

@@ -36,10 +36,12 @@ export default function WorkOrdersClient() {
   const { data: workOrdersData, isLoading: woLoading, mutate: mutateWorkOrders } = useSWR<MktWorkOrder[]>(
     user ? "/api/marketing/workOrders" : null,
     fetcher,
+    { revalidateOnFocus: false },
   );
   const { data: employeesData, isLoading: empLoading } = useSWR<HrEmployee[]>(
     user ? "/api/hr/employees" : null,
     (url: string) => get<HrEmployee[]>(url).catch(() => []),
+    { revalidateOnFocus: false },
   );
 
   const workOrders = workOrdersData || [];

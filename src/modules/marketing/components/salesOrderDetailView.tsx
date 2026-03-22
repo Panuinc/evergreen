@@ -13,15 +13,15 @@ const statusColors = {
 };
 
 const lineColumns = [
-  { name: "รหัส", uid: "bcSalesOrderLineLineNoValue" },
+  { name: "รหัส", uid: "bcSalesOrderLineNoValue" },
   { name: "รายละเอียด", uid: "bcSalesOrderLineDescriptionValue" },
-  { name: "โครงการ", uid: "projectName" },
+  { name: "โครงการ", uid: "bcDimensionSetEntryDimensionValueName" },
   { name: "จำนวน", uid: "bcSalesOrderLineQuantityValue", sortable: true },
   { name: "หน่วย", uid: "bcSalesOrderLineUnitOfMeasureCode" },
   { name: "ราคา/หน่วย", uid: "bcSalesOrderLineUnitPrice", sortable: true },
   { name: "ส่วนลด %", uid: "bcSalesOrderLineLineDiscount" },
   { name: "ยอดรวม (รวม VAT)", uid: "bcSalesOrderLineAmountIncludingVAT", sortable: true },
-  { name: "ส่งแล้ว", uid: "bcSalesOrderLineQuantityValueShipped" },
+  { name: "ส่งแล้ว", uid: "bcSalesOrderLineQuantityShipped" },
   { name: "คงค้าง", uid: "bcSalesOrderLineOutstandingQuantity" },
 ];
 
@@ -34,16 +34,16 @@ export default function SalesOrderDetailView({
 }: SalesOrderDetailViewProps) {
   const renderLineCell = useCallback((item, columnKey) => {
     switch (columnKey) {
-      case "projectName":
-        return item.projectName ? (
+      case "bcDimensionSetEntryDimensionValueName":
+        return item.bcDimensionSetEntryDimensionValueName ? (
           <Chip variant="flat" size="md" radius="md" color="secondary">
-            {item.projectName}
+            {item.bcDimensionSetEntryDimensionValueName}
           </Chip>
         ) : (
           "-"
         );
       case "bcSalesOrderLineQuantityValue":
-      case "bcSalesOrderLineQuantityValueShipped":
+      case "bcSalesOrderLineQuantityShipped":
       case "bcSalesOrderLineOutstandingQuantity":
         return <span className="block text-right">{item[columnKey] || 0}</span>;
       case "bcSalesOrderLineLineDiscount":
@@ -177,7 +177,7 @@ export default function SalesOrderDetailView({
               <div className="flex gap-2">
                 <span className="text-muted-foreground w-24 shrink-0">ยอดรวม</span>
                 <span className="text-xs font-light text-primary">
-                  ฿{(order.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                  ฿{(order.bcSalesOrderAmountIncludingVAT || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
@@ -193,14 +193,14 @@ export default function SalesOrderDetailView({
           data={order.lines || []}
           renderCell={renderLineCell}
           rowKey="bcSalesOrderLineLineNo"
-          initialVisibleColumns={["bcSalesOrderLineLineNoValue", "bcSalesOrderLineDescriptionValue", "projectName", "bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineUnitPrice", "bcSalesOrderLineLineDiscount", "bcSalesOrderLineAmountIncludingVAT", "bcSalesOrderLineQuantityValueShipped", "bcSalesOrderLineOutstandingQuantity"]}
+          initialVisibleColumns={["bcSalesOrderLineNoValue", "bcSalesOrderLineDescriptionValue", "bcDimensionSetEntryDimensionValueName", "bcSalesOrderLineQuantityValue", "bcSalesOrderLineUnitOfMeasureCode", "bcSalesOrderLineUnitPrice", "bcSalesOrderLineLineDiscount", "bcSalesOrderLineAmountIncludingVAT", "bcSalesOrderLineQuantityShipped", "bcSalesOrderLineOutstandingQuantity"]}
           emptyContent="ไม่มีรายการ"
           defaultRowsPerPage={20}
         />
         <div className="flex justify-end mt-2 px-2">
           <span className="font-light mr-4">รวมทั้งสิ้น</span>
           <span className="font-light">
-            ฿{(order.totalAmount || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+            ฿{(order.bcSalesOrderAmountIncludingVAT || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
         </div>
       </div>

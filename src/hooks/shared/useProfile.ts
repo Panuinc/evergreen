@@ -8,6 +8,7 @@ import { get, put } from "@/lib/apiClient";
 export function useProfile() {
   const { data: profile, isLoading: loading } = useSWR("/api/profile", (url) => get(url), {
     onError: () => toast.error("โหลดข้อมูลโปรไฟล์ล้มเหลว"),
+    revalidateOnFocus: false,
   });
 
   const [passwordForm, setPasswordForm] = useState({

@@ -80,7 +80,7 @@ export default function BomClient() {
   const selectedCoreItem = useMemo(() => {
     if (!selectedCoreCode || !availableCoreItems.length) return null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return availableCoreItems.find((item: any) => item.code === selectedCoreCode) || null;
+    return availableCoreItems.find((item: any) => item.bcItemNo === selectedCoreCode) || null;
   }, [selectedCoreCode, availableCoreItems]);
 
   const lockBlockLeft =
@@ -112,7 +112,7 @@ export default function BomClient() {
     if (selectedFrameCode) {
       for (const c of frameSelection.candidates) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const found = c.allFrames.find((f: any) => f.code === selectedFrameCode);
+        const found = c.allFrames.find((f: any) => f.bcItemNo === selectedFrameCode);
         if (found) return found;
       }
     }
@@ -146,7 +146,7 @@ export default function BomClient() {
 
   const priceSummary = useMemo(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const frameUnitCost = (currentFrame as any)?.unitCost || 0;
+    const frameUnitCost = (currentFrame as any)?.bcItemUnitCost || 0;
     const qty = parseInt(orderQty) || 0;
     const batchQty = Math.max(1, qty);
 
@@ -171,7 +171,7 @@ export default function BomClient() {
     const surface = (parseFloat(surfacePrice) || 0) * 2;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const coreUnitCost = (selectedCoreItem as any)?.unitCost || 0;
+    const coreUnitCost = (selectedCoreItem as any)?.bcItemUnitCost || 0;
     const isSolidCore = coreCalculation?.isSolid !== false;
     let coreQtyUsed = 0;
     let coreQtyLabel = "";
