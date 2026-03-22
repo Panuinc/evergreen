@@ -8,66 +8,73 @@
   --default-border-width: 1px;
 }
 
+/* ── Retro Okinawa Japan ─────────────────────────────────────────
+   Primary  : Ryukyu coral / hibiscus  #C8583C
+   Secondary: Okinawan ocean teal      #2A9A92
+   Accent   : Sunset amber             #E09030
+   BG       : Vintage warm cream       #F5EDE0
+   ──────────────────────────────────────────────────────────────── */
+
 :root {
   --heroui-border-width-small: 1px;
   --heroui-border-width-medium: 1px;
   --heroui-border-width-large: 1px;
-  --background: #fff;
-  --foreground: #111827;
-  --primary: #cc7a60;
-  --primary-dark: #b56850;
-  --primary-foreground: #fff;
-  --secondary: #f9fafb;
-  --secondary-foreground: #111827;
-  --muted: #f3f4f6;
-  --muted-foreground: #5b6370;
-  --accent: #f59e0b;
-  --accent-foreground: #451a03;
-  --destructive: #ef4444;
-  --destructive-foreground: #fff;
-  --border: #8b929e;
-  --input: #8b929e;
-  --ring: #cc7a60;
-  --card: #fff;
-  --card-foreground: #111827;
-  --popover: #fff;
-  --popover-foreground: #111827;
-  --sidebar: #fafafa;
-  --sidebar-foreground: #3f3f46;
-  --sidebar-border: #e5e7eb;
-  --sidebar-accent: #f4f4f5;
-  --sidebar-accent-foreground: #18181b;
+  --background: #F5EDE0;
+  --foreground: #2E1E12;
+  --primary: #C8583C;
+  --primary-dark: #B04A30;
+  --primary-foreground: #F5EDE0;
+  --secondary: #2A9A92;
+  --secondary-foreground: #F5EDE0;
+  --muted: #E8DBCA;
+  --muted-foreground: #7A6855;
+  --accent: #E09030;
+  --accent-foreground: #2E1E12;
+  --destructive: #C44030;
+  --destructive-foreground: #F5EDE0;
+  --border: #C8B49A;
+  --input: #C8B49A;
+  --ring: #C8583C;
+  --card: #FBF3E8;
+  --card-foreground: #2E1E12;
+  --popover: #FBF3E8;
+  --popover-foreground: #2E1E12;
+  --sidebar: #EDE0CE;
+  --sidebar-foreground: #4A3020;
+  --sidebar-border: #D4C2A8;
+  --sidebar-accent: #E4D4BE;
+  --sidebar-accent-foreground: #2E1E12;
   --radius: 0.625rem;
-  --grid-line: rgba(0, 0, 0, 0.02);
+  --grid-line: rgba(46, 30, 18, 0.03);
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --primary: #d99178;
-  --primary-dark: #c57f66;
-  --primary-foreground: #0a0a0a;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #ededed;
-  --muted: #262626;
-  --muted-foreground: #a3a3a3;
-  --accent: #f59e0b;
-  --accent-foreground: #0a0a0a;
-  --destructive: #ef4444;
-  --destructive-foreground: #ededed;
-  --border: #606068;
-  --input: #606068;
-  --ring: #d99178;
-  --card: #111;
-  --card-foreground: #ededed;
-  --popover: #111;
-  --popover-foreground: #ededed;
-  --sidebar: #18181b;
-  --sidebar-foreground: #f4f4f5;
-  --sidebar-border: #27272a;
-  --sidebar-accent: #27272a;
-  --sidebar-accent-foreground: #f4f4f5;
-  --grid-line: rgba(255, 255, 255, 0.02);
+  --background: #1C140E;
+  --foreground: #F0E4D4;
+  --primary: #D9724F;
+  --primary-dark: #C46040;
+  --primary-foreground: #1C140E;
+  --secondary: #32B8B0;
+  --secondary-foreground: #1C140E;
+  --muted: #2E2018;
+  --muted-foreground: #A8926E;
+  --accent: #F0B848;
+  --accent-foreground: #1C140E;
+  --destructive: #D95C4A;
+  --destructive-foreground: #F0E4D4;
+  --border: #4A3424;
+  --input: #4A3424;
+  --ring: #D9724F;
+  --card: #241A12;
+  --card-foreground: #F0E4D4;
+  --popover: #241A12;
+  --popover-foreground: #F0E4D4;
+  --sidebar: #201610;
+  --sidebar-foreground: #E8D8C4;
+  --sidebar-border: #3C2A1C;
+  --sidebar-accent: #2E2018;
+  --sidebar-accent-foreground: #E8D8C4;
+  --grid-line: rgba(240, 228, 212, 0.02);
 }
 
 *,
