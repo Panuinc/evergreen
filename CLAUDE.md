@@ -1,3 +1,123 @@
+# ⚠️ Production Safety Rules (CRITICAL — อ่านก่อนทุกอย่าง)
+
+> ระบบนี้ใช้งานจริงในองค์กร ข้อมูลที่แสดงผลใช้ตัดสินใจทางธุรกิจและการเงิน
+> **ข้อผิดพลาดที่หลุดไปยัง production อาจก่อให้เกิดความเสียหายร้ายแรง**
+> กฏในหัวข้อนี้มีความสำคัญสูงกว่ากฏอื่นทั้งหมด
+
+---
+
+## S1: ห้ามแตะตัวเลขการเงินโดยไม่มี precision control
+
+ข้อมูลการเงินทุกตัว (ยอดเงิน, ราคา, ต้นทุน, กำไร) ต้องใช้ `numeric`/`decimal` เท่านั้น — ห้ามใช้ `float64` หรือ `number` ในการคำนวณที่แสดงผลต่อผู้ใช้
+
+```go
+// ❌ WRONG — float64 มี rounding error สะสม
+var total float64
+for _, row := range rows {
+    total += row["amount"].(float64)
+}
+
+// ✅ CORRECT — ให้ SQL คำนวณแล้วรับผลลัพธ์เดียว
+SELECT SUM("bcCustomerLedgerEntryRemainingAmount") AS "totalAmount"
+FROM "bcCustomerLedgerEntry"
+```
+
+```typescript
+// ❌ WRONG — JavaScript number มี precision ปัญหา
+const total = rows.reduce((s, r) => s + r.amount, 0)
+
+// ✅ CORRECT — รับค่า aggregated มาจาก backend แล้ว format เพื่อแสดงผลเท่านั้น
+const display = new Intl.NumberFormat('th-TH').format(data.totalAmount)
+```
+
+---
+
+## S2: ห้าม hardcode ข้อมูลใดๆ ที่แสดงต่อผู้ใช้
+
+ข้อมูลทุกอย่างที่ user เห็นต้องมาจาก Supabase เท่านั้น ห้าม:
+- Hardcode ชื่อ, ตัวเลข, สถานะ, วันที่ในโค้ด
+- Return mock/dummy data แม้ระหว่าง development
+- ใช้ fallback value ที่ดูเหมือนข้อมูลจริง (เช่น `|| "ไม่ระบุ"` สำหรับตัวเลขสำคัญ)
+
+ถ้า table ยังไม่มี → **แจ้งผู้ใช้** อย่าสร้าง mock
+
+---
+
+## S3: ทุก endpoint ต้องผ่าน auth middleware
+
+ห้ามสร้าง endpoint ใหม่โดยไม่ได้ mount อยู่ใต้ route group ที่มี auth middleware
+ตรวจสอบใน `routes.go` ว่า route ใหม่อยู่ใต้ `r.Group(func(r chi.Router) { r.Use(middleware.Auth) ... })`
+
+```go
+// ❌ WRONG — ไม่มี auth
+r.Get("/api/finance/collections", h.Collections)
+
+// ✅ CORRECT — อยู่ใต้ auth group
+r.Route("/api", func(r chi.Router) {
+    r.Use(middleware.Auth)
+    r.Get("/finance/collections", h.Collections)
+})
+```
+
+---
+
+## S4: ห้ามลบหรือ truncate ข้อมูลโดยไม่มี confirmation
+
+การ DELETE, TRUNCATE, UPDATE ที่กระทบหลาย rows ต้องมี:
+1. WHERE clause ที่ชัดเจน — ห้าม DELETE ไม่มี WHERE
+2. Soft delete ก่อน (`isActive = false`) สำหรับข้อมูลที่มีความสำคัญ
+3. แจ้งผู้ใช้ว่ากำลังจะลบอะไร จำนวนเท่าไหร่ ก่อนดำเนินการ
+
+---
+
+## S5: SQL ต้องใช้ parameterized query เสมอ
+
+ห้าม interpolate ค่าจาก user input ลงใน SQL string โดยตรง (SQL Injection)
+
+```go
+// ❌ WRONG — SQL Injection risk
+q := fmt.Sprintf(`SELECT * FROM "hrEmployee" WHERE "hrEmployeeId" = '%s'`, id)
+
+// ✅ CORRECT — parameterized
+q := `SELECT ... FROM "hrEmployee" WHERE "hrEmployeeId" = $1`
+db.QueryRow(ctx, pool, q, id)
+```
+
+---
+
+## S6: Error ต้องไม่หายเงียบ
+
+ห้ามใช้ `_ =` กับ error ที่เกิดจาก DB operation หรือ data mutation
+ทุก error ต้องถูก return หรือ log อย่างน้อยหนึ่งอย่าง
+
+```go
+// ❌ WRONG — error หายไป
+_ = h.store.UpdateStatus(ctx, id, status)
+
+// ✅ CORRECT — error ถูก handle
+if err := h.store.UpdateStatus(ctx, id, status); err != nil {
+    logger.Error("failed to update status", "id", id, "error", err)
+    response.InternalError(w, err)
+    return
+}
+```
+
+---
+
+## S7: ห้าม deploy โดยไม่ผ่าน checklist นี้
+
+ก่อน push code ที่จะขึ้น production ต้องผ่านทุกข้อ:
+
+- [ ] `go build ./...` ผ่านโดยไม่มี warning
+- [ ] `npx tsc --noEmit` ผ่านโดยไม่มี error
+- [ ] ไม่มี hardcoded data ที่แสดงต่อ user
+- [ ] ทุก endpoint ใหม่อยู่ใต้ auth middleware
+- [ ] ไม่มี SQL ที่ interpolate user input ตรงๆ
+- [ ] ตัวเลขการเงินไม่มีการคำนวณด้วย float/JS number
+- [ ] ไม่มี DELETE/UPDATE ที่ไม่มี WHERE clause
+
+---
+
 # Language Rule (MANDATORY)
 
 - **ตอบเป็นภาษาไทยเท่านั้น** — ทุกการสื่อสารกับ user ต้องเป็นภาษาไทย
