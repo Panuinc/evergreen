@@ -1879,3 +1879,68 @@ response.OK(w, data)              // 200 success
 response.Error(w, http.StatusBadRequest, "message")  // error
 response.InternalError(w, err)    // 500
 ```
+
+---
+
+# Task Completion Rules (MANDATORY)
+
+กฏเหล่านี้ห้ามละเมิดเด็ดขาด — agent ต้องทำงานให้เสร็จครบทุกขั้นตอนที่ได้รับมอบหมาย ห้ามหยุดกลางคัน
+
+## ห้ามข้ามงานโดยอ้างว่า "ซับซ้อนเกินไป"
+
+- **ห้ามข้ามงาน หรือ skip task** ไม่ว่าจะด้วยเหตุผลอะไร
+- ถ้างานซับซ้อน ให้ **ถามผู้ใช้** ก่อน อย่าตัดสินใจข้ามเอง
+- ถ้าติด blocker จริงๆ ให้ **แจ้งผู้ใช้ชัดเจน** ว่าติดเรื่องอะไร และเสนอทางเลือก
+
+```
+❌ WRONG — ข้ามโดยไม่บอก
+"Round 6.2 ข้ามไปก่อน เนื่องจากซับซ้อนมาก"
+
+✅ CORRECT — แจ้งและถาม
+"Round 6.2 ติด blocker: computation ผูกกับ @/lib/glAccountMap
+ต้องการ port logic ทั้งหมดไป Go ก่อน
+ต้องการดำเนินการต่อหรือข้ามก่อนครับ?"
+```
+
+## ห้ามประกาศว่างานเสร็จโดยไม่ verify end-to-end
+
+- ทุกงานที่มีทั้ง backend และ frontend **ต้องทำครบทั้ง 2 ฝั่ง** ก่อนถือว่าเสร็จ
+- ห้าม mark งานว่า done เมื่อทำแค่ฝั่งเดียว
+- ต้อง verify ด้วยตัวเองว่า flow ทั้งหมดครบ
+
+```
+❌ WRONG — ทำแค่ backend แล้วบอกว่าเสร็จ
+"เพิ่ม CollectionsMerged endpoint แล้ว ✓"
+(แต่ frontend ยังดึง 2 endpoints + merge เองอยู่)
+
+✅ CORRECT — ครบทั้ง 2 ฝั่ง
+"เพิ่ม CollectionsMerged endpoint แล้ว
++ อัปเดต collectionsClient.tsx ให้ดึง endpoint เดียว
++ ลบ useMemo merge logic ออกแล้ว ✓"
+```
+
+## ห้ามประเมินสถานะจากการมีอยู่ของไฟล์เพียงอย่างเดียว
+
+- ห้ามสรุปว่า "งานเสร็จแล้ว" เพียงเพราะไฟล์ที่เกี่ยวข้องมีอยู่
+- ต้อง **อ่านเนื้อหาจริง** แล้ว verify ว่า logic ถูกต้องครบถ้วน
+
+```
+❌ WRONG — เห็น bomView.tsx มีอยู่แล้วสรุปว่าสำเร็จ
+"bomView.tsx มีอยู่แล้ว structure ถูกต้องแล้ว"
+(แต่ bomClient.tsx ยังมี 1,578 lines อยู่)
+
+✅ CORRECT — ตรวจ actual content
+อ่าน bomClient.tsx → ยังมี 1,578 lines
+→ ต้องทำ split ต่อไป
+```
+
+## Completion Checklist สำหรับทุกงาน
+
+ก่อนรายงานว่างานเสร็จ ต้องผ่านทุกข้อ:
+
+- [ ] ทุก task ใน list ถูกทำครบ (ไม่มีข้ามหรือ skip)
+- [ ] งานที่มีทั้ง backend + frontend ทำครบทั้ง 2 ฝั่ง
+- [ ] อ่านไฟล์ที่แก้ไขเพื่อ verify ว่า logic ถูกต้อง ไม่ใช่แค่ไฟล์มีอยู่
+- [ ] `go build ./...` ผ่าน (ถ้าแก้ Go)
+- [ ] `npx tsc --noEmit` ผ่าน (ถ้าแก้ TypeScript)
+- [ ] ถ้าติด blocker แจ้งผู้ใช้ทันที อย่าข้ามเงียบๆ
