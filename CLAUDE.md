@@ -2129,3 +2129,381 @@ cd evergreen && npx tsc --noEmit
 ```
 
 ถ้า error → แก้ให้ผ่านก่อน ห้าม commit code ที่ build ไม่ผ่าน
+
+---
+
+# Enterprise Scale Rules (MANDATORY)
+
+> ระบบนี้มีผู้ใช้งานระดับองค์กร 100+ คน และลูกค้าภายนอกอีกหลายหมื่นคน
+> กฏชุดนี้บังคับใช้กับทุก feature ที่สร้างใหม่หรือแก้ไข — ไม่มีข้อยกเว้น
+
+---
+
+## E1: Pagination บังคับสำหรับทุก list endpoint
+
+ทุก endpoint ที่ return list ต้องรองรับ pagination เสมอ — ห้าม return ทุก row โดยไม่จำกัด
+
+```go
+// ✅ CORRECT — Backend support pagination
+func (s *Store) ListLeads(ctx context.Context, limit, offset int) ([]map[string]any, error) {
+    return db.QueryRows(ctx, s.pool, `
+        SELECT "salesLeadId", "salesLeadTitle", "salesLeadStatus"
+        FROM "salesLead"
+        WHERE "isActive" = true
+        ORDER BY "salesLeadCreatedAt" DESC
+        LIMIT $1 OFFSET $2
+    `, limit, offset)
+}
+
+// Handler reads from query params
+func (h *Handler) ListLeads(w http.ResponseWriter, r *http.Request) {
+    limit := queryInt(r, "limit", 50)   // default 50
+    offset := queryInt(r, "offset", 0)
+    data, err := h.store.ListLeads(r.Context(), limit, offset)
+    // ...
+}
+```
+
+```typescript
+// ✅ CORRECT — Frontend pagination controls
+const [page, setPage] = useState(1)
+const limit = 50
+const offset = (page - 1) * limit
+const { data } = useSWR(`/api/sales/leads?limit=${limit}&offset=${offset}`, fetcher, {
+  revalidateOnFocus: false,
+})
+```
+
+กฏ:
+- Default limit = 50 (user-facing tables) หรือ 100 (admin/internal tables)
+- Maximum limit = 500 (ห้ามเกิน)
+- ทุก list response ควร include `total` count เพื่อให้ frontend แสดง pagination controls
+
+---
+
+## E2: Loading / Error / Empty state บังคับทุก async operation
+
+ทุก component ที่ fetch ข้อมูล async ต้องมีครบทั้ง 3 state — ห้าม render แต่ data เฉยๆ
+
+```typescript
+// ✅ CORRECT — ครบ 3 state
+const { data, error, isLoading } = useSWR('/api/finance/collections', fetcher, {
+  revalidateOnFocus: false,
+})
+
+if (isLoading) return <TableSkeleton rows={10} />           // Loading state
+if (error) return <ErrorState message="โหลดข้อมูลไม่สำเร็จ" onRetry={mutate} />  // Error state
+if (!data || data.length === 0) return <EmptyState />        // Empty state
+
+return <CollectionsView data={data} />                        // Data state
+```
+
+**Loading State:**
+- ใช้ Skeleton UI เสมอ — ห้ามใช้ spinner กลางหน้าเดียวๆ สำหรับ table content
+- Skeleton ต้องมี shape เหมือน content จริง (table rows, cards, etc.)
+
+**Error State:**
+- แสดงข้อความที่ user เข้าใจ (ภาษาไทย)
+- มีปุ่ม "ลองใหม่" เสมอ — เรียก `mutate()` หรือ reload function
+- ห้าม expose raw error message จาก server ให้ user เห็น
+
+**Empty State:**
+- อธิบายว่าทำไมถึงไม่มีข้อมูล ("ยังไม่มีรายการ", "ไม่พบผลการค้นหา")
+- เพิ่ม call-to-action ถ้าเหมาะสม ("+ เพิ่มรายการแรก")
+
+---
+
+## E3: Input validation ต้องครบทั้ง frontend และ backend
+
+ห้าม validate เฉพาะฝั่งใดฝั่งหนึ่ง — ต้องมีทั้งคู่เสมอ
+
+**Frontend validation (ก่อน submit):**
+```typescript
+// ✅ CORRECT — validate ก่อน call API
+const handleSubmit = async () => {
+  if (!formData.title?.trim()) {
+    toast.error("กรุณากรอกชื่อ")
+    return
+  }
+  if (formData.amount <= 0) {
+    toast.error("จำนวนเงินต้องมากกว่า 0")
+    return
+  }
+  await post("/api/finance/collections", formData)
+}
+```
+
+**Backend validation (ใน handler):**
+```go
+// ✅ CORRECT — validate ใน Go handler ก่อนส่งไป store
+func (h *Handler) CreateCollection(w http.ResponseWriter, r *http.Request) {
+    var body map[string]any
+    json.NewDecoder(r.Body).Decode(&body)
+
+    title, _ := body["title"].(string)
+    if strings.TrimSpace(title) == "" {
+        response.Error(w, http.StatusBadRequest, "title is required")
+        return
+    }
+    // proceed to store...
+}
+```
+
+กฏ:
+- Field ที่ required → ต้อง validate ทั้ง 2 ฝั่ง
+- ตัวเลขการเงิน → validate range (ไม่ติดลบ, ไม่เกิน limit ที่สมเหตุสมผล)
+- String fields → TrimSpace + check empty
+- UUID/ID fields → validate format ก่อน query DB
+
+---
+
+## E4: Virtual scrolling / windowing สำหรับ dataset ขนาดใหญ่
+
+ถ้า list มีมากกว่า 500 rows ที่แสดงพร้อมกัน ต้องใช้ virtual scrolling หรือ server-side pagination
+
+```typescript
+// ❌ WRONG — render 5000 rows พร้อมกัน = browser freeze
+return (
+  <tbody>
+    {data.map(row => <tr key={row.id}>...</tr>)}  // 5000 rows
+  </tbody>
+)
+
+// ✅ CORRECT — ตัวเลือก 1: Server-side pagination (preferred)
+// แสดงทีละ 50 rows, มี pagination controls
+
+// ✅ CORRECT — ตัวเลือก 2: Virtual scrolling ถ้า UX ต้องการ scroll ต่อเนื่อง
+// ใช้ @tanstack/react-virtual หรือ react-window
+```
+
+---
+
+## E5: Optimistic updates สำหรับ mutation ที่ไม่ต้องการ server confirmation
+
+สำหรับ action ที่ user คาดหวังว่าจะ "ทำทันที" (เช่น toggle status, เพิ่ม tag, mark as read):
+
+```typescript
+// ✅ CORRECT — optimistic update
+const handleToggleStatus = async (id: string, newStatus: string) => {
+  // 1. Update UI ทันที
+  setData(prev => prev.map(item =>
+    item.id === id ? { ...item, status: newStatus } : item
+  ))
+
+  try {
+    await post(`/api/sales/leads/${id}/status`, { status: newStatus })
+    toast.success("อัปเดตสถานะแล้ว")
+  } catch {
+    // 2. Revert ถ้า error
+    setData(prev => prev.map(item =>
+      item.id === id ? { ...item, status: item.status } : item  // revert
+    ))
+    toast.error("อัปเดตไม่สำเร็จ กรุณาลองใหม่")
+  }
+}
+```
+
+ใช้ optimistic update กับ: status toggle, checkbox, star/favorite, archive, mark as read
+ห้ามใช้ optimistic update กับ: financial transactions, delete, อะไรก็ตามที่ต้อง server-side validation จริงจัง
+
+---
+
+## E6: UX Standards — Confirmation, Toast, Skeleton
+
+### Confirmation dialogs (บังคับ)
+ทุก destructive action ต้องมี confirmation dialog ก่อนดำเนินการ:
+- Delete (ลบ, ยกเลิก, ปิด)
+- Action ที่ย้อนกลับไม่ได้
+- Action ที่กระทบหลายรายการพร้อมกัน
+
+```typescript
+// ✅ CORRECT
+const handleDelete = async () => {
+  const confirmed = await confirm({
+    title: "ยืนยันการลบ",
+    message: `ต้องการลบ "${item.title}" ใช่หรือไม่? ไม่สามารถย้อนกลับได้`,
+    confirmLabel: "ลบ",
+    cancelLabel: "ยกเลิก",
+    danger: true,
+  })
+  if (!confirmed) return
+  await deleteItem(item.id)
+}
+```
+
+### Toast notifications (บังคับ)
+ทุก mutation ต้องมี toast feedback:
+- Success: `toast.success("บันทึกเรียบร้อย")`
+- Error: `toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่")`
+- Loading: `toast.loading("กำลังบันทึก...")` → dismiss แล้วแสดง success/error
+
+ห้ามปล่อยให้ user submit form โดยไม่มี feedback ใดๆ
+
+### Skeleton loading (บังคับ)
+ห้ามใช้ blank screen ขณะโหลด:
+- Table: แสดง skeleton rows (เดียวกับจำนวน rows ที่คาดว่าจะมี)
+- Cards: แสดง skeleton cards
+- Number/KPI: แสดง placeholder สีเทา
+
+---
+
+## E7: Query และ Request Timeout
+
+ทุก DB query และ HTTP request ต้องมี timeout เพื่อป้องกัน resource leak
+
+**Backend — DB query timeout:**
+```go
+// ✅ CORRECT — ทุก handler ควรมี context timeout
+func (h *Handler) ListData(w http.ResponseWriter, r *http.Request) {
+    ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+    defer cancel()
+
+    data, err := h.store.ListData(ctx)
+    if err != nil {
+        if errors.Is(err, context.DeadlineExceeded) {
+            response.Error(w, http.StatusGatewayTimeout, "query timeout")
+            return
+        }
+        response.InternalError(w, err)
+        return
+    }
+    response.OK(w, data)
+}
+```
+
+**Frontend — API call timeout:**
+```typescript
+// ✅ CORRECT — ใช้ AbortController กับ fetch ที่ใช้เวลานาน
+const controller = new AbortController()
+const timeoutId = setTimeout(() => controller.abort(), 15000)  // 15s
+
+try {
+  const res = await fetch(url, { signal: controller.signal })
+  clearTimeout(timeoutId)
+  return await res.json()
+} catch (err) {
+  if (err.name === 'AbortError') throw new Error('Request timeout')
+  throw err
+}
+```
+
+กฏ timeout:
+- Simple list query: 15 วินาที
+- Complex aggregation query: 30 วินาที
+- Dashboard (parallel queries): 45 วินาที
+- ห้ามใช้ query ที่ไม่มี timeout ใน production
+
+---
+
+## E8: Response Size Control
+
+ป้องกัน response ขนาดใหญ่ที่ทำให้ browser ช้าและ bandwidth สูง
+
+กฏ:
+- List endpoints: ต้องมี LIMIT เสมอ (ดู Backend SQL Rule 6)
+- Dashboard endpoints: return เฉพาะ aggregated KPIs — ห้าม return raw rows ไปคำนวณที่ frontend
+- Nested data: ใช้ `?expand=true` query param เพื่อ opt-in — default ไม่ต้อง expand
+- Binary/base64: ห้าม embed image/file ใน JSON response — ใช้ URL แทน
+
+**Target response sizes:**
+| Endpoint Type | Max Size |
+|---|---|
+| Dashboard KPIs | < 10 KB |
+| List (50 rows) | < 100 KB |
+| Single record detail | < 50 KB |
+| Report/export | stream หรือ background job |
+
+---
+
+## E9: Accessibility และ UX ขั้นต่ำ
+
+ระบบที่มีผู้ใช้หลาย 100 คนต้องใช้งานได้โดยไม่ต้องฝึก
+
+### Navigation clarity
+- ทุกหน้าต้องมี breadcrumb หรือ page title ที่ชัดเจน
+- Active state ใน sidebar ต้องชัด — user รู้ว่าตัวเองอยู่ที่ไหน
+- Back navigation ต้องทำงานถูกต้องเสมอ
+
+### Form UX
+- Label ทุก input field ชัดเจน (ภาษาไทย)
+- Required fields มีเครื่องหมาย `*`
+- Error message แสดงที่ field นั้นๆ ไม่ใช่แค่ toast
+- Submit button disabled ขณะ loading — ป้องกัน double-submit
+
+### Table UX
+- Column ที่ sort ได้ต้องมี visual indicator
+- ถ้า row count > 0 ต้องแสดงจำนวนทั้งหมด เช่น "แสดง 1-50 จาก 234 รายการ"
+- Search/filter ต้อง debounce ≥ 300ms — ห้าม fire ทุก keystroke
+
+### Mobile considerations
+- Layout ต้องใช้งานได้บน tablet (iPad) เป็นอย่างน้อย
+- Font size ≥ 14px สำหรับ body text
+- Touch targets ≥ 44x44px สำหรับ buttons และ interactive elements
+
+---
+
+## E10: Security Headers และ API Protection
+
+**Rate limiting awareness:**
+- Frontend ต้องไม่ fire API call ซ้ำโดยไม่จำเป็น (ดู revalidateOnFocus: false)
+- Search/autocomplete ต้อง debounce ≥ 300ms
+- Polling interval ต้องไม่สั้นกว่า 30 วินาที สำหรับ non-critical data
+
+**Auth boundary:**
+- ทุก sensitive route ใน Next.js ต้องเช็ค session ใน `proxy.ts` หรือ Server Component
+- ห้าม rely เฉพาะ frontend redirect — backend ต้อง enforce ด้วยเสมอ (ดู S3)
+
+**Data exposure:**
+- ห้าม log ข้อมูล sensitive (password, token, เลขบัตร, เลขบัญชี) ไม่ว่าใน frontend หรือ backend
+- Error response ที่ส่งไปยัง client ต้องไม่มี stack trace หรือ query string ใน production
+
+---
+
+## E11: Performance Budget
+
+เป้าหมาย performance ที่ทุก feature ต้องผ่านก่อน release:
+
+| Metric | Target |
+|---|---|
+| Page initial load (dashboard) | < 3 วินาที บน 4G |
+| List page render (50 rows) | < 1 วินาที |
+| API response time (simple list) | < 500ms |
+| API response time (complex aggregation) | < 2000ms |
+| Time to interactive (TTI) | < 5 วินาที |
+
+วิธีตรวจสอบ:
+- Chrome DevTools Network tab — ดู response time
+- React DevTools Profiler — ดู render time
+- ถ้า API > 2 วินาที → ต้องเพิ่ม index หรือ optimize query ก่อน release
+
+---
+
+## E12: Checklist ก่อน release feature ใหม่
+
+ทุก feature ใหม่ต้องผ่าน checklist นี้ก่อน merge:
+
+**Performance**
+- [ ] List endpoint มี pagination หรือ LIMIT ที่เหมาะสม
+- [ ] ไม่มี N+1 query (ดู query plan ถ้าสงสัย)
+- [ ] Dashboard handler ใช้ errgroup สำหรับ parallel queries
+- [ ] API response < 500ms สำหรับ typical load
+
+**UX/UI**
+- [ ] มี Loading skeleton (ไม่ใช่ blank screen)
+- [ ] มี Error state พร้อมปุ่ม retry
+- [ ] มี Empty state พร้อมคำอธิบาย
+- [ ] Destructive actions มี confirmation dialog
+- [ ] Mutations มี toast feedback (success + error)
+- [ ] Form มี validation message ที่ field
+
+**Safety**
+- [ ] ทุก endpoint ผ่าน auth middleware (S3)
+- [ ] ไม่มี SQL injection risk (S5)
+- [ ] ไม่มี float64 ในการคำนวณการเงิน (S1)
+- [ ] Error ไม่หายเงียบ (S6)
+
+**Code Quality**
+- [ ] `go build ./...` ผ่าน
+- [ ] `npx tsc --noEmit` ผ่าน
+- [ ] ไม่มี `any` ที่ไม่มี comment
+- [ ] Types ตรงกับ Go response ทุก field
