@@ -23,7 +23,8 @@ export async function api<T = unknown>(path: string, revalidate?: number): Promi
 
   const nextOptions = revalidate != null ? { next: { revalidate } } : { cache: "no-store" as const };
 
-  const res = await fetch(`${apiBase}${path}`, { headers, ...nextOptions });
+  // 60s timeout — heavy dashboard/aggregation queries (production, finance) can take 30-45s
+  const res = await fetch(`${apiBase}${path}`, { headers, ...nextOptions, signal: AbortSignal.timeout(60000) });
 
   if (!res.ok) {
     return null;

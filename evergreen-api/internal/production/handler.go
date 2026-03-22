@@ -1193,15 +1193,23 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	prodOrders, err := h.store.GetProductionOrders(ctx)
-	if err != nil {
+	var (
+		prodOrders      []map[string]any
+		ileEntries      []map[string]any
+		consumptionCosts []map[string]any
+		salesPriceRows  []map[string]any
+		dimNameRows     []map[string]any
+	)
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error { var e error; prodOrders, e = h.store.GetProductionOrders(gCtx); return e })
+	g.Go(func() error { var e error; ileEntries, e = h.store.GetItemLedgerEntries(gCtx, time.Time{}); return e })
+	g.Go(func() error { var e error; consumptionCosts, e = h.store.GetConsumptionCosts(gCtx); return e })
+	g.Go(func() error { var e error; salesPriceRows, e = h.store.GetSalesPriceMap(gCtx); return e })
+	g.Go(func() error { var e error; dimNameRows, e = h.store.GetDimensionNames(gCtx); return e })
+	if err := g.Wait(); err != nil {
 		response.InternalError(w, err)
 		return
 	}
-	ileEntries, _ := h.store.GetItemLedgerEntries(ctx, time.Time{})
-	consumptionCosts, _ := h.store.GetConsumptionCosts(ctx)
-	salesPriceRows, _ := h.store.GetSalesPriceMap(ctx)
-	dimNameRows, _ := h.store.GetDimensionNames(ctx)
 
 	salesPriceMap := map[string]float64{}
 	for _, row := range salesPriceRows {
