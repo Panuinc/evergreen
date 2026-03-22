@@ -200,6 +200,7 @@ Every table name MUST follow the pattern: `{module}{Entity}` in **camelCase**
 | Warehouse | `wh` | `whInventory`, `whLocation` |
 | RBAC | `rbac` | `rbacRole`, `rbacPermission` |
 | Settings | `sys` | `sysConfig`, `sysSyncState` |
+| AR / Collections | `ar` | `arFollowUp`, `arCollection` |
 
 ## Column Naming
 
@@ -287,6 +288,25 @@ CREATE TABLE hrEmployee (
 3. **ทุก column ที่ใช้ใน WHERE, JOIN, GROUP BY, ORDER BY ต้องมี index** — ถ้าเขียน query ใหม่ ต้องตรวจว่ามี index แล้ว ถ้าไม่มีต้องสร้าง
 4. **Query ที่มี aggregate (SUM, COUNT) ต้อง filter ให้แคบก่อน GROUP BY** — ใช้ WHERE ตัดข้อมูลที่ไม่ต้องการออกก่อน aggregate
 5. **LATERAL subquery กับ json_agg ต้อง SELECT เฉพาะ column ที่ใช้** — ห้าม `to_json(l.*)` ต้อง `json_build_object('field1', l."col1", ...)`
+6. **ทุก List query ต้องมี LIMIT เสมอ** — ห้าม query โดยไม่มี LIMIT เพราะ table อาจโตได้ไม่จำกัด ใช้ตัวเลขที่เหมาะกับ use case
+   - BC master data (item, customer): `LIMIT 5000–30000`
+   - BC ledger/document: `LIMIT 500–2000`
+   - App tables (sales, hr, tms, mkt): `LIMIT 200–1000`
+   - Dashboard aggregation (GROUP BY): `LIMIT 500–2000`
+7. **Dashboard handler ที่มี query หลายตัวต้องใช้ `errgroup` parallel** — ห้าม call store หลายครั้งแบบ sequential
+
+```go
+// ✅ CORRECT — parallel ด้วย errgroup
+var orders, entries []map[string]any
+g, gCtx := errgroup.WithContext(ctx)
+g.Go(func() error { var e error; orders, e = h.store.GetOrders(gCtx); return e })
+g.Go(func() error { var e error; entries, e = h.store.GetEntries(gCtx); return e })
+if err := g.Wait(); err != nil { response.InternalError(w, err); return }
+
+// ❌ WRONG — sequential (ช้ากว่า 2-10x สำหรับ dashboard)
+orders, _ := h.store.GetOrders(ctx)
+entries, _ := h.store.GetEntries(ctx)
+```
 
 ---
 
@@ -301,6 +321,15 @@ CREATE TABLE hrEmployee (
    - ผิด: `api("/api/bc/customers", 1800)` หรือ `api("/api/hr/divisions", 86400)`
    - ถูก: `api("/api/bc/customers")` — ไม่ใส่ parameter ที่ 2 เลย
    - `api()` default คือ `cache: "no-store"` ซึ่งถูกต้องแล้ว อย่าเปลี่ยน
+5. **`useSWR` ทุกตัวต้องมี `revalidateOnFocus: false`** — ป้องกัน refetch ไม่จำเป็นทุกครั้งที่ user สลับ tab กลับมา
+   - ยกเว้น: ข้อมูลที่ต้องการ aggressive refresh จริงๆ (เช่น GPS tracking ที่มี `refreshInterval`)
+   ```typescript
+   // ✅ CORRECT
+   useSWR<T>(key, fetcher, { revalidateOnFocus: false })
+
+   // ❌ WRONG — จะ refetch ทุกครั้งที่กลับมาที่ tab
+   useSWR<T>(key, fetcher)
+   ```
 
 ---
 
