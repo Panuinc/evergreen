@@ -87,7 +87,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 
 	g, gCtx := errgroup.WithContext(ctx)
 	g.Go(func() error { var e error; prodOrders, e = h.store.GetProductionOrders(gCtx); return e })
-	g.Go(func() error { var e error; ileEntries, e = h.store.GetItemLedgerEntries(gCtx); return e })
+	g.Go(func() error { var e error; ileEntries, e = h.store.GetItemLedgerEntries(gCtx, time.Time{}); return e })
 	g.Go(func() error { var e error; consumptionCosts, e = h.store.GetConsumptionCosts(gCtx); return e })
 	g.Go(func() error { var e error; salesPriceRows, e = h.store.GetSalesPriceMap(gCtx); return e })
 	g.Go(func() error { var e error; dimNameRows, e = h.store.GetDimensionNames(gCtx); return e })
@@ -1198,7 +1198,7 @@ func (h *Handler) ListOrders(w http.ResponseWriter, r *http.Request) {
 		response.InternalError(w, err)
 		return
 	}
-	ileEntries, _ := h.store.GetItemLedgerEntries(ctx)
+	ileEntries, _ := h.store.GetItemLedgerEntries(ctx, time.Time{})
 	consumptionCosts, _ := h.store.GetConsumptionCosts(ctx)
 	salesPriceRows, _ := h.store.GetSalesPriceMap(ctx)
 	dimNameRows, _ := h.store.GetDimensionNames(ctx)

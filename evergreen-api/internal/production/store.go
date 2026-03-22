@@ -2,6 +2,7 @@ package production
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -49,8 +50,11 @@ func (s *Store) GetProductionOrders(ctx context.Context) ([]map[string]any, erro
 }
 
 // GetItemLedgerEntries returns output and consumption entries linked to production orders.
-// Filters to the last 2 years to keep the dataset manageable.
-func (s *Store) GetItemLedgerEntries(ctx context.Context) ([]map[string]any, error) {
+// yearStart controls the earliest posting date to include. Pass time.Time{} to use the default (2 years ago).
+func (s *Store) GetItemLedgerEntries(ctx context.Context, yearStart time.Time) ([]map[string]any, error) {
+	if yearStart.IsZero() {
+		yearStart = time.Now().AddDate(-2, 0, 0)
+	}
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
 			ile."bcItemLedgerEntryEntryType",
@@ -70,8 +74,8 @@ func (s *Store) GetItemLedgerEntries(ctx context.Context) ([]map[string]any, err
 		WHERE ile."bcItemLedgerEntryEntryType" IN ('Output', 'Consumption')
 		  AND ile."bcItemLedgerEntryOrderNo" IS NOT NULL
 		  AND ile."bcItemLedgerEntryOrderNo" != ''
-		  AND ile."bcItemLedgerEntryPostingDate" >= CURRENT_DATE - INTERVAL '2 years'
-	`)
+		  AND ile."bcItemLedgerEntryPostingDate" >= $1
+	`, yearStart)
 }
 
 // GetConsumptionCosts returns consumption costs aggregated by order from value entries.
