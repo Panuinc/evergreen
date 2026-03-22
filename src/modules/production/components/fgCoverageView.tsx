@@ -61,7 +61,7 @@ export default function FgCoverageView({ initialData = null }: FgCoverageViewPro
   const { data: swrData, isLoading } = useSWR(
     initialData ? null : "/api/production/fgCoverage",
     fgFetcher,
-    { onError: () => toast.error("โหลดข้อมูลสถานะตั๋วผลิตล้มเหลว") },
+    { revalidateOnFocus: false, onError: () => toast.error("โหลดข้อมูลสถานะตั๋วผลิตล้มเหลว") },
   );
   const data = initialData ?? swrData ?? null;
   const loading = !initialData && isLoading;

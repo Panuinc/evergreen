@@ -21,7 +21,7 @@ export default function OmnichannelQuotationEditorClient() {
   const { data: swrData, isLoading: loading, mutate } = useSWR<MktQuotation>(
     id ? `/api/marketing/omnichannel/quotations/${id}` : null,
     fetcher,
-    { onError: (err: Error) => toast.error(err.message) },
+    { revalidateOnFocus: false, onError: (err: Error) => toast.error(err.message) },
   );
 
   useEffect(() => {

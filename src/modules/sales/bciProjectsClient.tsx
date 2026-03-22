@@ -10,7 +10,7 @@ export default function BciProjectsClient() {
   const { data, isLoading: loading, mutate } = useSWR<BciProject[]>(
     "/api/bci/projects",
     (url: string) => get(url),
-    { onError: () => toast.error("ไม่สามารถโหลดข้อมูลโครงการ BCI ได้") },
+    { revalidateOnFocus: false, onError: () => toast.error("ไม่สามารถโหลดข้อมูลโครงการ BCI ได้") },
   );
   const projects: BciProject[] = data || [];
 

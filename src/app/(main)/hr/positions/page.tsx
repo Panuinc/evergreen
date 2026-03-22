@@ -4,8 +4,8 @@ import type { HrPosition, HrDepartment } from "@/modules/hr/types";
 
 export default async function PositionsPage() {
   const [positions, departments] = await Promise.all([
-    api("/api/hr/positions"),
-    api("/api/hr/departments"),
+    api("/api/hr/positions", 86400),
+    api("/api/hr/departments", 86400),
   ]);
 
   return (

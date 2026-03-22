@@ -101,7 +101,7 @@ export default function TrackingClient() {
   const { data: trackingData, isLoading: loading, mutate: loadData } = useSWR<{ vehicles: TmsVehicle[]; positions: TmsGpsLog[] }>(
     "tracking-positions",
     trackingFetcher,
-    { refreshInterval: 30000 },
+    { refreshInterval: 30000, revalidateOnFocus: false },
   );
 
   const vehicles: TmsVehicle[] = trackingData?.vehicles || [];

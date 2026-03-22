@@ -14,6 +14,8 @@ func Routes(h *Handler) chi.Router {
 	r.Get("/glEntries", h.GLEntries)
 	r.Get("/trialBalance", h.TrialBalance)
 
+	r.Get("/collectionsMerged", h.CollectionsMerged)
+
 	r.Route("/collections", func(r chi.Router) {
 		r.Get("/", h.ListCollections)
 		r.Post("/", h.CreateCollection)

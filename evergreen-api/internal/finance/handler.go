@@ -112,6 +112,17 @@ func (h *Handler) TrialBalance(w http.ResponseWriter, r *http.Request) {
 	response.OK(w, data)
 }
 
+// ---- Collections Merged (agedReceivables + arFollowUp in one query) ----
+
+func (h *Handler) CollectionsMerged(w http.ResponseWriter, r *http.Request) {
+	data, err := h.store.ListCollectionsMerged(r.Context())
+	if err != nil {
+		response.InternalError(w, err)
+		return
+	}
+	response.OK(w, data)
+}
+
 // ---- Collections (arFollowUp) ----
 
 func (h *Handler) ListCollections(w http.ResponseWriter, r *http.Request) {

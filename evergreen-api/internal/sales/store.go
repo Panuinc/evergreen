@@ -110,7 +110,7 @@ func (s *Store) ListLeads(ctx context.Context, isSuperAdmin bool, search string)
 		p := "%" + search + "%"
 		args = append(args, p, p, p, p)
 	}
-	q += ` ORDER BY "salesLeadCreatedAt" DESC`
+	q += ` ORDER BY "salesLeadCreatedAt" DESC LIMIT 500`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -185,7 +185,7 @@ func (s *Store) ListContacts(ctx context.Context, isSuperAdmin bool, search stri
 		p := "%" + search + "%"
 		args = append(args, p, p, p)
 	}
-	q += ` ORDER BY c."salesContactCreatedAt" DESC`
+	q += ` ORDER BY c."salesContactCreatedAt" DESC LIMIT 1000`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -238,7 +238,7 @@ func (s *Store) ListAccounts(ctx context.Context, isSuperAdmin bool, search stri
 		p := "%" + search + "%"
 		args = append(args, p, p, p)
 	}
-	q += ` ORDER BY "salesAccountCreatedAt" DESC`
+	q += ` ORDER BY "salesAccountCreatedAt" DESC LIMIT 1000`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -295,7 +295,7 @@ func (s *Store) ListOpportunities(ctx context.Context, isSuperAdmin bool, stage 
 		q += fmt.Sprintf(` AND o."salesOpportunityStage" = $%d`, argIdx)
 		args = append(args, stage)
 	}
-	q += ` ORDER BY o."salesOpportunityCreatedAt" DESC`
+	q += ` ORDER BY o."salesOpportunityCreatedAt" DESC LIMIT 500`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -528,7 +528,7 @@ func (s *Store) ListActivities(ctx context.Context, isSuperAdmin bool, actType, 
 		q += fmt.Sprintf(` AND "salesActivityStatus" = $%d`, argIdx)
 		args = append(args, status)
 	}
-	q += ` ORDER BY "salesActivityDueDate" ASC NULLS LAST`
+	q += ` ORDER BY "salesActivityDueDate" ASC NULLS LAST LIMIT 500`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 

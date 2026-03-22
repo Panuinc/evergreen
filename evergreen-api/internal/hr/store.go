@@ -49,7 +49,7 @@ func (s *Store) ListEmployees(ctx context.Context, search string, includeInactiv
 		pattern := "%" + search + "%"
 		args = append(args, pattern, pattern, pattern)
 	}
-	q += ` ORDER BY e."hrEmployeeCreatedAt" DESC`
+	q += ` ORDER BY e."hrEmployeeCreatedAt" DESC LIMIT 2000`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -114,7 +114,7 @@ func (s *Store) ListDepartments(ctx context.Context, includeInactive bool) ([]ma
 	if !includeInactive {
 		q += ` WHERE "isActive" = true`
 	}
-	q += ` ORDER BY "hrDepartmentName"`
+	q += ` ORDER BY "hrDepartmentName" LIMIT 200`
 	return db.QueryRows(ctx, s.pool, q)
 }
 
@@ -147,7 +147,7 @@ func (s *Store) ListDivisions(ctx context.Context, includeInactive bool) ([]map[
 	if !includeInactive {
 		q += ` WHERE "isActive" = true`
 	}
-	q += ` ORDER BY "hrDivisionName"`
+	q += ` ORDER BY "hrDivisionName" LIMIT 200`
 	return db.QueryRows(ctx, s.pool, q)
 }
 
@@ -179,7 +179,7 @@ func (s *Store) ListPositions(ctx context.Context, includeInactive bool) ([]map[
 	if !includeInactive {
 		q += ` WHERE "isActive" = true`
 	}
-	q += ` ORDER BY "hrPositionTitle"`
+	q += ` ORDER BY "hrPositionTitle" LIMIT 200`
 	return db.QueryRows(ctx, s.pool, q)
 }
 
@@ -215,7 +215,8 @@ func (s *Store) ListAllEmployees(ctx context.Context) ([]map[string]any, error) 
 		dept."hrDepartmentName"
 	FROM "hrEmployee" e
 	LEFT JOIN "hrDivision" d ON d."hrDivisionId" = e."hrEmployeeHrDivisionId"
-	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"`)
+	LEFT JOIN "hrDepartment" dept ON dept."hrDepartmentId" = e."hrEmployeeHrDepartmentId"
+	LIMIT 2000`)
 }
 
 func (s *Store) ListActiveDivisions(ctx context.Context) ([]map[string]any, error) {

@@ -1192,11 +1192,11 @@ export default function BomClient() {
 
   // --- Frames data (inlined from useFrames) ---
   const fetcher = (url) => get(url);
-  const { data: framesData, isLoading: framesLoading } = useSWR("/api/production/frames", fetcher);
+  const { data: framesData, isLoading: framesLoading } = useSWR("/api/production/frames", fetcher, { revalidateOnFocus: false });
   const erpFrames = framesData || { rubberwood: [], sadao: [], lvl: [] };
 
   // --- Cores data (inlined from useCores) ---
-  const { data: coresData, isLoading: coresLoading } = useSWR("/api/production/cores", fetcher);
+  const { data: coresData, isLoading: coresLoading } = useSWR("/api/production/cores", fetcher, { revalidateOnFocus: false });
   const coreItems = useMemo(() => coresData || { foam: [], rockwool: [], particle: [], plywood: [], honeycomb: [] }, [coresData]);
 
   const formRef = useRef(null);

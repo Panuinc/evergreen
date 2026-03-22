@@ -44,6 +44,7 @@ func (s *Store) GetProductionOrders(ctx context.Context) ([]map[string]any, erro
 			i."bcItemUnitPrice"
 		FROM "bcProductionOrder" po
 		LEFT JOIN "bcItem" i ON i."bcItemNo" = po."bcProductionOrderSourceNo"
+		LIMIT 2000
 	`)
 }
 
@@ -91,6 +92,7 @@ func (s *Store) GetConsumptionCosts(ctx context.Context) ([]map[string]any, erro
 		WHERE ve."bcValueEntryItemLedgerEntryType" = 'Consumption'
 		  AND ve."bcValueEntryOrderNo" IS NOT NULL
 		  AND ve."bcValueEntryOrderNo" != ''
+		LIMIT 5000
 	`)
 }
 
@@ -104,6 +106,7 @@ func (s *Store) GetSalesPriceMap(ctx context.Context) ([]map[string]any, error) 
 		WHERE "bcSalesOrderLineTypeValue" = 'Item'
 		  AND "bcSalesOrderLineUnitPrice" > 0
 		GROUP BY "bcSalesOrderLineNoValue"
+		LIMIT 10000
 	`)
 }
 
@@ -116,6 +119,7 @@ func (s *Store) GetDimensionNames(ctx context.Context) ([]map[string]any, error)
 			"bcDimensionSetEntryDimensionValueName"
 		FROM "bcDimensionSetEntry"
 		WHERE "bcDimensionSetEntryDimensionCode" IN ('DEPARTMENT', 'PROJECT')
+		LIMIT 1000
 	`)
 }
 
@@ -130,6 +134,7 @@ func (s *Store) ListCores(ctx context.Context) ([]map[string]any, error) {
 		WHERE "bcItemGenProdPostingGroup" = 'RM'
 			AND ("bcItemNo" LIKE 'RM-16-07%' OR "bcItemNo" LIKE 'RM-16-08%')
 		ORDER BY "bcItemNo"
+		LIMIT 5000
 	`)
 }
 
@@ -145,6 +150,7 @@ func (s *Store) ListFrames(ctx context.Context) ([]map[string]any, error) {
 			OR "bcItemNo" LIKE 'RM-14-04%'
 			OR "bcItemNo" LIKE 'RM-16-19%'
 		ORDER BY "bcItemNo"
+		LIMIT 5000
 	`)
 }
 
@@ -194,5 +200,6 @@ func (s *Store) FgCoverage(ctx context.Context) ([]map[string]any, error) {
 		LEFT JOIN po_data p ON p."bcProductionOrderSourceNo" = i."bcItemNo"
 		WHERE i."bcItemGenProdPostingGroup" = 'FG'
 		ORDER BY COALESCE(s."soOutstandingQty", 0) DESC
+		LIMIT 3000
 	`)
 }

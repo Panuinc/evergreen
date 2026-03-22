@@ -9,6 +9,7 @@ import { get, post, put, del, authFetch } from "@/lib/apiClient";
 import { companyHq } from "@/lib/tmsConstants";
 import ShipmentsView from "@/modules/tms/components/shipmentsView";
 import type { TmsVehicle, TmsShipment, TmsDeliveryPlan } from "@/modules/tms/types";
+import type { HrEmployee } from "@/modules/hr/types";
 
 
 
@@ -94,14 +95,14 @@ function ShipmentsInner() {
 
   const shipmentFetcher = (url: string) => get(url) as Promise<TmsShipment[]>;
   const vehicleFetcher = (url: string) => get(url) as Promise<TmsVehicle[]>;
-  const employeeFetcher = (url: string) => get(url) as Promise<unknown[]>;
-  const { data: shipmentsData, isLoading: shipmentsLoading, mutate: mutateShipments } = useSWR<TmsShipment[]>("/api/tms/shipments", shipmentFetcher);
-  const { data: vehiclesData, isLoading: vehiclesLoading } = useSWR<TmsVehicle[]>("/api/tms/vehicles", vehicleFetcher);
-  const { data: employeesData, isLoading: employeesLoading } = useSWR<unknown[]>("/api/hr/employees", employeeFetcher);
+  const employeeFetcher = (url: string) => get(url) as Promise<HrEmployee[]>;
+  const { data: shipmentsData, isLoading: shipmentsLoading, mutate: mutateShipments } = useSWR<TmsShipment[]>("/api/tms/shipments", shipmentFetcher, { revalidateOnFocus: false });
+  const { data: vehiclesData, isLoading: vehiclesLoading } = useSWR<TmsVehicle[]>("/api/tms/vehicles", vehicleFetcher, { revalidateOnFocus: false });
+  const { data: employeesData, isLoading: employeesLoading } = useSWR<HrEmployee[]>("/api/hr/employees", employeeFetcher, { revalidateOnFocus: false });
 
   const shipments: TmsShipment[] = shipmentsData || [];
   const vehicles: TmsVehicle[] = vehiclesData || [];
-  const employees: unknown[] = employeesData || [];
+  const employees: HrEmployee[] = employeesData || [];
   const loading = shipmentsLoading || vehiclesLoading || employeesLoading;
 
   const [saving, setSaving] = useState(false);

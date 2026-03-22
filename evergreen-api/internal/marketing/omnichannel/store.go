@@ -44,7 +44,7 @@ func (s *Store) ListConversations(ctx context.Context, status, channel string) (
 		q += fmt.Sprintf(` AND c."mktConversationChannelType" = $%d`, argIdx)
 		args = append(args, channel)
 	}
-	q += ` ORDER BY c."mktConversationLastMessageAt" DESC NULLS LAST`
+	q += ` ORDER BY c."mktConversationLastMessageAt" DESC NULLS LAST LIMIT 500`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -170,7 +170,7 @@ func (s *Store) ListQuotations(ctx context.Context, convID, status string) ([]ma
 		q += fmt.Sprintf(` AND q."mktQuotationStatus"=$%d`, argIdx)
 		args = append(args, status)
 	}
-	q += ` ORDER BY q."mktQuotationCreatedAt" DESC`
+	q += ` ORDER BY q."mktQuotationCreatedAt" DESC LIMIT 500`
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -236,7 +236,7 @@ func (s *Store) ListPromotions(ctx context.Context) ([]map[string]any, error) {
 		SELECT "mktPromotionId", "mktPromotionName", "mktPromotionDescription", "mktPromotionType",
 			"mktPromotionValue", "mktPromotionMinQuantity", "mktPromotionApplicableProducts",
 			"mktPromotionStartDate", "mktPromotionEndDate", "mktPromotionIsActive", "mktPromotionCreatedAt"
-		FROM "mktPromotion" ORDER BY "mktPromotionCreatedAt" DESC
+		FROM "mktPromotion" ORDER BY "mktPromotionCreatedAt" DESC LIMIT 200
 	`)
 }
 
@@ -271,7 +271,7 @@ func (s *Store) ListRelatedProducts(ctx context.Context) ([]map[string]any, erro
 	return db.QueryRows(ctx, s.pool, `
 		SELECT "mktRelatedProductId", "mktRelatedProductSourceItem", "mktRelatedProductTargetItem",
 			"mktRelatedProductType", "mktRelatedProductReason", "mktRelatedProductCreatedAt"
-		FROM "mktRelatedProduct" ORDER BY "mktRelatedProductCreatedAt" DESC
+		FROM "mktRelatedProduct" ORDER BY "mktRelatedProductCreatedAt" DESC LIMIT 500
 	`)
 }
 
@@ -293,6 +293,7 @@ func (s *Store) ListStockItems(ctx context.Context) ([]map[string]any, error) {
 		SELECT "bcItemNo", "bcItemDescription", "bcItemInventory", "bcItemUnitPrice", "bcItemUnitCost"
 		FROM "bcItem" WHERE "bcItemNo" LIKE 'FG-00003%' AND "bcItemBlocked" != 'true'
 		ORDER BY "bcItemNo"
+		LIMIT 10000
 	`)
 }
 
@@ -316,6 +317,7 @@ func (s *Store) ListProductInfo(ctx context.Context) ([]map[string]any, error) {
 		SELECT "mktProductInfoItemNumber", "mktProductInfoDescription", "mktProductInfoHighlights",
 			"mktProductInfoCategory", "mktProductInfoImageUrl"
 		FROM "mktProductInfo" ORDER BY "mktProductInfoItemNumber"
+		LIMIT 5000
 	`)
 }
 

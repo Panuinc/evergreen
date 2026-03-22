@@ -303,6 +303,70 @@ func (s *Store) ListCollections(ctx context.Context, customerNumber, status, sin
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
+// ListCollectionsMerged returns aged receivables merged with the latest follow-up per customer.
+// This replaces the two-endpoint fetch (agedReceivables + collections) done in the frontend.
+func (s *Store) ListCollectionsMerged(ctx context.Context) ([]map[string]any, error) {
+	return db.QueryRows(ctx, s.pool, `
+		WITH ar AS (
+			SELECT
+				e."bcCustomerLedgerEntryCustomerNo",
+				COALESCE(c."bcCustomerNameValue", e."bcCustomerLedgerEntryCustomerNo") AS "bcCustomerNameValue",
+				MAX(e."bcCustomerLedgerEntryCurrencyCode") AS "bcCustomerLedgerEntryCurrencyCode",
+				SUM(CASE WHEN e."bcCustomerLedgerEntryRemainingAmount" != 0 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "bcCustomerLedgerEntryRemainingAmount",
+				SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "currentAmount",
+				SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" < CURRENT_DATE AND e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 30 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period1Amount",
+				SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 30 AND e."bcCustomerLedgerEntryDueDate" >= CURRENT_DATE - 60 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period2Amount",
+				SUM(CASE WHEN e."bcCustomerLedgerEntryDueDate" < CURRENT_DATE - 60 THEN e."bcCustomerLedgerEntryRemainingAmount" ELSE 0 END) AS "period3Amount"
+			FROM "bcCustomerLedgerEntry" e
+			LEFT JOIN "bcCustomer" c ON c."bcCustomerNo" = e."bcCustomerLedgerEntryCustomerNo"
+			WHERE e."bcCustomerLedgerEntryOpenValue" = 'true'
+				AND e."bcCustomerLedgerEntryCustomerNo" != 'CTD-0049'
+			GROUP BY e."bcCustomerLedgerEntryCustomerNo", c."bcCustomerNameValue"
+			HAVING SUM(e."bcCustomerLedgerEntryRemainingAmount") != 0
+		),
+		fu_latest AS (
+			SELECT DISTINCT ON ("arFollowUpCustomerNumber")
+				"arFollowUpCustomerNumber",
+				"arFollowUpContactDate",
+				"arFollowUpReason",
+				"arFollowUpStatus",
+				"arFollowUpNote",
+				"arFollowUpNextFollowUpDate",
+				"arFollowUpPromiseDate",
+				"arFollowUpPromiseAmount"
+			FROM "arFollowUp"
+			ORDER BY "arFollowUpCustomerNumber", "arFollowUpContactDate" DESC, "arFollowUpCreatedAt" DESC
+		),
+		fu_count AS (
+			SELECT "arFollowUpCustomerNumber", COUNT(*) AS "followUpCount"
+			FROM "arFollowUp"
+			GROUP BY "arFollowUpCustomerNumber"
+		)
+		SELECT
+			ar."bcCustomerLedgerEntryCustomerNo",
+			ar."bcCustomerNameValue",
+			ar."bcCustomerLedgerEntryCurrencyCode",
+			ar."bcCustomerLedgerEntryRemainingAmount",
+			ar."currentAmount",
+			ar."period1Amount",
+			ar."period2Amount",
+			ar."period3Amount",
+			COALESCE(fc."followUpCount", 0) AS "followUpCount",
+			fl."arFollowUpContactDate",
+			fl."arFollowUpReason",
+			fl."arFollowUpStatus",
+			fl."arFollowUpNote",
+			fl."arFollowUpNextFollowUpDate",
+			fl."arFollowUpPromiseDate",
+			fl."arFollowUpPromiseAmount"
+		FROM ar
+		LEFT JOIN fu_latest fl ON fl."arFollowUpCustomerNumber" = ar."bcCustomerLedgerEntryCustomerNo"
+		LEFT JOIN fu_count fc ON fc."arFollowUpCustomerNumber" = ar."bcCustomerLedgerEntryCustomerNo"
+		ORDER BY ar."bcCustomerLedgerEntryRemainingAmount" DESC
+		LIMIT 2000
+	`)
+}
+
 func (s *Store) CreateCollection(ctx context.Context, body map[string]any, userID string) (map[string]any, error) {
 	return db.QueryRow(ctx, s.pool, `
 		INSERT INTO "arFollowUp" ("arFollowUpCustomerNumber","arFollowUpCustomerName","arFollowUpInvoiceNumber","arFollowUpContactDate","arFollowUpContactMethod",

@@ -15,7 +15,7 @@ export default function SalesOrderDetailClient() {
   const labelModal = useDisclosure();
 
   const encodedNo = encodeURIComponent(decodeURIComponent(no as string));
-  const { data, isLoading: loading } = useSWR<{ order: MktSalesOrder; customerPhone: string }>(`/api/marketing/salesOrders/${encodedNo}`, fetcher);
+  const { data, isLoading: loading } = useSWR<{ order: MktSalesOrder; customerPhone: string }>(`/api/marketing/salesOrders/${encodedNo}`, fetcher, { revalidateOnFocus: false });
 
   const order = data?.order || null;
   const customerPhone = data?.customerPhone || "";

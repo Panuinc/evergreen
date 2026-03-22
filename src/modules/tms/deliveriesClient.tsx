@@ -64,8 +64,8 @@ function DeliveriesInner() {
 
   const fetcher = (url: string) => get(url) as Promise<TmsDelivery[]>;
   const shipmentFetcher = (url: string) => get(url) as Promise<TmsShipment[]>;
-  const { data: deliveriesData, isLoading: deliveriesLoading, mutate: mutateDeliveries } = useSWR<TmsDelivery[]>("/api/tms/deliveries", fetcher);
-  const { data: shipmentsData, isLoading: shipmentsLoading } = useSWR<TmsShipment[]>("/api/tms/shipments", shipmentFetcher);
+  const { data: deliveriesData, isLoading: deliveriesLoading, mutate: mutateDeliveries } = useSWR<TmsDelivery[]>("/api/tms/deliveries", fetcher, { revalidateOnFocus: false });
+  const { data: shipmentsData, isLoading: shipmentsLoading } = useSWR<TmsShipment[]>("/api/tms/shipments", shipmentFetcher, { revalidateOnFocus: false });
 
   const deliveries: TmsDelivery[] = deliveriesData || [];
   const shipments: TmsShipment[] = shipmentsData || [];
