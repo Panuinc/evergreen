@@ -3,7 +3,7 @@ import DivisionsClient from "@/modules/hr/divisionsClient";
 import type { HrDivision } from "@/modules/hr/types";
 
 export default async function DivisionsPage() {
-  const divisions = await api("/api/hr/divisions", 86400);
+  const divisions = await api("/api/hr/divisions");
 
   return <DivisionsClient initialDivisions={(divisions as HrDivision[]) || []} />;
 }
