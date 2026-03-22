@@ -297,6 +297,10 @@ CREATE TABLE hrEmployee (
    - Client Component (SWR): SWR จะ parallel อัตโนมัติถ้าไม่มี dependency ระหว่าง key
 2. **ข้อมูลที่โหลดตอน page load ให้ใช้ Server Component fetch ก่อน** แล้วส่ง props ลง Client Component
 3. **ใช้ client-side fetch (SWR/useEffect) เฉพาะข้อมูลที่ต้อง refresh แบบ realtime** หรือขึ้นกับ user interaction
+4. **ห้ามใช้ revalidate cache ใน `api()` เด็ดขาด** — ระบบ BC sync ทุก 5 นาที ข้อมูลต้องเป็น real-time เสมอ
+   - ผิด: `api("/api/bc/customers", 1800)` หรือ `api("/api/hr/divisions", 86400)`
+   - ถูก: `api("/api/bc/customers")` — ไม่ใส่ parameter ที่ 2 เลย
+   - `api()` default คือ `cache: "no-store"` ซึ่งถูกต้องแล้ว อย่าเปลี่ยน
 
 ---
 
