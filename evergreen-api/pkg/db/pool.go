@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -15,11 +16,13 @@ func NewPool(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("parsing database URL: %w", err)
 	}
 
-	cfg.MaxConns = 20
-	cfg.MinConns = 5
+	cfg.MaxConns = 5   // Supabase session-mode pool_size is limited; keep well under plan limit
+	cfg.MinConns = 1   // Open connections lazily — avoid hitting pool limit on startup
 	cfg.MaxConnLifetime = 30 * time.Minute
-	cfg.MaxConnIdleTime = 30 * time.Minute
+	cfg.MaxConnIdleTime = 5 * time.Minute  // Release idle connections sooner
 	cfg.HealthCheckPeriod = 1 * time.Minute
+	// Required for PgBouncer transaction mode compatibility (Supabase pooler)
+	cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
