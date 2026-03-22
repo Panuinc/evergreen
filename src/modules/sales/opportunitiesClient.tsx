@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { post, put, del } from "@/lib/apiClient";
 import { validateForm, isRequired } from "@/lib/validation";
 import OpportunitiesView from "@/modules/sales/components/opportunitiesView";
+import type { OpportunitiesClientProps, SalesOpportunity } from "@/modules/sales/types";
 
 const emptyForm = {
   salesOpportunityName: "",
@@ -29,8 +30,8 @@ const stageProbability = {
   closed_lost: 0,
 };
 
-export default function OpportunitiesClient({ initialOpportunities }) {
-  const [opportunities, setOpportunities] = useState(initialOpportunities);
+export default function OpportunitiesClient({ initialOpportunities }: OpportunitiesClientProps) {
+  const [opportunities, setOpportunities] = useState<SalesOpportunity[]>(initialOpportunities);
   const [saving, setSaving] = useState(false);
   const [editingOpp, setEditingOpp] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
@@ -45,8 +46,8 @@ export default function OpportunitiesClient({ initialOpportunities }) {
   const reloadOpportunities = async () => {
     try {
       const { get } = await import("@/lib/apiClient");
-      const data = await get("/api/sales/opportunities");
-      setOpportunities(data);
+      const data = await get<SalesOpportunity[]>("/api/sales/opportunities");
+      setOpportunities(data ?? []);
     } catch {}
   };
 

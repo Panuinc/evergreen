@@ -2,6 +2,12 @@
 
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/loading";
+import type { TmsGpsLog } from "@/modules/tms/types";
+
+interface RoutePlaybackProps {
+  gpsLogs?: TmsGpsLog[];
+}
+
 const RoutePlaybackInner = dynamic(() => import("./routePlaybackInner"), {
   ssr: false,
   loading: () => (
@@ -11,6 +17,6 @@ const RoutePlaybackInner = dynamic(() => import("./routePlaybackInner"), {
   ),
 });
 
-export default function RoutePlayback(props) {
+export default function RoutePlayback(props: RoutePlaybackProps) {
   return <RoutePlaybackInner {...props} />;
 }

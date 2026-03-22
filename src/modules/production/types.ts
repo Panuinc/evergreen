@@ -67,6 +67,19 @@ export interface ItemLedgerEntry {
   bcSyncedAt: string | null;
 }
 
+// ---- BOM Item (from /api/production/cores and /api/production/frames) ----
+
+export interface BomItem {
+  bcItemNo: string;
+  bcItemDescription: string | null;
+  bcItemDescription2: string | null;
+  bcItemUnitCost: number;
+  bcItemUnitPrice: number;
+  bcItemInventory: number;
+  bcItemBaseUnitOfMeasure: string | null;
+  bcItemItemCategoryCode: string | null;
+}
+
 // ---- FG Coverage (from /api/production/fgCoverage) ----
 
 export interface FgCoverageProductionOrder {

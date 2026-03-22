@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Button,
@@ -27,7 +27,7 @@ const statusColors = {
   closed: "default",
 };
 
-function formatMessageTime(dateStr) {
+function formatMessageTime(dateStr: string | null | undefined): string {
   if (!dateStr) return "";
   return new Date(dateStr).toLocaleTimeString("th-TH", {
     hour: "2-digit",
@@ -37,7 +37,7 @@ function formatMessageTime(dateStr) {
 
 const urlRegex = /(https?:\/\/[^\s]+)/g;
 
-function renderMessageContent(text) {
+function renderMessageContent(text: string | null | undefined): React.ReactNode {
   if (!text) return null;
   const parts = text.split(urlRegex);
   return parts.map((part, i) =>

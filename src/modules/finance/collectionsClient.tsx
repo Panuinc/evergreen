@@ -6,7 +6,7 @@ import useSWR from "swr";
 import { get, post, authFetch } from "@/lib/apiClient";
 import CollectionsView from "@/modules/finance/components/collectionsView";
 import type {
-  AgedReceivable, ArFollowUp, MergedCollectionRow, CollectionsKpis,
+  CollectionsMergedRow, ArFollowUp, MergedCollectionRow, CollectionsKpis,
   ReportData, ReportChartItem, CollectionForm, CollectionsClientProps,
 } from "@/modules/finance/types";
 
@@ -34,15 +34,14 @@ const initialForm: CollectionForm = {
 
 const fetcher = (url: string): Promise<any> => get(url);
 
-export default function CollectionsClient({ initialAr = [], initialFu = [] }: CollectionsClientProps) {
-  const arKey: string = "/api/finance/agedReceivables";
+export default function CollectionsClient({ initialMerged = [], initialFu = [] }: CollectionsClientProps) {
+  const mergedKey: string = "/api/finance/collectionsMerged";
   const fuKey: string = "/api/finance/collections";
-  const { data: arRaw, isLoading: arLoading, mutate: mutateAr } = useSWR<AgedReceivable[]>(arKey, fetcher, { fallbackData: initialAr });
-  const { data: fuRaw, isLoading: fuLoading, mutate: mutateFu } = useSWR<ArFollowUp[]>(fuKey, fetcher, { fallbackData: initialFu });
+  const { data: mergedRaw, isLoading: mergedLoading, mutate: mutateMerged } = useSWR<CollectionsMergedRow[]>(mergedKey, fetcher, { fallbackData: initialMerged, revalidateOnFocus: false });
+  const { data: fuRaw, isLoading: fuLoading, mutate: mutateFu } = useSWR<ArFollowUp[]>(fuKey, fetcher, { fallbackData: initialFu, revalidateOnFocus: false });
 
-  const arData = useMemo(() => arRaw || [], [arRaw]);
   const followUps = useMemo(() => fuRaw || [], [fuRaw]);
-  const loading = arLoading || fuLoading;
+  const loading = mergedLoading || fuLoading;
 
   const [selectedCustomer, setSelectedCustomer] = useState<MergedCollectionRow | null>(null);
   const [form, setForm] = useState<CollectionForm>(initialForm);
@@ -57,38 +56,27 @@ export default function CollectionsClient({ initialAr = [], initialFu = [] }: Co
   });
   const [reportUntil, setReportUntil] = useState(() => new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" }));
 
-  const mergedData = useMemo((): MergedCollectionRow[] => {
-    const fuByCustomer: Record<string, ArFollowUp[]> = {};
-    for (const fu of followUps) {
-      if (!fuByCustomer[fu.arFollowUpCustomerNumber]) fuByCustomer[fu.arFollowUpCustomerNumber] = [];
-      fuByCustomer[fu.arFollowUpCustomerNumber].push(fu);
-    }
-
-    return arData
-      .filter((c) => c.bcCustomerLedgerEntryCustomerNo && parseNum(c.bcCustomerLedgerEntryRemainingAmount) > 0)
-      .map((c) => {
-        const fus = fuByCustomer[c.bcCustomerLedgerEntryCustomerNo] || [];
-        const latest = fus[0];
-        return {
-          customerNumber: c.bcCustomerLedgerEntryCustomerNo,
-          name: c.bcCustomerNameValue || c.bcCustomerLedgerEntryCustomerNo,
-          balanceDue: parseNum(c.bcCustomerLedgerEntryRemainingAmount),
-          current: parseNum(c.currentAmount),
-          period1: parseNum(c.period1Amount),
-          period2: parseNum(c.period2Amount),
-          period3: parseNum(c.period3Amount),
-          followUpCount: fus.length,
-          lastContactDate: latest?.arFollowUpContactDate ?? null,
-          lastReason: latest?.arFollowUpReason ?? null,
-          lastStatus: latest?.arFollowUpStatus ?? null,
-          lastNote: latest?.arFollowUpNote ?? null,
-          nextFollowUpDate: latest?.arFollowUpNextFollowUpDate ?? null,
-          promiseDate: latest?.arFollowUpPromiseDate ?? null,
-          promiseAmount: latest?.arFollowUpPromiseAmount ?? null,
-        };
-      })
-      .sort((a, b) => b.balanceDue - a.balanceDue);
-  }, [arData, followUps]);
+  const mergedData = useMemo((): MergedCollectionRow[] =>
+    (mergedRaw || [])
+      .filter((r) => parseNum(r.bcCustomerLedgerEntryRemainingAmount) > 0)
+      .map((r) => ({
+        customerNumber: r.bcCustomerLedgerEntryCustomerNo,
+        name: r.bcCustomerNameValue || r.bcCustomerLedgerEntryCustomerNo,
+        balanceDue: parseNum(r.bcCustomerLedgerEntryRemainingAmount),
+        current: parseNum(r.currentAmount),
+        period1: parseNum(r.period1Amount),
+        period2: parseNum(r.period2Amount),
+        period3: parseNum(r.period3Amount),
+        followUpCount: Number(r.followUpCount) || 0,
+        lastContactDate: r.arFollowUpContactDate ?? null,
+        lastReason: r.arFollowUpReason ?? null,
+        lastStatus: r.arFollowUpStatus ?? null,
+        lastNote: r.arFollowUpNote ?? null,
+        nextFollowUpDate: r.arFollowUpNextFollowUpDate ?? null,
+        promiseDate: r.arFollowUpPromiseDate ?? null,
+        promiseAmount: r.arFollowUpPromiseAmount ?? null,
+      })),
+  [mergedRaw]);
 
   const kpis = useMemo((): CollectionsKpis => {
     const totalOverdue = mergedData.reduce((s, c) => s + c.balanceDue, 0);
@@ -183,6 +171,7 @@ export default function CollectionsClient({ initialAr = [], initialFu = [] }: Co
         ...form,
         promiseAmount: form.promiseAmount ? Number(form.promiseAmount) : null,
       });
+      mutateMerged();
       mutateFu();
       addModal.onClose();
     } catch (err) {
@@ -298,7 +287,7 @@ export default function CollectionsClient({ initialAr = [], initialFu = [] }: Co
       reportUntil={reportUntil}
       onReportUntilChange={setReportUntil}
       reportData={reportData}
-      onReload={() => { mutateAr(); mutateFu(); }}
+      onReload={() => { mutateMerged(); mutateFu(); }}
       followUps={followUps}
       aiAnalysis={aiAnalysis}
       aiLoading={aiLoading}

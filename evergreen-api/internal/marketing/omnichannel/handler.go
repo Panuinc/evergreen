@@ -62,7 +62,10 @@ func (h *Handler) UpdateConversation(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteConversation(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	h.store.SoftDeleteConversation(r.Context(), id)
+	if err := h.store.SoftDeleteConversation(r.Context(), id); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
@@ -132,7 +135,10 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.store.UpdateConversationAfterSend(r.Context(), body.ConversationID, truncate(body.Content, 100))
+	if err := h.store.UpdateConversationAfterSend(r.Context(), body.ConversationID, truncate(body.Content, 100)); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 
 	response.Created(w, data)
 }
@@ -197,17 +203,22 @@ func (h *Handler) QuotationAction(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(r.Body).Decode(&body)
 
+	var actionErr error
 	switch body.Action {
 	case "submit":
-		h.store.SubmitQuotation(r.Context(), id, userID)
+		actionErr = h.store.SubmitQuotation(r.Context(), id, userID)
 	case "approve":
-		h.store.ApproveQuotation(r.Context(), id, userID)
+		actionErr = h.store.ApproveQuotation(r.Context(), id, userID)
 	case "reject":
-		h.store.RejectQuotation(r.Context(), id, body.Note)
+		actionErr = h.store.RejectQuotation(r.Context(), id, body.Note)
 	case "confirm_payment":
-		h.store.ConfirmPaymentQuotation(r.Context(), id)
+		actionErr = h.store.ConfirmPaymentQuotation(r.Context(), id)
 	default:
 		response.BadRequest(w, "action ไม่ถูกต้อง")
+		return
+	}
+	if actionErr != nil {
+		response.InternalError(w, actionErr)
 		return
 	}
 	response.OK(w, map[string]bool{"success": true})
@@ -215,7 +226,10 @@ func (h *Handler) QuotationAction(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteQuotation(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	h.store.CancelQuotation(r.Context(), id)
+	if err := h.store.CancelQuotation(r.Context(), id); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
@@ -260,7 +274,10 @@ func (h *Handler) UpdatePromotion(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeletePromotion(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	h.store.DeletePromotion(r.Context(), id)
+	if err := h.store.DeletePromotion(r.Context(), id); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
@@ -288,7 +305,10 @@ func (h *Handler) CreateRelatedProduct(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteRelatedProduct(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	h.store.DeleteRelatedProduct(r.Context(), id)
+	if err := h.store.DeleteRelatedProduct(r.Context(), id); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
@@ -325,7 +345,10 @@ func (h *Handler) UpsertPriceItems(w http.ResponseWriter, r *http.Request) {
 	var body []map[string]any
 	json.NewDecoder(r.Body).Decode(&body)
 	for _, item := range body {
-		h.store.UpsertPriceItem(r.Context(), item, userID)
+		if err := h.store.UpsertPriceItem(r.Context(), item, userID); err != nil {
+			response.InternalError(w, err)
+			return
+		}
 	}
 	response.OK(w, map[string]bool{"success": true})
 }
@@ -345,7 +368,10 @@ func (h *Handler) UpsertProductInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(r.Body).Decode(&wrapper)
 	for _, item := range wrapper.Items {
-		h.store.UpsertProductInfo(r.Context(), item)
+		if err := h.store.UpsertProductInfo(r.Context(), item); err != nil {
+			response.InternalError(w, err)
+			return
+		}
 	}
 	response.OK(w, map[string]bool{"success": true})
 }
@@ -388,7 +414,10 @@ func (h *Handler) UpdateFollowUp(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteFollowUp(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	h.store.CancelFollowUp(r.Context(), id)
+	if err := h.store.CancelFollowUp(r.Context(), id); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 	response.OK(w, map[string]bool{"success": true})
 }
 
@@ -402,7 +431,10 @@ func (h *Handler) ProcessFollowUps(w http.ResponseWriter, r *http.Request) {
 	for _, fu := range followUps {
 		// TODO: Send via LINE/Facebook API
 		if fuID, ok := fu["mktFollowUpId"].(string); ok {
-			h.store.MarkFollowUpSent(r.Context(), fuID)
+			if err := h.store.MarkFollowUpSent(r.Context(), fuID); err != nil {
+				response.InternalError(w, err)
+				return
+			}
 			processed++
 		}
 	}

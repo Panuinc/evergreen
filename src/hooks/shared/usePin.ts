@@ -8,7 +8,7 @@ export function usePin() {
   const { data, isLoading: loading, mutate } = useSWR(
     "/api/auth/pin",
     (url) => get<{ pinEnabled: boolean; error?: string }>(url),
-    { onError: () => {} },
+    { onError: () => {}, revalidateOnFocus: false },
   );
   const pinEnabled = data?.pinEnabled ?? false;
   const checkPinStatus = mutate;
@@ -27,18 +27,8 @@ export function usePin() {
     return result;
   };
 
-  const verifyPin = async (email, pin) => {
-    const res = await fetch("/api/auth/pin/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, pin }),
-    });
-
-    const result = await res.json();
-
-    if (!res.ok) {
-      throw new Error(result.error || "การยืนยันล้มเหลว");
-    }
+  const verifyPin = async (email: string, pin: string) => {
+    const result = await post<{ token_hash: string }>("/api/auth/pin/verify", { email, pin });
 
     const { error } = await supabase.auth.verifyOtp({
       token_hash: result.token_hash,

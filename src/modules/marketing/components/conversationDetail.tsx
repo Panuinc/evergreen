@@ -17,10 +17,12 @@ export default function ConversationDetail({ conversation, onUpdateContact, onCl
   const { data: quotations = [] } = useSWR<MktQuotation[]>(
     convId ? `/api/marketing/omnichannel/quotations?conversationId=${convId}` : null,
     (url: string) => get<MktQuotation[]>(url).catch(() => []),
+    { revalidateOnFocus: false },
   );
   const { data: followUpsData = [], mutate: mutateFollowUps } = useSWR<MktFollowUp[]>(
     convId ? `/api/marketing/omnichannel/followUp?conversationId=${convId}` : null,
     (url: string) => get<MktFollowUp[]>(url).catch(() => []),
+    { revalidateOnFocus: false },
   );
   const followUps = followUpsData;
   const [showFollowUpForm, setShowFollowUpForm] = useState(false);

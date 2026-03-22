@@ -223,11 +223,11 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   const apKey: string = "/api/finance/agedPayables";
   const siKey: string = "/api/finance/salesInvoices?status=Open&expand=false";
   const piKey: string = "/api/finance/purchaseInvoices?status=Open&expand=false";
-  const { data: tbData, isLoading: tbLoading, mutate: mutateTb } = useSWR<TrialBalanceAccount[]>(tbKey, fetcher, { fallbackData: initialTb });
-  const { data: arData, isLoading: arLoading } = useSWR<AgedReceivable[]>(arKey, fetcher, { fallbackData: initialAr });
-  const { data: apData, isLoading: apLoading } = useSWR<AgedPayable[]>(apKey, fetcher, { fallbackData: initialAp });
-  const { data: siData, isLoading: siLoading } = useSWR<SalesInvoice[]>(siKey, fetcher, { fallbackData: initialSi });
-  const { data: piData, isLoading: piLoading } = useSWR<PurchaseInvoice[]>(piKey, fetcher, { fallbackData: initialPi });
+  const { data: tbData, isLoading: tbLoading, mutate: mutateTb } = useSWR<TrialBalanceAccount[]>(tbKey, fetcher, { fallbackData: initialTb, revalidateOnFocus: false });
+  const { data: arData, isLoading: arLoading } = useSWR<AgedReceivable[]>(arKey, fetcher, { fallbackData: initialAr, revalidateOnFocus: false });
+  const { data: apData, isLoading: apLoading } = useSWR<AgedPayable[]>(apKey, fetcher, { fallbackData: initialAp, revalidateOnFocus: false });
+  const { data: siData, isLoading: siLoading } = useSWR<SalesInvoice[]>(siKey, fetcher, { fallbackData: initialSi, revalidateOnFocus: false });
+  const { data: piData, isLoading: piLoading } = useSWR<PurchaseInvoice[]>(piKey, fetcher, { fallbackData: initialPi, revalidateOnFocus: false });
 
   const trialBalance = useMemo(() => tbData || [], [tbData]);
   const agedReceivables = useMemo(() => arData || [], [arData]);
@@ -562,9 +562,9 @@ export default function FinanceDashboardClient({ initialTb = [], initialAr = [],
   const glYears = useMemo(() => [selectedYear - 2, selectedYear - 1, selectedYear], [selectedYear]);
 
   const glFetcher = (url: string) => get(url).catch((e: Error) => { toast.error("โหลดข้อมูล GL ล้มเหลว: " + e.message); return {}; });
-  const { data: glY0, isLoading: glY0Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 2}-01-01&end=${selectedYear - 2}-12-31&summarize=monthly` : null, glFetcher);
-  const { data: glY1, isLoading: glY1Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 1}-01-01&end=${selectedYear - 1}-12-31&summarize=monthly` : null, glFetcher);
-  const { data: glY2, isLoading: glY2Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear}-01-01&end=${selectedYear}-12-31&summarize=monthly` : null, glFetcher);
+  const { data: glY0, isLoading: glY0Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 2}-01-01&end=${selectedYear - 2}-12-31&summarize=monthly` : null, glFetcher, { revalidateOnFocus: false });
+  const { data: glY1, isLoading: glY1Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear - 1}-01-01&end=${selectedYear - 1}-12-31&summarize=monthly` : null, glFetcher, { revalidateOnFocus: false });
+  const { data: glY2, isLoading: glY2Loading } = useSWR(selectedYear ? `/api/finance/glEntries?start=${selectedYear}-01-01&end=${selectedYear}-12-31&summarize=monthly` : null, glFetcher, { revalidateOnFocus: false });
 
   const glLoading = glY0Loading || glY1Loading || glY2Loading;
   const glError = null;

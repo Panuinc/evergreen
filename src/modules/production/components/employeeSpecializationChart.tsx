@@ -248,7 +248,7 @@ export default function EmployeeSpecializationChart({ data = [] }: EmployeeSpeci
               <Chip
                 size="md"
                 variant={isTop3 ? "solid" : "flat"}
-                color={chipColors[(catColorMap[emp.topCategory] ?? 0) % chipColors.length] as any}
+                color={chipColors[(catColorMap[emp.topCategory] ?? 0) % chipColors.length] as any} // HeroUI internal type — no public type exported
                 className={isTop3 ? "shadow-sm" : ""}
               >
                 {emp.topCategory}

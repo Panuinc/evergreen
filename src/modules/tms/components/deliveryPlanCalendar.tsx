@@ -30,20 +30,20 @@ const priorityDot = {
   low: "bg-default-400",
 };
 
-function toDateString(date) {
+function toDateString(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 
-function getMonthKey(date) {
+function getMonthKey(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   return `${y}-${m}`;
 }
 
-function isToday(date) {
+function isToday(date: Date): boolean {
   const t = new Date();
   return (
     date.getFullYear() === t.getFullYear() &&
@@ -278,7 +278,7 @@ export default function DeliveryPlanCalendar() {
   const { data: plansData, isLoading: loading, mutate: mutatePlans } = useSWR<import("@/modules/tms/types").TmsDeliveryPlan[]>(
     `/api/tms/deliveryPlans?month=${monthKey}`,
     (url) => get(url) as Promise<import("@/modules/tms/types").TmsDeliveryPlan[]>,
-    { onError: () => toast.error("โหลดแผนส่งของล้มเหลว") },
+    { onError: () => toast.error("โหลดแผนส่งของล้มเหลว"), revalidateOnFocus: false },
   );
   const plans: import("@/modules/tms/types").TmsDeliveryPlan[] = plansData || [];
   const [saving, setSaving] = useState(false);

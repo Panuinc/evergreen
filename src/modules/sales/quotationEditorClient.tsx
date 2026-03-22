@@ -28,6 +28,7 @@ export default function QuotationEditorClient() {
   const { data: swrData, isLoading: loading, mutate } = useSWR<QuotationWithLines>(
     quotationId ? `/api/sales/quotations/${quotationId}` : null,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   const [quotation, setQuotation] = useState<SalesQuotation | null>(null);

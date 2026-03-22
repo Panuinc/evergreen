@@ -142,11 +142,33 @@ export interface ArFollowUp {
   arFollowUpCreatedByName: string | null;
 }
 
-// ---- Merged Collections (frontend computed) ----
+// ---- Collections Merged (from /api/finance/collectionsMerged backend endpoint) ----
+// Field names = raw Supabase column names from ListCollectionsMerged store query
+
+export interface CollectionsMergedRow {
+  bcCustomerLedgerEntryCustomerNo: string;
+  bcCustomerNameValue: string;
+  bcCustomerLedgerEntryCurrencyCode: string | null;
+  bcCustomerLedgerEntryRemainingAmount: number;
+  currentAmount: number;
+  period1Amount: number;
+  period2Amount: number;
+  period3Amount: number;
+  followUpCount: number;
+  arFollowUpContactDate: string | null;
+  arFollowUpReason: string | null;
+  arFollowUpStatus: string | null;
+  arFollowUpNote: string | null;
+  arFollowUpNextFollowUpDate: string | null;
+  arFollowUpPromiseDate: string | null;
+  arFollowUpPromiseAmount: number | null;
+}
+
+// ---- Merged Collections (display model, mapped from CollectionsMergedRow) ----
 
 export interface MergedCollectionRow {
-  customerNumber: string; // = bcCustomerLedgerEntryCustomerNo
-  name: string;           // = bcCustomerNameValue
+  customerNumber: string;
+  name: string;
   balanceDue: number;
   current: number;
   period1: number;
@@ -254,7 +276,7 @@ export interface TrialBalanceViewProps {
 }
 
 export interface CollectionsClientProps {
-  initialAr?: AgedReceivable[];
+  initialMerged?: CollectionsMergedRow[];
   initialFu?: ArFollowUp[];
 }
 

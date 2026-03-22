@@ -42,11 +42,11 @@ export interface TmsShipment {
   tmsShipmentDistance: number | null;
   tmsShipmentFuelPricePerLiter: number | null;
   tmsShipmentFuelCost: number | null;
-  tmsShipmentExtras: any[] | null;
+  tmsShipmentExtras: unknown[] | null; // third-party JSON structure — shape varies
   tmsShipmentNotes: string | null;
   tmsShipmentStatus: string;
   tmsShipmentEstimatedArrival: string | null;
-  tmsShipmentStops: any | null;
+  tmsShipmentStops: unknown | null; // third-party JSON structure — shape varies
   isActive: boolean;
 }
 

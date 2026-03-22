@@ -35,7 +35,7 @@ export default function OmnichannelClient() {
   const { data: conversations = [], isLoading: loading, mutate: mutateConversations } = useSWR<MktConversation[]>(
     convUrl,
     fetcher,
-    { refreshInterval: pollInterval },
+    { refreshInterval: pollInterval, revalidateOnFocus: false },
   );
 
   const loadConversations = mutateConversations;

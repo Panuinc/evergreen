@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/authContext";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
+import { authFetch } from "@/lib/apiClient";
 
 export function useSignIn() {
   const { user, loading } = useAuth();
@@ -81,7 +82,7 @@ export function useSignIn() {
     setPinError(false);
 
     try {
-      const res = await fetch("/api/auth/pin/verify", {
+      const res = await authFetch("/api/auth/pin/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: lastEmail, pin: currentPin }),

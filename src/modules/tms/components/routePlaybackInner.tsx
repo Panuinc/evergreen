@@ -1,13 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import type { TmsGpsLog } from "@/modules/tms/types";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Polyline, CircleMarker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import { Button } from "@heroui/react";
 import { Play, Pause, SkipBack } from "lucide-react";
 
-function FitRoute({ points }) {
+interface RoutePlaybackInnerProps {
+  gpsLogs?: TmsGpsLog[];
+}
+
+interface FitRouteProps {
+  points: [number, number][];
+}
+
+function FitRoute({ points }: FitRouteProps) {
   const map = useMap();
   const fitted = useRef(false);
 
@@ -22,15 +31,15 @@ function FitRoute({ points }) {
   return null;
 }
 
-export default function RoutePlaybackInner({ gpsLogs = [] }) {
+export default function RoutePlaybackInner({ gpsLogs = [] }: RoutePlaybackInnerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const intervalRef = useRef(null);
 
-  const points = gpsLogs.map((l) => [
-    Number(l.tmsGpsLogLatitude ?? l.gpsLogLatitude),
-    Number(l.tmsGpsLogLongitude ?? l.gpsLogLongitude),
+  const points: [number, number][] = gpsLogs.map((l) => [
+    Number(l.tmsGpsLogLatitude),
+    Number(l.tmsGpsLogLongitude),
   ]);
 
   useEffect(() => {
@@ -63,7 +72,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
   return (
     <div className="flex flex-col gap-3">
       <MapContainer
-        center={points[0] as any}
+        center={points[0] as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
         zoom={12}
         style={{ height: "350px", width: "100%", borderRadius: "12px" }}
       >
@@ -74,14 +83,14 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
         <FitRoute points={points} />
 
         {}
-        <Polyline positions={points as any} color="#94a3b8" weight={2} dashArray="5,5" />
+        <Polyline positions={points as any} color="#94a3b8" weight={2} dashArray="5,5" /> {/* react-leaflet expects LatLngExpression[] — no exact TypeScript match with [number, number][] */}
 
         {}
-        <Polyline positions={traveled as any} color="#3b82f6" weight={3} />
+        <Polyline positions={traveled as any} color="#3b82f6" weight={3} /> {/* react-leaflet expects LatLngExpression[] — no exact TypeScript match with [number, number][] */}
 
         {}
         <CircleMarker
-          center={points[currentIndex] as any}
+          center={points[currentIndex] as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
           radius={8}
           fillColor="#3b82f6"
           fillOpacity={1}
@@ -90,21 +99,23 @@ export default function RoutePlaybackInner({ gpsLogs = [] }) {
         >
           <Popup>
             <div className="text-xs">
-              {(currentLog?.tmsGpsLogSpeed ?? currentLog?.gpsLogSpeed) != null && (
-                <p>Speed: {currentLog.tmsGpsLogSpeed ?? currentLog.gpsLogSpeed} km/h</p>
+              {currentLog?.tmsGpsLogSpeed != null && (
+                <p>Speed: {currentLog.tmsGpsLogSpeed} km/h</p>
               )}
-              {(currentLog?.tmsGpsLogRecordedAt ?? currentLog?.gpsLogRecordedAt) && (
-                <p>{new Date(currentLog.tmsGpsLogRecordedAt ?? currentLog.gpsLogRecordedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}</p>
+              {currentLog?.tmsGpsLogRecordedAt && (
+                <p>{new Date(currentLog.tmsGpsLogRecordedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}</p>
               )}
             </div>
           </Popup>
         </CircleMarker>
 
         {}
+        {/* react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number] */}
         <CircleMarker center={points[0] as any} radius={6} fillColor="#22c55e" fillOpacity={1} color="white" weight={2} />
 
         {}
         {points.length > 1 && (
+          // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
           <CircleMarker center={points[points.length - 1] as any} radius={6} fillColor="#ef4444" fillOpacity={1} color="white" weight={2} />
         )}
       </MapContainer>

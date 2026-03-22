@@ -2,6 +2,7 @@ package it
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -188,11 +189,17 @@ func (h *Handler) CreateProgressLog(w http.ResponseWriter, r *http.Request) {
 	// Update the parent dev request progress and status
 	progress, _ := body["itDevProgressLogProgress"].(float64)
 	if progress >= 100 {
-		_ = h.store.UpdateDevRequestCompleted(r.Context(), id, body["itDevProgressLogProgress"])
+		if err := h.store.UpdateDevRequestCompleted(r.Context(), id, body["itDevProgressLogProgress"]); err != nil {
+			slog.Error("failed to update dev request completed", "id", id, "error", err)
+		}
 	} else if progress > 0 {
-		_ = h.store.UpdateDevRequestInProgress(r.Context(), id, body["itDevProgressLogProgress"])
+		if err := h.store.UpdateDevRequestInProgress(r.Context(), id, body["itDevProgressLogProgress"]); err != nil {
+			slog.Error("failed to update dev request in progress", "id", id, "error", err)
+		}
 	} else {
-		_ = h.store.UpdateDevRequestProgress(r.Context(), id, body["itDevProgressLogProgress"])
+		if err := h.store.UpdateDevRequestProgress(r.Context(), id, body["itDevProgressLogProgress"]); err != nil {
+			slog.Error("failed to update dev request progress", "id", id, "error", err)
+		}
 	}
 
 	response.Created(w, log)

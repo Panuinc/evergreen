@@ -279,7 +279,7 @@ export default function DataTable({
                   closeOnSelect={false}
                   selectedKeys={statusFilter}
                   selectionMode="multiple"
-                  onSelectionChange={setStatusFilter as any}
+                  onSelectionChange={setStatusFilter as any} // HeroUI internal type — no public type exported
                 >
                   {statusOptions.map((status) => (
                     <DropdownItem key={status.uid} className="capitalize">
@@ -335,9 +335,9 @@ export default function DataTable({
                   disallowEmptySelection
                   aria-label="Table Columns"
                   closeOnSelect={false}
-                  selectedKeys={visibleColumns as any}
+                  selectedKeys={visibleColumns as any} // HeroUI internal type — no public type exported
                   selectionMode="multiple"
-                  onSelectionChange={setVisibleColumns as any}
+                  onSelectionChange={setVisibleColumns as any} // HeroUI internal type — no public type exported
                 >
                   {columns
                     .filter((c) => c.uid !== "actions")
@@ -448,7 +448,7 @@ export default function DataTable({
             {sortedItems.map((item, idx) => (
               <Card
                 key={item[rowKey] ?? `card-${idx}`}
-                {...({ variant: "bordered" } as any)}
+                {...({ variant: "bordered" } as any)} // HeroUI internal type — no public type exported
                 radius="md"
                 shadow="none"
                 className="border border-border hover:border-primary transition-colors duration-200"
@@ -493,7 +493,7 @@ export default function DataTable({
       sortDescriptor={sortDescriptor as SortDescriptor}
       topContent={topContent}
       topContentPlacement="outside"
-      onSortChange={setSortDescriptor as any}
+      onSortChange={setSortDescriptor as any} // HeroUI internal type — no public type exported
       classNames={{
         th: "border-b border-r border-border last:border-r-0",
         td: "border-b border-r border-border last:border-r-0",
@@ -538,7 +538,7 @@ export default function DataTable({
                         {actionMenuItems(item).map((action) => (
                           <DropdownItem
                             key={action.key}
-                            color={(action.color || "default") as any}
+                            color={(action.color || "default") as any} // HeroUI internal type — no public type exported
                             startContent={action.icon}
                             className={action.color === "danger" ? "text-danger" : ""}
                           >

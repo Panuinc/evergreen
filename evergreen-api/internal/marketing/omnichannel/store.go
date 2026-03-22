@@ -78,9 +78,14 @@ func (s *Store) UpdateConversation(ctx context.Context, id string, body map[stri
 		body["mktConversationUnreadCount"], body["mktConversationAiAutoReply"])
 }
 
-func (s *Store) SoftDeleteConversation(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "mktConversation" SET "isActive"=false WHERE "mktConversationId"=$1`, id)
-	s.pool.Exec(ctx, `UPDATE "mktMessage" SET "isActive"=false WHERE "mktMessageConversationId"=$1`, id)
+func (s *Store) SoftDeleteConversation(ctx context.Context, id string) error {
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktConversation" SET "isActive"=false WHERE "mktConversationId"=$1`, id); err != nil {
+		return err
+	}
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktMessage" SET "isActive"=false WHERE "mktMessageConversationId"=$1`, id); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Store) ListMessages(ctx context.Context, id string) ([]map[string]any, error) {
@@ -139,11 +144,14 @@ func (s *Store) InsertAgentMessage(ctx context.Context, conversationID, content,
 	`, conversationID, content, msgType)
 }
 
-func (s *Store) UpdateConversationAfterSend(ctx context.Context, conversationID, preview string) {
-	s.pool.Exec(ctx, `
+func (s *Store) UpdateConversationAfterSend(ctx context.Context, conversationID, preview string) error {
+	if _, err := s.pool.Exec(ctx, `
 		UPDATE "mktConversation" SET "mktConversationLastMessageAt"=now(),"mktConversationLastMessagePreview"=$2,"mktConversationUnreadCount"=0
 		WHERE "mktConversationId"=$1
-	`, conversationID, preview)
+	`, conversationID, preview); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ---- Quotations ----
@@ -209,24 +217,39 @@ func (s *Store) UpdateQuotation(ctx context.Context, id string, body map[string]
 		body["mktQuotationCustomerAddress"], body["mktQuotationPaymentMethod"], body["mktQuotationNotes"])
 }
 
-func (s *Store) SubmitQuotation(ctx context.Context, id, userID string) {
-	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='pending_approval',"mktQuotationSubmittedBy"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, userID)
+func (s *Store) SubmitQuotation(ctx context.Context, id, userID string) error {
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='pending_approval',"mktQuotationSubmittedBy"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, userID); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (s *Store) ApproveQuotation(ctx context.Context, id, userID string) {
-	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='approved',"mktQuotationApprovedBy"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, userID)
+func (s *Store) ApproveQuotation(ctx context.Context, id, userID string) error {
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='approved',"mktQuotationApprovedBy"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, userID); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (s *Store) RejectQuotation(ctx context.Context, id, note string) {
-	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='rejected',"mktQuotationApprovalNote"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, note)
+func (s *Store) RejectQuotation(ctx context.Context, id, note string) error {
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='rejected',"mktQuotationApprovalNote"=$2,"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id, note); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (s *Store) ConfirmPaymentQuotation(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='paid',"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id)
+func (s *Store) ConfirmPaymentQuotation(ctx context.Context, id string) error {
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='paid',"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (s *Store) CancelQuotation(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='cancelled',"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id)
+func (s *Store) CancelQuotation(ctx context.Context, id string) error {
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktQuotation" SET "mktQuotationStatus"='cancelled',"mktQuotationUpdatedAt"=now() WHERE "mktQuotationId"=$1`, id); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ---- Promotions ----
@@ -261,8 +284,11 @@ func (s *Store) UpdatePromotion(ctx context.Context, id string, body map[string]
 		body["mktPromotionValue"], body["mktPromotionIsActive"])
 }
 
-func (s *Store) DeletePromotion(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `DELETE FROM "mktPromotion" WHERE "mktPromotionId"=$1`, id)
+func (s *Store) DeletePromotion(ctx context.Context, id string) error {
+	if _, err := s.pool.Exec(ctx, `DELETE FROM "mktPromotion" WHERE "mktPromotionId"=$1`, id); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ---- Related Products ----
@@ -282,8 +308,11 @@ func (s *Store) CreateRelatedProduct(ctx context.Context, body map[string]any) (
 	`, body["sourceItem"], body["targetItem"], body["type"], body["reason"])
 }
 
-func (s *Store) DeleteRelatedProduct(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `DELETE FROM "mktRelatedProduct" WHERE "mktRelatedProductId"=$1`, id)
+func (s *Store) DeleteRelatedProduct(ctx context.Context, id string) error {
+	if _, err := s.pool.Exec(ctx, `DELETE FROM "mktRelatedProduct" WHERE "mktRelatedProductId"=$1`, id); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ---- Stock Items & Price Items ----
@@ -304,12 +333,15 @@ func (s *Store) ListPriceItems(ctx context.Context) ([]map[string]any, error) {
 	`)
 }
 
-func (s *Store) UpsertPriceItem(ctx context.Context, item map[string]any, userID string) {
-	s.pool.Exec(ctx, `
+func (s *Store) UpsertPriceItem(ctx context.Context, item map[string]any, userID string) error {
+	if _, err := s.pool.Exec(ctx, `
 		INSERT INTO "mktPriceItem" ("mktPriceItemNumber","mktPriceItemName","mktPriceItemUnitPrice","mktPriceItemUpdatedBy")
 		VALUES ($1,$2,$3,$4)
 		ON CONFLICT ("mktPriceItemNumber") DO UPDATE SET "mktPriceItemName"=$2,"mktPriceItemUnitPrice"=$3,"mktPriceItemUpdatedBy"=$4,"mktPriceItemUpdatedAt"=now()
-	`, item["mktPriceItemNumber"], item["mktPriceItemName"], item["mktPriceItemUnitPrice"], userID)
+	`, item["mktPriceItemNumber"], item["mktPriceItemName"], item["mktPriceItemUnitPrice"], userID); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Store) ListProductInfo(ctx context.Context) ([]map[string]any, error) {
@@ -321,12 +353,15 @@ func (s *Store) ListProductInfo(ctx context.Context) ([]map[string]any, error) {
 	`)
 }
 
-func (s *Store) UpsertProductInfo(ctx context.Context, item map[string]any) {
-	s.pool.Exec(ctx, `
+func (s *Store) UpsertProductInfo(ctx context.Context, item map[string]any) error {
+	if _, err := s.pool.Exec(ctx, `
 		INSERT INTO "mktProductInfo" ("mktProductInfoItemNumber","mktProductInfoDescription","mktProductInfoHighlights","mktProductInfoCategory","mktProductInfoImageUrl")
 		VALUES ($1,$2,$3,$4,$5)
 		ON CONFLICT ("mktProductInfoItemNumber") DO UPDATE SET "mktProductInfoDescription"=$2,"mktProductInfoHighlights"=$3,"mktProductInfoCategory"=$4,"mktProductInfoImageUrl"=$5,"mktProductInfoUpdatedAt"=now()
-	`, item["itemNumber"], item["description"], item["highlights"], item["category"], item["imageUrl"])
+	`, item["itemNumber"], item["description"], item["highlights"], item["category"], item["imageUrl"]); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ---- Follow-ups ----
@@ -367,8 +402,11 @@ func (s *Store) UpdateFollowUp(ctx context.Context, id string, body map[string]a
 	`, id, body["mktFollowUpStatus"], body["mktFollowUpScheduledAt"], body["mktFollowUpMessage"])
 }
 
-func (s *Store) CancelFollowUp(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "mktFollowUp" SET "mktFollowUpStatus"='cancelled' WHERE "mktFollowUpId"=$1`, id)
+func (s *Store) CancelFollowUp(ctx context.Context, id string) error {
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktFollowUp" SET "mktFollowUpStatus"='cancelled' WHERE "mktFollowUpId"=$1`, id); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Store) ListPendingFollowUps(ctx context.Context) ([]map[string]any, error) {
@@ -379,8 +417,11 @@ func (s *Store) ListPendingFollowUps(ctx context.Context) ([]map[string]any, err
 	`)
 }
 
-func (s *Store) MarkFollowUpSent(ctx context.Context, id string) {
-	s.pool.Exec(ctx, `UPDATE "mktFollowUp" SET "mktFollowUpStatus"='sent',"mktFollowUpSentAt"=now() WHERE "mktFollowUpId"=$1`, id)
+func (s *Store) MarkFollowUpSent(ctx context.Context, id string) error {
+	if _, err := s.pool.Exec(ctx, `UPDATE "mktFollowUp" SET "mktFollowUpStatus"='sent',"mktFollowUpSentAt"=now() WHERE "mktFollowUpId"=$1`, id); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ---- AI Settings ----
