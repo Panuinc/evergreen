@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/evergreen/api/pkg/middleware"
 	"github.com/evergreen/api/pkg/response"
@@ -301,14 +302,21 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	compareMode := r.URL.Query().Get("compareMode")
 
-	employees, err := h.store.ListAllEmployees(ctx)
-	if err != nil {
+	var (
+		employees   []map[string]any
+		divisions   []map[string]any
+		departments []map[string]any
+		positions   []map[string]any
+	)
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error { var e error; employees, e = h.store.ListAllEmployees(gCtx); return e })
+	g.Go(func() error { var e error; divisions, e = h.store.ListActiveDivisions(gCtx); return e })
+	g.Go(func() error { var e error; departments, e = h.store.ListActiveDepartments(gCtx); return e })
+	g.Go(func() error { var e error; positions, e = h.store.ListActivePositions(gCtx); return e })
+	if err := g.Wait(); err != nil {
 		response.InternalError(w, err)
 		return
 	}
-	divisions, _ := h.store.ListActiveDivisions(ctx)
-	departments, _ := h.store.ListActiveDepartments(ctx)
-	positions, _ := h.store.ListActivePositions(ctx)
 
 	now := time.Now()
 	current := buildHRStats(employees, divisions, departments, positions, now)
@@ -364,13 +372,11 @@ func (h *Handler) UnlinkedEmployees(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) UnlinkedUsers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	users, err := h.store.ListAllUserProfiles(ctx)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
-	linked, err := h.store.ListLinkedEmployees(ctx)
-	if err != nil {
+	var users, linked []map[string]any
+	g2, gCtx2 := errgroup.WithContext(ctx)
+	g2.Go(func() error { var e error; users, e = h.store.ListAllUserProfiles(gCtx2); return e })
+	g2.Go(func() error { var e error; linked, e = h.store.ListLinkedEmployees(gCtx2); return e })
+	if err := g2.Wait(); err != nil {
 		response.InternalError(w, err)
 		return
 	}

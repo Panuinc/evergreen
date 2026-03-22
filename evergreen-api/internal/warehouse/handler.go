@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/evergreen/api/pkg/middleware"
 	"github.com/evergreen/api/pkg/response"
@@ -335,8 +336,14 @@ func (h *Handler) Print(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	sessions, _ := h.store.DashboardSessions(ctx)
-	transfers, _ := h.store.DashboardTransfers(ctx)
+	var sessions, transfers []map[string]any
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error { var e error; sessions, e = h.store.DashboardSessions(gCtx); return e })
+	g.Go(func() error { var e error; transfers, e = h.store.DashboardTransfers(gCtx); return e })
+	if err := g.Wait(); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 
 	sessionsByStatus := map[string]int{}
 	for _, s := range sessions {

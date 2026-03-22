@@ -30,6 +30,7 @@ func (s *Store) ListCustomers(ctx context.Context) ([]map[string]any, error) {
 			"bcCustomerBalanceDueLCY"
 		FROM "bcCustomer"
 		ORDER BY "bcCustomerNo"
+		LIMIT 5000
 	`)
 }
 
@@ -48,6 +49,7 @@ func (s *Store) ListItems(ctx context.Context) ([]map[string]any, error) {
 			"bcItemBlocked"
 		FROM "bcItem"
 		ORDER BY "bcItemNo"
+		LIMIT 30000
 	`)
 }
 
@@ -76,6 +78,7 @@ func (s *Store) ListSalesOrders(ctx context.Context) ([]map[string]any, error) {
 			WHERE l."bcSalesOrderLineDocumentNo" = so."bcSalesOrderNoValue"
 		) lines ON true
 		ORDER BY so."bcSalesOrderNoValue" DESC
+		LIMIT 500
 	`)
 }
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/evergreen/api/pkg/middleware"
 	"github.com/evergreen/api/pkg/response"
@@ -92,13 +93,27 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	compareMode := r.URL.Query().Get("compareMode")
 
-	leads, _ := h.store.DashboardLeads(ctx)
-	opps, _ := h.store.DashboardOpportunities(ctx)
-	orders, _ := h.store.DashboardOrders(ctx)
-	activities, _ := h.store.DashboardActivities(ctx)
-	pipelineByStage, _ := h.store.DashboardPipelineByStage(ctx)
-	revenueByMonth, _ := h.store.DashboardRevenueByMonth(ctx)
-	topSalespeople, _ := h.store.DashboardTopSalespeople(ctx)
+	var (
+		leads          []map[string]any
+		opps           []map[string]any
+		orders         []map[string]any
+		activities     []map[string]any
+		pipelineByStage []map[string]any
+		revenueByMonth  []map[string]any
+		topSalespeople  []map[string]any
+	)
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error { var e error; leads, e = h.store.DashboardLeads(gCtx); return e })
+	g.Go(func() error { var e error; opps, e = h.store.DashboardOpportunities(gCtx); return e })
+	g.Go(func() error { var e error; orders, e = h.store.DashboardOrders(gCtx); return e })
+	g.Go(func() error { var e error; activities, e = h.store.DashboardActivities(gCtx); return e })
+	g.Go(func() error { var e error; pipelineByStage, e = h.store.DashboardPipelineByStage(gCtx); return e })
+	g.Go(func() error { var e error; revenueByMonth, e = h.store.DashboardRevenueByMonth(gCtx); return e })
+	g.Go(func() error { var e error; topSalespeople, e = h.store.DashboardTopSalespeople(gCtx); return e })
+	if err := g.Wait(); err != nil {
+		response.InternalError(w, err)
+		return
+	}
 
 	if activities == nil {
 		activities = []map[string]any{}
