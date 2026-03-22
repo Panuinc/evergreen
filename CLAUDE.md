@@ -111,10 +111,13 @@ if err := h.store.UpdateStatus(ctx, id, status); err != nil {
 - [ ] `go build ./...` ผ่านโดยไม่มี warning
 - [ ] `npx tsc --noEmit` ผ่านโดยไม่มี error
 - [ ] ไม่มี hardcoded data ที่แสดงต่อ user
-- [ ] ทุก endpoint ใหม่อยู่ใต้ auth middleware
+- [ ] ทุก endpoint ใหม่อยู่ใต้ auth middleware (ยกเว้น /health, /metrics)
 - [ ] ไม่มี SQL ที่ interpolate user input ตรงๆ
 - [ ] ตัวเลขการเงินไม่มีการคำนวณด้วย float/JS number
 - [ ] ไม่มี DELETE/UPDATE ที่ไม่มี WHERE clause
+- [ ] ไม่มี secrets/keys hardcode ในโค้ด (ดู SE1)
+- [ ] required env vars ครบก่อน deploy (ดู SE3)
+- [ ] migration ใหม่ใช้ CONCURRENTLY (ดู SB3)
 
 ---
 
@@ -374,6 +377,59 @@ CREATE TABLE bcItem (
 6. **Only exceptions**: `isActive`, `isDeleted` — shared boolean flags without prefix
 7. **All names** are camelCase — no snake_case, no UPPER_CASE
 
+### Mandatory Columns (ทุก app table ต้องมี)
+
+```sql
+CREATE TABLE {tableName} (
+  {tableName}Id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- ... business columns ...
+  {tableName}CreatedAt timestamptz NOT NULL DEFAULT now(),  -- บังคับ
+  {tableName}UpdatedAt timestamptz,                         -- optional แต่แนะนำ
+  isActive             boolean NOT NULL DEFAULT true
+);
+
+-- Index บังคับสำหรับทุก CreatedAt (ใช้สำหรับ year grouping และ range query)
+CREATE INDEX idx_{tableName}_createdAt ON "{tableName}" ("{tableName}CreatedAt" DESC);
+```
+
+### Year Grouping Pattern (ใช้ `{tableName}CreatedAt`)
+
+**ห้ามใช้ `DATE_PART()` ใน WHERE** — ทำให้ index ไม่ทำงาน (function บน column = full scan)
+
+```sql
+-- ❌ WRONG — DATE_PART ใน WHERE ทำให้ index ไม่ทำงาน (full scan ที่ 10k+ rows = ช้ามาก)
+WHERE DATE_PART('year', "salesLeadCreatedAt") = 2024
+
+-- ✅ CORRECT — range query ใช้ index ได้เต็ม
+WHERE "salesLeadCreatedAt" >= DATE_TRUNC('year', $1::timestamptz)
+  AND "salesLeadCreatedAt" <  DATE_TRUNC('year', $1::timestamptz) + INTERVAL '1 year'
+
+-- ✅ CORRECT — GROUP BY ปีสำหรับ dashboard/chart
+SELECT
+  DATE_PART('year', "salesLeadCreatedAt")::int AS "year",
+  COUNT(*)                                      AS "count",
+  SUM("salesLeadExpectedRevenue")               AS "salesLeadExpectedRevenue"
+FROM "salesLead"
+WHERE "salesLeadCreatedAt" >= $1  -- filter range ก่อน group เสมอ
+GROUP BY DATE_PART('year', "salesLeadCreatedAt")
+ORDER BY "year" DESC
+LIMIT 10
+```
+
+**Frontend TypeScript pattern** สำหรับ year filter:
+```typescript
+// ส่งเป็น ISO string ของวันแรกของปี
+const yearStart = new Date(`${selectedYear}-01-01T00:00:00.000Z`).toISOString()
+const data = await get(`/api/sales/leads?yearStart=${yearStart}`)
+
+// TypeScript interface รวม year field
+interface LeadsByYear {
+  year: number
+  count: number
+  salesLeadExpectedRevenue: number
+}
+```
+
 ### FK Example
 
 ```sql
@@ -465,6 +521,326 @@ entries, _ := h.store.GetEntries(ctx)
 
 1. **Auth check result ต้อง cache** (in-memory หรือ Redis) TTL 5 นาที — ห้าม query DB ซ้ำทุก request สำหรับข้อมูลที่ไม่เปลี่ยนบ่อย (role, permission)
 2. **Middleware/Auth ควรทำ 1 query รวม** แทนหลาย query แยก — JOIN rbacUserRole + rbacUserProfile + rbacRole ในครั้งเดียว
+
+---
+
+# Supabase Infrastructure Rules (MANDATORY)
+
+## SB1: Connection Pooling (PgBouncer) — critical สำหรับ 10k+ user
+
+Supabase ใช้ PgBouncer ใน **transaction mode** by default มีข้อจำกัดที่ต้องรู้:
+
+```go
+// ✅ pgxpool config สำหรับ Supabase (ใน db/pool.go)
+pool, err := pgxpool.NewWithConfig(ctx, &pgxpool.Config{
+    ConnConfig:        connConfig,
+    MaxConns:          20,              // ต้องน้อยกว่า Supabase plan limit (Pro = 200)
+    MinConns:          2,
+    MaxConnLifetime:   30 * time.Minute,
+    MaxConnIdleTime:   5 * time.Minute,
+    HealthCheckPeriod: 1 * time.Minute,
+})
+```
+
+กฏ PgBouncer transaction mode:
+- ห้ามใช้ SET session variable ข้าม query (ไม่ persist ใน transaction mode)
+- ห้ามใช้ pg_advisory_lock ผ่าน pooler — ใช้ Redis distributed lock แทน
+- ห้ามใช้ LISTEN/NOTIFY ผ่าน pooler — ใช้ Supabase Realtime แทน
+- prepared statements ต้องใช้ simple query protocol (PreferSimpleProtocol: true)
+- MaxConns รวมทุก instance ต้องไม่เกิน 80% ของ plan limit
+
+## SB2: Row Level Security (RLS)
+
+Go backend เชื่อมด้วย service_role key → bypass RLS ทั้งหมด
+
+- **Authorization logic อยู่ที่ Go middleware เท่านั้น** (ดู S3)
+- ห้าม expose service_role key ไปยัง frontend ไม่ว่ากรณีใด
+- ถ้าต้องการ RLS สำหรับ multi-tenant → ใช้ anon key + RLS policies แยก connection pool
+
+## SB3: Database Migration Rules
+
+```
+# ใช้ golang-migrate หรือ goose (เลือก 1 อย่างตลอดโปรเจกต์)
+migrations/
+├── 001_init_schema.up.sql / .down.sql
+└── 002_add_hr_employee.up.sql / .down.sql
+```
+
+กฏ zero-downtime migration:
+- ห้าม DROP COLUMN ทันที → 3 step: (1) deprecate ใน code (2) deploy (3) DROP ใน migration ถัดไป
+- ห้าม ADD COLUMN NOT NULL ไม่มี DEFAULT → จะ lock table
+- index ใหม่ต้องใช้ CREATE INDEX CONCURRENTLY เสมอ
+
+```sql
+-- ✅ CORRECT — ไม่ lock table
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_salesLead_createdAt
+  ON "salesLead" ("salesLeadCreatedAt" DESC);
+```
+
+---
+
+# Go Infrastructure Rules (MANDATORY)
+
+## GI1: Graceful Shutdown
+
+```go
+quit := make(chan os.Signal, 1)
+signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+<-quit
+ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+defer cancel()
+if err := server.Shutdown(ctx); err != nil {
+    slog.Error("server shutdown", "error", err)
+}
+pool.Close()
+```
+
+## GI2: Health Check Endpoint
+
+```go
+// /health ต้อง exclude จาก auth middleware
+r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+    ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+    defer cancel()
+    if err := pool.Ping(ctx); err != nil {
+        response.Error(w, http.StatusServiceUnavailable, "db unavailable")
+        return
+    }
+    response.OK(w, map[string]string{"status": "ok"})
+})
+```
+
+## GI3: Background Jobs
+
+สำหรับงานที่ใช้เวลานาน (email, report, sync) ห้าม block HTTP request:
+- ทุก job ต้องมี idempotency key (ป้องกัน duplicate เมื่อ retry)
+- retry สูงสุด 3 ครั้ง exponential backoff (1s, 2s, 4s)
+- log ทุก job start/success/failure
+- ถ้า fail ครบ 3 ครั้ง → ส่งไป dead letter table `sysJobDlq`
+
+```sql
+CREATE TABLE sysJobDlq (
+  sysJobDlqId        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  sysJobDlqType      text NOT NULL,
+  sysJobDlqPayload   jsonb NOT NULL,
+  sysJobDlqError     text NOT NULL,
+  sysJobDlqAttempts  int NOT NULL DEFAULT 0,
+  sysJobDlqCreatedAt timestamptz NOT NULL DEFAULT now(),
+  isActive           boolean NOT NULL DEFAULT true
+);
+```
+
+## GI4: Structured Logging
+
+```go
+// ✅ ใช้ log/slog (Go 1.21+) — ห้ามใช้ fmt.Println ใน production
+// Production format: JSON เสมอ
+slog.Info("request",
+    "method", r.Method, "path", r.URL.Path,
+    "status", statusCode, "duration_ms", duration.Milliseconds(),
+    "user_id", userID, "request_id", requestID,
+)
+slog.Error("db query failed",
+    "op", "store.ListLeads", "error", err, "user_id", userID)
+```
+
+กฏ logging:
+- ทุก request ต้องมี request_id (UUID, inject ที่ middleware)
+- ห้าม log: password, token, เลขบัตร, เลขบัญชี (ดู E10)
+- Log level: ERROR=5xx, WARN=4xx ที่น่าสงสัย, INFO=normal request
+
+---
+
+# Redis Caching Rules (MANDATORY)
+
+## RC1: Cache / No-Cache
+
+| Cache ได้ | ห้าม Cache |
+|---|---|
+| Auth token (TTL 5 นาที) | ตัวเลขการเงิน real-time (ดู S1) |
+| RBAC role/permission (TTL 5 นาที) | ข้อมูลที่ต้อง consistency สูง |
+| BC master data (TTL 5 นาที) | User-specific sensitive data |
+| Dashboard KPIs expensive (TTL 1 นาที) | |
+| Rate limit counters | |
+
+## RC2: Key Naming Pattern
+
+```
+{service}:{module}:{entity}:{identifier}
+
+ตัวอย่าง:
+app:auth:token:usr_abc123
+app:rbac:permission:role_admin
+app:bc:customer:C001
+app:dashboard:ar:summary:2024
+app:ratelimit:ip:192.168.1.1
+```
+
+กฏ: key ขึ้นต้นด้วย `app:` เสมอ, ใช้ `:` เป็น separator, ทุก key ต้องมี TTL (ห้าม SET ไม่มี EX)
+
+## RC3: Cache-Aside Pattern
+
+```go
+func (s *Store) GetCustomer(ctx context.Context, no string) (map[string]any, error) {
+    key := fmt.Sprintf("app:bc:customer:%s", no)
+    if cached, err := redis.Get(ctx, key).Result(); err == nil {
+        var result map[string]any
+        json.Unmarshal([]byte(cached), &result)
+        return result, nil
+    }
+    result, err := s.queryCustomer(ctx, no)
+    if err != nil { return nil, err }
+    if b, _ := json.Marshal(result); b != nil {
+        redis.Set(ctx, key, b, 5*time.Minute) // ไม่ block ถ้า Redis ล่ม
+    }
+    return result, nil
+}
+```
+
+## RC4: Cache Invalidation
+
+เมื่อ data เปลี่ยน ต้อง Del cache key ที่เกี่ยวข้องทันทีหลัง DB update สำเร็จ
+
+---
+
+# Rate Limiting Rules (MANDATORY)
+
+## RL1: Limits
+
+```go
+// sliding window counter ใน Redis
+const (
+    RateLimitPerIP   = 100 // req/นาที ต่อ IP
+    RateLimitPerUser = 300 // req/นาที ต่อ user (หลัง auth)
+    RateLimitBurst   = 20  // burst สูงสุดใน 1 วินาที
+)
+```
+
+## RL2: Response 429
+
+```go
+w.Header().Set("Retry-After", "60")
+w.Header().Set("X-RateLimit-Limit", "100")
+w.Header().Set("X-RateLimit-Remaining", "0")
+w.Header().Set("X-RateLimit-Reset", resetTime)
+response.Error(w, http.StatusTooManyRequests, "rate limit exceeded")
+```
+
+## RL3: Whitelist
+
+- Internal service calls ใช้ X-Internal-Token header แทน rate limit
+- /health exempt จาก rate limit เสมอ
+- Webhook endpoints ใช้ IP whitelist แทน
+
+---
+
+# Observability Rules (MANDATORY)
+
+## OB1: Request ID
+
+```go
+// middleware inject request_id ทุก request
+func RequestID(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        id := r.Header.Get("X-Request-ID")
+        if id == "" { id = uuid.New().String() }
+        ctx := context.WithValue(r.Context(), ctxKeyRequestID, id)
+        w.Header().Set("X-Request-ID", id)
+        next.ServeHTTP(w, r.WithContext(ctx))
+    })
+}
+```
+
+## OB2: Metrics Endpoint
+
+```go
+// /metrics ต้องอยู่นอก auth middleware
+r.Get("/metrics", func(w http.ResponseWriter, r *http.Request) {
+    response.OK(w, map[string]any{
+        "db_pool_total":  pool.Stat().TotalConns(),
+        "db_pool_idle":   pool.Stat().IdleConns(),
+        "uptime_seconds": time.Since(startTime).Seconds(),
+    })
+})
+```
+
+กฏ: 5xx error rate > 1% ใน 5 นาที → alert, slow query > 2 วินาที → log query text (ไม่มี param values)
+
+---
+
+# Secrets & Environment Rules (MANDATORY)
+
+## SE1: ห้าม hardcode secrets ในโค้ดและ git
+
+```go
+// ✅ อ่านจาก environment เสมอ
+supabaseKey := os.Getenv("SUPABASE_SERVICE_ROLE_KEY")
+if supabaseKey == "" { log.Fatal("SUPABASE_SERVICE_ROLE_KEY is required") }
+```
+
+## SE2: Naming Convention
+
+```bash
+# Pattern: {SERVICE}_{COMPONENT}_{NAME}
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_ANON_KEY=
+REDIS_URL=
+APP_JWT_SECRET=
+APP_PORT=8080
+APP_ENV=production           # development | staging | production
+LINE_CHANNEL_SECRET=
+LINE_CHANNEL_ACCESS_TOKEN=
+```
+
+## SE3: Startup Validation (Fail Fast)
+
+```go
+required := []string{"SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "APP_JWT_SECRET", "REDIS_URL"}
+for _, key := range required {
+    if os.Getenv(key) == "" { log.Fatalf("required env var %s is not set", key) }
+}
+```
+
+## SE4: .env files
+
+- `.env.example` → commit ไว้ใน git (ไม่มีค่าจริง)
+- `.env.local`, `.env.production` → ห้าม commit (.gitignore)
+- CI/CD ใช้ GitHub Secrets / Vault — ไม่ใช่ .env file
+
+---
+
+# API Versioning & CORS Rules (MANDATORY)
+
+## AV1: Versioning
+
+```go
+// Internal API (frontend ↔ backend โปรเจกต์เดียวกัน): /api/{module}
+// External API (third-party, mobile, partner): /api/v1/{module} บังคับ
+r.Route("/api/v1", func(r chi.Router) {
+    r.Use(middleware.Auth)
+    r.Mount("/finance", financeRouter)
+})
+```
+
+กฏ: ห้ามลบ/เปลี่ยน type ของ field ใน response โดยไม่ bump version, v1 ต้อง parallel กับ v2 อย่างน้อย 3 เดือน
+
+## AV2: CORS
+
+```go
+cors.New(cors.Options{
+    AllowedOrigins: []string{
+        "https://app.evergreenchh.tech",
+        "https://admin.evergreenchh.tech",
+        // "http://localhost:3000",  // development เท่านั้น
+    },
+    AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+    AllowedHeaders:   []string{"Authorization", "Content-Type", "X-Request-ID"},
+    AllowCredentials: true,
+    MaxAge:           300,
+})
+// ❌ ห้าม AllowedOrigins: []string{"*"} ใน production
+```
 
 ---
 
@@ -2487,6 +2863,15 @@ try {
 - [ ] ไม่มี N+1 query (ดู query plan ถ้าสงสัย)
 - [ ] Dashboard handler ใช้ errgroup สำหรับ parallel queries
 - [ ] API response < 500ms สำหรับ typical load
+- [ ] CreatedAt column และ index ครบทุก new table (ดู DB Naming)
+- [ ] Year filter ใช้ range query ไม่ใช้ DATE_PART ใน WHERE (ดู DB Naming)
+
+**Infrastructure**
+- [ ] /health endpoint ทำงาน + อยู่นอก auth (GI2)
+- [ ] Graceful shutdown implement แล้ว (GI1)
+- [ ] pgxpool MaxConns ไม่เกิน 80% ของ plan limit (SB1)
+- [ ] Background job มี retry + DLQ (GI3)
+- [ ] Structured log ใช้ JSON format + request_id (GI4, OB1)
 
 **UX/UI**
 - [ ] มี Loading skeleton (ไม่ใช่ blank screen)
@@ -2496,11 +2881,14 @@ try {
 - [ ] Mutations มี toast feedback (success + error)
 - [ ] Form มี validation message ที่ field
 
-**Safety**
+**Safety** (อ้างถึง S1–S6, SE, RL)
 - [ ] ทุก endpoint ผ่าน auth middleware (S3)
 - [ ] ไม่มี SQL injection risk (S5)
 - [ ] ไม่มี float64 ในการคำนวณการเงิน (S1)
 - [ ] Error ไม่หายเงียบ (S6)
+- [ ] ไม่มี secrets hardcode (SE1)
+- [ ] Rate limiting middleware ครอบคลุม endpoint ใหม่ (RL1)
+- [ ] CORS ระบุ allowed origins ชัดเจน ไม่มี * (AV2)
 
 **Code Quality**
 - [ ] `go build ./...` ผ่าน
