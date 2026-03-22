@@ -83,13 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user) return;
 
-    const interval = setInterval(async () => {
+    const check = async () => {
+      if (document.hidden) return; // skip when tab is not visible
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        signOut();
-      }
-    }, sessionCheckInterval);
+      if (!session) signOut();
+    };
 
+    const interval = setInterval(check, sessionCheckInterval);
     return () => clearInterval(interval);
   }, [user, signOut]);
 

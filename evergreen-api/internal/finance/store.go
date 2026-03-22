@@ -19,7 +19,10 @@ func NewStore(pool *pgxpool.Pool) *Store {
 
 // ---- Sales Invoices ----
 
-func (s *Store) ListSalesInvoices(ctx context.Context, status string) ([]map[string]any, error) {
+func (s *Store) ListSalesInvoices(ctx context.Context, status string, limit, offset int) ([]map[string]any, error) {
+	if limit <= 0 {
+		limit = 200
+	}
 	where := ""
 	if status == "Open" {
 		where = `WHERE i."bcPostedSalesInvoiceClosedValue" = 'false'`
@@ -62,14 +65,18 @@ func (s *Store) ListSalesInvoices(ctx context.Context, status string) ([]map[str
 		) lines ON true
 		%s
 		ORDER BY i."bcPostedSalesInvoicePostingDate" DESC
-	`, where)
+		LIMIT %d OFFSET %d
+	`, where, limit, offset)
 	return db.QueryRows(ctx, s.pool, q)
 }
 
 // ---- Purchase Invoices ----
 
-func (s *Store) ListPurchaseInvoices(ctx context.Context) ([]map[string]any, error) {
-	return db.QueryRows(ctx, s.pool, `
+func (s *Store) ListPurchaseInvoices(ctx context.Context, limit, offset int) ([]map[string]any, error) {
+	if limit <= 0 {
+		limit = 200
+	}
+	return db.QueryRows(ctx, s.pool, fmt.Sprintf(`
 		SELECT
 			i."bcPostedPurchInvoiceId",
 			i."bcPostedPurchInvoiceNoValue",
@@ -104,7 +111,8 @@ func (s *Store) ListPurchaseInvoices(ctx context.Context) ([]map[string]any, err
 			WHERE l."bcPostedPurchInvoiceLineDocumentNo" = i."bcPostedPurchInvoiceNoValue"
 		) lines ON true
 		ORDER BY i."bcPostedPurchInvoicePostingDate" DESC
-	`)
+		LIMIT %d OFFSET %d
+	`, limit, offset))
 }
 
 // ---- Aged Receivables ----

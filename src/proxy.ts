@@ -35,8 +35,9 @@ export async function proxy(request: import("next/server").NextRequest) {
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
-    const isAuthenticated = !!user;
+    // getSession() reads from cookie (no network call) — JWT is verified by Go API on every request
+    const { data: { session } } = await supabase.auth.getSession();
+    const isAuthenticated = !!session;
     const isAuthPage = pathname.startsWith("/auth");
     const isPublicPage = pathname.startsWith("/quotation");
 

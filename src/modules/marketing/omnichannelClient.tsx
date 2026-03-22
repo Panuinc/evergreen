@@ -219,30 +219,7 @@ export default function OmnichannelClient() {
     selectedConvRef.current = selectedConversation;
   }, [selectedConversation]);
 
-  /* Message polling */
-  useEffect(() => {
-    const poll = async () => {
-      const currentConv = selectedConvRef.current;
-      if (!currentConv) return;
-      try {
-        const freshMessages = await get<MktMessage[]>(`/api/marketing/omnichannel/conversations/${currentConv.mktConversationId}/messages`);
-        const msgs = freshMessages ?? [];
-        setMessages((prev) => {
-          if (msgs.length !== prev.length ||
-              (msgs.length > 0 && prev.length > 0 &&
-               msgs[msgs.length - 1]?.mktMessageId !== prev[prev.length - 1]?.mktMessageId &&
-               !prev[prev.length - 1]?.mktMessageId?.startsWith?.("temp-"))) {
-            const tempMsgs = prev.filter((m) => m.mktMessageId?.startsWith?.("temp-"));
-            return [...msgs, ...tempMsgs];
-          }
-          return prev;
-        });
-      } catch {}
-    };
-
-    const timer = setInterval(poll, pollInterval);
-    return () => clearInterval(timer);
-  }, []);
+  /* Message updates handled by Realtime subscription below */
 
   /* Realtime */
   useEffect(() => {

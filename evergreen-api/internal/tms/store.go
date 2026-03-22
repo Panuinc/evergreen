@@ -84,7 +84,7 @@ func (s *Store) SoftDeleteVehicle(ctx context.Context, id string) error {
 
 // ---- Shipments ----
 
-func (s *Store) ListShipments(ctx context.Context, isSuperAdmin bool, status, search string) ([]map[string]any, error) {
+func (s *Store) ListShipments(ctx context.Context, isSuperAdmin bool, status, search string, limit, offset int) ([]map[string]any, error) {
 	q := `SELECT "tmsShipmentId", "tmsShipmentNumber", "tmsShipmentDate",
 		"tmsShipmentCustomerName", "tmsShipmentCustomerPhone", "tmsShipmentCustomerAddress",
 		"tmsShipmentDestination", "tmsShipmentVehicleId", "tmsShipmentDriverId",
@@ -108,8 +108,13 @@ func (s *Store) ListShipments(ctx context.Context, isSuperAdmin bool, status, se
 		q += fmt.Sprintf(` AND ("tmsShipmentNumber" ILIKE $%d OR "tmsShipmentCustomerName" ILIKE $%d)`, argIdx, argIdx+1)
 		p := "%" + search + "%"
 		args = append(args, p, p)
+		argIdx += 2
 	}
-	q += ` ORDER BY "tmsShipmentCreatedAt" DESC`
+	if limit <= 0 {
+		limit = 50
+	}
+	q += fmt.Sprintf(` ORDER BY "tmsShipmentCreatedAt" DESC LIMIT $%d OFFSET $%d`, argIdx, argIdx+1)
+	args = append(args, limit, offset)
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 
@@ -170,7 +175,7 @@ func (s *Store) SoftDeleteShipment(ctx context.Context, id string) error {
 
 // ---- Deliveries ----
 
-func (s *Store) ListDeliveries(ctx context.Context, isSuperAdmin bool, shipmentId string) ([]map[string]any, error) {
+func (s *Store) ListDeliveries(ctx context.Context, isSuperAdmin bool, shipmentId string, limit, offset int) ([]map[string]any, error) {
 	q := `SELECT "tmsDeliveryId", "tmsDeliveryShipmentId", "tmsDeliveryReceiverName",
 		"tmsDeliveryReceiverPhone", "tmsDeliveryStatus", "tmsDeliveryNotes",
 		"tmsDeliverySignatureUrl", "tmsDeliveryPhotoUrls", "tmsDeliveryReceivedAt",
@@ -184,8 +189,13 @@ func (s *Store) ListDeliveries(ctx context.Context, isSuperAdmin bool, shipmentI
 	if shipmentId != "" {
 		q += fmt.Sprintf(` AND "tmsDeliveryShipmentId" = $%d`, argIdx)
 		args = append(args, shipmentId)
+		argIdx++
 	}
-	q += ` ORDER BY "tmsDeliveryCreatedAt" DESC`
+	if limit <= 0 {
+		limit = 50
+	}
+	q += fmt.Sprintf(` ORDER BY "tmsDeliveryCreatedAt" DESC LIMIT $%d OFFSET $%d`, argIdx, argIdx+1)
+	args = append(args, limit, offset)
 	return db.QueryRows(ctx, s.pool, q, args...)
 }
 

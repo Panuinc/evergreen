@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -96,7 +97,9 @@ func (h *Handler) ListShipments(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
 	search := r.URL.Query().Get("search")
 	status := r.URL.Query().Get("status")
-	data, err := h.store.ListShipments(r.Context(), sa, status, search)
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	data, err := h.store.ListShipments(r.Context(), sa, status, search, limit, offset)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -192,7 +195,9 @@ func (h *Handler) UpdateShipmentStatus(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ListDeliveries(w http.ResponseWriter, r *http.Request) {
 	sa := middleware.IsSuperAdmin(r.Context())
 	shipmentId := r.URL.Query().Get("shipmentId")
-	data, err := h.store.ListDeliveries(r.Context(), sa, shipmentId)
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	data, err := h.store.ListDeliveries(r.Context(), sa, shipmentId, limit, offset)
 	if err != nil {
 		response.InternalError(w, err)
 		return

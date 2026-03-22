@@ -3,6 +3,7 @@ package finance
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -29,8 +30,10 @@ func (h *Handler) SalesInvoices(w http.ResponseWriter, r *http.Request) {
 	if status == "" {
 		status = "Open"
 	}
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
 
-	data, err := h.store.ListSalesInvoices(r.Context(), status)
+	data, err := h.store.ListSalesInvoices(r.Context(), status, limit, offset)
 	if err != nil {
 		response.InternalError(w, err)
 		return
@@ -41,7 +44,9 @@ func (h *Handler) SalesInvoices(w http.ResponseWriter, r *http.Request) {
 // ---- Purchase Invoices (from Supabase) ----
 
 func (h *Handler) PurchaseInvoices(w http.ResponseWriter, r *http.Request) {
-	data, err := h.store.ListPurchaseInvoices(r.Context())
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	data, err := h.store.ListPurchaseInvoices(r.Context(), limit, offset)
 	if err != nil {
 		response.InternalError(w, err)
 		return

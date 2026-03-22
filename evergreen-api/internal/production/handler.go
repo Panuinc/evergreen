@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/evergreen/api/pkg/response"
 )
@@ -76,33 +77,21 @@ func isWPC(dim1 string) bool {
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// Fetch all data in parallel-ish (sequential for simplicity, all fast SQL)
-	prodOrders, err := h.store.GetProductionOrders(ctx)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
+	var (
+		prodOrders      []map[string]any
+		ileEntries      []map[string]any
+		consumptionCosts []map[string]any
+		salesPriceRows  []map[string]any
+		dimNameRows     []map[string]any
+	)
 
-	ileEntries, err := h.store.GetItemLedgerEntries(ctx)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
-
-	consumptionCosts, err := h.store.GetConsumptionCosts(ctx)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
-
-	salesPriceRows, err := h.store.GetSalesPriceMap(ctx)
-	if err != nil {
-		response.InternalError(w, err)
-		return
-	}
-
-	dimNameRows, err := h.store.GetDimensionNames(ctx)
-	if err != nil {
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error { var e error; prodOrders, e = h.store.GetProductionOrders(gCtx); return e })
+	g.Go(func() error { var e error; ileEntries, e = h.store.GetItemLedgerEntries(gCtx); return e })
+	g.Go(func() error { var e error; consumptionCosts, e = h.store.GetConsumptionCosts(gCtx); return e })
+	g.Go(func() error { var e error; salesPriceRows, e = h.store.GetSalesPriceMap(gCtx); return e })
+	g.Go(func() error { var e error; dimNameRows, e = h.store.GetDimensionNames(gCtx); return e })
+	if err := g.Wait(); err != nil {
 		response.InternalError(w, err)
 		return
 	}

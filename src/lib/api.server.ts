@@ -4,9 +4,13 @@ const apiBase = process.env.GO_API_URL || "http://localhost:8080";
 
 /**
  * Server-side fetch helper — reads auth token from Supabase session cookie
- * Use this in Server Components (page.jsx, layout.jsx)
+ * Use this in Server Components (page.tsx, layout.tsx)
+ *
+ * @param revalidate - seconds to cache (e.g. 300 for 5 min). Omit for no-store (default).
+ *   Use for slow-changing reference data: items, customers, dimension values, etc.
+ *   Do NOT use for user-specific or real-time data.
  */
-export async function api<T = unknown>(path: string): Promise<T | null> {
+export async function api<T = unknown>(path: string, revalidate?: number): Promise<T | null> {
   const supabase = await createClient();
   const {
     data: { session },
@@ -17,10 +21,9 @@ export async function api<T = unknown>(path: string): Promise<T | null> {
     headers["Authorization"] = `Bearer ${session.access_token}`;
   }
 
-  const res = await fetch(`${apiBase}${path}`, {
-    headers,
-    cache: "no-store",
-  });
+  const nextOptions = revalidate != null ? { next: { revalidate } } : { cache: "no-store" as const };
+
+  const res = await fetch(`${apiBase}${path}`, { headers, ...nextOptions });
 
   if (!res.ok) {
     return null;

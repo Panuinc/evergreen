@@ -42,7 +42,27 @@ type authCache struct {
 }
 
 func newAuthCache() *authCache {
-	return &authCache{entries: make(map[string]authCacheEntry)}
+	c := &authCache{entries: make(map[string]authCacheEntry)}
+	go c.startEviction()
+	return c
+}
+
+func (c *authCache) startEviction() {
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
+	for range ticker.C {
+		c.evictExpired()
+	}
+}
+
+func (c *authCache) evictExpired() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	for k, v := range c.entries {
+		if time.Since(v.cachedAt) > authCacheTTL {
+			delete(c.entries, k)
+		}
+	}
 }
 
 func (c *authCache) get(userID string) (authCacheEntry, bool) {

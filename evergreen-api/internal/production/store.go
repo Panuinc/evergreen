@@ -48,6 +48,7 @@ func (s *Store) GetProductionOrders(ctx context.Context) ([]map[string]any, erro
 }
 
 // GetItemLedgerEntries returns output and consumption entries linked to production orders.
+// Filters to the last 2 years to keep the dataset manageable.
 func (s *Store) GetItemLedgerEntries(ctx context.Context) ([]map[string]any, error) {
 	return db.QueryRows(ctx, s.pool, `
 		SELECT
@@ -68,6 +69,7 @@ func (s *Store) GetItemLedgerEntries(ctx context.Context) ([]map[string]any, err
 		WHERE ile."bcItemLedgerEntryEntryType" IN ('Output', 'Consumption')
 		  AND ile."bcItemLedgerEntryOrderNo" IS NOT NULL
 		  AND ile."bcItemLedgerEntryOrderNo" != ''
+		  AND ile."bcItemLedgerEntryPostingDate" >= CURRENT_DATE - INTERVAL '2 years'
 	`)
 }
 

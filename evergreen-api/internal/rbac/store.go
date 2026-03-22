@@ -20,12 +20,15 @@ func NewStore(pool *pgxpool.Pool) *Store {
 
 func (s *Store) ListRoles(ctx context.Context, includeInactive bool) ([]map[string]any, error) {
 	q := `SELECT r."rbacRoleId", r."rbacRoleName", r."rbacRoleDescription", r."rbacRoleIsSuperadmin", r."rbacRoleCreatedAt", r."isActive",
-		(SELECT count(*) FROM "rbacUserRole" ur WHERE ur."rbacUserRoleRoleId" = r."rbacRoleId" AND ur."isActive" = true) as "userCount",
-		(SELECT count(*) FROM "rbacRolePermission" rp WHERE rp."rbacRolePermissionRoleId" = r."rbacRoleId" AND rp."isActive" = true) as "permissionCount"
-		FROM "rbacRole" r`
+		COUNT(DISTINCT ur."rbacUserRoleId") FILTER (WHERE ur."isActive" = true) AS "userCount",
+		COUNT(DISTINCT rp."rbacRolePermissionId") FILTER (WHERE rp."isActive" = true) AS "permissionCount"
+		FROM "rbacRole" r
+		LEFT JOIN "rbacUserRole" ur ON ur."rbacUserRoleRoleId" = r."rbacRoleId"
+		LEFT JOIN "rbacRolePermission" rp ON rp."rbacRolePermissionRoleId" = r."rbacRoleId"`
 	if !includeInactive {
 		q += ` WHERE r."isActive" = true`
 	}
+	q += ` GROUP BY r."rbacRoleId", r."rbacRoleName", r."rbacRoleDescription", r."rbacRoleIsSuperadmin", r."rbacRoleCreatedAt", r."isActive"`
 	q += ` ORDER BY r."rbacRoleCreatedAt" DESC`
 	return db.QueryRows(ctx, s.pool, q)
 }

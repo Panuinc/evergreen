@@ -25,7 +25,11 @@ export function RBACProvider({ children }: { children: React.ReactNode }) {
   const { data, isLoading, mutate: mutatePermissions } = useSWR<UserPermissionEntry[]>(
     userId ? `/api/rbac/userPermissions/${userId}` : null,
     (url) => get(url),
-    { onError: (err) => console.error("Failed to load permissions:", err) },
+    {
+      onError: (err) => console.error("Failed to load permissions:", err),
+      revalidateOnFocus: false,
+      dedupingInterval: 5 * 60 * 1000, // 5 minutes — matches server-side auth cache TTL
+    },
   );
 
   const rbacLoading = userId ? isLoading : false;
