@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math"
 	"net/http"
@@ -552,8 +553,29 @@ func (h *Handler) PrintShippingLabel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	printer := clients.NewTSCPrinter()
-	results, _ := printer.PrintLabels(body.Images, 100, 150, 3, cfg) // A6 size
-	response.OK(w, map[string]any{"success": true, "data": map[string]any{"results": results}})
+	results, err := printer.PrintLabels(body.Images, 100, 150, 3, cfg) // A6 size
+	if err != nil {
+		response.Error(w, http.StatusServiceUnavailable, fmt.Sprintf("ไม่สามารถเชื่อมต่อเครื่องพิมพ์ได้: %s", err.Error()))
+		return
+	}
+
+	successCount := 0
+	for _, r := range results {
+		if r.Success {
+			successCount++
+		}
+	}
+	response.OK(w, map[string]any{
+		"success": true,
+		"data": map[string]any{
+			"results": results,
+			"summary": map[string]any{
+				"total":   len(results),
+				"success": successCount,
+				"failed":  len(results) - successCount,
+			},
+		},
+	})
 }
 
 func (h *Handler) GenerateImage(w http.ResponseWriter, r *http.Request) {

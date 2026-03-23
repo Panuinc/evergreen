@@ -57,7 +57,7 @@ function buildLabelHTML(data, label, barcodeValue) {
       </tr></thead>
       <tbody><tr style="border-bottom:1px solid #e5e5e5">
         <td style="padding:1mm 1.5mm;border-right:1px solid #ccc;font-weight:bold">${label.item.description}</td>
-        <td style="padding:1mm 1.5mm;text-align:center;font-weight:bold">${label.item.qty}</td>
+        <td style="padding:1mm 1.5mm;text-align:center;font-weight:bold">${label.item.displayQty} ${label.item.uom}</td>
       </tr></tbody>
     </table>
   </div>
@@ -82,6 +82,9 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
     Object.fromEntries(lines.map((l) => [l.bcSalesOrderLineLineNo, true])),
   );
   const [quantities, setQuantities] = useState(() =>
+    Object.fromEntries(lines.map((l) => [l.bcSalesOrderLineLineNo, l.bcSalesOrderLineOutstandingQuantity || l.bcSalesOrderLineQuantityValue || 0])),
+  );
+  const [displayQty, setDisplayQty] = useState(() =>
     Object.fromEntries(lines.map((l) => [l.bcSalesOrderLineLineNo, l.bcSalesOrderLineOutstandingQuantity || l.bcSalesOrderLineQuantityValue || 0])),
   );
   const [recipientName, setRecipientName] = useState(
@@ -110,6 +113,11 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
     setQuantities((prev) => ({ ...prev, [lineNo]: num }));
   };
 
+  const handleDisplayQtyChange = (lineNo, value) => {
+    const num = Math.max(0, parseInt(value) || 0);
+    setDisplayQty((prev) => ({ ...prev, [lineNo]: num }));
+  };
+
   const [networkPrinting, setNetworkPrinting] = useState(false);
   const [networkResult, setNetworkResult] = useState(null);
 
@@ -120,6 +128,7 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
         description: l.bcSalesOrderLineDescriptionValue || l.bcSalesOrderLineNoValue,
         itemNo: l.bcSalesOrderLineNoValue,
         qty: quantities[l.bcSalesOrderLineLineNo],
+        displayQty: displayQty[l.bcSalesOrderLineLineNo] || quantities[l.bcSalesOrderLineLineNo],
         uom: l.bcSalesOrderLineUnitOfMeasureCode || "PCS",
       }));
 
@@ -305,21 +314,39 @@ export default function ShippingLabelModal({ isOpen, onClose, order, customerPho
                       {l.bcSalesOrderLineOutstandingQuantity || 0} {l.bcSalesOrderLineUnitOfMeasureCode}
                     </p>
                   </div>
-                  <Input
-                    type="number"
-                    variant="bordered"
-                    size="md"
-                    radius="md"
-                    className="w-20"
-                    min={0}
-                    max={l.bcSalesOrderLineQuantityValue}
-                    value={String(quantities[l.bcSalesOrderLineLineNo] || 0)}
-                    onValueChange={(v) => handleQtyChange(l.bcSalesOrderLineLineNo, v)}
-                    isDisabled={!selectedLines[l.bcSalesOrderLineLineNo]}
-                  />
-                  <span className="text-xs text-muted-foreground w-8">
-                    {l.bcSalesOrderLineUnitOfMeasureCode || "PCS"}
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-[10px] text-muted-foreground">จำนวนใบ</span>
+                      <Input
+                        type="number"
+                        variant="bordered"
+                        size="sm"
+                        radius="md"
+                        className="w-16"
+                        min={0}
+                        value={String(quantities[l.bcSalesOrderLineLineNo] || 0)}
+                        onValueChange={(v) => handleQtyChange(l.bcSalesOrderLineLineNo, v)}
+                        isDisabled={!selectedLines[l.bcSalesOrderLineLineNo]}
+                      />
+                    </div>
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-[10px] text-muted-foreground">จำนวนต่อใบ</span>
+                      <Input
+                        type="number"
+                        variant="bordered"
+                        size="sm"
+                        radius="md"
+                        className="w-16"
+                        min={0}
+                        value={String(displayQty[l.bcSalesOrderLineLineNo] || 0)}
+                        onValueChange={(v) => handleDisplayQtyChange(l.bcSalesOrderLineLineNo, v)}
+                        isDisabled={!selectedLines[l.bcSalesOrderLineLineNo]}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground w-8">
+                      {l.bcSalesOrderLineUnitOfMeasureCode || "PCS"}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

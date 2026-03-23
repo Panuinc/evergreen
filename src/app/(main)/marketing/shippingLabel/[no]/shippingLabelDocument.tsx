@@ -323,7 +323,7 @@ export default function ShippingLabelDocument({ orderNo }: ShippingLabelDocument
                         fontWeight: "bold",
                       }}
                     >
-                      {label.item.qty}
+                      {label.item.displayQty ?? label.item.qty} {label.item.uom}
                     </td>
                   </tr>
                 </tbody>
