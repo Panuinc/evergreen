@@ -2,7 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer as _MapContainer, TileLayer as _TileLayer, Marker as _Marker, Popup, useMap } from "react-leaflet";
+
+// react-leaflet v5 restructured types — Leaflet-native props exist at runtime but aren't in TS definitions
+const MapContainer = _MapContainer as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const TileLayer = _TileLayer as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const Marker = _Marker as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 import L from "leaflet";
 
 
@@ -103,7 +108,7 @@ export default function VehicleMapInner({
 
   return (
     <MapContainer
-      center={center as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
+      center={center}
       zoom={10}
       style={{ height: "100%", width: "100%", minHeight: "400px", borderRadius: "12px" }}
     >
@@ -117,7 +122,7 @@ export default function VehicleMapInner({
       {markerData.map((m) => (
         <Marker
           key={m.vehicleId}
-          position={[m.lat, m.lng] as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
+          position={[m.lat, m.lng]}
           icon={createColoredIcon(m.color)}
           eventHandlers={{
             click: () => onVehicleClick?.(m.vehicleId),

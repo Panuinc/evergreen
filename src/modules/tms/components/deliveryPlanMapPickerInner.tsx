@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
+import { MapContainer as _MapContainer, TileLayer as _TileLayer, Marker as _Marker, useMapEvents, useMap } from "react-leaflet";
+
+// react-leaflet v5 restructured types — Leaflet-native props exist at runtime but aren't in TS definitions
+const MapContainer = _MapContainer as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const TileLayer = _TileLayer as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const Marker = _Marker as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -59,7 +64,7 @@ export default function DeliveryPlanMapPickerInner({ lat, lng, onMapClick }: Del
 
   return (
     <MapContainer
-      center={center as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
+      center={center}
       zoom={lat && lng ? 14 : 10}
       style={{ height: "220px", width: "100%", borderRadius: "12px" }}
     >
@@ -69,7 +74,7 @@ export default function DeliveryPlanMapPickerInner({ lat, lng, onMapClick }: Del
       />
       <ClickHandler onMapClick={onMapClick} />
       <FlyTo lat={lat} lng={lng} />
-      {lat && lng && <Marker position={[lat, lng] as any} />} {/* react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number] */}
+      {lat && lng && <Marker position={[lat, lng]} />}
     </MapContainer>
   );
 }

@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import type { TmsGpsLog } from "@/modules/tms/types";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Polyline, CircleMarker, Popup, useMap } from "react-leaflet";
+import { MapContainer as _MapContainer, TileLayer as _TileLayer, Polyline as _Polyline, CircleMarker as _CircleMarker, Popup, useMap } from "react-leaflet";
+
+// react-leaflet v5 restructured types — Leaflet-native props exist at runtime but aren't in TS definitions
+const MapContainer = _MapContainer as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const TileLayer = _TileLayer as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const Polyline = _Polyline as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const CircleMarker = _CircleMarker as React.ComponentType<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 import L from "leaflet";
 import { Button } from "@heroui/react";
 import { Play, Pause, SkipBack } from "lucide-react";
@@ -72,7 +78,7 @@ export default function RoutePlaybackInner({ gpsLogs = [] }: RoutePlaybackInnerP
   return (
     <div className="flex flex-col gap-3">
       <MapContainer
-        center={points[0] as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
+        center={points[0]}
         zoom={12}
         style={{ height: "350px", width: "100%", borderRadius: "12px" }}
       >
@@ -83,14 +89,14 @@ export default function RoutePlaybackInner({ gpsLogs = [] }: RoutePlaybackInnerP
         <FitRoute points={points} />
 
         {}
-        <Polyline positions={points as any} color="#94a3b8" weight={2} dashArray="5,5" /> {/* react-leaflet expects LatLngExpression[] — no exact TypeScript match with [number, number][] */}
+        <Polyline positions={points} color="#94a3b8" weight={2} dashArray="5,5" />
 
         {}
-        <Polyline positions={traveled as any} color="#3b82f6" weight={3} /> {/* react-leaflet expects LatLngExpression[] — no exact TypeScript match with [number, number][] */}
+        <Polyline positions={traveled} color="#3b82f6" weight={3} />
 
         {}
         <CircleMarker
-          center={points[currentIndex] as any} // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
+          center={points[currentIndex]}
           radius={8}
           fillColor="#3b82f6"
           fillOpacity={1}
@@ -110,13 +116,11 @@ export default function RoutePlaybackInner({ gpsLogs = [] }: RoutePlaybackInnerP
         </CircleMarker>
 
         {}
-        {/* react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number] */}
-        <CircleMarker center={points[0] as any} radius={6} fillColor="#22c55e" fillOpacity={1} color="white" weight={2} />
+        <CircleMarker center={points[0]} radius={6} fillColor="#22c55e" fillOpacity={1} color="white" weight={2} />
 
         {}
         {points.length > 1 && (
-          // react-leaflet expects LatLngExpression — no exact TypeScript match with [number, number]
-          <CircleMarker center={points[points.length - 1] as any} radius={6} fillColor="#ef4444" fillOpacity={1} color="white" weight={2} />
+          <CircleMarker center={points[points.length - 1]} radius={6} fillColor="#ef4444" fillOpacity={1} color="white" weight={2} />
         )}
       </MapContainer>
 
